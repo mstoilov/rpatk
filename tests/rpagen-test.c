@@ -1611,33 +1611,50 @@ int codegen_iterationforop_callback(rpa_stat_handle stat, const char *name, void
 }
 
 
+int codegen_switchexpressionop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
+{
+	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
+	rulong off = rvm_codegen_getcodesize(co->cg);
+	rvm_codespan_t *cs = (rvm_codespan_t *)r_array_lastslot(co->codespan);
+
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R2, DA, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R2, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
+
+	cs->l1 = rvm_codegen_getcodesize(co->cg);
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, 2)); /* Re-write later */
+	cs->l2 = rvm_codegen_getcodesize(co->cg);
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, 0)); /* Re-write later, this is the break point */
+
+	codegen_print_callback(stat, name, userdata, input, size, reason);
+	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
+	return size;
+}
+
+
 int codegen_switchstatementop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
 
 	if (reason & RPA_REASON_START) {
-		rvm_codespan_t cs = {RVM_CODESPAN_NONE, 0, 0, 0, 0, 0, 0};
+		rvm_codespan_t cs = {RVM_CODESPAN_SWITCH, 0, 0, 0, 0, 0, 0};
 		cs.codestart = rvm_codegen_getcodesize(co->cg);
-
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, 0)); /* Re-write later */
-		cs.l2 = rvm_codegen_getcodesize(co->cg);
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, 0)); /* Re-write later, this is the break point */
-
 		r_array_add(co->codespan, &cs);
 		r_array_push(co->loops, r_array_lastslot(co->codespan), rvm_codespan_t*);
 	} else if (reason & RPA_REASON_MATCHED) {
 		rvm_codespan_t cs = r_array_pop(co->codespan, rvm_codespan_t);
 		r_array_removelast(co->loops);
 
-		cs.codesize = rvm_codegen_getcodesize(co->cg) - cs.codestart;
+		cs.l3 = rvm_codegen_getcodesize(co->cg);
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R0, XX, XX, 0));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R2, XX, XX, 0));
 
-		rvm_codegen_replaceins(co->cg, cs.codestart, rvm_asm(RVM_B, DA, XX, XX, cs.codesize));						// Re-writing the instruction
-		rvm_codegen_replaceins(co->cg, cs.l2, rvm_asm(RVM_B, DA, XX, XX, cs.codesize - (cs.l2 - cs.codestart)));	// Re-writing the instruction
+		cs.codesize = rvm_codegen_getcodesize(co->cg) - cs.codestart;
+		rvm_codegen_replaceins(co->cg, cs.l2, rvm_asm(RVM_B, DA, XX, XX, cs.l3 - cs.l2));	// Re-writing the instruction
 	} else if (reason & RPA_REASON_END) {
 		rvm_codespan_t cs = r_array_pop(co->codespan, rvm_codespan_t);
 		r_array_removelast(co->loops);
-
 		cs.codesize = rvm_codegen_getcodesize(co->cg) - cs.codestart;
 	}
 	codegen_print_callback(stat, name, userdata, input, size, reason);
@@ -1645,6 +1662,74 @@ int codegen_switchstatementop_callback(rpa_stat_handle stat, const char *name, v
 	return size;
 }
 
+
+int codegen_caseexpressionop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
+{
+	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
+	rulong off = rvm_codegen_getcodesize(co->cg);
+	rvm_codespan_t *cs = (rvm_codespan_t *)r_array_lastslot(co->codespan);
+
+	if (reason & RPA_REASON_START) {
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_LDS, R2, SP, DA, -1));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_CMP, R2, DA, XX, 0));
+		cs->l1 = rvm_codegen_getcodesize(co->cg);
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_BNEQ, DA, XX, XX, 0));
+
+
+
+	} else if (reason & RPA_REASON_MATCHED) {
+
+		/*
+		 * Evaluate the expression, the result is in R0
+		 */
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_LDS, R1, SP, XX, 0));
+		/*
+		 * Compare the expression with the switch(expression)
+		 */
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_EEQ, R2, R0, R1, 0));
+
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_CMP, R2, DA, XX, 0));
+		cs->l2 = rvm_codegen_getcodesize(co->cg);
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_BEQ, DA, XX, XX, 0));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_STS, R2, SP, DA, -1));
+
+		/*
+		 * Rewrite the branch instruction in the beginning of the case caluse
+		 */
+		rvm_codegen_replaceins(co->cg, cs->l1, rvm_asm(RVM_BNEQ, DA, XX, XX, rvm_codegen_getcodesize(co->cg) - cs->l1));	// Re-writing the instruction
+		rvm_codegen_replaceins(co->cg, cs->l2, rvm_asm(RVM_BEQ, DA, XX, XX, rvm_codegen_getcodesize(co->cg) - cs->l2));	// Re-writing the instruction
+
+	} else if (reason & RPA_REASON_END) {
+
+	}
+	codegen_print_callback(stat, name, userdata, input, size, reason);
+	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
+	return size;
+}
+
+
+int codegen_caseclauseop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
+{
+	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
+	rulong off = rvm_codegen_getcodesize(co->cg);
+
+	if (reason & RPA_REASON_START) {
+		rvm_codespan_t cs = {RVM_CODESPAN_NONE, 0, 0, 0, 0, 0, 0};
+		cs.codestart = rvm_codegen_getcodesize(co->cg);
+		r_array_add(co->codespan, &cs);
+	} else if (reason & RPA_REASON_MATCHED) {
+		rvm_codespan_t cs = r_array_pop(co->codespan, rvm_codespan_t);
+		cs.codesize = rvm_codegen_getcodesize(co->cg) - cs.codestart;
+		cs.l3 = rvm_codegen_getcodesize(co->cg);
+		rvm_codegen_replaceins(co->cg, cs.l2, rvm_asm(RVM_BEQ, DA, XX, XX, cs.l3 - cs.l2));
+	} else if (reason & RPA_REASON_END) {
+		rvm_codespan_t cs = r_array_pop(co->codespan, rvm_codespan_t);
+		cs.codesize = rvm_codegen_getcodesize(co->cg) - cs.codestart;
+	}
+	codegen_print_callback(stat, name, userdata, input, size, reason);
+	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
+	return size;
+}
 
 
 void codegen_unmap_file(rstr_t *buf)
@@ -1937,7 +2022,10 @@ void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co)
 	rpa_dbex_add_callback_exact(dbex, "BreakOp", RPA_REASON_MATCHED, codegen_breakkeyword_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "ContinueOp", RPA_REASON_MATCHED, codegen_continuekeyword_callback, co);
 
+	rpa_dbex_add_callback_exact(dbex, "SwitchExpressionOp", RPA_REASON_MATCHED, codegen_switchexpressionop_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "SwitchStatementOp", RPA_REASON_ALL, codegen_switchstatementop_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "CaseClauseOp", RPA_REASON_ALL, codegen_caseclauseop_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "CaseExpressionOp", RPA_REASON_ALL, codegen_caseexpressionop_callback, co);
 
 
 
