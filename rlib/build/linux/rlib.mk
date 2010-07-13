@@ -4,6 +4,7 @@ RLIB_SO = $(OUTDIR)/librlib.so.1.0
 
 RLIB_OBJECTS =	\
 	$(OUTDIR)/rmem.o \
+	$(OUTDIR)/ratomic.o \
 
 
 ifeq ($(OS), linux)

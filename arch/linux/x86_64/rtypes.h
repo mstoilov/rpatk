@@ -33,6 +33,14 @@ typedef signed long rint64;
 typedef unsigned long ruint64;
 typedef unsigned long rword;
 
+/*
+ * Atomic operations (Architecture Dependent)
+ */
+#define R_COMPARE_AND_EXCHANGE(ptr, oldval, newval, res) \
+		do { __asm__ __volatile__ ("lock; cmpxchgl %2, %1" \
+			: "=a" (res), "=m" (*ptr) \
+			: "r" (newval), "m" (*ptr), "0" (oldval)); } while (0)
+
 
 #ifndef NULL
 #ifdef __cplusplus

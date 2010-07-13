@@ -42,7 +42,6 @@ void r_free(void *ptr)
 		return;
 	size = *mem;
 	g_allocmem -= size;
-//	fprintf(stdout, "%p (%ld de-allocated)\n", (void*)mem, size);
 	free((void*)mem);
 #else
 	free(ptr);
