@@ -4,13 +4,9 @@ INCLUDE = -I$(SRCDIR)/arch/$(OS)/$(ARCHDIR) -I$(ROBJECT_SRCDIR)
 LIBS = -L$(ROBJECT_SRCDIR)/build/$(OS)/$(ARCHDIR)/out -lrobject --static
 
 
-
-ROBJECT_OBJECTS =	\
-	$(OUTDIR)/robject.o \
-
-
 TESTS	= \
 	$(OUTDIR)/robject-ver \
+	$(OUTDIR)/rlock-test \
 
 all : $(OUTDIR) $(TESTS)
 
