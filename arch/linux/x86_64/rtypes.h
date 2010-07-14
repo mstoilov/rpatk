@@ -32,14 +32,32 @@ typedef unsigned int ruint32;
 typedef signed long rint64;
 typedef unsigned long ruint64;
 typedef unsigned long rword;
+typedef unsigned int ratomic;
 
 /*
  * Atomic operations (Architecture Dependent)
  */
-#define R_COMPARE_AND_EXCHANGE(ptr, oldval, newval, res) \
+#define R_ATOMIC_CMPXCHG(ptr, oldval, newval, resptr) \
 		do { __asm__ __volatile__ ("lock; cmpxchgl %2, %1" \
-			: "=a" (res), "=m" (*ptr) \
+			: "=a" (*(resptr)), "=m" (*ptr) \
 			: "r" (newval), "m" (*ptr), "0" (oldval)); } while (0)
+
+#define R_ATOMIC_XCHG(ptr, val) \
+		do { __asm__ __volatile__("xchgl %0,%1" \
+			:"=r" ((ruint32) val) \
+			:"m" (*(volatile ruint32 *)ptr), "0" (val) \
+			:"memory"); } while (0)
+
+#define R_ATOMIC_ADD(ptr, val) \
+		do { __asm__ __volatile__ ("addl %1,%0" \
+			: "=m" (*ptr) \
+			: "ir" (val), "m" (*ptr)); } while (0)
+
+#define R_ATOMIC_SUB(ptr, val) \
+		do { __asm__ __volatile__ ("subl %1,%0" \
+			: "=m" (*ptr) \
+			: "ir" (val), "m" (*ptr)); } while (0)
+
 
 
 #ifndef NULL

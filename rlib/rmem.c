@@ -82,3 +82,15 @@ void *r_memcpy(void *dest, const void *src, unsigned long n)
 {
 	return memcpy(dest, src, (size_t)n);
 }
+
+
+rboolean r_atomic_int_compare_and_exchange (volatile rint *atomic, rint oldval, rint newval)
+{
+  rint result;
+
+  __asm__ __volatile__ ("lock; cmpxchgl %2, %1"
+            : "=a" (result), "=m" (*atomic)
+            : "r" (newval), "m" (*atomic), "0" (oldval));
+
+  return result == oldval;
+}
