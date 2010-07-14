@@ -1,4 +1,3 @@
-
 #ifndef _RMEM_H_
 #define _RMEM_H_
 

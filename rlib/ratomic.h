@@ -1,5 +1,5 @@
-#ifndef _RTYPES_H_
-#define _RTYPES_H_
+#ifndef _RATOMIC_H_
+#define _RATOMIC_H_
 
 #ifdef __cplusplus
 extern "C" {
