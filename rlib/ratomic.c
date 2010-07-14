@@ -1,5 +1,5 @@
 #include "rtypes.h"
-
+#include "ratomic.h"
 
 rboolean r_atomic_compare_and_exchange(volatile ratomic *ptr, ratomic oldval, ratomic newval)
 {
