@@ -1,11 +1,12 @@
 ROBJECT_SRCDIR = $(SRCDIR)/robject
+RLIB_SRCDIR = $(SRCDIR)/rlib
 TESTS_SRCDIR = $(SRCDIR)/tests
-INCLUDE = -I$(SRCDIR)/arch/$(OS)/$(ARCHDIR) -I$(ROBJECT_SRCDIR)
-LIBS = -L$(ROBJECT_SRCDIR)/build/$(OS)/$(ARCHDIR)/out -lrobject --static
+INCLUDE = -I$(SRCDIR)/arch/$(OS)/$(ARCHDIR) -I$(ROBJECT_SRCDIR) -I$(RLIB_SRCDIR)
+LIBS =  -L$(ROBJECT_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
+LIBS += -L$(RLIB_SRCDIR)/build/$(OS)/$(ARCHDIR)/out -lrlib -lpthread --static
 
 
 TESTS	= \
-	$(OUTDIR)/robject-ver \
 	$(OUTDIR)/rlock-test \
 
 all : $(OUTDIR) $(TESTS)

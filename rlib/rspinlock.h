@@ -8,6 +8,7 @@
 extern "C" {
 #endif
 
+#define R_SPINLOCK_INIT 0
 #define R_SPINLOCK_BUSY 1
 typedef ratomic rspinlock;
 
