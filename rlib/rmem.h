@@ -8,16 +8,18 @@
 extern "C" {
 #endif
 
-extern long int g_r_allocmem;
-extern long int g_r_maxmem;
 
+rpointer r_malloc(rsize_t size);
+rpointer r_realloc(rpointer ptr, rsize_t size);
+rpointer r_calloc(rsize_t nmemb, rsize_t size);
+void r_free(rpointer ptr);
+rpointer r_zmalloc(rsize_t size);
+rpointer r_memset(rpointer s, rint c, rsize_t n);
+void *r_memcpy(rpointer dest, rconstpointer src, rsize_t n);
+rsize_t r_debug_get_allocmem();
+rsize_t r_debug_get_maxmem();
+void r_debug_reset_maxmem();
 
-void *r_malloc(unsigned long size);
-void *r_zmalloc(unsigned long size);
-void r_free(void *ptr);
-void *r_realloc(void *ptr, unsigned long size);
-void *r_memset(void *s, int c, unsigned long n);
-void *r_memcpy(void *dest, const void *src, unsigned long n);
 
 #ifdef __cplusplus
 }

@@ -5,19 +5,26 @@
 #include "rmem.h"
 
 static rspinlock g_lock = R_SPINLOCK_INIT;
-static long int g_allocmem = 0;
-static long int g_maxmem = 0;
+static rsize_t g_allocmem = 0;
+static rsize_t g_maxmem = 0;
 
 typedef struct _RMemAllocVTable {
 	rpointer (*malloc)(rsize_t size);
 	void (*free)(rpointer ptr);
 	rpointer (*realloc)(rpointer ptr, rsize_t size);
+	rpointer (*calloc)(rsize_t nmemb, rsize_t size);
 } RMemAllocVTable;
 
 
 static rpointer r_std_malloc(rsize_t size)
 {
 	return malloc((size_t)size);
+}
+
+
+static rpointer r_std_calloc(rsize_t nmemb, rsize_t size)
+{
+	return calloc((size_t)nmemb, (size_t)size);
 }
 
 
@@ -30,6 +37,23 @@ static void r_std_free(rpointer ptr)
 static rpointer r_std_realloc(rpointer ptr, rsize_t size)
 {
 	return realloc((void*)ptr, (size_t)size);
+}
+
+
+static rpointer r_dbg_calloc(rsize_t nmemb, rsize_t size)
+{
+	rword *mem = NULL;
+
+	nmemb += (size < sizeof(rword)) ? sizeof(rword) : 1;
+	mem = (rword*)calloc((size_t)nmemb, (size_t)size);
+	*((rword*)mem) = size * nmemb;
+	r_spinlock_lock(&g_lock);
+	g_allocmem += size * nmemb;
+	if (g_maxmem < g_allocmem)
+		g_maxmem = g_allocmem;
+	r_spinlock_unlock(&g_lock);
+	mem += 1;
+	return (void*)mem;
 }
 
 
@@ -90,6 +114,7 @@ static RMemAllocVTable g_stdMemAlloc = {
 	r_std_malloc,
 	r_std_free,
 	r_std_realloc,
+	r_std_calloc,
 };
 
 
@@ -97,28 +122,43 @@ static RMemAllocVTable g_dbgMemAlloc = {
 	r_dbg_malloc,
 	r_dbg_free,
 	r_dbg_realloc,
+	r_dbg_calloc,
 };
 
 
-rpointer r_malloc(unsigned long size)
-{
-#ifdef RPA_DEBUG_MEM
-	rword *mem = NULL;
-	size += sizeof(rword);
-	mem = (rword*)malloc((size_t)(size));
-	*((rword*)mem) = size;
-	g_allocmem += size;
-	if (g_maxmem < g_allocmem)
-		g_maxmem = g_allocmem;
-	mem += 1;
-	return (void*)mem;
+#ifdef R_DEBUG_MEMALLOC
+static RMemAllocVTable *g_pMemAlloc = &g_dbgMemAlloc;
 #else
-	return malloc((size_t)size);
+static RMemAllocVTable *g_pMemAlloc = &g_stdMemAlloc;
 #endif
+
+
+rpointer r_malloc(rsize_t size)
+{
+	return g_pMemAlloc->malloc(size);
 }
 
 
-void *r_zmalloc(unsigned long size) {
+rpointer r_realloc(rpointer ptr, rsize_t size)
+{
+	return g_pMemAlloc->realloc(ptr, size);
+}
+
+
+rpointer r_calloc(rsize_t nmemb, rsize_t size)
+{
+	return g_pMemAlloc->calloc(nmemb, size);
+}
+
+
+void r_free(rpointer ptr)
+{
+	g_pMemAlloc->free(ptr);
+}
+
+
+rpointer r_zmalloc(rsize_t size)
+{
 	void *mem;
 
 	if ((mem = r_malloc(size)))
@@ -126,53 +166,47 @@ void *r_zmalloc(unsigned long size) {
 	return mem;
 }
 
-void r_free(void *ptr)
+
+rpointer r_memset(rpointer s, rint c, rsize_t n)
 {
-#ifdef RPA_DEBUG_MEM
-	rword *mem = (void*)(((rword*)ptr) - 1);
-	rword size;
-	if (!ptr)
+	return memset((void*)s, (int)c, (size_t)n);
+}
+
+
+void *r_memcpy(rpointer dest, rconstpointer src, rsize_t n)
+{
+	return memcpy((void*)dest, (const void*)src, (size_t)n);
+}
+
+
+rsize_t r_debug_get_allocmem()
+{
+	return g_allocmem;
+}
+
+
+rsize_t r_debug_get_maxmem()
+{
+	return g_maxmem;
+}
+
+
+void r_debug_reset_maxmem()
+{
+	g_maxmem = g_allocmem;
+}
+
+
+/*
+ * This function has no meaning it is used just to
+ * suppress some compiler warnings.
+ */
+void r_memalloc_do_not_use()
+{
+	RMemAllocVTable *pDbgMemAlloc = &g_dbgMemAlloc;
+	RMemAllocVTable *pStdMemAlloc = &g_stdMemAlloc;
+
+	if (pDbgMemAlloc == pStdMemAlloc)
 		return;
-	size = *mem;
-	g_allocmem -= size;
-	free((void*)mem);
-#else
-	free(ptr);
-#endif
+	return;
 }
-
-
-void *r_realloc(void *ptr, unsigned long size)
-{
-#ifdef RPA_DEBUG_MEM
-	rword *mem = (void*)(((rword*)ptr) - 1);
-	rword csize;
-	if (!ptr)
-		return r_malloc(size);
-	csize = *mem;
-	g_allocmem -= csize;
-	size += sizeof(long);
-	mem = (rword*)realloc((void*)mem, (size_t)(size));
-	*mem = size;
-	g_allocmem += size;
-	if (g_maxmem < g_allocmem)
-		g_maxmem = g_allocmem;
-	mem += 1;
-	return (void*)mem;
-#else
-	return realloc(ptr, (size_t)size);
-#endif
-}
-
-
-void *r_memset(void *s, int c, unsigned long n)
-{
-	return memset(s, c, (size_t)n);
-}
-
-
-void *r_memcpy(void *dest, const void *src, unsigned long n)
-{
-	return memcpy(dest, src, (size_t)n);
-}
-

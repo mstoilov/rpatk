@@ -8,7 +8,8 @@ LIBS += -L$(RLIB_SRCDIR)/build/$(OS)/$(ARCHDIR)/out -lrlib -lpthread --static
 
 TESTS	= \
 	$(OUTDIR)/rlock-test \
-
+	$(OUTDIR)/memalloc-test \
+	
 all : $(OUTDIR) $(TESTS)
 
 $(OUTDIR)/%: $(TESTS_SRCDIR)/%.c
