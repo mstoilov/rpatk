@@ -1,59 +1,26 @@
-SRCDIR = ../..
-ifeq ($(ARCH), -m32)
-OUTDIR=i686
-else
-OUTDIR = $(shell uname -m)
-endif
-INCLUDE = -I$(SRCDIR)/include -I$(SRCDIR)/config -I$(SRCDIR)
-OS = $(shell uname)
-RPASDKDIR = ../../../../../../svn.rpa/rpa/trunk/rpasdk/$(OS)/$(OUTDIR)
-RPAINSTDIR = /usr/lib
-RPAINSTHEADERDIR = /usr/include/rpasdk
+RVM_SRCDIR = $(SRCDIR)/rvm
+RVM_LIB = $(OUTDIR)/librvm.a
+RVM_SO = $(OUTDIR)/librvm.so.1.0
 
-CC = gcc
-AR = ar
-ifeq ($(BLDCFG), release)
-CFLAGS = -O3 -fPIC 
-else
-CFLAGS = -fPIC -ggdb -O0 -Wall
-endif
-
-ifeq ($(CCBLD), yes)
-CFLAGS += -fprofile-arcs -ftest-coverage
-endif
-
-CFLAGS += $(ARCH) $(INCLUDE) 
-# CFLAGS += -RPA_LONGLONGINT
-CFLAGS += -DDEBUG 
-CFLAGS += -DRPA_DEBUG_MEM 
-CFLAGS += -DHAVESTDIO
-
-CFLAGS := $(CFLAGS)
-LDFLAGS = $(ARCH)
-REGVM_LIBNAME = libregvm
-REGVM_LIB = $(OUTDIR)/$(REGVM_LIBNAME).a
-REGVM_SO = $(OUTDIR)/$(REGVM_LIBNAME).so.1.0
-
-
-REGVM_OBJECTS = \
+RVM_OBJECTS =	\
 	$(OUTDIR)/rvm.o \
 
 
-ifeq ($(OS), Linux)
-all: $(OUTDIR) $(REGVM_LIB) $(REGVM_SO)
+ifeq ($(OS), linux)
+all: $(OUTDIR) $(RVM_LIB) $(RVM_SO)
 else
-all: $(OUTDIR) $(REGVM_LIB)
+all: $(OUTDIR) $(RVM_LIB)
 endif
 
-$(OUTDIR)/%.o: $(SRCDIR)/%.c
-	$(CC) $(CFLAGS) -o $(OUTDIR)/$*.o -c $(SRCDIR)/$*.c
 
-$(REGVM_LIB): $(REGVM_OBJECTS)
+$(OUTDIR)/%.o: $(RVM_SRCDIR)/%.c
+	$(CC) $(CFLAGS) -o $(OUTDIR)/$*.o -c $(RVM_SRCDIR)/$*.c
+
+$(RVM_LIB): $(RVM_OBJECTS)
 	$(AR) -cr $@ $^
 
-
-$(REGVM_SO): $(REGVM_OBJECTS)
-	$(CC) -shared $(LDFLAGS) -Wl,-soname,$(REGVM_LIBNAME).so -o $(REGVM_SO) $^
+$(RVM_SO): $(RVM_OBJECTS)
+	$(CC) $(LDFLAGS) -shared -Wl,-soname,librvm.so -o $@ $^
 
 $(OUTDIR):
 	@mkdir $(OUTDIR)
@@ -63,34 +30,9 @@ distclean: clean
 	@rm -rf $(OUTDIR)
 
 clean:
-	@rm -f $(REGVM_LIB)
-	@rm -f $(REGVM_SO)
-	@rm -f $(REGVM_OBJECTS)
+	@rm -f $(RVM_LIB)
+	@rm -f $(RVM_SO)
+	@rm -f $(RVM_OBJECTS)
 	@rm -f *~
 	@rm -f $(SRCDIR)/*~
 
-$(RPASDKDIR) : 
-	@mkdir -p $(RPASDKDIR)
-
-sdk: all $(RPASDKDIR)
-	cp $(SRCDIR)/rvm.h $(RPASDKDIR)
-ifeq ($(OS), Linux)
-	cp $(REGVM_SO) $(RPASDKDIR)
-endif
-	cp $(REGVM_LIB) $(RPASDKDIR)
-
-
-
-$(RPAINSTHEADERDIR) :
-	@mkdir $(RPAINSTHEADERDIR)
-
-install: all $(RPAINSTDIR) $(RPAINSTHEADERDIR)
-ifeq ($(OS), Linux)
-	cp $(REGVM_SO) $(RPAINSTDIR)
-endif
-	cp $(REGVM_LIB) $(RPAINSTDIR)
-
-
-uninstall:
-	-rm $(RPAINSTDIR)/$(REGVM_LIBNAME).*
-	-rm -rf $(RPAINSTHEADERDIR)
