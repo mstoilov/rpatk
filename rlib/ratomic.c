@@ -1,16 +1,17 @@
 #include "rtypes.h"
 #include "ratomic.h"
 
+
 rboolean r_atomic_compare_and_exchange(volatile ratomic *ptr, ratomic oldval, ratomic newval)
 {
-	ratomic result;
+	volatile ratomic result;
 
 	R_ATOMIC_CMPXCHG(ptr, oldval, newval, &result);
 	return (result == oldval);
 }
 
 
-ratomic r_atomic_exchange(volatile ratomic *ptr, ratomic val)
+ratomic r_atomic_exchange(volatile ratomic *ptr, volatile ratomic val)
 {
 	R_ATOMIC_XCHG(ptr, val);
 	return val;
