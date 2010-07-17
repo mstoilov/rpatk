@@ -2,6 +2,8 @@ RVM_SRCDIR = $(SRCDIR)/rvm
 RVM_LIB = $(OUTDIR)/librvm.a
 RVM_SO = $(OUTDIR)/librvm.so.1.0
 
+CFLAGS += -I$(RVM_SRCDIR)/config
+
 RVM_OBJECTS =	\
 	$(OUTDIR)/rvm.o \
 
