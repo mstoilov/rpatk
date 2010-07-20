@@ -21,7 +21,11 @@
 #ifndef _REGVM_H_
 #define _REGVM_H_
 
-#include "rvmconfig.h"
+#include "rtypes.h"
+
+#ifndef RVM_REG_SIZE
+#define RVM_REG_SIZE (sizeof(rword)/8)
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -69,12 +73,12 @@ enum {
 	RVM_POP,
 	RVM_CMP,
 	RVM_NOP,
-	RVM_BEQ,
-	RVM_BNEQ,
-	RVM_BLEQ,
-	RVM_BGEQ,
-	RVM_BLES,
-	RVM_BGRE,
+	RVM_BEQ,		/* Branch if equal */
+	RVM_BNEQ,		/* Branch if not equal */
+	RVM_BLEQ,		/* Branch if less or equal */
+	RVM_BGEQ,		/* Branch if less or equal */
+	RVM_BLES,		/* Branch if less */
+	RVM_BGRE,		/* Branch if greater */
 	RVM_RET,
 	RVM_ROR,		/* Rotate right, the last bit rotated out updates the Carry flag */
 	RVM_PUSHM,
@@ -84,7 +88,7 @@ enum {
 };
 
 
-#define RVM_REGISTER_BITS (8 * sizeof(rvm_uint_t))
+#define RVM_REGISTER_BITS (8 * sizeof(rword))
 #define RVM_SIGN_BIT (1LU << (RVM_REGISTER_BITS - 1))
 #define RVM_STATUS_Z (1 << 0)
 #define RVM_STATUS_N (1 << 1)
@@ -134,16 +138,16 @@ do { \
 #define RVM_CB(table, offset) ((((table) & ((1 << 16) - 1))  << 16) | ((offset) & ((1 << 16) - 1)))
 #define RVM_ABORT(cpu, e) do { cpu->error = (e); cpu->abort = 1; return; } while (0)
 #define BIT(_shiftby_) (1 << (_shiftby_))
+#define RVM_REGU(r) (r)->v.u
 #define RVM_GET_REGU(cpu, reg) (cpu)->r[(reg)].v.u
-#define RVM_SET_REGU(cpu, reg, val) do { (cpu)->r[(reg)].v.u = (rvm_uint_t)(val); } while (0)
+#define RVM_SET_REGU(cpu, reg, val) do { (cpu)->r[(reg)].v.u = (rword)(val); } while (0)
+#define RVM_REGP(r) (r)->v.p
 #define RVM_GET_REGP(cpu, reg) (cpu)->r[(reg)].v.p
-#define RVM_SET_REGP(cpu, reg, val) do { (cpu)->r[(reg)].v.p = (rvm_pointer_t)(val); } while (0)
+#define RVM_SET_REGP(cpu, reg, val) do { (cpu)->r[(reg)].v.p = (rpointer)(val); } while (0)
+#define RVM_REG(r) (r)
 #define RVM_GET_REG(cpu, reg) (cpu)->r[(reg)]
 #define RVM_SET_REG(cpu, reg, val) do { (cpu)->r[(reg)] = (rvm_reg_t)(val); } while (0)
-#define RVM_REGU(r) (r)->v.u
-#define RVM_REGI(r) (r)->v.i
-#define RVM_REGD(r) (r)->v.d
-#define RVM_REGP(r) (r)->v.p
+
 
 #define RVM_E_DIVZERO (1)
 #define RVM_E_ILLEGAL (2)
@@ -157,11 +161,9 @@ typedef void (*rvm_cpu_op)(rvm_cpu_t *cpu, rvm_asmins_t *ins);
 
 typedef struct rvm_reg_s {
 	union {
-		rvm_uint_t u;
-		rvm_pointer_t p;
-#ifdef RVM_USERDATA
-		rvm_userdata_t d;
-#endif
+		rword u;
+		rpointer p;
+		ruint8 c[RVM_REG_SIZE];
 	} v;
 } rvm_reg_t;
 
@@ -177,11 +179,11 @@ struct rvm_asmins_s {
 
 struct rvm_cpu_s {
 	rvm_reg_t r[DA + 1];
-	rvm_uint_t status;
-	rvm_uint_t error;
-	rvm_uint_t abort;
+	rword status;
+	rword error;
+	rword abort;
 	rvm_reg_t *stack;
-	rvm_uint_t stacksize;
+	rword stacksize;
 	rvm_cpu_swi *switable[RVM_MAX_CBTABLES];
 	unsigned int switable_count;
 	void *userdata;
@@ -191,14 +193,11 @@ struct rvm_cpu_s {
 rvm_cpu_t *rvm_cpu_create();
 void rvm_cpu_destroy(rvm_cpu_t * vm);
 int rvm_cpu_switable_add(rvm_cpu_t * cpu, rvm_cpu_swi *switable);
-int rvm_cpu_exec(rvm_cpu_t *cpu, rvm_asmins_t *prog, rvm_uint_t pc);
-int rvm_cpu_exec_debug(rvm_cpu_t *cpu, rvm_asmins_t *prog, rvm_uint_t pc);
-rvm_asmins_t rvm_asm(rvm_uint_t opcode, rvm_uint_t op1, rvm_uint_t op2, rvm_uint_t op3, rvm_uint_t data);
-rvm_asmins_t rvm_asmu(rvm_uint_t opcode, rvm_uint_t op1, rvm_uint_t op2, rvm_uint_t op3, rvm_uint_t data);
-rvm_asmins_t rvm_asmp(rvm_uint_t opcode, rvm_uint_t op1, rvm_uint_t op2, rvm_uint_t op3, rvm_pointer_t data);
-//rvm_asmins_t rvm_asmi(rvm_uint_t opcode, rvm_uint_t op1, rvm_uint_t op2, rvm_uint_t op3, rvm_int_t data);
-//rvm_asmins_t rvm_asmd(rvm_uint_t opcode, rvm_uint_t op1, rvm_uint_t op2, rvm_uint_t op3, rvm_double_t data);
-//rvm_asmins_t rvm_asmr(rvm_uint_t opcode, rvm_uint_t op1, rvm_uint_t op2, rvm_uint_t op3, rvm_reg_t data);
+int rvm_cpu_exec(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword pc);
+int rvm_cpu_exec_debug(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword pc);
+rvm_asmins_t rvm_asm(rword opcode, rword op1, rword op2, rword op3, rword data);
+rvm_asmins_t rvm_asmu(rword opcode, rword op1, rword op2, rword op3, rword data);
+rvm_asmins_t rvm_asmp(rword opcode, rword op1, rword op2, rword op3, rpointer data);
 void rvm_asm_dump(rvm_asmins_t *pi, unsigned int count);
 
 

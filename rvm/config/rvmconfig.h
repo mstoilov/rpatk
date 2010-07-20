@@ -31,10 +31,4 @@ typedef unsigned char rvm_u8_t;
 typedef unsigned short rvm_u16_t;
 typedef unsigned int rvm_u32_t;
 
-
-typedef struct rvm_userdata_s {
-	unsigned char c[RVM_REG_SIZE];
-} rvm_userdata_t;
-
-
 #endif

@@ -108,7 +108,7 @@ static void *rvm_memset(void *s, int c, unsigned long n)
 static int rvm_cpu_check_space(rvm_cpu_t *cpu)
 {
 	rvm_reg_t *stack;
-	rvm_uint_t stacksize;
+	rword stacksize;
 
 	if (cpu->stacksize - RVM_GET_REGU(cpu, SP) <= RVM_STACK_CHUNK) {
 		stacksize = cpu->stacksize + 2 * RVM_STACK_CHUNK;
@@ -193,57 +193,57 @@ static void rvm_op_mov(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_ldr(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	RVM_SET_REGU(cpu, ins->op1, *((rvm_uint_t*)RVM_GET_REGU(cpu, ins->op2)));
+	RVM_SET_REGU(cpu, ins->op1, *((rword*)RVM_GET_REGU(cpu, ins->op2)));
 	
 }
 
 
 static void rvm_op_ldrp(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	RVM_SET_REGU(cpu, ins->op1, *((rvm_pointer_t*)RVM_GET_REGU(cpu, ins->op2)));
+	RVM_SET_REGU(cpu, ins->op1, *((rpointer*)RVM_GET_REGU(cpu, ins->op2)));
 }
 
 
 static void rvm_op_ldrb(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	RVM_SET_REGU(cpu, ins->op1, *((rvm_u8_t*)RVM_GET_REGU(cpu, ins->op2)));
+	RVM_SET_REGU(cpu, ins->op1, *((ruint8*)RVM_GET_REGU(cpu, ins->op2)));
 }
 
 
 static void rvm_op_ldrh(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	RVM_SET_REGU(cpu, ins->op1, *((rvm_u16_t*)RVM_GET_REGU(cpu, ins->op2)));
+	RVM_SET_REGU(cpu, ins->op1, *((ruint16*)RVM_GET_REGU(cpu, ins->op2)));
 }
 
 
 static void rvm_op_str(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	*((rvm_uint_t*)RVM_GET_REGP(cpu, ins->op2)) = RVM_GET_REGU(cpu, ins->op1);
+	*((rword*)RVM_GET_REGP(cpu, ins->op2)) = RVM_GET_REGU(cpu, ins->op1);
 }
 
 
 static void rvm_op_strp(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	*((rvm_pointer_t*)RVM_GET_REGP(cpu, ins->op2)) = (rvm_pointer_t)RVM_GET_REGP(cpu, ins->op1);
+	*((rpointer*)RVM_GET_REGP(cpu, ins->op2)) = (rpointer)RVM_GET_REGP(cpu, ins->op1);
 }
 
 
 static void rvm_op_strb(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	*((rvm_u8_t*)RVM_GET_REGP(cpu, ins->op2)) = (rvm_u8_t)RVM_GET_REGU(cpu, ins->op1);
+	*((ruint8*)RVM_GET_REGP(cpu, ins->op2)) = (ruint8)RVM_GET_REGU(cpu, ins->op1);
 }
 
 
 static void rvm_op_strh(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	*((rvm_u16_t*)RVM_GET_REGP(cpu, ins->op2)) = (rvm_u16_t)RVM_GET_REGU(cpu, ins->op1);
+	*((ruint16*)RVM_GET_REGP(cpu, ins->op2)) = (ruint16)RVM_GET_REGU(cpu, ins->op1);
 	
 }
 
 
 static void rvm_op_adds(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	rvm_uint_t res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
+	rword res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
 	
 	res = op2 + op3;
 	RVM_SET_REGU(cpu, ins->op1, res);
@@ -257,7 +257,7 @@ static void rvm_op_adds(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_adc(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	rvm_uint_t res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
+	rword res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
 	
 	res = op2 + op3 + (RVM_STATUS_GETBIT(cpu, RVM_STATUS_C) ? 1 : 0);
 	RVM_SET_REGU(cpu, ins->op1, res);
@@ -271,7 +271,7 @@ static void rvm_op_adc(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_and(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	rvm_uint_t res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
+	rword res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
 	
 	res = op2 & op3;
 	RVM_SET_REGU(cpu, ins->op1, res);
@@ -283,7 +283,7 @@ static void rvm_op_and(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_orr(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	rvm_uint_t res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
+	rword res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
 	
 	res = op2 | op3;
 	RVM_SET_REGU(cpu, ins->op1, res);
@@ -295,7 +295,7 @@ static void rvm_op_orr(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_lsl(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	rvm_uint_t res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
+	rword res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
 	
 	res = op2 << op3;
 	RVM_SET_REGU(cpu, ins->op1, res);
@@ -307,7 +307,7 @@ static void rvm_op_lsl(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_lsr(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	rvm_uint_t res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
+	rword res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
 	
 	res = op2 >> op3;
 	RVM_SET_REGU(cpu, ins->op1, res);
@@ -318,7 +318,7 @@ static void rvm_op_lsr(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_asr(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	rvm_uint_t res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
+	rword res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
 	
 	res = op2 >> op3;
 	res |= op2 & RVM_SIGN_BIT;
@@ -332,7 +332,7 @@ static void rvm_op_asr(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 static void rvm_op_ror(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
 	unsigned int i;
-	rvm_uint_t res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
+	rword res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
 	
 	res = op2;
 	for (i = 0; i < op3; i++) {
@@ -353,7 +353,7 @@ static void rvm_op_ror(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_tst(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	rvm_uint_t res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
+	rword res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
 	
 	res = op2 & op3;
 	RVM_STATUS_CLRALL(cpu);
@@ -364,7 +364,7 @@ static void rvm_op_tst(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_eor(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	rvm_uint_t res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
+	rword res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
 	
 	res = op2 ^ op3;
 	RVM_SET_REGU(cpu, ins->op1, res);
@@ -376,7 +376,7 @@ static void rvm_op_eor(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_not(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	rvm_uint_t res, op2 = RVM_GET_REGU(cpu, ins->op2);
+	rword res, op2 = RVM_GET_REGU(cpu, ins->op2);
 	
 	res = ~op2;
 	RVM_SET_REGU(cpu, ins->op1, res);
@@ -388,7 +388,7 @@ static void rvm_op_not(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_teq(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	rvm_uint_t res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
+	rword res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
 	
 	res = op2 ^ op3;
 	RVM_STATUS_CLRALL(cpu);
@@ -399,7 +399,7 @@ static void rvm_op_teq(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_bic(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	rvm_uint_t res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
+	rword res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
 	
 	res = op2 & ~op3;
 	RVM_SET_REGU(cpu, ins->op1, res);
@@ -411,7 +411,7 @@ static void rvm_op_bic(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_clz(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	rvm_uint_t res, op2 = RVM_GET_REGU(cpu, ins->op2);
+	rword res, op2 = RVM_GET_REGU(cpu, ins->op2);
 	
 	for (res = RVM_REGISTER_BITS; op2; ) {
 		op2 >>= 1;
@@ -442,7 +442,7 @@ static void rvm_op_sub(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_subs(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	rvm_uint_t res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
+	rword res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
 	
 	res = op2 - op3;
 	RVM_SET_REGU(cpu, ins->op1, res);
@@ -456,7 +456,7 @@ static void rvm_op_subs(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_sbc(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	rvm_uint_t res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
+	rword res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
 
 	res = op2 - op3 + (RVM_STATUS_GETBIT(cpu, RVM_STATUS_C) ? 0 : -1);
 	RVM_SET_REGU(cpu, ins->op1, res);
@@ -476,10 +476,10 @@ static void rvm_op_mul(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_mls(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	rvm_int_t res;
-	rvm_int_t op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
+	rsword res;
+	rsword op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
 
-	res = (rvm_int_t)(op2 * op3);
+	res = (rsword)(op2 * op3);
 	RVM_SET_REGU(cpu, ins->op1, res);
 	/* TBD: Not sure how to update the RVM_STATUS_C */
 	RVM_STATUS_CLRALL(cpu);
@@ -490,7 +490,7 @@ static void rvm_op_mls(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_muls(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	rvm_uint_t res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
+	rword res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
 	
 	res = op2 * op3;
 	RVM_SET_REGU(cpu, ins->op1, res);
@@ -512,7 +512,7 @@ static void rvm_op_div(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_divs(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	rvm_uint_t res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
+	rword res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
 
 	if (!op3)
 		RVM_ABORT(cpu, RVM_E_DIVZERO);
@@ -526,12 +526,12 @@ static void rvm_op_divs(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_dvs(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	rvm_int_t res;
-	rvm_int_t op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
+	rsword res;
+	rsword op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
 
 	if (!op3)
 		RVM_ABORT(cpu, RVM_E_DIVZERO);
-	res = (rvm_int_t)(op2 / op3);
+	res = (rsword)(op2 / op3);
 	RVM_SET_REGU(cpu, ins->op1, res);
 	RVM_STATUS_CLRALL(cpu);
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, !res);
@@ -542,12 +542,12 @@ static void rvm_op_dvs(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 static void rvm_op_pushm(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
 	int n;
-	rvm_uint_t bits = RVM_GET_REGU(cpu, ins->op1);
+	rword bits = RVM_GET_REGU(cpu, ins->op1);
 
 	if ((RVM_GET_REGU(cpu, SP) % RVM_STACK_CHUNK) == 0)
 		rvm_cpu_check_space(cpu);
 	for (n = 0; bits && n < RLST; n++) {
-		if (((rvm_uint_t)(1 << n)) & bits) {
+		if (((rword)(1 << n)) & bits) {
 			RVM_SET_REGU(cpu, SP, RVM_GET_REGU(cpu, SP) + 1);
 			cpu->stack[RVM_GET_REGU(cpu, SP)] = RVM_GET_REG(cpu, n);
 			bits &= ~(1<<n);
@@ -559,10 +559,10 @@ static void rvm_op_pushm(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 static void rvm_op_popm(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
 	int n;
-	rvm_uint_t bits = RVM_GET_REGU(cpu, ins->op1);
+	rword bits = RVM_GET_REGU(cpu, ins->op1);
 
 	for (n = RLST - 1; bits && n >= 0; n--) {
-		if (((rvm_uint_t)(1 << n)) & bits) {
+		if (((rword)(1 << n)) & bits) {
 			RVM_SET_REG(cpu, n, cpu->stack[RVM_GET_REGU(cpu, SP)]);
 			RVM_SET_REGU(cpu, SP, RVM_GET_REGU(cpu, SP) - 1);
 			bits &= ~(1<<n);
@@ -589,11 +589,11 @@ static void rvm_op_pop(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 static void rvm_op_stm(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
 	int n;
-	rvm_uint_t *dst = (rvm_uint_t*)	RVM_GET_REGU(cpu, ins->op1);
-	rvm_uint_t bits = RVM_GET_REGU(cpu, ins->op2);
+	rword *dst = (rword*)	RVM_GET_REGU(cpu, ins->op1);
+	rword bits = RVM_GET_REGU(cpu, ins->op2);
 	
 	for (n = 0; bits && n < RLST; n++) {
-		if (((rvm_uint_t)(1 << n)) & bits) {
+		if (((rword)(1 << n)) & bits) {
 			*dst = RVM_GET_REGU(cpu, n);
 			dst += 1;
 			bits &= ~(1<<n);
@@ -605,11 +605,11 @@ static void rvm_op_stm(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 static void rvm_op_ldm(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
 	int n;
-	rvm_uint_t *src = (rvm_uint_t*)RVM_GET_REGU(cpu, ins->op1);
-	rvm_uint_t bits = RVM_GET_REGU(cpu, ins->op2);
+	rword *src = (rword*)RVM_GET_REGU(cpu, ins->op1);
+	rword bits = RVM_GET_REGU(cpu, ins->op2);
 
 	for (n = 0; bits && n < RLST; n++) {
-		if (((rvm_uint_t)(1 << n)) & bits) {
+		if (((rword)(1 << n)) & bits) {
 			RVM_SET_REGU(cpu, n, *src);
 			src += 1;
 			bits &= ~(1<<n);
@@ -620,8 +620,8 @@ static void rvm_op_ldm(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_cmp(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	rvm_uint_t op1 = RVM_GET_REGU(cpu, ins->op1), op2 = RVM_GET_REGU(cpu, ins->op2);
-	rvm_uint_t res = (rvm_uint_t)(op1 - op2);
+	rword op1 = RVM_GET_REGU(cpu, ins->op1), op2 = RVM_GET_REGU(cpu, ins->op2);
+	rword res = (rword)(op1 - op2);
 	
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_C, op1 < op2);
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, !res);
@@ -633,8 +633,8 @@ static void rvm_op_cmp(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_cmn(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	rvm_uint_t op1 = RVM_GET_REGU(cpu, ins->op1), op2 = RVM_GET_REGU(cpu, ins->op2);
-	rvm_uint_t res = (rvm_uint_t)(op1 + op2);
+	rword op1 = RVM_GET_REGU(cpu, ins->op1), op2 = RVM_GET_REGU(cpu, ins->op2);
+	rword res = (rword)(op1 + op2);
 	
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_C, res < op1 || res < op2);
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, !res);
@@ -861,7 +861,7 @@ void rvm_cpu_destroy(rvm_cpu_t *cpu)
 }
 
 
-int rvm_cpu_exec(rvm_cpu_t *cpu, rvm_asmins_t *prog, rvm_uint_t pc)
+int rvm_cpu_exec(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword pc)
 {
 	rvm_asmins_t *pi;
 
@@ -880,7 +880,7 @@ int rvm_cpu_exec(rvm_cpu_t *cpu, rvm_asmins_t *prog, rvm_uint_t pc)
 }
 
 
-int rvm_cpu_exec_debug(rvm_cpu_t *cpu, rvm_asmins_t *prog, rvm_uint_t pc)
+int rvm_cpu_exec_debug(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword pc)
 {
 	rvm_asmins_t *pi;
 
@@ -912,7 +912,7 @@ int rvm_cpu_switable_add(rvm_cpu_t *cpu, rvm_cpu_swi *switable)
 }
 
 
-rvm_asmins_t rvm_asmp(rvm_uint_t opcode, rvm_uint_t op1, rvm_uint_t op2, rvm_uint_t op3, rvm_pointer_t data)
+rvm_asmins_t rvm_asmp(rword opcode, rword op1, rword op2, rword op3, rpointer data)
 {
 	rvm_asmins_t a;
 	a.opcode = (unsigned char) opcode;
@@ -924,7 +924,7 @@ rvm_asmins_t rvm_asmp(rvm_uint_t opcode, rvm_uint_t op1, rvm_uint_t op2, rvm_uin
 }
 
 
-rvm_asmins_t rvm_asmu(rvm_uint_t opcode, rvm_uint_t op1, rvm_uint_t op2, rvm_uint_t op3, rvm_uint_t data)
+rvm_asmins_t rvm_asmu(rword opcode, rword op1, rword op2, rword op3, rword data)
 {
 	rvm_asmins_t a;
 	a.opcode = (unsigned char) opcode;
@@ -935,7 +935,7 @@ rvm_asmins_t rvm_asmu(rvm_uint_t opcode, rvm_uint_t op1, rvm_uint_t op2, rvm_uin
 	return a;
 }
 
-rvm_asmins_t rvm_asm(rvm_uint_t opcode, rvm_uint_t op1, rvm_uint_t op2, rvm_uint_t op3, rvm_uint_t data)
+rvm_asmins_t rvm_asm(rword opcode, rword op1, rword op2, rword op3, rword data)
 {
 	return rvm_asmu(opcode, op1, op2, op3, data);
 }

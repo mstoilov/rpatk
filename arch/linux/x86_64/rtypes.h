@@ -32,6 +32,7 @@ typedef unsigned int ruint32;
 typedef signed long rint64;
 typedef unsigned long ruint64;
 typedef unsigned long rword;
+typedef long rsword;
 typedef unsigned long rsize_t;
 typedef signed long rssize_t;
 typedef unsigned int ratomic;
