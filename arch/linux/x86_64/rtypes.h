@@ -46,7 +46,7 @@ typedef unsigned int ratomic;
 			: "r" (newval), "m" (*ptr), "0" (oldval)); } while (0)
 
 #define R_ATOMIC_XCHG(ptr, val) \
-		do { __asm__ __volatile__("xchgl %0,%1" \
+		do { __asm__ __volatile__("lock; xchgl %0,%1" \
 			:"=r" ((ruint32) val) \
 			:"m" (*(volatile ruint32 *)ptr), "0" (val) \
 			:"memory"); } while (0)
