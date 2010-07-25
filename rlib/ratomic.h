@@ -6,10 +6,10 @@ extern "C" {
 #endif
 
 
-rboolean r_atomic_compare_and_exchange(volatile ratomic *ptr, ratomic oldval, ratomic newval);
-ratomic r_atomic_exchange(volatile ratomic *ptr, volatile ratomic val);
-void r_atomic_add(volatile ratomic *ptr, ratomic val);
-void r_atomic_sub(volatile ratomic *ptr, ratomic val);
+rboolean r_atomic_compare_and_exchange(volatile ratomic_t *ptr, ratomic_t oldval, ratomic_t newval);
+ratomic_t r_atomic_exchange(volatile ratomic_t *ptr, volatile ratomic_t val);
+void r_atomic_add(volatile ratomic_t *ptr, ratomic_t val);
+void r_atomic_sub(volatile ratomic_t *ptr, ratomic_t val);
 
 #ifdef __cplusplus
 }

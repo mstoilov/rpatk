@@ -4,16 +4,16 @@
 #include "rspinlock.h"
 #include "rmem.h"
 
-static rspinlock g_lock = R_SPINLOCK_INIT;
+static rspinlock_t g_lock = R_SPINLOCK_INIT;
 static rsize_t g_allocmem = 0;
 static rsize_t g_maxmem = 0;
 
-typedef struct _RMemAllocVTable {
+typedef struct rmallocvtable_s {
 	rpointer (*malloc)(rsize_t size);
 	void (*free)(rpointer ptr);
 	rpointer (*realloc)(rpointer ptr, rsize_t size);
 	rpointer (*calloc)(rsize_t nmemb, rsize_t size);
-} RMemAllocVTable;
+} rmallocvtable_t;
 
 
 static rpointer r_std_malloc(rsize_t size)
@@ -110,7 +110,7 @@ static rpointer r_dbg_realloc(rpointer ptr, rsize_t size)
 }
 
 
-static RMemAllocVTable g_stdMemAlloc = {
+static rmallocvtable_t g_stdMemAlloc = {
 	r_std_malloc,
 	r_std_free,
 	r_std_realloc,
@@ -118,7 +118,7 @@ static RMemAllocVTable g_stdMemAlloc = {
 };
 
 
-static RMemAllocVTable g_dbgMemAlloc = {
+static rmallocvtable_t g_dbgMemAlloc = {
 	r_dbg_malloc,
 	r_dbg_free,
 	r_dbg_realloc,
@@ -127,9 +127,9 @@ static RMemAllocVTable g_dbgMemAlloc = {
 
 
 #ifdef R_DEBUG_MEMALLOC
-static RMemAllocVTable *g_pMemAlloc = &g_dbgMemAlloc;
+static rmallocvtable_t *g_pMemAlloc = &g_dbgMemAlloc;
 #else
-static RMemAllocVTable *g_pMemAlloc = &g_stdMemAlloc;
+static rmallocvtable_t *g_pMemAlloc = &g_stdMemAlloc;
 #endif
 
 
@@ -203,8 +203,8 @@ void r_debug_reset_maxmem()
  */
 void r_memalloc_do_not_use()
 {
-	RMemAllocVTable *pDbgMemAlloc = &g_dbgMemAlloc;
-	RMemAllocVTable *pStdMemAlloc = &g_stdMemAlloc;
+	rmallocvtable_t *pDbgMemAlloc = &g_dbgMemAlloc;
+	rmallocvtable_t *pStdMemAlloc = &g_stdMemAlloc;
 
 	if (pDbgMemAlloc == pStdMemAlloc)
 		return;

@@ -35,7 +35,7 @@ typedef unsigned long rword;
 typedef long rsword;
 typedef unsigned long rsize_t;
 typedef signed long rssize_t;
-typedef unsigned int ratomic;
+typedef unsigned int ratomic_t;
 
 /*
  * Atomic operations (Architecture Dependent)

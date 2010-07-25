@@ -6,7 +6,7 @@
 #define NUM_THREADS 10
 #define NUM_ITERATIONS 100000
 
-static rspinlock g_lock;
+static rspinlock_t g_lock;
 static ruint32 g_result;
 
 

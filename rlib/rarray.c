@@ -5,19 +5,19 @@
 static ruint r_nearest_pow (ruint num);
 
 
-void r_array_cleanup(RArray *array)
+void r_array_cleanup(rarray_t *array)
 {
 	r_free(array->data);
 }
 
 
-void r_array_destroy(RArray *array)
+void r_array_destroy(rarray_t *array)
 {
 
 }
 
 
-RArray *r_array_init(RArray *array, ruint elt_size)
+rarray_t *r_array_init(rarray_t *array, ruint elt_size)
 {
 	r_memset(array, 0, sizeof(*array));
 	array->elt_size = r_nearest_pow(elt_size);
@@ -25,10 +25,10 @@ RArray *r_array_init(RArray *array, ruint elt_size)
 }
 
 
-RArray *r_array_create(ruint elt_size)
+rarray_t *r_array_create(ruint elt_size)
 {
-	RArray *array;
-	if ((array = (RArray*)r_malloc(sizeof(*array))) == NULL)
+	rarray_t *array;
+	if ((array = (rarray_t*)r_malloc(sizeof(*array))) == NULL)
 		return NULL;
 	return r_array_init(array, elt_size);
 }
