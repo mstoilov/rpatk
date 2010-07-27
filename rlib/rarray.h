@@ -23,6 +23,9 @@ rarray_t *r_array_init(rarray_t *array, ruint elt_size);
 void r_array_destroy(rarray_t *array);
 void r_array_cleanup(rarray_t *array);
 void r_array_add(rarray_t *array, rconstpointer data);
+void r_array_insert(rarray_t *array, ruint index, rconstpointer data);
+void r_array_setsize(rarray_t *array, ruint size);
+
 
 #ifdef __cplusplus
 }

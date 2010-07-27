@@ -173,9 +173,15 @@ rpointer r_memset(rpointer s, rint c, rsize_t n)
 }
 
 
-void *r_memcpy(rpointer dest, rconstpointer src, rsize_t n)
+rpointer r_memcpy(rpointer dest, rconstpointer src, rsize_t n)
 {
 	return memcpy((void*)dest, (const void*)src, (size_t)n);
+}
+
+
+rpointer r_memmove(rpointer dest, rconstpointer src, rsize_t n)
+{
+	return memmove((void*)dest, (const void*)src, (size_t)n);
 }
 
 

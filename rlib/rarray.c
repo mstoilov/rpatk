@@ -3,7 +3,7 @@
 
 #define MIN_ARRAY_LEN 4
 static ruint r_nearest_pow(ruint num);
-static void r_array_checkexpand(rarray_t *array);
+static void r_array_checkexpand(rarray_t *array, ruint index);
 
 
 void r_array_cleanup(rarray_t *array)
@@ -42,18 +42,36 @@ rarray_t *r_array_create(ruint elt_size)
 
 void r_array_add(rarray_t *array, rconstpointer data)
 {
-	r_array_checkexpand(array);
+	r_array_checkexpand(array, array->len + 1);
 	r_memcpy(((rint8*)array->data) + array->len * array->elt_size, data, array->elt_size);
 	array->len += 1;
 }
 
 
-static void r_array_checkexpand(rarray_t *array)
+void r_array_insert(rarray_t *array, ruint index, rconstpointer data)
+{
+	r_array_checkexpand(array, index + 1);
+	if (index < array->len)
+		r_memmove(r_array_slot(array, index + 1), r_array_slot(array, index), (array->len - index) * array->elt_size);
+	r_memcpy(r_array_slot(array, index), data, array->elt_size);
+	array->len += 1;
+}
+
+
+void r_array_setsize(rarray_t *array, ruint size)
+{
+
+	r_array_checkexpand(array, size);
+	array->len = size;
+}
+
+
+static void r_array_checkexpand(rarray_t *array, ruint size)
 {
 	ruint nalloc_len;
 	rpointer data;
 
-	if (array->len >= array->alloc_len) {
+	while (size > array->alloc_len) {
 		nalloc_len = 2 * array->alloc_len;
 		data = r_realloc(array->data, nalloc_len * array->elt_size);
 		if (data) {
