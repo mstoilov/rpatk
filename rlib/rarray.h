@@ -16,13 +16,15 @@ struct rarray_s {
 	ruint elt_size;
 };
 
-#define r_array_index(__array__, __index__, __type__) ((__type__*)((__array__)->data))[__index__]
+#define r_array_index(__array__, __index__, __type__) (((__type__*)(void*)(__array__)->data)[__index__])
 #define r_array_slot(__array__, __index__) (((ruint8*)(__array__)->data) + (__array__)->elt_size * (__index__))
+#define r_array_length(__array__) ((__array__)->len)
+
 rarray_t *r_array_create(ruint elt_size);
 rarray_t *r_array_init(rarray_t *array, ruint elt_size);
 void r_array_destroy(rarray_t *array);
 void r_array_cleanup(rarray_t *array);
-void r_array_add(rarray_t *array, rconstpointer data);
+ruint r_array_add(rarray_t *array, rconstpointer data);
 void r_array_insert(rarray_t *array, ruint index, rconstpointer data);
 void r_array_setsize(rarray_t *array, ruint size);
 

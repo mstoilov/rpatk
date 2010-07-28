@@ -40,21 +40,27 @@ rarray_t *r_array_create(ruint elt_size)
 }
 
 
-void r_array_add(rarray_t *array, rconstpointer data)
+ruint r_array_add(rarray_t *array, rconstpointer data)
 {
+	ruint index = array->len;
+
 	r_array_checkexpand(array, array->len + 1);
 	r_memcpy(((rint8*)array->data) + array->len * array->elt_size, data, array->elt_size);
 	array->len += 1;
+	return index;
 }
 
 
 void r_array_insert(rarray_t *array, ruint index, rconstpointer data)
 {
 	r_array_checkexpand(array, index + 1);
-	if (index < array->len)
+	if (index < array->len) {
 		r_memmove(r_array_slot(array, index + 1), r_array_slot(array, index), (array->len - index) * array->elt_size);
+		array->len += 1;
+	} else {
+		r_array_setsize(array, index + 1);
+	}
 	r_memcpy(r_array_slot(array, index), data, array->elt_size);
-	array->len += 1;
 }
 
 

@@ -22,6 +22,7 @@
 #define _REGVM_H_
 
 #include "rtypes.h"
+#include "rarray.h"
 
 #ifndef RVM_REG_SIZE
 #define RVM_REG_SIZE (sizeof(rword)/8)
@@ -151,6 +152,7 @@ do { \
 
 #define RVM_E_DIVZERO (1)
 #define RVM_E_ILLEGAL (2)
+#define RVM_E_SWINUM  (3)
 
 
 typedef struct rvm_asmins_s rvm_asmins_t;
@@ -184,7 +186,8 @@ struct rvm_cpu_s {
 	rword abort;
 	rvm_reg_t *stack;
 	rword stacksize;
-	rvm_cpu_swi *switable[RVM_MAX_CBTABLES];
+	rarray_t *switable;
+//	rvm_cpu_swi *switable[RVM_MAX_CBTABLES];
 	unsigned int switable_count;
 	void *userdata;
 };
@@ -192,7 +195,7 @@ struct rvm_cpu_s {
 
 rvm_cpu_t *rvm_cpu_create();
 void rvm_cpu_destroy(rvm_cpu_t * vm);
-int rvm_cpu_switable_add(rvm_cpu_t * cpu, rvm_cpu_swi *switable);
+int rvm_cpu_switable_add(rvm_cpu_t * cpu, rvm_cpu_swi swi);
 int rvm_cpu_exec(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword pc);
 int rvm_cpu_exec_debug(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword pc);
 rvm_asmins_t rvm_asm(rword opcode, rword op1, rword op2, rword op3, rword data);

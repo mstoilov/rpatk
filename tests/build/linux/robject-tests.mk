@@ -1,14 +1,18 @@
 ROBJECT_SRCDIR = $(SRCDIR)/robject
 RLIB_SRCDIR = $(SRCDIR)/rlib
+RVM_SRCDIR = $(SRCDIR)/rvm
 TESTS_SRCDIR = $(SRCDIR)/tests
-INCLUDE = -I$(SRCDIR)/arch/$(OS)/$(ARCHDIR) -I$(ROBJECT_SRCDIR) -I$(RLIB_SRCDIR)
+INCLUDE = -I$(SRCDIR)/arch/$(OS)/$(ARCHDIR) -I$(ROBJECT_SRCDIR) -I$(RLIB_SRCDIR) -I$(RVM_SRCDIR)
 LIBS =  -L$(ROBJECT_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
-LIBS += -L$(RLIB_SRCDIR)/build/$(OS)/$(ARCHDIR)/out -lrlib -lpthread --static
+LIBS += -L$(RLIB_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
+LIBS += -L$(RVM_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
+LIBS += -lrvm -lrlib -lpthread --static
 
 
 TESTS	= \
 	$(OUTDIR)/rlock-test \
 	$(OUTDIR)/rarray-test \
+	$(OUTDIR)/rvm-test \
 	$(OUTDIR)/memalloc-test \
 	
 all : $(OUTDIR) $(TESTS)

@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 #include "rvm.h"
 
 
@@ -429,8 +430,16 @@ static void rvm_op_add(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_swi(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	rvm_cpu_swi *cbt = cpu->switable[RVM_CB_TABLE(RVM_GET_REGU(cpu, ins->op1))];
-	cbt[RVM_CB_OFFSET(RVM_GET_REGU(cpu, ins->op1))](cpu);
+//	rvm_cpu_swi *cbt = cpu->switable[RVM_CB_TABLE(RVM_GET_REGU(cpu, ins->op1))];
+//	cbt[RVM_CB_OFFSET(RVM_GET_REGU(cpu, ins->op1))](cpu);
+
+	rvm_cpu_swi swi;
+	ruint swinum = (ruint) RVM_GET_REGU(cpu, ins->op1);
+
+	if (r_array_length(cpu->switable) <= swinum)
+		RVM_ABORT(cpu, RVM_E_SWINUM);
+	swi = r_array_index(cpu->switable, swinum, rvm_cpu_swi);
+	swi(cpu);
 }
 
 
@@ -657,33 +666,65 @@ static void rvm_op_ret(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
-static int rvm_asm_dump_reg_to_str(unsigned char reg, char *str, unsigned int size)
-{
-	int ret = 0;
 
-	if (reg == XX)
-		ret = snprintf(str, size, "XX ");
-	else if (reg == SP)
-		ret = snprintf(str, size, "SP ");
-	else if (reg == LR)
-		ret = snprintf(str, size, "LR ");
-	else if (reg == PC)
-		ret = snprintf(str, size, "PC ");
-	else if (reg == DA)
-		ret = snprintf(str, size, "DA ");
-	else if (reg >= 0 && reg < 10)
-		ret = snprintf(str, size, "R%d ",  reg);
-	else if (reg >= 10)
-		ret = snprintf(str, size, "R%d",  reg);
+static int rvm_vsnprintf(char *str, unsigned int size, const char *format, va_list ap)
+{
+	return vsnprintf(str, size, format, ap);
+}
+
+
+static int rvm_snprintf(char *str, unsigned int size, const char *format, ...)
+{
+	va_list ap;
+	int ret;
+
+	va_start(ap, format);
+	ret = rvm_vsnprintf(str, size, format, ap);
+	va_end(ap);
 	return ret;
 }
 
 
-static int rvm_asm_dump_pi_to_str(rvm_asmins_t *pi, char *str, unsigned int size)
+static int rvm_printf(const char *format, ...)
+{
+	va_list ap;
+	int ret;
+
+	va_start(ap, format);
+	ret = vfprintf(stdout, format, ap);
+	va_end(ap);
+	return ret;
+}
+
+
+int rvm_asm_dump_reg_to_str(unsigned char reg, char *str, unsigned int size)
+{
+	int ret = 0;
+
+	if (reg == XX)
+		ret = rvm_snprintf(str, size, "XX ");
+	else if (reg == SP)
+		ret = rvm_snprintf(str, size, "SP ");
+	else if (reg == LR)
+		ret = rvm_snprintf(str, size, "LR ");
+	else if (reg == PC)
+		ret = rvm_snprintf(str, size, "PC ");
+	else if (reg == DA)
+		ret = rvm_snprintf(str, size, "DA ");
+	else if (reg >= 0 && reg < 10)
+		ret = rvm_snprintf(str, size, "R%d ",  reg);
+	else if (reg >= 10)
+		ret = rvm_snprintf(str, size, "R%d",  reg);
+
+	return ret;
+}
+
+
+int rvm_asm_dump_pi_to_str(rvm_asmins_t *pi, char *str, unsigned int size)
 {
 	int ret = 0, sz = size;
 
-	if ((ret = snprintf(str, sz, "%10s   ", stropcalls[pi->opcode])) < 0)
+	if ((ret = rvm_snprintf(str, sz, "%10s   ", stropcalls[pi->opcode])) < 0)
 		return ret;
 	str += ret;
 	sz -= ret;
@@ -693,7 +734,7 @@ static int rvm_asm_dump_pi_to_str(rvm_asmins_t *pi, char *str, unsigned int size
 	str += ret;
 	sz -= ret;
 		
-	if ((ret = snprintf(str, sz, " ")) < 0)
+	if ((ret = rvm_snprintf(str, sz, " ")) < 0)
 		return ret;
 	str += ret;
 	sz -= ret;
@@ -703,7 +744,7 @@ static int rvm_asm_dump_pi_to_str(rvm_asmins_t *pi, char *str, unsigned int size
 	str += ret;
 	sz -= ret;
 		
-	if ((ret = snprintf(str, sz, " ")) < 0)
+	if ((ret = rvm_snprintf(str, sz, " ")) < 0)
 		return ret;
 	str += ret;
 	sz -= ret;
@@ -713,72 +754,59 @@ static int rvm_asm_dump_pi_to_str(rvm_asmins_t *pi, char *str, unsigned int size
 	str += ret;
 	sz -= ret;
 		
-	if ((ret = snprintf(str, sz, " ")) < 0)
+	if ((ret = rvm_snprintf(str, sz, " ")) < 0)
 		return ret;
 	str += ret;
 	sz -= ret;
 
-#ifdef RVM_LONGLONGINT
-	if ((ret = snprintf(str, sz, "0x%llx  ", RVM_REGU(&pi->data))) < 0)
+	if ((ret = rvm_snprintf(str, sz, "0x%lx  ", pi->data)) < 0)
 		return ret;
-#else
-	if ((ret = snprintf(str, sz, "0x%lx  ", RVM_REGU(&pi->data))) < 0)
-		return ret;
-#endif
-
 	str += ret;
 	sz -= ret;
-	
+
 	return size - sz;
 }
 
 
-static void rvm_cpu_dumpregs(rvm_asmins_t *pi, rvm_cpu_t *cpu)
+void rvm_asm_dump(rvm_asmins_t *pi, unsigned int count)
 {
-#ifdef DEBUG
-#ifdef WIN32
+	char buffer[256];
+	while (count) {
+		rvm_asm_dump_pi_to_str(pi, buffer, sizeof(buffer));
+		rvm_printf("%s\n", buffer);
+		++pi;
+		--count;
+	}
+}
 
-#else
+
+static void rvm_cpu_dumpregs(rvm_asmins_t *pi, rvm_cpu_t *vm)
+{
     int ret;
 	char buffer[1024];
 	
 	ret = rvm_asm_dump_pi_to_str(pi, buffer, sizeof(buffer));
 	if (ret < 0)
 		return;
-    ret = snprintf(buffer + ret, sizeof(buffer) - ret, "                                                                                        ");
+    ret = rvm_snprintf(buffer + ret, sizeof(buffer) - ret, "                                                                                        ");
 	buffer[50] = '\0';
-	fprintf(stdout, "%s", buffer);
+	rvm_printf("%s", buffer);
 
-#ifdef RVM_LONGLONGINT
-   	fprintf(stdout, "0x%llx, 0x%llx, 0x%llx, 0x%llx, 0x%llx, 0x%llx, 0x%llx, 0x%llx, 0x%llx, SP=0x%llx, LR=0x%llx, PC=%ld, S( %c%c%c%c )", 
-   		RVM_GET_REGU(cpu, 0), RVM_GET_REGU(cpu, 1), RVM_GET_REGU(cpu, 2), RVM_GET_REGU(cpu, 3), RVM_GET_REGU(cpu, 4), 
-   		RVM_GET_REGU(cpu, 5), RVM_GET_REGU(cpu, 6), RVM_GET_REGU(cpu, 7), RVM_GET_REGU(cpu, 8), RVM_GET_REGU(cpu, SP), 
-   		RVM_GET_REGU(cpu, LR), (long int)RVM_GET_REGU(cpu, PC), 
-   		cpu->status & RVM_STATUS_V ? 'V' : '_',
-   		cpu->status & RVM_STATUS_C ? 'C' : '_',
-   		cpu->status & RVM_STATUS_N ? 'N' : '_',
-   		cpu->status & RVM_STATUS_Z ? 'Z' : '_');
-#else
-   	fprintf(stdout, "0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, SP=0x%lx, LR=0x%lx, PC=%ld, S( %c%c%c%c )", 
-   		RVM_GET_REGU(cpu, 0), RVM_GET_REGU(cpu, 1), RVM_GET_REGU(cpu, 2), RVM_GET_REGU(cpu, 3), RVM_GET_REGU(cpu, 4), 
-   		RVM_GET_REGU(cpu, 5), RVM_GET_REGU(cpu, 6), RVM_GET_REGU(cpu, 7), RVM_GET_REGU(cpu, 8), RVM_GET_REGU(cpu, SP), 
-   		RVM_GET_REGU(cpu, LR), (long int)RVM_GET_REGU(cpu, PC), 
-   		cpu->status & RVM_STATUS_V ? 'V' : '_',
-   		cpu->status & RVM_STATUS_C ? 'C' : '_',
-   		cpu->status & RVM_STATUS_N ? 'N' : '_',
-   		cpu->status & RVM_STATUS_Z ? 'Z' : '_');
-#endif
-	fprintf(stdout, "\n");
-
-
-#endif
-#endif
+   	rvm_printf("0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, SP=0x%lx, LR=0x%lx, PC=%ld, S( %c%c%c%c )",
+   		RVM_GET_REGU(vm, 0), RVM_GET_REGU(vm, 1), RVM_GET_REGU(vm, 2), RVM_GET_REGU(vm, 3),
+   		RVM_GET_REGU(vm, 4), RVM_GET_REGU(vm, 5), RVM_GET_REGU(vm, 6), RVM_GET_REGU(vm, 7),
+   		RVM_GET_REGU(vm, 8), RVM_GET_REGU(vm, SP), RVM_GET_REGU(vm, LR), (long int)RVM_GET_REGU(vm, PC),
+   		vm->status & RVM_STATUS_V ? 'V' : '_',
+   		vm->status & RVM_STATUS_C ? 'C' : '_',
+   		vm->status & RVM_STATUS_N ? 'N' : '_',
+   		vm->status & RVM_STATUS_Z ? 'Z' : '_');
+	rvm_printf("\n");
 }
 
 
 static rvm_cpu_op ops[] = {
-	rvm_op_asr,			// RVM_ASR
 	rvm_op_exit,		// RVM_EXT
+	rvm_op_asr,			// RVM_ASR
 	rvm_op_swi,			// RVM_swi
 	rvm_op_mov,			// RVM_MOV
 	rvm_op_add,			// RVM_ADD
@@ -849,7 +877,8 @@ rvm_cpu_t *rvm_cpu_create()
 	cpu = (rvm_cpu_t *)rvm_malloc(sizeof(*cpu));
 	if (!cpu)
 		return ((void*)0);
-	rvm_memset(cpu, 0, sizeof(*cpu));	
+	rvm_memset(cpu, 0, sizeof(*cpu));
+	cpu->switable = r_array_create(sizeof(rvm_cpu_swi));
 	return cpu;
 }
 
@@ -900,15 +929,9 @@ int rvm_cpu_exec_debug(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword pc)
 }
 
 
-int rvm_cpu_switable_add(rvm_cpu_t *cpu, rvm_cpu_swi *switable)
+int rvm_cpu_switable_add(rvm_cpu_t *cpu, rvm_cpu_swi swi)
 {
-	int ret;
-
-	if (cpu->switable_count >= RVM_MAX_CBTABLES)
-		return -1;
-	ret = cpu->switable_count;
-	cpu->switable[cpu->switable_count++] = switable;
-	return ret;
+	return r_array_add(cpu->switable, &swi);
 }
 
 
@@ -940,14 +963,3 @@ rvm_asmins_t rvm_asm(rword opcode, rword op1, rword op2, rword op3, rword data)
 	return rvm_asmu(opcode, op1, op2, op3, data);
 }
 
-
-void rvm_asm_dump(rvm_asmins_t *pi, unsigned int count)
-{
-	char buffer[256];
-	while (count) {
-		rvm_asm_dump_pi_to_str(pi, buffer, sizeof(buffer));
-		fprintf(stdout, "%s\n", buffer);
-		++pi;
-		--count;
-	}
-}
