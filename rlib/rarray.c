@@ -64,6 +64,16 @@ void r_array_insert(rarray_t *array, ruint index, rconstpointer data)
 }
 
 
+void r_array_replace(rarray_t *array, ruint index, rconstpointer data)
+{
+	if (index < array->len) {
+		r_memcpy(r_array_slot(array, index), data, array->elt_size);
+	} else {
+		r_array_insert(array, index, data);
+	}
+}
+
+
 void r_array_setsize(rarray_t *array, ruint size)
 {
 
