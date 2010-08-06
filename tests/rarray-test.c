@@ -24,6 +24,8 @@ int main(int argc, char *argv[])
 	r_array_insert(a, 4, &i);
 	r_array_insert(a, 20, &i);
 	r_array_replace(a, 19, &i);
+	i = 99;
+	r_array_replace(a, 19, &i);
 
 	for (i = 0; i < a->len; i++) {
 		fprintf(stdout, "index %d: %d\n", i, *((int*)r_array_slot(a, i)));
