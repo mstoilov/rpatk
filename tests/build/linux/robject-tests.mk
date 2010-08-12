@@ -14,6 +14,10 @@ TESTS	= \
 	$(OUTDIR)/rarray-test \
 	$(OUTDIR)/rvm-test \
 	$(OUTDIR)/memalloc-test \
+	$(OUTDIR)/add \
+	$(OUTDIR)/adds \
+	$(OUTDIR)/stack \
+
 	
 all : $(OUTDIR) $(TESTS)
 

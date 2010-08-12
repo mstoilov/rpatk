@@ -107,9 +107,9 @@ static void r_array_checkexpand(rarray_t *array, ruint size)
  */
 static ruint r_nearest_pow (ruint num)
 {
-  ruint n = 1;
+	ruint n = 1;
 
-  while (n < num && n > 0)
-    n <<= 1;
-  return n ? n : num;
+	while (n < num && n > 0)
+		n <<= 1;
+	return n ? n : num;
 }

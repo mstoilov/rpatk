@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include "rmem.h"
 #include "rvm.h"
 
 
@@ -82,30 +83,7 @@ static const char *stropcalls[] = {
 };
 
 
-static void *rvm_malloc(unsigned long size)
-{
-	return malloc((size_t)size);
-}
-
-
-static void rvm_free(void *ptr)
-{
-	free(ptr);
-}
-
-
-static void *rvm_realloc(void *ptr, unsigned long size)
-{
-	return realloc(ptr, (size_t)size);
-}
-
-
-static void *rvm_memset(void *s, int c, unsigned long n)
-{
-	return memset(s, c, (size_t)n);
-}
-
-
+/*
 static int rvm_cpu_check_space(rvm_cpu_t *cpu)
 {
 	rvm_reg_t *stack;
@@ -124,7 +102,7 @@ static int rvm_cpu_check_space(rvm_cpu_t *cpu)
 	}
 	return 0;
 }
-
+*/
 
 static void rvm_op_b(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
@@ -434,11 +412,14 @@ static void rvm_op_swi(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 //	cbt[RVM_CB_OFFSET(RVM_GET_REGU(cpu, ins->op1))](cpu);
 
 	rvm_cpu_swi swi;
-	ruint swinum = (ruint) RVM_GET_REGU(cpu, ins->op1);
+	rvm_switable_t *switable;
+	ruint ntable = (ruint) RVM_SWI_TABLE(RVM_GET_REGU(cpu, ins->op1));
+	ruint nswi = (ruint) RVM_SWI_NUM(RVM_GET_REGU(cpu, ins->op1));
 
-	if (r_array_length(cpu->switable) <= swinum)
-		RVM_ABORT(cpu, RVM_E_SWINUM);
-	swi = r_array_index(cpu->switable, swinum, rvm_cpu_swi);
+	if (r_array_length(cpu->switables) <= ntable)
+		RVM_ABORT(cpu, RVM_E_SWITABLE);
+	switable = r_array_index(cpu->switables, ntable, rvm_switable_t*);
+	swi = switable[nswi].op;
 	swi(cpu);
 }
 
@@ -548,20 +529,32 @@ static void rvm_op_dvs(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static void rvm_op_push(rvm_cpu_t *cpu, rvm_asmins_t *ins)
+{
+	RVM_SET_REGU(cpu, SP, RVM_GET_REGU(cpu, SP) + 1);
+	r_array_replace(cpu->stackarray, RVM_GET_REGU(cpu, SP), (rconstpointer)&RVM_GET_REG(cpu, ins->op1));
+}
+
+
 static void rvm_op_pushm(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
 	int n;
 	rword bits = RVM_GET_REGU(cpu, ins->op1);
 
-	if ((RVM_GET_REGU(cpu, SP) % RVM_STACK_CHUNK) == 0)
-		rvm_cpu_check_space(cpu);
 	for (n = 0; bits && n < RLST; n++) {
 		if (((rword)(1 << n)) & bits) {
 			RVM_SET_REGU(cpu, SP, RVM_GET_REGU(cpu, SP) + 1);
-			cpu->stack[RVM_GET_REGU(cpu, SP)] = RVM_GET_REG(cpu, n);
+			r_array_replace(cpu->stackarray, RVM_GET_REGU(cpu, SP), (rconstpointer)&RVM_GET_REG(cpu, n));
 			bits &= ~(1<<n);
 		}
 	}
+}
+
+
+static void rvm_op_pop(rvm_cpu_t *cpu, rvm_asmins_t *ins)
+{
+	RVM_SET_REG(cpu, ins->op1, r_array_index(cpu->stackarray, RVM_GET_REGU(cpu, SP), rvm_reg_t));
+	RVM_SET_REGU(cpu, SP, RVM_GET_REGU(cpu, SP) - 1);
 }
 
 
@@ -572,28 +565,13 @@ static void rvm_op_popm(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 	for (n = RLST - 1; bits && n >= 0; n--) {
 		if (((rword)(1 << n)) & bits) {
-			RVM_SET_REG(cpu, n, cpu->stack[RVM_GET_REGU(cpu, SP)]);
+			RVM_SET_REG(cpu, n, r_array_index(cpu->stackarray, RVM_GET_REGU(cpu, SP), rvm_reg_t));
 			RVM_SET_REGU(cpu, SP, RVM_GET_REGU(cpu, SP) - 1);
 			bits &= ~(1<<n);
 		}
 	}
 }
 
-
-static void rvm_op_push(rvm_cpu_t *cpu, rvm_asmins_t *ins)
-{
-	if ((RVM_GET_REGU(cpu, SP) % RVM_STACK_CHUNK) == 0)
-		rvm_cpu_check_space(cpu);
-	RVM_SET_REGU(cpu, SP, RVM_GET_REGU(cpu, SP) + 1);
-	cpu->stack[RVM_GET_REGU(cpu, SP)] = RVM_GET_REG(cpu, ins->op1);
-}
-
-
-static void rvm_op_pop(rvm_cpu_t *cpu, rvm_asmins_t *ins)
-{
-	RVM_SET_REG(cpu, ins->op1, cpu->stack[RVM_GET_REGU(cpu, SP)]);
-	RVM_SET_REGU(cpu, SP, RVM_GET_REGU(cpu, SP) - 1);
-}
 
 static void rvm_op_stm(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
@@ -874,19 +852,22 @@ rvm_cpu_t *rvm_cpu_create()
 {
 	rvm_cpu_t *cpu;
 
-	cpu = (rvm_cpu_t *)rvm_malloc(sizeof(*cpu));
+	cpu = (rvm_cpu_t *)r_malloc(sizeof(*cpu));
 	if (!cpu)
 		return ((void*)0);
-	rvm_memset(cpu, 0, sizeof(*cpu));
-	cpu->switable = r_array_create(sizeof(rvm_cpu_swi));
+	r_memset(cpu, 0, sizeof(*cpu));
+	cpu->switables = r_array_create(sizeof(rvm_switable_t*));
+	cpu->stackarray = r_array_create(sizeof(rvm_reg_t));
 	return cpu;
 }
 
 
 void rvm_cpu_destroy(rvm_cpu_t *cpu)
 {
-	rvm_free(cpu->stack);
-	rvm_free(cpu);
+//	rvm_free(cpu->stack);
+	r_array_destroy(cpu->switables);
+	r_array_destroy(cpu->stackarray);
+	r_free(cpu);
 }
 
 
@@ -929,9 +910,9 @@ int rvm_cpu_exec_debug(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword pc)
 }
 
 
-int rvm_cpu_switable_add(rvm_cpu_t *cpu, rvm_cpu_swi swi)
+int rvm_cpu_switable_add(rvm_cpu_t *cpu, rvm_switable_t *switable)
 {
-	return r_array_add(cpu->switable, &swi);
+	return r_array_add(cpu->switables, &switable);
 }
 
 

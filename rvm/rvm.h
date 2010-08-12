@@ -125,6 +125,7 @@ do { \
 #define R13 13
 #define R14 14
 #define R15 15
+#define ST R12
 #define SP R13
 #define LR R14
 #define PC R15
@@ -133,10 +134,6 @@ do { \
 #define XX 255
 
 #define RVM_STACK_CHUNK 256
-#define RVM_MAX_CBTABLES 8
-#define RVM_CB_TABLE(op) (op >> 16)
-#define RVM_CB_OFFSET(op) (op & ((1 << 16) - 1))
-#define RVM_CB(table, offset) ((((table) & ((1 << 16) - 1))  << 16) | ((offset) & ((1 << 16) - 1)))
 #define RVM_ABORT(cpu, e) do { cpu->error = (e); cpu->abort = 1; return; } while (0)
 #define BIT(_shiftby_) (1 << (_shiftby_))
 #define RVM_REGU(r) (r)->v.u
@@ -148,17 +145,26 @@ do { \
 #define RVM_REG(r) (r)
 #define RVM_GET_REG(cpu, reg) (cpu)->r[(reg)]
 #define RVM_SET_REG(cpu, reg, val) do { (cpu)->r[(reg)] = (rvm_reg_t)(val); } while (0)
+#define RVM_SWI_TABLE(__op__) ((__op__) >> 16)
+#define RVM_SWI_NUM(__op__) ((__op__) & ((1 << 16) - 1))
+#define RVM_SWI(__t__, __o__) ((((__t__) & ((1 << 16) - 1))  << 16) | ((__o__) & ((1 << 16) - 1)))
 
 
-#define RVM_E_DIVZERO (1)
-#define RVM_E_ILLEGAL (2)
-#define RVM_E_SWINUM  (3)
+#define RVM_E_DIVZERO  (1)
+#define RVM_E_ILLEGAL  (2)
+#define RVM_E_SWINUM   (3)
+#define RVM_E_SWITABLE (4)
 
 
 typedef struct rvm_asmins_s rvm_asmins_t;
 typedef struct rvm_cpu_s rvm_cpu_t;
 typedef void (*rvm_cpu_swi)(rvm_cpu_t *cpu);
 typedef void (*rvm_cpu_op)(rvm_cpu_t *cpu, rvm_asmins_t *ins);
+
+typedef struct rvm_switable_s {
+	const char *name;
+	rvm_cpu_swi op;
+} rvm_switable_t;
 
 
 typedef struct rvm_reg_s {
@@ -184,18 +190,17 @@ struct rvm_cpu_s {
 	rword status;
 	rword error;
 	rword abort;
-	rvm_reg_t *stack;
-	rword stacksize;
-	rarray_t *switable;
-//	rvm_cpu_swi *switable[RVM_MAX_CBTABLES];
-	unsigned int switable_count;
+//	rvm_reg_t *stack;
+//	rword stacksize;
+	rarray_t *switables;
+	rarray_t *stackarray;
 	void *userdata;
 };
 
 
 rvm_cpu_t *rvm_cpu_create();
 void rvm_cpu_destroy(rvm_cpu_t * vm);
-int rvm_cpu_switable_add(rvm_cpu_t * cpu, rvm_cpu_swi swi);
+int rvm_cpu_switable_add(rvm_cpu_t * cpu, rvm_switable_t *switalbe);
 int rvm_cpu_exec(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword pc);
 int rvm_cpu_exec_debug(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword pc);
 rvm_asmins_t rvm_asm(rword opcode, rword op1, rword op2, rword op3, rword data);
