@@ -24,9 +24,7 @@
 #include "rtypes.h"
 #include "rarray.h"
 
-#ifndef RVM_REG_SIZE
-#define RVM_REG_SIZE (sizeof(rword)/8)
-#endif
+#define RVM_MIN_REGSIZE (sizeof(rword)/8)
 
 #ifdef __cplusplus
 extern "C" {
@@ -125,7 +123,6 @@ do { \
 #define R13 13
 #define R14 14
 #define R15 15
-#define ST R12
 #define SP R13
 #define LR R14
 #define PC R15
@@ -142,12 +139,15 @@ do { \
 #define RVM_REGP(r) (r)->v.p
 #define RVM_GET_REGP(cpu, reg) (cpu)->r[(reg)].v.p
 #define RVM_SET_REGP(cpu, reg, val) do { (cpu)->r[(reg)].v.p = (rpointer)(val); } while (0)
+#define RVM_REGD(r) (r)->v.d
+#define RVM_GET_REGD(cpu, reg) (cpu)->r[(reg)].v.d
+#define RVM_SET_REGD(cpu, reg, val) do { (cpu)->r[(reg)].v.d = (rdouble)(val); } while (0)
 #define RVM_REG(r) (r)
 #define RVM_GET_REG(cpu, reg) (cpu)->r[(reg)]
 #define RVM_SET_REG(cpu, reg, val) do { (cpu)->r[(reg)] = (rvm_reg_t)(val); } while (0)
 #define RVM_SWI_TABLE(__op__) ((__op__) >> 16)
 #define RVM_SWI_NUM(__op__) ((__op__) & ((1 << 16) - 1))
-#define RVM_SWI(__t__, __o__) ((((__t__) & ((1 << 16) - 1))  << 16) | ((__o__) & ((1 << 16) - 1)))
+#define RVM_SWI_ID(__t__, __o__) ((((__t__) & ((1 << 16) - 1))  << 16) | ((__o__) & ((1 << 16) - 1)))
 
 
 #define RVM_E_DIVZERO  (1)
@@ -171,16 +171,17 @@ typedef struct rvm_reg_s {
 	union {
 		rword u;
 		rpointer p;
-		ruint8 c[RVM_REG_SIZE];
+		rdouble d;
+		ruint8 c[RVM_MIN_REGSIZE];
 	} v;
 } rvm_reg_t;
 
 
 struct rvm_asmins_s {
-	unsigned char opcode;
-	unsigned char op1;
-	unsigned char op2;
-	unsigned char op3;
+	ruint8 opcode;
+	ruint8 op1;
+	ruint8 op2;
+	ruint8 op3;
 	rvm_reg_t data;	
 };
 
@@ -190,23 +191,23 @@ struct rvm_cpu_s {
 	rword status;
 	rword error;
 	rword abort;
-//	rvm_reg_t *stack;
-//	rword stacksize;
 	rarray_t *switables;
-	rarray_t *stackarray;
+	rarray_t *stack;
 	void *userdata;
 };
 
 
 rvm_cpu_t *rvm_cpu_create();
 void rvm_cpu_destroy(rvm_cpu_t * vm);
-int rvm_cpu_switable_add(rvm_cpu_t * cpu, rvm_switable_t *switalbe);
-int rvm_cpu_exec(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword pc);
-int rvm_cpu_exec_debug(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword pc);
+rint rvm_cpu_switable_add(rvm_cpu_t * cpu, rvm_switable_t *switalbe);
+rint rvm_cpu_exec(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword pc);
+rint rvm_cpu_exec_debug(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword pc);
+rint rvm_cpu_getswi(rvm_cpu_t *cpu, const rchar *swiname);
 rvm_asmins_t rvm_asm(rword opcode, rword op1, rword op2, rword op3, rword data);
 rvm_asmins_t rvm_asmu(rword opcode, rword op1, rword op2, rword op3, rword data);
 rvm_asmins_t rvm_asmp(rword opcode, rword op1, rword op2, rword op3, rpointer data);
-void rvm_asm_dump(rvm_asmins_t *pi, unsigned int count);
+rvm_asmins_t rvm_asmd(rword opcode, rword op1, rword op2, rword op3, rdouble data);
+void rvm_asm_dump(rvm_asmins_t *pi, ruint count);
 
 
 #ifdef __cplusplus

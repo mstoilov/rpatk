@@ -23,6 +23,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include "rmem.h"
+#include "rstring.h"
 #include "rvm.h"
 
 
@@ -310,7 +311,7 @@ static void rvm_op_asr(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_ror(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	unsigned int i;
+	ruint i;
 	rword res, op2 = RVM_GET_REGU(cpu, ins->op2), op3 = RVM_GET_REGU(cpu, ins->op3);
 	
 	res = op2;
@@ -532,7 +533,7 @@ static void rvm_op_dvs(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 static void rvm_op_push(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
 	RVM_SET_REGU(cpu, SP, RVM_GET_REGU(cpu, SP) + 1);
-	r_array_replace(cpu->stackarray, RVM_GET_REGU(cpu, SP), (rconstpointer)&RVM_GET_REG(cpu, ins->op1));
+	r_array_replace(cpu->stack, RVM_GET_REGU(cpu, SP), (rconstpointer)&RVM_GET_REG(cpu, ins->op1));
 }
 
 
@@ -544,7 +545,7 @@ static void rvm_op_pushm(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 	for (n = 0; bits && n < RLST; n++) {
 		if (((rword)(1 << n)) & bits) {
 			RVM_SET_REGU(cpu, SP, RVM_GET_REGU(cpu, SP) + 1);
-			r_array_replace(cpu->stackarray, RVM_GET_REGU(cpu, SP), (rconstpointer)&RVM_GET_REG(cpu, n));
+			r_array_replace(cpu->stack, RVM_GET_REGU(cpu, SP), (rconstpointer)&RVM_GET_REG(cpu, n));
 			bits &= ~(1<<n);
 		}
 	}
@@ -553,7 +554,7 @@ static void rvm_op_pushm(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_pop(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	RVM_SET_REG(cpu, ins->op1, r_array_index(cpu->stackarray, RVM_GET_REGU(cpu, SP), rvm_reg_t));
+	RVM_SET_REG(cpu, ins->op1, r_array_index(cpu->stack, RVM_GET_REGU(cpu, SP), rvm_reg_t));
 	RVM_SET_REGU(cpu, SP, RVM_GET_REGU(cpu, SP) - 1);
 }
 
@@ -565,7 +566,7 @@ static void rvm_op_popm(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 	for (n = RLST - 1; bits && n >= 0; n--) {
 		if (((rword)(1 << n)) & bits) {
-			RVM_SET_REG(cpu, n, r_array_index(cpu->stackarray, RVM_GET_REGU(cpu, SP), rvm_reg_t));
+			RVM_SET_REG(cpu, n, r_array_index(cpu->stack, RVM_GET_REGU(cpu, SP), rvm_reg_t));
 			RVM_SET_REGU(cpu, SP, RVM_GET_REGU(cpu, SP) - 1);
 			bits &= ~(1<<n);
 		}
@@ -645,13 +646,13 @@ static void rvm_op_ret(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 
 
-static int rvm_vsnprintf(char *str, unsigned int size, const char *format, va_list ap)
+static int rvm_vsnprintf(char *str, ruint size, const char *format, va_list ap)
 {
 	return vsnprintf(str, size, format, ap);
 }
 
 
-static int rvm_snprintf(char *str, unsigned int size, const char *format, ...)
+static int rvm_snprintf(char *str, ruint size, const char *format, ...)
 {
 	va_list ap;
 	int ret;
@@ -675,7 +676,7 @@ static int rvm_printf(const char *format, ...)
 }
 
 
-int rvm_asm_dump_reg_to_str(unsigned char reg, char *str, unsigned int size)
+int rvm_asm_dump_reg_to_str(unsigned char reg, char *str, ruint size)
 {
 	int ret = 0;
 
@@ -698,7 +699,7 @@ int rvm_asm_dump_reg_to_str(unsigned char reg, char *str, unsigned int size)
 }
 
 
-int rvm_asm_dump_pi_to_str(rvm_asmins_t *pi, char *str, unsigned int size)
+int rvm_asm_dump_pi_to_str(rvm_asmins_t *pi, char *str, ruint size)
 {
 	int ret = 0, sz = size;
 
@@ -746,7 +747,7 @@ int rvm_asm_dump_pi_to_str(rvm_asmins_t *pi, char *str, unsigned int size)
 }
 
 
-void rvm_asm_dump(rvm_asmins_t *pi, unsigned int count)
+void rvm_asm_dump(rvm_asmins_t *pi, ruint count)
 {
 	char buffer[256];
 	while (count) {
@@ -857,7 +858,7 @@ rvm_cpu_t *rvm_cpu_create()
 		return ((void*)0);
 	r_memset(cpu, 0, sizeof(*cpu));
 	cpu->switables = r_array_create(sizeof(rvm_switable_t*));
-	cpu->stackarray = r_array_create(sizeof(rvm_reg_t));
+	cpu->stack = r_array_create(sizeof(rvm_reg_t));
 	return cpu;
 }
 
@@ -866,12 +867,12 @@ void rvm_cpu_destroy(rvm_cpu_t *cpu)
 {
 //	rvm_free(cpu->stack);
 	r_array_destroy(cpu->switables);
-	r_array_destroy(cpu->stackarray);
+	r_array_destroy(cpu->stack);
 	r_free(cpu);
 }
 
 
-int rvm_cpu_exec(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword pc)
+rint rvm_cpu_exec(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword pc)
 {
 	rvm_asmins_t *pi;
 
@@ -890,7 +891,7 @@ int rvm_cpu_exec(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword pc)
 }
 
 
-int rvm_cpu_exec_debug(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword pc)
+rint rvm_cpu_exec_debug(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword pc)
 {
 	rvm_asmins_t *pi;
 
@@ -910,9 +911,45 @@ int rvm_cpu_exec_debug(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword pc)
 }
 
 
-int rvm_cpu_switable_add(rvm_cpu_t *cpu, rvm_switable_t *switable)
+rint rvm_cpu_getswi(rvm_cpu_t *cpu, const rchar *swiname)
 {
+	rint ntable, nswi;
+	rvm_switable_t *swientry;
+
+	for (ntable = 0; ntable < cpu->switables->len; ntable++) {
+		swientry = r_array_index(cpu->switables, ntable, rvm_switable_t*);
+		for (nswi = 0; swientry[nswi].name; nswi++) {
+			if (r_strcmp(swientry->name, swiname) == 0)
+				return (rint)RVM_SWI_ID(ntable, nswi);
+		}
+	}
+
+	return -1;
+}
+
+
+rint rvm_cpu_switable_add(rvm_cpu_t *cpu, rvm_switable_t *switable)
+{
+	rint nswi;
+
+	for (nswi = 0; switable[nswi].name; nswi++) {
+		if (rvm_cpu_getswi(cpu, switable[nswi].name) >= 0)
+			return -1;
+	}
+
 	return r_array_add(cpu->switables, &switable);
+}
+
+
+rvm_asmins_t rvm_asmd(rword opcode, rword op1, rword op2, rword op3, rdouble data)
+{
+	rvm_asmins_t a;
+	a.opcode = (unsigned char) opcode;
+	a.op1 = (unsigned char)op1;
+	a.op2 = (unsigned char)op2;
+	a.op3 = (unsigned char)op3;
+	RVM_REGD(&a.data) = data;
+	return a;
 }
 
 

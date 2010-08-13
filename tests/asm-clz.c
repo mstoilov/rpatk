@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 
 
 	vmcode[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 0);
-	vmcode[off++] = rvm_asm(RVM_MOV, R1, DA, XX, 1 << 31);
+	vmcode[off++] = rvm_asm(RVM_MOV, R1, DA, XX, 1UL << 31);
 	vmcode[off++] = rvm_asm(RVM_CLZ, R0, R1, XX, 0);
 	VMTEST_REG(vmcode, off, 0, sizeof(rword) * 8 - 32, "CLZ (1<<31)");
 

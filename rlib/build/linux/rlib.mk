@@ -7,6 +7,7 @@ RLIB_OBJECTS =	\
 	$(OUTDIR)/ratomic.o \
 	$(OUTDIR)/rspinlock.o \
 	$(OUTDIR)/rarray.o \
+	$(OUTDIR)/rstring.o \
 
 
 ifeq ($(OS), linux)
