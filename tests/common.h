@@ -9,12 +9,12 @@
 	do { code[index++] = rvm_asm(RVM_MOV, R8, DA, XX, reg); \
 		 code[index++] = rvm_asm(RVM_MOV, R9, DA, XX, val); \
 		 code[index++] = rvm_asmp(RVM_MOV, R10, DA, XX, msg); \
-		 code[index++] = rvm_asm(RVM_SWI, DA, XX, R0, RVM_SWI(0, VMTEST_CHECK_REG)); } while (0)
+		 code[index++] = rvm_asm(RVM_SWI, DA, XX, R0, RVM_SWI_ID(0, VMTEST_CHECK_REG)); } while (0)
 
 #define VMTEST_STATUS(code, index, val, msg) \
 	do { code[index++] = rvm_asm(RVM_MOV, R9, DA, XX, val); \
 		 code[index++] = rvm_asmp(RVM_MOV, R10, DA, XX, msg); \
-		 code[index++] = rvm_asm(RVM_SWI, DA, XX, R0, RVM_SWI(0, VMTEST_CHECK_STATUS)); } while (0)
+		 code[index++] = rvm_asm(RVM_SWI, DA, XX, R0, RVM_SWI_ID(0, VMTEST_CHECK_STATUS)); } while (0)
 
 
 /*

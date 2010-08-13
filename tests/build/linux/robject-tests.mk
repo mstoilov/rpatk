@@ -14,9 +14,19 @@ TESTS	= \
 	$(OUTDIR)/rarray-test \
 	$(OUTDIR)/rvm-test \
 	$(OUTDIR)/memalloc-test \
-	$(OUTDIR)/add \
-	$(OUTDIR)/adds \
-	$(OUTDIR)/stack \
+	$(OUTDIR)/asm-add \
+	$(OUTDIR)/asm-adds \
+	$(OUTDIR)/asm-b \
+	$(OUTDIR)/asm-bitops \
+	$(OUTDIR)/asm-callback \
+	$(OUTDIR)/asm-clz \
+	$(OUTDIR)/asm-cmp \
+	$(OUTDIR)/asm-div \
+	$(OUTDIR)/asm-loadstore \
+	$(OUTDIR)/asm-mul \
+	$(OUTDIR)/asm-sbc \
+	$(OUTDIR)/asm-shiftops \
+	$(OUTDIR)/asm-stack \
 
 	
 all : $(OUTDIR) $(TESTS)
