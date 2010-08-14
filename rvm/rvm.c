@@ -77,7 +77,7 @@ static const char *stropcalls[] = {
 	"RVM_BGRE",
 	"RVM_RET",
 	"RVM_ROR",
-	"RVM_PUSH,",
+	"RVM_PUSHM",
 	"RVM_POPM",	
 	"RVM_TST",	
 	"RVM_TEQ",	
@@ -771,7 +771,7 @@ static void rvm_cpu_dumpregs(rvm_asmins_t *pi, rvm_cpu_t *vm)
 	buffer[50] = '\0';
 	rvm_printf("%s", buffer);
 
-   	rvm_printf("0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, SP=0x%lx, LR=0x%lx, PC=%ld, S( %c%c%c%c )",
+   	rvm_printf("0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, SP=0x%lx, LR=%ld, PC=%ld, S( %c%c%c%c )",
    		RVM_GET_REGU(vm, 0), RVM_GET_REGU(vm, 1), RVM_GET_REGU(vm, 2), RVM_GET_REGU(vm, 3),
    		RVM_GET_REGU(vm, 4), RVM_GET_REGU(vm, 5), RVM_GET_REGU(vm, 6), RVM_GET_REGU(vm, 7),
    		RVM_GET_REGU(vm, 8), RVM_GET_REGU(vm, SP), RVM_GET_REGU(vm, LR), (long int)RVM_GET_REGU(vm, PC),
@@ -975,6 +975,19 @@ rvm_asmins_t rvm_asmu(rword opcode, rword op1, rword op2, rword op3, rword data)
 	RVM_REGU(&a.data) = data;
 	return a;
 }
+
+
+rvm_asmins_t rvm_asmi(rword opcode, rword op1, rword op2, rword op3, rint data)
+{
+	rvm_asmins_t a;
+	a.opcode = (unsigned char) opcode;
+	a.op1 = (unsigned char)op1;
+	a.op2 = (unsigned char)op2;
+	a.op3 = (unsigned char)op3;
+	RVM_REGU(&a.data) = (rword)data;
+	return a;
+}
+
 
 rvm_asmins_t rvm_asm(rword opcode, rword op1, rword op2, rword op3, rword data)
 {

@@ -27,6 +27,7 @@ TESTS	= \
 	$(OUTDIR)/asm-sbc \
 	$(OUTDIR)/asm-shiftops \
 	$(OUTDIR)/asm-stack \
+	$(OUTDIR)/asm-bl	
 
 	
 all : $(OUTDIR) $(TESTS)

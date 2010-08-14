@@ -204,6 +204,7 @@ rint rvm_cpu_exec(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword pc);
 rint rvm_cpu_exec_debug(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword pc);
 rint rvm_cpu_getswi(rvm_cpu_t *cpu, const rchar *swiname);
 rvm_asmins_t rvm_asm(rword opcode, rword op1, rword op2, rword op3, rword data);
+rvm_asmins_t rvm_asmi(rword opcode, rword op1, rword op2, rword op3, rint data);
 rvm_asmins_t rvm_asmu(rword opcode, rword op1, rword op2, rword op3, rword data);
 rvm_asmins_t rvm_asmp(rword opcode, rword op1, rword op2, rword op3, rpointer data);
 rvm_asmins_t rvm_asmd(rword opcode, rword op1, rword op2, rword op3, rdouble data);
