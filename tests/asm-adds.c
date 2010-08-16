@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 	vmcode[off++] = rvm_asm(RVM_MOV, R1, DA, XX, -2);
 	vmcode[off++] = rvm_asm(RVM_MOV, R2, DA, XX, -3);
 	vmcode[off++] = rvm_asm(RVM_MOV, R3, DA, XX, 1);
-	vmcode[off++] = rvm_asm(RVM_MOV, R4, DA, XX, 0x7FFFEEDD00FFEEDD);
+	vmcode[off++] = rvm_asm(RVM_MOV, R4, DA, XX, (rword)0x7FFFEEDD00FFEEDD);
 	vmcode[off++] = rvm_asm(RVM_MOV, R5, DA, XX, 3);
 
 	vmcode[off++] = rvm_asm(RVM_ADDS, R0, R0, R1, 0);	/* N */

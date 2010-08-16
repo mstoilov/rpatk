@@ -532,30 +532,39 @@ static void rvm_op_dvs(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_push(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	RVM_SET_REGU(cpu, SP, RVM_GET_REGU(cpu, SP) + 1);
-	r_array_replace(cpu->stack, RVM_GET_REGU(cpu, SP), (rconstpointer)&RVM_GET_REG(cpu, ins->op1));
+	rword sp = RVM_GET_REGU(cpu, SP) + 1;
+
+	r_array_replace(cpu->stack, sp, (rconstpointer)&RVM_GET_REG(cpu, ins->op1));
+	RVM_SET_REGU(cpu, SP, sp);
+
 }
 
 
 static void rvm_op_pushm(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	int n;
+	int n, i;
 	rword bits = RVM_GET_REGU(cpu, ins->op1);
+	rword sp = RVM_GET_REGU(cpu, SP);
 
-	for (n = 0; bits && n < RLST; n++) {
+	for (i = 0, n = 0; bits && n < RLST; n++) {
 		if (((rword)(1 << n)) & bits) {
-			RVM_SET_REGU(cpu, SP, RVM_GET_REGU(cpu, SP) + 1);
-			r_array_replace(cpu->stack, RVM_GET_REGU(cpu, SP), (rconstpointer)&RVM_GET_REG(cpu, n));
+			i += 1;
+			sp += 1;
+			r_array_replace(cpu->stack, sp, (rconstpointer)&RVM_GET_REG(cpu, n));
 			bits &= ~(1<<n);
 		}
 	}
+	RVM_SET_REGU(cpu, SP, RVM_GET_REGU(cpu, SP) + i);
 }
 
 
 static void rvm_op_pop(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	RVM_SET_REG(cpu, ins->op1, r_array_index(cpu->stack, RVM_GET_REGU(cpu, SP), rvm_reg_t));
-	RVM_SET_REGU(cpu, SP, RVM_GET_REGU(cpu, SP) - 1);
+	rword sp = RVM_GET_REGU(cpu, SP);
+
+	RVM_SET_REG(cpu, ins->op1, r_array_index(cpu->stack, sp, rvm_reg_t));
+	if (ins->op1 != SP)
+		RVM_SET_REGU(cpu, SP, sp - 1);
 }
 
 
@@ -563,14 +572,17 @@ static void rvm_op_popm(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
 	int n;
 	rword bits = RVM_GET_REGU(cpu, ins->op1);
+	rword sp = RVM_GET_REGU(cpu, SP);
 
 	for (n = RLST - 1; bits && n >= 0; n--) {
 		if (((rword)(1 << n)) & bits) {
-			RVM_SET_REG(cpu, n, r_array_index(cpu->stack, RVM_GET_REGU(cpu, SP), rvm_reg_t));
-			RVM_SET_REGU(cpu, SP, RVM_GET_REGU(cpu, SP) - 1);
+			RVM_SET_REG(cpu, n, r_array_index(cpu->stack, sp, rvm_reg_t));
+			sp -= 1;
 			bits &= ~(1<<n);
 		}
 	}
+	if (!(((rword)(1 << SP)) & bits))
+		RVM_SET_REGU(cpu, SP, sp);
 }
 
 

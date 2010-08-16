@@ -22,7 +22,7 @@ void r_array_destroy(rarray_t *array)
 rarray_t *r_array_init(rarray_t *array, ruint elt_size)
 {
 	r_memset(array, 0, sizeof(*array));
-	array->elt_size = r_nearest_pow(elt_size);
+	array->elt_size = elt_size;
 	array->data = r_malloc(MIN_ARRAY_LEN * array->elt_size);
 	array->alloc_len = MIN_ARRAY_LEN;
 	if (!array->data)

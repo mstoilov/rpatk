@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 	vmcode[off++] = rvm_asm(RVM_SWI, DA, XX, XX, rvm_cpu_getswi(vm, "rvm_callback_one"));
 	vmcode[off++] = rvm_asm(RVM_SWI, DA, XX, XX, RVM_SWI_ID(table1, 0));
 	vmcode[off++] = rvm_asm(RVM_EXT, R0, XX, XX, 0);
-	fprintf(stdout, "Code List:\n");
+	fprintf(stdout, "Code List (sizeof rvm_reg_t is: %d(%d)):\n", (unsigned int) sizeof(rvm_reg_t), (unsigned int) sizeof(vm->r[0].v));
 	rvm_asm_dump(vmcode, off);
 	fprintf(stdout, "Code Execution:\n");
 #ifdef EXECDEBUG

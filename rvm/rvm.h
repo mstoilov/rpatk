@@ -174,6 +174,7 @@ typedef struct rvm_reg_s {
 		rdouble d;
 		ruint8 c[RVM_MIN_REGSIZE];
 	} v;
+	ruint8 type;
 } rvm_reg_t;
 
 
