@@ -2,7 +2,23 @@
 #include "rmem.h"
 
 #define MIN_ARRAY_LEN 4
-static ruint r_nearest_pow(ruint num);
+
+#if 0
+
+/*
+ * Returns the smallest power of 2 greater than n
+ */
+static ruint r_nearest_pow (ruint num)
+{
+	ruint n = 1;
+
+	while (n < num && n > 0)
+		n <<= 1;
+	return n ? n : num;
+}
+#endif
+
+
 static void r_array_checkexpand(rarray_t *array, ruint index);
 
 
@@ -99,17 +115,4 @@ static void r_array_checkexpand(rarray_t *array, ruint size)
 			array->alloc_len = nalloc_len;
 		}
 	}
-}
-
-
-/*
- * Returns the smallest power of 2 greater than n
- */
-static ruint r_nearest_pow (ruint num)
-{
-	ruint n = 1;
-
-	while (n < num && n > 0)
-		n <<= 1;
-	return n ? n : num;
 }

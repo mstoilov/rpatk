@@ -750,7 +750,7 @@ int rvm_asm_dump_pi_to_str(rvm_asmins_t *pi, char *str, ruint size)
 	str += ret;
 	sz -= ret;
 
-	if ((ret = rvm_snprintf(str, sz, "0x%lx  ", pi->data)) < 0)
+	if ((ret = rvm_snprintf(str, sz, "0x%lx  ", (unsigned long)RVM_REGU(&pi->data))) < 0)
 		return ret;
 	str += ret;
 	sz -= ret;
@@ -956,6 +956,8 @@ rint rvm_cpu_switable_add(rvm_cpu_t *cpu, rvm_switable_t *switable)
 rvm_asmins_t rvm_asmd(rword opcode, rword op1, rword op2, rword op3, rdouble data)
 {
 	rvm_asmins_t a;
+
+	r_memset(&a, 0, sizeof(a));
 	a.opcode = (unsigned char) opcode;
 	a.op1 = (unsigned char)op1;
 	a.op2 = (unsigned char)op2;
@@ -968,6 +970,8 @@ rvm_asmins_t rvm_asmd(rword opcode, rword op1, rword op2, rword op3, rdouble dat
 rvm_asmins_t rvm_asmp(rword opcode, rword op1, rword op2, rword op3, rpointer data)
 {
 	rvm_asmins_t a;
+
+	r_memset(&a, 0, sizeof(a));
 	a.opcode = (unsigned char) opcode;
 	a.op1 = (unsigned char)op1;
 	a.op2 = (unsigned char)op2;
@@ -980,6 +984,8 @@ rvm_asmins_t rvm_asmp(rword opcode, rword op1, rword op2, rword op3, rpointer da
 rvm_asmins_t rvm_asmu(rword opcode, rword op1, rword op2, rword op3, rword data)
 {
 	rvm_asmins_t a;
+
+	r_memset(&a, 0, sizeof(a));
 	a.opcode = (unsigned char) opcode;
 	a.op1 = (unsigned char)op1;
 	a.op2 = (unsigned char)op2;
@@ -992,6 +998,8 @@ rvm_asmins_t rvm_asmu(rword opcode, rword op1, rword op2, rword op3, rword data)
 rvm_asmins_t rvm_asmi(rword opcode, rword op1, rword op2, rword op3, rint data)
 {
 	rvm_asmins_t a;
+
+	r_memset(&a, 0, sizeof(a));
 	a.opcode = (unsigned char) opcode;
 	a.op1 = (unsigned char)op1;
 	a.op2 = (unsigned char)op2;
@@ -1001,8 +1009,37 @@ rvm_asmins_t rvm_asmi(rword opcode, rword op1, rword op2, rword op3, rint data)
 }
 
 
+rvm_asmins_t rvm_asmr(rword opcode, rword op1, rword op2, rword op3, rpointer pReloc)
+{
+	rvm_asmins_t a;
+
+	r_memset(&a, 0, sizeof(a));
+	a.opcode = (unsigned char) opcode;
+	a.op1 = (unsigned char)op1;
+	a.op2 = (unsigned char)op2;
+	a.op3 = (unsigned char)op3;
+	RVM_REGP(&a.data) = pReloc;
+	RVM_REG_INFO(&a.data) = RVM_DTYPE_RELOCPTR;
+	return a;
+
+}
+
+
 rvm_asmins_t rvm_asm(rword opcode, rword op1, rword op2, rword op3, rword data)
 {
 	return rvm_asmu(opcode, op1, op2, op3, data);
 }
 
+
+void rvm_relocate(rvm_asmins_t *code, rsize_t size)
+{
+	rword off = 0;
+
+	for (off = 0; off < size; off++, code++) {
+		if (RVM_REG_INFO(&code->data) == RVM_DTYPE_RELOCPTR) {
+			RVM_REG_INFO(&code->data) = 0;
+			rword *preloc = (rword*)RVM_REGP(&code->data);
+			RVM_REGU(&code->data) = *preloc - off;
+		}
+	}
+}

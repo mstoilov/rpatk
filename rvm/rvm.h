@@ -87,6 +87,15 @@ enum {
 };
 
 
+enum {
+	RVM_DTYPE_WORD = 0,
+	RVM_DTYPE_POINTER,
+	RVM_DTYPE_DOUBLE,
+	RVM_DTYPE_STRING,
+	RVM_DTYPE_RELOCPTR,
+};
+
+
 #define RVM_REGISTER_BITS (8 * sizeof(rword))
 #define RVM_SIGN_BIT (1LU << (RVM_REGISTER_BITS - 1))
 #define RVM_STATUS_Z (1 << 0)
@@ -133,9 +142,9 @@ do { \
 #define RVM_STACK_CHUNK 256
 #define RVM_ABORT(cpu, e) do { cpu->error = (e); cpu->abort = 1; return; } while (0)
 #define BIT(_shiftby_) (1 << (_shiftby_))
-#define RVM_REGU(r) (r)->v.u
-#define RVM_GET_REGU(cpu, reg) (cpu)->r[(reg)].v.u
-#define RVM_SET_REGU(cpu, reg, val) do { (cpu)->r[(reg)].v.u = (rword)(val); } while (0)
+#define RVM_REGU(r) (r)->v.w
+#define RVM_GET_REGU(cpu, reg) (cpu)->r[(reg)].v.w
+#define RVM_SET_REGU(cpu, reg, val) do { (cpu)->r[(reg)].v.w = (rword)(val); } while (0)
 #define RVM_REGP(r) (r)->v.p
 #define RVM_GET_REGP(cpu, reg) (cpu)->r[(reg)].v.p
 #define RVM_SET_REGP(cpu, reg, val) do { (cpu)->r[(reg)].v.p = (rpointer)(val); } while (0)
@@ -143,6 +152,8 @@ do { \
 #define RVM_GET_REGD(cpu, reg) (cpu)->r[(reg)].v.d
 #define RVM_SET_REGD(cpu, reg, val) do { (cpu)->r[(reg)].v.d = (rdouble)(val); } while (0)
 #define RVM_REG(r) (r)
+#define RVM_REG_INFO(r) (r)->info
+#define RVM_REG_SIZE(r) (r)->size
 #define RVM_GET_REG(cpu, reg) (cpu)->r[(reg)]
 #define RVM_SET_REG(cpu, reg, val) do { (cpu)->r[(reg)] = (rvm_reg_t)(val); } while (0)
 #define RVM_SWI_TABLE(__op__) ((__op__) >> 16)
@@ -169,12 +180,13 @@ typedef struct rvm_switable_s {
 
 typedef struct rvm_reg_s {
 	union {
-		rword u;
+		rword w;
 		rpointer p;
 		rdouble d;
 		ruint8 c[RVM_MIN_REGSIZE];
 	} v;
-	ruint8 type;
+	ruint32 info;
+	ruint32 size;
 } rvm_reg_t;
 
 
@@ -204,10 +216,12 @@ rint rvm_cpu_switable_add(rvm_cpu_t * cpu, rvm_switable_t *switalbe);
 rint rvm_cpu_exec(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword pc);
 rint rvm_cpu_exec_debug(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword pc);
 rint rvm_cpu_getswi(rvm_cpu_t *cpu, const rchar *swiname);
+void rvm_relocate(rvm_asmins_t *code, rsize_t size);
 rvm_asmins_t rvm_asm(rword opcode, rword op1, rword op2, rword op3, rword data);
 rvm_asmins_t rvm_asmi(rword opcode, rword op1, rword op2, rword op3, rint data);
 rvm_asmins_t rvm_asmu(rword opcode, rword op1, rword op2, rword op3, rword data);
 rvm_asmins_t rvm_asmp(rword opcode, rword op1, rword op2, rword op3, rpointer data);
+rvm_asmins_t rvm_asmr(rword opcode, rword op1, rword op2, rword op3, rpointer pReloc);
 rvm_asmins_t rvm_asmd(rword opcode, rword op1, rword op2, rword op3, rdouble data);
 void rvm_asm_dump(rvm_asmins_t *pi, ruint count);
 
