@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
 {
 	ruint ret = 0;
 	ruint off = 0;
-	rword l_add2 = 0, l_add3 = 0, l_main = 0;
+	rvm_asmins_t *l_add2 = NULL, *l_add3 = NULL, *l_main = NULL;
 	rvm_asmins_t vmcode[256];
 	rvm_cpu_t *vm = rvm_cpu_create();
 	
@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
 	/*
 	 * R0 = R0 + R1
 	 */
-	l_add2 = off;
+	l_add2 = &vmcode[off];
 	vmcode[off++] = rvm_asm(RVM_ADD, R0, R0, R1, 0);
 	vmcode[off++] = rvm_asm(RVM_RET, XX, XX, XX, 0);
 
@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 	/*
 	 * R0 = R0 + R1 + R2
 	 */
-	l_add3 = off;
+	l_add3 = &vmcode[off];
 	vmcode[off++] = rvm_asmu(RVM_PUSHM,DA, XX, XX, BIT(R7)|BIT(R8)|BIT(SP)|BIT(LR));
 	vmcode[off++] = rvm_asmi(RVM_PUSH, R2, XX, XX, 0);
 	vmcode[off++] = rvm_asmr(RVM_BL,   DA, XX, XX, &l_add2);
@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 	 */
 
 
-	l_main = off;
+	l_main = &vmcode[off];
 	vmcode[off++] = rvm_asmi(RVM_MOV, R0, DA, XX, 1);
 	vmcode[off++] = rvm_asmi(RVM_MOV, R1, DA, XX, 2);
 	vmcode[off++] = rvm_asmr(RVM_BL,  DA, XX, XX, &l_add2);

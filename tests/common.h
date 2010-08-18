@@ -1,7 +1,7 @@
 #include "rvm.h"
 #include <stdio.h>
 
-//#define EXECDEBUG 1
+#define EXECDEBUG 1
 #define VMTEST_CHECK_REG 0
 #define VMTEST_CHECK_STATUS 1
 

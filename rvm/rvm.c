@@ -1033,13 +1033,14 @@ rvm_asmins_t rvm_asm(rword opcode, rword op1, rword op2, rword op3, rword data)
 
 void rvm_relocate(rvm_asmins_t *code, rsize_t size)
 {
-	rword off = 0;
+	rvm_asmins_t *reloc;
+	rword off;
 
 	for (off = 0; off < size; off++, code++) {
 		if (RVM_REG_INFO(&code->data) == RVM_DTYPE_RELOCPTR) {
 			RVM_REG_INFO(&code->data) = 0;
-			rword *preloc = (rword*)RVM_REGP(&code->data);
-			RVM_REGU(&code->data) = *preloc - off;
+			reloc = *((rvm_asmins_t **)RVM_REGP(&code->data));
+			RVM_REGU(&code->data) = reloc - code;
 		}
 	}
 }
