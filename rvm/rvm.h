@@ -141,22 +141,26 @@ do { \
 #define XX 255
 
 #define RVM_STACK_CHUNK 256
-#define RVM_ABORT(cpu, e) do { cpu->error = (e); cpu->abort = 1; return; } while (0)
-#define BIT(_shiftby_) (1 << (_shiftby_))
-#define RVM_REGU(r) (r)->v.w
-#define RVM_GET_REGU(cpu, reg) (cpu)->r[(reg)].v.w
-#define RVM_SET_REGU(cpu, reg, val) do { (cpu)->r[(reg)].v.w = (rword)(val); } while (0)
-#define RVM_REGP(r) (r)->v.p
-#define RVM_GET_REGP(cpu, reg) (cpu)->r[(reg)].v.p
-#define RVM_SET_REGP(cpu, reg, val) do { (cpu)->r[(reg)].v.p = (rpointer)(val); } while (0)
-#define RVM_REGD(r) (r)->v.d
-#define RVM_GET_REGD(cpu, reg) (cpu)->r[(reg)].v.d
-#define RVM_SET_REGD(cpu, reg, val) do { (cpu)->r[(reg)].v.d = (rdouble)(val); } while (0)
-#define RVM_REG(r) (r)
-#define RVM_REG_INFO(r) (r)->info
-#define RVM_REG_SIZE(r) (r)->size
-#define RVM_GET_REG(cpu, reg) (cpu)->r[(reg)]
-#define RVM_SET_REG(cpu, reg, val) do { (cpu)->r[(reg)] = (rvm_reg_t)(val); } while (0)
+#define RVM_ABORT(__cpu__, __e__) do { __cpu__->error = (__e__); (__cpu__)->abort = 1; return; } while (0)
+#define BIT(__shiftby__) (1 << (__shiftby__))
+#define RVM_REGU(__r__) (__r__)->v.w
+#define RVM_GET_REGU(__cpu__, __r__) (__cpu__)->r[(__r__)].v.w
+#define RVM_SET_REGU(__cpu__, __r__, val) do { (__cpu__)->r[(__r__)].v.w = (rword)(val); } while (0)
+#define RVM_REGP(__r__) (__r__)->v.p
+#define RVM_GET_REGP(__cpu__, __r__) (__cpu__)->r[(__r__)].v.p
+#define RVM_SET_REGP(__cpu__, __r__, val) do { (__cpu__)->r[(__r__)].v.p = (rpointer)(val); } while (0)
+#define RVM_REGD(__r__) (__r__)->v.d
+#define RVM_GET_REGD(__cpu__, __r__) (__cpu__)->r[(__r__)].v.d
+#define RVM_SET_REGD(__cpu__, __r__, val) do { (__cpu__)->r[(__r__)].v.d = (rdouble)(val); } while (0)
+#define RVM_REG(__r__) (__r__)
+#define RVM_REGM(__r__) (rvm_asmins_t*)((__r__)->v.p)
+#define RVM_GET_REGM(__cpu__, __r__) ((rvm_asmins_t*)(__cpu__)->r[(__r__)].v.p)
+#define RVM_SET_REGM(__cpu__, __r__, __p__) do { (__cpu__)->r[(__r__)].v.p = ((rpointer)(__p__)); } while (0)
+#define RVM_INC_REGM(__cpu__, __r__, val) do {rvm_asmins_t *p = RVM_GET_REGM(__cpu__, __r__); (__cpu__)->r[(__r__)].v.p = (rpointer)(p + (val)); } while (0)
+#define RVM_REG_INFO(__r__) (__r__)->info
+#define RVM_REG_SIZE(__r__) (__r__)->size
+#define RVM_GET_REG(__cpu__, __r__) (__cpu__)->r[(__r__)]
+#define RVM_SET_REG(__cpu__, __r__, val) do { (__cpu__)->r[(__r__)] = (rvm_reg_t)(val); } while (0)
 #define RVM_SWI_TABLE(__op__) ((__op__) >> 16)
 #define RVM_SWI_NUM(__op__) ((__op__) & ((1 << 16) - 1))
 #define RVM_SWI_ID(__t__, __o__) ((((__t__) & ((1 << 16) - 1))  << 16) | ((__o__) & ((1 << 16) - 1)))
@@ -214,8 +218,8 @@ struct rvm_cpu_s {
 rvm_cpu_t *rvm_cpu_create();
 void rvm_cpu_destroy(rvm_cpu_t * vm);
 rint rvm_cpu_switable_add(rvm_cpu_t * cpu, rvm_switable_t *switalbe);
-rint rvm_cpu_exec(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword pc);
-rint rvm_cpu_exec_debug(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword pc);
+rint rvm_cpu_exec(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword off);
+rint rvm_cpu_exec_debug(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword off);
 rint rvm_cpu_getswi(rvm_cpu_t *cpu, const rchar *swiname);
 void rvm_relocate(rvm_asmins_t *code, rsize_t size);
 rvm_asmins_t rvm_asm(rword opcode, rword op1, rword op2, rword op3, rword data);

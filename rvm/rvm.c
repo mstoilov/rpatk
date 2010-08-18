@@ -84,30 +84,9 @@ static const char *stropcalls[] = {
 };
 
 
-/*
-static int rvm_cpu_check_space(rvm_cpu_t *cpu)
-{
-	rvm_reg_t *stack;
-	rword stacksize;
-
-	if (cpu->stacksize - RVM_GET_REGU(cpu, SP) <= RVM_STACK_CHUNK) {
-		stacksize = cpu->stacksize + 2 * RVM_STACK_CHUNK;
-		stack = (rvm_reg_t *)rvm_realloc(cpu->stack, (unsigned long)(sizeof(rvm_reg_t) * stacksize));
-		if (!stack)
-			return -1;
-		cpu->stacksize = stacksize;
-		cpu->stack = stack;
-#if 0
-		fprintf(stdout, "%s, size: %ld\n", __FUNCTION__, cpu->stacksize);
-#endif
-	}
-	return 0;
-}
-*/
-
 static void rvm_op_b(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	RVM_SET_REGU(cpu, PC, RVM_GET_REGU(cpu, PC) + RVM_GET_REGU(cpu, ins->op1) - 1);
+	RVM_INC_REGM(cpu, PC, RVM_GET_REGU(cpu, ins->op1) - 1);
 }
 
 
@@ -154,8 +133,8 @@ static void rvm_op_bgre(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_bl(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	RVM_SET_REGU(cpu, LR, RVM_GET_REGU(cpu, PC));
-	RVM_SET_REGU(cpu, PC, RVM_GET_REGU(cpu, PC) + RVM_GET_REGU(cpu, ins->op1) - 1);
+	RVM_SET_REGM(cpu, LR, RVM_GET_REGM(cpu, PC));
+	RVM_INC_REGM(cpu, PC, RVM_GET_REGU(cpu, ins->op1) - 1);
 }
 
 
@@ -884,40 +863,40 @@ void rvm_cpu_destroy(rvm_cpu_t *cpu)
 }
 
 
-rint rvm_cpu_exec(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword pc)
+rint rvm_cpu_exec(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword off)
 {
 	rvm_asmins_t *pi;
 
-	RVM_SET_REGU(cpu, PC, pc);
+	RVM_SET_REGM(cpu, PC, prog + off);
 	cpu->abort = 0;
 	cpu->error = 0;
 	do {
-		pi = &prog[RVM_GET_REGU(cpu, PC)];
+		pi = RVM_GET_REGM(cpu, PC);
 		cpu->r[DA] = pi->data;
 		ops[pi->opcode](cpu, pi);
 		if (cpu->abort)
 			return -1;
-		RVM_SET_REGU(cpu, PC, RVM_GET_REGU(cpu, PC) + 1);
+		RVM_INC_REGM(cpu, PC, 1);
 	} while (pi->opcode);
 	return 0;
 }
 
 
-rint rvm_cpu_exec_debug(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword pc)
+rint rvm_cpu_exec_debug(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword off)
 {
 	rvm_asmins_t *pi;
 
-	RVM_SET_REGU(cpu, PC, pc);
+	RVM_SET_REGM(cpu, PC, prog + off);
 	cpu->abort = 0;
 	cpu->error = 0;
 	do {
-		pi = &prog[RVM_GET_REGU(cpu, PC)];
+		pi = RVM_GET_REGM(cpu, PC);
 		cpu->r[DA] = pi->data;
 		ops[pi->opcode](cpu, pi);
 		if (cpu->abort)
 			return -1;
 		rvm_cpu_dumpregs(pi, cpu);		
-		RVM_SET_REGU(cpu, PC, RVM_GET_REGU(cpu, PC) + 1);
+		RVM_INC_REGM(cpu, PC, 1);
 	} while (pi->opcode);
 	return 0;
 }
