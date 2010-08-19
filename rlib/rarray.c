@@ -52,7 +52,12 @@ rarray_t *r_array_create(ruint elt_size)
 	rarray_t *array;
 	if ((array = (rarray_t*)r_malloc(sizeof(*array))) == NULL)
 		return NULL;
-	return r_array_init(array, elt_size);
+	r_memset(array, 0, sizeof(*array));
+	if (!r_array_init(array, elt_size)) {
+		r_array_destroy(array);
+		return NULL;
+	}
+	return array;
 }
 
 

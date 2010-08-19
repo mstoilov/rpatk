@@ -18,7 +18,6 @@ typedef rint rboolean;
 typedef void *rpointer;
 typedef const void *rconstpointer;
 
-
 /* 
  * Architecture dependent types. These types have to be redifined 
  * for every architecture
