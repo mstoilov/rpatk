@@ -1,7 +1,61 @@
 #include "rmem.h"
+#include "rstring.h"
 #include "rhash.h"
 
 
+typedef struct rhash_node_s {
+	rlink_t lnk;
+	rconstpointer key;
+	rpointer value;
+} rhash_node_t;
+
+
+static rhash_node_t *r_hash_node_create()
+{
+	rhash_node_t *node;
+
+	return (rhash_node_t *)r_malloc(sizeof(*node));
+}
+
+
+static void r_hash_node_destroy(rhash_node_t *node)
+{
+	r_free(node);
+}
+
+
+static rhash_node_t *r_hash_node_lookup(rhash_t* hash, rconstpointer key)
+{
+	ruint nbucket = hash->hfunc(key) & r_hash_mask(hash);
+	rhash_node_t *node;
+	rlink_t *pos;
+
+	r_list_foreach(pos, &hash->buckets[nbucket]) {
+		node = r_list_entry(pos, rhash_node_t, lnk);
+		if (hash->eqfunc(node->key, key)) {
+			return node;
+		}
+	}
+	return NULL;
+}
+
+
+ruint r_hash_strhash(rconstpointer key)
+{
+	const rchar *str = (const rchar*) key;
+	ruint hash = 0;
+	int c;
+
+	while ((c = *str++))
+		hash = c + (hash << 6) + (hash << 16) - hash;
+	return hash;
+}
+
+
+rboolean r_hash_strequal(rconstpointer key1, rconstpointer key2)
+{
+	return r_strcmp((const rchar*)key1, (const rchar*)key2) ? FALSE : TRUE;
+}
 
 rhash_t *r_hash_create(ruint nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfunc)
 {
@@ -21,21 +75,83 @@ rhash_t *r_hash_create(ruint nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfun
 
 rhash_t *r_hash_init(rhash_t *hash, ruint nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfunc)
 {
+	ruint i;
+	rsize_t size;
+
 	hash->nbits = nbits;
 	hash->eqfunc = eqfunc;
 	hash->hfunc = hfunc;
 	hash->buckets = (rlist_t*)r_malloc(sizeof(rlist_t) * r_hash_size(hash));
-	return NULL;
+	if (!hash->buckets)
+		return NULL;
+	size = r_hash_size(hash);
+	for (i = 0; i < size; i++) {
+		r_list_init(&hash->buckets[i]);
+	}
+	return hash;
 }
 
 
 void r_hash_destroy(rhash_t *hash)
 {
+	r_hash_cleanup(hash);
 	r_free(hash);
 }
 
 
 void r_hash_cleanup(rhash_t *hash)
 {
+	r_hash_removeall(hash);
 	r_free(hash->buckets);
+}
+
+
+void r_hash_insert(rhash_t* hash, rconstpointer key, rpointer value)
+{
+	ruint nbucket = hash->hfunc(key) & r_hash_mask(hash);
+	rhash_node_t *node = r_hash_node_create();
+	if (node) {
+		r_list_init(&node->lnk);
+		node->key = key;
+		node->value = value;
+	}
+	r_list_addt(&hash->buckets[nbucket], &node->lnk);
+
+}
+
+
+void r_hash_remove(rhash_t* hash, rconstpointer key)
+{
+	rhash_node_t *node;
+
+	while ((node = r_hash_node_lookup(hash, key)) != NULL) {
+		r_list_del(&node->lnk);
+		r_hash_node_destroy(node);
+	}
+}
+
+
+void r_hash_removeall(rhash_t* hash)
+{
+	ruint nbucket;
+	rhead_t *head;
+	rhash_node_t *node;
+
+	for (nbucket = 0; nbucket < r_hash_size(hash); nbucket++) {
+		head = &hash->buckets[nbucket];
+		while (!r_list_empty(head)) {
+			node = r_list_entry(r_list_first(head), rhash_node_t, lnk);
+			r_list_del(&node->lnk);
+			r_hash_node_destroy(node);
+		}
+	}
+}
+
+
+rpointer r_hash_lookup(rhash_t* hash, rconstpointer key)
+{
+	rhash_node_t *node = r_hash_node_lookup(hash, key);
+	if (node)
+		return node->value;
+	return NULL;
 }

@@ -12,6 +12,7 @@ LIBS += -lrvm -lrlib -lpthread --static
 TESTS	= \
 	$(OUTDIR)/rlock-test \
 	$(OUTDIR)/rarray-test \
+	$(OUTDIR)/rhash-test \
 	$(OUTDIR)/rvm-test \
 	$(OUTDIR)/memalloc-test \
 	$(OUTDIR)/asm-add \

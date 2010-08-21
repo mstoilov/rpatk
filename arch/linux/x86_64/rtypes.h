@@ -70,5 +70,14 @@ typedef unsigned int ratomic_t;
 #endif
 #endif
 
+#ifndef TRUE
+#define TRUE ((rboolean)1)
+#endif
+
+#ifndef FALSE
+#define FALSE ((rboolean)0)
+#endif
+
+
 #endif
 
