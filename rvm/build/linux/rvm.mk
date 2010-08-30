@@ -5,7 +5,9 @@ RVM_SO = $(OUTDIR)/librvm.so.1.0
 CFLAGS += -I$(RVM_SRCDIR)/config -I$(SRCDIR)/rlib
 
 RVM_OBJECTS =	\
-	$(OUTDIR)/rvm.o \
+	$(OUTDIR)/rvm.o\
+	$(OUTDIR)/rvmtranslator.o \
+	$(OUTDIR)/rvmvarsmgr.o \
 
 
 ifeq ($(OS), linux)

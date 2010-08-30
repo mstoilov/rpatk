@@ -12,9 +12,15 @@ int main(int argc, char *argv[])
 
 	h = r_hash_create(5, r_hash_strequal, r_hash_strhash);
 	r_hash_insert(h, sdig[0], &idig[0]);
-	r_hash_insert(h, sdig[7], &idig[7]);
 	r_hash_insert(h, sdig[7], &idig[8]);
+	r_hash_insert(h, sdig[7], &idig[7]);
 	r_hash_insert(h, sdig[5], &idig[5]);
+	fprintf(stdout, "key: %s, value: %d\n", "seven", *((ruint*)r_hash_lookup(h, "seven")));
+	r_hash_remove(h, sdig[7]);
+	if (!r_hash_lookup(h, "seven")) {
+		r_hash_insert(h, sdig[7], &idig[7]);
+		r_hash_insert(h, sdig[7], &idig[8]);
+	}
 	fprintf(stdout, "key: %s, value: %d\n", "seven", *((ruint*)r_hash_lookup(h, "seven")));
 	fprintf(stdout, "key: %s, value: %d\n", sdig[5], *((ruint*)r_hash_lookup(h, sdig[5])));
 	fprintf(stdout, "key: %s, value: %d\n", sdig[0], *((ruint*)r_hash_lookup(h, sdig[0])));

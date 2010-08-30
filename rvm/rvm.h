@@ -24,11 +24,13 @@
 #include "rtypes.h"
 #include "rarray.h"
 
-#define RVM_MIN_REGSIZE (sizeof(rword)/8)
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define RVM_MIN_REGSIZE (sizeof(rword)/8)
+
 
 enum {
 	RVM_EXT = 0,

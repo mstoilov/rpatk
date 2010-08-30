@@ -18,7 +18,6 @@ ifeq ($(CCBLD), yes)
 CFLAGS += -fprofile-arcs -ftest-coverage
 endif
 
-CFLAGS += -DR_DEBUG_MEMALLOC
 
 CFLAGS += $(MACH) $(INCLUDE)
 LDFLAGS := $(MACH)
