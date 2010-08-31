@@ -1,4 +1,4 @@
-#include "rvmvarsmgr.h"
+#include "rvmscope.h"
 #include "rstring.h"
 #include "rmem.h"
 

@@ -1,5 +1,5 @@
-#ifndef _RVMVARSMGR_H_
-#define _RVMVARSMGR_H_
+#ifndef _RVMSCOPE_H_
+#define _RVMSCOPE_H_
 
 #include "rtypes.h"
 #include "rarray.h"

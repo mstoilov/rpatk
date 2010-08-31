@@ -12,7 +12,7 @@ LIBS += -lrvm -lrlib -lpthread --static
 TESTS	= \
 	$(OUTDIR)/rlock-test \
 	$(OUTDIR)/rarray-test \
-	$(OUTDIR)/varsmgr-test \
+	$(OUTDIR)/scope-test \
 	$(OUTDIR)/rhash-test \
 	$(OUTDIR)/rvm-test \
 	$(OUTDIR)/memalloc-test \
@@ -31,7 +31,7 @@ TESTS	= \
 	$(OUTDIR)/asm-stack \
 	$(OUTDIR)/asm-bl	
 
-	
+
 all : $(OUTDIR) $(TESTS)
 
 $(OUTDIR)/%: $(TESTS_SRCDIR)/%.c

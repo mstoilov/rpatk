@@ -7,7 +7,7 @@ CFLAGS += -I$(RVM_SRCDIR)/config -I$(SRCDIR)/rlib
 RVM_OBJECTS =	\
 	$(OUTDIR)/rvm.o\
 	$(OUTDIR)/rvmtranslator.o \
-	$(OUTDIR)/rvmvarsmgr.o \
+	$(OUTDIR)/rvmscope.o \
 
 
 ifeq ($(OS), linux)

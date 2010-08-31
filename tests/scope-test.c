@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "rhash.h"
 #include "rmem.h"
-#include "rvmvarsmgr.h"
+#include "rvmscope.h"
 
 
 int main(int argc, char *argv[])
