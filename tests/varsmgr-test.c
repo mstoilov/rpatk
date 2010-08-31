@@ -7,17 +7,19 @@
 
 int main(int argc, char *argv[])
 {
-	rvm_varsmgr_t *vmgr = rvm_varsmgr_create();
+	rvm_scope_t *vmgr = rvm_scope_create();
 
-	rvm_varsmgr_addvar(vmgr, "a");
-	rvm_varsmgr_addvar(vmgr, "ab");
-	rvm_varsmgr_addvar(vmgr, "abc");
+	rvm_scope_addvar(vmgr, "a");
+	rvm_scope_addvar(vmgr, "a");
+	rvm_scope_addvar(vmgr, "a");
+	rvm_scope_addvar(vmgr, "ab");
+	rvm_scope_addvar(vmgr, "abc");
 
 	fprintf(stdout, "key: %s, value: %s\n", "a", ((rchar*)r_hash_lookup(vmgr->nameshash, "a")));
 	fprintf(stdout, "key: %s, value: %s\n", "abc", ((rchar*)r_hash_lookup(vmgr->nameshash, "abc")));
 	fprintf(stdout, "key: %s, value: %s\n", "ddd", ((rchar*)r_hash_lookup(vmgr->nameshash, "ddd")));
 
-	rvm_varsmgr_destroy(vmgr);
+	rvm_scope_destroy(vmgr);
 
 
 

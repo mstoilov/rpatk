@@ -11,15 +11,23 @@ extern "C" {
 #endif
 
 
-typedef struct rvm_varsmgr_s {
+typedef struct rvm_varmap_s {
+	const rchar *name;
+	rpointer *data;
+} rvm_varmap_t;
+
+
+typedef struct rvm_scope_s {
 	rarray_t *names;
 	rhash_t *nameshash;
-} rvm_varsmgr_t;
+	rarray_t *varstack;
+	rarray_t *scopestack;
+} rvm_scope_t;
 
 
-rvm_varsmgr_t *rvm_varsmgr_create();
-void rvm_varsmgr_destroy(rvm_varsmgr_t *varsmgr);
-void rvm_varsmgr_addvar(rvm_varsmgr_t *varsmgr, const rchar* varname);
+rvm_scope_t *rvm_scope_create();
+void rvm_scope_destroy(rvm_scope_t *scope);
+void rvm_scope_addvar(rvm_scope_t *scope, const rchar* varname);
 
 
 

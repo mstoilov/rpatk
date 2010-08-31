@@ -2,41 +2,45 @@
 #include "rstring.h"
 #include "rmem.h"
 
-rvm_varsmgr_t *rvm_varsmgr_create()
+rvm_scope_t *rvm_scope_create()
 {
-	rvm_varsmgr_t *varsmgr;
+	rvm_scope_t *scope;
 
-	varsmgr = (rvm_varsmgr_t*)r_malloc(sizeof(*varsmgr));
-	if (!varsmgr)
+	scope = (rvm_scope_t*)r_malloc(sizeof(*scope));
+	if (!scope)
 		return NULL;
-	r_memset(varsmgr, 0, sizeof(*varsmgr));
-	varsmgr->names = r_array_create(sizeof(char*));
-	varsmgr->nameshash = r_hash_create(5, r_hash_strequal, r_hash_strhash);
-	return varsmgr;
+	r_memset(scope, 0, sizeof(*scope));
+	scope->names = r_array_create(sizeof(char*));
+	scope->nameshash = r_hash_create(5, r_hash_strequal, r_hash_strhash);
+	scope->varstack = r_array_create(sizeof(rvm_varmap_t));
+	scope->scopestack = r_array_create(sizeof(ruint32));
+	return scope;
 }
 
 
-void rvm_varsmgr_destroy(rvm_varsmgr_t *varsmgr)
+void rvm_scope_destroy(rvm_scope_t *scope)
 {
 	int i;
-	int len = varsmgr->names->len;
+	int len = scope->names->len;
 
 	for (i = 0; i < len; i++)
-		r_free(r_array_index(varsmgr->names, i, rchar*));
-	r_array_destroy(varsmgr->names);
-	r_hash_destroy(varsmgr->nameshash);
-	r_free(varsmgr);
+		r_free(r_array_index(scope->names, i, rchar*));
+	r_array_destroy(scope->names);
+	r_array_destroy(scope->varstack);
+	r_array_destroy(scope->scopestack);
+	r_hash_destroy(scope->nameshash);
+	r_free(scope);
 }
 
 
-void rvm_varsmgr_addvar(rvm_varsmgr_t *varsmgr, const rchar* varname)
+void rvm_scope_addvar(rvm_scope_t *scope, const rchar* varname)
 {
 	rchar *dupname;
 
-	if (!r_hash_lookup(varsmgr->nameshash, varname)) {
+	if (!r_hash_lookup(scope->nameshash, varname)) {
 		dupname = r_strdup(varname);
-		r_array_add(varsmgr->names, (rconstpointer)&dupname);
-		r_hash_insert(varsmgr->nameshash, varname, dupname);
+		r_array_add(scope->names, (rconstpointer)&dupname);
+		r_hash_insert(scope->nameshash, varname, dupname);
 	}
 }
 
