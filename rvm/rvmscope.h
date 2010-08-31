@@ -13,7 +13,10 @@ extern "C" {
 
 typedef struct rvm_varmap_s {
 	const rchar *name;
-	rpointer *data;
+	union {
+		rpointer *ptr;
+		ruint32 offset;
+	} data;
 } rvm_varmap_t;
 
 
@@ -27,9 +30,10 @@ typedef struct rvm_scope_s {
 
 rvm_scope_t *rvm_scope_create();
 void rvm_scope_destroy(rvm_scope_t *scope);
-void rvm_scope_addvar(rvm_scope_t *scope, const rchar* varname);
-
-
+void rvm_scope_addname(rvm_scope_t *scope, const rchar *name);
+void rvm_scope_push(rvm_scope_t* scope);
+void rvm_scope_pop(rvm_scope_t* scope);
+rvm_varmap_t *rvm_scope_lookup(rvm_scope_t *scope, const rchar *name);
 
 
 #ifdef __cplusplus

@@ -33,15 +33,33 @@ void rvm_scope_destroy(rvm_scope_t *scope)
 }
 
 
-void rvm_scope_addvar(rvm_scope_t *scope, const rchar* varname)
+void rvm_scope_addname(rvm_scope_t *scope, const rchar* name)
 {
 	rchar *dupname;
 
-	if (!r_hash_lookup(scope->nameshash, varname)) {
-		dupname = r_strdup(varname);
+	if (!r_hash_lookup(scope->nameshash, name)) {
+		dupname = r_strdup(name);
 		r_array_add(scope->names, (rconstpointer)&dupname);
-		r_hash_insert(scope->nameshash, varname, dupname);
+		r_hash_insert(scope->nameshash, name, dupname);
 	}
+}
+
+
+void rvm_scope_push(rvm_scope_t* scope)
+{
+
+}
+
+
+void rvm_scope_pop(rvm_scope_t* scope)
+{
+
+}
+
+
+rvm_varmap_t *rvm_scope_lookup(rvm_scope_t *scope, const rchar *name)
+{
+	return NULL;
 }
 
 

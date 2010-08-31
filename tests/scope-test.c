@@ -9,11 +9,11 @@ int main(int argc, char *argv[])
 {
 	rvm_scope_t *vmgr = rvm_scope_create();
 
-	rvm_scope_addvar(vmgr, "a");
-	rvm_scope_addvar(vmgr, "a");
-	rvm_scope_addvar(vmgr, "a");
-	rvm_scope_addvar(vmgr, "ab");
-	rvm_scope_addvar(vmgr, "abc");
+	rvm_scope_addname(vmgr, "a");
+	rvm_scope_addname(vmgr, "a");
+	rvm_scope_addname(vmgr, "a");
+	rvm_scope_addname(vmgr, "ab");
+	rvm_scope_addname(vmgr, "abc");
 
 	fprintf(stdout, "key: %s, value: %s\n", "a", ((rchar*)r_hash_lookup(vmgr->nameshash, "a")));
 	fprintf(stdout, "key: %s, value: %s\n", "abc", ((rchar*)r_hash_lookup(vmgr->nameshash, "abc")));
