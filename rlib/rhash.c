@@ -110,12 +110,13 @@ void r_hash_insert(rhash_t* hash, rconstpointer key, rpointer value)
 {
 	ruint nbucket = hash->hfunc(key) & r_hash_mask(hash);
 	rhash_node_t *node = r_hash_node_create();
+	rhead_t *buckethead = &hash->buckets[nbucket];
 	if (node) {
 		r_list_init(&node->lnk);
 		node->key = key;
 		node->value = value;
 	}
-	r_list_addt(&hash->buckets[nbucket], &node->lnk);
+	r_list_addt(buckethead, &node->lnk);
 
 }
 

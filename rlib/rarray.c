@@ -112,12 +112,14 @@ static void r_array_checkexpand(rarray_t *array, ruint size)
 		nalloc_len = 2 * array->alloc_len;
 		data = r_realloc(array->data, nalloc_len * array->elt_size);
 		if (data) {
+			ruint old_len = array->alloc_len;
+			array->data = data;
+			array->alloc_len = nalloc_len;
+
 			/*
 			 * Zero the newly allocated memory - only the extension (above the alloc_len).
 			 */
-			r_memset((void*)r_array_slot(array, array->alloc_len), 0, (nalloc_len - array->alloc_len) * array->elt_size);
-			array->data = data;
-			array->alloc_len = nalloc_len;
+			r_memset((void*)r_array_slot(array, old_len), 0, (array->alloc_len - old_len) * array->elt_size);
 		}
 	}
 }
