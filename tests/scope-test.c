@@ -9,6 +9,15 @@ void print_var_info(rvm_scope_t *scope, rchar* varname)
 {
 	rvm_varmap_t *vmap;
 
+	vmap = rvm_scope_tiplookup(scope, varname);
+	if (vmap) {
+		if (vmap && vmap->datatype == VARMAP_DATATYPE_OFFSET)
+			fprintf(stdout, "tip: %s, offset: %d\n", vmap->name, vmap->data.offset);
+		else if (vmap && vmap->datatype == VARMAP_DATATYPE_PTR)
+			fprintf(stdout, "tip: %s, ptr: 0x%p\n", vmap->name, vmap->data.ptr);
+		return;
+	}
+
 	vmap = rvm_scope_lookup(scope, varname);
 	if (!vmap)
 		fprintf(stdout, "%s (not found)\n", varname);

@@ -16,7 +16,9 @@ struct rarray_s {
 	ruint elt_size;
 };
 
+#define r_array_empty(__array__) ((r_array_length(__array__)) ? 0 : 1)
 #define r_array_index(__array__, __index__, __type__) (((__type__*)(void*)(__array__)->data)[__index__])
+#define r_array_last(__array__, __type__) (r_array_empty(__array__) ? (__type__)0 : r_array_index(__array__, (__array__)->len - 1, __type__))
 #define r_array_slot(__array__, __index__) (((ruint8*)(__array__)->data) + (__array__)->elt_size * (__index__))
 #define r_array_length(__array__) ((__array__)->len)
 

@@ -40,7 +40,7 @@ void rvm_scope_addpointer(rvm_scope_t *scope, const rchar *name, rpointer ptr);
 void rvm_scope_push(rvm_scope_t* scope);
 void rvm_scope_pop(rvm_scope_t* scope);
 rvm_varmap_t *rvm_scope_lookup(rvm_scope_t *scope, const rchar *name);
-
+rvm_varmap_t *rvm_scope_tiplookup(rvm_scope_t *scope, const rchar *name);
 
 #ifdef __cplusplus
 }
