@@ -57,6 +57,31 @@ rboolean r_hash_strequal(rconstpointer key1, rconstpointer key2)
 	return r_strcmp((const rchar*)key1, (const rchar*)key2) ? FALSE : TRUE;
 }
 
+
+ruint r_hash_strnhash(rconstpointer key)
+{
+	const rstring_t *k = (const rstring_t *)key;
+	const rchar *str = (const rchar*) k->str;
+	ruint i;
+	ruint size = k->size;
+	ruint hash = 0;
+
+	for (i = 0; i < size; i++, str++) {
+		hash = *str + (hash << 6) + (hash << 16) - hash;
+	}
+	return hash;
+}
+
+
+rboolean r_hash_strnequal(rconstpointer key1, rconstpointer key2)
+{
+	const rstring_t *k1 = (const rstring_t *)key1;
+	const rstring_t *k2 = (const rstring_t *)key2;
+
+	return (k1->size == k2->size && r_strncmp((const rchar*)k1->str, (const rchar*)k2->str, k1->size) == 0) ?TRUE : TRUE;
+}
+
+
 rhash_t *r_hash_create(ruint nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfunc)
 {
 	rhash_t *hash;

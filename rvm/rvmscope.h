@@ -34,13 +34,17 @@ typedef struct rvm_scope_s {
 
 rvm_scope_t *rvm_scope_create();
 void rvm_scope_destroy(rvm_scope_t *scope);
-rchar *rvm_scope_addname(rvm_scope_t *scope, const rchar *name);
-void rvm_scope_addoffset(rvm_scope_t *scope, const rchar *name, ruint32 off);
-void rvm_scope_addpointer(rvm_scope_t *scope, const rchar *name, rpointer ptr);
+rchar *rvm_scope_addname(rvm_scope_t *scope, const rchar *name, ruint namesize);
+rchar *rvm_scope_addnamestr(rvm_scope_t *scope, const rchar *name);
+void rvm_scope_addoffset(rvm_scope_t *scope, const rchar *name, ruint namesize, ruint32 off);
+void rvm_scope_addpointer(rvm_scope_t *scope, const rchar *name, ruint namesize, rpointer ptr);
 void rvm_scope_push(rvm_scope_t* scope);
 void rvm_scope_pop(rvm_scope_t* scope);
-rvm_varmap_t *rvm_scope_lookup(rvm_scope_t *scope, const rchar *name);
-rvm_varmap_t *rvm_scope_tiplookup(rvm_scope_t *scope, const rchar *name);
+rvm_varmap_t *rvm_scope_lookup(rvm_scope_t *scope, const rchar *name, ruint namesize);
+rvm_varmap_t *rvm_scope_tiplookup(rvm_scope_t *scope, const rchar *name, ruint namesize);
+rvm_varmap_t *rvm_scope_lookupstr(rvm_scope_t *scope, const rchar *name);
+rvm_varmap_t *rvm_scope_tiplookupstr(rvm_scope_t *scope, const rchar *name);
+
 
 #ifdef __cplusplus
 }

@@ -135,6 +135,7 @@ do { \
 #define R13 13
 #define R14 14
 #define R15 15
+#define FP R12
 #define SP R13
 #define LR R14
 #define PC R15

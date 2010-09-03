@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "rstring.h"
 #include "rhash.h"
 #include "rmem.h"
 #include "rvmscope.h"
@@ -9,7 +10,7 @@ void print_var_info(rvm_scope_t *scope, rchar* varname)
 {
 	rvm_varmap_t *vmap;
 
-	vmap = rvm_scope_tiplookup(scope, varname);
+	vmap = rvm_scope_tiplookupstr(scope, varname);
 	if (vmap) {
 		if (vmap && vmap->datatype == VARMAP_DATATYPE_OFFSET)
 			fprintf(stdout, "tip: %s, offset: %d\n", vmap->name, vmap->data.offset);
@@ -18,7 +19,7 @@ void print_var_info(rvm_scope_t *scope, rchar* varname)
 		return;
 	}
 
-	vmap = rvm_scope_lookup(scope, varname);
+	vmap = rvm_scope_lookupstr(scope, varname);
 	if (!vmap)
 		fprintf(stdout, "%s (not found)\n", varname);
 	else if (vmap && vmap->datatype == VARMAP_DATATYPE_OFFSET)
@@ -36,28 +37,32 @@ int main(int argc, char *argv[])
 	rvm_scope_t *scope = rvm_scope_create();
 
 
-	rvm_scope_addname(scope, "a1");
-	rvm_scope_addname(scope, "a");
-	rvm_scope_addname(scope, "a");
-	rvm_scope_addname(scope, "ab");
-	rvm_scope_addname(scope, "abcd");
-	rvm_scope_addname(scope, "abce");
-	rvm_scope_addname(scope, "abcf");
+	rvm_scope_addnamestr(scope, "a1");
+	rvm_scope_addnamestr(scope, "a");
+	rvm_scope_addnamestr(scope, "a");
+	rvm_scope_addnamestr(scope, "ab");
+	rvm_scope_addnamestr(scope, "abcd");
+	rvm_scope_addnamestr(scope, "abce");
+	rvm_scope_addnamestr(scope, "abcf");
 
-	rvm_scope_addoffset(scope, "a0", 0);
-	rvm_scope_addoffset(scope, "a1", 1);
-	rvm_scope_addoffset(scope, "a2", 2);
-	rvm_scope_addpointer(scope, "a5", &a[5]);
+	rvm_scope_addoffset(scope, "a0", r_strlen("a0"), 0);
+	rvm_scope_addoffset(scope, "a1", r_strlen("a1"), 1);
+	rvm_scope_addoffset(scope, "a2", r_strlen("a2"), 2);
+	rvm_scope_addpointer(scope, "a5", r_strlen("a5"), &a[5]);
+	print_var_info(scope, "a0");
+	print_var_info(scope, "a2");
+	print_var_info(scope, "a5");
+
 
 	rvm_scope_push(scope);
-	rvm_scope_addoffset(scope, "a0", 10);
-	rvm_scope_addoffset(scope, "a1", 11);
-	rvm_scope_addoffset(scope, "a2", 22);
+	rvm_scope_addoffset(scope, "a0", r_strlen("a0"), 10);
+	rvm_scope_addoffset(scope, "a1", r_strlen("a1"), 11);
+	rvm_scope_addoffset(scope, "a2", r_strlen("a2"), 12);
 
 	rvm_scope_push(scope);
-	rvm_scope_addoffset(scope, "a0", 101);
-	rvm_scope_addoffset(scope, "a1", 112);
-	rvm_scope_addoffset(scope, "a2", 223);
+	rvm_scope_addoffset(scope, "a0", r_strlen("a0"), 101);
+	rvm_scope_addoffset(scope, "a1", r_strlen("a1"), 112);
+	rvm_scope_addoffset(scope, "a2", r_strlen("a2"), 223);
 
 	print_var_info(scope, "a0");
 	print_var_info(scope, "a2");

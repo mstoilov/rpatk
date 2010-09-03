@@ -62,3 +62,16 @@ rchar *r_strndup(const rchar *s, rsize_t size)
 	return dupstr;
 }
 
+
+rstring_t *r_stringdup(const rchar *s, ruint size)
+{
+	rsize_t allocsize = sizeof(rstring_t) + size + sizeof(rchar);
+	rstring_t *d = (rstring_t*)r_malloc(allocsize);
+	if (d) {
+		r_memset(d, allocsize, 0);
+		d->size = size;
+		d->str = (rchar*)&d[1];
+		r_memcpy((rchar*)d->str, s, size);
+	}
+	return d;
+}

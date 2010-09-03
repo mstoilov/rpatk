@@ -10,8 +10,8 @@ rvm_scope_t *rvm_scope_create()
 	if (!scope)
 		return NULL;
 	r_memset(scope, 0, sizeof(*scope));
-	scope->names = r_array_create(sizeof(char*));
-	scope->nameshash = r_hash_create(5, r_hash_strequal, r_hash_strhash);
+	scope->names = r_array_create(sizeof(rstring_t*));
+	scope->nameshash = r_hash_create(5, r_hash_strnequal, r_hash_strnhash);
 	scope->varstack = r_array_create(sizeof(rvm_varmap_t));
 	scope->scopestack = r_array_create(sizeof(scope->varstack->len));
 	return scope;
@@ -33,16 +33,23 @@ void rvm_scope_destroy(rvm_scope_t *scope)
 }
 
 
-rchar *rvm_scope_addname(rvm_scope_t *scope, const rchar* name)
+rchar *rvm_scope_addname(rvm_scope_t *scope, const rchar* name, ruint namesize)
 {
-	rchar *dupname = r_hash_lookup(scope->nameshash, name);
+	rstring_t namestr = {(rchar*)name, namesize};
+	rstring_t *dupname = r_hash_lookup(scope->nameshash, &namestr);
 
 	if (!dupname) {
-		dupname = r_strdup(name);
+		dupname = r_stringdup(name, namesize);
 		r_array_add(scope->names, (rconstpointer)&dupname);
-		r_hash_insert(scope->nameshash, name, dupname);
+		r_hash_insert(scope->nameshash, dupname, dupname);
 	}
-	return dupname;
+	return dupname->str;
+}
+
+
+rchar *rvm_scope_addnamestr(rvm_scope_t *scope, const rchar *name)
+{
+	return rvm_scope_addname(scope, name, r_strlen(name));
 }
 
 
@@ -61,29 +68,29 @@ void rvm_scope_pop(rvm_scope_t* scope)
 }
 
 
-void rvm_scope_addoffset(rvm_scope_t *scope, const rchar *name, ruint32 off)
+void rvm_scope_addoffset(rvm_scope_t *scope, const rchar *name, ruint namesize, ruint32 off)
 {
 	rvm_varmap_t vmap;
 
-	vmap.name = rvm_scope_addname(scope, name);
+	vmap.name = rvm_scope_addname(scope, name, namesize);
 	vmap.data.offset = off;
 	vmap.datatype = VARMAP_DATATYPE_OFFSET;
 	r_array_add(scope->varstack, &vmap);
 }
 
 
-void rvm_scope_addpointer(rvm_scope_t *scope, const rchar *name, rpointer ptr)
+void rvm_scope_addpointer(rvm_scope_t *scope, const rchar *name, ruint namesize, rpointer ptr)
 {
 	rvm_varmap_t vmap;
 
-	vmap.name = rvm_scope_addname(scope, name);
+	vmap.name = rvm_scope_addname(scope, name, namesize);
 	vmap.data.ptr = ptr;
 	vmap.datatype = VARMAP_DATATYPE_PTR;
 	r_array_add(scope->varstack, &vmap);
 }
 
 
-rvm_varmap_t *rvm_scope_lookup(rvm_scope_t *scope, const rchar *name)
+rvm_varmap_t *rvm_scope_lookup(rvm_scope_t *scope, const rchar *name, ruint namesize)
 {
 	ruint scopesize = scope->varstack->len;
 	rvm_varmap_t *varmap;
@@ -91,14 +98,14 @@ rvm_varmap_t *rvm_scope_lookup(rvm_scope_t *scope, const rchar *name)
 
 	for (i = scopesize - 1; i >= 0; i--) {
 		varmap = (rvm_varmap_t*)r_array_slot(scope->varstack, i);
-		if (r_strcmp(varmap->name, name) == 0)
+		if (r_strncmp(varmap->name, name, namesize) == 0)
 			return varmap;
 	}
 	return NULL;
 }
 
 
-rvm_varmap_t *rvm_scope_tiplookup(rvm_scope_t *scope, const rchar *name)
+rvm_varmap_t *rvm_scope_tiplookup(rvm_scope_t *scope, const rchar *name, ruint namesize)
 {
 	ruint scopesize = scope->varstack->len;
 	ruint tipstart = r_array_empty(scope->scopestack) ? 0 : r_array_last(scope->scopestack, ruint);
@@ -107,8 +114,20 @@ rvm_varmap_t *rvm_scope_tiplookup(rvm_scope_t *scope, const rchar *name)
 
 	for (i = scopesize - 1; i >= tipstart; i--) {
 		varmap = (rvm_varmap_t*)r_array_slot(scope->varstack, i);
-		if (r_strcmp(varmap->name, name) == 0)
+		if (r_strncmp(varmap->name, name, namesize) == 0)
 			return varmap;
 	}
 	return NULL;
+}
+
+
+rvm_varmap_t *rvm_scope_lookupstr(rvm_scope_t *scope, const rchar *name)
+{
+	return rvm_scope_lookup(scope, name, r_strlen(name));
+}
+
+
+rvm_varmap_t *rvm_scope_tiplookupstr(rvm_scope_t *scope, const rchar *name)
+{
+	return rvm_scope_tiplookup(scope, name, r_strlen(name));
 }

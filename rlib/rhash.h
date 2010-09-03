@@ -35,6 +35,9 @@ rpointer r_hash_lookup(rhash_t* hash, rconstpointer key);
 
 ruint r_hash_strhash(rconstpointer key);
 rboolean r_hash_strequal(rconstpointer key1, rconstpointer key2);
+ruint r_hash_strnhash(rconstpointer key);
+rboolean r_hash_strnequal(rconstpointer key1, rconstpointer key2);
+
 
 #ifdef __cplusplus
 }
