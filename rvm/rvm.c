@@ -515,7 +515,14 @@ static void rvm_op_push(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 	r_array_replace(cpu->stack, sp, (rconstpointer)&RVM_GET_REG(cpu, ins->op1));
 	RVM_SET_REGU(cpu, SP, sp);
+}
 
+
+static void rvm_op_sts(rvm_cpu_t *cpu, rvm_asmins_t *ins)
+{
+	rword sp = RVM_GET_REGU(cpu, ins->op2) + RVM_GET_REGU(cpu, ins->op3);
+
+	r_array_replace(cpu->stack, sp, (rconstpointer)&RVM_GET_REG(cpu, ins->op1));
 }
 
 
@@ -562,6 +569,14 @@ static void rvm_op_popm(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 	}
 	if (!(((rword)(1 << SP)) & bits))
 		RVM_SET_REGU(cpu, SP, sp);
+}
+
+
+static void rvm_op_lds(rvm_cpu_t *cpu, rvm_asmins_t *ins)
+{
+	rword sp = RVM_GET_REGU(cpu, ins->op2) + RVM_GET_REGU(cpu, ins->op3);
+
+	RVM_SET_REG(cpu, ins->op1, r_array_index(cpu->stack, sp, rvm_reg_t));
 }
 
 
@@ -673,6 +688,8 @@ int rvm_asm_dump_reg_to_str(unsigned char reg, char *str, ruint size)
 
 	if (reg == XX)
 		ret = rvm_snprintf(str, size, "XX ");
+	else if (reg == FP)
+		ret = rvm_snprintf(str, size, "FP ");
 	else if (reg == SP)
 		ret = rvm_snprintf(str, size, "SP ");
 	else if (reg == LR)
@@ -810,7 +827,9 @@ static rvm_cpu_op ops[] = {
 	rvm_op_lsl,			// RVM_LSL
 	rvm_op_lsr,			// RVM_LSR
 	rvm_op_stm,			// RVM_STM
-	rvm_op_ldm,			// RVM_LDM
+	rvm_op_ldm,			// RVM_LDS
+	rvm_op_sts,			// RVM_STS
+	rvm_op_lds,			// RVM_LDM
 	rvm_op_orr,			// RVM_ORR
 	rvm_op_push,		// RVM_PUSH
 	rvm_op_pop,			// RVM_POP

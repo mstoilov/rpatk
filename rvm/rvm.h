@@ -69,6 +69,8 @@ enum {
 	RVM_LSR,		/* Logical Shift Right: op1 = op2 >> op3, update the status register */
 	RVM_STM,
 	RVM_LDM,
+	RVM_STS,		/* Store op1 on the stack at position op2 + op3, i.e. stack[op2 + op3] = op1 */
+	RVM_LDS,		/* Load op1 from thes stack at position op2 + op3, i.e. op1 = stack[op2 + op3] */
 	RVM_ORR,		/* ORR: op1 = op2 | op3, update the status register */
 	RVM_PUSH,
 	RVM_POP,
