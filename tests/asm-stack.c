@@ -16,6 +16,21 @@ int main(int argc, char *argv[])
 	vmcode[off++] = rvm_asm(RVM_POP, R0, XX, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_ADD, R0, R1, R0, 0);
 	VMTEST_REG(vmcode, off, 0, 3, "PUSH/POP");
+
+	vmcode[off++] = rvm_asm(RVM_MOV, FP, SP, XX, 0);
+	vmcode[off++] = rvm_asm(RVM_PUSH, DA, XX, XX, 1);
+	vmcode[off++] = rvm_asm(RVM_PUSH, DA, XX, XX, 2);
+	vmcode[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 3);
+	vmcode[off++] = rvm_asm(RVM_STS, R0, FP, DA, 1);
+	vmcode[off++] = rvm_asm(RVM_LDS, R2, FP, DA, 2);
+	vmcode[off++] = rvm_asm(RVM_LDS, R3, FP, DA, 1);
+	vmcode[off++] = rvm_asm(RVM_POP, R1, XX, XX, 0);
+	vmcode[off++] = rvm_asm(RVM_POP, R0, XX, XX, 0);
+	vmcode[off++] = rvm_asm(RVM_ADD, R0, R1, R0, 0);
+	vmcode[off++] = rvm_asm(RVM_ADD, R2, R2, R3, 0);
+	VMTEST_REG(vmcode, off, 0, 5, "PUSH/POP");
+	VMTEST_REG(vmcode, off, 2, 5, "STS/LDS");
+
 	
 	vmcode[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_MOV, R1, DA, XX, 1);
