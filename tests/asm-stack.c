@@ -31,6 +31,15 @@ int main(int argc, char *argv[])
 	VMTEST_REG(vmcode, off, 0, 5, "PUSH/POP");
 	VMTEST_REG(vmcode, off, 2, 5, "STS/LDS");
 
+	vmcode[off++] = rvm_asm(RVM_MOV, FP, DA, XX, 100);
+	vmcode[off++] = rvm_asm(RVM_MOV, R1, DA, XX, 1);
+	vmcode[off++] = rvm_asm(RVM_MOV, R2, DA, XX, 2);
+	vmcode[off++] = rvm_asm(RVM_STS, R1, FP, DA, 1);
+	vmcode[off++] = rvm_asm(RVM_STS, R2, FP, DA, 2);
+	vmcode[off++] = rvm_asm(RVM_LDS, R2, FP, DA, 1);
+	vmcode[off++] = rvm_asm(RVM_LDS, R3, FP, DA, 2);
+	vmcode[off++] = rvm_asm(RVM_ADD, R2, R2, R3, 0);
+	VMTEST_REG(vmcode, off, 2, 3, "STS/LDS");
 	
 	vmcode[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_MOV, R1, DA, XX, 1);
