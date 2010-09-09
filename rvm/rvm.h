@@ -156,12 +156,12 @@ do { \
 #define RVM_SET_REGP(__cpu__, __r__, val) do { (__cpu__)->r[(__r__)].v.p = (rpointer)(val); } while (0)
 #define RVM_REGD(__r__) (__r__)->v.d
 #define RVM_GET_REGD(__cpu__, __r__) (__cpu__)->r[(__r__)].v.d
-#define RVM_SET_REGD(__cpu__, __r__, val) do { (__cpu__)->r[(__r__)].v.d = (rdouble)(val); } while (0)
+#define RVM_SET_REGD(__cpu__, __r__, __val__) do { (__cpu__)->r[(__r__)].v.d = (rdouble)(__val__); } while (0)
 #define RVM_REG(__r__) (__r__)
 #define RVM_REGM(__r__) (rvm_asmins_t*)((__r__)->v.p)
 #define RVM_GET_REGM(__cpu__, __r__) ((rvm_asmins_t*)(__cpu__)->r[(__r__)].v.p)
 #define RVM_SET_REGM(__cpu__, __r__, __p__) do { (__cpu__)->r[(__r__)].v.p = ((rpointer)(__p__)); } while (0)
-#define RVM_INC_REGM(__cpu__, __r__, val) do {rvm_asmins_t *p = RVM_GET_REGM(__cpu__, __r__); (__cpu__)->r[(__r__)].v.p = (rpointer)(p + (val)); } while (0)
+#define RVM_INC_REGM(__cpu__, __r__, __val__) do {rvm_asmins_t *p = RVM_GET_REGM(__cpu__, __r__); (__cpu__)->r[(__r__)].v.p = (rpointer)(p + (__val__)); } while (0)
 #define RVM_REG_INFO(__r__) (__r__)->info
 #define RVM_REG_SIZE(__r__) (__r__)->size
 #define RVM_GET_REG(__cpu__, __r__) (__cpu__)->r[(__r__)]

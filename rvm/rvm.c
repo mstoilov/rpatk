@@ -398,7 +398,7 @@ static void rvm_op_swi(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 	ruint ntable = (ruint) RVM_SWI_TABLE(RVM_GET_REGU(cpu, ins->op1));
 	ruint nswi = (ruint) RVM_SWI_NUM(RVM_GET_REGU(cpu, ins->op1));
 
-	if (r_array_length(cpu->switables) <= ntable)
+	if (r_array_size(cpu->switables) <= ntable)
 		RVM_ABORT(cpu, RVM_E_SWITABLE);
 	switable = r_array_index(cpu->switables, ntable, rvm_switable_t*);
 	swi = switable[nswi].op;
