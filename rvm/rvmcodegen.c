@@ -21,3 +21,22 @@ void rvm_codegen_destroy(rvm_codegen_t *cg)
 	r_array_destroy(cg->code);
 	r_free(cg);
 }
+
+
+static void rvm_codegen_addins(rvm_codegen_t *cg, rvm_asmins_t ins)
+{
+	r_array_add(cg->code, &ins);
+}
+
+
+void rvm_codegen_funcstart(rvm_codegen_t *cg, ruint args)
+{
+	rvm_codegen_addins(cg, rvm_asm(RVM_ADD, SP, FP, DA, args));
+
+}
+
+
+void rvm_codegen_funcend(rvm_codegen_t *cg)
+{
+
+}

@@ -19,7 +19,8 @@ typedef struct rvm_codegen_s {
 
 rvm_codegen_t *rvm_codegen_create();
 void rvm_codegen_destroy(rvm_codegen_t *cg);
-
+void rvm_codegen_funcstart(rvm_codegen_t *cg, ruint args);
+void rvm_codegen_funcend(rvm_codegen_t *cg);
 
 #ifdef __cplusplus
 }
