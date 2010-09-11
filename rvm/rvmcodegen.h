@@ -3,6 +3,7 @@
 
 #include "rtypes.h"
 #include "rarray.h"
+#include "rhash.h"
 #include "rvm.h"
 
 
@@ -15,6 +16,7 @@ extern "C" {
 typedef struct rvm_codegen_s {
 	rarray_t *code;
 	ruint codeoff;
+	rhash_t *funcmap;
 
 } rvm_codegen_t;
 
