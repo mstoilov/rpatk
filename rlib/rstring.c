@@ -12,7 +12,8 @@ rint r_strcmp(const rchar *s1, const rchar *s2)
 
 rint r_strncmp(const rchar *s1, const rchar *s2, rsize_t n)
 {
-	return strncmp(s1, s2, (size_t)n);
+	int ret = strncmp(s1, s2, (size_t)n);
+	return ret;
 }
 
 

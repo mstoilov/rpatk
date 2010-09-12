@@ -1,7 +1,7 @@
 #include "rarray.h"
 #include "rmem.h"
 
-#define MIN_ARRAY_LEN 4
+#define MIN_ARRAY_LEN 1024
 
 #if 0
 

@@ -78,7 +78,7 @@ rboolean r_hash_strnequal(rconstpointer key1, rconstpointer key2)
 	const rstring_t *k1 = (const rstring_t *)key1;
 	const rstring_t *k2 = (const rstring_t *)key2;
 
-	return (k1->size == k2->size && r_strncmp((const rchar*)k1->str, (const rchar*)k2->str, k1->size) == 0) ?TRUE : TRUE;
+	return (k1->size == k2->size && r_strncmp((const rchar*)k1->str, (const rchar*)k2->str, k1->size) == 0) ? TRUE : FALSE;
 }
 
 
