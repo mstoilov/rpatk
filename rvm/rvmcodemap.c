@@ -35,20 +35,36 @@ void rvm_codemap_destroy(rvm_codemap_t *codemap)
 }
 
 
-void rvm_codemap_add(rvm_codemap_t *codemap, const rchar *name, ruint namesize, ruint index)
+void rvm_codemap_add(rvm_codemap_t *codemap, const rchar *name, ruint namesize, rulong index)
 {
-	rvm_codelabel_t *label = r_malloc(sizeof(*label));
+	rvm_codelabel_t *label;
 
-	label->name = r_stringdup(name, namesize);
+	label = rvm_codemap_lookup(codemap, name, namesize);
+	if (!label) {
+		label = r_malloc(sizeof(*label));
+		label->name = r_stringdup(name, namesize);
+		r_hash_insert(codemap->hash, label->name, label);
+		r_array_add(codemap->labels, &label);
+	}
 	label->index = index;
-	r_array_add(codemap->labels, &label);
-	r_hash_insert(codemap->hash, label->name, label);
 }
 
 
-void rvm_codemap_add_str(rvm_codemap_t *codemap, const rchar *name, ruint index)
+void rvm_codemap_add_str(rvm_codemap_t *codemap, const rchar *name, rulong index)
 {
 	rvm_codemap_add(codemap, name, r_strlen(name), index);
+}
+
+
+void rvm_codemap_invalid_add(rvm_codemap_t *codemap, const rchar *name, ruint namesize)
+{
+	rvm_codemap_add(codemap, name, namesize, RVM_CODELABEL_INVALID);
+}
+
+
+void rvm_codemap_invalid_add_str(rvm_codemap_t *codemap, const rchar *name)
+{
+	rvm_codemap_invalid_add(codemap, name, r_strlen(name));
 }
 
 

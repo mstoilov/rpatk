@@ -1022,7 +1022,21 @@ rvm_asmins_t rvm_asmr(rword opcode, rword op1, rword op2, rword op3, rpointer pR
 	RVM_REGP(&a.data) = pReloc;
 	RVM_REG_INFO(&a.data) = RVM_DTYPE_RELOCPTR;
 	return a;
+}
 
+
+rvm_asmins_t rvm_asmx(rword opcode, rword op1, rword op2, rword op3, rpointer pReloc)
+{
+	rvm_asmins_t a;
+
+	r_memset(&a, 0, sizeof(a));
+	a.opcode = (unsigned char) opcode;
+	a.op1 = (unsigned char)op1;
+	a.op2 = (unsigned char)op2;
+	a.op3 = (unsigned char)op3;
+	RVM_REGP(&a.data) = pReloc;
+	RVM_REG_INFO(&a.data) = RVM_DTYPE_RELOCINDEX;
+	return a;
 }
 
 
@@ -1035,13 +1049,18 @@ rvm_asmins_t rvm_asm(rword opcode, rword op1, rword op2, rword op3, rword data)
 void rvm_relocate(rvm_asmins_t *code, rsize_t size)
 {
 	rvm_asmins_t *reloc;
-	rword off;
+	rulong relocindex;
+	rulong off;
 
 	for (off = 0; off < size; off++, code++) {
 		if (RVM_REG_INFO(&code->data) == RVM_DTYPE_RELOCPTR) {
 			RVM_REG_INFO(&code->data) = 0;
 			reloc = *((rvm_asmins_t **)RVM_REGP(&code->data));
 			RVM_REGU(&code->data) = reloc - code;
+		} else if (RVM_REG_INFO(&code->data) == RVM_DTYPE_RELOCINDEX) {
+			RVM_REG_INFO(&code->data) = 0;
+			relocindex = *((rulong *)RVM_REGP(&code->data));
+			RVM_REGU(&code->data) = relocindex - off;
 		}
 	}
 }

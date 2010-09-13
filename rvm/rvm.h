@@ -97,6 +97,7 @@ enum {
 #define RVM_DTYPE_STRING 3
 #define RVM_DTYPE_STRINGPTR 4
 #define RVM_DTYPE_RELOCPTR 5
+#define RVM_DTYPE_RELOCINDEX 7
 #define RVM_DTYPE_USER 64
 #define RVM_DTYPE_USERDEF(__n__) (RVM_DTYPE_USER + (__n__))
 
@@ -232,6 +233,7 @@ rvm_asmins_t rvm_asmi(rword opcode, rword op1, rword op2, rword op3, rint data);
 rvm_asmins_t rvm_asmu(rword opcode, rword op1, rword op2, rword op3, rword data);
 rvm_asmins_t rvm_asmp(rword opcode, rword op1, rword op2, rword op3, rpointer data);
 rvm_asmins_t rvm_asmr(rword opcode, rword op1, rword op2, rword op3, rpointer pReloc);
+rvm_asmins_t rvm_asmx(rword opcode, rword op1, rword op2, rword op3, rpointer pReloc);
 rvm_asmins_t rvm_asmd(rword opcode, rword op1, rword op2, rword op3, rdouble data);
 void rvm_asm_dump(rvm_asmins_t *pi, ruint count);
 

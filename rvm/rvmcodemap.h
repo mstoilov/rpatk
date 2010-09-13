@@ -11,10 +11,11 @@
 extern "C" {
 #endif
 
+#define RVM_CODELABEL_INVALID ((rulong)-1)
 
 typedef struct rvm_codelabel_s {
 	rstring_t *name;
-	ruint index;
+	rulong index;
 } rvm_codelabel_t;
 
 
@@ -26,8 +27,10 @@ typedef struct rvm_codemap_s {
 
 rvm_codemap_t *rvm_codemap_create();
 void rvm_codemap_destroy(rvm_codemap_t *codemap);
-void rvm_codemap_add(rvm_codemap_t *codemap, const rchar *name, ruint namesize, ruint index);
-void rvm_codemap_add_str(rvm_codemap_t *codemap, const rchar *name, ruint index);
+void rvm_codemap_invalid_add(rvm_codemap_t *codemap, const rchar *name, ruint namesize);
+void rvm_codemap_invalid_add_str(rvm_codemap_t *codemap, const rchar *name);
+void rvm_codemap_add(rvm_codemap_t *codemap, const rchar *name, ruint namesize, rulong index);
+void rvm_codemap_add_str(rvm_codemap_t *codemap, const rchar *name, rulong index);
 rvm_codelabel_t *rvm_codemap_lookup(rvm_codemap_t *codemap, const rchar *name, ruint namesize);
 rvm_codelabel_t *rvm_codemap_lookup_str(rvm_codemap_t *codemap, const rchar *name);
 
