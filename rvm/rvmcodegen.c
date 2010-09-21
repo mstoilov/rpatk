@@ -58,6 +58,23 @@ ruint rvm_codegen_funcstart_str(rvm_codegen_t *cg, const rchar* name, ruint args
 	return rvm_codegen_funcstart(cg, name, r_strlen(name), args);
 }
 
+
+ruint rvm_codegen_vargs_funcstart(rvm_codegen_t *cg, const rchar* name, ruint namesize)
+{
+	ruint start = rvm_codegen_addins(cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(FP)|BIT(SP)|BIT(LR)));
+	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, FP, SP, XX, 0));
+	rvm_codegen_addins(cg, rvm_asm(RVM_ADD, SP, SP, R0, 0));
+	rvm_codemap_add(cg->codemap, name, namesize, start);
+	return start;
+}
+
+
+ruint rvm_codegen_vargs_funcstart_str(rvm_codegen_t *cg, const rchar* name)
+{
+	return rvm_codegen_vargs_funcstart(cg, name, r_strlen(name));
+}
+
+
 void rvm_codegen_funcend(rvm_codegen_t *cg)
 {
 	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, SP, FP, XX, 0));
