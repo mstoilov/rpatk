@@ -95,41 +95,41 @@ static void rvm_op_b(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 static void rvm_op_beq(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
 	if ((cpu->status & RVM_STATUS_Z))
-		RVM_SET_REGU(cpu, PC, RVM_GET_REGU(cpu, PC) + RVM_GET_REGU(cpu, ins->op1) - 1);
+		RVM_SET_REGM(cpu, PC, RVM_GET_REGM(cpu, PC) + RVM_GET_REGU(cpu, ins->op1) - 1);
 }
 
 
 static void rvm_op_bneq(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
 	if ((cpu->status & RVM_STATUS_Z) == 0)
-		RVM_SET_REGU(cpu, PC, RVM_GET_REGU(cpu, PC) + RVM_GET_REGU(cpu, ins->op1) - 1);
+		RVM_SET_REGM(cpu, PC, RVM_GET_REGM(cpu, PC) + RVM_GET_REGU(cpu, ins->op1) - 1);
 }
 
 
 static void rvm_op_bleq(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
 	if ((cpu->status & RVM_STATUS_N) || (cpu->status & RVM_STATUS_Z))
-		RVM_SET_REGU(cpu, PC, RVM_GET_REGU(cpu, PC) + RVM_GET_REGU(cpu, ins->op1) - 1);
+		RVM_SET_REGM(cpu, PC, RVM_GET_REGM(cpu, PC) + RVM_GET_REGU(cpu, ins->op1) - 1);
 }
 
 static void rvm_op_bgeq(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
 	if ((cpu->status & RVM_STATUS_N) == 0 || (cpu->status & RVM_STATUS_Z) == 1)
-		RVM_SET_REGU(cpu, PC, RVM_GET_REGU(cpu, PC) + RVM_GET_REGU(cpu, ins->op1) - 1);
+		RVM_SET_REGM(cpu, PC, RVM_GET_REGM(cpu, PC) + RVM_GET_REGU(cpu, ins->op1) - 1);
 }
 
 
 static void rvm_op_bles(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
 	if ((cpu->status & RVM_STATUS_N))
-		RVM_SET_REGU(cpu, PC, RVM_GET_REGU(cpu, PC) + RVM_GET_REGU(cpu, ins->op1) - 1);
+		RVM_SET_REGM(cpu, PC, RVM_GET_REGM(cpu, PC) + RVM_GET_REGU(cpu, ins->op1) - 1);
 }
 
 
 static void rvm_op_bgre(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
 	if ((cpu->status & RVM_STATUS_N) == 0 && (cpu->status & RVM_STATUS_Z) == 0)
-		RVM_SET_REGU(cpu, PC, RVM_GET_REGU(cpu, PC) + RVM_GET_REGU(cpu, ins->op1) - 1);
+		RVM_SET_REGM(cpu, PC, RVM_GET_REGU(cpu, PC) + RVM_GET_REGU(cpu, ins->op1) - 1);
 }
 
 

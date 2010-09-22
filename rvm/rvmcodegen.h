@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-#define RVM_CODEGEN_FUNCINITOFFSET 3
+#define RVM_CODEGEN_FUNCINITOFFSET 4
 
 typedef struct rvm_codegen_s {
 	rarray_t *code;

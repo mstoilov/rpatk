@@ -79,7 +79,7 @@ enum {
 	RVM_BEQ,		/* Branch if equal */
 	RVM_BNEQ,		/* Branch if not equal */
 	RVM_BLEQ,		/* Branch if less or equal */
-	RVM_BGEQ,		/* Branch if less or equal */
+	RVM_BGEQ,		/* Branch if greater or equal */
 	RVM_BLES,		/* Branch if less */
 	RVM_BGRE,		/* Branch if greater */
 	RVM_RET,
