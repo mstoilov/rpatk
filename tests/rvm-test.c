@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "rvm.h"
+#include "rvmcpu.h"
 
 
 static void test_swi_sub(rvm_cpu_t *cpu)

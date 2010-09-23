@@ -1,4 +1,4 @@
-#include "rvm.h"
+#include "rvmcpu.h"
 #include <stdio.h>
 
 #define EXECDEBUG 1

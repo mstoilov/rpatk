@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "rvm.h"
+#include "rvmcpu.h"
 #include "rvmcodegen.h"
 #include "rvmcodemap.h"
 
