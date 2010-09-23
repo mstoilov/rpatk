@@ -2,7 +2,7 @@
 #define _RVMCODEMAP_H_
 
 #include "rtypes.h"
-#include "rvm.h"
+#include "rvmcpu.h"
 #include "rarray.h"
 #include "rhash.h"
 #include "rstring.h"

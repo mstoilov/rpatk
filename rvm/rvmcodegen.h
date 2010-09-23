@@ -4,7 +4,7 @@
 #include "rtypes.h"
 #include "rarray.h"
 #include "rhash.h"
-#include "rvm.h"
+#include "rvmcpu.h"
 #include "rvmcodemap.h"
 
 

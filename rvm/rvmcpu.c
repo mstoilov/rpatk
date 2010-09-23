@@ -24,7 +24,7 @@
 #include <stdarg.h>
 #include "rmem.h"
 #include "rstring.h"
-#include "rvm.h"
+#include "rvmcpu.h"
 
 
 static const char *stropcalls[] = {
