@@ -18,8 +18,8 @@
  *  Martin Stoilov <martin@rpasearch.com>
  */
 
-#ifndef _REGVM_H_
-#define _REGVM_H_
+#ifndef _RVMCPU_H_
+#define _RVMCPU_H_
 
 #include "rtypes.h"
 #include "rarray.h"
