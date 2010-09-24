@@ -100,7 +100,9 @@ enum {
 #define RVM_DTYPE_RELOCPTR 14
 #define RVM_DTYPE_RELOCINDEX 15
 #define RVM_DTYPE_USER 16
-#define RVM_DTYPE_MAX 31
+#define RVM_DTYPE_SIZE (1 << 5)
+#define RVM_DTYPE_MASK (RVM_DTYPE_SIZE - 1)
+#define RVM_DTYPE_MAX (RVM_DTYPE_MASK)
 #define RVM_DTYPE_USERDEF(__n__) (RVM_DTYPE_USER + (__n__))
 
 
