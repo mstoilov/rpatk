@@ -5,6 +5,17 @@
 #include "rarray.h"
 #include "rvmcpu.h"
 
+#define RVM_UNARY_HANDLER(__t__) (__t__)
+#define RVM_OP_HANDLER(__ft__, __st__) ((__ft__) * RVM_DTYPE_MAX + (__st__))
+
+
+#define RVM_OPID_NONE 0
+#define RVM_OPID_ADD 1
+
+/*
+ * Important: the res pointer might be the same as one of the arguments, the operator must
+ * be implemented to take care of such cases.
+ */
 typedef void (*rvm_unaryop_handler)(rvm_cpu_t *cpu, rvm_reg_t *res, const rvm_reg_t *arg);
 typedef void (*rvm_op_handler)(rvm_cpu_t *cpu, rvm_reg_t *res, const rvm_reg_t *arg1, const rvm_reg_t *arg2);
 

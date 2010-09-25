@@ -12,6 +12,7 @@ LIBS += -lrvm -lrlib -lpthread --static
 TESTS	= \
 	$(OUTDIR)/codegen-test \
 	$(OUTDIR)/codemap-test \
+	$(OUTDIR)/opmap-test \
 	$(OUTDIR)/rlock-test \
 	$(OUTDIR)/rarray-test \
 	$(OUTDIR)/scope-test \

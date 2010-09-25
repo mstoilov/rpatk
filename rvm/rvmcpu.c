@@ -964,6 +964,7 @@ rvm_asmins_t rvm_asmd(rword opcode, rword op1, rword op2, rword op3, rdouble dat
 	a.op2 = (unsigned char)op2;
 	a.op3 = (unsigned char)op3;
 	RVM_REGD(&a.data) = data;
+	rvm_reg_settype(&a.data, RVM_DTYPE_DOUBLE);
 	return a;
 }
 
@@ -978,6 +979,7 @@ rvm_asmins_t rvm_asmp(rword opcode, rword op1, rword op2, rword op3, rpointer da
 	a.op2 = (unsigned char)op2;
 	a.op3 = (unsigned char)op3;
 	RVM_REGP(&a.data) = data;
+	rvm_reg_settype(&a.data, RVM_DTYPE_POINTER);
 	return a;
 }
 
@@ -992,11 +994,12 @@ rvm_asmins_t rvm_asmu(rword opcode, rword op1, rword op2, rword op3, rword data)
 	a.op2 = (unsigned char)op2;
 	a.op3 = (unsigned char)op3;
 	RVM_REGU(&a.data) = data;
+	rvm_reg_settype(&a.data, RVM_DTYPE_WORD);
 	return a;
 }
 
 
-rvm_asmins_t rvm_asmi(rword opcode, rword op1, rword op2, rword op3, rint data)
+rvm_asmins_t rvm_asml(rword opcode, rword op1, rword op2, rword op3, rlong data)
 {
 	rvm_asmins_t a;
 
@@ -1005,8 +1008,15 @@ rvm_asmins_t rvm_asmi(rword opcode, rword op1, rword op2, rword op3, rint data)
 	a.op1 = (unsigned char)op1;
 	a.op2 = (unsigned char)op2;
 	a.op3 = (unsigned char)op3;
-	RVM_REGU(&a.data) = (rword)data;
+	RVM_REGL(&a.data) = (rword)data;
+	rvm_reg_settype(&a.data, RVM_DTYPE_LONG);
 	return a;
+}
+
+
+rvm_asmins_t rvm_asmi(rword opcode, rword op1, rword op2, rword op3, rint data)
+{
+	return rvm_asml(opcode, op1, op2, op3, data);
 }
 
 
@@ -1020,7 +1030,7 @@ rvm_asmins_t rvm_asmr(rword opcode, rword op1, rword op2, rword op3, rpointer pR
 	a.op2 = (unsigned char)op2;
 	a.op3 = (unsigned char)op3;
 	RVM_REGP(&a.data) = pReloc;
-	RVM_REG_INFO(&a.data) = RVM_DTYPE_RELOCPTR;
+	rvm_reg_settype(&a.data, RVM_DTYPE_RELOCPTR);
 	return a;
 }
 
@@ -1035,7 +1045,7 @@ rvm_asmins_t rvm_asmx(rword opcode, rword op1, rword op2, rword op3, rpointer pR
 	a.op2 = (unsigned char)op2;
 	a.op3 = (unsigned char)op3;
 	RVM_REGP(&a.data) = pReloc;
-	RVM_REG_INFO(&a.data) = RVM_DTYPE_RELOCINDEX;
+	rvm_reg_settype(&a.data, RVM_DTYPE_RELOCINDEX);
 	return a;
 }
 
@@ -1063,4 +1073,17 @@ void rvm_relocate(rvm_asmins_t *code, rsize_t size)
 			RVM_REGU(&code->data) = relocindex - off;
 		}
 	}
+}
+
+
+void rvm_reg_settype(rvm_reg_t *r, ruint type)
+{
+	r->info &= ~RVM_DTYPE_MASK;
+	r->info |= type & RVM_DTYPE_MASK;
+}
+
+
+ruint rvm_reg_gettype(rvm_reg_t *r)
+{
+	return (r->info & RVM_DTYPE_MASK);
 }

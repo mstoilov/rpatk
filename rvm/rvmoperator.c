@@ -61,7 +61,7 @@ rint rvm_opmap_set_handler(rvm_opmap_t *opmap, rushort opid, rvm_op_handler func
 	rvm_opinfo_t *opinfo = ((rvm_opinfo_t*)r_array_slot(opmap->operators, opid));
 	if (!opinfo->handlers)
 		return -1;
-	h = &opinfo->handlers[firstType * RVM_DTYPE_MAX + secondType];
+	h = &opinfo->handlers[RVM_OP_HANDLER(firstType, secondType)];
 	h->op = func;
 	return 0;
 }
@@ -73,7 +73,7 @@ rint rvm_opmap_set_unary_handler(rvm_opmap_t *opmap, rushort opid, rvm_unaryop_h
 	rvm_opinfo_t *opinfo = ((rvm_opinfo_t*)r_array_slot(opmap->operators, opid));
 	if (!opinfo->handlers)
 		return -1;
-	h = &opinfo->handlers[type];
+	h = &opinfo->handlers[RVM_UNARY_HANDLER(type)];
 	h->unary = func;
 	return 0;
 }
@@ -81,12 +81,41 @@ rint rvm_opmap_set_unary_handler(rvm_opmap_t *opmap, rushort opid, rvm_unaryop_h
 
 void rvm_opmap_invoke_handler(rvm_opmap_t *opmap, rushort opid, rvm_cpu_t *cpu, rvm_reg_t *res, const rvm_reg_t *arg1, const rvm_reg_t *arg2)
 {
+	rvm_ophandler_t *h;
+	rvm_opinfo_t *opinfo;
+	ruint index = RVM_OP_HANDLER(arg1->info & RVM_DTYPE_MASK, arg2->info & RVM_DTYPE_MASK);
 
+	if (opid >= opmap->operators->len)
+		goto error;
+	opinfo = ((rvm_opinfo_t*)r_array_slot(opmap->operators, opid));
+	h = &opinfo->handlers[index];
+	if (h->op == NULL)
+		goto error;
+	h->op(cpu, res, arg1, arg2);
+	return;
 
+error:
+	cpu->error = RVM_E_ILLEGAL;
+	cpu->abort = 1;
 }
 
 
 void rvm_opmap_invoke_unary_handler(rvm_opmap_t *opmap, rushort opid, rvm_cpu_t *cpu, rvm_reg_t *res, const rvm_reg_t *arg)
 {
+	rvm_ophandler_t *h;
+	rvm_opinfo_t *opinfo;
+	ruint index = RVM_UNARY_HANDLER(arg->info & RVM_DTYPE_MASK);
 
+	if (opid >= opmap->operators->len)
+		goto error;
+	opinfo = ((rvm_opinfo_t*)r_array_slot(opmap->operators, opid));
+	h = &opinfo->handlers[index];
+	if (h->unary == NULL)
+		goto error;
+	h->unary(cpu, res, arg);
+	return;
+
+error:
+	cpu->error = RVM_E_ILLEGAL;
+	cpu->abort = 1;
 }

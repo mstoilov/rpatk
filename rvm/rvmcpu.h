@@ -93,10 +93,11 @@ enum {
 
 #define RVM_DTYPE_WORD 0
 #define RVM_DTYPE_POINTER 1
-#define RVM_DTYPE_DOUBLE 2
-#define RVM_DTYPE_STRING 3
-#define RVM_DTYPE_STRINGPTR 4
-#define RVM_DTYPE_BOOLEAN 5
+#define RVM_DTYPE_LONG 2
+#define RVM_DTYPE_DOUBLE 3
+#define RVM_DTYPE_STRING 4
+#define RVM_DTYPE_STRINGPTR 5
+#define RVM_DTYPE_BOOLEAN 6
 #define RVM_DTYPE_RELOCPTR 14
 #define RVM_DTYPE_RELOCINDEX 15
 #define RVM_DTYPE_USER 16
@@ -155,17 +156,20 @@ do { \
 #define BIT(__shiftby__) (1 << (__shiftby__))
 #define RVM_REGU(__r__) (__r__)->v.w
 #define RVM_GET_REGU(__cpu__, __r__) (__cpu__)->r[(__r__)].v.w
-#define RVM_SET_REGU(__cpu__, __r__, val) do { (__cpu__)->r[(__r__)].v.w = (rword)(val); } while (0)
+#define RVM_SET_REGU(__cpu__, __r__, val) do { (__cpu__)->r[(__r__)].v.w = (rword)(val); rvm_reg_settype(&(__cpu__)->r[(__r__)], RVM_DTYPE_WORD);} while (0)
+#define RVM_REGL(__r__) (__r__)->v.l
+#define RVM_GET_REGL(__cpu__, __r__) (__cpu__)->r[(__r__)].v.l
+#define RVM_SET_REGL(__cpu__, __r__, val) do { (__cpu__)->r[(__r__)].v.l = (rword)(val); rvm_reg_settype(&(__cpu__)->r[(__r__)], RVM_DTYPE_LONG);} while (0)
 #define RVM_REGP(__r__) (__r__)->v.p
 #define RVM_GET_REGP(__cpu__, __r__) (__cpu__)->r[(__r__)].v.p
-#define RVM_SET_REGP(__cpu__, __r__, val) do { (__cpu__)->r[(__r__)].v.p = (rpointer)(val); } while (0)
+#define RVM_SET_REGP(__cpu__, __r__, val) do { (__cpu__)->r[(__r__)].v.p = (rpointer)(val); rvm_reg_settype(&(__cpu__)->r[(__r__)], RVM_DTYPE_POINTER);} while (0)
 #define RVM_REGD(__r__) (__r__)->v.d
 #define RVM_GET_REGD(__cpu__, __r__) (__cpu__)->r[(__r__)].v.d
-#define RVM_SET_REGD(__cpu__, __r__, __val__) do { (__cpu__)->r[(__r__)].v.d = (rdouble)(__val__); } while (0)
+#define RVM_SET_REGD(__cpu__, __r__, __val__) do { (__cpu__)->r[(__r__)].v.d = (rdouble)(__val__); rvm_reg_settype(&(__cpu__)->r[(__r__)], RVM_DTYPE_DOUBLE);} while (0)
 #define RVM_REG(__r__) (__r__)
 #define RVM_REGM(__r__) (rvm_asmins_t*)((__r__)->v.p)
 #define RVM_GET_REGM(__cpu__, __r__) ((rvm_asmins_t*)(__cpu__)->r[(__r__)].v.p)
-#define RVM_SET_REGM(__cpu__, __r__, __p__) do { (__cpu__)->r[(__r__)].v.p = ((rpointer)(__p__)); } while (0)
+#define RVM_SET_REGM(__cpu__, __r__, __p__) do { (__cpu__)->r[(__r__)].v.p = ((rpointer)(__p__)); rvm_reg_settype(&(__cpu__)->r[(__r__)], RVM_DTYPE_POINTER);} while (0)
 #define RVM_INC_REGM(__cpu__, __r__, __val__) do {rvm_asmins_t *p = RVM_GET_REGM(__cpu__, __r__); (__cpu__)->r[(__r__)].v.p = (rpointer)(p + (__val__)); } while (0)
 #define RVM_REG_INFO(__r__) (__r__)->info
 #define RVM_REG_SIZE(__r__) (__r__)->size
@@ -196,6 +200,7 @@ typedef struct rvm_switable_s {
 typedef struct rvm_reg_s {
 	union {
 		rword w;
+		rlong l;
 		rpointer p;
 		rdouble d;
 		ruint8 c[RVM_MIN_REGSIZE];
@@ -234,12 +239,15 @@ rint rvm_cpu_getswi(rvm_cpu_t *cpu, const rchar *swiname);
 void rvm_relocate(rvm_asmins_t *code, rsize_t size);
 rvm_asmins_t rvm_asm(rword opcode, rword op1, rword op2, rword op3, rword data);
 rvm_asmins_t rvm_asmi(rword opcode, rword op1, rword op2, rword op3, rint data);
+rvm_asmins_t rvm_asml(rword opcode, rword op1, rword op2, rword op3, rlong data);
 rvm_asmins_t rvm_asmu(rword opcode, rword op1, rword op2, rword op3, rword data);
 rvm_asmins_t rvm_asmp(rword opcode, rword op1, rword op2, rword op3, rpointer data);
 rvm_asmins_t rvm_asmr(rword opcode, rword op1, rword op2, rword op3, rpointer pReloc);
 rvm_asmins_t rvm_asmx(rword opcode, rword op1, rword op2, rword op3, rpointer pReloc);
 rvm_asmins_t rvm_asmd(rword opcode, rword op1, rword op2, rword op3, rdouble data);
 void rvm_asm_dump(rvm_asmins_t *pi, ruint count);
+void rvm_reg_settype(rvm_reg_t *r, ruint type);
+ruint rvm_reg_gettype(rvm_reg_t *r);
 
 
 #ifdef __cplusplus
