@@ -13,7 +13,7 @@ typedef struct rvm_testctx_s {
 static void test_swi_add(rvm_cpu_t *cpu)
 {
 	rvm_testctx_t *ctx = (rvm_testctx_t *)cpu->userdata;
-	rvm_opmap_invoke_handler(ctx->opmap, RVM_OPID_ADD, cpu, &cpu->r[R0], &cpu->r[R0], &cpu->r[R1]);
+	rvm_opmap_invoke_handler(ctx->opmap, RVM_OPID_ADD, cpu, &cpu->r[R0], &cpu->r[R1], &cpu->r[R2]);
 }
 
 
@@ -54,11 +54,9 @@ int main(int argc, char *argv[])
 
 
 	ntable = rvm_cpu_switable_add(cpu, switable);
-	ntable = rvm_cpu_switable_add(cpu, switable);
-	code[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 1);
-	code[off++] = rvm_asm(RVM_MOV, R1, DA, XX, 2);
-	code[off++] = rvm_asm(RVM_ADD, R2, R0, R1, 0);
-	code[off++] = rvm_asm(RVM_SWI, DA, XX, XX, RVM_SWI_ID(ntable, 1));		// mul
+	code[off++] = rvm_asml(RVM_MOV, R1, DA, XX, 1);
+	code[off++] = rvm_asmd(RVM_MOV, R2, DA, XX, 3.2);
+//	code[off++] = rvm_asm(RVM_SWI, DA, XX, XX, RVM_SWI_ID(ntable, 1));		// mul
 	code[off++] = rvm_asm(RVM_SWI, DA, XX, XX, RVM_SWI_ID(ntable, 0));		// add
 	code[off++] = rvm_asm(RVM_EXT, XX, XX, XX, 0);
 
