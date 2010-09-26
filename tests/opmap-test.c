@@ -10,6 +10,17 @@ typedef struct rvm_testctx_s {
 } rvm_testctx_t;
 
 
+static void test_swi_print_r0(rvm_cpu_t *cpu)
+{
+	if (rvm_reg_gettype(&cpu->r[R0]) == RVM_DTYPE_LONG)
+		fprintf(stdout, "R0 = %ld\n", RVM_GET_REGL(cpu, R0));
+	else if (rvm_reg_gettype(&cpu->r[R0]) == RVM_DTYPE_DOUBLE)
+		fprintf(stdout, "R0 = %5.2f\n", RVM_GET_REGD(cpu, R0));
+	else
+		fprintf(stdout, "Unknown type\n");
+}
+
+
 static void test_swi_add(rvm_cpu_t *cpu)
 {
 	rvm_testctx_t *ctx = (rvm_testctx_t *)cpu->userdata;
@@ -29,6 +40,7 @@ static void test_swi_mul(rvm_cpu_t *cpu)
 static rvm_switable_t switable[] = {
 		{"add", test_swi_add},
 		{"mul", test_swi_mul},
+		{"print", test_swi_print_r0},
 		{NULL, NULL},
 };
 
@@ -54,10 +66,12 @@ int main(int argc, char *argv[])
 
 
 	ntable = rvm_cpu_switable_add(cpu, switable);
-	code[off++] = rvm_asml(RVM_MOV, R1, DA, XX, 1);
-	code[off++] = rvm_asmd(RVM_MOV, R2, DA, XX, 3.2);
+	code[off++] = rvm_asmd(RVM_MOV, R1, DA, XX, 1);
+	code[off++] = rvm_asml(RVM_MOV, R2, DA, XX, 3.2);
 //	code[off++] = rvm_asm(RVM_SWI, DA, XX, XX, RVM_SWI_ID(ntable, 1));		// mul
 	code[off++] = rvm_asm(RVM_SWI, DA, XX, XX, RVM_SWI_ID(ntable, 0));		// add
+	code[off++] = rvm_asm(RVM_SWI, DA, XX, XX, RVM_SWI_ID(ntable, 2));		// print
+
 	code[off++] = rvm_asm(RVM_EXT, XX, XX, XX, 0);
 
 
