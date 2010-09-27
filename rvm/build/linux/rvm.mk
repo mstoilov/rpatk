@@ -8,6 +8,9 @@ RVM_OBJECTS =	\
 	$(OUTDIR)/rvmcpu.o \
 	$(OUTDIR)/rvmoperator.o \
 	$(OUTDIR)/rvmoperatoradd.o \
+	$(OUTDIR)/rvmoperatorsub.o \
+	$(OUTDIR)/rvmoperatormul.o \
+	$(OUTDIR)/rvmoperatordiv.o \
 	$(OUTDIR)/rvmcodemap.o \
 	$(OUTDIR)/rvmcodegen.o \
 	$(OUTDIR)/rvmscope.o \

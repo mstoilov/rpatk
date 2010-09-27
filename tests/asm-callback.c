@@ -2,7 +2,7 @@
 #include "common.h"
 
 
-static void rvm_callback_one(rvm_cpu_t *vm)
+static void rvm_callback_one(rvm_cpu_t *vm, rvm_asmins_t *ins)
 {
 	fprintf(stdout, "%s\n", __FUNCTION__);
 }

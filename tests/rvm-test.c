@@ -3,7 +3,7 @@
 #include "rvmcpu.h"
 
 
-static void test_swi_sub(rvm_cpu_t *cpu)
+static void test_swi_sub(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
 	rword res, op2 = RVM_GET_REGU(cpu, R0), op3 = RVM_GET_REGU(cpu, R1);
 
@@ -12,7 +12,7 @@ static void test_swi_sub(rvm_cpu_t *cpu)
 }
 
 
-static void test_swi_mul(rvm_cpu_t *cpu)
+static void test_swi_mul(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
 	rword res, op2 = RVM_GET_REGU(cpu, R0), op3 = RVM_GET_REGU(cpu, R1);
 

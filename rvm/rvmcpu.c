@@ -402,7 +402,7 @@ static void rvm_op_swi(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 		RVM_ABORT(cpu, RVM_E_SWITABLE);
 	switable = r_array_index(cpu->switables, ntable, rvm_switable_t*);
 	swi = switable[nswi].op;
-	swi(cpu);
+	swi(cpu, ins);
 }
 
 
@@ -932,7 +932,7 @@ rint rvm_cpu_getswi(rvm_cpu_t *cpu, const rchar *swiname)
 	for (ntable = 0; ntable < cpu->switables->len; ntable++) {
 		swientry = r_array_index(cpu->switables, ntable, rvm_switable_t*);
 		for (nswi = 0; swientry[nswi].name; nswi++) {
-			if (r_strcmp(swientry->name, swiname) == 0)
+			if (r_strcmp(swientry[nswi].name, swiname) == 0)
 				return (rint)RVM_SWI_ID(ntable, nswi);
 		}
 	}

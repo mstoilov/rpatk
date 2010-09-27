@@ -5,7 +5,7 @@
 #include "rvmcodemap.h"
 
 
-static void test_swi_print_r0(rvm_cpu_t *cpu)
+static void test_swi_print_r0(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
 	rword res = RVM_GET_REGU(cpu, R0);
 	fprintf(stdout, "R0 = %d\n", (int)res);

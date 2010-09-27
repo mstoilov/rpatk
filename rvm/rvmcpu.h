@@ -98,6 +98,7 @@ enum {
 #define RVM_DTYPE_STRING 4
 #define RVM_DTYPE_STRINGPTR 5
 #define RVM_DTYPE_BOOLEAN 6
+#define RVM_DTYPE_OBJECT 7
 #define RVM_DTYPE_RELOCPTR 14
 #define RVM_DTYPE_RELOCINDEX 15
 #define RVM_DTYPE_USER 16
@@ -188,7 +189,7 @@ do { \
 
 typedef struct rvm_asmins_s rvm_asmins_t;
 typedef struct rvm_cpu_s rvm_cpu_t;
-typedef void (*rvm_cpu_swi)(rvm_cpu_t *cpu);
+typedef void (*rvm_cpu_swi)(rvm_cpu_t *cpu, rvm_asmins_t *ins);
 typedef void (*rvm_cpu_op)(rvm_cpu_t *cpu, rvm_asmins_t *ins);
 
 typedef struct rvm_switable_s {

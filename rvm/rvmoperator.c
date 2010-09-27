@@ -32,7 +32,7 @@ void rvm_opmap_destroy(rvm_opmap_t *opmap)
 }
 
 
-void rvm_opmap_add_operator(rvm_opmap_t *opmap, rushort opid)
+void rvm_opmap_add_binary_operator(rvm_opmap_t *opmap, rushort opid)
 {
 	rvm_opinfo_t opinfo;
 
@@ -55,7 +55,7 @@ void rvm_opmap_add_unary_operator(rvm_opmap_t *opmap, rushort opid)
 }
 
 
-rint rvm_opmap_set_handler(rvm_opmap_t *opmap, rushort opid, rvm_op_handler func, ruchar firstType, ruchar secondType)
+rint rvm_opmap_set_binary_handler(rvm_opmap_t *opmap, rushort opid, rvm_binaryop_handler func, ruchar firstType, ruchar secondType)
 {
 	rvm_ophandler_t *h;
 	rvm_opinfo_t *opinfo = ((rvm_opinfo_t*)r_array_slot(opmap->operators, opid));
@@ -79,7 +79,7 @@ rint rvm_opmap_set_unary_handler(rvm_opmap_t *opmap, rushort opid, rvm_unaryop_h
 }
 
 
-void rvm_opmap_invoke_handler(rvm_opmap_t *opmap, rushort opid, rvm_cpu_t *cpu, rvm_reg_t *res, const rvm_reg_t *arg1, const rvm_reg_t *arg2)
+void rvm_opmap_invoke_binary_handler(rvm_opmap_t *opmap, rushort opid, rvm_cpu_t *cpu, rvm_reg_t *res, const rvm_reg_t *arg1, const rvm_reg_t *arg2)
 {
 	rvm_ophandler_t *h;
 	rvm_opinfo_t *opinfo;
