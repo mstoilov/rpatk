@@ -174,6 +174,7 @@ do { \
 #define RVM_INC_REGM(__cpu__, __r__, __val__) do {rvm_asmins_t *p = RVM_GET_REGM(__cpu__, __r__); (__cpu__)->r[(__r__)].v.p = (rpointer)(p + (__val__)); } while (0)
 #define RVM_REG_INFO(__r__) (__r__)->info
 #define RVM_REG_SIZE(__r__) (__r__)->size
+#define RVM_REG_PTR(__cpu__, __r__) (&(__cpu__)->r[(__r__)])
 #define RVM_GET_REG(__cpu__, __r__) (__cpu__)->r[(__r__)]
 #define RVM_SET_REG(__cpu__, __r__, val) do { (__cpu__)->r[(__r__)] = (rvm_reg_t)(val); } while (0)
 #define RVM_SWI_TABLE(__op__) ((__op__) >> 16)

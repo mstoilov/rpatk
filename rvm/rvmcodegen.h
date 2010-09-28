@@ -2,6 +2,7 @@
 #define _RVMCODEGEN_H_
 
 #include "rtypes.h"
+#include "rvmerror.h"
 #include "rarray.h"
 #include "rhash.h"
 #include "rvmcpu.h"
@@ -13,6 +14,7 @@ extern "C" {
 #endif
 
 #define RVM_CODEGEN_FUNCINITOFFSET 4
+#define RVM_CODEGEN_E_NONE 0
 
 typedef struct rvm_codegen_s {
 	rarray_t *code;
