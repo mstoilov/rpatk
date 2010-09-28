@@ -3,6 +3,9 @@
 #include "rvmcpu.h"
 #include "rvmoperator.h"
 #include "rvmoperatoradd.h"
+#include "rvmoperatorsub.h"
+#include "rvmoperatormul.h"
+#include "rvmoperatordiv.h"
 
 
 typedef struct rvm_testctx_s {
@@ -78,6 +81,23 @@ int main(int argc, char *argv[])
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rvm_op_add_double_long, RVM_DTYPE_DOUBLE, RVM_DTYPE_LONG);
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rvm_op_add_long_long, RVM_DTYPE_LONG, RVM_DTYPE_LONG);
 
+	rvm_opmap_add_binary_operator(opmap, RVM_OPID_SUB);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_SUB, rvm_op_sub_double_double, RVM_DTYPE_DOUBLE, RVM_DTYPE_DOUBLE);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_SUB, rvm_op_sub_long_double, RVM_DTYPE_LONG, RVM_DTYPE_DOUBLE);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_SUB, rvm_op_sub_double_long, RVM_DTYPE_DOUBLE, RVM_DTYPE_LONG);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_SUB, rvm_op_sub_long_long, RVM_DTYPE_LONG, RVM_DTYPE_LONG);
+
+	rvm_opmap_add_binary_operator(opmap, RVM_OPID_MUL);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_MUL, rvm_op_mul_double_double, RVM_DTYPE_DOUBLE, RVM_DTYPE_DOUBLE);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_MUL, rvm_op_mul_long_double, RVM_DTYPE_LONG, RVM_DTYPE_DOUBLE);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_MUL, rvm_op_mul_double_long, RVM_DTYPE_DOUBLE, RVM_DTYPE_LONG);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_MUL, rvm_op_mul_long_long, RVM_DTYPE_LONG, RVM_DTYPE_LONG);
+
+	rvm_opmap_add_binary_operator(opmap, RVM_OPID_DIV);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_DIV, rvm_op_div_double_double, RVM_DTYPE_DOUBLE, RVM_DTYPE_DOUBLE);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_DIV, rvm_op_div_long_double, RVM_DTYPE_LONG, RVM_DTYPE_DOUBLE);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_DIV, rvm_op_div_double_long, RVM_DTYPE_DOUBLE, RVM_DTYPE_LONG);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_DIV, rvm_op_div_long_long, RVM_DTYPE_LONG, RVM_DTYPE_LONG);
 
 	ntable = rvm_cpu_switable_add(cpu, switable);
 	code[off++] = rvm_asmd(RVM_MOV, R1, DA, XX, 1);
@@ -85,8 +105,12 @@ int main(int argc, char *argv[])
 //	code[off++] = rvm_asm(RVM_SWI, DA, XX, XX, RVM_SWI_ID(ntable, 1));			// mul
 	code[off++] = rvm_asm(RVM_MOV, R0, DA, XX, rvm_cpu_getswi(cpu, "add"));		// add
 	code[off++] = rvm_asm(RVM_SWI, R0, R1, R2, 0);
+	code[off++] = rvm_asm(RVM_MOV, R3, R0, XX, 0);
 	code[off++] = rvm_asm(RVM_SWI, DA, R1, XX, rvm_cpu_getswi(cpu, "print"));	// print
 	code[off++] = rvm_asm(RVM_SWI, DA, R2, XX, rvm_cpu_getswi(cpu, "print"));	// print
+	code[off++] = rvm_asm(RVM_SWI, DA, R0, XX, rvm_cpu_getswi(cpu, "print"));	// print
+	code[off++] = rvm_asm(RVM_MOV, R0, DA, XX, rvm_cpu_getswi(cpu, "mul"));		// mul
+	code[off++] = rvm_asml(RVM_SWI, R0, R3, DA, 3);
 	code[off++] = rvm_asm(RVM_SWI, DA, R0, XX, rvm_cpu_getswi(cpu, "print"));	// print
 
 	code[off++] = rvm_asm(RVM_EXT, XX, XX, XX, 0);

@@ -1,5 +1,5 @@
-#ifndef _RVMOPERATORADD_H_
-#define _RVMOPERATORADD_H_
+#ifndef _RVMOPERATORDIV_H_
+#define _RVMOPERATORDIV_H_
 
 #include "rvmoperator.h"
 
