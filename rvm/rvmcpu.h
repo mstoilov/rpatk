@@ -60,11 +60,13 @@ enum {
 	RVM_STR,		/* Save: val_at_location(op2) = op1 */
 	RVM_STRP,		/* Save pointer: pointer_at_location(op2) = op1 */
 	RVM_STRB,		/* Save: byte_at_location(op2) = op1 */
-	RVM_STRH,		/* Save: halfword_at_location(op2) = op1 */
+	RVM_STRH,		/* Save: u16_at_location(op2) = op1 */
+	RVM_STRW,		/* Save: u32_at_location(op2) = op1 */
 	RVM_LDR,		/* Load: op1 = val_at_location(op2) */
 	RVM_LDRP,		/* Load pointer: op1 = pointer_at_location(op2) */
 	RVM_LDRB,		/* Load Byte: op1 = byte_at_location(op2) */
-	RVM_LDRH,		/* Load Half Word: op1 = halfword_at_location(op2) */
+	RVM_LDRH,		/* Load Half Word: op1 = u16_at_location(op2) */
+	RVM_LDRW,		/* Load Half Word: op1 = u32_at_location(op2) */
 	RVM_LSL,		/* Logical Shift Left: op1 = op2 << op3, update the status register */
 	RVM_LSR,		/* Logical Shift Right: op1 = op2 >> op3, update the status register */
 	RVM_STM,
@@ -95,8 +97,8 @@ enum {
 #define RVM_DTYPE_POINTER 1
 #define RVM_DTYPE_LONG 2
 #define RVM_DTYPE_DOUBLE 3
-#define RVM_DTYPE_STRING 4
-#define RVM_DTYPE_STRINGPTR 5
+//#define RVM_DTYPE_STRING 4
+//#define RVM_DTYPE_STRINGPTR 5
 #define RVM_DTYPE_BOOLEAN 6
 #define RVM_DTYPE_OBJECT 7
 #define RVM_DTYPE_RELOCPTR 14
