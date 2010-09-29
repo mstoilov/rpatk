@@ -2,6 +2,7 @@
 #define _RHASH_H_
 
 #include "rtypes.h"
+#include "rref.h"
 #include "rlist.h"
 
 #ifdef __cplusplus
@@ -15,6 +16,7 @@ typedef ruint (*r_hash_hashfun)(rconstpointer key);
 
 
 struct rhash_s {
+	rref_t ref;
 	rlist_t *buckets;
 	ruint nbits;
 	r_hash_equalfunc eqfunc;

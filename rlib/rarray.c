@@ -35,9 +35,16 @@ void r_array_destroy(rarray_t *array)
 }
 
 
+static void r_ref_destroy(rref_t *ref)
+{
+	r_array_destroy((rarray_t*)ref);
+}
+
+
 rarray_t *r_array_init(rarray_t *array, ruint elt_size)
 {
 	r_memset(array, 0, sizeof(*array));
+	r_ref_init(&array->ref, 1, RREF_TYPE_NONE, r_ref_destroy);
 	array->elt_size = elt_size;
 	array->data = r_malloc(MIN_ARRAY_LEN * array->elt_size);
 	array->alloc_len = MIN_ARRAY_LEN;

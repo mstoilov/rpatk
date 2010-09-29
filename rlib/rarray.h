@@ -2,6 +2,7 @@
 #define _RARRAY_H_
 
 #include "rtypes.h"
+#include "rref.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -10,6 +11,7 @@ extern "C" {
 typedef struct rarray_s rarray_t;
 
 struct rarray_s {
+	rref_t ref;
 	rpointer *data;
 	ruint len;
 	ruint alloc_len;

@@ -8,6 +8,9 @@
 extern "C" {
 #endif
 
+
+#include "rref.h"
+
 typedef struct rstring_s {
 	rchar *str;
 	ruint size;
