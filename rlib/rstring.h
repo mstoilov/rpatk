@@ -11,6 +11,8 @@ extern "C" {
 
 #include "rref.h"
 
+
+
 typedef struct rstr_s {
 	rchar *str;
 	ruint size;
@@ -27,6 +29,19 @@ rchar *r_strcpy(rchar *dest, const rchar *src);
 rchar *r_strncpy(rchar *dest, const rchar *src, rsize_t n);
 rstr_t *rstrdup(const rchar *s, ruint size);
 
+
+typedef struct rstring_s {
+	rref_t ref;
+	rstr_t s;
+} rstring_t;
+
+
+rstring_t *r_string_create();
+rstring_t *r_string_init(rstring_t *string);
+void r_string_destroy(rstring_t *string);
+void r_string_cleanup(rstring_t *string);
+void r_string_assign(rstring_t *string, const rstr_t *str);
+rstring_t *r_string_copy(const rstring_t *string);
 
 #ifdef __cplusplus
 }

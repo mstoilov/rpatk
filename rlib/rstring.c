@@ -76,3 +76,69 @@ rstr_t *rstrdup(const rchar *s, ruint size)
 	}
 	return d;
 }
+
+
+static void r_ref_destroy(rref_t *ref)
+{
+	r_string_destroy((rstring_t*)ref);
+}
+
+rstring_t *r_string_create()
+{
+	rstring_t *string;
+	if ((string = (rstring_t*)r_malloc(sizeof(*string))) == NULL)
+		return NULL;
+	if (!r_string_init(string)) {
+		r_string_destroy(string);
+		return NULL;
+	}
+	r_ref_init(&string->ref, 1, RREF_TYPE_NONE, r_ref_destroy);
+	return string;
+
+}
+
+
+rstring_t *r_string_init(rstring_t *string)
+{
+	r_memset(string, 0, sizeof(*string));
+	return string;
+}
+
+
+void r_string_destroy(rstring_t *string)
+{
+	r_string_cleanup(string);
+	r_free(string);
+}
+
+
+void r_string_cleanup(rstring_t *string)
+{
+	if (string) {
+		r_free(string->s.str);
+		r_memset(&string->s, 0, sizeof(rstr_t));
+	}
+}
+
+
+void r_string_assign(rstring_t *string, const rstr_t *str)
+{
+	r_string_cleanup(string);
+	if (str->size) {
+		string->s.str = (rchar*)r_malloc(str->size + 1);
+		if (!string->s.str)
+			return;
+		r_memcpy(string->s.str, str->str, str->size);
+		string->s.size = str->size;
+	}
+}
+
+
+rstring_t *r_string_copy(const rstring_t *srcString)
+{
+	rstring_t *string = r_string_create();
+	if (string && srcString) {
+		r_string_assign(string, &srcString->s);
+	}
+	return string;
+}

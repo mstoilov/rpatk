@@ -82,6 +82,12 @@ rboolean r_hash_strnequal(rconstpointer key1, rconstpointer key2)
 }
 
 
+static void r_ref_destroy(rref_t *ref)
+{
+	r_hash_destroy((rhash_t*)ref);
+}
+
+
 rhash_t *r_hash_create(ruint nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfunc)
 {
 	rhash_t *hash;
@@ -94,13 +100,8 @@ rhash_t *r_hash_create(ruint nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfun
 		r_hash_destroy(hash);
 		return NULL;
 	}
+	r_ref_init(&hash->ref, 1, RREF_TYPE_NONE, r_ref_destroy);
 	return hash;
-}
-
-
-static void r_ref_destroy(rref_t *ref)
-{
-	r_hash_destroy((rhash_t*)ref);
 }
 
 
@@ -109,7 +110,6 @@ rhash_t *r_hash_init(rhash_t *hash, ruint nbits, r_hash_equalfunc eqfunc, r_hash
 	ruint i;
 	rsize_t size;
 
-	r_ref_init(&hash->ref, 1, RREF_TYPE_NONE, r_ref_destroy);
 	hash->nbits = nbits;
 	hash->eqfunc = eqfunc;
 	hash->hfunc = hfunc;

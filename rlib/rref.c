@@ -1,7 +1,7 @@
 #include "rref.h"
 
 
-void r_ref_init(rref_t *ref, ruint32 count, ruint32 type, r_ref_destroyptr destroy)
+void r_ref_init(rref_t *ref, ruint32 count, ruint32 type, r_ref_destroyfun destroy)
 {
 	ref->count = count;
 	ref->type = type;
