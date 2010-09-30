@@ -14,7 +14,7 @@ extern "C" {
 #define RVM_CODELABEL_INVALID ((rulong)-1)
 
 typedef struct rvm_codelabel_s {
-	rstring_t *name;
+	rstr_t *name;
 	rulong index;
 } rvm_codelabel_t;
 

@@ -10,7 +10,7 @@ rvm_scope_t *rvm_scope_create()
 	if (!scope)
 		return NULL;
 	r_memset(scope, 0, sizeof(*scope));
-	scope->names = r_array_create(sizeof(rstring_t*));
+	scope->names = r_array_create(sizeof(rstr_t*));
 	scope->nameshash = r_hash_create(5, r_hash_strnequal, r_hash_strnhash);
 	scope->varstack = r_array_create(sizeof(rvm_varmap_t));
 	scope->scopestack = r_array_create(sizeof(scope->varstack->len));
@@ -35,11 +35,11 @@ void rvm_scope_destroy(rvm_scope_t *scope)
 
 rchar *rvm_scope_addname(rvm_scope_t *scope, const rchar* name, ruint namesize)
 {
-	rstring_t namestr = {(rchar*)name, namesize};
-	rstring_t *dupname = r_hash_lookup(scope->nameshash, &namestr);
+	rstr_t namestr = {(rchar*)name, namesize};
+	rstr_t *dupname = r_hash_lookup(scope->nameshash, &namestr);
 
 	if (!dupname) {
-		dupname = r_stringdup(name, namesize);
+		dupname = rstrdup(name, namesize);
 		r_array_add(scope->names, (rconstpointer)&dupname);
 		r_hash_insert(scope->nameshash, dupname, dupname);
 	}

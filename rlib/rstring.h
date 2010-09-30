@@ -11,10 +11,10 @@ extern "C" {
 
 #include "rref.h"
 
-typedef struct rstring_s {
+typedef struct rstr_s {
 	rchar *str;
 	ruint size;
-} rstring_t;
+} rstr_t;
 
 
 rint r_strcmp(const rchar *s1, const rchar *s2);
@@ -25,7 +25,7 @@ rchar *r_strdup(const rchar *s);
 rchar *r_strndup(const rchar *s, rsize_t size);
 rchar *r_strcpy(rchar *dest, const rchar *src);
 rchar *r_strncpy(rchar *dest, const rchar *src, rsize_t n);
-rstring_t *r_stringdup(const rchar *s, ruint size);
+rstr_t *rstrdup(const rchar *s, ruint size);
 
 
 #ifdef __cplusplus

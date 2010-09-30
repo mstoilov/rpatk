@@ -64,10 +64,10 @@ rchar *r_strndup(const rchar *s, rsize_t size)
 }
 
 
-rstring_t *r_stringdup(const rchar *s, ruint size)
+rstr_t *rstrdup(const rchar *s, ruint size)
 {
-	rsize_t allocsize = sizeof(rstring_t) + size + sizeof(rchar);
-	rstring_t *d = (rstring_t*)r_malloc(allocsize);
+	rsize_t allocsize = sizeof(rstr_t) + size + sizeof(rchar);
+	rstr_t *d = (rstr_t*)r_malloc(allocsize);
 	if (d) {
 		r_memset(d, allocsize, 0);
 		d->size = size;
