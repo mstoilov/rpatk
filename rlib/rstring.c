@@ -142,3 +142,12 @@ rstring_t *r_string_copy(const rstring_t *srcString)
 	}
 	return string;
 }
+
+
+rstring_t *r_string_create_from_rstr(const rstr_t *str)
+{
+	rstring_t *string = r_string_create();
+	if (string)
+		r_string_assign(string, str);
+	return string;
+}

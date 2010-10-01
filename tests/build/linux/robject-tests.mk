@@ -13,6 +13,7 @@ TESTS	= \
 	$(OUTDIR)/codegen-test \
 	$(OUTDIR)/codemap-test \
 	$(OUTDIR)/opmap-test \
+	$(OUTDIR)/string-test \
 	$(OUTDIR)/rlock-test \
 	$(OUTDIR)/rarray-test \
 	$(OUTDIR)/scope-test \

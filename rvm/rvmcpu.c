@@ -1104,3 +1104,21 @@ ruint rvm_reg_gettype(rvm_reg_t *r)
 {
 	return (r->info & RVM_DTYPE_MASK);
 }
+
+rboolean rvm_reg_flagtst(rvm_reg_t *r, ruint32 flag)
+{
+	return (r->info & flag) ? TRUE : FALSE;
+}
+
+
+void rvm_reg_flagset(rvm_reg_t *r, ruint32 flag)
+{
+	r->info |= flag;
+}
+
+
+void rvm_reg_flagclr(rvm_reg_t *r, ruint32 flag)
+{
+	r->info &= ~flag;
+}
+

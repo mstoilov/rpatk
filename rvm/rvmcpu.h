@@ -110,6 +110,9 @@ enum {
 #define RVM_DTYPE_MAX (RVM_DTYPE_MASK)
 #define RVM_DTYPE_USERDEF(__n__) (RVM_DTYPE_USER + (__n__))
 
+#define RVM_INFOBIT_ALL ((ruint32)-1)
+#define RVM_INFOBIT_REFOBJECT (1 << 8)
+
 
 #define RVM_REGISTER_BITS (8 * sizeof(rword))
 #define RVM_SIGN_BIT (1LU << (RVM_REGISTER_BITS - 1))
@@ -253,7 +256,9 @@ rvm_asmins_t rvm_asmd(rword opcode, rword op1, rword op2, rword op3, rdouble dat
 void rvm_asm_dump(rvm_asmins_t *pi, ruint count);
 void rvm_reg_settype(rvm_reg_t *r, ruint type);
 ruint rvm_reg_gettype(rvm_reg_t *r);
-
+rboolean rvm_reg_flagtst(rvm_reg_t *r, ruint32 flag);
+void rvm_reg_flagset(rvm_reg_t *r, ruint32 flag);
+void rvm_reg_flagclr(rvm_reg_t *r, ruint32 flag);
 
 #ifdef __cplusplus
 }
