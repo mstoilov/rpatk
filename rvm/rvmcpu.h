@@ -183,6 +183,11 @@ do { \
 #define RVM_REG_PTR(__cpu__, __r__) (&(__cpu__)->r[(__r__)])
 #define RVM_GET_REG(__cpu__, __r__) (__cpu__)->r[(__r__)]
 #define RVM_SET_REG(__cpu__, __r__, val) do { (__cpu__)->r[(__r__)] = (rvm_reg_t)(val); } while (0)
+#define RVM_REG_ASSIGN_STRING(__r__, val) do { (__r__)->v.p = (rpointer)(val); rvm_reg_settype((__r__), RVM_DTYPE_STRING);rvm_reg_flagset((__r__), RVM_INFOBIT_REFOBJECT);} while (0)
+#define RVM_REG_REF(__r__) do { if (rvm_reg_flagtst((__r__), RVM_INFOBIT_REFOBJECT)) r_ref_inc((rref_t*)RVM_REGP(__r__));} while (0)
+#define RVM_REG_UNREF(__r__) do { if (rvm_reg_flagtst((__r__), RVM_INFOBIT_REFOBJECT)) r_ref_dec((rref_t*)RVM_REGP(__r__));} while (0)
+
+
 #define RVM_SWI_TABLE(__op__) ((__op__) >> 16)
 #define RVM_SWI_NUM(__op__) ((__op__) & ((1 << 16) - 1))
 #define RVM_SWI_ID(__t__, __o__) ((((__t__) & ((1 << 16) - 1))  << 16) | ((__o__) & ((1 << 16) - 1)))

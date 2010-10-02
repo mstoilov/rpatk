@@ -134,6 +134,17 @@ void r_string_assign(rstring_t *string, const rstr_t *str)
 }
 
 
+void r_string_cat(rstring_t *string, const rstr_t *str)
+{
+	if (str && str->size) {
+		string->s.str = r_realloc(string->s.str, string->s.size + str->size + 1);
+		r_memset(string->s.str + string->s.size, 0, str->size + 1);
+		r_strncpy(string->s.str + string->s.size, str->str, str->size);
+		string->s.size += str->size;
+	}
+}
+
+
 rstring_t *r_string_copy(const rstring_t *srcString)
 {
 	rstring_t *string = r_string_create();

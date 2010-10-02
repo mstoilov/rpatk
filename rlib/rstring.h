@@ -42,6 +42,7 @@ rstring_t *r_string_init(rstring_t *string);
 void r_string_destroy(rstring_t *string);
 void r_string_cleanup(rstring_t *string);
 void r_string_assign(rstring_t *string, const rstr_t *str);
+void r_string_cat(rstring_t *string, const rstr_t *str);
 rstring_t *r_string_copy(const rstring_t *string);
 
 #ifdef __cplusplus
