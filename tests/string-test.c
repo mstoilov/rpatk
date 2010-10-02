@@ -55,8 +55,17 @@ static void test_swi_unref(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static void test_swi_strtodouble(rvm_cpu_t *cpu, rvm_asmins_t *ins)
+{
+	rstring_t *s = (rstring_t*)RVM_GET_REGP(cpu, ins->op2);
+	double d = strtod(s->s.str, NULL);
+	RVM_SET_REGD(cpu, R0, d);
+}
+
+
 static rvm_switable_t switable[] = {
 		{"str_init", test_swi_strinit},
+		{"str_to_double", test_swi_strtodouble},
 		{"unref", test_swi_unref},
 		{"cat", test_swi_cat},
 		{"print", test_swi_print_r},
@@ -109,6 +118,7 @@ int main(int argc, char *argv[])
 
 
 	rvm_codemap_invalid_add_str(cg->codemap, "str_init");
+	rvm_codemap_invalid_add_str(cg->codemap, "str_to_double");
 	ntable = rvm_cpu_switable_add(cpu, switable);
 
 	rvm_codegen_addins(cg, rvm_asmp(RVM_MOV, R0, DA, XX, hello));
@@ -140,6 +150,12 @@ int main(int argc, char *argv[])
 	rvm_codegen_addins(cg, rvm_asm(RVM_LDS, R1, FP, DA, 2));
 	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, R0, R1, rvm_cpu_getswi(cpu, "str_init")));
 	rvm_codegen_funcend(cg);
+
+	rvm_codegen_funcstart_str(cg, "str_to_double", 1);
+	rvm_codegen_addins(cg, rvm_asm(RVM_LDS, R0, FP, DA, 1));
+	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, R0, XX, rvm_cpu_getswi(cpu, "str_to_double")));
+	rvm_codegen_funcend(cg);
+
 
 	rvm_relocate(rvm_codegen_getcode(cg, 0), rvm_codegen_getcodesize(cg));
 	rvm_cpu_exec_debug(cpu, rvm_codegen_getcode(cg, 0), 0);
