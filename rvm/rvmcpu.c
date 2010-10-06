@@ -57,11 +57,13 @@ static const char *stropcalls[] = {
 	"RVM_STRB",
 	"RVM_STRH",
 	"RVM_STRW",
+	"RVM_STRR",
 	"RVM_LDR",
 	"RVM_LDRP",
 	"RVM_LDRB",
 	"RVM_LDRH",
 	"RVM_LDRW",
+	"RVM_LDRR",
 	"RVM_LSL",
 	"RVM_LSR",
 	"RVM_STM",
@@ -185,6 +187,12 @@ static void rvm_op_ldrw(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static void rvm_op_ldrr(rvm_cpu_t *cpu, rvm_asmins_t *ins)
+{
+//	RVM_SET_REGU(cpu, ins->op1, *((ruint32*)RVM_GET_REGU(cpu, ins->op2)));
+}
+
+
 static void rvm_op_str(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
 	*((rword*)RVM_GET_REGP(cpu, ins->op2)) = RVM_GET_REGU(cpu, ins->op1);
@@ -214,6 +222,12 @@ static void rvm_op_strw(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
 	*((ruint32*)RVM_GET_REGP(cpu, ins->op2)) = (ruint32)RVM_GET_REGU(cpu, ins->op1);
 
+}
+
+
+static void rvm_op_strr(rvm_cpu_t *cpu, rvm_asmins_t *ins)
+{
+//	*((ruint32*)RVM_GET_REGP(cpu, ins->op2)) = (ruint32)RVM_GET_REGU(cpu, ins->op1);
 }
 
 
@@ -839,11 +853,13 @@ static rvm_cpu_op ops[] = {
 	rvm_op_strb,		// RVM_STRB
 	rvm_op_strh,		// RVM_STRH
 	rvm_op_strw,		// RVM_STRW
+	rvm_op_strr,		// RVM_STRR
 	rvm_op_ldr,			// RVM_LDR
 	rvm_op_ldrp,		// RVM_LDRP
 	rvm_op_ldrb,		// RVM_LDRB
 	rvm_op_ldrh,		// RVM_LDRH
 	rvm_op_ldrw,		// RVM_LDRW
+	rvm_op_ldrr,		// RVM_LDRR
 	rvm_op_lsl,			// RVM_LSL
 	rvm_op_lsr,			// RVM_LSR
 	rvm_op_stm,			// RVM_STM

@@ -62,11 +62,13 @@ enum {
 	RVM_STRB,		/* Save: byte_at_location(op2) = op1 */
 	RVM_STRH,		/* Save: u16_at_location(op2) = op1 */
 	RVM_STRW,		/* Save: u32_at_location(op2) = op1 */
+	RVM_STRR,		/* Save: rev_reg_t_at_location(op2) = op1 */
 	RVM_LDR,		/* Load: op1 = val_at_location(op2) */
 	RVM_LDRP,		/* Load pointer: op1 = pointer_at_location(op2) */
 	RVM_LDRB,		/* Load Byte: op1 = byte_at_location(op2) */
 	RVM_LDRH,		/* Load Half Word: op1 = u16_at_location(op2) */
-	RVM_LDRW,		/* Load Half Word: op1 = u32_at_location(op2) */
+	RVM_LDRW,		/* Load Word: op1 = u32_at_location(op2) */
+	RVM_LDRR,		/* Load rvm_reg_t: op1 = rvm_reg_t_at_location(op2) */
 	RVM_LSL,		/* Logical Shift Left: op1 = op2 << op3, update the status register */
 	RVM_LSR,		/* Logical Shift Right: op1 = op2 >> op3, update the status register */
 	RVM_STM,
