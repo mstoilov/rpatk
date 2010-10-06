@@ -14,6 +14,7 @@ RVM_OBJECTS =	\
 	$(OUTDIR)/rvmoperatordiv.o \
 	$(OUTDIR)/rvmcodemap.o \
 	$(OUTDIR)/rvmcodegen.o \
+	$(OUTDIR)/rvmnamedarray.o \
 	$(OUTDIR)/rvmscope.o \
 
 

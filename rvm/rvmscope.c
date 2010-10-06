@@ -39,7 +39,7 @@ rchar *rvm_scope_addname(rvm_scope_t *scope, const rchar* name, ruint namesize)
 	rstr_t *dupname = r_hash_lookup(scope->nameshash, &namestr);
 
 	if (!dupname) {
-		dupname = rstrdup(name, namesize);
+		dupname = r_rstrdup(name, namesize);
 		r_array_add(scope->names, (rconstpointer)&dupname);
 		r_hash_insert(scope->nameshash, dupname, dupname);
 	}

@@ -42,7 +42,7 @@ void rvm_codemap_add(rvm_codemap_t *codemap, const rchar *name, ruint namesize, 
 	label = rvm_codemap_lookup(codemap, name, namesize);
 	if (!label) {
 		label = r_malloc(sizeof(*label));
-		label->name = rstrdup(name, namesize);
+		label->name = r_rstrdup(name, namesize);
 		r_hash_insert(codemap->hash, label->name, label);
 		r_array_add(codemap->labels, &label);
 	}

@@ -32,3 +32,11 @@ ruint32 r_ref_get(rref_t *ref)
 {
 	return ref->count;
 }
+
+
+rref_t *r_ref_copy(rref_t *ref)
+{
+	if (ref->copy)
+		return ref->copy(ref);
+	return NULL;
+}

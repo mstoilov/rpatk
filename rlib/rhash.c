@@ -3,10 +3,15 @@
 #include "rhash.h"
 
 
+typedef union rhash_value_s {
+	rpointer ptr;
+	rulong index;
+} rhash_value_t;
+
 typedef struct rhash_node_s {
 	rlink_t lnk;
 	rconstpointer key;
-	rpointer value;
+	rhash_value_t value;
 } rhash_node_t;
 
 
@@ -146,10 +151,9 @@ void r_hash_insert(rhash_t* hash, rconstpointer key, rpointer value)
 	if (node) {
 		r_list_init(&node->lnk);
 		node->key = key;
-		node->value = value;
+		node->value.ptr = value;
 	}
 	r_list_addt(buckethead, &node->lnk);
-
 }
 
 
@@ -185,6 +189,26 @@ rpointer r_hash_lookup(rhash_t* hash, rconstpointer key)
 {
 	rhash_node_t *node = r_hash_node_lookup(hash, key);
 	if (node)
-		return node->value;
+		return node->value.ptr;
 	return NULL;
+}
+
+
+void r_hash_insert_indexval(rhash_t* hash, rconstpointer key, rulong index)
+{
+	ruint nbucket = hash->hfunc(key) & r_hash_mask(hash);
+	rhash_node_t *node = r_hash_node_create();
+	rhead_t *buckethead = &hash->buckets[nbucket];
+	if (node) {
+		r_list_init(&node->lnk);
+		node->key = key;
+		node->value.index = index;
+	}
+	r_list_addt(buckethead, &node->lnk);
+}
+
+
+rulong r_hash_lookup_indexval(rhash_t* hash, rconstpointer key)
+{
+	return R_HASH_INVALID_INDEXVAL;
 }

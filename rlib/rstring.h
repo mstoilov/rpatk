@@ -27,7 +27,7 @@ rchar *r_strdup(const rchar *s);
 rchar *r_strndup(const rchar *s, rsize_t size);
 rchar *r_strcpy(rchar *dest, const rchar *src);
 rchar *r_strncpy(rchar *dest, const rchar *src, rsize_t n);
-rstr_t *rstrdup(const rchar *s, ruint size);
+rstr_t *r_rstrdup(const rchar *s, ruint size);
 
 
 typedef struct rstring_s {

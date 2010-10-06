@@ -64,7 +64,7 @@ rchar *r_strndup(const rchar *s, rsize_t size)
 }
 
 
-rstr_t *rstrdup(const rchar *s, ruint size)
+rstr_t *r_rstrdup(const rchar *s, ruint size)
 {
 	rsize_t allocsize = sizeof(rstr_t) + size + sizeof(rchar);
 	rstr_t *d = (rstr_t*)r_malloc(allocsize);

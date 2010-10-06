@@ -24,6 +24,7 @@ struct rref_s {
 ruint32 r_ref_inc(rref_t *ref);
 ruint32 r_ref_dec(rref_t *ref);
 ruint32 r_ref_get(rref_t *ref);
+rref_t *r_ref_copy(rref_t *ref);
 void r_ref_init(rref_t *ref, ruint32 count, ruint32 type, r_ref_destroyfun destroy);
 
 
