@@ -1,11 +1,12 @@
 #include "rref.h"
 
 
-void r_ref_init(rref_t *ref, ruint32 count, ruint32 type, r_ref_destroyfun destroy)
+void r_ref_init(rref_t *ref, ruint32 count, ruint32 type, r_ref_destroyfun destroy, r_ref_copyfun copy)
 {
 	ref->count = count;
 	ref->type = type;
 	ref->destroy = destroy;
+	ref->copy = copy;
 }
 
 
@@ -34,7 +35,7 @@ ruint32 r_ref_get(rref_t *ref)
 }
 
 
-rref_t *r_ref_copy(rref_t *ref)
+rref_t *r_ref_copy(const rref_t *ref)
 {
 	if (ref->copy)
 		return ref->copy(ref);

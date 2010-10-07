@@ -3,9 +3,15 @@
 #include "rmem.h"
 
 
-static void r_ref_destroy(rref_t *ref)
+static void r_refstub_destroy(rref_t *ref)
 {
 	rvm_namedarray_destroy((rvm_namedarray_t*)ref);
+}
+
+
+static rref_t *r_refstub_copy(const rref_t *ptr)
+{
+	return (rref_t*) r_namedarray_copy((const rvm_namedarray_t*)ptr);
 }
 
 
@@ -19,8 +25,24 @@ rvm_namedarray_t *rvm_namedarray_create()
 	r_memset(namedarray, 0, sizeof(*namedarray));
 	namedarray->members = r_array_create(sizeof(rvm_namedmember_t));
 	namedarray->hash = r_hash_create(5, r_hash_strnequal, r_hash_strnhash);
-	r_ref_init(&namedarray->ref, 1, RREF_TYPE_NONE, r_ref_destroy);
+	r_ref_init(&namedarray->ref, 1, RREF_TYPE_NONE, r_refstub_destroy, r_refstub_copy);
 	return namedarray;
+}
+
+
+rvm_namedarray_t *r_namedarray_copy(const rvm_namedarray_t *src)
+{
+	int i;
+	rvm_namedmember_t *m;
+	rvm_namedarray_t *dst = rvm_namedarray_create();
+
+	if (!dst)
+		return NULL;
+	for (i = 0; i < src->members->len; i++) {
+		m = (rvm_namedmember_t *)r_array_slot(src->members, i);
+		rvm_namedarray_add(dst, m->name->str, m->name->size, &m->val);
+	}
+	return dst;
 }
 
 
@@ -33,33 +55,36 @@ void rvm_namedarray_destroy(rvm_namedarray_t *namedarray)
 	for (i = 0; i < len; i++) {
 		member = (rvm_namedmember_t *)r_array_slot(namedarray->members, i);
 		r_free(member->name);
+		RVM_REG_UNREF(&member->val);
 	}
-
 	r_array_destroy(namedarray->members);
 	r_hash_destroy(namedarray->hash);
 	r_free(namedarray);
 }
 
 
-void rvm_namedarray_add(rvm_namedarray_t *namedarray, const rchar *name, ruint namesize)
+rint rvm_namedarray_add(rvm_namedarray_t *namedarray, const rchar *name, ruint namesize, const rvm_reg_t *pval)
 {
 	rvm_namedmember_t member;
-	rlong index;
+	rint index;
 
 	r_memset(&member, 0, sizeof(member));
 	member.name = r_rstrdup(name, namesize);
+	if (pval)
+		member.val = *pval;
 	index = r_array_add(namedarray->members, &member);
 	r_hash_insert_indexval(namedarray->hash, (rconstpointer)member.name, index);
+	return index;
 }
 
 
-void rvm_namedarray_add_str(rvm_namedarray_t *namedarray, const rchar *name)
+rint rvm_namedarray_add_str(rvm_namedarray_t *namedarray, const rchar *name, const rvm_reg_t *pval)
 {
-	rvm_namedarray_add(namedarray, name, r_strlen(name));
+	return rvm_namedarray_add(namedarray, name, r_strlen(name), pval);
 }
 
 
-rint rvm_namedarray_set(rvm_namedarray_t *namedarray, const rchar *name, ruint namesize, rvm_reg_t val)
+rint rvm_namedarray_set(rvm_namedarray_t *namedarray, const rchar *name, ruint namesize, const rvm_reg_t *pval)
 {
 	rvm_namedmember_t *member;
 	rlong index = rvm_namedarray_lookup(namedarray, name, namesize);
@@ -67,7 +92,10 @@ rint rvm_namedarray_set(rvm_namedarray_t *namedarray, const rchar *name, ruint n
 		return -1;
 	member = (rvm_namedmember_t*)r_array_slot(namedarray->members, index);
 	RVM_REG_UNREF(&member->val);
-	member->val = val;
+	if (pval)
+		member->val = *pval;
+	else
+		RVM_REG_CLEAR(&member->val);
 	if (rvm_reg_flagtst(&member->val, RVM_INFOBIT_REFOBJECT)) {
 		if ((member->val.v.p = r_ref_copy((rref_t*)member->val.v.p)) == NULL)
 			RVM_REG_CLEAR(&member->val);
@@ -76,9 +104,9 @@ rint rvm_namedarray_set(rvm_namedarray_t *namedarray, const rchar *name, ruint n
 }
 
 
-rint rvm_namedarray_set_str(rvm_namedarray_t *namedarray, const rchar *name, rvm_reg_t val)
+rint rvm_namedarray_set_str(rvm_namedarray_t *namedarray, const rchar *name, const rvm_reg_t *pval)
 {
-	return rvm_namedarray_set(namedarray, name, r_strlen(name), val);
+	return rvm_namedarray_set(namedarray, name, r_strlen(name), pval);
 }
 
 
@@ -87,7 +115,7 @@ rlong rvm_namedarray_lookup(rvm_namedarray_t *namedarray, const rchar *name, rui
 	rulong found;
 
 	rstr_t lookupstr = {(char*)name, namesize};
-	found = r_hash_lookup(namedarray->hash, &lookupstr);
+	found = r_hash_lookup_indexval(namedarray->hash, &lookupstr);
 	if (found == R_HASH_INVALID_INDEXVAL)
 		return -1;
 	return (rlong)found;

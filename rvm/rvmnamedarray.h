@@ -26,11 +26,12 @@ typedef struct rvm_namedarray_s {
 
 
 rvm_namedarray_t *rvm_namedarray_create();
+rvm_namedarray_t *r_namedarray_copy(const rvm_namedarray_t *array);
 void rvm_namedarray_destroy(rvm_namedarray_t *namedarray);
-void rvm_namedarray_add(rvm_namedarray_t *namedarray, const rchar *name, ruint namesize);
-void rvm_namedarray_add_str(rvm_namedarray_t *namedarray, const rchar *name);
-rint rvm_namedarray_set(rvm_namedarray_t *namedarray, const rchar *name, ruint namesize, rvm_reg_t val);
-rint rvm_namedarray_set_str(rvm_namedarray_t *namedarray, const rchar *name, rvm_reg_t val);
+rint rvm_namedarray_add(rvm_namedarray_t *namedarray, const rchar *name, ruint namesize, const rvm_reg_t *pval);
+rint rvm_namedarray_add_str(rvm_namedarray_t *namedarray, const rchar *name, const rvm_reg_t *pval);
+rint rvm_namedarray_set(rvm_namedarray_t *namedarray, const rchar *name, ruint namesize, const rvm_reg_t *pval);
+rint rvm_namedarray_set_str(rvm_namedarray_t *namedarray, const rchar *name, const rvm_reg_t *pval);
 rlong rvm_namedarray_lookup(rvm_namedarray_t *namedarray, const rchar *name, ruint namesize);
 rlong rvm_namedarray_lookup_str(rvm_namedarray_t *namedarray, const rchar *name);
 

@@ -87,9 +87,15 @@ rboolean r_hash_strnequal(rconstpointer key1, rconstpointer key2)
 }
 
 
-static void r_ref_destroy(rref_t *ref)
+static void r_refstub_destroy(rref_t *ref)
 {
 	r_hash_destroy((rhash_t*)ref);
+}
+
+
+static rref_t *r_refstub_copy(const rref_t *ptr)
+{
+	return (rref_t*) r_hash_copy((const rhash_t*)ptr);
 }
 
 
@@ -105,7 +111,7 @@ rhash_t *r_hash_create(ruint nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfun
 		r_hash_destroy(hash);
 		return NULL;
 	}
-	r_ref_init(&hash->ref, 1, RREF_TYPE_NONE, r_ref_destroy);
+	r_ref_init(&hash->ref, 1, RREF_TYPE_NONE, r_refstub_destroy, r_refstub_copy);
 	return hash;
 }
 
@@ -126,6 +132,12 @@ rhash_t *r_hash_init(rhash_t *hash, ruint nbits, r_hash_equalfunc eqfunc, r_hash
 		r_list_init(&hash->buckets[i]);
 	}
 	return hash;
+}
+
+
+rhash_t *r_hash_copy(const rhash_t *hash)
+{
+	return NULL;
 }
 
 
@@ -210,5 +222,8 @@ void r_hash_insert_indexval(rhash_t* hash, rconstpointer key, rulong index)
 
 rulong r_hash_lookup_indexval(rhash_t* hash, rconstpointer key)
 {
+	rhash_node_t *node = r_hash_node_lookup(hash, key);
+	if (node)
+		return node->value.index;
 	return R_HASH_INVALID_INDEXVAL;
 }

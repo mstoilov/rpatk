@@ -78,10 +78,17 @@ rstr_t *r_rstrdup(const rchar *s, ruint size)
 }
 
 
-static void r_ref_destroy(rref_t *ref)
+static void r_refstub_destroy(rref_t *ref)
 {
 	r_string_destroy((rstring_t*)ref);
 }
+
+
+static rref_t *r_refstub_copy(const rref_t *ptr)
+{
+	return (rref_t*) r_string_copy((const rstring_t*)ptr);
+}
+
 
 rstring_t *r_string_create()
 {
@@ -92,7 +99,7 @@ rstring_t *r_string_create()
 		r_string_destroy(string);
 		return NULL;
 	}
-	r_ref_init(&string->ref, 1, RREF_TYPE_NONE, r_ref_destroy);
+	r_ref_init(&string->ref, 1, RREF_TYPE_NONE, r_refstub_destroy, r_refstub_copy);
 	return string;
 
 }
