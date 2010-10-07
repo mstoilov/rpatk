@@ -189,7 +189,7 @@ static void rvm_op_ldrw(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_ldrr(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-//	RVM_SET_REGU(cpu, ins->op1, *((ruint32*)RVM_GET_REGU(cpu, ins->op2)));
+	RVM_SET_REG(cpu, ins->op1, *((rvm_reg_t*)RVM_GET_REGU(cpu, ins->op2)));
 }
 
 
@@ -227,7 +227,7 @@ static void rvm_op_strw(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_strr(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-//	*((ruint32*)RVM_GET_REGP(cpu, ins->op2)) = (ruint32)RVM_GET_REGU(cpu, ins->op1);
+	*((rvm_reg_t*)RVM_GET_REGU(cpu, ins->op2)) = RVM_GET_REG(cpu, ins->op1);
 }
 
 

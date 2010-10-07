@@ -131,7 +131,7 @@ void r_string_cleanup(rstring_t *string)
 void r_string_assign(rstring_t *string, const rstr_t *str)
 {
 	r_string_cleanup(string);
-	if (str->size) {
+	if (str && str->size) {
 		string->s.str = (rchar*)r_malloc(str->size + 1);
 		if (!string->s.str)
 			return;
@@ -168,4 +168,17 @@ rstring_t *r_string_create_from_rstr(const rstr_t *str)
 	if (string)
 		r_string_assign(string, str);
 	return string;
+}
+
+
+rstring_t *r_string_create_from_ansistr(const char *str)
+{
+	rstr_t rstr;
+
+	r_memset(&rstr, 0, sizeof(rstr));
+	if (str) {
+		rstr.str = (char*)str;
+		rstr.size = r_strlen(str);
+	}
+	return r_string_create_from_rstr(&rstr);
 }

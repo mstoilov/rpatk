@@ -37,6 +37,7 @@ typedef struct rstring_s {
 
 
 rstring_t *r_string_create();
+rstring_t *r_string_create_from_ansistr(const char *str);
 rstring_t *r_string_create_from_rstr(const rstr_t *str);
 rstring_t *r_string_init(rstring_t *string);
 void r_string_destroy(rstring_t *string);
