@@ -165,16 +165,26 @@ do { \
 #define BIT(__shiftby__) (1 << (__shiftby__))
 #define RVM_REGU(__r__) (__r__)->v.w
 #define RVM_GET_REGU(__cpu__, __r__) (__cpu__)->r[(__r__)].v.w
-#define RVM_SET_REGU(__cpu__, __r__, val) do { (__cpu__)->r[(__r__)].v.w = (rword)(val); rvm_reg_setinfo(&(__cpu__)->r[(__r__)], RVM_DTYPE_WORD);} while (0)
+#define RVM_REG_ASSIGN_UNSIGNED(__r__, val) do { (__r__)->v.w = (rword)(val); rvm_reg_setinfo((__r__), RVM_DTYPE_WORD);} while (0)
+#define RVM_SET_REGU(__cpu__, __r__, __val__) RVM_REG_ASSIGN_UNSIGNED(RVM_REG_PTR(__cpu__, __r__), __val__)
+
 #define RVM_REGL(__r__) (__r__)->v.l
 #define RVM_GET_REGL(__cpu__, __r__) (__cpu__)->r[(__r__)].v.l
-#define RVM_SET_REGL(__cpu__, __r__, val) do { (__cpu__)->r[(__r__)].v.l = (rword)(val); rvm_reg_setinfo(&(__cpu__)->r[(__r__)], RVM_DTYPE_LONG);} while (0)
+//#define RVM_SET_REGL(__cpu__, __r__, val) do { (__cpu__)->r[(__r__)].v.l = (rlong)(val); rvm_reg_setinfo(&(__cpu__)->r[(__r__)], RVM_DTYPE_LONG);} while (0)
+#define RVM_REG_ASSIGN_LONG(__r__, val) do { (__r__)->v.l = (rlong)(val); rvm_reg_setinfo((__r__), RVM_DTYPE_LONG);} while (0)
+#define RVM_SET_REGL(__cpu__, __r__, __val__) RVM_REG_ASSIGN_LONG(RVM_REG_PTR(__cpu__, __r__), __val__)
+
 #define RVM_REGP(__r__) (__r__)->v.p
 #define RVM_GET_REGP(__cpu__, __r__) (__cpu__)->r[(__r__)].v.p
-#define RVM_SET_REGP(__cpu__, __r__, val) do { (__cpu__)->r[(__r__)].v.p = (rpointer)(val); rvm_reg_setinfo(&(__cpu__)->r[(__r__)], RVM_DTYPE_POINTER);} while (0)
+//#define RVM_SET_REGP(__cpu__, __r__, val) do { (__cpu__)->r[(__r__)].v.p = (rpointer)(val); rvm_reg_setinfo(&(__cpu__)->r[(__r__)], RVM_DTYPE_POINTER);} while (0)
+#define RVM_REG_ASSIGN_POINTER(__r__, val) do { (__r__)->v.p = (rpointer)(val); rvm_reg_setinfo((__r__), RVM_DTYPE_POINTER);} while (0)
+#define RVM_SET_REGP(__cpu__, __r__, __val__) RVM_REG_ASSIGN_POINTER(RVM_REG_PTR(__cpu__, __r__), __val__)
+
 #define RVM_REGD(__r__) (__r__)->v.d
 #define RVM_GET_REGD(__cpu__, __r__) (__cpu__)->r[(__r__)].v.d
 #define RVM_SET_REGD(__cpu__, __r__, __val__) do { (__cpu__)->r[(__r__)].v.d = (rdouble)(__val__); rvm_reg_setinfo(&(__cpu__)->r[(__r__)], RVM_DTYPE_DOUBLE);} while (0)
+#define RVM_REG_ASSIGN_DOUBLE(__r__, val) do { (__r__)->v.d = (rdouble)(val); rvm_reg_setinfo((__r__), RVM_DTYPE_DOUBLE);} while (0)
+
 #define RVM_REG(__r__) (__r__)
 #define RVM_REGM(__r__) (rvm_asmins_t*)((__r__)->v.p)
 #define RVM_GET_REGM(__cpu__, __r__) ((rvm_asmins_t*)(__cpu__)->r[(__r__)].v.p)
@@ -268,6 +278,9 @@ ruint rvm_reg_getinfo(rvm_reg_t *r);
 rboolean rvm_reg_flagtst(rvm_reg_t *r, ruint32 flag);
 void rvm_reg_flagset(rvm_reg_t *r, ruint32 flag);
 void rvm_reg_flagclr(rvm_reg_t *r, ruint32 flag);
+void rvm_reg_setlong(rvm_reg_t *r, rlong l);
+void rvm_reg_setdouble(rvm_reg_t *r, rdouble d);
+
 
 #ifdef __cplusplus
 }

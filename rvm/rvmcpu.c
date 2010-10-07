@@ -1151,3 +1151,14 @@ void rvm_reg_flagclr(rvm_reg_t *r, ruint32 flag)
 	r->info &= ~flag;
 }
 
+
+void rvm_reg_setlong(rvm_reg_t *r, rlong l)
+{
+	RVM_REG_ASSIGN_LONG(r, l);
+}
+
+
+void rvm_reg_setdouble(rvm_reg_t *r, rdouble d)
+{
+	RVM_REG_ASSIGN_DOUBLE(r, d);
+}

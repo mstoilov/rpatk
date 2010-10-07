@@ -65,7 +65,6 @@ int main(int argc, char *argv[])
 
 	rvm_codegen_addins(cg, rvm_asmp(RVM_LDRR, R0, DA, XX, &rh));
 	rvm_codegen_addins(cg, rvm_asmp(RVM_LDRR, R1, DA, XX, &((rvm_namedmember_t*)r_array_slot(nc->members, rvm_namedarray_strlookup(nc, "there")))->val));
-	r_array_slot(nc->members, rvm_namedarray_strlookup(nc, "there"));
 	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, R0, XX, rvm_cpu_getswi(cpu, "print")));	// print
 	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, R1, XX, rvm_cpu_getswi(cpu, "print")));	// print
 	rvm_codegen_addins(cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
