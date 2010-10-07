@@ -53,7 +53,7 @@ ruint rvm_codegen_funcstart(rvm_codegen_t *cg, const rchar* name, ruint namesize
 }
 
 
-ruint rvm_codegen_funcstart_str(rvm_codegen_t *cg, const rchar* name, ruint args)
+ruint rvm_codegen_strfuncstart(rvm_codegen_t *cg, const rchar* name, ruint args)
 {
 	return rvm_codegen_funcstart(cg, name, r_strlen(name), args);
 }
@@ -69,7 +69,7 @@ ruint rvm_codegen_vargs_funcstart(rvm_codegen_t *cg, const rchar* name, ruint na
 }
 
 
-ruint rvm_codegen_vargs_funcstart_str(rvm_codegen_t *cg, const rchar* name)
+ruint rvm_codegen_vargs_strfuncstart(rvm_codegen_t *cg, const rchar* name)
 {
 	return rvm_codegen_vargs_funcstart(cg, name, r_strlen(name));
 }

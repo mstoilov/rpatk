@@ -50,7 +50,7 @@ void rvm_codemap_add(rvm_codemap_t *codemap, const rchar *name, ruint namesize, 
 }
 
 
-void rvm_codemap_add_str(rvm_codemap_t *codemap, const rchar *name, rulong index)
+void rvm_codemap_stradd(rvm_codemap_t *codemap, const rchar *name, rulong index)
 {
 	rvm_codemap_add(codemap, name, r_strlen(name), index);
 }
@@ -62,7 +62,7 @@ void rvm_codemap_invalid_add(rvm_codemap_t *codemap, const rchar *name, ruint na
 }
 
 
-void rvm_codemap_invalid_add_str(rvm_codemap_t *codemap, const rchar *name)
+void rvm_codemap_invalid_stradd(rvm_codemap_t *codemap, const rchar *name)
 {
 	rvm_codemap_invalid_add(codemap, name, r_strlen(name));
 }
@@ -76,7 +76,7 @@ rvm_codelabel_t *rvm_codemap_lookup(rvm_codemap_t *codemap, const rchar *name, r
 
 
 
-rvm_codelabel_t *rvm_codemap_lookup_str(rvm_codemap_t *codemap, const rchar *name)
+rvm_codelabel_t *rvm_codemap_strlookup(rvm_codemap_t *codemap, const rchar *name)
 {
 	return rvm_codemap_lookup(codemap, name, r_strlen(name));
 }

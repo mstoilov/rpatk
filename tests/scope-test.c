@@ -10,7 +10,7 @@ void print_var_info(rvm_scope_t *scope, rchar* varname)
 {
 	rvm_varmap_t *vmap;
 
-	vmap = rvm_scope_tiplookup_str(scope, varname);
+	vmap = rvm_scope_strlookup_tip(scope, varname);
 	if (vmap) {
 		if (vmap && vmap->datatype == VARMAP_DATATYPE_OFFSET)
 			fprintf(stdout, "tip: %s, offset: %d\n", vmap->name, vmap->data.offset);
@@ -19,7 +19,7 @@ void print_var_info(rvm_scope_t *scope, rchar* varname)
 		return;
 	}
 
-	vmap = rvm_scope_lookup_str(scope, varname);
+	vmap = rvm_scope_strlookup(scope, varname);
 	if (!vmap)
 		fprintf(stdout, "%s (not found)\n", varname);
 	else if (vmap && vmap->datatype == VARMAP_DATATYPE_OFFSET)
@@ -37,13 +37,13 @@ int main(int argc, char *argv[])
 	rvm_scope_t *scope = rvm_scope_create();
 
 
-	rvm_scope_addname_str(scope, "a1");
-	rvm_scope_addname_str(scope, "a");
-	rvm_scope_addname_str(scope, "a");
-	rvm_scope_addname_str(scope, "ab");
-	rvm_scope_addname_str(scope, "abcd");
-	rvm_scope_addname_str(scope, "abce");
-	rvm_scope_addname_str(scope, "abcf");
+	rvm_scope_addstrname(scope, "a1");
+	rvm_scope_addstrname(scope, "a");
+	rvm_scope_addstrname(scope, "a");
+	rvm_scope_addstrname(scope, "ab");
+	rvm_scope_addstrname(scope, "abcd");
+	rvm_scope_addstrname(scope, "abce");
+	rvm_scope_addstrname(scope, "abcf");
 
 	rvm_scope_addoffset(scope, "a0", r_strlen("a0"), 0);
 	rvm_scope_addoffset(scope, "a1", r_strlen("a1"), 1);

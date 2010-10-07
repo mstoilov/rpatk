@@ -78,7 +78,7 @@ rint rvm_namedarray_add(rvm_namedarray_t *namedarray, const rchar *name, ruint n
 }
 
 
-rint rvm_namedarray_add_str(rvm_namedarray_t *namedarray, const rchar *name, const rvm_reg_t *pval)
+rint rvm_namedarray_stradd(rvm_namedarray_t *namedarray, const rchar *name, const rvm_reg_t *pval)
 {
 	return rvm_namedarray_add(namedarray, name, r_strlen(name), pval);
 }
@@ -104,7 +104,7 @@ rint rvm_namedarray_set(rvm_namedarray_t *namedarray, const rchar *name, ruint n
 }
 
 
-rint rvm_namedarray_set_str(rvm_namedarray_t *namedarray, const rchar *name, const rvm_reg_t *pval)
+rint rvm_namedarray_strset(rvm_namedarray_t *namedarray, const rchar *name, const rvm_reg_t *pval)
 {
 	return rvm_namedarray_set(namedarray, name, r_strlen(name), pval);
 }
@@ -123,7 +123,7 @@ rlong rvm_namedarray_lookup(rvm_namedarray_t *namedarray, const rchar *name, rui
 
 
 
-rlong rvm_namedarray_lookup_str(rvm_namedarray_t *namedarray, const rchar *name)
+rlong rvm_namedarray_strlookup(rvm_namedarray_t *namedarray, const rchar *name)
 {
 	return rvm_namedarray_lookup(namedarray, name, r_strlen(name));
 }

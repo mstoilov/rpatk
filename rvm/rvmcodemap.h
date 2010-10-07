@@ -28,11 +28,11 @@ typedef struct rvm_codemap_s {
 rvm_codemap_t *rvm_codemap_create();
 void rvm_codemap_destroy(rvm_codemap_t *codemap);
 void rvm_codemap_invalid_add(rvm_codemap_t *codemap, const rchar *name, ruint namesize);
-void rvm_codemap_invalid_add_str(rvm_codemap_t *codemap, const rchar *name);
+void rvm_codemap_invalid_stradd(rvm_codemap_t *codemap, const rchar *name);
 void rvm_codemap_add(rvm_codemap_t *codemap, const rchar *name, ruint namesize, rulong index);
-void rvm_codemap_add_str(rvm_codemap_t *codemap, const rchar *name, rulong index);
+void rvm_codemap_stradd(rvm_codemap_t *codemap, const rchar *name, rulong index);
 rvm_codelabel_t *rvm_codemap_lookup(rvm_codemap_t *codemap, const rchar *name, ruint namesize);
-rvm_codelabel_t *rvm_codemap_lookup_str(rvm_codemap_t *codemap, const rchar *name);
+rvm_codelabel_t *rvm_codemap_strlookup(rvm_codemap_t *codemap, const rchar *name);
 
 
 #ifdef __cplusplus

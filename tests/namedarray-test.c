@@ -15,14 +15,14 @@ int main(int argc, char *argv[])
 	rvm_namedarray_t *na, *nc;
 
 	na = rvm_namedarray_create();
-	rvm_namedarray_add_str(na, "again", NULL);
-	rvm_namedarray_add_str(na, "hello", NULL);
-	rvm_namedarray_add_str(na, "there", NULL);
+	rvm_namedarray_stradd(na, "again", NULL);
+	rvm_namedarray_stradd(na, "hello", NULL);
+	rvm_namedarray_stradd(na, "there", NULL);
 	nc = (rvm_namedarray_t*)r_ref_copy(&na->ref);
 
-	fprintf(stdout, "lookup 'again': %ld\n", rvm_namedarray_lookup_str(nc, "again"));
-	fprintf(stdout, "lookup 'hello': %ld\n", rvm_namedarray_lookup_str(nc, "hello"));
-	fprintf(stdout, "lookup 'there': %ld\n", rvm_namedarray_lookup_str(nc, "there"));
+	fprintf(stdout, "lookup 'again': %ld\n", rvm_namedarray_strlookup(nc, "again"));
+	fprintf(stdout, "lookup 'hello': %ld\n", rvm_namedarray_strlookup(nc, "hello"));
+	fprintf(stdout, "lookup 'there': %ld\n", rvm_namedarray_strlookup(nc, "there"));
 
 	r_ref_dec((rref_t*)na);
 	r_ref_dec((rref_t*)nc);

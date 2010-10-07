@@ -10,7 +10,7 @@ void codelabel_print_info(rvm_codemap_t *codemap, rchar* name)
 {
 	rvm_codelabel_t *label;
 
-	label = rvm_codemap_lookup_str(codemap, name);
+	label = rvm_codemap_strlookup(codemap, name);
 	if (!label)
 		fprintf(stdout, "%s (not found)\n", name);
 	else
@@ -22,9 +22,9 @@ int main(int argc, char *argv[])
 {
 	rvm_codemap_t *codemap = rvm_codemap_create();
 
-	rvm_codemap_add_str(codemap, "add2", 0);
-	rvm_codemap_add_str(codemap, "add3", 3);
-	rvm_codemap_add_str(codemap, "sub2", 7);
+	rvm_codemap_stradd(codemap, "add2", 0);
+	rvm_codemap_stradd(codemap, "add3", 3);
+	rvm_codemap_stradd(codemap, "sub2", 7);
 
 	codelabel_print_info(codemap, "add2");
 	codelabel_print_info(codemap, "add7");
