@@ -23,7 +23,7 @@ rvm_namedarray_t *rvm_namedarray_create()
 	if (!namedarray)
 		return NULL;
 	r_memset(namedarray, 0, sizeof(*namedarray));
-	namedarray->members = r_array_create(sizeof(rvm_namedmember_t), NULL, NULL);
+	namedarray->members = r_array_create(sizeof(rvm_namedmember_t));
 	namedarray->hash = r_hash_create(5, r_hash_strnequal, r_hash_strnhash);
 	r_ref_init(&namedarray->ref, 1, RREF_TYPE_NONE, r_refstub_destroy, r_refstub_copy);
 	return namedarray;

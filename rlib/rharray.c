@@ -15,7 +15,7 @@ static rref_t *r_refstub_copy(const rref_t *ptr)
 }
 
 
-rharray_t *r_harray_create(ruint elt_size, r_array_destroyelt_fun destroy, r_array_copyelt_fun copy)
+rharray_t *r_harray_create(ruint elt_size)
 {
 	rharray_t *harray;
 
@@ -23,8 +23,8 @@ rharray_t *r_harray_create(ruint elt_size, r_array_destroyelt_fun destroy, r_arr
 	if (!harray)
 		return NULL;
 	r_memset(harray, 0, sizeof(*harray));
-	harray->members = r_array_create(elt_size, destroy, copy);
-	harray->names = r_array_create(sizeof(rstr_t*), NULL, NULL);
+	harray->members = r_array_create(elt_size);
+	harray->names = r_array_create(sizeof(rstr_t*));
 	harray->hash = r_hash_create(5, r_hash_strnequal, r_hash_strnhash);
 	r_ref_init(&harray->ref, 1, RREF_TYPE_NONE, r_refstub_destroy, r_refstub_copy);
 	return harray;
@@ -36,7 +36,7 @@ rharray_t *r_harray_copy(const rharray_t *src)
 	int i;
 	rpointer m;
 	rstr_t *n;
-	rharray_t *dst = r_harray_create(src->members->elt_size, src->members->destroy, src->members->copy);
+	rharray_t *dst = r_harray_create(src->members->elt_size);
 
 	if (!dst)
 		return NULL;

@@ -21,7 +21,7 @@ typedef struct rharray_s {
 } rharray_t;
 
 
-rharray_t *r_harray_create(ruint elt_size, r_array_destroyelt_fun destroy, r_array_copyelt_fun copy);
+rharray_t *r_harray_create(ruint elt_size);
 rharray_t *r_harray_copy(const rharray_t *array);
 void r_harray_destroy(rharray_t *harray);
 rint r_harray_add(rharray_t *harray, const rchar *name, ruint namesize, rconstpointer pval);

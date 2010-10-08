@@ -10,10 +10,10 @@ rvm_scope_t *rvm_scope_create()
 	if (!scope)
 		return NULL;
 	r_memset(scope, 0, sizeof(*scope));
-	scope->names = r_array_create(sizeof(rstr_t*), NULL, NULL);
+	scope->names = r_array_create(sizeof(rstr_t*));
 	scope->nameshash = r_hash_create(5, r_hash_strnequal, r_hash_strnhash);
-	scope->varstack = r_array_create(sizeof(rvm_varmap_t), NULL, NULL);
-	scope->scopestack = r_array_create(sizeof(scope->varstack->len), NULL, NULL);
+	scope->varstack = r_array_create(sizeof(rvm_varmap_t));
+	scope->scopestack = r_array_create(sizeof(scope->varstack->len));
 	return scope;
 }
 

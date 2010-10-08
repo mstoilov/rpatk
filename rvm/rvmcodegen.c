@@ -11,7 +11,7 @@ rvm_codegen_t *rvm_codegen_create()
 	if (!cg)
 		return (NULL);
 	r_memset(cg, 0, sizeof(*cg));
-	cg->code = r_array_create(sizeof(rvm_asmins_t), NULL, NULL);
+	cg->code = r_array_create(sizeof(rvm_asmins_t));
 	cg->codemap = rvm_codemap_create();
 	return cg;
 }

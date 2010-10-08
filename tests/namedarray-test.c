@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
 	RVM_REG_SETSTR(&rt, r_string_create_from_ansistr(", there"));
 
 
-	na = r_harray_create(sizeof(rvm_reg_t), NULL, NULL);
+	na = r_harray_create(sizeof(rvm_reg_t));
 	r_harray_stradd(na, "again", &ag);
 	r_harray_stradd(na, "hello", &rh);
 	r_harray_stradd(na, "there", &rt);

@@ -903,8 +903,8 @@ rvm_cpu_t *rvm_cpu_create()
 	if (!cpu)
 		return ((void*)0);
 	r_memset(cpu, 0, sizeof(*cpu));
-	cpu->switables = r_array_create(sizeof(rvm_switable_t*), NULL, NULL);
-	cpu->stack = r_array_create(sizeof(rvm_reg_t), NULL, NULL);
+	cpu->switables = r_array_create(sizeof(rvm_switable_t*));
+	cpu->stack = r_array_create(sizeof(rvm_reg_t));
 	return cpu;
 }
 
