@@ -102,8 +102,6 @@ rint r_array_add(rarray_t *array, rconstpointer data)
 {
 	rint index = array->len;
 
-//	r_array_checkexpand(array, array->len + 1);
-//	array->len += 1;
 	r_array_setsize(array, index + 1);
 	r_array_exist_replace(array, index, data);
 	return index;
