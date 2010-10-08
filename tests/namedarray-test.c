@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include "rvmcodegen.h"
 #include "rvmnamedarray.h"
+#include "rharray.h"
+
 #include "rstring.h"
 #include "rmem.h"
 #include "rvmcpu.h"
@@ -10,12 +12,12 @@
 
 static void test_swi_print_r(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	if (rvm_reg_gettype(RVM_REG_PTR(cpu, ins->op2)) == RVM_DTYPE_LONG)
-		fprintf(stdout, "R%d = %ld\n", ins->op2, RVM_GET_REGL(cpu, ins->op2));
-	else if (rvm_reg_gettype(RVM_REG_PTR(cpu, ins->op2)) == RVM_DTYPE_DOUBLE)
-		fprintf(stdout, "R%d = %5.2f\n", ins->op2, RVM_GET_REGD(cpu, ins->op2));
-	else if (rvm_reg_gettype(RVM_REG_PTR(cpu, ins->op2)) == RVM_DTYPE_STRING)
-		fprintf(stdout, "R%d = %s\n", ins->op2, ((rstring_t*) RVM_GET_REGP(cpu, ins->op2))->s.str);
+	if (rvm_reg_gettype(RVM_CPUREG_PTR(cpu, ins->op2)) == RVM_DTYPE_LONG)
+		fprintf(stdout, "R%d = %ld\n", ins->op2, RVM_CPUREG_GETL(cpu, ins->op2));
+	else if (rvm_reg_gettype(RVM_CPUREG_PTR(cpu, ins->op2)) == RVM_DTYPE_DOUBLE)
+		fprintf(stdout, "R%d = %5.2f\n", ins->op2, RVM_CPUREG_GETD(cpu, ins->op2));
+	else if (rvm_reg_gettype(RVM_CPUREG_PTR(cpu, ins->op2)) == RVM_DTYPE_STRING)
+		fprintf(stdout, "R%d = %s\n", ins->op2, ((rstring_t*) RVM_CPUREG_GETP(cpu, ins->op2))->s.str);
 	else
 		fprintf(stdout, "R%d = Unknown type\n", ins->op2);
 }
@@ -23,8 +25,8 @@ static void test_swi_print_r(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 static void test_swi_unref(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	if (rvm_reg_flagtst(RVM_REG_PTR(cpu, ins->op2), RVM_INFOBIT_REFOBJECT))
-		r_ref_dec((rref_t*)RVM_GET_REGP(cpu, ins->op2));
+	if (rvm_reg_flagtst(RVM_CPUREG_PTR(cpu, ins->op2), RVM_INFOBIT_REFOBJECT))
+		r_ref_dec((rref_t*)RVM_CPUREG_GETP(cpu, ins->op2));
 }
 
 
@@ -37,8 +39,8 @@ static rvm_switable_t switable[] = {
 
 int main(int argc, char *argv[])
 {
-	rvm_reg_t rh, rt;
-	rvm_namedarray_t *na, *nc;
+	rvm_reg_t ag, rh, rt;
+	rharray_t *na, *nc;
 	rvm_codegen_t *cg;
 	rvm_cpu_t *cpu;
 
@@ -46,27 +48,27 @@ int main(int argc, char *argv[])
 	rvm_cpu_switable_add(cpu, switable);
 	cg = rvm_codegen_create();
 
-	RVM_REG_CLEAR(&rh);
-	RVM_REG_ASSIGN_STRING(&rh, r_string_create_from_ansistr("Hello World"));
-
-	RVM_REG_CLEAR(&rt);
-	RVM_REG_ASSIGN_STRING(&rt, r_string_create_from_ansistr(", there"));
+	RVM_REG_SETD(&ag, 4.55);
+	RVM_REG_SETSTR(&rh, r_string_create_from_ansistr("Hello World"));
+	RVM_REG_SETSTR(&rt, r_string_create_from_ansistr(", there"));
 
 
-	na = rvm_namedarray_create();
-	rvm_namedarray_stradd(na, "again", NULL);
-	rvm_namedarray_stradd(na, "hello", &rh);
-	rvm_namedarray_stradd(na, "there", &rt);
-	nc = (rvm_namedarray_t*)r_ref_copy(&na->ref);
+	na = r_harray_create(sizeof(rvm_reg_t), NULL, NULL);
+	r_harray_stradd(na, "again", &ag);
+	r_harray_stradd(na, "hello", &rh);
+	r_harray_stradd(na, "there", &rt);
+	nc = (rharray_t*)r_ref_copy(&na->ref);
 
-	fprintf(stdout, "lookup 'again': %ld\n", rvm_namedarray_strlookup(nc, "again"));
-	fprintf(stdout, "lookup 'hello': %ld\n", rvm_namedarray_strlookup(nc, "hello"));
-	fprintf(stdout, "lookup 'there': %ld\n", rvm_namedarray_strlookup(nc, "there"));
+	fprintf(stdout, "lookup 'again': %ld\n", r_harray_strlookup_index(nc, "again"));
+	fprintf(stdout, "lookup 'hello': %ld\n", r_harray_strlookup_index(nc, "hello"));
+	fprintf(stdout, "lookup 'there': %ld\n", r_harray_strlookup_index(nc, "there"));
 
 	rvm_codegen_addins(cg, rvm_asmp(RVM_LDRR, R0, DA, XX, &rh));
-	rvm_codegen_addins(cg, rvm_asmp(RVM_LDRR, R1, DA, XX, &((rvm_namedmember_t*)r_array_slot(nc->members, rvm_namedarray_strlookup(nc, "there")))->val));
+	rvm_codegen_addins(cg, rvm_asmp(RVM_LDRR, R1, DA, XX, r_harray_strlookup(nc, "again")));
+	rvm_codegen_addins(cg, rvm_asmp(RVM_LDRR, R2, DA, XX, r_harray_strlookup(nc, "there")));
 	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, R0, XX, rvm_cpu_getswi(cpu, "print")));	// print
 	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, R1, XX, rvm_cpu_getswi(cpu, "print")));	// print
+	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, R2, XX, rvm_cpu_getswi(cpu, "print")));	// print
 	rvm_codegen_addins(cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
 
 	rvm_relocate(rvm_codegen_getcode(cg, 0), rvm_codegen_getcodesize(cg));

@@ -59,7 +59,7 @@ rarray_t *r_array_init(rarray_t *array, ruint elt_size)
 }
 
 
-rarray_t *r_array_create(ruint elt_size)
+rarray_t *r_array_create(ruint elt_size, r_array_destroyelt_fun destroy, r_array_copyelt_fun copy)
 {
 	rarray_t *array;
 	if ((array = (rarray_t*)r_malloc(sizeof(*array))) == NULL)
@@ -68,6 +68,8 @@ rarray_t *r_array_create(ruint elt_size)
 		r_array_destroy(array);
 		return NULL;
 	}
+	array->destroy = destroy;
+	array->copy = copy;
 	r_ref_init(&array->ref, 1, RREF_TYPE_NONE, r_refstub_destroy, r_refstub_copy);
 	return array;
 }
@@ -75,7 +77,17 @@ rarray_t *r_array_create(ruint elt_size)
 
 rarray_t *r_array_copy(const rarray_t *array)
 {
-	return NULL;
+	ruint i;
+	rarray_t *dst;
+
+	if (!array)
+		return NULL;
+	dst = r_array_create(array->elt_size, array->destroy, array->copy);
+	if (!dst)
+		return NULL;
+	for (i = 0; i < array->len; i++)
+		r_array_copy_replace(dst, i, r_array_slot(array, i));
+	return dst;
 }
 
 
@@ -84,8 +96,16 @@ ruint r_array_add(rarray_t *array, rconstpointer data)
 	ruint index = array->len;
 
 	r_array_checkexpand(array, array->len + 1);
-	r_memcpy(((rint8*)array->data) + array->len * array->elt_size, data, array->elt_size);
 	array->len += 1;
+	r_array_replace(array, index, data);
+	return index;
+}
+
+
+ruint r_array_copy_add(rarray_t *array, rconstpointer data)
+{
+	ruint index = r_array_add(array, NULL);
+	r_array_copy_replace(array, index, data);
 	return index;
 }
 
@@ -99,17 +119,38 @@ void r_array_insert(rarray_t *array, ruint index, rconstpointer data)
 	} else {
 		r_array_setsize(array, index + 1);
 	}
-	r_memcpy(r_array_slot(array, index), data, array->elt_size);
+	r_array_replace(array, index, data);
+}
+
+
+void r_array_copy_insert(rarray_t *array, ruint index, rconstpointer data)
+{
+	if (!array->copy) {
+		r_array_insert(array, index, data);
+		return;
+	}
+	r_array_insert(array, index, NULL);
+	r_array_copy_replace(array, index, data);
 }
 
 
 void r_array_replace(rarray_t *array, ruint index, rconstpointer data)
 {
 	if (index < array->len) {
-		r_memcpy(r_array_slot(array, index), data, array->elt_size);
+		if (data)
+			r_memcpy(r_array_slot(array, index), data, array->elt_size);
+		else
+			r_memset(r_array_slot(array, index), 0, array->elt_size);
 	} else {
 		r_array_insert(array, index, data);
 	}
+}
+
+
+void r_array_copy_replace(rarray_t *array, ruint index, rconstpointer data)
+{
+	if (array->copy)
+		array->copy(r_array_slot(array, index), data, array->elt_size);
 }
 
 

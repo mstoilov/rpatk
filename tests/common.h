@@ -24,7 +24,7 @@
  */
 static void rvm_vmtest_check_reg(rvm_cpu_t *vm, rvm_asmins_t *ins)
 {
-	fprintf(stdout, "%s: %s\n", (const char*)RVM_GET_REGU(vm, 10), RVM_GET_REGU(vm, RVM_GET_REGU(vm, 8)) == RVM_GET_REGU(vm, 9) ? "PASSED" : "FAILED");
+	fprintf(stdout, "%s: %s\n", (const char*)RVM_CPUREG_GETU(vm, 10), RVM_CPUREG_GETU(vm, RVM_CPUREG_GETU(vm, 8)) == RVM_CPUREG_GETU(vm, 9) ? "PASSED" : "FAILED");
 }
 
 
@@ -34,7 +34,7 @@ static void rvm_vmtest_check_reg(rvm_cpu_t *vm, rvm_asmins_t *ins)
  */
 static void rvm_vmtest_check_status(rvm_cpu_t *vm, rvm_asmins_t *ins)
 {
-	fprintf(stdout, "%s: %s\n", (const char*)RVM_GET_REGU(vm, 10), vm->status == RVM_GET_REGU(vm, 9) ? "PASSED" : "FAILED");
+	fprintf(stdout, "%s: %s\n", (const char*)RVM_CPUREG_GETU(vm, 10), vm->status == RVM_CPUREG_GETU(vm, 9) ? "PASSED" : "FAILED");
 }
 
 

@@ -20,18 +20,18 @@ typedef struct rvm_testctx_s {
 static void test_swi_cat(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvm_testctx_t *ctx = (rvm_testctx_t *)cpu->userdata;
-	rvm_opmap_invoke_binary_handler(ctx->opmap, RVM_OPID_CAT, cpu, RVM_REG_PTR(cpu, R0), RVM_REG_PTR(cpu, ins->op2), RVM_REG_PTR(cpu, ins->op3));
+	rvm_opmap_invoke_binary_handler(ctx->opmap, RVM_OPID_CAT, cpu, RVM_CPUREG_PTR(cpu, R0), RVM_CPUREG_PTR(cpu, ins->op2), RVM_CPUREG_PTR(cpu, ins->op3));
 }
 
 
 static void test_swi_print_r(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	if (rvm_reg_gettype(RVM_REG_PTR(cpu, ins->op2)) == RVM_DTYPE_LONG)
-		fprintf(stdout, "R%d = %ld\n", ins->op2, RVM_GET_REGL(cpu, ins->op2));
-	else if (rvm_reg_gettype(RVM_REG_PTR(cpu, ins->op2)) == RVM_DTYPE_DOUBLE)
-		fprintf(stdout, "R%d = %5.2f\n", ins->op2, RVM_GET_REGD(cpu, ins->op2));
-	else if (rvm_reg_gettype(RVM_REG_PTR(cpu, ins->op2)) == RVM_DTYPE_STRING)
-		fprintf(stdout, "R%d = %s\n", ins->op2, ((rstring_t*) RVM_GET_REGP(cpu, ins->op2))->s.str);
+	if (rvm_reg_gettype(RVM_CPUREG_PTR(cpu, ins->op2)) == RVM_DTYPE_LONG)
+		fprintf(stdout, "R%d = %ld\n", ins->op2, RVM_CPUREG_GETL(cpu, ins->op2));
+	else if (rvm_reg_gettype(RVM_CPUREG_PTR(cpu, ins->op2)) == RVM_DTYPE_DOUBLE)
+		fprintf(stdout, "R%d = %5.2f\n", ins->op2, RVM_CPUREG_GETD(cpu, ins->op2));
+	else if (rvm_reg_gettype(RVM_CPUREG_PTR(cpu, ins->op2)) == RVM_DTYPE_STRING)
+		fprintf(stdout, "R%d = %s\n", ins->op2, ((rstring_t*) RVM_CPUREG_GETP(cpu, ins->op2))->s.str);
 	else
 		fprintf(stdout, "Unknown type\n");
 }
@@ -39,27 +39,27 @@ static void test_swi_print_r(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 
 static void test_swi_strinit(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	char *p = (char*) RVM_GET_REGP(cpu, ins->op2);
-	long size = RVM_GET_REGL(cpu, ins->op3);
+	char *p = (char*) RVM_CPUREG_GETP(cpu, ins->op2);
+	long size = RVM_CPUREG_GETL(cpu, ins->op3);
 	rstr_t str = {p, size};
-	RVM_SET_REGP(cpu, R0, (void*)r_string_create_from_rstr(&str));
-	rvm_reg_flagset(RVM_REG_PTR(cpu, R0), RVM_INFOBIT_REFOBJECT);
-	rvm_reg_settype(RVM_REG_PTR(cpu, R0), RVM_DTYPE_STRING);
+	RVM_CPUREG_SETP(cpu, R0, (void*)r_string_create_from_rstr(&str));
+	rvm_reg_flagset(RVM_CPUREG_PTR(cpu, R0), RVM_INFOBIT_REFOBJECT);
+	rvm_reg_settype(RVM_CPUREG_PTR(cpu, R0), RVM_DTYPE_STRING);
 }
 
 
 static void test_swi_unref(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	if (rvm_reg_flagtst(RVM_REG_PTR(cpu, ins->op2), RVM_INFOBIT_REFOBJECT))
-		r_ref_dec((rref_t*)RVM_GET_REGP(cpu, ins->op2));
+	if (rvm_reg_flagtst(RVM_CPUREG_PTR(cpu, ins->op2), RVM_INFOBIT_REFOBJECT))
+		r_ref_dec((rref_t*)RVM_CPUREG_GETP(cpu, ins->op2));
 }
 
 
 static void test_swi_strtodouble(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	rstring_t *s = (rstring_t*)RVM_GET_REGP(cpu, ins->op2);
+	rstring_t *s = (rstring_t*)RVM_CPUREG_GETP(cpu, ins->op2);
 	double d = strtod(s->s.str, NULL);
-	RVM_SET_REGD(cpu, R0, d);
+	RVM_CPUREG_SETD(cpu, R0, d);
 }
 
 

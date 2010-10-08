@@ -11,5 +11,5 @@ void rvm_op_cat_string_string(rvm_cpu_t *cpu, rvm_reg_t *res, const rvm_reg_t *a
 	dst = r_string_create_from_rstr(&s1->s);
 	r_string_cat(dst, &s2->s);
 	RVM_REG_UNREF(res);
-	RVM_REG_ASSIGN_STRING(res, dst);
+	RVM_REG_SETSTR(res, dst);
 }

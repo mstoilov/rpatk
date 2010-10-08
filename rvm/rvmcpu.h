@@ -103,7 +103,7 @@ enum {
 #define RVM_DTYPE_OBJECT 5
 #define RVM_DTYPE_STRING 6
 #define RVM_DTYPE_ARRAY 7
-#define RVM_DTYPE_NAMEDARRAY 8
+#define RVM_DTYPE_HARRAY 8
 #define RVM_DTYPE_RELOCPTR 14
 #define RVM_DTYPE_RELOCINDEX 15
 #define RVM_DTYPE_USER 16
@@ -164,40 +164,45 @@ do { \
 #define RVM_ABORT(__cpu__, __e__) do { __cpu__->error = (__e__); (__cpu__)->abort = 1; return; } while (0)
 #define BIT(__shiftby__) (1 << (__shiftby__))
 
-#define RVM_REG_PTR(__cpu__, __r__) (&(__cpu__)->r[(__r__)])
-#define RVM_GET_REG(__cpu__, __r__) (__cpu__)->r[(__r__)]
-#define RVM_SET_REG(__cpu__, __r__, val) do { (__cpu__)->r[(__r__)] = (rvm_reg_t)(val); } while (0)
+#define RVM_CPUREG_PTR(__cpu__, __r__) (&(__cpu__)->r[(__r__)])
+#define RVM_CPUREG_GET(__cpu__, __r__) (__cpu__)->r[(__r__)]
+#define RVM_CPUREG_SET(__cpu__, __r__, __val__) do { (__cpu__)->r[(__r__)] = (rvm_reg_t)(__val__); } while (0)
 
-#define RVM_REGU(__r__) (__r__)->v.w
-#define RVM_GET_REGU(__cpu__, __r__) (__cpu__)->r[(__r__)].v.w
-#define RVM_REG_ASSIGN_UNSIGNED(__r__, val) do { (__r__)->v.w = (rword)(val); rvm_reg_setinfo((__r__), RVM_DTYPE_WORD);} while (0)
-#define RVM_SET_REGU(__cpu__, __r__, __val__) RVM_REG_ASSIGN_UNSIGNED(RVM_REG_PTR(__cpu__, __r__), __val__)
+#define RVM_REG_GETU(__r__) (__r__)->v.w
+#define RVM_REG_SETU(__r__, __val__) do { (__r__)->v.w = (rword)(__val__); rvm_reg_setinfo((__r__), RVM_DTYPE_WORD);} while (0)
+#define RVM_CPUREG_GETU(__cpu__, __r__) RVM_CPUREG_PTR(__cpu__, __r__)->v.w
+#define RVM_CPUREG_SETU(__cpu__, __r__, __val__) RVM_REG_SETU(RVM_CPUREG_PTR(__cpu__, __r__), __val__)
 
-#define RVM_REGL(__r__) (__r__)->v.l
-#define RVM_GET_REGL(__cpu__, __r__) (__cpu__)->r[(__r__)].v.l
-#define RVM_REG_ASSIGN_LONG(__r__, val) do { (__r__)->v.l = (rlong)(val); rvm_reg_setinfo((__r__), RVM_DTYPE_LONG);} while (0)
-#define RVM_SET_REGL(__cpu__, __r__, __val__) RVM_REG_ASSIGN_LONG(RVM_REG_PTR(__cpu__, __r__), __val__)
+#define RVM_REG_GETL(__r__) (__r__)->v.l
+#define RVM_REG_SETL(__r__, __val__) do { (__r__)->v.l = (rlong)(__val__); rvm_reg_setinfo((__r__), RVM_DTYPE_LONG);} while (0)
+#define RVM_CPUREG_GETL(__cpu__, __r__) RVM_CPUREG_PTR(__cpu__, __r__)->v.l
+#define RVM_CPUREG_SETL(__cpu__, __r__, __val__) RVM_REG_SETL(RVM_CPUREG_PTR(__cpu__, __r__), __val__)
 
-#define RVM_REGP(__r__) (__r__)->v.p
-#define RVM_GET_REGP(__cpu__, __r__) (__cpu__)->r[(__r__)].v.p
-#define RVM_REG_ASSIGN_POINTER(__r__, val) do { (__r__)->v.p = (rpointer)(val); rvm_reg_setinfo((__r__), RVM_DTYPE_POINTER);} while (0)
-#define RVM_SET_REGP(__cpu__, __r__, __val__) RVM_REG_ASSIGN_POINTER(RVM_REG_PTR(__cpu__, __r__), __val__)
+#define RVM_REG_GETP(__r__) (__r__)->v.p
+#define RVM_REG_SETP(__r__, __val__) do { (__r__)->v.p = (rpointer)(__val__); rvm_reg_setinfo((__r__), RVM_DTYPE_POINTER);} while (0)
+#define RVM_CPUREG_GETP(__cpu__, __r__) RVM_CPUREG_PTR(__cpu__, __r__)->v.p
+#define RVM_CPUREG_SETP(__cpu__, __r__, __val__) RVM_REG_SETP(RVM_CPUREG_PTR(__cpu__, __r__), __val__)
 
-#define RVM_REGD(__r__) (__r__)->v.d
-#define RVM_GET_REGD(__cpu__, __r__) (__cpu__)->r[(__r__)].v.d
-#define RVM_REG_ASSIGN_DOUBLE(__r__, val) do { (__r__)->v.d = (rdouble)(val); rvm_reg_setinfo((__r__), RVM_DTYPE_DOUBLE);} while (0)
-#define RVM_SET_REGD(__cpu__, __r__, __val__) RVM_REG_ASSIGN_DOUBLE(RVM_REG_PTR(__cpu__, __r__), __val__)
+#define RVM_REG_GETD(__r__) (__r__)->v.d
+#define RVM_REG_SETD(__r__, __val__) do { (__r__)->v.d = (rdouble)(__val__); rvm_reg_setinfo((__r__), RVM_DTYPE_DOUBLE);} while (0)
+#define RVM_CPUREG_GETD(__cpu__, __r__) RVM_CPUREG_PTR(__cpu__, __r__)->v.d
+#define RVM_CPUREG_SETD(__cpu__, __r__, __val__) RVM_REG_SETD(RVM_CPUREG_PTR(__cpu__, __r__), __val__)
 
-#define RVM_REG(__r__) (__r__)
-#define RVM_REGM(__r__) (rvm_asmins_t*)((__r__)->v.p)
-#define RVM_GET_REGM(__cpu__, __r__) ((rvm_asmins_t*)(__cpu__)->r[(__r__)].v.p)
-#define RVM_SET_REGM(__cpu__, __r__, __p__) do { (__cpu__)->r[(__r__)].v.p = ((rpointer)(__p__)); rvm_reg_setinfo(&(__cpu__)->r[(__r__)], RVM_DTYPE_POINTER);} while (0)
-#define RVM_INC_REGM(__cpu__, __r__, __val__) do {rvm_asmins_t *p = RVM_GET_REGM(__cpu__, __r__); (__cpu__)->r[(__r__)].v.p = (rpointer)(p + (__val__)); } while (0)
+#define RVM_REG_GETIP(__r__) (rvm_asmins_t*)((__r__)->v.p)
+#define RVM_REG_SETIP(__r__, __val__) do { (__r__)->v.p = (rpointer)(__val__); rvm_reg_setinfo((__r__), RVM_DTYPE_POINTER);} while (0)
+#define RVM_CPUREG_GETIP(__cpu__, __r__) ((rvm_asmins_t*)RVM_CPUREG_PTR(__cpu__, __r__)->v.p)
+#define RVM_CPUREG_SETIP(__cpu__, __r__, __val__) RVM_REG_SETIP(RVM_CPUREG_PTR(__cpu__, __r__), __val__)
+#define RVM_CPUREG_INCIP(__cpu__, __r__, __val__) do {rvm_asmins_t *p = RVM_CPUREG_GETIP(__cpu__, __r__); (__cpu__)->r[(__r__)].v.p = (rpointer)(p + (__val__)); } while (0)
+
+#define RVM_REG_SETSTR(__r__, val) do { (__r__)->v.p = (rpointer)(val); rvm_reg_setinfo((__r__), RVM_INFOBIT_REFOBJECT|RVM_DTYPE_STRING);} while (0)
+#define RVM_REG_SETARRAY(__r__, val) do { (__r__)->v.p = (rpointer)(val); rvm_reg_setinfo((__r__), RVM_INFOBIT_REFOBJECT|RVM_DTYPE_ARRAY);} while (0)
+#define RVM_REG_SETHARRAY(__r__, val) do { (__r__)->v.p = (rpointer)(val); rvm_reg_setinfo((__r__), RVM_INFOBIT_REFOBJECT|RVM_DTYPE_HARRAY);} while (0)
+
+
 #define RVM_REG_INFO(__r__) (__r__)->info
 #define RVM_REG_SIZE(__r__) (__r__)->size
-#define RVM_REG_ASSIGN_STRING(__r__, val) do { (__r__)->v.p = (rpointer)(val); rvm_reg_setinfo((__r__), RVM_INFOBIT_REFOBJECT|RVM_DTYPE_STRING);} while (0)
-#define RVM_REG_REF(__r__) do { if (rvm_reg_flagtst((__r__), RVM_INFOBIT_REFOBJECT)) r_ref_inc((rref_t*)RVM_REGP(__r__));} while (0)
-#define RVM_REG_UNREF(__r__) do { if (rvm_reg_flagtst((__r__), RVM_INFOBIT_REFOBJECT)) r_ref_dec((rref_t*)RVM_REGP(__r__));} while (0)
+#define RVM_REG_REF(__r__) do { if (rvm_reg_flagtst((__r__), RVM_INFOBIT_REFOBJECT)) r_ref_inc((rref_t*)RVM_REG_GETP(__r__));} while (0)
+#define RVM_REG_UNREF(__r__) do { if (rvm_reg_flagtst((__r__), RVM_INFOBIT_REFOBJECT)) r_ref_dec((rref_t*)RVM_REG_GETP(__r__));} while (0)
 #define RVM_REG_CLEAR(__r__) do { (__r__)->v.w = 0UL;  rvm_reg_setinfo((__r__), 0); } while (0)
 
 #define RVM_SWI_TABLE(__op__) ((__op__) >> 16)

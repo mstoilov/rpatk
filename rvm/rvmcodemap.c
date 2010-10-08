@@ -11,7 +11,7 @@ rvm_codemap_t *rvm_codemap_create()
 	if (!codemap)
 		return NULL;
 	r_memset(codemap, 0, sizeof(*codemap));
-	codemap->labels = r_array_create(sizeof(rvm_codelabel_t*));
+	codemap->labels = r_array_create(sizeof(rvm_codelabel_t*), NULL, NULL);
 	codemap->hash = r_hash_create(5, r_hash_strnequal, r_hash_strnhash);
 	return codemap;
 }

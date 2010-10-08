@@ -7,6 +7,7 @@ RLIB_OBJECTS =	\
 	$(OUTDIR)/rmem.o \
 	$(OUTDIR)/ratomic.o \
 	$(OUTDIR)/rspinlock.o \
+	$(OUTDIR)/rharray.o \
 	$(OUTDIR)/rarray.o \
 	$(OUTDIR)/rhash.o \
 	$(OUTDIR)/rstring.o \

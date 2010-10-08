@@ -15,10 +15,10 @@ typedef struct rvm_testctx_s {
 
 static void test_swi_print_r(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
-	if (rvm_reg_gettype(RVM_REG_PTR(cpu, ins->op2)) == RVM_DTYPE_LONG)
-		fprintf(stdout, "R%d = %ld\n", ins->op2, RVM_GET_REGL(cpu, ins->op2));
-	else if (rvm_reg_gettype(RVM_REG_PTR(cpu, ins->op2)) == RVM_DTYPE_DOUBLE)
-		fprintf(stdout, "R%d = %5.2f\n", ins->op2, RVM_GET_REGD(cpu, ins->op2));
+	if (rvm_reg_gettype(RVM_CPUREG_PTR(cpu, ins->op2)) == RVM_DTYPE_LONG)
+		fprintf(stdout, "R%d = %ld\n", ins->op2, RVM_CPUREG_GETL(cpu, ins->op2));
+	else if (rvm_reg_gettype(RVM_CPUREG_PTR(cpu, ins->op2)) == RVM_DTYPE_DOUBLE)
+		fprintf(stdout, "R%d = %5.2f\n", ins->op2, RVM_CPUREG_GETD(cpu, ins->op2));
 	else
 		fprintf(stdout, "Unknown type\n");
 }
@@ -27,28 +27,28 @@ static void test_swi_print_r(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 static void test_swi_add(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvm_testctx_t *ctx = (rvm_testctx_t *)cpu->userdata;
-	rvm_opmap_invoke_binary_handler(ctx->opmap, RVM_OPID_ADD, cpu, RVM_REG_PTR(cpu, R0), RVM_REG_PTR(cpu, ins->op2), RVM_REG_PTR(cpu, ins->op3));
+	rvm_opmap_invoke_binary_handler(ctx->opmap, RVM_OPID_ADD, cpu, RVM_CPUREG_PTR(cpu, R0), RVM_CPUREG_PTR(cpu, ins->op2), RVM_CPUREG_PTR(cpu, ins->op3));
 }
 
 
 static void test_swi_sub(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvm_testctx_t *ctx = (rvm_testctx_t *)cpu->userdata;
-	rvm_opmap_invoke_binary_handler(ctx->opmap, RVM_OPID_SUB, cpu, RVM_REG_PTR(cpu, R0), RVM_REG_PTR(cpu, ins->op2), RVM_REG_PTR(cpu, ins->op3));
+	rvm_opmap_invoke_binary_handler(ctx->opmap, RVM_OPID_SUB, cpu, RVM_CPUREG_PTR(cpu, R0), RVM_CPUREG_PTR(cpu, ins->op2), RVM_CPUREG_PTR(cpu, ins->op3));
 }
 
 
 static void test_swi_mul(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvm_testctx_t *ctx = (rvm_testctx_t *)cpu->userdata;
-	rvm_opmap_invoke_binary_handler(ctx->opmap, RVM_OPID_MUL, cpu, RVM_REG_PTR(cpu, R0), RVM_REG_PTR(cpu, ins->op2), RVM_REG_PTR(cpu, ins->op3));
+	rvm_opmap_invoke_binary_handler(ctx->opmap, RVM_OPID_MUL, cpu, RVM_CPUREG_PTR(cpu, R0), RVM_CPUREG_PTR(cpu, ins->op2), RVM_CPUREG_PTR(cpu, ins->op3));
 }
 
 
 static void test_swi_div(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvm_testctx_t *ctx = (rvm_testctx_t *)cpu->userdata;
-	rvm_opmap_invoke_binary_handler(ctx->opmap, RVM_OPID_DIV, cpu, RVM_REG_PTR(cpu, R0), RVM_REG_PTR(cpu, ins->op2), RVM_REG_PTR(cpu, ins->op3));
+	rvm_opmap_invoke_binary_handler(ctx->opmap, RVM_OPID_DIV, cpu, RVM_CPUREG_PTR(cpu, R0), RVM_CPUREG_PTR(cpu, ins->op2), RVM_CPUREG_PTR(cpu, ins->op3));
 }
 
 

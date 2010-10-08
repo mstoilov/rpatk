@@ -10,7 +10,7 @@ rvm_opmap_t *rvm_opmap_create()
 	if (!opmap)
 		return NULL;
 	r_memset(opmap, 0, sizeof(*opmap));
-	opmap->operators = r_array_create(sizeof(rvm_opinfo_t));
+	opmap->operators = r_array_create(sizeof(rvm_opinfo_t), NULL, NULL);
 	return opmap;
 }
 
