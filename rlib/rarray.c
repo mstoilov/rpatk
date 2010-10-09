@@ -24,6 +24,8 @@ static void r_array_checkexpand(rarray_t *array, ruint index);
 
 void r_array_cleanup(rarray_t *array)
 {
+	if (array->ondestroy)
+		array->ondestroy(array);
 	r_free(array->data);
 }
 
@@ -85,6 +87,10 @@ rarray_t *r_array_copy(const rarray_t *array)
 		return NULL;
 	for (i = 0; i < array->len; i++)
 		r_array_replace(dst, i, r_array_slot(array, i));
+	dst->oncopy = array->oncopy;
+	dst->ondestroy = array->ondestroy;
+	if (dst->oncopy)
+		dst->oncopy(dst);
 	return dst;
 }
 

@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "rvmcodegen.h"
-#include "rvmnamedarray.h"
-#include "rharray.h"
+#include "rvmarray.h"
 
 #include "rstring.h"
 #include "rmem.h"
@@ -49,11 +48,14 @@ int main(int argc, char *argv[])
 	cg = rvm_codegen_create();
 
 	RVM_REG_SETD(&ag, 4.55);
+	RVM_REG_SETD(&rh, 4.56);
+	RVM_REG_SETD(&rt, 4.57);
+
 	RVM_REG_SETSTR(&rh, r_string_create_from_ansistr("Hello World"));
 	RVM_REG_SETSTR(&rt, r_string_create_from_ansistr(", there"));
 
+	na = rvmreg_harray_create();
 
-	na = r_harray_create(sizeof(rvm_reg_t));
 	r_harray_stradd(na, "again", &ag);
 	r_harray_stradd(na, "hello", &rh);
 	r_harray_stradd(na, "there", &rt);

@@ -9,6 +9,7 @@ extern "C" {
 #endif
 
 typedef struct rarray_s rarray_t;
+typedef void (*r_array_callback)(rarray_t *array);
 
 struct rarray_s {
 	rref_t ref;
@@ -16,6 +17,8 @@ struct rarray_s {
 	ruint len;
 	ruint alloc_len;
 	ruint elt_size;
+	r_array_callback ondestroy;
+	r_array_callback oncopy;
 };
 
 #define r_array_size(__array__) ((__array__)->len)

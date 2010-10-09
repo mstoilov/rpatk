@@ -154,11 +154,7 @@ void r_string_cat(rstring_t *string, const rstr_t *str)
 
 rstring_t *r_string_copy(const rstring_t *srcString)
 {
-	rstring_t *string = r_string_create();
-	if (string && srcString) {
-		r_string_assign(string, &srcString->s);
-	}
-	return string;
+	return r_string_create_from_rstr(&srcString->s);
 }
 
 
