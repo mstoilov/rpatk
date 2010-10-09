@@ -10,13 +10,13 @@ LIBS += -lrvm -lrlib -lpthread --static
 
 
 TESTS	= \
-	$(OUTDIR)/namedarray-test \
 	$(OUTDIR)/codegen-test \
 	$(OUTDIR)/codemap-test \
 	$(OUTDIR)/opmap-test \
 	$(OUTDIR)/string-test \
 	$(OUTDIR)/rlock-test \
 	$(OUTDIR)/rarray-test \
+	$(OUTDIR)/rharray-test \
 	$(OUTDIR)/scope-test \
 	$(OUTDIR)/rhash-test \
 	$(OUTDIR)/rvm-test \
