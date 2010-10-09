@@ -3,6 +3,7 @@
 
 
 #include "rtypes.h"
+#include "rspinlock.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,6 +18,7 @@ typedef rref_t* (*r_ref_copyfun)(const rref_t *ptr);
 struct rref_s {
 	ruint32 count;
 	ruint32 type;
+	rspinlock_t lock;
 	r_ref_destroyfun destroy;
 	r_ref_copyfun copy;
 };

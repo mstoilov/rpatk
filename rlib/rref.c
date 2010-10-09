@@ -7,25 +7,36 @@ void r_ref_init(rref_t *ref, ruint32 count, ruint32 type, r_ref_destroyfun destr
 	ref->type = type;
 	ref->destroy = destroy;
 	ref->copy = copy;
+	r_spinlock_init(&ref->lock);
 }
 
 
 ruint32 r_ref_inc(rref_t *ref)
 {
+	ruint32 count;
+
+	r_spinlock_lock(&ref->lock);
 	ref->count += 1;
-	return ref->count;
+	count = ref->count;
+	r_spinlock_unlock(&ref->lock);
+	return count;
 }
 
 
 ruint32 r_ref_dec(rref_t *ref)
 {
+	ruint32 count;
+
+	r_spinlock_lock(&ref->lock);
 	if (ref->count) {
 		ref->count -= 1;
 		if (!ref->count && ref->destroy) {
 			ref->destroy(ref);
 		}
 	}
-	return ref->count;
+	count = ref->count;
+	r_spinlock_unlock(&ref->lock);
+	return count;
 }
 
 
