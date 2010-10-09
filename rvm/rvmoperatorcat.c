@@ -2,7 +2,7 @@
 #include "rstring.h"
 
 
-void rvm_op_cat_string_string(rvm_cpu_t *cpu, rvm_reg_t *res, const rvm_reg_t *arg1, const rvm_reg_t *arg2)
+void rvm_op_cat_string_string(rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rstring_t *s1 = (rstring_t*)arg1->v.p;
 	rstring_t *s2 = (rstring_t*)arg2->v.p;

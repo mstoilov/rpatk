@@ -2,7 +2,7 @@
 #include "common.h"
 
 
-static void rvm_callback_one(rvm_cpu_t *vm, rvm_asmins_t *ins)
+static void rvm_callback_one(rvmcpu_t *vm, rvm_asmins_t *ins)
 {
 	fprintf(stdout, "%s\n", __FUNCTION__);
 }
@@ -22,15 +22,15 @@ int main(int argc, char *argv[])
 	ruint ret = 0;
 	ruint off = 0;
 	rvm_asmins_t vmcode[256];
-	rvm_cpu_t *vm = rvm_cpu_create();
+	rvmcpu_t *vm = rvm_cpu_create();
 
-	table1 = rvm_cpu_switable_add(vm, calltable);
-	table2 = rvm_cpu_switable_add(vm, calltable);
-	table3 = rvm_cpu_switable_add(vm, calltable);
+	table1 = rvmcpu_switable_add(vm, calltable);
+	table2 = rvmcpu_switable_add(vm, calltable);
+	table3 = rvmcpu_switable_add(vm, calltable);
 	if (table2 != -1 || table3 != -1) {
-		fprintf(stdout, "rvm_cpu_switable_add: FAILED\n");
+		fprintf(stdout, "rvmcpu_switable_add: FAILED\n");
 	}
-	rvm_cpu_switable_add(vm, common_calltable);
+	rvmcpu_switable_add(vm, common_calltable);
 	vmcode[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 1);
 	vmcode[off++] = rvm_asm(RVM_MOV, R1, DA, XX, 2);
 	vmcode[off++] = rvm_asm(RVM_ADD, R0, R1, R0, 0);
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 	vmcode[off++] = rvm_asm(RVM_SWI, DA, XX, XX, rvm_cpu_getswi(vm, "rvm_callback_one"));
 	vmcode[off++] = rvm_asm(RVM_SWI, DA, XX, XX, RVM_SWI_ID(table1, 0));
 	vmcode[off++] = rvm_asm(RVM_EXT, R0, XX, XX, 0);
-	fprintf(stdout, "Code List (sizeof rvm_reg_t is: %d(%d)):\n", (unsigned int) sizeof(rvm_reg_t), (unsigned int) sizeof(vm->r[0].v));
+	fprintf(stdout, "Code List (sizeof rvmreg_t is: %d(%d)):\n", (unsigned int) sizeof(rvmreg_t), (unsigned int) sizeof(vm->r[0].v));
 	rvm_asm_dump(vmcode, off);
 	fprintf(stdout, "Code Execution:\n");
 #ifdef EXECDEBUG

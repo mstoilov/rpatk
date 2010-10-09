@@ -5,7 +5,7 @@
 #include "rvmcodemap.h"
 
 
-static void test_swi_print_r0(rvm_cpu_t *cpu, rvm_asmins_t *ins)
+static void test_swi_print_r0(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rword res = RVM_CPUREG_GETU(cpu, R0);
 	fprintf(stdout, "R0 = %d\n", (int)res);
@@ -19,13 +19,13 @@ static rvm_switable_t switable[] = {
 
 int main(int argc, char *argv[])
 {
-	rvm_cpu_t *cpu;
+	rvmcpu_t *cpu;
 	rvm_codegen_t *cg;
 	ruint ntable;
 
 	cg = rvm_codegen_create();
 	cpu = rvm_cpu_create();
-	ntable = rvm_cpu_switable_add(cpu, switable);
+	ntable = rvmcpu_switable_add(cpu, switable);
 
 	rvm_codemap_invalid_stradd(cg->codemap, "add2");
 	rvm_codemap_invalid_stradd(cg->codemap, "add3");

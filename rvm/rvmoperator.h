@@ -20,8 +20,8 @@
  * Important: the res pointer might be the same as one of the arguments, the operator must
  * be implemented to take care of such cases.
  */
-typedef void (*rvm_unaryop_handler)(rvm_cpu_t *cpu, rvm_reg_t *res, const rvm_reg_t *arg);
-typedef void (*rvm_binaryop_handler)(rvm_cpu_t *cpu, rvm_reg_t *res, const rvm_reg_t *arg1, const rvm_reg_t *arg2);
+typedef void (*rvm_unaryop_handler)(rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg);
+typedef void (*rvm_binaryop_handler)(rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2);
 
 typedef union rvm_ophandler_s {
 	rvm_unaryop_handler unary;
@@ -45,7 +45,7 @@ void rvm_opmap_add_binary_operator(rvm_opmap_t *opmap, rushort opid);
 void rvm_opmap_add_unary_operator(rvm_opmap_t *opmap, rushort opid);
 rint rvm_opmap_set_binary_handler(rvm_opmap_t *opmap, rushort opid, rvm_binaryop_handler func, ruchar firstType, ruchar secondType);
 rint rvm_opmap_set_unary_handler(rvm_opmap_t *opmap, rushort opid, rvm_unaryop_handler func, ruchar type);
-void rvm_opmap_invoke_binary_handler(rvm_opmap_t *opmap, rushort opid, rvm_cpu_t *cpu, rvm_reg_t *res, const rvm_reg_t *arg1, const rvm_reg_t *arg2);
-void rvm_opmap_invoke_unary_handler(rvm_opmap_t *opmap, rushort opid, rvm_cpu_t *cpu, rvm_reg_t *res, const rvm_reg_t *arg);
+void rvm_opmap_invoke_binary_handler(rvm_opmap_t *opmap, rushort opid, rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2);
+void rvm_opmap_invoke_unary_handler(rvm_opmap_t *opmap, rushort opid, rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg);
 
 #endif

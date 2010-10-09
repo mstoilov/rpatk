@@ -1,7 +1,7 @@
 #include "rvmoperatordiv.h"
 
 
-void rvm_op_div_long_long(rvm_cpu_t *cpu, rvm_reg_t *res, const rvm_reg_t *arg1, const rvm_reg_t *arg2)
+void rvm_op_div_long_long(rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rlong r;
 	if (!arg2->v.l) {
@@ -15,7 +15,7 @@ void rvm_op_div_long_long(rvm_cpu_t *cpu, rvm_reg_t *res, const rvm_reg_t *arg1,
 }
 
 
-void rvm_op_div_double_long(rvm_cpu_t *cpu, rvm_reg_t *res, const rvm_reg_t *arg1, const rvm_reg_t *arg2)
+void rvm_op_div_double_long(rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rdouble r;
 	if (!arg2->v.l) {
@@ -29,7 +29,7 @@ void rvm_op_div_double_long(rvm_cpu_t *cpu, rvm_reg_t *res, const rvm_reg_t *arg
 }
 
 
-void rvm_op_div_long_double(rvm_cpu_t *cpu, rvm_reg_t *res, const rvm_reg_t *arg1, const rvm_reg_t *arg2)
+void rvm_op_div_long_double(rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rlong r;
 
@@ -44,7 +44,7 @@ void rvm_op_div_long_double(rvm_cpu_t *cpu, rvm_reg_t *res, const rvm_reg_t *arg
 }
 
 
-void rvm_op_div_double_double(rvm_cpu_t *cpu, rvm_reg_t *res, const rvm_reg_t *arg1, const rvm_reg_t *arg2)
+void rvm_op_div_double_double(rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rdouble r;
 

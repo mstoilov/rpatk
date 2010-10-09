@@ -3,6 +3,6 @@
 
 #include "rvmoperator.h"
 
-void rvm_op_cat_string_string(rvm_cpu_t *cpu, rvm_reg_t *res, const rvm_reg_t *arg1, const rvm_reg_t *arg2);
+void rvm_op_cat_string_string(rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2);
 
 #endif

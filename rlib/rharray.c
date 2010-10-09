@@ -116,7 +116,7 @@ rint r_harray_set(rharray_t *harray, const rchar *name, ruint namesize, rconstpo
 	rlong index = r_harray_lookup_index(harray, name, namesize);
 	if (index < 0)
 		return -1;
-	r_array_insert(harray->members, index, pval);
+	r_array_replace(harray->members, index, pval);
 	return 0;
 }
 

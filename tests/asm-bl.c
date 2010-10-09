@@ -9,9 +9,9 @@ int main(int argc, char *argv[])
 	ruint off = 0;
 	rvm_asmins_t *l_add2 = NULL, *l_add3 = NULL, *l_main = NULL;
 	rvm_asmins_t vmcode[256];
-	rvm_cpu_t *vm = rvm_cpu_create();
+	rvmcpu_t *vm = rvm_cpu_create();
 	
-	rvm_cpu_switable_add(vm, common_calltable);
+	rvmcpu_switable_add(vm, common_calltable);
 
 	vmcode[off++]   = rvm_asmr(RVM_B,   DA, XX, XX, &l_main);
 

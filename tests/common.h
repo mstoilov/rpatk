@@ -22,7 +22,7 @@
  * R9 - argument (to compare)
  * R8 - (0 : 7) Register to check
  */
-static void rvm_vmtest_check_reg(rvm_cpu_t *vm, rvm_asmins_t *ins)
+static void rvm_vmtest_check_reg(rvmcpu_t *vm, rvm_asmins_t *ins)
 {
 	fprintf(stdout, "%s: %s\n", (const char*)RVM_CPUREG_GETU(vm, 10), RVM_CPUREG_GETU(vm, RVM_CPUREG_GETU(vm, 8)) == RVM_CPUREG_GETU(vm, 9) ? "PASSED" : "FAILED");
 }
@@ -32,7 +32,7 @@ static void rvm_vmtest_check_reg(rvm_cpu_t *vm, rvm_asmins_t *ins)
  * R10 - (const char*) msg
  * R9 - argument (to compare the status register)
  */
-static void rvm_vmtest_check_status(rvm_cpu_t *vm, rvm_asmins_t *ins)
+static void rvm_vmtest_check_status(rvmcpu_t *vm, rvm_asmins_t *ins)
 {
 	fprintf(stdout, "%s: %s\n", (const char*)RVM_CPUREG_GETU(vm, 10), vm->status == RVM_CPUREG_GETU(vm, 9) ? "PASSED" : "FAILED");
 }

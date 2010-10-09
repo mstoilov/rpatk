@@ -13,7 +13,7 @@ typedef struct rvm_testctx_s {
 } rvm_testctx_t;
 
 
-static void test_swi_print_r(rvm_cpu_t *cpu, rvm_asmins_t *ins)
+static void test_swi_print_r(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	if (rvm_reg_gettype(RVM_CPUREG_PTR(cpu, ins->op2)) == RVM_DTYPE_LONG)
 		fprintf(stdout, "R%d = %ld\n", ins->op2, RVM_CPUREG_GETL(cpu, ins->op2));
@@ -24,28 +24,28 @@ static void test_swi_print_r(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
-static void test_swi_add(rvm_cpu_t *cpu, rvm_asmins_t *ins)
+static void test_swi_add(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvm_testctx_t *ctx = (rvm_testctx_t *)cpu->userdata;
 	rvm_opmap_invoke_binary_handler(ctx->opmap, RVM_OPID_ADD, cpu, RVM_CPUREG_PTR(cpu, R0), RVM_CPUREG_PTR(cpu, ins->op2), RVM_CPUREG_PTR(cpu, ins->op3));
 }
 
 
-static void test_swi_sub(rvm_cpu_t *cpu, rvm_asmins_t *ins)
+static void test_swi_sub(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvm_testctx_t *ctx = (rvm_testctx_t *)cpu->userdata;
 	rvm_opmap_invoke_binary_handler(ctx->opmap, RVM_OPID_SUB, cpu, RVM_CPUREG_PTR(cpu, R0), RVM_CPUREG_PTR(cpu, ins->op2), RVM_CPUREG_PTR(cpu, ins->op3));
 }
 
 
-static void test_swi_mul(rvm_cpu_t *cpu, rvm_asmins_t *ins)
+static void test_swi_mul(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvm_testctx_t *ctx = (rvm_testctx_t *)cpu->userdata;
 	rvm_opmap_invoke_binary_handler(ctx->opmap, RVM_OPID_MUL, cpu, RVM_CPUREG_PTR(cpu, R0), RVM_CPUREG_PTR(cpu, ins->op2), RVM_CPUREG_PTR(cpu, ins->op3));
 }
 
 
-static void test_swi_div(rvm_cpu_t *cpu, rvm_asmins_t *ins)
+static void test_swi_div(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvm_testctx_t *ctx = (rvm_testctx_t *)cpu->userdata;
 	rvm_opmap_invoke_binary_handler(ctx->opmap, RVM_OPID_DIV, cpu, RVM_CPUREG_PTR(cpu, R0), RVM_CPUREG_PTR(cpu, ins->op2), RVM_CPUREG_PTR(cpu, ins->op3));
@@ -65,7 +65,7 @@ static rvm_switable_t switable[] = {
 int main(int argc, char *argv[])
 {
 	rvm_testctx_t ctx;
-	rvm_cpu_t *cpu;
+	rvmcpu_t *cpu;
 	rvm_opmap_t *opmap;
 	rvm_asmins_t code[1024];
 	ruint off = 0;
@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_DIV, rvm_op_div_double_long, RVM_DTYPE_DOUBLE, RVM_DTYPE_LONG);
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_DIV, rvm_op_div_long_long, RVM_DTYPE_LONG, RVM_DTYPE_LONG);
 
-	ntable = rvm_cpu_switable_add(cpu, switable);
+	ntable = rvmcpu_switable_add(cpu, switable);
 	code[off++] = rvm_asmd(RVM_MOV, R1, DA, XX, 1);
 	code[off++] = rvm_asml(RVM_MOV, R2, DA, XX, 3.2);
 //	code[off++] = rvm_asm(RVM_SWI, DA, XX, XX, RVM_SWI_ID(ntable, 1));			// mul

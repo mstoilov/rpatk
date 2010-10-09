@@ -68,7 +68,7 @@ enum {
 	RVM_LDRB,		/* Load Byte: op1 = byte_at_location(op2) */
 	RVM_LDRH,		/* Load Half Word: op1 = u16_at_location(op2) */
 	RVM_LDRW,		/* Load Word: op1 = u32_at_location(op2) */
-	RVM_LDRR,		/* Load rvm_reg_t: op1 = rvm_reg_t_at_location(op2) */
+	RVM_LDRR,		/* Load rvmreg_t: op1 = rvmreg_t_at_location(op2) */
 	RVM_LSL,		/* Logical Shift Left: op1 = op2 << op3, update the status register */
 	RVM_LSR,		/* Logical Shift Right: op1 = op2 >> op3, update the status register */
 	RVM_STM,
@@ -166,7 +166,7 @@ do { \
 
 #define RVM_CPUREG_PTR(__cpu__, __r__) (&(__cpu__)->r[(__r__)])
 #define RVM_CPUREG_GET(__cpu__, __r__) (__cpu__)->r[(__r__)]
-#define RVM_CPUREG_SET(__cpu__, __r__, __val__) do { (__cpu__)->r[(__r__)] = (rvm_reg_t)(__val__); } while (0)
+#define RVM_CPUREG_SET(__cpu__, __r__, __val__) do { (__cpu__)->r[(__r__)] = (rvmreg_t)(__val__); } while (0)
 
 #define RVM_REG_GETU(__r__) (__r__)->v.w
 #define RVM_REG_SETU(__r__, __val__) do { (__r__)->v.w = (rword)(__val__); rvm_reg_setinfo((__r__), RVM_DTYPE_WORD);} while (0)
@@ -217,17 +217,17 @@ do { \
 
 
 typedef struct rvm_asmins_s rvm_asmins_t;
-typedef struct rvm_cpu_s rvm_cpu_t;
-typedef void (*rvm_cpu_swi)(rvm_cpu_t *cpu, rvm_asmins_t *ins);
-typedef void (*rvm_cpu_op)(rvm_cpu_t *cpu, rvm_asmins_t *ins);
+typedef struct rvmcpu_s rvmcpu_t;
+typedef void (*rvmcpu_swi)(rvmcpu_t *cpu, rvm_asmins_t *ins);
+typedef void (*rvm_cpu_op)(rvmcpu_t *cpu, rvm_asmins_t *ins);
 
 typedef struct rvm_switable_s {
 	const char *name;
-	rvm_cpu_swi op;
+	rvmcpu_swi op;
 } rvm_switable_t;
 
 
-typedef struct rvm_reg_s {
+typedef struct rvmreg_s {
 	union {
 		rword w;
 		rlong l;
@@ -237,7 +237,7 @@ typedef struct rvm_reg_s {
 	} v;
 	ruint32 info;
 	ruint32 size;
-} rvm_reg_t;
+} rvmreg_t;
 
 
 struct rvm_asmins_s {
@@ -245,12 +245,12 @@ struct rvm_asmins_s {
 	ruint8 op1;
 	ruint8 op2;
 	ruint8 op3;
-	rvm_reg_t data;	
+	rvmreg_t data;	
 };
 
 
-struct rvm_cpu_s {
-	rvm_reg_t r[DA + 1];
+struct rvmcpu_s {
+	rvmreg_t r[DA + 1];
 	rword status;
 	rword error;
 	rword abort;
@@ -260,12 +260,12 @@ struct rvm_cpu_s {
 };
 
 
-rvm_cpu_t *rvm_cpu_create();
-void rvm_cpu_destroy(rvm_cpu_t * vm);
-rint rvm_cpu_switable_add(rvm_cpu_t * cpu, rvm_switable_t *switalbe);
-rint rvm_cpu_exec(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword off);
-rint rvm_cpu_exec_debug(rvm_cpu_t *cpu, rvm_asmins_t *prog, rword off);
-rint rvm_cpu_getswi(rvm_cpu_t *cpu, const rchar *swiname);
+rvmcpu_t *rvm_cpu_create();
+void rvm_cpu_destroy(rvmcpu_t * vm);
+rint rvmcpu_switable_add(rvmcpu_t * cpu, rvm_switable_t *switalbe);
+rint rvm_cpu_exec(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off);
+rint rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off);
+rint rvm_cpu_getswi(rvmcpu_t *cpu, const rchar *swiname);
 void rvm_relocate(rvm_asmins_t *code, rsize_t size);
 rvm_asmins_t rvm_asm(rword opcode, rword op1, rword op2, rword op3, rword data);
 rvm_asmins_t rvm_asmi(rword opcode, rword op1, rword op2, rword op3, rint data);
@@ -276,15 +276,15 @@ rvm_asmins_t rvm_asmr(rword opcode, rword op1, rword op2, rword op3, rpointer pR
 rvm_asmins_t rvm_asmx(rword opcode, rword op1, rword op2, rword op3, rpointer pReloc);
 rvm_asmins_t rvm_asmd(rword opcode, rword op1, rword op2, rword op3, rdouble data);
 void rvm_asm_dump(rvm_asmins_t *pi, ruint count);
-void rvm_reg_settype(rvm_reg_t *r, ruint type);
-ruint rvm_reg_gettype(rvm_reg_t *r);
-void rvm_reg_setinfo(rvm_reg_t *r, ruint info);
-ruint rvm_reg_getinfo(rvm_reg_t *r);
-rboolean rvm_reg_flagtst(rvm_reg_t *r, ruint32 flag);
-void rvm_reg_flagset(rvm_reg_t *r, ruint32 flag);
-void rvm_reg_flagclr(rvm_reg_t *r, ruint32 flag);
-void rvm_reg_setlong(rvm_reg_t *r, rlong l);
-void rvm_reg_setdouble(rvm_reg_t *r, rdouble d);
+void rvm_reg_settype(rvmreg_t *r, ruint type);
+ruint rvm_reg_gettype(rvmreg_t *r);
+void rvm_reg_setinfo(rvmreg_t *r, ruint info);
+ruint rvm_reg_getinfo(rvmreg_t *r);
+rboolean rvm_reg_flagtst(rvmreg_t *r, ruint32 flag);
+void rvm_reg_flagset(rvmreg_t *r, ruint32 flag);
+void rvm_reg_flagclr(rvmreg_t *r, ruint32 flag);
+void rvm_reg_setlong(rvmreg_t *r, rlong l);
+void rvm_reg_setdouble(rvmreg_t *r, rdouble d);
 
 
 #ifdef __cplusplus

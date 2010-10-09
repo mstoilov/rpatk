@@ -9,7 +9,7 @@
 
 
 
-static void test_swi_print_r(rvm_cpu_t *cpu, rvm_asmins_t *ins)
+static void test_swi_print_r(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	if (rvm_reg_gettype(RVM_CPUREG_PTR(cpu, ins->op2)) == RVM_DTYPE_LONG)
 		fprintf(stdout, "R%d = %ld\n", ins->op2, RVM_CPUREG_GETL(cpu, ins->op2));
@@ -22,7 +22,7 @@ static void test_swi_print_r(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
-static void test_swi_unref(rvm_cpu_t *cpu, rvm_asmins_t *ins)
+static void test_swi_unref(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	if (rvm_reg_flagtst(RVM_CPUREG_PTR(cpu, ins->op2), RVM_INFOBIT_REFOBJECT))
 		r_ref_dec((rref_t*)RVM_CPUREG_GETP(cpu, ins->op2));
@@ -38,27 +38,24 @@ static rvm_switable_t switable[] = {
 
 int main(int argc, char *argv[])
 {
-	rvm_reg_t ag, rh, rt;
+	rvmreg_t ag, rh, rt;
 	rharray_t *na, *nc;
 	rvm_codegen_t *cg;
-	rvm_cpu_t *cpu;
+	rvmcpu_t *cpu;
 
 	cpu = rvm_cpu_create();
-	rvm_cpu_switable_add(cpu, switable);
+	rvmcpu_switable_add(cpu, switable);
 	cg = rvm_codegen_create();
 
-	RVM_REG_SETD(&ag, 4.55);
-	RVM_REG_SETD(&rh, 4.56);
-	RVM_REG_SETD(&rt, 4.57);
+	ag = rvm_reg_create_double(4.55);
+	rh = rvm_reg_create_string_ansi("Hello World");
+	rt = rvm_reg_create_long(55);
 
-	RVM_REG_SETSTR(&rh, r_string_create_from_ansistr("Hello World"));
-	RVM_REG_SETSTR(&rt, r_string_create_from_ansistr(", there"));
-
-	na = rvmreg_harray_create();
-
+	na = r_harray_create_rvmreg();
 	r_harray_stradd(na, "again", &ag);
 	r_harray_stradd(na, "hello", &rh);
-	r_harray_stradd(na, "there", &rt);
+	r_harray_stradd(na, "there", NULL);
+	r_harray_strset(na, "there", &rt);
 	nc = (rharray_t*)r_ref_copy(&na->ref);
 
 	fprintf(stdout, "lookup 'again': %ld\n", r_harray_strlookup_index(nc, "again"));

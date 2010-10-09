@@ -17,14 +17,14 @@ typedef struct rvm_testctx_s {
 } rvm_testctx_t;
 
 
-static void test_swi_cat(rvm_cpu_t *cpu, rvm_asmins_t *ins)
+static void test_swi_cat(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvm_testctx_t *ctx = (rvm_testctx_t *)cpu->userdata;
 	rvm_opmap_invoke_binary_handler(ctx->opmap, RVM_OPID_CAT, cpu, RVM_CPUREG_PTR(cpu, R0), RVM_CPUREG_PTR(cpu, ins->op2), RVM_CPUREG_PTR(cpu, ins->op3));
 }
 
 
-static void test_swi_print_r(rvm_cpu_t *cpu, rvm_asmins_t *ins)
+static void test_swi_print_r(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	if (rvm_reg_gettype(RVM_CPUREG_PTR(cpu, ins->op2)) == RVM_DTYPE_LONG)
 		fprintf(stdout, "R%d = %ld\n", ins->op2, RVM_CPUREG_GETL(cpu, ins->op2));
@@ -37,7 +37,7 @@ static void test_swi_print_r(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
-static void test_swi_strinit(rvm_cpu_t *cpu, rvm_asmins_t *ins)
+static void test_swi_strinit(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	char *p = (char*) RVM_CPUREG_GETP(cpu, ins->op2);
 	long size = RVM_CPUREG_GETL(cpu, ins->op3);
@@ -48,14 +48,14 @@ static void test_swi_strinit(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
-static void test_swi_unref(rvm_cpu_t *cpu, rvm_asmins_t *ins)
+static void test_swi_unref(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	if (rvm_reg_flagtst(RVM_CPUREG_PTR(cpu, ins->op2), RVM_INFOBIT_REFOBJECT))
 		r_ref_dec((rref_t*)RVM_CPUREG_GETP(cpu, ins->op2));
 }
 
 
-static void test_swi_strtodouble(rvm_cpu_t *cpu, rvm_asmins_t *ins)
+static void test_swi_strtodouble(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rstring_t *s = (rstring_t*)RVM_CPUREG_GETP(cpu, ins->op2);
 	double d = strtod(s->s.str, NULL);
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 
 	rvm_testctx_t ctx;
 	rvm_codegen_t *cg;
-	rvm_cpu_t *cpu;
+	rvmcpu_t *cpu;
 	rvm_opmap_t *opmap;
 	ruint ntable;
 
@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
 
 	rvm_codemap_invalid_stradd(cg->codemap, "str_init");
 	rvm_codemap_invalid_stradd(cg->codemap, "str_to_double");
-	ntable = rvm_cpu_switable_add(cpu, switable);
+	ntable = rvmcpu_switable_add(cpu, switable);
 
 	rvm_codegen_addins(cg, rvm_asmp(RVM_MOV, R0, DA, XX, hello));
 	rvm_codegen_addins(cg, rvm_asm(RVM_STS, R0, SP, DA, 1 + RVM_CODEGEN_FUNCINITOFFSET));

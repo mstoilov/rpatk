@@ -9,9 +9,9 @@ int main(int argc, char *argv[])
 	rword d =  0;
 	ruint off = 0;
 	rvm_asmins_t vmcode[256];
-	rvm_cpu_t *vm = rvm_cpu_create();
+	rvmcpu_t *vm = rvm_cpu_create();
 
-	rvm_cpu_switable_add(vm, common_calltable);
+	rvmcpu_switable_add(vm, common_calltable);
 	vmcode[off++] = rvm_asmp(RVM_LDR, R0, DA, XX, &s);
 	VMTEST_REG(vmcode, off, 0, -2, "LDR");
 	vmcode[off++] = rvm_asmp(RVM_LDRB, R0, DA, XX, &s);

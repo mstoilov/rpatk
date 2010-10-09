@@ -3,7 +3,7 @@
 #include "rvmcpu.h"
 
 
-static void test_swi_sub(rvm_cpu_t *cpu, rvm_asmins_t *ins)
+static void test_swi_sub(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rword res, op2 = RVM_CPUREG_GETU(cpu, R0), op3 = RVM_CPUREG_GETU(cpu, R1);
 
@@ -12,7 +12,7 @@ static void test_swi_sub(rvm_cpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
-static void test_swi_mul(rvm_cpu_t *cpu, rvm_asmins_t *ins)
+static void test_swi_mul(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rword res, op2 = RVM_CPUREG_GETU(cpu, R0), op3 = RVM_CPUREG_GETU(cpu, R1);
 
@@ -30,13 +30,13 @@ static rvm_switable_t switable[] = {
 
 int main(int argc, char *argv[])
 {
-	rvm_cpu_t *cpu;
+	rvmcpu_t *cpu;
 	rvm_asmins_t code[1024];
 	ruint off = 0;
 	ruint ntable;
 
 	cpu = rvm_cpu_create();
-	ntable = rvm_cpu_switable_add(cpu, switable);
+	ntable = rvmcpu_switable_add(cpu, switable);
 
 	code[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 1);
 	code[off++] = rvm_asm(RVM_MOV, R1, DA, XX, 2);
