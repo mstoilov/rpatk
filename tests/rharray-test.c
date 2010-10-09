@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "rvmcodegen.h"
-#include "rvmarray.h"
+#include "rvmreg.h"
 
 #include "rstring.h"
 #include "rmem.h"

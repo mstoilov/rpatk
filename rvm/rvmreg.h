@@ -1,5 +1,5 @@
-#ifndef _RVMARRAY_H_
-#define _RVMARRAY_H_
+#ifndef _RVMREG_H_
+#define _RVMREG_H_
 
 #include "rvmcpu.h"
 #include "rarray.h"

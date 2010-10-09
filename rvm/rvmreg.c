@@ -1,4 +1,4 @@
-#include "rvmarray.h"
+#include "rvmreg.h"
 
 
 static void r_array_oncopy_rvmreg(rarray_t *array)
