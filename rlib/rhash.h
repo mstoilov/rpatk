@@ -10,6 +10,7 @@ extern "C" {
 #endif
 
 
+typedef struct rhash_node_s rhash_node_t;
 typedef struct rhash_s rhash_t;
 typedef rboolean (*r_hash_equalfunc)(rconstpointer key1, rconstpointer key2);
 typedef ruint (*r_hash_hashfun)(rconstpointer key);
@@ -39,6 +40,9 @@ void r_hash_removeall(rhash_t* hash);
 rpointer r_hash_lookup(rhash_t* hash, rconstpointer key);
 void r_hash_insert_indexval(rhash_t* hash, rconstpointer key, rulong index);
 rulong r_hash_lookup_indexval(rhash_t* hash, rconstpointer key);
+rhash_node_t *r_hash_node_lookup(rhash_t* hash, rhash_node_t *cur, rconstpointer key);
+rpointer r_hash_value(rhash_node_t *node);
+rulong r_hash_indexval(rhash_node_t *node);
 
 ruint r_hash_strhash(rconstpointer key);
 rboolean r_hash_strequal(rconstpointer key1, rconstpointer key2);

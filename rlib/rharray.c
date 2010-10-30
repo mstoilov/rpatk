@@ -2,6 +2,28 @@
 #include "rstring.h"
 #include "rmem.h"
 
+/*
+ * Hash array
+ *
+ * names array:
+ * ----------------------------------------------
+ * | name1  | name2  | name3  |        | nameN  |
+ * ----------------------------------------------
+ *
+ * members array:
+ * ----------------------------------------------
+ * | memb1  | memb2  | memb3  |        | membN  |
+ * ----------------------------------------------
+ *
+ * Hash Entry:
+ * --------------------
+ * | pointer to name1  |
+ * --------------------
+ * | index of memb1    |
+ * --------------------
+ *
+ *
+ */
 
 static void r_refstub_destroy(rref_t *ref)
 {
@@ -14,12 +36,16 @@ static rref_t *r_refstub_copy(const rref_t *ptr)
 	return (rref_t*) r_harray_copy((const rharray_t*)ptr);
 }
 
-
+/*
+ * Copy the names in the hashed array.
+ * Pointers to the names are already in the array, but they point
+ * to the source array names. We duplicate these source names and
+ * replace the entries.
+ */
 static void r_array_oncopy_rstr(rarray_t *array)
 {
 	ruint index;
 	rstr_t *src, *dst;
-
 
 	for (index = 0; index < array->len; index++) {
 		src = r_array_index(array, index, rstr_t*);
@@ -29,12 +55,13 @@ static void r_array_oncopy_rstr(rarray_t *array)
 	}
 }
 
-
+/*
+ * Destroy the names in the hashed array.
+ */
 static void r_array_ondestroy_rstr(rarray_t *array)
 {
 	ruint index;
 	rstr_t *src;
-
 
 	for (index = 0; index < array->len; index++) {
 		src = r_array_index(array, index, rstr_t*);
@@ -111,19 +138,12 @@ rint r_harray_add_s(rharray_t *harray, const rchar *name, rconstpointer pval)
 }
 
 
-rint r_harray_set(rharray_t *harray, const rchar *name, ruint namesize, rconstpointer pval)
+rint r_harray_set(rharray_t *harray, rlong index, rconstpointer pval)
 {
-	rlong index = r_harray_lookupindex(harray, name, namesize);
 	if (index < 0)
 		return -1;
 	r_array_replace(harray->members, index, pval);
 	return 0;
-}
-
-
-rint r_harray_set_s(rharray_t *harray, const rchar *name, rconstpointer pval)
-{
-	return r_harray_set(harray, name, r_strlen(name), pval);
 }
 
 
@@ -148,8 +168,8 @@ rlong r_harray_lookupindex_s(rharray_t *harray, const rchar *name)
 
 rpointer r_harray_lookup(rharray_t *harray, const rchar *name, ruint namesize)
 {
-	rulong found = r_harray_lookupindex(harray, name, namesize);
-	if (found == R_HASH_INVALID_INDEXVAL)
+	rlong found = r_harray_lookupindex(harray, name, namesize);
+	if (found == -1)
 		return NULL;
 	return r_array_slot(harray->members, found);
 }

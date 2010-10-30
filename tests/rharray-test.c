@@ -55,16 +55,28 @@ int main(int argc, char *argv[])
 	r_harray_add_s(na, "again", &ag);
 	r_harray_add_s(na, "hello", &rh);
 	r_harray_add_s(na, "there", NULL);
-	r_harray_set_s(na, "there", &rt);
+	r_harray_set(na, r_harray_lookupindex_s(na, "there"), &rt);
 	nc = (rharray_t*)r_ref_copy(&na->ref);
 
+	fprintf(stdout, "lookup 'missing': %ld\n", r_harray_lookupindex_s(nc, "missing"));
 	fprintf(stdout, "lookup 'again': %ld\n", r_harray_lookupindex_s(nc, "again"));
 	fprintf(stdout, "lookup 'hello': %ld\n", r_harray_lookupindex_s(nc, "hello"));
 	fprintf(stdout, "lookup 'there': %ld\n", r_harray_lookupindex_s(nc, "there"));
 
+	/*
+	 * Load the content of rh to R0
+	 */
 	rvm_codegen_addins(cg, rvm_asmp(RVM_LDRR, R0, DA, XX, &rh));
+
+	/*
+	 * Lookup the array member "again" and load the content to R1
+	 */
 	rvm_codegen_addins(cg, rvm_asmp(RVM_LDRR, R1, DA, XX, r_harray_lookup_s(nc, "again")));
+	/*
+	 * Lookup the array member "again" and load the content to R2
+	 */
 	rvm_codegen_addins(cg, rvm_asmp(RVM_LDRR, R2, DA, XX, r_harray_lookup_s(nc, "there")));
+
 	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, R0, XX, rvm_cpu_getswi(cpu, "print")));	// print
 	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, R1, XX, rvm_cpu_getswi(cpu, "print")));	// print
 	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, R2, XX, rvm_cpu_getswi(cpu, "print")));	// print
