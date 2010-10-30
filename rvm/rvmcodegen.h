@@ -26,9 +26,9 @@ typedef struct rvm_codegen_s {
 rvm_codegen_t *rvm_codegen_create();
 void rvm_codegen_destroy(rvm_codegen_t *cg);
 ruint rvm_codegen_funcstart(rvm_codegen_t *cg, const rchar* name, ruint namesize, ruint args);
-ruint rvm_codegen_strfuncstart(rvm_codegen_t *cg, const rchar* name, ruint args);
+ruint rvm_codegen_funcstart_s(rvm_codegen_t *cg, const rchar* name, ruint args);
 ruint rvm_codegen_vargs_funcstart(rvm_codegen_t *cg, const rchar* name, ruint namesize);
-ruint rvm_codegen_vargs_strfuncstart(rvm_codegen_t *cg, const rchar* name);
+ruint rvm_codegen_vargs_funcstart_s(rvm_codegen_t *cg, const rchar* name);
 void rvm_codegen_funcend(rvm_codegen_t *cg);
 ruint rvm_codegen_addins(rvm_codegen_t *cg, rvm_asmins_t ins);
 rvm_asmins_t *rvm_codegen_getcode(rvm_codegen_t *cg, ruint index);

@@ -52,19 +52,19 @@ int main(int argc, char *argv[])
 	rt = rvm_reg_create_long(55);
 
 	na = r_harray_create_rvmreg();
-	r_harray_stradd(na, "again", &ag);
-	r_harray_stradd(na, "hello", &rh);
-	r_harray_stradd(na, "there", NULL);
-	r_harray_strset(na, "there", &rt);
+	r_harray_add_s(na, "again", &ag);
+	r_harray_add_s(na, "hello", &rh);
+	r_harray_add_s(na, "there", NULL);
+	r_harray_set_s(na, "there", &rt);
 	nc = (rharray_t*)r_ref_copy(&na->ref);
 
-	fprintf(stdout, "lookup 'again': %ld\n", r_harray_strlookup_index(nc, "again"));
-	fprintf(stdout, "lookup 'hello': %ld\n", r_harray_strlookup_index(nc, "hello"));
-	fprintf(stdout, "lookup 'there': %ld\n", r_harray_strlookup_index(nc, "there"));
+	fprintf(stdout, "lookup 'again': %ld\n", r_harray_lookupindex_s(nc, "again"));
+	fprintf(stdout, "lookup 'hello': %ld\n", r_harray_lookupindex_s(nc, "hello"));
+	fprintf(stdout, "lookup 'there': %ld\n", r_harray_lookupindex_s(nc, "there"));
 
 	rvm_codegen_addins(cg, rvm_asmp(RVM_LDRR, R0, DA, XX, &rh));
-	rvm_codegen_addins(cg, rvm_asmp(RVM_LDRR, R1, DA, XX, r_harray_strlookup(nc, "again")));
-	rvm_codegen_addins(cg, rvm_asmp(RVM_LDRR, R2, DA, XX, r_harray_strlookup(nc, "there")));
+	rvm_codegen_addins(cg, rvm_asmp(RVM_LDRR, R1, DA, XX, r_harray_lookup_s(nc, "again")));
+	rvm_codegen_addins(cg, rvm_asmp(RVM_LDRR, R2, DA, XX, r_harray_lookup_s(nc, "there")));
 	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, R0, XX, rvm_cpu_getswi(cpu, "print")));	// print
 	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, R1, XX, rvm_cpu_getswi(cpu, "print")));	// print
 	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, R2, XX, rvm_cpu_getswi(cpu, "print")));	// print

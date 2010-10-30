@@ -121,13 +121,13 @@ rvm_varmap_t *rvm_scope_lookup_tip(rvm_scope_t *scope, const rchar *name, ruint 
 }
 
 
-rvm_varmap_t *rvm_scope_strlookup(rvm_scope_t *scope, const rchar *name)
+rvm_varmap_t *rvm_scope_lookup_s(rvm_scope_t *scope, const rchar *name)
 {
 	return rvm_scope_lookup(scope, name, r_strlen(name));
 }
 
 
-rvm_varmap_t *rvm_scope_strlookup_tip(rvm_scope_t *scope, const rchar *name)
+rvm_varmap_t *rvm_scope_lookuptip_s(rvm_scope_t *scope, const rchar *name)
 {
 	return rvm_scope_lookup_tip(scope, name, r_strlen(name));
 }

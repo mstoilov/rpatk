@@ -117,22 +117,22 @@ int main(int argc, char *argv[])
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_DIV, rvm_op_div_long_long, RVM_DTYPE_LONG, RVM_DTYPE_LONG);
 
 
-	rvm_codemap_invalid_stradd(cg->codemap, "str_init");
-	rvm_codemap_invalid_stradd(cg->codemap, "str_to_double");
+	rvm_codemap_invalid_add_s(cg->codemap, "str_init");
+	rvm_codemap_invalid_add_s(cg->codemap, "str_to_double");
 	ntable = rvmcpu_switable_add(cpu, switable);
 
 	rvm_codegen_addins(cg, rvm_asmp(RVM_MOV, R0, DA, XX, hello));
 	rvm_codegen_addins(cg, rvm_asm(RVM_STS, R0, SP, DA, 1 + RVM_CODEGEN_FUNCINITOFFSET));
 	rvm_codegen_addins(cg, rvm_asml(RVM_MOV, R0, DA, XX, r_strlen(hello)));
 	rvm_codegen_addins(cg, rvm_asm(RVM_STS, R0, SP, DA, 2 + RVM_CODEGEN_FUNCINITOFFSET));
-	rvm_codegen_addins(cg, rvm_asmx(RVM_BL,  DA, XX, XX, &rvm_codemap_strlookup(cg->codemap, "str_init")->index));
+	rvm_codegen_addins(cg, rvm_asmx(RVM_BL,  DA, XX, XX, &rvm_codemap_lookup_s(cg->codemap, "str_init")->index));
 	rvm_codegen_addins(cg, rvm_asmp(RVM_MOV, R7, R0, XX, 0));
 
 	rvm_codegen_addins(cg, rvm_asmp(RVM_MOV, R0, DA, XX, there));
 	rvm_codegen_addins(cg, rvm_asm(RVM_STS, R0, SP, DA, 1 + RVM_CODEGEN_FUNCINITOFFSET));
 	rvm_codegen_addins(cg, rvm_asml(RVM_MOV, R0, DA, XX, r_strlen(there)));
 	rvm_codegen_addins(cg, rvm_asm(RVM_STS, R0, SP, DA, 2 + RVM_CODEGEN_FUNCINITOFFSET));
-	rvm_codegen_addins(cg, rvm_asmx(RVM_BL,  DA, XX, XX, &rvm_codemap_strlookup(cg->codemap, "str_init")->index));
+	rvm_codegen_addins(cg, rvm_asmx(RVM_BL,  DA, XX, XX, &rvm_codemap_lookup_s(cg->codemap, "str_init")->index));
 	rvm_codegen_addins(cg, rvm_asmp(RVM_MOV, R8, R0, XX, 0));
 
 	rvm_codegen_addins(cg, rvm_asmp(RVM_MOV, R0, R7, XX, 0));
@@ -145,13 +145,13 @@ int main(int argc, char *argv[])
 	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, R8, XX, rvm_cpu_getswi(cpu, "unref")));	// unref
 	rvm_codegen_addins(cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
 
-	rvm_codegen_strfuncstart(cg, "str_init", 2);
+	rvm_codegen_funcstart_s(cg, "str_init", 2);
 	rvm_codegen_addins(cg, rvm_asm(RVM_LDS, R0, FP, DA, 1));
 	rvm_codegen_addins(cg, rvm_asm(RVM_LDS, R1, FP, DA, 2));
 	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, R0, R1, rvm_cpu_getswi(cpu, "str_init")));
 	rvm_codegen_funcend(cg);
 
-	rvm_codegen_strfuncstart(cg, "str_to_double", 1);
+	rvm_codegen_funcstart_s(cg, "str_to_double", 1);
 	rvm_codegen_addins(cg, rvm_asm(RVM_LDS, R0, FP, DA, 1));
 	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, R0, XX, rvm_cpu_getswi(cpu, "str_to_double")));
 	rvm_codegen_funcend(cg);

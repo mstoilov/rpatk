@@ -27,9 +27,9 @@ int main(int argc, char *argv[])
 	cpu = rvm_cpu_create();
 	ntable = rvmcpu_switable_add(cpu, switable);
 
-	rvm_codemap_invalid_stradd(cg->codemap, "add2");
-	rvm_codemap_invalid_stradd(cg->codemap, "add3");
-	rvm_codemap_invalid_stradd(cg->codemap, "varadd");
+	rvm_codemap_invalid_add_s(cg->codemap, "add2");
+	rvm_codemap_invalid_add_s(cg->codemap, "add3");
+	rvm_codemap_invalid_add_s(cg->codemap, "varadd");
 
 	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, R0, DA, XX, 7));
 	rvm_codegen_addins(cg, rvm_asm(RVM_STS, R0, SP, DA, 1 + RVM_CODEGEN_FUNCINITOFFSET));
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, R0, DA, XX, 9));
 	rvm_codegen_addins(cg, rvm_asm(RVM_STS, R0, SP, DA, 3 + RVM_CODEGEN_FUNCINITOFFSET));
 	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, R0, DA, XX, 3));
-	rvm_codegen_addins(cg, rvm_asmx(RVM_BL,  DA, XX, XX, &rvm_codemap_strlookup(cg->codemap, "add3")->index));
+	rvm_codegen_addins(cg, rvm_asmx(RVM_BL,  DA, XX, XX, &rvm_codemap_lookup_s(cg->codemap, "add3")->index));
 	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, XX, XX, RVM_SWI_ID(ntable, 0)));
 
 
@@ -51,34 +51,34 @@ int main(int argc, char *argv[])
 	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, R0, DA, XX, 4));
 	rvm_codegen_addins(cg, rvm_asm(RVM_STS, R0, SP, DA, 4 + RVM_CODEGEN_FUNCINITOFFSET));
 	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, R0, DA, XX, 4));
-	rvm_codegen_addins(cg, rvm_asmx(RVM_BL,  DA, XX, XX, &rvm_codemap_strlookup(cg->codemap, "varadd")->index));
+	rvm_codegen_addins(cg, rvm_asmx(RVM_BL,  DA, XX, XX, &rvm_codemap_lookup_s(cg->codemap, "varadd")->index));
 	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, XX, XX, RVM_SWI_ID(ntable, 0)));
 
 
 	rvm_codegen_addins(cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
 
-	rvm_codegen_strfuncstart(cg, "add2", 2);
+	rvm_codegen_funcstart_s(cg, "add2", 2);
 	rvm_codegen_addins(cg, rvm_asm(RVM_LDS, R0, FP, DA, 1));
 	rvm_codegen_addins(cg, rvm_asm(RVM_LDS, R1, FP, DA, 2));
 	rvm_codegen_addins(cg, rvm_asm(RVM_ADD, R0, R0, R1, 0));
 	rvm_codegen_funcend(cg);
 
-	rvm_codegen_strfuncstart(cg, "add3", 3);
+	rvm_codegen_funcstart_s(cg, "add3", 3);
 	rvm_codegen_addins(cg, rvm_asm(RVM_LDS, R0, FP, DA, 1));
 	rvm_codegen_addins(cg, rvm_asm(RVM_LDS, R1, FP, DA, 2));
 	rvm_codegen_addins(cg, rvm_asm(RVM_STS, R0, SP, DA, 1 + RVM_CODEGEN_FUNCINITOFFSET));
 	rvm_codegen_addins(cg, rvm_asm(RVM_STS, R1, SP, DA, 2 + RVM_CODEGEN_FUNCINITOFFSET));
 	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, R0, DA, XX, 2));
-	rvm_codegen_addins(cg, rvm_asmx(RVM_BL,  DA, XX, XX, &rvm_codemap_strlookup(cg->codemap, "add2")->index));
+	rvm_codegen_addins(cg, rvm_asmx(RVM_BL,  DA, XX, XX, &rvm_codemap_lookup_s(cg->codemap, "add2")->index));
 
 	rvm_codegen_addins(cg, rvm_asm(RVM_LDS, R1, FP, DA, 3));
 	rvm_codegen_addins(cg, rvm_asm(RVM_STS, R0, SP, DA, 1 + RVM_CODEGEN_FUNCINITOFFSET));
 	rvm_codegen_addins(cg, rvm_asm(RVM_STS, R1, SP, DA, 2 + RVM_CODEGEN_FUNCINITOFFSET));
 	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, R0, DA, XX, 2));
-	rvm_codegen_addins(cg, rvm_asmx(RVM_BL,  DA, XX, XX, &rvm_codemap_strlookup(cg->codemap, "add2")->index));
+	rvm_codegen_addins(cg, rvm_asmx(RVM_BL,  DA, XX, XX, &rvm_codemap_lookup_s(cg->codemap, "add2")->index));
 	rvm_codegen_funcend(cg);
 
-	rvm_codegen_vargs_strfuncstart(cg, "varadd");
+	rvm_codegen_vargs_funcstart_s(cg, "varadd");
 	rvm_codegen_addins(cg, rvm_asm(RVM_LDS, R7, FP, DA, -3));
 	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, R0, DA, XX, 0));
 	rvm_codegen_addins(cg, rvm_asm(RVM_CMP, R7, DA, XX, 0));

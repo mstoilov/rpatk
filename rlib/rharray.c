@@ -105,7 +105,7 @@ rint r_harray_add(rharray_t *harray, const rchar *name, ruint namesize, rconstpo
 }
 
 
-rint r_harray_stradd(rharray_t *harray, const rchar *name, rconstpointer pval)
+rint r_harray_add_s(rharray_t *harray, const rchar *name, rconstpointer pval)
 {
 	return r_harray_add(harray, name, r_strlen(name), pval);
 }
@@ -113,7 +113,7 @@ rint r_harray_stradd(rharray_t *harray, const rchar *name, rconstpointer pval)
 
 rint r_harray_set(rharray_t *harray, const rchar *name, ruint namesize, rconstpointer pval)
 {
-	rlong index = r_harray_lookup_index(harray, name, namesize);
+	rlong index = r_harray_lookupindex(harray, name, namesize);
 	if (index < 0)
 		return -1;
 	r_array_replace(harray->members, index, pval);
@@ -121,13 +121,13 @@ rint r_harray_set(rharray_t *harray, const rchar *name, ruint namesize, rconstpo
 }
 
 
-rint r_harray_strset(rharray_t *harray, const rchar *name, rconstpointer pval)
+rint r_harray_set_s(rharray_t *harray, const rchar *name, rconstpointer pval)
 {
 	return r_harray_set(harray, name, r_strlen(name), pval);
 }
 
 
-rlong r_harray_lookup_index(rharray_t *harray, const rchar *name, ruint namesize)
+rlong r_harray_lookupindex(rharray_t *harray, const rchar *name, ruint namesize)
 {
 	rulong found;
 
@@ -140,22 +140,22 @@ rlong r_harray_lookup_index(rharray_t *harray, const rchar *name, ruint namesize
 
 
 
-rlong r_harray_strlookup_index(rharray_t *harray, const rchar *name)
+rlong r_harray_lookupindex_s(rharray_t *harray, const rchar *name)
 {
-	return r_harray_lookup_index(harray, name, r_strlen(name));
+	return r_harray_lookupindex(harray, name, r_strlen(name));
 }
 
 
 rpointer r_harray_lookup(rharray_t *harray, const rchar *name, ruint namesize)
 {
-	rulong found = r_harray_lookup_index(harray, name, namesize);
+	rulong found = r_harray_lookupindex(harray, name, namesize);
 	if (found == R_HASH_INVALID_INDEXVAL)
 		return NULL;
 	return r_array_slot(harray->members, found);
 }
 
 
-rpointer r_harray_strlookup(rharray_t *harray, const rchar *name)
+rpointer r_harray_lookup_s(rharray_t *harray, const rchar *name)
 {
 	return r_harray_lookup(harray, name, r_strlen(name));
 }
