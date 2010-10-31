@@ -29,13 +29,13 @@ static void r_hash_node_destroy(rhash_node_t *node)
 }
 
 
-rhash_node_t *r_hash_node_lookup(rhash_t* hash, rhash_node_t *cur, rconstpointer key)
+rhash_node_t *r_hash_nodelookup(rhash_t* hash, rhash_node_t *cur, rconstpointer key)
 {
 	ruint nbucket = hash->hfunc(key) & r_hash_mask(hash);
 	rhash_node_t *node;
 	rlink_t *pos;
 
-	for (pos = cur ? cur : (&hash->buckets[nbucket])->next; pos != (&hash->buckets[nbucket]); pos = (pos)->next) {
+	for (pos = cur ? cur->lnk.next : (&hash->buckets[nbucket])->next; pos != (&hash->buckets[nbucket]); pos = (pos)->next) {
 		node = r_list_entry(pos, rhash_node_t, lnk);
 		if (hash->eqfunc(node->key, key)) {
 			return node;
@@ -173,7 +173,7 @@ void r_hash_remove(rhash_t* hash, rconstpointer key)
 {
 	rhash_node_t *node;
 
-	while ((node = r_hash_node_lookup(hash, NULL, key)) != NULL) {
+	while ((node = r_hash_nodelookup(hash, NULL, key)) != NULL) {
 		r_list_del(&node->lnk);
 		r_hash_node_destroy(node);
 	}
@@ -199,7 +199,7 @@ void r_hash_removeall(rhash_t* hash)
 
 rpointer r_hash_lookup(rhash_t* hash, rconstpointer key)
 {
-	rhash_node_t *node = r_hash_node_lookup(hash, NULL, key);
+	rhash_node_t *node = r_hash_nodelookup(hash, NULL, key);
 	if (node)
 		return node->value.ptr;
 	return NULL;
@@ -222,7 +222,7 @@ void r_hash_insert_indexval(rhash_t* hash, rconstpointer key, rulong index)
 
 rulong r_hash_lookup_indexval(rhash_t* hash, rconstpointer key)
 {
-	rhash_node_t *node = r_hash_node_lookup(hash, NULL, key);
+	rhash_node_t *node = r_hash_nodelookup(hash, NULL, key);
 	if (node)
 		return node->value.index;
 	return R_HASH_INVALID_INDEXVAL;

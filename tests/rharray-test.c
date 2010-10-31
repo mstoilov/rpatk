@@ -41,6 +41,7 @@ int main(int argc, char *argv[])
 	rvmreg_t ag, rh, rt;
 	rharray_t *na, *nc;
 	rvm_codegen_t *cg;
+	rhash_node_t *node;
 	rvmcpu_t *cpu;
 
 	cpu = rvm_cpu_create();
@@ -53,15 +54,17 @@ int main(int argc, char *argv[])
 
 	na = r_harray_create_rvmreg();
 	r_harray_add_s(na, "again", &ag);
+	r_harray_add_s(na, "again", &rh);
 	r_harray_add_s(na, "hello", &rh);
 	r_harray_add_s(na, "there", NULL);
-	r_harray_set(na, r_harray_lookupindex_s(na, "there"), &rt);
+	r_harray_set(na, r_harray_lookup_s(na, "there"), &rt);
 	nc = (rharray_t*)r_ref_copy(&na->ref);
 
-	fprintf(stdout, "lookup 'missing': %ld\n", r_harray_lookupindex_s(nc, "missing"));
-	fprintf(stdout, "lookup 'again': %ld\n", r_harray_lookupindex_s(nc, "again"));
-	fprintf(stdout, "lookup 'hello': %ld\n", r_harray_lookupindex_s(nc, "hello"));
-	fprintf(stdout, "lookup 'there': %ld\n", r_harray_lookupindex_s(nc, "there"));
+	fprintf(stdout, "lookup 'missing': %ld\n", r_harray_lookup_s(nc, "missing"));
+	for (node = r_harray_nodelookup_s(nc, NULL, "again"); node; node = r_harray_nodelookup_s(nc, node, "again"))
+		fprintf(stdout, "lookup 'again': %ld\n", r_hash_indexval(node));
+	fprintf(stdout, "lookup 'hello': %ld\n", r_harray_lookup_s(nc, "hello"));
+	fprintf(stdout, "lookup 'there': %ld\n", r_harray_lookup_s(nc, "there"));
 
 	/*
 	 * Load the content of rh to R0
@@ -71,11 +74,11 @@ int main(int argc, char *argv[])
 	/*
 	 * Lookup the array member "again" and load the content to R1
 	 */
-	rvm_codegen_addins(cg, rvm_asmp(RVM_LDRR, R1, DA, XX, r_harray_lookup_s(nc, "again")));
+	rvm_codegen_addins(cg, rvm_asmp(RVM_LDRR, R1, DA, XX, r_harray_get(nc, r_harray_lookup_s(nc, "again"))));
 	/*
 	 * Lookup the array member "again" and load the content to R2
 	 */
-	rvm_codegen_addins(cg, rvm_asmp(RVM_LDRR, R2, DA, XX, r_harray_lookup_s(nc, "there")));
+	rvm_codegen_addins(cg, rvm_asmp(RVM_LDRR, R2, DA, XX, r_harray_get(nc, r_harray_lookup_s(nc, "there"))));
 
 	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, R0, XX, rvm_cpu_getswi(cpu, "print")));	// print
 	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, R1, XX, rvm_cpu_getswi(cpu, "print")));	// print
