@@ -46,8 +46,8 @@ rulong r_hash_indexval(rhash_node_t *node);
 
 ruint r_hash_strhash(rconstpointer key);
 rboolean r_hash_strequal(rconstpointer key1, rconstpointer key2);
-ruint r_hash_strnhash(rconstpointer key);
-rboolean r_hash_strnequal(rconstpointer key1, rconstpointer key2);
+ruint r_hash_rstrhash(rconstpointer key);
+rboolean r_hash_rstrequal(rconstpointer key1, rconstpointer key2);
 
 
 #ifdef __cplusplus

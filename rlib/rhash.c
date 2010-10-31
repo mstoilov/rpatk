@@ -63,7 +63,7 @@ rboolean r_hash_strequal(rconstpointer key1, rconstpointer key2)
 }
 
 
-ruint r_hash_strnhash(rconstpointer key)
+ruint r_hash_rstrhash(rconstpointer key)
 {
 	const rstr_t *k = (const rstr_t *)key;
 	const rchar *str = (const rchar*) k->str;
@@ -78,7 +78,7 @@ ruint r_hash_strnhash(rconstpointer key)
 }
 
 
-rboolean r_hash_strnequal(rconstpointer key1, rconstpointer key2)
+rboolean r_hash_rstrequal(rconstpointer key1, rconstpointer key2)
 {
 	const rstr_t *k1 = (const rstr_t *)key1;
 	const rstr_t *k2 = (const rstr_t *)key2;
