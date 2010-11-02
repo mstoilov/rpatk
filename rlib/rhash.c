@@ -111,7 +111,7 @@ rhash_t *r_hash_create(ruint nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfun
 		r_hash_destroy(hash);
 		return NULL;
 	}
-	r_ref_init(&hash->ref, 1, RREF_TYPE_NONE, r_refstub_destroy, r_refstub_copy);
+	r_ref_init(&hash->ref, 1, RREF_TYPE_COW, r_refstub_destroy, r_refstub_copy);
 	return hash;
 }
 

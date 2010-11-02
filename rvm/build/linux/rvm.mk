@@ -5,6 +5,7 @@ RVM_SO = $(OUTDIR)/librvm.so.1.0
 CFLAGS += -I$(RVM_SRCDIR)/config -I$(SRCDIR)/rlib
 
 RVM_OBJECTS =	\
+	$(OUTDIR)/rrefreg.o \
 	$(OUTDIR)/rvmcpu.o \
 	$(OUTDIR)/rvmoperator.o \
 	$(OUTDIR)/rvmoperatorcat.o \

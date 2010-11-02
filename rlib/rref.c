@@ -1,7 +1,7 @@
 #include "rref.h"
 
 
-void r_ref_init(rref_t *ref, ruint32 count, ruint32 type, r_ref_destroyfun destroy, r_ref_copyfun copy)
+void r_ref_init(rref_t *ref, ruint32 count, rref_type_t type, r_ref_destroyfun destroy, r_ref_copyfun copy)
 {
 	ref->count = count;
 	ref->type = type;
@@ -51,4 +51,16 @@ rref_t *r_ref_copy(const rref_t *ref)
 	if (ref->copy)
 		return ref->copy(ref);
 	return NULL;
+}
+
+
+void r_ref_typeset(rref_t *ref, rref_type_t type)
+{
+	ref->type = type;
+}
+
+
+rref_type_t r_ref_typeget(rref_t *ref)
+{
+	return ref->type;
 }

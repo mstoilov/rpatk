@@ -84,7 +84,7 @@ rharray_t *r_harray_create(ruint elt_size)
 	harray->names->ondestroy = r_array_ondestroy_rstr;
 	harray->names->oncopy = r_array_oncopy_rstr;
 	harray->hash = r_hash_create(5, r_hash_rstrequal, r_hash_rstrhash);
-	r_ref_init(&harray->ref, 1, RREF_TYPE_NONE, r_refstub_destroy, r_refstub_copy);
+	r_ref_init(&harray->ref, 1, RREF_TYPE_COW, r_refstub_destroy, r_refstub_copy);
 	return harray;
 }
 
@@ -105,7 +105,7 @@ rharray_t *r_harray_copy(const rharray_t *src)
 		n = r_array_index(harray->names, i, rstr_t*);
 		r_hash_insert_indexval(harray->hash, (rconstpointer)n, i);
 	}
-	r_ref_init(&harray->ref, 1, RREF_TYPE_NONE, r_refstub_destroy, r_refstub_copy);
+	r_ref_init(&harray->ref, 1, RREF_TYPE_COW, r_refstub_destroy, r_refstub_copy);
 	return harray;
 }
 

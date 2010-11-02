@@ -96,16 +96,17 @@ enum {
 
 
 #define RVM_DTYPE_WORD 0
-#define RVM_DTYPE_POINTER 1
-#define RVM_DTYPE_LONG 2
-#define RVM_DTYPE_DOUBLE 3
-#define RVM_DTYPE_BOOLEAN 4
-#define RVM_DTYPE_OBJECT 5
-#define RVM_DTYPE_STRING 6
-#define RVM_DTYPE_ARRAY 7
-#define RVM_DTYPE_HARRAY 8
-#define RVM_DTYPE_RELOCPTR 14
-#define RVM_DTYPE_RELOCINDEX 15
+#define RVM_DTYPE_LONG 1
+#define RVM_DTYPE_DOUBLE 2
+#define RVM_DTYPE_BOOLEAN 3
+#define RVM_DTYPE_OBJECT 4
+#define RVM_DTYPE_STRING 5
+#define RVM_DTYPE_ARRAY 6
+#define RVM_DTYPE_HARRAY 7
+#define RVM_DTYPE_REFPTR 8			/* Reference pointer, points to another rvmreg_t value */
+#define RVM_DTYPE_POINTER 9			/* Generic pointer, it can point to any memory object */
+#define RVM_DTYPE_RELOCPTR 14		/* Relocation, using pointers */
+#define RVM_DTYPE_RELOCINDEX 15		/* Relocation, using offsets */
 #define RVM_DTYPE_USER 16
 #define RVM_DTYPE_SIZE (1 << 5)
 #define RVM_DTYPE_MASK (RVM_DTYPE_SIZE - 1)
@@ -194,10 +195,10 @@ do { \
 #define RVM_CPUREG_SETIP(__cpu__, __r__, __val__) RVM_REG_SETIP(RVM_CPUREG_PTR(__cpu__, __r__), __val__)
 #define RVM_CPUREG_INCIP(__cpu__, __r__, __val__) do {rvm_asmins_t *p = RVM_CPUREG_GETIP(__cpu__, __r__); (__cpu__)->r[(__r__)].v.p = (rpointer)(p + (__val__)); } while (0)
 
-#define RVM_REG_SETPVAL(__r__, __val__, __info__) do { (__r__)->v.p = (rpointer)(__val__); rvm_reg_setinfo((__r__), __info__);} while (0)
-#define RVM_REG_SETSTR(__r__, val) do { (__r__)->v.p = (rpointer)(val); rvm_reg_setinfo((__r__), RVM_INFOBIT_REFOBJECT|RVM_DTYPE_STRING);} while (0)
-#define RVM_REG_SETARRAY(__r__, val) do { (__r__)->v.p = (rpointer)(val); rvm_reg_setinfo((__r__), RVM_INFOBIT_REFOBJECT|RVM_DTYPE_ARRAY);} while (0)
-#define RVM_REG_SETHARRAY(__r__, val) do { (__r__)->v.p = (rpointer)(val); rvm_reg_setinfo((__r__), RVM_INFOBIT_REFOBJECT|RVM_DTYPE_HARRAY);} while (0)
+#define RVM_REG_SETPVAL(__r__, __ptr__, __info__) do { (__r__)->v.p = (rpointer)(__ptr__); rvm_reg_setinfo((__r__), __info__);} while (0)
+#define RVM_REG_SETSTR(__r__, __ptr__) do { RVM_REG_SETPVAL((__r__), (__ptr__), RVM_INFOBIT_REFOBJECT|RVM_DTYPE_STRING);} while (0)
+#define RVM_REG_SETARRAY(__r__, __ptr__) do { RVM_REG_SETPVAL((__r__), (__ptr__), RVM_INFOBIT_REFOBJECT|RVM_DTYPE_ARRAY);} while (0)
+#define RVM_REG_SETHARRAY(__r__, __ptr__) do { RVM_REG_SETPVAL((__r__), (__ptr__), RVM_INFOBIT_REFOBJECT|RVM_DTYPE_HARRAY);} while (0)
 
 #define RVM_REG_INFO(__r__) (__r__)->info
 #define RVM_REG_SIZE(__r__) (__r__)->size

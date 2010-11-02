@@ -99,7 +99,7 @@ rstring_t *r_string_create()
 		r_string_destroy(string);
 		return NULL;
 	}
-	r_ref_init(&string->ref, 1, RREF_TYPE_NONE, r_refstub_destroy, r_refstub_copy);
+	r_ref_init(&string->ref, 1, RREF_TYPE_COW, r_refstub_destroy, r_refstub_copy);
 	return string;
 
 }

@@ -70,7 +70,7 @@ rarray_t *r_array_create(ruint elt_size)
 		r_array_destroy(array);
 		return NULL;
 	}
-	r_ref_init(&array->ref, 1, RREF_TYPE_NONE, r_refstub_destroy, r_refstub_copy);
+	r_ref_init(&array->ref, 1, RREF_TYPE_COW, r_refstub_destroy, r_refstub_copy);
 	return array;
 }
 
