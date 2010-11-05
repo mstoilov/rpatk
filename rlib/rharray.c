@@ -25,15 +25,15 @@
  *
  */
 
-static void r_refstub_destroy(rref_t *ref)
+static void r_objectstub_destroy(robject_t *ptr)
 {
-	r_harray_destroy((rharray_t*)ref);
+	r_harray_destroy((rharray_t*)ptr);
 }
 
 
-static rref_t *r_refstub_copy(const rref_t *ptr)
+static robject_t *r_objectstub_copy(const robject_t *ptr)
 {
-	return (rref_t*) r_harray_copy((const rharray_t*)ptr);
+	return (robject_t*) r_harray_copy((const rharray_t*)ptr);
 }
 
 /*
@@ -84,7 +84,7 @@ rharray_t *r_harray_create(ruint elt_size)
 	harray->names->ondestroy = r_array_ondestroy_rstr;
 	harray->names->oncopy = r_array_oncopy_rstr;
 	harray->hash = r_hash_create(5, r_hash_rstrequal, r_hash_rstrhash);
-	r_ref_init(&harray->ref, 1, RREF_TYPE_COW, r_refstub_destroy, r_refstub_copy);
+	r_object_init(&harray->obj, R_OBJECT_HARRAY, r_objectstub_destroy, r_objectstub_copy);
 	return harray;
 }
 
@@ -105,7 +105,7 @@ rharray_t *r_harray_copy(const rharray_t *src)
 		n = r_array_index(harray->names, i, rstr_t*);
 		r_hash_insert_indexval(harray->hash, (rconstpointer)n, i);
 	}
-	r_ref_init(&harray->ref, 1, RREF_TYPE_COW, r_refstub_destroy, r_refstub_copy);
+	r_object_init(&harray->obj, R_OBJECT_HARRAY, r_objectstub_destroy, r_objectstub_copy);
 	return harray;
 }
 

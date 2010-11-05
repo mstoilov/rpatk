@@ -1,4 +1,5 @@
 #include "rvmoperatoradd.h"
+#include "rvmreg.h"
 
 
 void rvm_op_add_long_long(rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)

@@ -10,6 +10,7 @@ LIBS += -lrvm -lrlib -lpthread --static
 
 
 TESTS	= \
+	$(OUTDIR)/funcarg-test \
 	$(OUTDIR)/codegen-test \
 	$(OUTDIR)/codemap-test \
 	$(OUTDIR)/opmap-test \

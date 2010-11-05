@@ -4,6 +4,7 @@
 #include "rstring.h"
 #include "rmem.h"
 
+
 rint r_strcmp(const rchar *s1, const rchar *s2)
 {
 	return strcmp(s1, s2);
@@ -78,15 +79,15 @@ rstr_t *r_rstrdup(const rchar *s, ruint size)
 }
 
 
-static void r_refstub_destroy(rref_t *ref)
+static void r_objectstub_destroy(robject_t *ptr)
 {
-	r_string_destroy((rstring_t*)ref);
+	r_string_destroy((rstring_t*)ptr);
 }
 
 
-static rref_t *r_refstub_copy(const rref_t *ptr)
+static robject_t *r_objectstub_copy(const robject_t *ptr)
 {
-	return (rref_t*) r_string_copy((const rstring_t*)ptr);
+	return (robject_t*) r_string_copy((const rstring_t*)ptr);
 }
 
 
@@ -99,7 +100,7 @@ rstring_t *r_string_create()
 		r_string_destroy(string);
 		return NULL;
 	}
-	r_ref_init(&string->ref, 1, RREF_TYPE_COW, r_refstub_destroy, r_refstub_copy);
+	r_object_init(&string->obj, R_OBJECT_STRING, r_objectstub_destroy, r_objectstub_copy);
 	return string;
 
 }

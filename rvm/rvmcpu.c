@@ -997,7 +997,7 @@ rvm_asmins_t rvm_asmd(rword opcode, rword op1, rword op2, rword op3, rdouble dat
 	a.op2 = (unsigned char)op2;
 	a.op3 = (unsigned char)op3;
 	RVM_REG_GETD(&a.data) = data;
-	rvm_reg_settype(&a.data, RVM_DTYPE_DOUBLE);
+	RVM_REG_SETTYPE(&a.data, RVM_DTYPE_DOUBLE);
 	return a;
 }
 
@@ -1012,7 +1012,7 @@ rvm_asmins_t rvm_asmp(rword opcode, rword op1, rword op2, rword op3, rpointer da
 	a.op2 = (unsigned char)op2;
 	a.op3 = (unsigned char)op3;
 	RVM_REG_GETP(&a.data) = data;
-	rvm_reg_settype(&a.data, RVM_DTYPE_POINTER);
+	RVM_REG_SETTYPE(&a.data, RVM_DTYPE_POINTER);
 	return a;
 }
 
@@ -1027,7 +1027,7 @@ rvm_asmins_t rvm_asmu(rword opcode, rword op1, rword op2, rword op3, rword data)
 	a.op2 = (unsigned char)op2;
 	a.op3 = (unsigned char)op3;
 	RVM_REG_GETU(&a.data) = data;
-	rvm_reg_settype(&a.data, RVM_DTYPE_WORD);
+	RVM_REG_SETTYPE(&a.data, RVM_DTYPE_WORD);
 	return a;
 }
 
@@ -1042,7 +1042,7 @@ rvm_asmins_t rvm_asml(rword opcode, rword op1, rword op2, rword op3, rlong data)
 	a.op2 = (unsigned char)op2;
 	a.op3 = (unsigned char)op3;
 	RVM_REG_GETL(&a.data) = (rword)data;
-	rvm_reg_settype(&a.data, RVM_DTYPE_LONG);
+	RVM_REG_SETTYPE(&a.data, RVM_DTYPE_LONG);
 	return a;
 }
 
@@ -1063,7 +1063,7 @@ rvm_asmins_t rvm_asmr(rword opcode, rword op1, rword op2, rword op3, rpointer pR
 	a.op2 = (unsigned char)op2;
 	a.op3 = (unsigned char)op3;
 	RVM_REG_GETP(&a.data) = pReloc;
-	rvm_reg_settype(&a.data, RVM_DTYPE_RELOCPTR);
+	RVM_REG_SETTYPE(&a.data, RVM_DTYPE_RELOCPTR);
 	return a;
 }
 
@@ -1078,7 +1078,7 @@ rvm_asmins_t rvm_asmx(rword opcode, rword op1, rword op2, rword op3, rpointer pR
 	a.op2 = (unsigned char)op2;
 	a.op3 = (unsigned char)op3;
 	RVM_REG_GETP(&a.data) = pReloc;
-	rvm_reg_settype(&a.data, RVM_DTYPE_RELOCINDEX);
+	RVM_REG_SETTYPE(&a.data, RVM_DTYPE_RELOCINDEX);
 	return a;
 }
 
@@ -1096,69 +1096,14 @@ void rvm_relocate(rvm_asmins_t *code, rsize_t size)
 	rulong off;
 
 	for (off = 0; off < size; off++, code++) {
-		if (RVM_REG_INFO(&code->data) == RVM_DTYPE_RELOCPTR) {
-			RVM_REG_INFO(&code->data) = 0;
+		if (RVM_REG_GETTYPE(&code->data) == RVM_DTYPE_RELOCPTR) {
+			RVM_REG_SETTYPE(&code->data, RVM_DTYPE_NONE);
 			reloc = *((rvm_asmins_t **)RVM_REG_GETP(&code->data));
 			RVM_REG_GETU(&code->data) = reloc - code;
-		} else if (RVM_REG_INFO(&code->data) == RVM_DTYPE_RELOCINDEX) {
-			RVM_REG_INFO(&code->data) = 0;
+		} else if (RVM_REG_GETTYPE(&code->data) == RVM_DTYPE_RELOCINDEX) {
+			RVM_REG_SETTYPE(&code->data, RVM_DTYPE_NONE);
 			relocindex = *((rulong *)RVM_REG_GETP(&code->data));
 			RVM_REG_GETU(&code->data) = relocindex - off;
 		}
 	}
-}
-
-
-void rvm_reg_settype(rvmreg_t *r, ruint type)
-{
-	r->info &= ~RVM_DTYPE_MASK;
-	r->info |= type & RVM_DTYPE_MASK;
-}
-
-
-ruint rvm_reg_gettype(rvmreg_t *r)
-{
-	return (r->info & RVM_DTYPE_MASK);
-}
-
-
-void rvm_reg_setinfo(rvmreg_t *r, ruint info)
-{
-	r->info = info;
-}
-
-
-ruint rvm_reg_getinfo(rvmreg_t *r)
-{
-	return r->info;
-}
-
-
-rboolean rvm_reg_flagtst(rvmreg_t *r, ruint32 flag)
-{
-	return (r->info & flag) ? TRUE : FALSE;
-}
-
-
-void rvm_reg_flagset(rvmreg_t *r, ruint32 flag)
-{
-	r->info |= flag;
-}
-
-
-void rvm_reg_flagclr(rvmreg_t *r, ruint32 flag)
-{
-	r->info &= ~flag;
-}
-
-
-void rvm_reg_setlong(rvmreg_t *r, rlong l)
-{
-	RVM_REG_SETL(r, l);
-}
-
-
-void rvm_reg_setdouble(rvmreg_t *r, rdouble d)
-{
-	RVM_REG_SETD(r, d);
 }

@@ -83,7 +83,7 @@ void rvm_opmap_invoke_binary_handler(rvm_opmap_t *opmap, rushort opid, rvmcpu_t 
 {
 	rvm_ophandler_t *h;
 	rvm_opinfo_t *opinfo;
-	ruint index = RVM_OP_HANDLER(arg1->info & RVM_DTYPE_MASK, arg2->info & RVM_DTYPE_MASK);
+	ruint index = RVM_OP_HANDLER(RVM_REG_GETTYPE(arg1), RVM_REG_GETTYPE(arg2));
 
 	if (opid >= opmap->operators->len)
 		goto error;
@@ -104,7 +104,7 @@ void rvm_opmap_invoke_unary_handler(rvm_opmap_t *opmap, rushort opid, rvmcpu_t *
 {
 	rvm_ophandler_t *h;
 	rvm_opinfo_t *opinfo;
-	ruint index = RVM_UNARY_HANDLER(arg->info & RVM_DTYPE_MASK);
+	ruint index = RVM_UNARY_HANDLER(RVM_REG_GETTYPE(arg));
 
 	if (opid >= opmap->operators->len)
 		goto error;

@@ -37,15 +37,15 @@ void r_array_destroy(rarray_t *array)
 }
 
 
-static void r_refstub_destroy(rref_t *ref)
+static void r_objectstub_destroy(robject_t *ptr)
 {
-	r_array_destroy((rarray_t*)ref);
+	r_array_destroy((rarray_t*)ptr);
 }
 
 
-static rref_t *r_refstub_copy(const rref_t *ptr)
+static robject_t *r_objectstub_copy(const robject_t *ptr)
 {
-	return (rref_t*) r_array_copy((const rarray_t*)ptr);
+	return (robject_t*) r_array_copy((const rarray_t*)ptr);
 }
 
 
@@ -70,7 +70,7 @@ rarray_t *r_array_create(ruint elt_size)
 		r_array_destroy(array);
 		return NULL;
 	}
-	r_ref_init(&array->ref, 1, RREF_TYPE_COW, r_refstub_destroy, r_refstub_copy);
+	r_object_init(&array->obj, R_OBJECT_ARRAY, r_objectstub_destroy, r_objectstub_copy);
 	return array;
 }
 

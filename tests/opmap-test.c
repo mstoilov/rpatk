@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "rvmcpu.h"
+#include "rvmreg.h"
 #include "rvmoperator.h"
 #include "rvmoperatoradd.h"
 #include "rvmoperatorsub.h"

@@ -87,15 +87,15 @@ rboolean r_hash_rstrequal(rconstpointer key1, rconstpointer key2)
 }
 
 
-static void r_refstub_destroy(rref_t *ref)
+static void r_objectstub_destroy(robject_t *ptr)
 {
-	r_hash_destroy((rhash_t*)ref);
+	r_hash_destroy((rhash_t*)ptr);
 }
 
 
-static rref_t *r_refstub_copy(const rref_t *ptr)
+static robject_t *r_objectstub_copy(const robject_t *ptr)
 {
-	return (rref_t*) r_hash_copy((const rhash_t*)ptr);
+	return (robject_t*) r_hash_copy((const rhash_t*)ptr);
 }
 
 
@@ -111,7 +111,7 @@ rhash_t *r_hash_create(ruint nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfun
 		r_hash_destroy(hash);
 		return NULL;
 	}
-	r_ref_init(&hash->ref, 1, RREF_TYPE_COW, r_refstub_destroy, r_refstub_copy);
+	r_object_init(&hash->obj, R_OBJECT_HASH, r_objectstub_destroy, r_objectstub_copy);
 	return hash;
 }
 

@@ -3,6 +3,7 @@
 
 
 #include "rtypes.h"
+#include "robject.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,7 +32,7 @@ rstr_t *r_rstrdup(const rchar *s, ruint size);
 
 
 typedef struct rstring_s {
-	rref_t ref;
+	robject_t obj;
 	rstr_t s;
 } rstring_t;
 

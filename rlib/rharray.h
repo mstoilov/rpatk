@@ -5,7 +5,7 @@
 #include "rarray.h"
 #include "rhash.h"
 #include "rstring.h"
-#include "rref.h"
+#include "robject.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -14,7 +14,7 @@ extern "C" {
 
 
 typedef struct rharray_s {
-	rref_t ref;
+	robject_t obj;
 	rarray_t *members;
 	rarray_t *names;
 	rhash_t *hash;

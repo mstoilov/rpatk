@@ -4,6 +4,7 @@
 #include "rstring.h"
 #include "rmem.h"
 #include "rvmcpu.h"
+#include "rvmreg.h"
 #include "rvmoperator.h"
 #include "rvmoperatoradd.h"
 #include "rvmoperatorsub.h"
@@ -39,19 +40,13 @@ static void test_swi_print_r(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void test_swi_strinit(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	char *p = (char*) RVM_CPUREG_GETP(cpu, ins->op2);
-	long size = RVM_CPUREG_GETL(cpu, ins->op3);
-	rstr_t str = {p, size};
-	RVM_CPUREG_SETP(cpu, R0, (void*)r_string_create_from_rstr(&str));
-	rvm_reg_flagset(RVM_CPUREG_PTR(cpu, R0), RVM_INFOBIT_REFOBJECT);
-	rvm_reg_settype(RVM_CPUREG_PTR(cpu, R0), RVM_DTYPE_STRING);
+
 }
 
 
 static void test_swi_unref(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	if (rvm_reg_flagtst(RVM_CPUREG_PTR(cpu, ins->op2), RVM_INFOBIT_REFOBJECT))
-		r_ref_dec((rref_t*)RVM_CPUREG_GETP(cpu, ins->op2));
+
 }
 
 
