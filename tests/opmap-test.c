@@ -101,8 +101,8 @@ int main(int argc, char *argv[])
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_DIV, rvm_op_div_long_long, RVM_DTYPE_LONG, RVM_DTYPE_LONG);
 
 	ntable = rvmcpu_switable_add(cpu, switable);
-	code[off++] = rvm_asmd(RVM_MOV, R1, DA, XX, 1);
-	code[off++] = rvm_asml(RVM_MOV, R2, DA, XX, 3.2);
+	code[off++] = rvm_asm(RVM_MOV, R1, DA, XX, 1);
+	code[off++] = rvm_asm(RVM_MOV, R2, DA, XX, 3);
 //	code[off++] = rvm_asm(RVM_SWI, DA, XX, XX, RVM_SWI_ID(ntable, 1));			// mul
 	code[off++] = rvm_asm(RVM_MOV, R0, DA, XX, rvm_cpu_getswi(cpu, "add"));		// add
 	code[off++] = rvm_asm(RVM_SWI, R0, R1, R2, 0);

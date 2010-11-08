@@ -58,10 +58,11 @@ void rvm_opmap_add_unary_operator(rvm_opmap_t *opmap, rushort opid)
 rint rvm_opmap_set_binary_handler(rvm_opmap_t *opmap, rushort opid, rvm_binaryop_handler func, ruchar firstType, ruchar secondType)
 {
 	rvm_ophandler_t *h;
+	ruint index = RVM_OP_HANDLER(firstType, secondType);
 	rvm_opinfo_t *opinfo = ((rvm_opinfo_t*)r_array_slot(opmap->operators, opid));
 	if (!opinfo->handlers)
 		return -1;
-	h = &opinfo->handlers[RVM_OP_HANDLER(firstType, secondType)];
+	h = &opinfo->handlers[index];
 	h->op = func;
 	return 0;
 }

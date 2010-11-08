@@ -92,11 +92,31 @@ enum {
 	RVM_POPM,
 	RVM_TST,
 	RVM_TEQ,
+
+/* Extended VM opcodes, */
+	ERVM_CAST,		/* Cast: op1 = (op3)op2 */
+	ERVM_TYPE,		/* Type: op1 = typeof(op2) */
+	ERVM_MOV,
+	ERVM_ADD,
+	ERVM_ADDS,		/* Add: op1 = op2 + op3, update the status register */
+	ERVM_ADC,		/* Add: op1 = op2 + op3 + C, update the status register */
+	ERVM_AND,		/* Bitwise AND: op1 = op2 & op3, update status register */
+	ERVM_EOR,		/* XOR: op1 = op2 ^ op3, update the status register */
+	ERVM_SUB,
+	ERVM_SUBS,
+	ERVM_SBC,
+	ERVM_MUL,
+	ERVM_MLS,		/* Signed multiplication: op1 = op2 * op3 */
+	ERVM_MULS,
+	ERVM_DIV,		/* Divide: op1 = op2 / op3 */
+	ERVM_DVS,		/* Signed division: op1 = op2 / op3 */
+	ERVM_DIVS,		/* Divide: op1 = op2 / op3, Update the status register */
 };
 
 
 #define RVM_DTYPE_NONE 0
 #define RVM_DTYPE_WORD RVM_DTYPE_NONE
+#define RVM_DTYPE_UNSIGNED RVM_DTYPE_NONE
 #define RVM_DTYPE_LONG 1
 #define RVM_DTYPE_DOUBLE 2
 #define RVM_DTYPE_BOOLEAN 3
@@ -158,12 +178,12 @@ do { \
 #define SP R13
 #define LR R14
 #define PC R15
-#define DA 16
+#define DA 16		/* The DA register should never be modified manually, otherwise the result is undefined */
 #define RLST 16
 #define XX 255
 
 #define RVM_STACK_CHUNK 256
-#define RVM_ABORT(__cpu__, __e__) do { __cpu__->error = (__e__); (__cpu__)->abort = 1; return; } while (0)
+#define RVM_ABORT(__cpu__, __e__) do { __cpu__->error = (__e__); (__cpu__)->abort = 1; ASSERT(0); return; } while (0)
 #define BIT(__shiftby__) (1 << (__shiftby__))
 
 #define RVM_CPUREG_PTR(__cpu__, __r__) (&(__cpu__)->r[(__r__)])
@@ -172,13 +192,13 @@ do { \
 
 #define RVM_REG_GETTYPE(__r__) (__r__)->type
 #define RVM_REG_SETTYPE(__r__, __val__) do { (__r__)->type = (__val__); } while(0);
-#define RVM_CPUREG_GETTYPE(__cpu__, __r__) RVM_CPUREG_GETTYPE(RVM_CPUREG_PTR(__cpu__, __r__))
+#define RVM_CPUREG_GETTYPE(__cpu__, __r__) RVM_REG_GETTYPE(RVM_CPUREG_PTR(__cpu__, __r__))
 #define RVM_CPUREG_SETTYPE(__cpu__, __r__, __val__) RVM_REG_SETTYPE(RVM_CPUREG_PTR(__cpu__, __r__), __val__)
 
 #define RVM_REG_TSTFLAG(__r__, __flag__) ((__r__)->flags & (__flag__)) ? TRUE : FALSE
 #define RVM_REG_SETFLAG(__r__, __flag__) do { (__r__)->flags |= (__flag__); } while (0)
 #define RVM_REG_CLRFLAG(__r__, __flag__) do { (__r__)->flags &= ~(__flag__); } while (0)
-#define RVM_CPUREG_GETFLAG(__cpu__, __r__, __flag__) RVM_REG_TSTFLAG(RVM_CPUREG_PTR(__cpu__, __r__), __flag__)
+#define RVM_CPUREG_TSTFLAG(__cpu__, __r__, __flag__) RVM_REG_TSTFLAG(RVM_CPUREG_PTR(__cpu__, __r__), __flag__)
 #define RVM_CPUREG_SETFLAG(__cpu__, __r__, __flag__) RVM_REG_SETFLAG(RVM_CPUREG_PTR(__cpu__, __r__), __flag__)
 #define RVM_CPUREG_CLRFLAG(__cpu__, __r__, __flag__) RVM_REG_CLRFLAG(RVM_CPUREG_PTR(__cpu__, __r__), __flag__)
 
@@ -212,17 +232,20 @@ do { \
 //#define RVM_REG_REF(__r__) do { if (rvm_reg_gettype(__r__) == RVM_DTYPE_REFREG) r_ref_inc((rref_t*)RVM_REG_GETP(__r__));} while (0)
 //#define RVM_REG_UNREF(__r__) do { if (rvm_reg_gettype(__r__) == RVM_DTYPE_REFREG) r_ref_dec((rref_t*)RVM_REG_GETP(__r__));} while (0)
 #define RVM_REG_CLEAR(__r__) do { (__r__)->v.w = 0UL; (__r__)->type = 0; (__r__)->flags = 0;  } while (0)
+#define RVM_CPUREG_CLEAR(__cpu__, __r__) RVM_REG_CLEAR(RVM_CPUREG_PTR(__cpu__, __r__))
+
 
 #define RVM_SWI_TABLE(__op__) ((__op__) >> 16)
 #define RVM_SWI_NUM(__op__) ((__op__) & ((1 << 16) - 1))
 #define RVM_SWI_ID(__t__, __o__) ((((__t__) & ((1 << 16) - 1))  << 16) | ((__o__) & ((1 << 16) - 1)))
 
 
-#define RVM_E_DIVZERO  (1)
-#define RVM_E_ILLEGAL  (2)
-#define RVM_E_SWINUM   (3)
-#define RVM_E_SWITABLE (4)
-
+#define RVM_E_DIVZERO		(1)
+#define RVM_E_ILLEGAL		(2)
+#define RVM_E_CAST			(3)
+#define RVM_E_SWINUM		(4)
+#define RVM_E_SWITABLE		(5)
+#define RVM_E_ILLEGALDST	(6)
 
 typedef struct rvm_asmins_s rvm_asmins_t;
 typedef struct rvmcpu_s rvmcpu_t;
@@ -235,6 +258,9 @@ typedef struct rvm_switable_s {
 } rvm_switable_t;
 
 
+typedef ruint16 rvmreg_type_t;
+typedef ruint16 rvmreg_flags_t;
+
 typedef struct rvmreg_s {
 	union {
 		rword w;
@@ -243,20 +269,24 @@ typedef struct rvmreg_s {
 		rdouble d;
 		ruint8 c[RVM_MIN_REGSIZE];
 	} v;
-	ruint16 type;
-	ruint16 flags;
+	rvmreg_type_t type;
+	rvmreg_flags_t flags;
 	ruint32 size;
 } rvmreg_t;
 
+#define RVM_ASMINS_RELOC (1 << 0)
+#define RVM_ASMINS_RELOCPTR (1 << 1)
 
 struct rvm_asmins_s {
 	ruint8 opcode;
-	ruint8 op1;
-	ruint8 op2;
-	ruint8 op3;
-	rvmreg_t data;	
+	ruint8 flags;
+	ruint16 op1:5;
+	ruint16 op2:5;
+	ruint16 op3:5;
+	rword data;
 };
 
+struct rvm_opmap_s;
 
 struct rvmcpu_s {
 	rvmreg_t r[DA + 1];
@@ -265,6 +295,7 @@ struct rvmcpu_s {
 	rword abort;
 	rarray_t *switables;
 	rarray_t *stack;
+	struct rvm_opmap_s *opmap;
 	void *userdata;
 };
 
@@ -277,13 +308,10 @@ rint rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off);
 rint rvm_cpu_getswi(rvmcpu_t *cpu, const rchar *swiname);
 void rvm_relocate(rvm_asmins_t *code, rsize_t size);
 rvm_asmins_t rvm_asm(rword opcode, rword op1, rword op2, rword op3, rword data);
-rvm_asmins_t rvm_asmi(rword opcode, rword op1, rword op2, rword op3, rint data);
 rvm_asmins_t rvm_asml(rword opcode, rword op1, rword op2, rword op3, rlong data);
-rvm_asmins_t rvm_asmu(rword opcode, rword op1, rword op2, rword op3, rword data);
 rvm_asmins_t rvm_asmp(rword opcode, rword op1, rword op2, rword op3, rpointer data);
 rvm_asmins_t rvm_asmr(rword opcode, rword op1, rword op2, rword op3, rpointer pReloc);
 rvm_asmins_t rvm_asmx(rword opcode, rword op1, rword op2, rword op3, rpointer pReloc);
-rvm_asmins_t rvm_asmd(rword opcode, rword op1, rword op2, rword op3, rdouble data);
 void rvm_asm_dump(rvm_asmins_t *pi, ruint count);
 
 

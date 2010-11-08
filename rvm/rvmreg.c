@@ -209,7 +209,7 @@ void rvm_reg_setlong(rvmreg_t *r, rlong l)
 {
 	RVM_REG_SETL(r, l);
 	RVM_REG_SETTYPE(r, RVM_DTYPE_LONG);
-	RVM_REG_CLRFLAG(r, RVM_INFOBIT_ALL);
+	RVM_REG_CLRFLAG(r, RVM_INFOBIT_ROBJECT);
 }
 
 
@@ -217,7 +217,7 @@ void rvm_reg_setdouble(rvmreg_t *r, rdouble d)
 {
 	RVM_REG_SETD(r, d);
 	RVM_REG_SETTYPE(r, RVM_DTYPE_DOUBLE);
-	RVM_REG_CLRFLAG(r, RVM_INFOBIT_ALL);
+	RVM_REG_CLRFLAG(r, RVM_INFOBIT_ROBJECT);
 
 }
 
@@ -240,4 +240,12 @@ void rvm_reg_convert_to_refreg(rvmreg_t *reg)
 	*REFREG2REGPTR(refreg) = *reg;
 	RVM_REG_CLEAR(reg);
 	rvm_reg_setrefreg(reg, refreg);
+}
+
+
+rvmreg_t *rvm_reg_unshadow(rvmreg_t *reg)
+{
+	if (rvm_reg_gettype(reg) != RVM_DTYPE_REFREG)
+		return reg;
+	return REFREG2REGPTR(RVM_REG_GETP(reg));
 }

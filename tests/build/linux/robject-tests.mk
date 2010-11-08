@@ -21,7 +21,9 @@ TESTS	= \
 	$(OUTDIR)/scope-test \
 	$(OUTDIR)/rhash-test \
 	$(OUTDIR)/rvm-test \
+	$(OUTDIR)/loop-test \
 	$(OUTDIR)/memalloc-test \
+	$(OUTDIR)/asm-cast \
 	$(OUTDIR)/asm-add \
 	$(OUTDIR)/asm-adds \
 	$(OUTDIR)/asm-b \

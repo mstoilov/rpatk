@@ -61,6 +61,8 @@ typedef unsigned int ratomic_t;
 			: "ir" (val), "m" (*ptr)); } while (0)
 
 
+#define R_DEBUG_BRAKE __asm__ ("int $3")
+#define ASSERT(__a__) do {if (!(__a__)) R_DEBUG_BRAKE; } while (0)
 
 #ifndef NULL
 #ifdef __cplusplus

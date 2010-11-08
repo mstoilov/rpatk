@@ -15,6 +15,7 @@
 #define RVM_OPID_MUL 3
 #define RVM_OPID_DIV 4
 #define RVM_OPID_CAT 5
+#define RVM_OPID_CAST 6
 
 /*
  * Important: the res pointer might be the same as one of the arguments, the operator must

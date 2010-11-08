@@ -38,6 +38,7 @@ void rvm_reg_setstring(rvmreg_t *r, rstring_t *ptr);
 void rvm_reg_setarray(rvmreg_t *r, rarray_t *ptr);
 void rvm_reg_setharray(rvmreg_t *r, rharray_t *ptr);
 void rvm_reg_convert_to_refreg(rvmreg_t *r);
+rvmreg_t *rvm_reg_unshadow(rvmreg_t *reg);
 
 struct rrefreg_s;
 void rvm_reg_setrefreg(rvmreg_t *r, struct rrefreg_s *ptr);
