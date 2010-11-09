@@ -12,18 +12,18 @@
 
 static void test_swi_print_r(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rvmreg_t *r = RVM_CPUREG_PTR(cpu, ins->op2);
+	rvmreg_t *r = RVM_CPUREG_PTR(cpu, ins->op1);
 
 	if (rvm_reg_gettype(r) == RVM_DTYPE_REFREG)
 		r = REFREG2REGPTR(RVM_REG_GETP(r));
 	if (rvm_reg_gettype(r) == RVM_DTYPE_LONG)
-		fprintf(stdout, "R%d = %ld\n", ins->op2, RVM_REG_GETL(r));
+		fprintf(stdout, "R%d = %ld\n", ins->op1, RVM_REG_GETL(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_DOUBLE)
-		fprintf(stdout, "R%d = %5.2f\n", ins->op2, RVM_REG_GETD(r));
+		fprintf(stdout, "R%d = %5.2f\n", ins->op1, RVM_REG_GETD(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_STRING)
-		fprintf(stdout, "R%d = %s\n", ins->op2, ((rstring_t*) RVM_REG_GETP(r))->s.str);
+		fprintf(stdout, "R%d = %s\n", ins->op1, ((rstring_t*) RVM_REG_GETP(r))->s.str);
 	else
-		fprintf(stdout, "R%d = Unknown type\n", ins->op2);
+		fprintf(stdout, "R%d = Unknown type\n", ins->op1);
 }
 
 
@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
 	/*
 	 * Load the content of rh to R0
 	 */
-	rvm_codegen_addins(cg, rvm_asmp(RVM_LDRR, R0, DA, XX, &rh_copy));
+	rvm_codegen_addins(cg, rvm_asmp(RVM_LDRR, R0, DA, XX, &rh));
 
 	/*
 	 * Lookup the array member "again" and load the content to R1
@@ -88,9 +88,9 @@ int main(int argc, char *argv[])
 	 */
 	rvm_codegen_addins(cg, rvm_asmp(RVM_LDRR, R2, DA, XX, r_harray_get(nc, r_harray_lookup_s(nc, "there"))));
 
-	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, R0, XX, rvm_cpu_getswi(cpu, "print")));	// print
-	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, R1, XX, rvm_cpu_getswi(cpu, "print")));	// print
-	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, R2, XX, rvm_cpu_getswi(cpu, "print")));	// print
+	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_getswi(cpu, "print")), R0, XX, XX, 0));	// print
+	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_getswi(cpu, "print")), R1, XX, XX, 0));	// print
+	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_getswi(cpu, "print")), R2, XX, XX, 0));	// print
 	rvm_codegen_addins(cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
 
 	rvm_relocate(rvm_codegen_getcode(cg, 0), rvm_codegen_getcodesize(cg));

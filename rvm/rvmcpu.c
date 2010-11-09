@@ -425,13 +425,10 @@ static void rvm_op_add(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_swi(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-//	rvmcpu_swi *cbt = cpu->switable[RVM_CB_TABLE(RVM_CPUREG_GETU(cpu, ins->op1))];
-//	cbt[RVM_CB_OFFSET(RVM_CPUREG_GETU(cpu, ins->op1))](cpu);
-
 	rvmcpu_swi swi;
 	rvm_switable_t *switable;
-	ruint ntable = (ruint) RVM_SWI_TABLE(RVM_CPUREG_GETU(cpu, ins->op1));
-	ruint nswi = (ruint) RVM_SWI_NUM(RVM_CPUREG_GETU(cpu, ins->op1));
+	ruint ntable = (ruint) RVM_SWI_TABLE(ins->swi);
+	ruint nswi = (ruint) RVM_SWI_NUM(ins->swi);
 
 	if (r_array_size(cpu->switables) <= ntable)
 		RVM_ABORT(cpu, RVM_E_SWITABLE);
@@ -748,8 +745,16 @@ int rvm_asm_dump_pi_to_str(rvm_asmins_t *pi, char *str, ruint size)
 {
 	int ret = 0, sz = size;
 
-	if ((ret = rvm_snprintf(str, sz, "%10s   ", stropcalls[pi->opcode])) < 0)
-		return ret;
+	if (pi->opcode == RVM_SWI) {
+		rchar szSwi[64];
+		r_memset(szSwi, 0, sizeof(szSwi));
+		rvm_snprintf(szSwi, sizeof(szSwi) - 1, "%s(%x)", stropcalls[pi->opcode], (ruint32)pi->swi);
+		if ((ret = rvm_snprintf(str, sz, "%16s   ", szSwi)) < 0)
+			return ret;
+	} else {
+		if ((ret = rvm_snprintf(str, sz, "%16s   ", stropcalls[pi->opcode])) < 0)
+			return ret;
+	}
 	str += ret;
 	sz -= ret;
 	
@@ -783,8 +788,6 @@ int rvm_asm_dump_pi_to_str(rvm_asmins_t *pi, char *str, ruint size)
 	str += ret;
 	sz -= ret;
 
-//	if ((ret = rvm_snprintf(str, sz, "0x%lx  ", (unsigned long)RVM_REG_GETU(&pi->data))) < 0)
-//		return ret;
 	if ((ret = rvm_snprintf(str, sz, "0x%lx  ", (unsigned long)pi->data)) < 0)
 		return ret;
 
@@ -1250,10 +1253,10 @@ rvm_asmins_t rvm_asmp(rword opcode, rword op1, rword op2, rword op3, rpointer da
 	rvm_asmins_t a;
 
 	r_memset(&a, 0, sizeof(a));
-	a.opcode = (unsigned char) opcode;
-	a.op1 = (unsigned char)op1;
-	a.op2 = (unsigned char)op2;
-	a.op3 = (unsigned char)op3;
+	a.opcode = (ruint8) opcode;
+	a.op1 = (ruint8)op1;
+	a.op2 = (ruint8)op2;
+	a.op3 = (ruint8)op3;
 	a.data = (rword)data;
 
 //	RVM_REG_GETP(&a.data) = data;
@@ -1267,14 +1270,13 @@ rvm_asmins_t rvm_asm(rword opcode, rword op1, rword op2, rword op3, rword data)
 	rvm_asmins_t a;
 
 	r_memset(&a, 0, sizeof(a));
-	a.opcode = (unsigned char) opcode;
-	a.op1 = (unsigned char)op1;
-	a.op2 = (unsigned char)op2;
-	a.op3 = (unsigned char)op3;
+	a.opcode = (ruint32) RVM_ASMINS_OPCODE(opcode);
+	a.swi = (ruint32) RVM_ASMINS_SWI(opcode);
+	a.op1 = (ruint8)op1;
+	a.op2 = (ruint8)op2;
+	a.op3 = (ruint8)op3;
 	a.data = (rword)data;
 
-//	RVM_REG_GETU(&a.data) = data;
-//	RVM_REG_SETTYPE(&a.data, RVM_DTYPE_WORD);
 	return a;
 }
 
@@ -1284,14 +1286,13 @@ rvm_asmins_t rvm_asml(rword opcode, rword op1, rword op2, rword op3, rlong data)
 	rvm_asmins_t a;
 
 	r_memset(&a, 0, sizeof(a));
-	a.opcode = (unsigned char) opcode;
-	a.op1 = (unsigned char)op1;
-	a.op2 = (unsigned char)op2;
-	a.op3 = (unsigned char)op3;
+	a.opcode = (ruint32) RVM_ASMINS_OPCODE(opcode);
+	a.swi = (ruint32) RVM_ASMINS_SWI(opcode);
+	a.op1 = (ruint8)op1;
+	a.op2 = (ruint8)op2;
+	a.op3 = (ruint8)op3;
 	a.data = (rword)data;
 
-//	RVM_REG_GETL(&a.data) = (rword)data;
-//	RVM_REG_SETTYPE(&a.data, RVM_DTYPE_LONG);
 	return a;
 }
 
@@ -1302,15 +1303,14 @@ rvm_asmins_t rvm_asmr(rword opcode, rword op1, rword op2, rword op3, rpointer pR
 	rvm_asmins_t a;
 
 	r_memset(&a, 0, sizeof(a));
-	a.opcode = (unsigned char) opcode;
-	a.op1 = (unsigned char)op1;
-	a.op2 = (unsigned char)op2;
-	a.op3 = (unsigned char)op3;
+	a.opcode = (ruint32) RVM_ASMINS_OPCODE(opcode);
+	a.swi = (ruint32) RVM_ASMINS_SWI(opcode);
+	a.op1 = (ruint8)op1;
+	a.op2 = (ruint8)op2;
+	a.op3 = (ruint8)op3;
 	a.data = (rword)pReloc;
 	a.flags = RVM_ASMINS_RELOC | RVM_ASMINS_RELOCPTR;
 
-//	RVM_REG_GETP(&a.data) = pReloc;
-//	RVM_REG_SETTYPE(&a.data, RVM_DTYPE_RELOCPTR);
 	return a;
 }
 
@@ -1320,15 +1320,14 @@ rvm_asmins_t rvm_asmx(rword opcode, rword op1, rword op2, rword op3, rpointer pR
 	rvm_asmins_t a;
 
 	r_memset(&a, 0, sizeof(a));
-	a.opcode = (unsigned char) opcode;
-	a.op1 = (unsigned char)op1;
-	a.op2 = (unsigned char)op2;
-	a.op3 = (unsigned char)op3;
+	a.opcode = (ruint32) RVM_ASMINS_OPCODE(opcode);
+	a.swi = (ruint32) RVM_ASMINS_SWI(opcode);
+	a.op1 = (ruint8)op1;
+	a.op2 = (ruint8)op2;
+	a.op3 = (ruint8)op3;
 	a.data = (rword)pReloc;
 	a.flags = RVM_ASMINS_RELOC;
 
-//	RVM_REG_GETP(&a.data) = pReloc;
-//	RVM_REG_SETTYPE(&a.data, RVM_DTYPE_RELOCINDEX);
 	return a;
 }
 

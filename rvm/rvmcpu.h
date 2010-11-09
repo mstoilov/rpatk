@@ -235,10 +235,15 @@ do { \
 #define RVM_CPUREG_CLEAR(__cpu__, __r__) RVM_REG_CLEAR(RVM_CPUREG_PTR(__cpu__, __r__))
 
 
-#define RVM_SWI_TABLE(__op__) ((__op__) >> 16)
-#define RVM_SWI_NUM(__op__) ((__op__) & ((1 << 16) - 1))
-#define RVM_SWI_ID(__t__, __o__) ((((__t__) & ((1 << 16) - 1))  << 16) | ((__o__) & ((1 << 16) - 1)))
-
+#define RVM_OPCODE_BITS 8
+#define RVM_SWI_TABLE_BITS 16
+#define RVM_SWI_NUM_BITS 8
+#define RVM_SWI_TABLE(__op__) ((__op__) >> RVM_SWI_NUM_BITS)
+#define RVM_SWI_NUM(__op__) ((__op__) & ((1 << RVM_SWI_NUM_BITS) - 1))
+#define RVM_SWI_ID(__t__, __o__) ((((__t__) & ((1 << RVM_SWI_TABLE_BITS) - 1))  << RVM_SWI_NUM_BITS) | ((__o__) & ((1 << RVM_SWI_NUM_BITS) - 1)))
+#define RVM_ASMINS_OPCODE(__opcode__) ((__opcode__) & ((1 << RVM_OPCODE_BITS) - 1))
+#define RVM_ASMINS_SWI(__opcode__) ((__opcode__) >> RVM_OPCODE_BITS)
+#define RVM_OPSWI(__id__) (((__id__) << RVM_OPCODE_BITS) | RVM_SWI)
 
 #define RVM_E_DIVZERO		(1)
 #define RVM_E_ILLEGAL		(2)
@@ -278,8 +283,9 @@ typedef struct rvmreg_s {
 #define RVM_ASMINS_RELOCPTR (1 << 1)
 
 struct rvm_asmins_s {
-	ruint8 opcode;
-	ruint8 flags;
+	ruint32 opcode:8;
+	ruint32 swi:24;
+	ruint16 flags;
 	ruint16 op1:5;
 	ruint16 op2:5;
 	ruint16 op3:5;

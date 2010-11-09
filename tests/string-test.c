@@ -21,18 +21,18 @@ typedef struct rvm_testctx_s {
 static void test_swi_cat(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvm_testctx_t *ctx = (rvm_testctx_t *)cpu->userdata;
-	rvm_opmap_invoke_binary_handler(ctx->opmap, RVM_OPID_CAT, cpu, RVM_CPUREG_PTR(cpu, R0), RVM_CPUREG_PTR(cpu, ins->op2), RVM_CPUREG_PTR(cpu, ins->op3));
+	rvm_opmap_invoke_binary_handler(ctx->opmap, RVM_OPID_CAT, cpu, RVM_CPUREG_PTR(cpu, ins->op1), RVM_CPUREG_PTR(cpu, ins->op2), RVM_CPUREG_PTR(cpu, ins->op3));
 }
 
 
 static void test_swi_print_r(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	if (rvm_reg_gettype(RVM_CPUREG_PTR(cpu, ins->op2)) == RVM_DTYPE_LONG)
-		fprintf(stdout, "R%d = %ld\n", ins->op2, RVM_CPUREG_GETL(cpu, ins->op2));
-	else if (rvm_reg_gettype(RVM_CPUREG_PTR(cpu, ins->op2)) == RVM_DTYPE_DOUBLE)
-		fprintf(stdout, "R%d = %5.2f\n", ins->op2, RVM_CPUREG_GETD(cpu, ins->op2));
-	else if (rvm_reg_gettype(RVM_CPUREG_PTR(cpu, ins->op2)) == RVM_DTYPE_STRING)
-		fprintf(stdout, "R%d = %s\n", ins->op2, ((rstring_t*) RVM_CPUREG_GETP(cpu, ins->op2))->s.str);
+	if (rvm_reg_gettype(RVM_CPUREG_PTR(cpu, ins->op1)) == RVM_DTYPE_LONG)
+		fprintf(stdout, "R%d = %ld\n", ins->op1, RVM_CPUREG_GETL(cpu, ins->op1));
+	else if (rvm_reg_gettype(RVM_CPUREG_PTR(cpu, ins->op1)) == RVM_DTYPE_DOUBLE)
+		fprintf(stdout, "R%d = %5.2f\n", ins->op1, RVM_CPUREG_GETD(cpu, ins->op1));
+	else if (rvm_reg_gettype(RVM_CPUREG_PTR(cpu, ins->op1)) == RVM_DTYPE_STRING)
+		fprintf(stdout, "R%d = %s\n", ins->op1, ((rstring_t*) RVM_CPUREG_GETP(cpu, ins->op1))->s.str);
 	else
 		fprintf(stdout, "Unknown type\n");
 }
@@ -52,7 +52,7 @@ static void test_swi_unref(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void test_swi_strtodouble(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rstring_t *s = (rstring_t*)RVM_CPUREG_GETP(cpu, ins->op2);
+	rstring_t *s = (rstring_t*)RVM_CPUREG_GETP(cpu, ins->op1);
 	double d = strtod(s->s.str, NULL);
 	RVM_CPUREG_SETD(cpu, R0, d);
 }
@@ -131,24 +131,24 @@ int main(int argc, char *argv[])
 	rvm_codegen_addins(cg, rvm_asmp(RVM_MOV, R8, R0, XX, 0));
 
 	rvm_codegen_addins(cg, rvm_asmp(RVM_MOV, R0, R7, XX, 0));
-	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, R0, R8, rvm_cpu_getswi(cpu, "cat")));
+	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_getswi(cpu, "cat")), R0, R0, R8, 0));
 	rvm_codegen_addins(cg, rvm_asmp(RVM_MOV, R7, R0, XX, 0));
 
-	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, R7, XX, rvm_cpu_getswi(cpu, "print")));	// print
-	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, R8, XX, rvm_cpu_getswi(cpu, "print")));	// print
-	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, R7, XX, rvm_cpu_getswi(cpu, "unref")));	// unref
-	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, R8, XX, rvm_cpu_getswi(cpu, "unref")));	// unref
+	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_getswi(cpu, "print")), R7, XX, XX, 0));	// print
+	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_getswi(cpu, "print")), R8, XX, XX, 0));	// print
+	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_getswi(cpu, "unref")), R7, XX, XX, 0));	// unref
+	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_getswi(cpu, "unref")), R8, XX, XX, 0));	// unref
 	rvm_codegen_addins(cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
 
 	rvm_codegen_funcstart_s(cg, "str_init", 2);
 	rvm_codegen_addins(cg, rvm_asm(RVM_LDS, R0, FP, DA, 1));
 	rvm_codegen_addins(cg, rvm_asm(RVM_LDS, R1, FP, DA, 2));
-	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, R0, R1, rvm_cpu_getswi(cpu, "str_init")));
+	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_getswi(cpu, "str_init")), R0, R1, XX, 0));
 	rvm_codegen_funcend(cg);
 
 	rvm_codegen_funcstart_s(cg, "str_to_double", 1);
 	rvm_codegen_addins(cg, rvm_asm(RVM_LDS, R0, FP, DA, 1));
-	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, R0, XX, rvm_cpu_getswi(cpu, "str_to_double")));
+	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_getswi(cpu, "str_to_double")), R0, R0, XX, 0));
 	rvm_codegen_funcend(cg);
 
 

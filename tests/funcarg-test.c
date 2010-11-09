@@ -8,20 +8,20 @@
 
 static void test_swi_print_r(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rvmreg_t *r = RVM_CPUREG_PTR(cpu, ins->op2);
+	rvmreg_t *r = RVM_CPUREG_PTR(cpu, ins->op1);
 
 	if (rvm_reg_gettype(r) == RVM_DTYPE_REFREG)
 		r = REFREG2REGPTR(RVM_REG_GETP(r));
 	if (rvm_reg_gettype(r) == RVM_DTYPE_WORD)
-		fprintf(stdout, "R%d = %ld\n", ins->op2, RVM_REG_GETL(r));
+		fprintf(stdout, "R%d = %ld\n", ins->op1, RVM_REG_GETL(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_LONG)
-		fprintf(stdout, "R%d = %ld\n", ins->op2, RVM_REG_GETL(r));
+		fprintf(stdout, "R%d = %ld\n", ins->op1, RVM_REG_GETL(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_DOUBLE)
-		fprintf(stdout, "R%d = %5.2f\n", ins->op2, RVM_REG_GETD(r));
+		fprintf(stdout, "R%d = %5.2f\n", ins->op1, RVM_REG_GETD(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_STRING)
-		fprintf(stdout, "R%d = %s\n", ins->op2, ((rstring_t*) RVM_REG_GETP(r))->s.str);
+		fprintf(stdout, "R%d = %s\n", ins->op1, ((rstring_t*) RVM_REG_GETP(r))->s.str);
 	else
-		fprintf(stdout, "R%d = Unknown type\n", ins->op2);
+		fprintf(stdout, "R%d = Unknown type\n", ins->op1);
 }
 
 
@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
 	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, R0, DA, XX, 8));
 	rvm_codegen_addins(cg, rvm_asm(RVM_STS, R0, SP, DA, 2 + RVM_CODEGEN_FUNCINITOFFSET));
 	rvm_codegen_addins(cg, rvm_asmx(RVM_BL,  DA, XX, XX, &rvm_codemap_lookup_s(cg->codemap, "add2")->index));
-	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, R0, XX, rvm_cpu_getswi(cpu, "print")));
+	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_getswi(cpu, "print")), R0, XX, XX, 0));
 
 	rvm_codegen_addins(cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
 
@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
 	rvm_relocate(rvm_codegen_getcode(cg, 0), rvm_codegen_getcodesize(cg));
 
 
-//	rvm_asm_dump(rvm_codegen_getcode(cg, 0), rvm_codegen_getcodesize(cg));
+	rvm_asm_dump(rvm_codegen_getcode(cg, 0), rvm_codegen_getcodesize(cg));
 
 	rvm_cpu_exec_debug(cpu, rvm_codegen_getcode(cg, 0), 0);
 	rvm_cpu_destroy(cpu);

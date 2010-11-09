@@ -5,14 +5,14 @@
 #include "rvmcodemap.h"
 
 
-static void test_swi_print_r0(rvmcpu_t *cpu, rvm_asmins_t *ins)
+static void test_swi_print_r(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword res = RVM_CPUREG_GETU(cpu, R0);
-	fprintf(stdout, "R0 = %d\n", (int)res);
+	rword res = RVM_CPUREG_GETU(cpu, ins->op1);
+	fprintf(stdout, "R%d = %d\n", ins->op1, (int)res);
 }
 
 static rvm_switable_t switable[] = {
-		{"print", test_swi_print_r0},
+		{"print", test_swi_print_r},
 		{NULL, NULL},
 };
 
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 	rvm_codegen_addins(cg, rvm_asm(RVM_STS, R0, SP, DA, 3 + RVM_CODEGEN_FUNCINITOFFSET));
 	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, R0, DA, XX, 3));
 	rvm_codegen_addins(cg, rvm_asmx(RVM_BL,  DA, XX, XX, &rvm_codemap_lookup_s(cg->codemap, "add3")->index));
-	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, XX, XX, RVM_SWI_ID(ntable, 0)));
+	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(RVM_SWI_ID(ntable, 0)), R0, XX, XX, 0));
 
 
 	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, R0, DA, XX, 1));
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
 	rvm_codegen_addins(cg, rvm_asm(RVM_STS, R0, SP, DA, 4 + RVM_CODEGEN_FUNCINITOFFSET));
 	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, R0, DA, XX, 4));
 	rvm_codegen_addins(cg, rvm_asmx(RVM_BL,  DA, XX, XX, &rvm_codemap_lookup_s(cg->codemap, "varadd")->index));
-	rvm_codegen_addins(cg, rvm_asm(RVM_SWI, DA, XX, XX, RVM_SWI_ID(ntable, 0)));
+	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(RVM_SWI_ID(ntable, 0)), R0, XX, XX, 0));
 
 
 	rvm_codegen_addins(cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));

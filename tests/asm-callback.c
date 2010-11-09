@@ -8,9 +8,15 @@ static void rvm_callback_one(rvmcpu_t *vm, rvm_asmins_t *ins)
 }
 
 
+static void rvm_callback_two(rvmcpu_t *vm, rvm_asmins_t *ins)
+{
+	fprintf(stdout, "%s\n", __FUNCTION__);
+}
+
 
 static rvm_switable_t calltable[] = {
 	{"rvm_callback_one", rvm_callback_one},
+	{"rvm_callback_two", rvm_callback_two},
 	{NULL, NULL},
 };
 	
@@ -34,9 +40,9 @@ int main(int argc, char *argv[])
 	vmcode[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 1);
 	vmcode[off++] = rvm_asm(RVM_MOV, R1, DA, XX, 2);
 	vmcode[off++] = rvm_asm(RVM_ADD, R0, R1, R0, 0);
-	vmcode[off++] = rvm_asm(RVM_SWI, DA, XX, XX, rvm_cpu_getswi(vm, "rvm_callback_one"));
-	vmcode[off++] = rvm_asm(RVM_SWI, DA, XX, XX, rvm_cpu_getswi(vm, "rvm_callback_one"));
-	vmcode[off++] = rvm_asm(RVM_SWI, DA, XX, XX, RVM_SWI_ID(table1, 0));
+	vmcode[off++] = rvm_asm(RVM_OPSWI(rvm_cpu_getswi(vm, "rvm_callback_one")), XX, XX, XX, 0);
+	vmcode[off++] = rvm_asm(RVM_OPSWI(rvm_cpu_getswi(vm, "rvm_callback_two")), XX, XX, XX, 0);
+	vmcode[off++] = rvm_asm(RVM_OPSWI(RVM_SWI_ID(table1, 0)), XX, XX, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_EXT, R0, XX, XX, 0);
 	fprintf(stdout, "sizeof rvm_asmins_t is: %d:\n", (unsigned int) sizeof(rvm_asmins_t));
 	fprintf(stdout, "Code List (sizeof rvmreg_t is: %d(%d)):\n", (unsigned int) sizeof(rvmreg_t), (unsigned int) sizeof(vm->r[0].v));
