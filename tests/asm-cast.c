@@ -41,9 +41,9 @@ int main(int argc, char *argv[])
 	rvmcpu_switable_add(vm, common_calltable);
 	rvmcpu_switable_add(vm, switable);
 	vmcode[off++] = rvm_asmp(RVM_LDRR, R0, DA, XX, &d1);
-	vmcode[off++] = rvm_asm(ERVM_TYPE, R1, R0, XX, 0);
+	vmcode[off++] = rvm_asm(RVM_TYPE, R1, R0, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_OPSWI(rvm_cpu_getswi(vm, "print")), R1, XX, XX, 0);
-	vmcode[off++] = rvm_asm(ERVM_CAST, R0, R0, DA, RVM_DTYPE_UNSIGNED);
+	vmcode[off++] = rvm_asm(RVM_CAST, R0, R0, DA, RVM_DTYPE_UNSIGNED);
 	vmcode[off++] = rvm_asm(RVM_MOV, R1, DA, XX, 2);
 	vmcode[off++] = rvm_asm(RVM_ADD, R0, R1, R0, 0);
 	vmcode[off++] = rvm_asm(RVM_OPSWI(rvm_cpu_getswi(vm, "print")), R0, XX, XX, 0);
@@ -51,9 +51,9 @@ int main(int argc, char *argv[])
 	VMTEST_STATUS(vmcode, off, 0, "CAST STATUS");
 
 	vmcode[off++] = rvm_asmp(RVM_LDRR, R0, DA, XX, &d2);
-	vmcode[off++] = rvm_asm(ERVM_TYPE, R1, R0, XX, 0);
+	vmcode[off++] = rvm_asm(RVM_TYPE, R1, R0, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_OPSWI(rvm_cpu_getswi(vm, "print")), R1, XX, XX, 0);
-	vmcode[off++] = rvm_asm(ERVM_CAST, R0, R0, DA, RVM_DTYPE_LONG);
+	vmcode[off++] = rvm_asm(RVM_CAST, R0, R0, DA, RVM_DTYPE_LONG);
 	vmcode[off++] = rvm_asm(RVM_OPSWI(rvm_cpu_getswi(vm, "print")), R0, XX, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_MOV, R1, DA, XX, 2);
 	vmcode[off++] = rvm_asm(RVM_ADD, R0, R1, R0, 0);

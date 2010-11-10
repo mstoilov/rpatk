@@ -37,7 +37,9 @@ TESTS	= \
 	$(OUTDIR)/asm-sbc \
 	$(OUTDIR)/asm-shiftops \
 	$(OUTDIR)/asm-stack \
-	$(OUTDIR)/asm-bl	
+	$(OUTDIR)/asm-bl \
+	$(OUTDIR)/asm-eadd
+
 
 
 all : $(OUTDIR) $(TESTS)

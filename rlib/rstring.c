@@ -79,6 +79,18 @@ rstr_t *r_rstrdup(const rchar *s, ruint size)
 }
 
 
+rlong r_strtol(const rchar *s, rchar **endptr, rint base)
+{
+	return strtol(s, endptr, base);
+}
+
+
+rdouble r_strtod(const rchar *s, rchar **endptr)
+{
+	return strtod(s, endptr);
+}
+
+
 static void r_objectstub_destroy(robject_t *ptr)
 {
 	r_string_destroy((rstring_t*)ptr);

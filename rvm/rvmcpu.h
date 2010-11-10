@@ -94,23 +94,23 @@ enum {
 	RVM_TEQ,
 
 /* Extended VM opcodes, */
-	ERVM_CAST,		/* Cast: op1 = (op3)op2 */
-	ERVM_TYPE,		/* Type: op1 = typeof(op2) */
-	ERVM_MOV,
-	ERVM_ADD,
-	ERVM_ADDS,		/* Add: op1 = op2 + op3, update the status register */
-	ERVM_ADC,		/* Add: op1 = op2 + op3 + C, update the status register */
-	ERVM_AND,		/* Bitwise AND: op1 = op2 & op3, update status register */
-	ERVM_EOR,		/* XOR: op1 = op2 ^ op3, update the status register */
-	ERVM_SUB,
-	ERVM_SUBS,
-	ERVM_SBC,
-	ERVM_MUL,
-	ERVM_MLS,		/* Signed multiplication: op1 = op2 * op3 */
-	ERVM_MULS,
-	ERVM_DIV,		/* Divide: op1 = op2 / op3 */
-	ERVM_DVS,		/* Signed division: op1 = op2 / op3 */
-	ERVM_DIVS,		/* Divide: op1 = op2 / op3, Update the status register */
+	RVM_CAST,		/* Cast: op1 = (op3)op2 */
+	RVM_TYPE,		/* Type: op1 = typeof(op2) */
+	RVM_EMOV,
+	RVM_EADD,
+	RVM_EADDS,		/* Add: op1 = op2 + op3, update the status register */
+	RVM_EADC,		/* Add: op1 = op2 + op3 + C, update the status register */
+	RVM_EAND,		/* Bitwise AND: op1 = op2 & op3, update status register */
+	RVM_EEOR,		/* XOR: op1 = op2 ^ op3, update the status register */
+	RVM_ESUB,
+	RVM_ESUBS,
+	RVM_ESBC,
+	RVM_EMUL,
+	RVM_EMLS,		/* Signed multiplication: op1 = op2 * op3 */
+	RVM_EMULS,
+	RVM_EDIV,		/* Divide: op1 = op2 / op3 */
+	RVM_EDVS,		/* Signed division: op1 = op2 / op3 */
+	RVM_EDIVS,		/* Divide: op1 = op2 / op3, Update the status register */
 };
 
 

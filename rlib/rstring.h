@@ -28,6 +28,9 @@ rchar *r_strdup(const rchar *s);
 rchar *r_strndup(const rchar *s, rsize_t size);
 rchar *r_strcpy(rchar *dest, const rchar *src);
 rchar *r_strncpy(rchar *dest, const rchar *src, rsize_t n);
+rlong r_strtol(const rchar *s, rchar **endptr, rint base);
+rdouble r_strtod(const rchar *s, rchar **endptr);
+
 rstr_t *r_rstrdup(const rchar *s, ruint size);
 
 
@@ -36,7 +39,7 @@ typedef struct rstring_s {
 	rstr_t s;
 } rstring_t;
 
-
+#define R_STRING2PTR(__p__) ((rstring_t *)(__p__))->s.str
 rstring_t *r_string_create();
 rstring_t *r_string_create_from_ansistr(const char *str);
 rstring_t *r_string_create_from_rstr(const rstr_t *str);
