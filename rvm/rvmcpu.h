@@ -97,18 +97,18 @@ enum {
 	RVM_CAST,		/* Cast: op1 = (op3)op2 */
 	RVM_TYPE,		/* Type: op1 = typeof(op2) */
 	RVM_EMOV,
-	RVM_EADD,
+	RVM_EADD,		/* Add: op1 = op2 + op3 */
+	RVM_ESUB,		/* Subtract: op1 = op2 - op3 */
+	RVM_EMUL,		/* Multiply: op1 = op2 * op3 */
+	RVM_EDIV,		/* Divide: op1 = op2 / op3 */
 	RVM_EADDS,		/* Add: op1 = op2 + op3, update the status register */
 	RVM_EADC,		/* Add: op1 = op2 + op3 + C, update the status register */
 	RVM_EAND,		/* Bitwise AND: op1 = op2 & op3, update status register */
 	RVM_EEOR,		/* XOR: op1 = op2 ^ op3, update the status register */
-	RVM_ESUB,
 	RVM_ESUBS,
 	RVM_ESBC,
-	RVM_EMUL,
 	RVM_EMLS,		/* Signed multiplication: op1 = op2 * op3 */
 	RVM_EMULS,
-	RVM_EDIV,		/* Divide: op1 = op2 / op3 */
 	RVM_EDVS,		/* Signed division: op1 = op2 / op3 */
 	RVM_EDIVS,		/* Divide: op1 = op2 / op3, Update the status register */
 };

@@ -84,33 +84,6 @@ int main(int argc, char *argv[])
 	cpu->userdata = &ctx;
 	cg = rvm_codegen_create();
 
-	rvm_opmap_add_binary_operator(opmap, RVM_OPID_CAT);
-	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAT, rvm_op_cat_string_string, RVM_DTYPE_STRING, RVM_DTYPE_STRING);
-
-	rvm_opmap_add_binary_operator(opmap, RVM_OPID_ADD);
-	rvm_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rvm_op_add_double_double, RVM_DTYPE_DOUBLE, RVM_DTYPE_DOUBLE);
-	rvm_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rvm_op_add_long_double, RVM_DTYPE_LONG, RVM_DTYPE_DOUBLE);
-	rvm_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rvm_op_add_double_long, RVM_DTYPE_DOUBLE, RVM_DTYPE_LONG);
-	rvm_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rvm_op_add_long_long, RVM_DTYPE_LONG, RVM_DTYPE_LONG);
-
-	rvm_opmap_add_binary_operator(opmap, RVM_OPID_SUB);
-	rvm_opmap_set_binary_handler(opmap, RVM_OPID_SUB, rvm_op_sub_double_double, RVM_DTYPE_DOUBLE, RVM_DTYPE_DOUBLE);
-	rvm_opmap_set_binary_handler(opmap, RVM_OPID_SUB, rvm_op_sub_long_double, RVM_DTYPE_LONG, RVM_DTYPE_DOUBLE);
-	rvm_opmap_set_binary_handler(opmap, RVM_OPID_SUB, rvm_op_sub_double_long, RVM_DTYPE_DOUBLE, RVM_DTYPE_LONG);
-	rvm_opmap_set_binary_handler(opmap, RVM_OPID_SUB, rvm_op_sub_long_long, RVM_DTYPE_LONG, RVM_DTYPE_LONG);
-
-	rvm_opmap_add_binary_operator(opmap, RVM_OPID_MUL);
-	rvm_opmap_set_binary_handler(opmap, RVM_OPID_MUL, rvm_op_mul_double_double, RVM_DTYPE_DOUBLE, RVM_DTYPE_DOUBLE);
-	rvm_opmap_set_binary_handler(opmap, RVM_OPID_MUL, rvm_op_mul_long_double, RVM_DTYPE_LONG, RVM_DTYPE_DOUBLE);
-	rvm_opmap_set_binary_handler(opmap, RVM_OPID_MUL, rvm_op_mul_double_long, RVM_DTYPE_DOUBLE, RVM_DTYPE_LONG);
-	rvm_opmap_set_binary_handler(opmap, RVM_OPID_MUL, rvm_op_mul_long_long, RVM_DTYPE_LONG, RVM_DTYPE_LONG);
-
-	rvm_opmap_add_binary_operator(opmap, RVM_OPID_DIV);
-	rvm_opmap_set_binary_handler(opmap, RVM_OPID_DIV, rvm_op_div_double_double, RVM_DTYPE_DOUBLE, RVM_DTYPE_DOUBLE);
-	rvm_opmap_set_binary_handler(opmap, RVM_OPID_DIV, rvm_op_div_long_double, RVM_DTYPE_LONG, RVM_DTYPE_DOUBLE);
-	rvm_opmap_set_binary_handler(opmap, RVM_OPID_DIV, rvm_op_div_double_long, RVM_DTYPE_DOUBLE, RVM_DTYPE_LONG);
-	rvm_opmap_set_binary_handler(opmap, RVM_OPID_DIV, rvm_op_div_long_long, RVM_DTYPE_LONG, RVM_DTYPE_LONG);
-
 
 	rvm_codemap_invalid_add_s(cg->codemap, "str_init");
 	rvm_codemap_invalid_add_s(cg->codemap, "str_to_double");
