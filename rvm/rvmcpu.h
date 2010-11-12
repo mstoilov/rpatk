@@ -101,6 +101,8 @@ enum {
 	RVM_ESUB,		/* Subtract: op1 = op2 - op3 */
 	RVM_EMUL,		/* Multiply: op1 = op2 * op3 */
 	RVM_EDIV,		/* Divide: op1 = op2 / op3 */
+	RVM_ELSL,		/* Logical Shift Left: op1 = op2 << op3, update the status register */
+	RVM_ELSR,		/* Logical Shift Right: op1 = op2 >> op3, update the status register */
 	RVM_EADDS,		/* Add: op1 = op2 + op3, update the status register */
 	RVM_EADC,		/* Add: op1 = op2 + op3 + C, update the status register */
 	RVM_EAND,		/* Bitwise AND: op1 = op2 & op3, update status register */

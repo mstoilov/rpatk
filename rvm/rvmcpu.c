@@ -101,8 +101,8 @@ static const char *stropcalls[] = {
 	"RVM_ESUB",
 	"RVM_EMUL",
 	"RVM_EDIV",
-	"UNKNOWN",
-	"UNKNOWN",
+	"RVM_ELSL",
+	"RVM_ELSR",
 	"UNKNOWN",
 	"UNKNOWN",
 	"UNKNOWN",
@@ -255,7 +255,7 @@ static void rvm_op_strr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rvm_op_adds(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
-	
+
 	res = op2 + op3;
 	RVM_CPUREG_SETU(cpu, ins->op1, res);
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_C, res < op2 || res < op3);
@@ -913,6 +913,24 @@ static void rvm_op_ediv(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static void rvm_op_elsl(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rvmreg_t *arg2 = rvm_reg_unshadow(RVM_CPUREG_PTR(cpu, ins->op2));
+	rvmreg_t *arg3 = rvm_reg_unshadow(RVM_CPUREG_PTR(cpu, ins->op3));
+
+	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_LSL, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
+}
+
+
+static void rvm_op_elsr(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rvmreg_t *arg2 = rvm_reg_unshadow(RVM_CPUREG_PTR(cpu, ins->op2));
+	rvmreg_t *arg3 = rvm_reg_unshadow(RVM_CPUREG_PTR(cpu, ins->op3));
+
+	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_LSR, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
+}
+
+
 static void rvm_op_eadc(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
@@ -1118,7 +1136,9 @@ static rvm_cpu_op ops[] = {
 	rvm_op_eadd,		// RVM_EADD
 	rvm_op_esub,		// RVM_ESUB
 	rvm_op_emul,		// RVM_EMUL
-	rvm_op_ediv,		// RVM_DIV
+	rvm_op_ediv,		// RVM_EDIV
+	rvm_op_elsl,		// RVM_ELSL
+	rvm_op_elsr,		// RVM_ELSR
 	rvm_op_eadds,		// RVM_EADDS
 	rvm_op_eadc,		// RVM_EADC
 	rvm_op_eand,		// RVM_EAND
@@ -1157,6 +1177,8 @@ rvmcpu_t *rvm_cpu_create()
 	rvm_op_sub_init(cpu->opmap);
 	rvm_op_mul_init(cpu->opmap);
 	rvm_op_div_init(cpu->opmap);
+	rvm_op_lsl_init(cpu->opmap);
+	rvm_op_lsr_init(cpu->opmap);
 	return cpu;
 }
 

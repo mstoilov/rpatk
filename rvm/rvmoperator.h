@@ -16,6 +16,8 @@
 #define RVM_OPID_DIV 4
 #define RVM_OPID_CAT 5
 #define RVM_OPID_CAST 6
+#define RVM_OPID_LSL 7
+#define RVM_OPID_LSR 8
 
 /*
  * Important: the res pointer might be the same as one of the arguments, the operator must
@@ -49,4 +51,7 @@ rint rvm_opmap_set_unary_handler(rvm_opmap_t *opmap, rushort opid, rvm_unaryop_h
 void rvm_opmap_invoke_binary_handler(rvm_opmap_t *opmap, rushort opid, rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2);
 void rvm_opmap_invoke_unary_handler(rvm_opmap_t *opmap, rushort opid, rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg);
 
+
+void rvm_op_lsl_init(rvm_opmap_t *opmap);
+void rvm_op_lsr_init(rvm_opmap_t *opmap);
 #endif

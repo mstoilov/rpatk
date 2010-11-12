@@ -8,6 +8,8 @@ RVM_OBJECTS =	\
 	$(OUTDIR)/rrefreg.o \
 	$(OUTDIR)/rvmcpu.o \
 	$(OUTDIR)/rvmoperator.o \
+	$(OUTDIR)/rvmoperatorlsl.o \
+	$(OUTDIR)/rvmoperatorlsr.o \
 	$(OUTDIR)/rvmoperatorcast.o \
 	$(OUTDIR)/rvmoperatorcat.o \
 	$(OUTDIR)/rvmoperatoradd.o \
