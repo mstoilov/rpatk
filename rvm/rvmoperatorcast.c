@@ -83,6 +83,42 @@ void rvm_op_cast_refreg_string(rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg
 }
 
 
+void rvm_op_cast_string_unsigned(rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+{
+	rvmreg_t s;
+
+	if (res == arg1)
+		RVM_ABORT(cpu, RVM_E_ILLEGALDST);
+	if (rvm_reg_str2long(&s, arg1) < 0)
+		RVM_ABORT(cpu, RVM_E_ILLEGAL);
+	rvm_reg_setunsigned(res, RVM_REG_GETL(&s));
+}
+
+
+void rvm_op_cast_string_long(rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+{
+	rvmreg_t s;
+
+	if (res == arg1)
+		RVM_ABORT(cpu, RVM_E_ILLEGALDST);
+	if (rvm_reg_str2long(&s, arg1) < 0)
+		RVM_ABORT(cpu, RVM_E_ILLEGAL);
+	rvm_reg_setlong(res, RVM_REG_GETL(&s));
+}
+
+
+void rvm_op_cast_string_double(rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+{
+	rvmreg_t s;
+
+	if (res == arg1)
+		RVM_ABORT(cpu, RVM_E_ILLEGALDST);
+	if (rvm_reg_str2double(&s, arg1) < 0)
+		RVM_ABORT(cpu, RVM_E_ILLEGAL);
+	rvm_reg_setdouble(res, RVM_REG_GETD(&s));
+}
+
+
 void rvm_op_cast_init(rvm_opmap_t *opmap)
 {
 	rvm_opmap_add_binary_operator(opmap, RVM_OPID_CAST);
@@ -96,5 +132,10 @@ void rvm_op_cast_init(rvm_opmap_t *opmap)
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_unsigned_double, RVM_DTYPE_UNSIGNED, RVM_DTYPE_DOUBLE);
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_refreg_string, RVM_DTYPE_REFREG, RVM_DTYPE_STRING);
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_string_string, RVM_DTYPE_STRING, RVM_DTYPE_STRING);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_string_unsigned, RVM_DTYPE_STRING, RVM_DTYPE_UNSIGNED);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_string_long, RVM_DTYPE_STRING, RVM_DTYPE_LONG);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_string_double, RVM_DTYPE_STRING, RVM_DTYPE_DOUBLE);
+
 }
+
 

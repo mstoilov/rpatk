@@ -18,6 +18,12 @@
 #define RVM_OPID_CAST 6
 #define RVM_OPID_LSL 7
 #define RVM_OPID_LSR 8
+#define RVM_OPID_AND 9
+#define RVM_OPID_XOR 10
+#define RVM_OPID_OR 11
+#define RVM_OPID_NOT 12
+#define RVM_OPID_CMP 13
+
 
 /*
  * Important: the res pointer might be the same as one of the arguments, the operator must
@@ -54,4 +60,10 @@ void rvm_opmap_invoke_unary_handler(rvm_opmap_t *opmap, rushort opid, rvmcpu_t *
 
 void rvm_op_lsl_init(rvm_opmap_t *opmap);
 void rvm_op_lsr_init(rvm_opmap_t *opmap);
+void rvm_op_and_init(rvm_opmap_t *opmap);
+void rvm_op_xor_init(rvm_opmap_t *opmap);
+void rvm_op_or_init(rvm_opmap_t *opmap);
+void rvm_op_cmp_init(rvm_opmap_t *opmap);
+void rvm_op_not_init(rvm_opmap_t *opmap);
+
 #endif

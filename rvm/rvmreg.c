@@ -205,6 +205,14 @@ void rvm_reg_clrflag(rvmreg_t *r, ruint16 flag)
 }
 
 
+void rvm_reg_setunsigned(rvmreg_t *r, rword u)
+{
+	RVM_REG_SETU(r, u);
+	RVM_REG_SETTYPE(r, RVM_DTYPE_UNSIGNED);
+	RVM_REG_CLRFLAG(r, RVM_INFOBIT_ROBJECT);
+}
+
+
 void rvm_reg_setlong(rvmreg_t *r, rlong l)
 {
 	RVM_REG_SETL(r, l);
@@ -243,9 +251,68 @@ void rvm_reg_convert_to_refreg(rvmreg_t *reg)
 }
 
 
-rvmreg_t *rvm_reg_unshadow(rvmreg_t *reg)
+rvmreg_t *rvm_reg_unshadow(const rvmreg_t *reg)
 {
 	if (rvm_reg_gettype(reg) != RVM_DTYPE_REFREG)
-		return reg;
+		return (rvmreg_t*)reg;
 	return REFREG2REGPTR(RVM_REG_GETP(reg));
+}
+
+
+int rvm_reg_str2num(rvmreg_t *dst, const rvmreg_t *ssrc)
+{
+	rchar *dptr, *lptr;
+	rdouble d;
+	rlong l;
+	const rvmreg_t *src = rvm_reg_unshadow(ssrc);
+
+	l = r_strtol(R_STRING2PTR(RVM_REG_GETP(src)), &lptr, 10);
+	if (!lptr)
+		return -1;
+	if (*lptr == '\0') {
+		rvm_reg_setlong(dst, l);
+		return 0;
+	}
+	d = r_strtod(R_STRING2PTR(RVM_REG_GETP(src)), &dptr);
+	if (!dptr)
+		return -1;
+	if (*dptr == '\0') {
+		rvm_reg_setdouble(dst, d);
+		return 0;
+	}
+	return -1;
+}
+
+
+int rvm_reg_str2long(rvmreg_t *dst, const rvmreg_t *ssrc)
+{
+	rchar *dptr;
+	rdouble d;
+	const rvmreg_t *src = rvm_reg_unshadow(ssrc);
+
+	d = r_strtod(R_STRING2PTR(RVM_REG_GETP(src)), &dptr);
+	if (!dptr)
+		return -1;
+	if (*dptr == '\0') {
+		rvm_reg_setlong(dst, (long)d);
+		return 0;
+	}
+	return -1;
+}
+
+
+int rvm_reg_str2double(rvmreg_t *dst, const rvmreg_t *ssrc)
+{
+	rchar *dptr;
+	rdouble d;
+	const rvmreg_t *src = rvm_reg_unshadow(ssrc);
+
+	d = r_strtod(R_STRING2PTR(RVM_REG_GETP(src)), &dptr);
+	if (!dptr)
+		return -1;
+	if (*dptr == '\0') {
+		rvm_reg_setdouble(dst, d);
+		return 0;
+	}
+	return -1;
 }

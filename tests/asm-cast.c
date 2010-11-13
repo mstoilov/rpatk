@@ -35,6 +35,7 @@ int main(int argc, char *argv[])
 	ruint off = 0;
 	rvmreg_t d1 = rvm_reg_create_double(1.0);
 	rvmreg_t d2 = rvm_reg_create_double(-1.0);
+	rvmreg_t ds = rvm_reg_create_string_ansi("-3.5785");
 	rvm_asmins_t vmcode[256];
 	rvmcpu_t *vm = rvm_cpu_create();
 	
@@ -61,6 +62,14 @@ int main(int argc, char *argv[])
 	VMTEST_REG(vmcode, off, 0, 1, "CAST");
 	VMTEST_STATUS(vmcode, off, 0, "CAST STATUS");
 
+	vmcode[off++] = rvm_asmp(RVM_LDRR, R1, DA, XX, &ds);
+	vmcode[off++] = rvm_asmp(RVM_PRN, R1, XX, XX, 0);
+	vmcode[off++] = rvm_asm(RVM_CAST, R0, R1, DA, RVM_DTYPE_UNSIGNED);
+	vmcode[off++] = rvm_asmp(RVM_PRN, R0, XX, XX, 0);
+	vmcode[off++] = rvm_asm(RVM_CAST, R0, R1, DA, RVM_DTYPE_LONG);
+	vmcode[off++] = rvm_asmp(RVM_PRN, R0, XX, XX, 0);
+	vmcode[off++] = rvm_asm(RVM_CAST, R0, R1, DA, RVM_DTYPE_DOUBLE);
+	vmcode[off++] = rvm_asmp(RVM_PRN, R0, XX, XX, 0);
 
 	vmcode[off++] = rvm_asm(RVM_EXT, R0, XX, XX, 0);
 #ifdef EXECDEBUG

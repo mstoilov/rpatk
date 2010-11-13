@@ -6,7 +6,7 @@ static void rvm_op_lsl_unsigned(rvmcpu_t *cpu, rvmreg_t *res, rword op1, rword o
 {
 	rword r;
 
-	r = op1 >> op2;
+	r = op1 << op2;
 	RVM_REG_SETU(res, r);
 	RVM_REG_SETTYPE(res, RVM_DTYPE_UNSIGNED);
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, !r);
@@ -58,31 +58,41 @@ static void rvm_op_lsl_double_double(rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_
 
 static void rvm_op_lsl_string_double(rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
-	rdouble d = r_strtod(R_STRING2PTR(RVM_REG_GETP(arg1)), NULL);
-	rvm_op_lsl_long(cpu, res, d, RVM_REG_GETD(arg2));
+	rvmreg_t s;
+
+	if (rvm_reg_str2long(&s, arg1) < 0)
+		RVM_ABORT(cpu, RVM_E_ILLEGAL);
+	rvm_op_lsl_long(cpu, res, RVM_REG_GETL(&s), RVM_REG_GETD(arg2));
 }
 
 
 static void rvm_op_lsl_string_long(rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
-	rchar *lptr;
-	rlong l = r_strtol(R_STRING2PTR(RVM_REG_GETP(arg1)), &lptr, 10);
-	rvm_op_lsl_long(cpu, res, l, RVM_REG_GETL(arg2));
+	rvmreg_t s;
+
+	if (rvm_reg_str2long(&s, arg1) < 0)
+		RVM_ABORT(cpu, RVM_E_ILLEGAL);
+	rvm_op_lsl_long(cpu, res, RVM_REG_GETL(&s), RVM_REG_GETD(arg2));
 }
 
 
 static void rvm_op_lsl_double_string(rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
-	rdouble d = r_strtod(R_STRING2PTR(RVM_REG_GETP(arg2)), NULL);
-	rvm_op_lsl_long(cpu, res, RVM_REG_GETD(arg1), d);
+	rvmreg_t s;
+
+	if (rvm_reg_str2long(&s, arg2) < 0)
+		RVM_ABORT(cpu, RVM_E_ILLEGAL);
+	rvm_op_lsl_long(cpu, res, RVM_REG_GETD(arg1), RVM_REG_GETL(&s));
 }
 
 
 static void rvm_op_lsl_long_string(rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
-	rchar *lptr;
-	rlong l = r_strtol(R_STRING2PTR(RVM_REG_GETP(arg2)), &lptr, 10);
-	rvm_op_lsl_long(cpu, res, RVM_REG_GETL(arg1), l);
+	rvmreg_t s;
+
+	if (rvm_reg_str2long(&s, arg2) < 0)
+		RVM_ABORT(cpu, RVM_E_ILLEGAL);
+	rvm_op_lsl_long(cpu, res, RVM_REG_GETL(arg1), RVM_REG_GETL(&s));
 }
 
 

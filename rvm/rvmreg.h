@@ -32,13 +32,17 @@ ruint rvm_reg_gettype(const rvmreg_t *r);
 rboolean rvm_reg_tstflag(const rvmreg_t *r, ruint16 flag);
 void rvm_reg_setflag(rvmreg_t *r, ruint16 flag);
 void rvm_reg_clrflag(rvmreg_t *r, ruint16 flag);
+void rvm_reg_setunsigned(rvmreg_t *r, rword u);
 void rvm_reg_setlong(rvmreg_t *r, rlong l);
 void rvm_reg_setdouble(rvmreg_t *r, rdouble d);
 void rvm_reg_setstring(rvmreg_t *r, rstring_t *ptr);
 void rvm_reg_setarray(rvmreg_t *r, rarray_t *ptr);
 void rvm_reg_setharray(rvmreg_t *r, rharray_t *ptr);
 void rvm_reg_convert_to_refreg(rvmreg_t *r);
-rvmreg_t *rvm_reg_unshadow(rvmreg_t *reg);
+int rvm_reg_str2num(rvmreg_t *dst, const rvmreg_t *src);
+int rvm_reg_str2long(rvmreg_t *dst, const rvmreg_t *ssrc);
+int rvm_reg_str2double(rvmreg_t *dst, const rvmreg_t *ssrc);
+rvmreg_t *rvm_reg_unshadow(const rvmreg_t *reg);
 
 struct rrefreg_s;
 void rvm_reg_setrefreg(rvmreg_t *r, struct rrefreg_s *ptr);

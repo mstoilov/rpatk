@@ -36,6 +36,7 @@
 
 static const char *stropcalls[] = {
 	"RVM_EXT",
+	"RVM_PRN",
 	"RVM_ASR",
 	"RVM_SWI",
 	"RVM_MOV",
@@ -46,7 +47,7 @@ static const char *stropcalls[] = {
 	"RVM_BIC",
 	"RVM_CLZ",
 	"RVM_CMN",
-	"RVM_EOR",
+	"RVM_XOR",
 	"RVM_SUB",
 	"RVM_SUBS",
 	"RVM_SBC",
@@ -73,6 +74,7 @@ static const char *stropcalls[] = {
 	"RVM_LDRR",
 	"RVM_LSL",
 	"RVM_LSR",
+	"RVM_LSRS",
 	"RVM_STM",
 	"RVM_LDM",
 	"RVM_STS",
@@ -103,6 +105,11 @@ static const char *stropcalls[] = {
 	"RVM_EDIV",
 	"RVM_ELSL",
 	"RVM_ELSR",
+	"RVM_EAND",
+	"RVM_EORR",
+	"RVM_EXOR",
+	"UNKNOWN",
+	"UNKNOWN",
 	"UNKNOWN",
 	"UNKNOWN",
 	"UNKNOWN",
@@ -327,6 +334,17 @@ static void rvm_op_lsr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static void rvm_op_lsrs(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rsword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
+
+	res = ((rsword)op2) >> op3;
+	RVM_CPUREG_SETU(cpu, ins->op1, res);
+	RVM_STATUS_CLRALL(cpu);
+	RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, !res);
+}
+
+
 static void rvm_op_asr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
@@ -373,7 +391,7 @@ static void rvm_op_tst(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
-static void rvm_op_eor(rvmcpu_t *cpu, rvm_asmins_t *ins)
+static void rvm_op_xor(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
 	
@@ -756,6 +774,23 @@ int rvm_asm_dump_reg_to_str(unsigned char reg, char *str, ruint size)
 }
 
 
+static void rvm_op_prn(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rvmreg_t *r = rvm_reg_unshadow(RVM_CPUREG_PTR(cpu, ins->op1));
+
+	if (rvm_reg_gettype(r) == RVM_DTYPE_UNSIGNED)
+		rvm_printf("(UNSIGNED) R%d = %lu(%lx)\n", ins->op1, RVM_REG_GETU(r), RVM_REG_GETU(r));
+	else if (rvm_reg_gettype(r) == RVM_DTYPE_LONG)
+		rvm_printf("(LONG) R%d = %ld\n", ins->op1, RVM_REG_GETL(r));
+	else if (rvm_reg_gettype(r) == RVM_DTYPE_DOUBLE)
+		rvm_printf("(DOUBLE) R%d = %0.2f\n", ins->op1, RVM_REG_GETD(r));
+	else if (rvm_reg_gettype(r) == RVM_DTYPE_STRING)
+		rvm_printf("(STRING) R%d = %s\n", ins->op1, ((rstring_t*) RVM_REG_GETP(r))->s.str);
+	else
+		rvm_printf("(UNKNOWN) R%d = ?\n", ins->op1);
+}
+
+
 int rvm_asm_dump_pi_to_str(rvm_asmins_t *pi, char *str, ruint size)
 {
 	int ret = 0, sz = size;
@@ -1070,6 +1105,7 @@ static void rvm_op_edvs(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static rvm_cpu_op ops[] = {
 	rvm_op_exit,		// RVM_EXT
+	rvm_op_prn,			// RVM_PRN
 	rvm_op_asr,			// RVM_ASR
 	rvm_op_swi,			// RVM_swi
 	rvm_op_mov,			// RVM_MOV
@@ -1080,7 +1116,7 @@ static rvm_cpu_op ops[] = {
 	rvm_op_bic,			// RVM_BIC
 	rvm_op_clz,			// RVM_CLZ
 	rvm_op_cmn,			// RVM_CMN
-	rvm_op_eor,			// RVM_EOR
+	rvm_op_xor,			// RVM_XOR
 	rvm_op_sub,			// RVM_SUB
 	rvm_op_subs,		// RVM_SUBS
 	rvm_op_sbc,			// RVM_SBC
@@ -1107,6 +1143,7 @@ static rvm_cpu_op ops[] = {
 	rvm_op_ldrr,		// RVM_LDRR
 	rvm_op_lsl,			// RVM_LSL
 	rvm_op_lsr,			// RVM_LSR
+	rvm_op_lsrs,		// RVM_LSRS
 	rvm_op_stm,			// RVM_STM
 	rvm_op_ldm,			// RVM_LDS
 	rvm_op_sts,			// RVM_STS
@@ -1179,6 +1216,12 @@ rvmcpu_t *rvm_cpu_create()
 	rvm_op_div_init(cpu->opmap);
 	rvm_op_lsl_init(cpu->opmap);
 	rvm_op_lsr_init(cpu->opmap);
+	rvm_op_or_init(cpu->opmap);
+	rvm_op_xor_init(cpu->opmap);
+	rvm_op_and_init(cpu->opmap);
+	rvm_op_not_init(cpu->opmap);
+	rvm_op_cmp_init(cpu->opmap);
+
 	return cpu;
 }
 

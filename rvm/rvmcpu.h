@@ -34,6 +34,7 @@ extern "C" {
 
 enum {
 	RVM_EXT = 0,
+	RVM_PRN,
 	RVM_ASR,		/* Arithmetic shift right: op1 = op2 >> op3, preserve the signed bit */
 	RVM_SWI,
 	RVM_MOV,
@@ -44,7 +45,7 @@ enum {
 	RVM_BIC,		/* Bit Clear: op1 = op2 & ~op3, update status register */
 	RVM_CLZ,		/* Count rvm_reg_settypeLeading Zeros: op1 = leading_zeros(op2) */
 	RVM_CMN,		/* Compare Negative: status register is updated based on the result: op1 + op2 */
-	RVM_EOR,		/* XOR: op1 = op2 ^ op3, update the status register */
+	RVM_XOR,		/* XOR: op1 = op2 ^ op3, update the status register */
 	RVM_SUB,
 	RVM_SUBS,
 	RVM_SBC,
@@ -71,6 +72,7 @@ enum {
 	RVM_LDRR,		/* Load rvmreg_t: op1 = rvmreg_t_at_location(op2) */
 	RVM_LSL,		/* Logical Shift Left: op1 = op2 << op3, update the status register */
 	RVM_LSR,		/* Logical Shift Right: op1 = op2 >> op3, update the status register */
+	RVM_LSRS,		/* Signed Logical Shift Right: op1 = op2 >> op3, update the status register */
 	RVM_STM,
 	RVM_LDM,
 	RVM_STS,		/* Store op1 on the stack at position op2 + op3, i.e. stack[op2 + op3] = op1 */
@@ -103,16 +105,9 @@ enum {
 	RVM_EDIV,		/* Divide: op1 = op2 / op3 */
 	RVM_ELSL,		/* Logical Shift Left: op1 = op2 << op3, update the status register */
 	RVM_ELSR,		/* Logical Shift Right: op1 = op2 >> op3, update the status register */
-	RVM_EADDS,		/* Add: op1 = op2 + op3, update the status register */
-	RVM_EADC,		/* Add: op1 = op2 + op3 + C, update the status register */
 	RVM_EAND,		/* Bitwise AND: op1 = op2 & op3, update status register */
-	RVM_EEOR,		/* XOR: op1 = op2 ^ op3, update the status register */
-	RVM_ESUBS,
-	RVM_ESBC,
-	RVM_EMLS,		/* Signed multiplication: op1 = op2 * op3 */
-	RVM_EMULS,
-	RVM_EDVS,		/* Signed division: op1 = op2 / op3 */
-	RVM_EDIVS,		/* Divide: op1 = op2 / op3, Update the status register */
+	RVM_EORR,		/* Logical OR: op1 = op2 | op3, update the status register */
+	RVM_EXOR,		/* LOGICAL XOR: op1 = op2 ^ op3, update the status register */
 };
 
 

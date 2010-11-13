@@ -24,13 +24,13 @@ int main(int argc, char *argv[])
 	VMTEST_REG(vmcode, off, 0, 3, "ORR (1, 2)");
 
 
-	vmcode[off++] = rvm_asm(RVM_EOR, R0, R1, R1, 0);
+	vmcode[off++] = rvm_asm(RVM_XOR, R0, R1, R1, 0);
 	VMTEST_REG(vmcode, off, 0, 0, "EOR (0, 0)");
-	vmcode[off++] = rvm_asm(RVM_EOR, R0, R1, R2, 0);
+	vmcode[off++] = rvm_asm(RVM_XOR, R0, R1, R2, 0);
 	VMTEST_REG(vmcode, off, 0, 1, "EOR (0, 1)");
-	vmcode[off++] = rvm_asm(RVM_EOR, R0, R1, R3, 0);
+	vmcode[off++] = rvm_asm(RVM_XOR, R0, R1, R3, 0);
 	VMTEST_REG(vmcode, off, 0, 2, "EOR (0, 2)");
-	vmcode[off++] = rvm_asm(RVM_EOR, R0, R2, R4, 0);
+	vmcode[off++] = rvm_asm(RVM_XOR, R0, R2, R4, 0);
 	VMTEST_REG(vmcode, off, 0, -4, "EOR (1, -3)");
 
 	vmcode[off++] = rvm_asm(RVM_AND, R0, R1, R1, 0);
