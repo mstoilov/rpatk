@@ -22,7 +22,7 @@ static void rvm_op_not_unsigned(rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *ar
 void rvm_op_not_init(rvm_opmap_t *opmap)
 {
 	rvm_opmap_add_unary_operator(opmap, RVM_OPID_NOT);
-	rvm_opmap_set_unary_handler(opmap, RVM_OPID_LSL, rvm_op_not_unsigned, RVM_DTYPE_UNSIGNED);
-	rvm_opmap_set_unary_handler(opmap, RVM_OPID_LSL, rvm_op_not_unsigned, RVM_DTYPE_LONG);
-	rvm_opmap_set_unary_handler(opmap, RVM_OPID_LSL, rvm_op_not_unsigned, RVM_DTYPE_STRING);
+	rvm_opmap_set_unary_handler(opmap, RVM_OPID_NOT, rvm_op_not_unsigned, RVM_DTYPE_UNSIGNED);
+	rvm_opmap_set_unary_handler(opmap, RVM_OPID_NOT, rvm_op_not_unsigned, RVM_DTYPE_LONG);
+	rvm_opmap_set_unary_handler(opmap, RVM_OPID_NOT, rvm_op_not_unsigned, RVM_DTYPE_STRING);
 }

@@ -96,8 +96,7 @@ void rvm_opmap_invoke_binary_handler(rvm_opmap_t *opmap, rushort opid, rvmcpu_t 
 	return;
 
 error:
-	cpu->error = RVM_E_ILLEGAL;
-	cpu->abort = 1;
+	RVM_ABORT(cpu, RVM_E_ILLEGAL);
 }
 
 
@@ -117,6 +116,5 @@ void rvm_opmap_invoke_unary_handler(rvm_opmap_t *opmap, rushort opid, rvmcpu_t *
 	return;
 
 error:
-	cpu->error = RVM_E_ILLEGAL;
-	cpu->abort = 1;
+	RVM_ABORT(cpu, RVM_E_ILLEGAL);
 }

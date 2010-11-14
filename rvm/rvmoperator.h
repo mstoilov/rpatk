@@ -23,6 +23,7 @@
 #define RVM_OPID_OR 11
 #define RVM_OPID_NOT 12
 #define RVM_OPID_CMP 13
+#define RVM_OPID_CMN 14
 
 
 /*
@@ -64,6 +65,7 @@ void rvm_op_and_init(rvm_opmap_t *opmap);
 void rvm_op_xor_init(rvm_opmap_t *opmap);
 void rvm_op_or_init(rvm_opmap_t *opmap);
 void rvm_op_cmp_init(rvm_opmap_t *opmap);
+void rvm_op_cmn_init(rvm_opmap_t *opmap);
 void rvm_op_not_init(rvm_opmap_t *opmap);
 
 #endif

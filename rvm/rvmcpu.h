@@ -108,6 +108,10 @@ enum {
 	RVM_EAND,		/* Bitwise AND: op1 = op2 & op3, update status register */
 	RVM_EORR,		/* Logical OR: op1 = op2 | op3, update the status register */
 	RVM_EXOR,		/* LOGICAL XOR: op1 = op2 ^ op3, update the status register */
+	RVM_ENOT,		/* Bitwise NOT: op1 = ~op2, Update the status register */
+	RVM_ECMP,		/* Compare: status register is updated based on the result: op1 - op2 */
+	RVM_ECMN,		/* Compare Negative: status register is updated based on the result: op1 + op2 */
+
 };
 
 

@@ -38,6 +38,7 @@ TESTS	= \
 	$(OUTDIR)/asm-shiftops \
 	$(OUTDIR)/asm-stack \
 	$(OUTDIR)/asm-bl \
+	$(OUTDIR)/asm-ecmp \
 	$(OUTDIR)/asm-esub \
 	$(OUTDIR)/asm-eadd
 

@@ -12,6 +12,7 @@ RVM_OBJECTS =	\
 	$(OUTDIR)/rvmoperatorxor.o \
 	$(OUTDIR)/rvmoperatoror.o \
 	$(OUTDIR)/rvmoperatorcmp.o \
+	$(OUTDIR)/rvmoperatorcmn.o \
 	$(OUTDIR)/rvmoperatornot.o \
 	$(OUTDIR)/rvmoperatorlsl.o \
 	$(OUTDIR)/rvmoperatorlsr.o \
