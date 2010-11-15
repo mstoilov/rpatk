@@ -27,13 +27,29 @@ int main(int argc, char *argv[])
 	vmcode[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 8);
 	vmcode[off++] = rvm_asm(RVM_MOV, R1, DA, XX, 1);
 	vmcode[off++] = rvm_asm(RVM_ELSL, R2, R0, R1, 0);
+	VMTEST_REG(vmcode, off, 2, 16, "ELSL");
 	vmcode[off++] = rvm_asm(RVM_ELSR, R2, R0, R1, 0);
+	VMTEST_REG(vmcode, off, 2, 4, "ELSR");
 	vmcode[off++] = rvm_asm(RVM_EAND, R2, R0, R1, 0);
+	VMTEST_REG(vmcode, off, 2, 0, "EAND");
 	vmcode[off++] = rvm_asm(RVM_EORR, R2, R0, R1, 0);
+	VMTEST_REG(vmcode, off, 2, 9, "EORR");
 	vmcode[off++] = rvm_asm(RVM_EXOR, R2, R0, R1, 0);
+	VMTEST_REG(vmcode, off, 2, 9, "EXOR");
+	vmcode[off++] = rvm_asm(RVM_ENOT, R2, R0, XX, 0);
+	VMTEST_REG(vmcode, off, 2, -9UL, "ENOT");
+	vmcode[off++] = rvm_asm(RVM_ENOT, R2, R1, XX, 0);
+	VMTEST_REG(vmcode, off, 2, -2UL, "ENOT");
+
 	vmcode[off++] = rvm_asm(RVM_ECMP, R0, R1, XX, 0);
+	VMTEST_STATUS(vmcode, off, 0, "CMP(8, 1)");
+
 	vmcode[off++] = rvm_asm(RVM_ECMP, R1, R0, XX, 0);
+	VMTEST_STATUS(vmcode, off, RVM_STATUS_N | RVM_STATUS_C, "CMP(1, 8)");
+
 	vmcode[off++] = rvm_asm(RVM_ECMP, R1, R1, XX, 0);
+	VMTEST_STATUS(vmcode, off, RVM_STATUS_Z, "CMP(1, 1)");
+
 	vmcode[off++] = rvm_asm(RVM_ECMN, R0, R1, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_ECMN, R1, R0, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_ECMN, R1, R1, XX, 0);
@@ -43,11 +59,19 @@ int main(int argc, char *argv[])
 	vmcode[off++] = rvm_asm(RVM_EAND, R2, R0, R1, 0);
 	vmcode[off++] = rvm_asm(RVM_EORR, R2, R0, R1, 0);
 	vmcode[off++] = rvm_asm(RVM_EXOR, R2, R0, R1, 0);
+	vmcode[off++] = rvm_asm(RVM_ENOT, R2, R1, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_ELSL, R2, R0, R1, 0);
 	vmcode[off++] = rvm_asm(RVM_ELSR, R2, R0, R1, 0);
+
 	vmcode[off++] = rvm_asm(RVM_ECMP, R0, R1, XX, 0);
+	VMTEST_STATUS(vmcode, off, 0, "CMP(8, 1)");
+
 	vmcode[off++] = rvm_asm(RVM_ECMP, R1, R0, XX, 0);
+	VMTEST_STATUS(vmcode, off, RVM_STATUS_N | RVM_STATUS_C, "CMP(1, 8)");
+
 	vmcode[off++] = rvm_asm(RVM_ECMP, R1, R1, XX, 0);
+	VMTEST_STATUS(vmcode, off, RVM_STATUS_Z, "CMP(1, 1)");
+
 	vmcode[off++] = rvm_asm(RVM_ECMN, R0, R1, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_ECMN, R1, R0, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_ECMN, R1, R1, XX, 0);

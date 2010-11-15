@@ -122,6 +122,7 @@ void rvm_op_cast_string_double(rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg
 void rvm_op_cast_init(rvm_opmap_t *opmap)
 {
 	rvm_opmap_add_binary_operator(opmap, RVM_OPID_CAST);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_static_static, RVM_DTYPE_UNSIGNED, RVM_DTYPE_UNSIGNED);
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_static_static, RVM_DTYPE_DOUBLE, RVM_DTYPE_DOUBLE);
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_static_static, RVM_DTYPE_LONG, RVM_DTYPE_LONG);
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_long_double, RVM_DTYPE_LONG, RVM_DTYPE_DOUBLE);
