@@ -789,7 +789,7 @@ static void rvm_op_prn(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_LONG)
 		rvm_printf("(LONG) R%d = %ld\n", ins->op1, RVM_REG_GETL(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_DOUBLE)
-		rvm_printf("(DOUBLE) R%d = %0.2f\n", ins->op1, RVM_REG_GETD(r));
+		rvm_printf("(DOUBLE) R%d = %0.2Lf\n", ins->op1, RVM_REG_GETD(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_STRING)
 		rvm_printf("(STRING) R%d = %s\n", ins->op1, ((rstring_t*) RVM_REG_GETP(r))->s.str);
 	else
@@ -844,9 +844,13 @@ int rvm_asm_dump_pi_to_str(rvm_asmins_t *pi, char *str, ruint size)
 	str += ret;
 	sz -= ret;
 
-	if ((ret = rvm_snprintf(str, sz, "0x%lx  ", (unsigned long)pi->data)) < 0)
-		return ret;
-
+	if (pi->type == RVM_DTYPE_DOUBLE) {
+		if ((ret = rvm_snprintf(str, sz, "0x%Lf  ", pi->data.d)) < 0)
+			return ret;
+	} else {
+		if ((ret = rvm_snprintf(str, sz, "0x%lx  ", (unsigned long)pi->data.u)) < 0)
+			return ret;
+	}
 
 	str += ret;
 	sz -= ret;
@@ -1158,13 +1162,19 @@ void rvm_cpu_destroy(rvmcpu_t *cpu)
 rint rvm_cpu_exec(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off)
 {
 	rvm_asmins_t *pi;
+	rvmreg_t *regda = RVM_CPUREG_PTR(cpu, DA);
+	rvmreg_t *regpc = RVM_CPUREG_PTR(cpu, PC);
 
 	RVM_CPUREG_SETIP(cpu, PC, prog + off);
 	cpu->abort = 0;
 	cpu->error = 0;
 	do {
-		pi = RVM_CPUREG_GETIP(cpu, PC);
-		RVM_CPUREG_SETU(cpu, DA, pi->data);
+		pi = RVM_REG_GETIP(regpc);
+		RVM_REG_SETU(regda, pi->data.u);
+		RVM_REG_SETTYPE(regda, pi->type);
+//		RVM_CPUREG_SETU(cpu, DA, pi->data.u);
+//		if (pi->type)
+//			RVM_CPUREG_SETTYPE(cpu, DA, pi->type);
 		ops[pi->opcode](cpu, pi);
 #ifdef DEBUG
 		if (RVM_CPUREG_GETTYPE(cpu, DA) || RVM_CPUREG_TSTFLAG(cpu, DA, RVM_INFOBIT_ALL))
@@ -1188,7 +1198,7 @@ rint rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off)
 	do {
 		pi = RVM_CPUREG_GETIP(cpu, PC);
 		RVM_CPUREG_CLEAR(cpu, DA);
-		RVM_CPUREG_SETU(cpu, DA, pi->data);
+		RVM_CPUREG_SETU(cpu, DA, pi->data.u);
 		ops[pi->opcode](cpu, pi);
 #ifdef DEBUG
 		if (RVM_CPUREG_GETTYPE(cpu, DA) || RVM_CPUREG_TSTFLAG(cpu, DA, RVM_INFOBIT_ALL))
@@ -1242,7 +1252,7 @@ rvm_asmins_t rvm_asmp(rword opcode, rword op1, rword op2, rword op3, rpointer da
 	a.op1 = (ruint8)op1;
 	a.op2 = (ruint8)op2;
 	a.op3 = (ruint8)op3;
-	a.data = (rword)data;
+	a.data.u = (rword)data;
 
 //	RVM_REG_GETP(&a.data) = data;
 //	RVM_REG_SETTYPE(&a.data, RVM_DTYPE_POINTER);
@@ -1260,7 +1270,7 @@ rvm_asmins_t rvm_asm(rword opcode, rword op1, rword op2, rword op3, rword data)
 	a.op1 = (ruint8)op1;
 	a.op2 = (ruint8)op2;
 	a.op3 = (ruint8)op3;
-	a.data = (rword)data;
+	a.data.u = (rword)data;
 
 	return a;
 }
@@ -1276,7 +1286,7 @@ rvm_asmins_t rvm_asml(rword opcode, rword op1, rword op2, rword op3, rlong data)
 	a.op1 = (ruint8)op1;
 	a.op2 = (ruint8)op2;
 	a.op3 = (ruint8)op3;
-	a.data = (rword)data;
+	a.data.u = (rword)data;
 
 	return a;
 }
@@ -1293,7 +1303,7 @@ rvm_asmins_t rvm_asmr(rword opcode, rword op1, rword op2, rword op3, rpointer pR
 	a.op1 = (ruint8)op1;
 	a.op2 = (ruint8)op2;
 	a.op3 = (ruint8)op3;
-	a.data = (rword)pReloc;
+	a.data.u = (rword)pReloc;
 	a.flags = RVM_ASMINS_RELOC | RVM_ASMINS_RELOCPTR;
 
 	return a;
@@ -1310,7 +1320,7 @@ rvm_asmins_t rvm_asmx(rword opcode, rword op1, rword op2, rword op3, rpointer pR
 	a.op1 = (ruint8)op1;
 	a.op2 = (ruint8)op2;
 	a.op3 = (ruint8)op3;
-	a.data = (rword)pReloc;
+	a.data.u = (rword)pReloc;
 	a.flags = RVM_ASMINS_RELOC;
 
 	return a;
@@ -1326,11 +1336,11 @@ void rvm_relocate(rvm_asmins_t *code, rsize_t size)
 	for (off = 0; off < size; off++, code++) {
 		if (code->flags & RVM_ASMINS_RELOC) {
 			if (code->flags & RVM_ASMINS_RELOCPTR) {
-				reloc = *((rvm_asmins_t **)code->data);
-				code->data = reloc - code;
+				reloc = *((rvm_asmins_t **)code->data.u);
+				code->data.u = reloc - code;
 			} else {
-				relocindex = *((rulong *)code->data);
-				code->data = relocindex - off;
+				relocindex = *((rulong *)code->data.u);
+				code->data.u = relocindex - off;
 			}
 			code->flags &= ~(RVM_ASMINS_RELOCPTR | RVM_ASMINS_RELOC);
 		}

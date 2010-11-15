@@ -237,7 +237,7 @@ do { \
 
 
 #define RVM_OPCODE_BITS 8
-#define RVM_SWI_TABLE_BITS 16
+#define RVM_SWI_TABLE_BITS 10
 #define RVM_SWI_NUM_BITS 8
 #define RVM_SWI_TABLE(__op__) ((__op__) >> RVM_SWI_NUM_BITS)
 #define RVM_SWI_NUM(__op__) ((__op__) & ((1 << RVM_SWI_NUM_BITS) - 1))
@@ -284,13 +284,17 @@ typedef struct rvmreg_s {
 #define RVM_ASMINS_RELOCPTR (1 << 1)
 
 struct rvm_asmins_s {
-	ruint32 opcode:8;
-	ruint32 swi:24;
-	ruint16 flags;
+	union {
+		rword u;
+		rdouble d;
+	} data;
 	ruint16 op1:5;
 	ruint16 op2:5;
 	ruint16 op3:5;
-	rword data;
+	ruint32 opcode:7;
+	ruint32 swi:18;
+	ruint32 type:3;
+	ruint32 flags:4;
 };
 
 struct rvm_opmap_s;
