@@ -18,19 +18,40 @@
  *  Martin Stoilov <martin@rpasearch.com>
  */
 
-#ifndef _RVMCONFIG_H_
-#define _RVMCONFIG_H_
+#include "rpaclass.h"
 
 
-#define RVM_USERDATA
-#define RVM_REG_SIZE (1 << 3)
-
-typedef unsigned long int rvm_uint_t;
-typedef long int rvm_int_t;
-typedef void* rvm_pointer_t;
-typedef unsigned char rvm_u8_t;
-typedef unsigned short rvm_u16_t;
-typedef unsigned int rvm_u32_t;
+const char *rpa_class_to_str(rpa_class_t *cls)
+{
+	return "unk";
+}
 
 
-#endif
+void rpa_class_init(rpa_class_t *cls, rpa_class_methods_t *vptr)
+{
+	cls->vptr = vptr;	
+}
+
+
+unsigned int rpa_class_getid(rpa_class_t *cls)
+{
+	return cls->vptr->rpa_class_getid(cls);	
+}
+
+
+const char *rpa_class_getstr(rpa_class_t *cls)
+{
+	return cls->vptr->rpa_class_getstr(cls);	
+}
+
+
+int rpa_class_dump(rpa_class_t *cls, char *buffer, unsigned int size)
+{
+	return cls->vptr->rpa_class_dump(cls, buffer, size);	
+}
+
+
+void rpa_class_destroy(rpa_class_t *cls)
+{
+	cls->vptr->rpa_class_destroy(cls);
+}

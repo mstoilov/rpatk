@@ -18,19 +18,18 @@
  *  Martin Stoilov <martin@rpasearch.com>
  */
 
-#ifndef _RVMCONFIG_H_
-#define _RVMCONFIG_H_
+#ifndef _RPAERROR_H_
+#define _RPAERROR_H_
 
+#define RPA_E_NONE 0
 
-#define RVM_USERDATA
-#define RVM_REG_SIZE (1 << 3)
-
-typedef unsigned long int rvm_uint_t;
-typedef long int rvm_int_t;
-typedef void* rvm_pointer_t;
-typedef unsigned char rvm_u8_t;
-typedef unsigned short rvm_u16_t;
-typedef unsigned int rvm_u32_t;
-
+#define RPA_E_INVALID_PARAM 1001
+#define RPA_E_INVALID_PATTERN 1002
+#define RPA_E_OUTOFMEM 1003
+#define RPA_E_INVALID_INPUT 1004
+#define RPA_E_INVALID_BRACKETS 1005
+#define RPA_E_INVALID_SQUAREBRACKETS 1006
+#define RPA_E_NOTOPEN 1007
+#define RPA_E_SYNTAX_ERROR 1008
 
 #endif

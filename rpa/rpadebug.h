@@ -18,19 +18,28 @@
  *  Martin Stoilov <martin@rpasearch.com>
  */
 
-#ifndef _RVMCONFIG_H_
-#define _RVMCONFIG_H_
+#if !defined(RPADEBUG_H)
+#define RPADEBUG_H
 
 
-#define RVM_USERDATA
-#define RVM_REG_SIZE (1 << 3)
+#include "rpadbex.h"
 
-typedef unsigned long int rvm_uint_t;
-typedef long int rvm_int_t;
-typedef void* rvm_pointer_t;
-typedef unsigned char rvm_u8_t;
-typedef unsigned short rvm_u16_t;
-typedef unsigned int rvm_u32_t;
+#define RPA_BREAK __asm__ ("int $3")
+#ifdef __cplusplus
+extern "C" {
+#endif
 
+typedef struct rpa_varlink_s *rpa_varlink_ptr;
+
+void rpa_dump_pattern_tree(rpa_pattern_handle pattern);
+void rpa_dump_stack(rpa_dbex_handle hDbex);
+void rpa_varlink_dump(rpa_varlink_ptr pVarLink);
+long rpa_get_alloc_mem();
+long rpa_get_alloc_maxmem();
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -18,19 +18,27 @@
  *  Martin Stoilov <martin@rpasearch.com>
  */
 
-#ifndef _RVMCONFIG_H_
-#define _RVMCONFIG_H_
+#ifndef _RPAMEM_H_
+#define _RPAMEM_H_
 
 
-#define RVM_USERDATA
-#define RVM_REG_SIZE (1 << 3)
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-typedef unsigned long int rvm_uint_t;
-typedef long int rvm_int_t;
-typedef void* rvm_pointer_t;
-typedef unsigned char rvm_u8_t;
-typedef unsigned short rvm_u16_t;
-typedef unsigned int rvm_u32_t;
+extern long int g_rpa_allocmem;
+extern long int g_rpa_maxmem;
 
+
+void *rpa_malloc(unsigned long size);
+void *rpa_zmalloc(unsigned long size);
+void rpa_free(void *ptr);
+void *rpa_realloc(void *ptr, unsigned long size);
+void *rpa_memset(void *s, int c, unsigned long n);
+void *rpa_memcpy(void *dest, const void *src, unsigned long n);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

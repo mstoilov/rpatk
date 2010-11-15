@@ -18,19 +18,12 @@
  *  Martin Stoilov <martin@rpasearch.com>
  */
 
-#ifndef _RVMCONFIG_H_
-#define _RVMCONFIG_H_
+#ifndef _RPACONFIG_H_
+#define _RPACONFIG_H_
 
-
-#define RVM_USERDATA
-#define RVM_REG_SIZE (1 << 3)
-
-typedef unsigned long int rvm_uint_t;
-typedef long int rvm_int_t;
-typedef void* rvm_pointer_t;
-typedef unsigned char rvm_u8_t;
-typedef unsigned short rvm_u16_t;
-typedef unsigned int rvm_u32_t;
+#define RPA_VERSION_STRING "1.0.3-pre"
+#define RPA_LOOPHASH_BITS 8
+#define RPA_MAXSTACK_SIZE (64 * 1024 * sizeof(void*))
 
 
 #endif

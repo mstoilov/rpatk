@@ -1,12 +1,13 @@
 ROBJECT_SRCDIR = $(SRCDIR)/robject
 RLIB_SRCDIR = $(SRCDIR)/rlib
 RVM_SRCDIR = $(SRCDIR)/rvm
+RPA_SRCDIR = $(SRCDIR)/rpa
 TESTS_SRCDIR = $(SRCDIR)/tests
-INCLUDE = -I$(SRCDIR)/arch/$(OS)/$(ARCHDIR) -I$(ROBJECT_SRCDIR) -I$(RLIB_SRCDIR) -I$(RVM_SRCDIR)
+INCLUDE = -I$(SRCDIR)/arch/$(OS)/$(ARCHDIR) -I$(ROBJECT_SRCDIR) -I$(RLIB_SRCDIR) -I$(RVM_SRCDIR) -I$(RPA_SRCDIR)
 LIBS =  -L$(ROBJECT_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
 LIBS += -L$(RLIB_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
 LIBS += -L$(RVM_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
-LIBS += -lrvm -lrlib -lpthread --static
+LIBS += -lrvm -lrlib -lrpa -lrpasx -lpthread --static
 
 
 TESTS	= \

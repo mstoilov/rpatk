@@ -18,19 +18,42 @@
  *  Martin Stoilov <martin@rpasearch.com>
  */
 
-#ifndef _RVMCONFIG_H_
-#define _RVMCONFIG_H_
+#ifndef _RPACBRECORD_H_
+#define _RPACBRECORD_H_
+
+#include "rpamatch.h"
+#include "rpamnode.h"
+#include "rpatypedef.h"
 
 
-#define RVM_USERDATA
-#define RVM_REG_SIZE (1 << 3)
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-typedef unsigned long int rvm_uint_t;
-typedef long int rvm_int_t;
-typedef void* rvm_pointer_t;
-typedef unsigned char rvm_u8_t;
-typedef unsigned short rvm_u16_t;
-typedef unsigned int rvm_u32_t;
 
+typedef struct rpa_cbrecord_s {
+	rpa_mnode_t *mnode;
+	const char *input;
+	unsigned int size;
+} rpa_cbrecord_t;
+
+
+typedef struct rpa_cbset_s {
+	rpa_cbrecord_t *data;
+	rpa_word_t size;
+	rpa_word_t off;
+} rpa_cbset_t;
+
+rpa_cbset_t *rpa_cbset_init(rpa_cbset_t *cbset);
+void rpa_cbset_cleanup(rpa_cbset_t *cbset);
+int rpa_cbset_check_space(rpa_cbset_t *cbset);
+rpa_cbrecord_t *rpa_cbset_push(rpa_cbset_t *cbset);
+void rpa_cbset_reset(rpa_cbset_t *cbset, rpa_word_t off);
+rpa_word_t rpa_cbset_getpos(rpa_cbset_t *cbset);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

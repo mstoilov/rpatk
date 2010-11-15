@@ -18,19 +18,28 @@
  *  Martin Stoilov <martin@rpasearch.com>
  */
 
-#ifndef _RVMCONFIG_H_
-#define _RVMCONFIG_H_
+#ifndef _RPAMATCHSPECIAL_H_
+#define _RPAMATCHSPECIAL_H_
+
+#include "rpamatch.h"
+
+rpa_match_t *rpa_match_special_create_namesize(
+	const char *name,
+	unsigned int namesiz,
+	rpa_matchfunc_t match_function_id);
+rpa_match_t *rpa_match_special_create(
+	const char *name,
+	rpa_matchfunc_t match_function_id);
 
 
-#define RVM_USERDATA
-#define RVM_REG_SIZE (1 << 3)
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-typedef unsigned long int rvm_uint_t;
-typedef long int rvm_int_t;
-typedef void* rvm_pointer_t;
-typedef unsigned char rvm_u8_t;
-typedef unsigned short rvm_u16_t;
-typedef unsigned int rvm_u32_t;
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -18,19 +18,35 @@
  *  Martin Stoilov <martin@rpasearch.com>
  */
 
-#ifndef _RVMCONFIG_H_
-#define _RVMCONFIG_H_
+#ifndef _RPAWORDSTACK_H_
+#define _RPAWORDSTACK_H_
+
+#include "rpatypes.h"
 
 
-#define RVM_USERDATA
-#define RVM_REG_SIZE (1 << 3)
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-typedef unsigned long int rvm_uint_t;
-typedef long int rvm_int_t;
-typedef void* rvm_pointer_t;
-typedef unsigned char rvm_u8_t;
-typedef unsigned short rvm_u16_t;
-typedef unsigned int rvm_u32_t;
+typedef struct rpa_wordstack_s {
+	rpa_word_t *buffer;
+	rpa_word_t size;
+	rpa_word_t grow;
+	rpa_word_t *p;
+} rpa_wordstack_t;
 
+
+rpa_wordstack_t *rpa_wordstack_create(rpa_word_t initialsize, rpa_word_t grow);
+int rpa_wordstack_check_space(rpa_wordstack_t *stack);
+void rpa_wordstack_destroy(rpa_wordstack_t *stack);
+void rpa_wordstack_reset(rpa_wordstack_t *stack);
+void rpa_wordstack_push(rpa_wordstack_t *stack, rpa_word_t val);
+rpa_word_t rpa_wordstack_pop(rpa_wordstack_t *stack);
+
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -18,19 +18,41 @@
  *  Martin Stoilov <martin@rpasearch.com>
  */
 
-#ifndef _RVMCONFIG_H_
-#define _RVMCONFIG_H_
+#if !defined(RPAVARLINK_H)
+#define RPAVARLINK_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "rpalist.h"
+#include "rpavar.h"
 
 
-#define RVM_USERDATA
-#define RVM_REG_SIZE (1 << 3)
+#define USE_UD1 (1<<0)
+#define USE_UD2 (1<<1)
+#define USE_UD3 (1<<2)
+#define USE_UD4 (1<<3)
 
-typedef unsigned long int rvm_uint_t;
-typedef long int rvm_int_t;
-typedef void* rvm_pointer_t;
-typedef unsigned char rvm_u8_t;
-typedef unsigned short rvm_u16_t;
-typedef unsigned int rvm_u32_t;
 
+typedef struct rpa_varlink_s {
+	rpa_list_t lnk;
+	rpa_list_t hlnk;	
+	rpa_var_t var;
+} rpa_varlink_t;
+
+
+rpa_varlink_t *rpa_varlink_find_last_matchptr(rpa_head_t *head);
+rpa_varlink_t *rpa_varlink_find_last_named_matchptr(rpa_head_t *head);
+rpa_varlink_t *rpa_dbex_find_named_matchptr(rpa_head_t *head, const char *name);
+rpa_varlink_t *rpa_varlink_create(unsigned char type, const char *name);
+void rpa_varlink_destroy(rpa_varlink_t *pVarLink);
+void rpa_varlink_destroy_all(rpa_head_t *head);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
+

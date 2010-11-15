@@ -18,19 +18,28 @@
  *  Martin Stoilov <martin@rpasearch.com>
  */
 
-#ifndef _RVMCONFIG_H_
-#define _RVMCONFIG_H_
+#ifndef _RPATYPEDEF_H_
+#define _RPATYPEDEF_H_
 
 
-#define RVM_USERDATA
-#define RVM_REG_SIZE (1 << 3)
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-typedef unsigned long int rvm_uint_t;
-typedef long int rvm_int_t;
-typedef void* rvm_pointer_t;
-typedef unsigned char rvm_u8_t;
-typedef unsigned short rvm_u16_t;
-typedef unsigned int rvm_u32_t;
 
+typedef struct rpa_dbex_s rpa_dbex_t;
+typedef struct rpa_stat_s rpa_stat_t;
+typedef struct rpa_match_s rpa_match_t;
+typedef struct rpa_mnode_s rpa_mnode_t;
+typedef struct rpa_mnode_callback_s rpa_mnode_callback_t;
+
+typedef int (*RPA_MNODE_FUNCTION)(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *input);
+typedef int (*RPA_MATCH_FUNCTION)(rpa_match_t *match, rpa_stat_t *stat, const char *input);
+typedef int (*RPA_MATCH_CALLBACK)(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *input, unsigned int size, unsigned int reason);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

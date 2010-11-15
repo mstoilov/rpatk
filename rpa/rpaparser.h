@@ -18,19 +18,41 @@
  *  Martin Stoilov <martin@rpasearch.com>
  */
 
-#ifndef _RVMCONFIG_H_
-#define _RVMCONFIG_H_
+#ifndef _RPAPARSER_H_
+#define _RPAPARSER_H_
+
+#include "rpalist.h"
+#include "rpamatch.h"
+#include "rpawordstack.h"
+#include "rpavm.h"
+#include "rpastat.h"
+#include "rpavarlink.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
-#define RVM_USERDATA
-#define RVM_REG_SIZE (1 << 3)
+typedef struct rpa_parser_s {
+	rpa_match_t* bnfroot;
+	rpa_varlink_t *pVarLinkBnfRoot;
+	rpa_head_t bnftree;
+	rpa_stat_t stat;
+	rpa_wordstack_t *stack;
+	rpa_asmins_t *vmcode;
+	rpa_word_t vmcode_size;
+	rpa_word_t vmcode_off;
+} rpa_parser_t;
 
-typedef unsigned long int rvm_uint_t;
-typedef long int rvm_int_t;
-typedef void* rvm_pointer_t;
-typedef unsigned char rvm_u8_t;
-typedef unsigned short rvm_u16_t;
-typedef unsigned int rvm_u32_t;
 
+rpa_parser_t *rpa_parser_create();
+void rpa_parser_destroy(rpa_parser_t *parser);
+void rpa_parser_setup_bnftree(rpa_parser_t *parser);
+int rpa_parser_exec(rpa_parser_t *parser, const char *input, unsigned long size);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
