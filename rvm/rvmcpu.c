@@ -789,7 +789,7 @@ static void rvm_op_prn(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_LONG)
 		rvm_printf("(LONG) R%d = %ld\n", ins->op1, RVM_REG_GETL(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_DOUBLE)
-		rvm_printf("(DOUBLE) R%d = %0.2Lf\n", ins->op1, RVM_REG_GETD(r));
+		rvm_printf("(DOUBLE) R%d = %0.2f\n", ins->op1, RVM_REG_GETD(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_STRING)
 		rvm_printf("(STRING) R%d = %s\n", ins->op1, ((rstring_t*) RVM_REG_GETP(r))->s.str);
 	else
@@ -845,7 +845,10 @@ int rvm_asm_dump_pi_to_str(rvm_asmins_t *pi, char *str, ruint size)
 	sz -= ret;
 
 	if (pi->type == RVM_DTYPE_DOUBLE) {
-		if ((ret = rvm_snprintf(str, sz, "0x%Lf  ", pi->data.d)) < 0)
+		if ((ret = rvm_snprintf(str, sz, "%f  ", pi->data.d)) < 0)
+			return ret;
+	} else if (pi->type == RVM_DTYPE_LONG) {
+		if ((ret = rvm_snprintf(str, sz, "%ld  ", (long)pi->data.u)) < 0)
 			return ret;
 	} else {
 		if ((ret = rvm_snprintf(str, sz, "0x%lx  ", (unsigned long)pi->data.u)) < 0)
@@ -1170,19 +1173,17 @@ rint rvm_cpu_exec(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off)
 	cpu->error = 0;
 	do {
 		pi = RVM_REG_GETIP(regpc);
-		RVM_REG_SETU(regda, pi->data.u);
+		if (pi->type == RVM_DTYPE_DOUBLE) {
+			RVM_REG_SETD(regda, pi->data.d);
+		} else {
+			RVM_REG_SETU(regda, pi->data.u);
+		}
 		RVM_REG_SETTYPE(regda, pi->type);
-//		RVM_CPUREG_SETU(cpu, DA, pi->data.u);
-//		if (pi->type)
-//			RVM_CPUREG_SETTYPE(cpu, DA, pi->type);
+		RVM_REG_CLRFLAG(regda, RVM_INFOBIT_ALL);
 		ops[pi->opcode](cpu, pi);
-#ifdef DEBUG
-		if (RVM_CPUREG_GETTYPE(cpu, DA) || RVM_CPUREG_TSTFLAG(cpu, DA, RVM_INFOBIT_ALL))
-			RVM_ABORT(cpu, RVM_E_ILLEGAL);
-#endif
 		if (cpu->abort)
 			return -1;
-		RVM_CPUREG_INCIP(cpu, PC, 1);
+		RVM_REG_INCIP(regpc, 1);
 	} while (pi->opcode);
 	return 0;
 }
@@ -1191,23 +1192,26 @@ rint rvm_cpu_exec(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off)
 rint rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off)
 {
 	rvm_asmins_t *pi;
+	rvmreg_t *regda = RVM_CPUREG_PTR(cpu, DA);
+	rvmreg_t *regpc = RVM_CPUREG_PTR(cpu, PC);
 
 	RVM_CPUREG_SETIP(cpu, PC, prog + off);
 	cpu->abort = 0;
 	cpu->error = 0;
 	do {
-		pi = RVM_CPUREG_GETIP(cpu, PC);
-		RVM_CPUREG_CLEAR(cpu, DA);
-		RVM_CPUREG_SETU(cpu, DA, pi->data.u);
+		pi = RVM_REG_GETIP(regpc);
+		if (pi->type == RVM_DTYPE_DOUBLE) {
+			RVM_REG_SETD(regda, pi->data.d);
+		} else {
+			RVM_REG_SETU(regda, pi->data.u);
+		}
+		RVM_REG_SETTYPE(regda, pi->type);
+		RVM_REG_CLRFLAG(regda, RVM_INFOBIT_ALL);
 		ops[pi->opcode](cpu, pi);
-#ifdef DEBUG
-		if (RVM_CPUREG_GETTYPE(cpu, DA) || RVM_CPUREG_TSTFLAG(cpu, DA, RVM_INFOBIT_ALL))
-			RVM_ABORT(cpu, RVM_E_ILLEGAL);
-#endif
 		if (cpu->abort)
 			return -1;
 		rvm_cpu_dumpregs(pi, cpu);		
-		RVM_CPUREG_INCIP(cpu, PC, 1);
+		RVM_REG_INCIP(regpc, 1);
 	} while (pi->opcode);
 	return 0;
 }
@@ -1287,10 +1291,25 @@ rvm_asmins_t rvm_asml(rword opcode, rword op1, rword op2, rword op3, rlong data)
 	a.op2 = (ruint8)op2;
 	a.op3 = (ruint8)op3;
 	a.data.u = (rword)data;
-
+	a.type = RVM_DTYPE_LONG;
 	return a;
 }
 
+
+rvm_asmins_t rvm_asmd(rword opcode, rword op1, rword op2, rword op3, rdouble data)
+{
+	rvm_asmins_t a;
+
+	r_memset(&a, 0, sizeof(a));
+	a.opcode = (ruint32) RVM_ASMINS_OPCODE(opcode);
+	a.swi = (ruint32) RVM_ASMINS_SWI(opcode);
+	a.op1 = (ruint8)op1;
+	a.op2 = (ruint8)op2;
+	a.op3 = (ruint8)op3;
+	a.data.d = data;
+	a.type = RVM_DTYPE_DOUBLE;
+	return a;
+}
 
 
 rvm_asmins_t rvm_asmr(rword opcode, rword op1, rword op2, rword op3, rpointer pReloc)

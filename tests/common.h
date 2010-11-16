@@ -17,6 +17,13 @@
 		 code[index++] = rvm_asmp(RVM_MOV, R10, DA, XX, msg); \
 		 code[index++] = rvm_asm(RVM_OPSWI(rvm_cpu_getswi(vm, "rvm_vmtest_check_reg")), XX, XX, R0, 0); } while (0)
 
+#define VMTEST_REGD(code, index, reg, val, msg) \
+	do { code[index++] = rvm_asm(RVM_MOV, R8, DA, XX, reg); \
+		 code[index++] = rvm_asmd(RVM_MOV, R9, DA, XX, val); \
+		 code[index++] = rvm_asmp(RVM_MOV, R10, DA, XX, msg); \
+		 code[index++] = rvm_asm(RVM_OPSWI(rvm_cpu_getswi(vm, "rvm_vmtest_check_reg")), XX, XX, R0, 0); } while (0)
+
+
 #define VMTEST_REGP(code, index, reg, pval, msg) \
 	do { code[index++] = rvm_asm(RVM_MOV, R8, DA, XX, reg); \
 		 code[index++] = rvm_asmp(RVM_LDRR, R9, DA, XX, pval); \

@@ -11,6 +11,7 @@ LIBS += -lrvm -lrlib -lrpa -lrpasx -lpthread --static
 
 
 TESTS	= \
+	$(OUTDIR)/rpagen-test \
 	$(OUTDIR)/calc-test \
 	$(OUTDIR)/funcarg-test \
 	$(OUTDIR)/codegen-test \

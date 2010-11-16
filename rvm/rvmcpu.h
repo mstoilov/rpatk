@@ -119,14 +119,13 @@ enum {
 #define RVM_DTYPE_WORD RVM_DTYPE_NONE
 #define RVM_DTYPE_UNSIGNED RVM_DTYPE_NONE
 #define RVM_DTYPE_LONG 1
-#define RVM_DTYPE_DOUBLE 2
-#define RVM_DTYPE_BOOLEAN 3
-#define RVM_DTYPE_OBJECT 4
+#define RVM_DTYPE_POINTER 2			/* Generic pointer, it can point to any memory object */
+#define RVM_DTYPE_DOUBLE 3
+#define RVM_DTYPE_BOOLEAN 4
 #define RVM_DTYPE_STRING 5
 #define RVM_DTYPE_ARRAY 6
 #define RVM_DTYPE_HARRAY 7
 #define RVM_DTYPE_REFREG 8			/* Reference pointer, points to another rrefreg_t object */
-#define RVM_DTYPE_POINTER 9			/* Generic pointer, it can point to any memory object */
 #define RVM_DTYPE_RELOCPTR 14		/* Relocation, using pointers */
 #define RVM_DTYPE_RELOCINDEX 15		/* Relocation, using offsets */
 #define RVM_DTYPE_USER 16
@@ -181,7 +180,7 @@ do { \
 #define PC R15
 #define DA 16		/* The DA register should never be modified manually, otherwise the result is undefined */
 #define RLST 16
-#define XX 255
+#define XX 31
 
 #define RVM_STACK_CHUNK 256
 #define RVM_ABORT(__cpu__, __e__) do { __cpu__->error = (__e__); (__cpu__)->abort = 1; ASSERT(0); return; } while (0)
@@ -225,6 +224,7 @@ do { \
 
 #define RVM_REG_GETIP(__r__) (rvm_asmins_t*)((__r__)->v.p)
 #define RVM_REG_SETIP(__r__, __val__) do { (__r__)->v.p = (rpointer)(__val__); } while (0)
+#define RVM_REG_INCIP(__r__, __val__) do {rvm_asmins_t *p = RVM_REG_GETIP(__r__); (__r__)->v.p = (rpointer)(p + (__val__)); } while (0)
 #define RVM_CPUREG_GETIP(__cpu__, __r__) ((rvm_asmins_t*)RVM_CPUREG_PTR(__cpu__, __r__)->v.p)
 #define RVM_CPUREG_SETIP(__cpu__, __r__, __val__) RVM_REG_SETIP(RVM_CPUREG_PTR(__cpu__, __r__), __val__)
 #define RVM_CPUREG_INCIP(__cpu__, __r__, __val__) do {rvm_asmins_t *p = RVM_CPUREG_GETIP(__cpu__, __r__); (__cpu__)->r[(__r__)].v.p = (rpointer)(p + (__val__)); } while (0)
@@ -320,6 +320,7 @@ rint rvm_cpu_getswi(rvmcpu_t *cpu, const rchar *swiname);
 void rvm_relocate(rvm_asmins_t *code, rsize_t size);
 rvm_asmins_t rvm_asm(rword opcode, rword op1, rword op2, rword op3, rword data);
 rvm_asmins_t rvm_asml(rword opcode, rword op1, rword op2, rword op3, rlong data);
+rvm_asmins_t rvm_asmd(rword opcode, rword op1, rword op2, rword op3, rdouble data);
 rvm_asmins_t rvm_asmp(rword opcode, rword op1, rword op2, rword op3, rpointer data);
 rvm_asmins_t rvm_asmr(rword opcode, rword op1, rword op2, rword op3, rpointer pReloc);
 rvm_asmins_t rvm_asmx(rword opcode, rword op1, rword op2, rword op3, rpointer pReloc);
