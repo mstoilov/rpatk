@@ -102,6 +102,9 @@ rvm_varmap_t *rvm_scope_lookup(rvm_scope_t *scope, const rchar *name, ruint name
 	rvm_varmap_t *varmap;
 	rint i;
 
+	if (!scopesize)
+		return NULL;
+
 	for (i = scopesize - 1; i >= 0; i--) {
 		varmap = (rvm_varmap_t*)r_array_slot(scope->varstack, i);
 		if (r_strncmp(varmap->name, name, namesize) == 0)
@@ -118,6 +121,8 @@ rvm_varmap_t *rvm_scope_tiplookup(rvm_scope_t *scope, const rchar *name, ruint n
 	rvm_varmap_t *varmap;
 	rint i;
 
+	if (!scopesize)
+		return NULL;
 	for (i = scopesize - 1; i >= tipstart; i--) {
 		varmap = (rvm_varmap_t*)r_array_slot(scope->varstack, i);
 		if (r_strncmp(varmap->name, name, namesize) == 0)
