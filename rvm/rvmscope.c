@@ -79,6 +79,12 @@ void rvm_scope_addoffset(rvm_scope_t *scope, const rchar *name, ruint namesize, 
 }
 
 
+ruint rvm_scope_numentries(rvm_scope_t *scope)
+{
+	return r_array_size(scope->varstack);
+}
+
+
 void rvm_scope_addpointer(rvm_scope_t *scope, const rchar *name, ruint namesize, rpointer ptr)
 {
 	rvm_varmap_t vmap;

@@ -1152,7 +1152,6 @@ rvmcpu_t *rvm_cpu_create()
 
 void rvm_cpu_destroy(rvmcpu_t *cpu)
 {
-//	rvm_free(cpu->stack);
 	r_array_destroy(cpu->switables);
 	r_array_destroy(cpu->stack);
 	rvm_opmap_destroy(cpu->opmap);
@@ -1256,8 +1255,6 @@ rvm_asmins_t rvm_asmp(rword opcode, rword op1, rword op2, rword op3, rpointer da
 	a.op3 = (ruint8)op3;
 	a.data.u = (rword)data;
 
-//	RVM_REG_GETP(&a.data) = data;
-//	RVM_REG_SETTYPE(&a.data, RVM_DTYPE_POINTER);
 	return a;
 }
 
