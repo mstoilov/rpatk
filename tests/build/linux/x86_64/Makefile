@@ -7,9 +7,9 @@ SRCDIR = ../../../..
 CC = gcc
 AR = ar
 ifeq ($(BLDCFG), release)
-CFLAGS = -O3 -fPIC 
+CFLAGS = -O3
 else
-CFLAGS = -fPIC -ggdb -O0 -Wall 
+CFLAGS = -g -O0 -Wall 
 endif
 
 ifeq ($(CCBLD), yes)
