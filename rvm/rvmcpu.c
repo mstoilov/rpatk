@@ -783,7 +783,7 @@ static void rvm_op_prn(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *r = rvm_reg_unshadow(RVM_CPUREG_PTR(cpu, ins->op1));
 
 	if (rvm_reg_gettype(r) == RVM_DTYPE_UNSIGNED)
-		rvm_printf("(UNSIGNED) R%d = %lu(%lx)\n", ins->op1, RVM_REG_GETU(r), RVM_REG_GETU(r));
+		rvm_printf("(UNSIGNED) R%d = %lu(0x%lx)\n", ins->op1, RVM_REG_GETU(r), RVM_REG_GETU(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_LONG)
 		rvm_printf("(LONG) R%d = %ld\n", ins->op1, RVM_REG_GETL(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_DOUBLE)

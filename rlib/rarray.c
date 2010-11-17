@@ -118,8 +118,9 @@ rint r_array_insert(rarray_t *array, ruint index, rconstpointer data)
 {
 	r_array_checkexpand(array, index + 1);
 	if (index < array->len) {
-		r_memmove(r_array_slot(array, index + 1), r_array_slot(array, index), (array->len - index) * array->elt_size);
-		array->len += 1;
+		ruint curlen = r_array_size(array);
+		r_array_setsize(array, array->len + 1);
+		r_memmove(r_array_slot(array, index + 1), r_array_slot(array, index), (curlen - index) * array->elt_size);
 	} else {
 		r_array_setsize(array, index + 1);
 	}

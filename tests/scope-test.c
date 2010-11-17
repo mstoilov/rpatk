@@ -10,7 +10,7 @@ void print_var_info(rvm_scope_t *scope, rchar* varname)
 {
 	rvm_varmap_t *vmap;
 
-	vmap = rvm_scope_lookuptip_s(scope, varname);
+	vmap = rvm_scope_tiplookup_s(scope, varname);
 	if (vmap) {
 		if (vmap && vmap->datatype == VARMAP_DATATYPE_OFFSET)
 			fprintf(stdout, "tip: %s, offset: %d\n", vmap->name, vmap->data.offset);

@@ -43,6 +43,12 @@ ruint rvm_codegen_addins(rvm_codegen_t *cg, rvm_asmins_t ins)
 }
 
 
+ruint rvm_codegen_insertins(rvm_codegen_t *cg, ruint index, rvm_asmins_t ins)
+{
+	return r_array_insert(cg->code, index, &ins);
+}
+
+
 ruint rvm_codegen_funcstart(rvm_codegen_t *cg, const rchar* name, ruint namesize, ruint args)
 {
 	ruint start = rvm_codegen_addins(cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(R0)|BIT(FP)|BIT(SP)|BIT(LR)));

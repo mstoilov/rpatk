@@ -42,9 +42,9 @@ void rvm_scope_push(rvm_scope_t* scope);
 void rvm_scope_pop(rvm_scope_t* scope);
 ruint rvm_scope_numentries(rvm_scope_t *scope);
 rvm_varmap_t *rvm_scope_lookup(rvm_scope_t *scope, const rchar *name, ruint namesize);
-rvm_varmap_t *rvm_scope_lookup_tip(rvm_scope_t *scope, const rchar *name, ruint namesize);
 rvm_varmap_t *rvm_scope_lookup_s(rvm_scope_t *scope, const rchar *name);
-rvm_varmap_t *rvm_scope_lookuptip_s(rvm_scope_t *scope, const rchar *name);
+rvm_varmap_t *rvm_scope_tiplookup(rvm_scope_t *scope, const rchar *name, ruint namesize);
+rvm_varmap_t *rvm_scope_tiplookup_s(rvm_scope_t *scope, const rchar *name);
 
 
 #ifdef __cplusplus

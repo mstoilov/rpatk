@@ -31,6 +31,7 @@ ruint rvm_codegen_vargs_funcstart(rvm_codegen_t *cg, const rchar* name, ruint na
 ruint rvm_codegen_vargs_funcstart_s(rvm_codegen_t *cg, const rchar* name);
 void rvm_codegen_funcend(rvm_codegen_t *cg);
 ruint rvm_codegen_addins(rvm_codegen_t *cg, rvm_asmins_t ins);
+ruint rvm_codegen_insertins(rvm_codegen_t *cg, ruint index, rvm_asmins_t ins);
 rvm_asmins_t *rvm_codegen_getcode(rvm_codegen_t *cg, ruint index);
 rulong rvm_codegen_getcodesize(rvm_codegen_t *cg);
 
