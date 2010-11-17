@@ -21,7 +21,7 @@
 #if !defined(RPAVAR_H)
 #define RPAVAR_H
 
-#include "rpamem.h"
+#include "rmem.h"
 #include "rpatypes.h"
 
 #ifdef __cplusplus

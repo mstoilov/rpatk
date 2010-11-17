@@ -18,9 +18,11 @@
  *  Martin Stoilov <martin@rpasearch.com>
  */
 
-#include "rpamem.h"
+#include "rstring.h"
+
+#include "rpacharconv.h"
+#include "rmem.h"
 #include "rpavar.h"
-#include "rpastring.h"
 #include "rpavarlink.h"
 #include "rpaparser.h"
 #include "rpamnode.h"
@@ -65,7 +67,7 @@ int rpa_parser_check_space(rpa_parser_t *parser)
 
 	if (parser->vmcode_size - parser->vmcode_off < RPA_VMCODE_GROW) {
 		vmcode_size = parser->vmcode_size + RPA_VMCODE_GROW;
-		vmcode = (rpa_asmins_t *)rpa_realloc(parser->vmcode, (unsigned long)(sizeof(rpa_asmins_t) * vmcode_size));
+		vmcode = (rpa_asmins_t *)r_realloc(parser->vmcode, (unsigned long)(sizeof(rpa_asmins_t) * vmcode_size));
 		if (!vmcode)
 			return -1;
 		parser->vmcode_size = vmcode_size;
@@ -79,10 +81,10 @@ rpa_parser_t *rpa_parser_create()
 {
 	rpa_parser_t *parser;
 
-	parser = (rpa_parser_t *)rpa_malloc(sizeof(*parser));
+	parser = (rpa_parser_t *)r_malloc(sizeof(*parser));
 	if (!parser)
 		return ((void*)0);
-	rpa_memset(parser, 0, sizeof(*parser));
+	r_memset(parser, 0, sizeof(*parser));
 	rpa_list_init(&parser->bnftree);
 	rpa_stat_init(&parser->stat);
 	rpa_stat_set_encoding(&parser->stat, RPA_ENCODING_UTF8);
@@ -92,7 +94,7 @@ rpa_parser_t *rpa_parser_create()
 		goto error;
 	parser->vmcode_size = RPA_VMCODE_SIZE;
 	parser->vmcode_off = 0;
-	parser->vmcode = (rpa_asmins_t *)rpa_malloc((unsigned long)(sizeof(rpa_asmins_t) * parser->vmcode_size));
+	parser->vmcode = (rpa_asmins_t *)r_malloc((unsigned long)(sizeof(rpa_asmins_t) * parser->vmcode_size));
 	if (!parser->vmcode)
 		goto error;
 	return parser;
@@ -106,11 +108,11 @@ error:
 void rpa_parser_destroy(rpa_parser_t *parser)
 {
 	rpa_varlink_destroy_all(&parser->bnftree);
-	rpa_free(parser->vmcode);
+	r_free(parser->vmcode);
 	if (parser->stack)
 		rpa_wordstack_destroy(parser->stack);
 	rpa_stat_cleanup(&parser->stat);
-	rpa_free(parser);
+	r_free(parser);
 }
 
 
@@ -355,11 +357,11 @@ int rpa_parser_cb_assign(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *input
 			break;
 		case RPA_REASON_END|RPA_REASON_MATCHED:
 		case RPA_REASON_MATCHED:
-			if (rpa_strncmp(input, "::=", size) == 0)
+			if (r_strncmp(input, "::=", size) == 0)
 				rpa_parser_gencode_nlist_set_matchfunc(parser, input, size, RPA_MATCHFUNC_LIST);
-			else if (rpa_strncmp(input, "++=", size) == 0)
+			else if (r_strncmp(input, "++=", size) == 0)
 				rpa_parser_gencode_nlist_set_matchfunc(parser, input, size, RPA_MATCHFUNC_NLIST_BESTALT);
-			else if (rpa_strncmp(input, "||=", size) == 0)
+			else if (r_strncmp(input, "||=", size) == 0)
 				rpa_parser_gencode_nlist_set_matchfunc(parser, input, size, RPA_MATCHFUNC_NLIST_ALT);
 			else
 				rpa_parser_gencode_nlist_set_matchfunc(parser, input, size, RPA_MATCHFUNC_LIST);
@@ -571,7 +573,7 @@ int rpa_parser_cb_hexnum_r5(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *in
 	char *endptr = (void*)0;
 	rpa_word_t codepos = parser->vmcode_off;
 
-	wc = rpa_strtoul(input, &endptr, 16);
+	wc = r_strtoul(input, &endptr, 16);
 	
 	switch (reason) {
 		case RPA_REASON_END|RPA_REASON_MATCHED:
@@ -595,7 +597,7 @@ int rpa_parser_cb_hexnum_r6(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *in
 	char *endptr = (void*)0;
 	rpa_word_t codepos = parser->vmcode_off;
 
-	wc = rpa_strtoul(input, &endptr, 16);
+	wc = r_strtoul(input, &endptr, 16);
 	
 	switch (reason) {
 		case RPA_REASON_END|RPA_REASON_MATCHED:
@@ -619,7 +621,7 @@ int rpa_parser_cb_decnum_r5(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *in
 	char *endptr = (void*)0;
 	rpa_word_t codepos = parser->vmcode_off;
 
-	wc = rpa_strtoul(input, &endptr, 10);
+	wc = r_strtoul(input, &endptr, 10);
 	
 	switch (reason) {
 		case RPA_REASON_END|RPA_REASON_MATCHED:
@@ -643,7 +645,7 @@ int rpa_parser_cb_decnum_r6(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *in
 	char *endptr = (void*)0;
 	rpa_word_t codepos = parser->vmcode_off;
 
-	wc = rpa_strtoul(input, &endptr, 10);
+	wc = r_strtoul(input, &endptr, 10);
 	
 	switch (reason) {
 		case RPA_REASON_END|RPA_REASON_MATCHED:

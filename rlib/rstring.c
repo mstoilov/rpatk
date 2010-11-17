@@ -1,5 +1,7 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
+#include <stdarg.h>
 
 #include "rstring.h"
 #include "rmem.h"
@@ -27,6 +29,12 @@ rsize_t r_strlen(const rchar *s)
 rchar *r_strstr(const rchar *haystack, const rchar *needle)
 {
 	return strstr(haystack, needle);
+}
+
+
+rchar *r_strchr(const rchar *s, rint c)
+{
+	return strchr(s, c);
 }
 
 
@@ -76,6 +84,54 @@ rstr_t *r_rstrdup(const rchar *s, ruint size)
 		r_memcpy((rchar*)d->str, s, size);
 	}
 	return d;
+}
+
+
+rint r_vsnprintf(rchar *str, ruint size, const rchar *format, va_list ap)
+{
+	return vsnprintf(str, size, format, ap);
+}
+
+
+rchar *r_strcat(rchar *dest, const rchar *src)
+{
+	return strcat(dest, src);
+}
+
+
+rchar *r_strncat(rchar *dest, const rchar *src, ruint n)
+{
+	return strncat(dest, src, n);
+}
+
+
+rint r_snprintf(rchar *str, ruint size, const rchar *format, ...)
+{
+	va_list ap;
+	int ret;
+
+	va_start(ap, format);
+	ret = r_vsnprintf(str, size, format, ap);
+	va_end(ap);
+	return ret;
+}
+
+
+rint r_printf(const rchar *format, ...)
+{
+	va_list ap;
+	int ret;
+
+	va_start(ap, format);
+	ret = vfprintf(stdout, format, ap);
+	va_end(ap);
+	return ret;
+}
+
+
+rulong r_strtoul(const rchar *nptr, rchar **endptr, rint base)
+{
+	return strtoul(nptr, endptr,base);
 }
 
 

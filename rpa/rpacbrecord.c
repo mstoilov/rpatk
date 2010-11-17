@@ -20,7 +20,7 @@
 
 
 #include "rpacbrecord.h"
-#include "rpamem.h"
+#include "rmem.h"
 #include "rpatypes.h"
 
 
@@ -28,7 +28,7 @@
 
 rpa_cbset_t *rpa_cbset_init(rpa_cbset_t *cbset)
 {
-	rpa_memset(cbset, 0, sizeof(*cbset));
+	r_memset(cbset, 0, sizeof(*cbset));
 	if (rpa_cbset_check_space(cbset) < 0)
 		return (void*)0;
 	return cbset;
@@ -37,7 +37,7 @@ rpa_cbset_t *rpa_cbset_init(rpa_cbset_t *cbset)
 
 void rpa_cbset_cleanup(rpa_cbset_t *cbset)
 {
-	rpa_free(cbset->data);
+	r_free(cbset->data);
 }
 
 
@@ -48,7 +48,7 @@ int rpa_cbset_check_space(rpa_cbset_t *cbset)
 
 	if (cbset->size - cbset->off < RPA_CBSET_GROW) {
 		size = cbset->size + RPA_CBSET_GROW;
-		data = (rpa_cbrecord_t *)rpa_realloc(cbset->data, (unsigned long)(sizeof(rpa_cbrecord_t) * size));
+		data = (rpa_cbrecord_t *)r_realloc(cbset->data, (unsigned long)(sizeof(rpa_cbrecord_t) * size));
 		if (!data)
 			return -1;
 		cbset->size = size;

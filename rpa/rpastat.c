@@ -18,7 +18,7 @@
  *  Martin Stoilov <martin@rpasearch.com>
  */
 
-#include "rpamem.h"
+#include "rmem.h"
 #include "rpamatch.h"
 #include "rpamnode.h"
 #include "rpamatchval.h"
@@ -29,7 +29,7 @@
 #include "rpastat.h"
 #include "rpavarlink.h"
 #include "rpaconfig.h"
-#include "rpastring.h"
+#include "rstring.h"
 
 #include "rpasearch.h"
 
@@ -267,7 +267,7 @@ void rpa_stat_init(rpa_stat_t *stat)
 	unsigned char s1 = 'a';
 	unsigned char s2 = 'b';
 	
-	rpa_memset(stat, 0, sizeof(*stat));
+	r_memset(stat, 0, sizeof(*stat));
 	for (i = 0; i < RPA_LOOPHASH_SIZE; i++)
 		rpa_list_init(&stat->loophash[i]);
 	rpa_list_init(&stat->loopstack);
@@ -324,10 +324,10 @@ rpa_stat_handle rpa_stat_create(rpa_dbex_handle hDbex)
 	
 	if (!hDbex)
 		return (void*)0;
-	stat = (rpa_stat_t *)rpa_malloc(sizeof(*stat));
+	stat = (rpa_stat_t *)r_malloc(sizeof(*stat));
 	if (!stat)
 		return ((void*)0);
-	rpa_memset(stat, 0, sizeof(*stat));
+	r_memset(stat, 0, sizeof(*stat));
 	rpa_stat_init(stat);
 	return stat;
 }
@@ -337,7 +337,7 @@ void rpa_stat_destroy(rpa_stat_handle hStat)
 {
 	if (hStat)
 		rpa_stat_cleanup(hStat);
-	rpa_free(hStat);
+	r_free(hStat);
 }
 
 

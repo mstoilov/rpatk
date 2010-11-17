@@ -19,21 +19,21 @@
  */
 
 #include "rpaposmnodestack.h"
-#include "rpamem.h"
+#include "rmem.h"
 
 rpa_posmnodestack_t *rpa_posmnodestack_create(rpa_word_t initialsize, rpa_word_t grow)
 {
 	rpa_posmnodestack_t *stack;
 
-	stack = (rpa_posmnodestack_t *)rpa_malloc(sizeof(*stack));
+	stack = (rpa_posmnodestack_t *)r_malloc(sizeof(*stack));
 	if (!stack)
 		return ((void*)0);
-	rpa_memset(stack, 0, sizeof(*stack));
+	r_memset(stack, 0, sizeof(*stack));
 	stack->size = initialsize;
 	stack->grow = grow;
-	stack->p = stack->buffer = rpa_malloc((unsigned long)(sizeof(rpa_posmnode_t) * initialsize));
+	stack->p = stack->buffer = r_malloc((unsigned long)(sizeof(rpa_posmnode_t) * initialsize));
 	if (!stack->p) {
-		rpa_free(stack);
+		r_free(stack);
 		return (void*)0;
 	}
 	stack->p->pos = 0;
@@ -44,8 +44,8 @@ rpa_posmnodestack_t *rpa_posmnodestack_create(rpa_word_t initialsize, rpa_word_t
 
 void rpa_posmnodestack_destroy(rpa_posmnodestack_t *stack)
 {
-	rpa_free(stack->buffer);
-	rpa_free(stack);	
+	r_free(stack->buffer);
+	r_free(stack);	
 }
 
 
@@ -54,7 +54,7 @@ int rpa_posmnodestack_check_space(rpa_posmnodestack_t *stack)
 	if (stack->size - (stack->p - stack->buffer) < stack->grow) {
 		rpa_posmnode_t *buffer;
 		rpa_word_t off = stack->p - stack->buffer;
-		if ((buffer = rpa_realloc(stack->buffer, (unsigned long)(stack->size + stack->grow) * sizeof(rpa_posmnode_t))) == 0)
+		if ((buffer = r_realloc(stack->buffer, (unsigned long)(stack->size + stack->grow) * sizeof(rpa_posmnode_t))) == 0)
 			return -1;
 		stack->buffer = buffer;
 		stack->p = buffer + off;

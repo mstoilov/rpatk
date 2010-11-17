@@ -24,10 +24,17 @@ rint r_strcmp(const rchar *s1, const rchar *s2);
 rint r_strncmp(const rchar *s1, const rchar *s2, rsize_t n);
 rsize_t r_strlen(const rchar *s);
 rchar *r_strstr(const rchar *haystack, const rchar *needle);
+rchar *r_strchr(const rchar *s, rint c);
 rchar *r_strdup(const rchar *s);
 rchar *r_strndup(const rchar *s, rsize_t size);
 rchar *r_strcpy(rchar *dest, const rchar *src);
 rchar *r_strncpy(rchar *dest, const rchar *src, rsize_t n);
+rchar *r_strcat(rchar *dest, const rchar *src);
+rchar *r_strncat(rchar *dest, const rchar *src, ruint n);
+rint r_snprintf(rchar *str, ruint size, const rchar *format, ...);
+rint r_printf(const rchar *format, ...);
+
+rulong r_strtoul(const rchar *nptr, rchar **endptr, rint base);
 rlong r_strtol(const rchar *s, rchar **endptr, rint base);
 rdouble r_strtod(const rchar *s, rchar **endptr);
 

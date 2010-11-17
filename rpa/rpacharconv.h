@@ -18,24 +18,19 @@
  *  Martin Stoilov <martin@rpasearch.com>
  */
 
-#ifndef _RPAMEM_H_
-#define _RPAMEM_H_
+#ifndef _RPASTRING_H_
+#define _RPASTRING_H_
 
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern long int g_rpa_allocmem;
-extern long int g_rpa_maxmem;
 
+unsigned long rpa_lowchar(unsigned long c);
+unsigned long rpa_hichar(unsigned long c);
+unsigned long rpa_icasechar(unsigned long c);
 
-void *rpa_malloc(unsigned long size);
-void *rpa_zmalloc(unsigned long size);
-void rpa_free(void *ptr);
-void *rpa_realloc(void *ptr, unsigned long size);
-void *rpa_memset(void *s, int c, unsigned long n);
-void *rpa_memcpy(void *dest, const void *src, unsigned long n);
 
 #ifdef __cplusplus
 }

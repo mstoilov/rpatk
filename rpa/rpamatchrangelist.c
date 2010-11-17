@@ -19,8 +19,8 @@
  */
 
 #include "rpamatch.h"
-#include "rpamem.h"
-#include "rpastring.h"
+#include "rmem.h"
+#include "rstring.h"
 #include "rpamatchlist.h"
 
 static unsigned int rpa_match_rangelist_getid(rpa_class_t *cls)
@@ -45,7 +45,7 @@ static void rpa_match_rangelist_destroy(rpa_class_t *cls)
 {
 	rpa_match_t *match = (rpa_match_t *)cls;
 	rpa_match_list_cleanup(match);
-	rpa_free(match);
+	r_free(match);
 }
 
 static rpa_class_methods_t rpa_match_rangelist_methods = {
@@ -62,15 +62,15 @@ rpa_match_t * rpa_match_rangelist_create_namesize(
 	rpa_matchfunc_t match_function_id)
 {
 	rpa_match_list_t *newMatch;
-	newMatch = (rpa_match_list_t *)rpa_malloc(sizeof(*newMatch));
+	newMatch = (rpa_match_list_t *)r_malloc(sizeof(*newMatch));
 	if (!newMatch)
 		return ((void*)0);
-	rpa_memset(newMatch, 0, sizeof(*newMatch));
+	r_memset(newMatch, 0, sizeof(*newMatch));
 	return rpa_match_list_init((rpa_match_t *)newMatch, name, namesiz, &rpa_match_rangelist_methods, match_function_id);
 }
 
 
 rpa_match_t * rpa_match_rangelist_create(const char *name, rpa_matchfunc_t match_function_id)
 {
-	return rpa_match_rangelist_create_namesize(name, rpa_strlen(name), match_function_id);
+	return rpa_match_rangelist_create_namesize(name, r_strlen(name), match_function_id);
 }

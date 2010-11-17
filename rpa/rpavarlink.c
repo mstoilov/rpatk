@@ -19,8 +19,8 @@
  */
 
 #include "rpavarlink.h"
-#include "rpamem.h"
-#include "rpastring.h"
+#include "rmem.h"
+#include "rstring.h"
 #include "rpamatch.h"
 #include "rpamatchstr.h"
 #include "rpamatchrange.h"
@@ -33,7 +33,7 @@ rpa_varlink_t *rpa_varlink_create(unsigned char type, const char *name)
 {
 	rpa_varlink_t *pVarLink;
 
-	pVarLink = (rpa_varlink_t*)rpa_malloc(sizeof(*pVarLink));
+	pVarLink = (rpa_varlink_t*)r_malloc(sizeof(*pVarLink));
 	if (!pVarLink)
 		return ((void*)0);
 	rpa_list_init(&pVarLink->lnk);
@@ -52,7 +52,7 @@ void rpa_varlink_destroy(rpa_varlink_t *pVarLink)
 	if (!rpa_list_empty(&pVarLink->hlnk))
 		rpa_list_del(&pVarLink->hlnk);		
 	rpa_var_finalize(&pVarLink->var);
-	rpa_free((void*)pVarLink);
+	r_free((void*)pVarLink);
 }
 
 

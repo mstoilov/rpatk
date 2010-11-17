@@ -19,8 +19,8 @@
  */
 
 #include "rpamnode.h"
-#include "rpamem.h"
-#include "rpastring.h"
+#include "rmem.h"
+#include "rstring.h"
 #include "rpamatch.h"
 #include "rpadbexpriv.h"
 #include "rpadbex.h"
@@ -47,7 +47,7 @@ void rpa_dbex_close_do(rpa_dbex_handle hDbex)
 	if (!hDbex)
 		return;
 	
-	rpa_memset(&mnode, 0, sizeof(mnode));
+	r_memset(&mnode, 0, sizeof(mnode));
 	for (hPattern = rpa_dbex_first_pattern(hDbex); hPattern; hPattern = rpa_dbex_next_pattern(hDbex, hPattern)) {
 		mnode.match = (rpa_match_t *)hPattern->var.v.ptr;
 		mnode.flags = 0;
@@ -70,7 +70,7 @@ void rpa_dbex_close(rpa_dbex_handle hDbex)
 void rpa_dbex_cleanup(rpa_dbex_handle hDbex)
 {
 	rpa_varlink_destroy_all(&hDbex->treehead);
-	rpa_free(hDbex->namehash);
+	r_free(hDbex->namehash);
 	if (hDbex->parser)
 		rpa_parser_destroy(hDbex->parser);
 	if (hDbex->parser)
@@ -86,12 +86,12 @@ rpa_dbex_handle rpa_dbex_init(rpa_dbex_handle hDbex, unsigned int namehashEntrie
 	for (i = 0; namehashEntries; i++)
 		namehashEntries >>= 1;
 	namehashEntries = 1 << (i - 1);
-	rpa_memset(hDbex, 0, sizeof(*hDbex));
+	r_memset(hDbex, 0, sizeof(*hDbex));
 	rpa_list_init(&hDbex->treehead);
 	rpa_list_init(&hDbex->callbacks);
 	rpa_list_init(&hDbex->callbackmnodes);
 	hDbex->namehashEntries = namehashEntries;
-	hDbex->namehash = rpa_malloc(namehashEntries* sizeof(rpa_head_t));
+	hDbex->namehash = r_malloc(namehashEntries* sizeof(rpa_head_t));
 	for (i = 0; i < namehashEntries; i++)
 		rpa_list_init(&hDbex->namehash[i]);
 	if (rpa_dbex_check_parser(hDbex) < 0) {
@@ -115,7 +115,7 @@ rpa_dbex_handle rpa_dbex_create_with_hash(unsigned int uHashEntries)
 {
 	rpa_dbex_handle hDbex;
 
-	if (!(hDbex = rpa_malloc(sizeof(*hDbex))))
+	if (!(hDbex = r_malloc(sizeof(*hDbex))))
 		return ((void*)0);
 	return rpa_dbex_init(hDbex, uHashEntries);
 }
@@ -130,7 +130,7 @@ rpa_dbex_handle rpa_dbex_create(void)
 void rpa_dbex_destroy(rpa_dbex_handle hDbex)
 {
 	rpa_dbex_cleanup(hDbex);
-	rpa_free((void *)hDbex);
+	r_free((void *)hDbex);
 }
 
 
@@ -182,7 +182,7 @@ int rpa_dbex_load_string(rpa_dbex_handle hDbex, const char *patterns)
 		hDbex->lastError = RPA_E_INVALID_PARAM;
 		return -1;
 	}
-	inputsize = rpa_strlen(patterns) + 1;
+	inputsize = r_strlen(patterns) + 1;
 	while ((ret = rpa_dbex_load(hDbex, patterns, inputsize)) > 0) {
 		inputsize -= ret;
 		patterns += ret;
@@ -207,7 +207,7 @@ rpa_pattern_handle rpa_dbex_get_pattern(rpa_dbex_handle hDbex, const char *name)
 
 	for (hPattern = rpa_dbex_first_pattern(hDbex); hPattern; hPattern = rpa_dbex_next_pattern(hDbex, hPattern)) {
 		patternName = rpa_dbex_pattern_name(hDbex, hPattern);
-		if (rpa_dbex_pattern_name(hDbex, hPattern) && rpa_strcmp(patternName, name) == 0)
+		if (rpa_dbex_pattern_name(hDbex, hPattern) && r_strcmp(patternName, name) == 0)
 			return hPattern;
 	}
 	return ((void *)0);
@@ -332,7 +332,7 @@ int rpa_dbex_strmatch(const char *str, const char *patterns)
 	
 	if (patterns == ((void *)0) || patterns == ((void *)0))
 		return -1;
-	len = rpa_strlen(str);
+	len = r_strlen(str);
 	rpa_dbex_init(&dbex, 16);
 	while (*patterns) {
 		if ((ret = rpa_dbex_load_string(&dbex, patterns)) < 0)
@@ -361,21 +361,21 @@ int rpa_dbex_add_callback(rpa_dbex_handle hDbex, const char *namematch, unsigned
 	rpa_callbackdata_t *pCbData = (void*)0;
 	
 	if (namematch) {
-		namesiz = rpa_strlen(namematch);
+		namesiz = r_strlen(namematch);
 	}
 	cbsize = sizeof(rpa_callbackdata_t) + namesiz + 1;
-	if ((pCbData = (rpa_callbackdata_t *)rpa_malloc(cbsize)) == 0) {
+	if ((pCbData = (rpa_callbackdata_t *)r_malloc(cbsize)) == 0) {
 		hDbex->lastError = RPA_E_OUTOFMEM;
 		return -1;		
 	}
-	rpa_memset(pCbData, 0, cbsize);
-	rpa_strncpy(pCbData->namematch, namematch, namesiz);
+	r_memset(pCbData, 0, cbsize);
+	r_strncpy(pCbData->namematch, namematch, namesiz);
 	pCbData->userdata = userdata;
 	pCbData->reason = reason;
 	pCbData->func = func;
 	pVarLinkCallback = rpa_varlink_create(RPA_VAR_PTR, "callback");
 	if (!pVarLinkCallback) {
-		rpa_free(pCbData);
+		r_free(pCbData);
 		hDbex->lastError = RPA_E_OUTOFMEM;
 		return -1;		
 	}

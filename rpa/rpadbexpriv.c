@@ -23,8 +23,8 @@
 #include "rpadbexpriv.h"
 #include "rpamatch.h"
 #include "rpamnode.h"
-#include "rpastring.h"
-#include "rpamem.h"
+#include "rstring.h"
+#include "rmem.h"
 #include "rpamatch.h"
 #include "rpamatchspecial.h"
 #include "rpamatchstr.h"
@@ -126,7 +126,7 @@ void rpa_mnode_connect_callback_dontuse(rpa_dbex_handle hDbex, rpa_mnode_t *mnod
 	int ret = 0;
 	rpa_varlink_t *pCallback;
 	const char *name = (void*)0;
-	int size = name ? rpa_strlen(name) : 0;
+	int size = name ? r_strlen(name) : 0;
 
 	if (!mnode || (mnode->flags & RPA_MNODE_NOCONNECT) || !mnode->match || !mnode->match->name)
 		return;
@@ -222,7 +222,7 @@ rpa_varlink_t *rpa_varlink_find_named_matchptr(rpa_head_t *head, const char *nam
 		pVarLinkMatch = rpa_list_entry(pos, rpa_varlink_t, hlnk);
 		if (pVarLinkMatch->var.userdata4 == MATCH_CLASS_NAMEDMATCHPTR) {
 			rpa_match_t *match = (rpa_match_t *)pVarLinkMatch->var.v.ptr;
-			if (rpa_strncmp(match->name, name, size) == 0)
+			if (r_strncmp(match->name, name, size) == 0)
 				return pVarLinkMatch;
 		}
 	}

@@ -18,8 +18,8 @@
  *  Martin Stoilov <martin@rpasearch.com>
  */
 
-#include "rpamem.h"
-#include "rpastring.h"
+#include "rmem.h"
+#include "rstring.h"
 #include "rpamatch.h"
 #include "rpalist.h"
 #include "rpamatchlist.h"
@@ -61,7 +61,7 @@ static int rpa_mnode_dump(rpa_class_t *cls, char *buffer, unsigned int size)
 static void rpa_mnode_destroy(rpa_class_t *cls)
 {
 	rpa_mnode_t *mnode = (rpa_mnode_t*)cls;
-	rpa_free(mnode);
+	r_free(mnode);
 }
 
 
@@ -153,7 +153,7 @@ rpa_mnode_t *rpa_mnode_init(
 	unsigned int flags,
 	rpa_class_methods_t *vptr)
 {
-	rpa_memset(mnode, 0, sizeof(*mnode));
+	r_memset(mnode, 0, sizeof(*mnode));
 	rpa_class_init((rpa_class_t*)mnode, vptr);
 	mnode->match = match;
 	mnode->flags = flags;
@@ -183,7 +183,7 @@ rpa_mnode_t *rpa_mnode_create(
 {
 	rpa_mnode_t *newnode;
 
-	newnode = (rpa_mnode_t*) rpa_malloc(sizeof(*newnode));
+	newnode = (rpa_mnode_t*) r_malloc(sizeof(*newnode));
 	if (!newnode)
 		return ((void*)0);
 	return rpa_mnode_init(newnode, match, flags, &rpa_mnode_methods);
@@ -198,7 +198,7 @@ rpa_mnode_t *rpa_mnode_callback_create(
 {
 	rpa_mnode_callback_t *newnode;
 
-	newnode = (rpa_mnode_callback_t*) rpa_malloc(sizeof(*newnode));
+	newnode = (rpa_mnode_callback_t*) r_malloc(sizeof(*newnode));
 	if (!newnode)
 		return ((void*)0);
 	return rpa_mnode_callback_init(newnode, match, flags, matched_callback, userdata, &rpa_mnode_callback_methods);
@@ -214,7 +214,7 @@ rpa_mnode_t *rpa_mnode_callback_arg1_create(
 {
 	rpa_mnode_callback_arg1_t *newnode;
 
-	newnode = (rpa_mnode_callback_arg1_t*) rpa_malloc(sizeof(*newnode));
+	newnode = (rpa_mnode_callback_arg1_t*) r_malloc(sizeof(*newnode));
 	if (!newnode)
 		return ((void*)0);
 	newnode->arg1 = arg1;
@@ -233,7 +233,7 @@ rpa_mnode_t *rpa_mnode_callback_arg2_create(
 {
 	rpa_mnode_callback_arg2_t *newnode;
 
-	newnode = (rpa_mnode_callback_arg2_t*) rpa_malloc(sizeof(*newnode));
+	newnode = (rpa_mnode_callback_arg2_t*) r_malloc(sizeof(*newnode));
 	if (!newnode)
 		return ((void*)0);
 	newnode->base.arg1 = arg1;

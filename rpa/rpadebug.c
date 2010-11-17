@@ -21,8 +21,8 @@
 #include "rpaclass.h"
 #include "rpadbexpriv.h"
 #include "rpamatch.h"
-#include "rpastring.h"
-#include "rpamem.h"
+#include "rstring.h"
+#include "rmem.h"
 #include "rpamatch.h"
 #include "rpamnode.h"
 #include "rpamatchstr.h"
@@ -100,8 +100,8 @@ void rpa_dump_tree(rpa_match_t *match, unsigned int flags, int level, rpa_match_
 		szdataptr[0] = '\0';
 		rpa_dump_list_dataptr(match, szdataptr, sizeof(szdataptr));
 		for (i = 0; i < level; i++)
-			rpa_printf("    ");
-		rpa_printf("(%3s, %s, %c %c) <:%s:> %s\n", rpa_class_getstr((rpa_class_t*)match), get_match_func(match), q, l, match->name, szdataptr);
+			r_printf("    ");
+		r_printf("(%3s, %s, %c %c) <:%s:> %s\n", rpa_class_getstr((rpa_class_t*)match), get_match_func(match), q, l, match->name, szdataptr);
 		for (i = cur; i > 0; i--) {
 			if (stack[i] == match)
 				return;
@@ -117,8 +117,8 @@ void rpa_dump_tree(rpa_match_t *match, unsigned int flags, int level, rpa_match_
 		szdataptr[0] = '\0';
 		rpa_dump_list_dataptr(match, szdataptr, sizeof(szdataptr));
 		for (i = 0; i < level; i++)
-			rpa_printf("    ");
-		rpa_printf("(%3s, %s, %c %c) %s %s\n", rpa_class_getstr((rpa_class_t*)match), get_match_func(match), q, l, match->name, szdataptr);
+			r_printf("    ");
+		r_printf("(%3s, %s, %c %c) %s %s\n", rpa_class_getstr((rpa_class_t*)match), get_match_func(match), q, l, match->name, szdataptr);
 		for (i = cur; i > 0; i--) {
 			if (stack[i] == match)
 				return;
@@ -132,20 +132,20 @@ void rpa_dump_tree(rpa_match_t *match, unsigned int flags, int level, rpa_match_
 		}
 	} else if (rpa_class_getid((rpa_class_t*)match) & RPA_MATCH_STR_CLASSID) {
 		for (i = 0; i < level; i++)
-			rpa_printf("    ");
-		rpa_printf("(%3s, %s, %c) %s\n", rpa_class_getstr((rpa_class_t*)match), get_match_func(match), 
+			r_printf("    ");
+		r_printf("(%3s, %s, %c) %s\n", rpa_class_getstr((rpa_class_t*)match), get_match_func(match), 
 						q, match->name);
 	} else if (rpa_class_getid((rpa_class_t*)match) & RPA_MATCH_VAL_CLASSID) {
 			unsigned char mb[7];
-			rpa_memset(mb, 0, sizeof(mb));
+			r_memset(mb, 0, sizeof(mb));
 			rpa_utf8_wctomb(((rpa_match_val_t*)match)->val, mb, sizeof(mb));
 			for (i = 0; i < level; i++)
-				rpa_printf("    ");
-			rpa_printf("(%3s, %s, %c) %s (0x%x)\n", rpa_class_getstr((rpa_class_t*)match), get_match_func(match), q, mb, ((rpa_match_val_t*)match)->val);
+				r_printf("    ");
+			r_printf("(%3s, %s, %c) %s (0x%x)\n", rpa_class_getstr((rpa_class_t*)match), get_match_func(match), q, mb, ((rpa_match_val_t*)match)->val);
 	} else {
 		for (i = 0; i < level; i++)
-			rpa_printf("    ");
-		rpa_printf("(%3s, %s, %c) %s\n", rpa_class_getstr((rpa_class_t*)match), get_match_func(match), q, match->name);
+			r_printf("    ");
+		r_printf("(%3s, %s, %c) %s\n", rpa_class_getstr((rpa_class_t*)match), get_match_func(match), q, match->name);
 	}
 }
 
@@ -171,57 +171,57 @@ void rpa_dump_pattern_tree(rpa_pattern_handle pattern)
 
 long rpa_get_alloc_mem()
 {
-	return g_rpa_allocmem;
+	return r_debug_get_allocmem();
 }
 
 
 long rpa_get_alloc_maxmem()
 {
-	return g_rpa_maxmem;
+	return r_debug_get_maxmem();
 }
 
 
 void rpa_varlink_dump(rpa_varlink_ptr pVarLink)
 {
 	if (pVarLink->var.userdata4 == MATCH_CLASS_NAMEDMATCHPTR && pVarLink->var.type == RPA_VAR_PTR) {
-		rpa_printf("%35s: ", "NAMEDMATCHPTR");
+		r_printf("%35s: ", "NAMEDMATCHPTR");
 		if ( rpa_class_getid((rpa_class_t*)pVarLink->var.v.ptr) & RPA_MATCH_LIST_CLASSID) {
 			rpa_match_list_t *match = (rpa_match_list_t*)pVarLink->var.v.ptr;
-			rpa_printf("%s (rpa_match_list_t)", match->base.name);
+			r_printf("%s (rpa_match_list_t)", match->base.name);
 		}
 	} else if (pVarLink->var.userdata4 == MATCH_CLASS_MATCHPTR && pVarLink->var.type == RPA_VAR_PTR) {
-		rpa_printf("%35s: ", "MATCHPTR");
+		r_printf("%35s: ", "MATCHPTR");
 		if ( rpa_class_getid((rpa_class_t*)pVarLink->var.v.ptr) == RPA_MATCH_NEWLINE_CLASSID) {
-			rpa_printf("~ (rpa_match_t)");
+			r_printf("~ (rpa_match_t)");
 		} else if ( rpa_class_getid((rpa_class_t*)pVarLink->var.v.ptr) & RPA_MATCH_VAL_CLASSID) {
 			rpa_match_val_t *match = (rpa_match_val_t*)pVarLink->var.v.ptr;
 			unsigned char mb[7];
-			rpa_memset(mb, 0, sizeof(mb));
+			r_memset(mb, 0, sizeof(mb));
 			rpa_utf8_wctomb(match->val, mb, sizeof(mb));
-			rpa_printf("%s (rpa_match_val_t)", mb);
+			r_printf("%s (rpa_match_val_t)", mb);
 		} else if (rpa_class_getid((rpa_class_t*)pVarLink->var.v.ptr) & RPA_MATCH_RANGE_CLASSID) {
 			unsigned char low[7], high[7];
 			rpa_match_range_t *match = (rpa_match_range_t*)pVarLink->var.v.ptr;
-			rpa_memset(low, 0, sizeof(low));
-			rpa_memset(high, 0, sizeof(high));
+			r_memset(low, 0, sizeof(low));
+			r_memset(high, 0, sizeof(high));
 			rpa_utf8_wctomb((int)match->low, low, sizeof(low));
 			rpa_utf8_wctomb((int)match->high, high, sizeof(high));
-			rpa_printf("%s-%s (rpa_match_range_t)", low, high);
+			r_printf("%s-%s (rpa_match_range_t)", low, high);
 		} else if (rpa_class_getid((rpa_class_t*)pVarLink->var.v.ptr) & RPA_MATCH_STR_CLASSID) {
 			rpa_match_str_t *match = (rpa_match_str_t*)pVarLink->var.v.ptr;
-			rpa_printf("%s (rpa_match_str_t)", match->base.name);
+			r_printf("%s (rpa_match_str_t)", match->base.name);
 		} else if (rpa_class_getid((rpa_class_t*)pVarLink->var.v.ptr) & RPA_MATCH_LIST_CLASSID) {
 			rpa_match_list_t *match = (rpa_match_list_t*)pVarLink->var.v.ptr;
-			rpa_printf("%s (rpa_match_list_t)", match->base.name);
+			r_printf("%s (rpa_match_list_t)", match->base.name);
 		}
 
 	} else if (pVarLink->var.userdata4 == MATCH_CLASS_MNODEPTR && pVarLink->var.type == RPA_VAR_PTR) {
 		rpa_mnode_t *mnode = (rpa_mnode_t*)pVarLink->var.v.ptr;
-		rpa_printf("%35s: ", "MNODEPTR");
-		rpa_printf("%s (rpa_mnode_t), flags = 0x%x", mnode->match->name, mnode->flags);
+		r_printf("%35s: ", "MNODEPTR");
+		r_printf("%s (rpa_mnode_t), flags = 0x%x", mnode->match->name, mnode->flags);
 	}
 
-	rpa_printf("\n");
+	r_printf("\n");
 }
 
 
@@ -266,17 +266,17 @@ int rpa_mnode_print(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *input, uns
 	else 
 		reasonstr = "no";
 
-	rpa_printf("%s (%ld, %2d) %30s: ", reasonstr, (long)(input - stat->start), size, mnode->match->name);
+	r_printf("%s (%ld, %2d) %30s: ", reasonstr, (long)(input - stat->start), size, mnode->match->name);
 	while (input && size) {
-		rpa_printf("%c", *input++);
+		r_printf("%c", *input++);
 		size -= 1;
 		// max one char for RPA_REASON_START callbacks
 		if (reason & RPA_REASON_START) {
-			rpa_printf(" ...");
+			r_printf(" ...");
 			break;
 		}
 	}
-	rpa_printf("\n");
+	r_printf("\n");
 	return size;
 }
 

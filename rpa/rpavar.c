@@ -18,8 +18,8 @@
  *  Martin Stoilov <martin@rpasearch.com>
  */
 
-#include "rpastring.h"
-#include "rpamem.h"
+#include "rstring.h"
+#include "rmem.h"
 #include "rpavar.h"
 #include "rpaclass.h"
 
@@ -27,10 +27,10 @@
 void rpa_var_init_namesize(rpa_var_t *var, unsigned char type, const char *name, unsigned int namesize)
 {
 	int size = (sizeof(var->name) - 1) < namesize ? (sizeof(var->name) - 1) : namesize;
-	rpa_memset(var, 0, sizeof(*var));
+	r_memset(var, 0, sizeof(*var));
 	var->type = type;
 	if (name)
-		rpa_strncpy(var->name, name, size);
+		r_strncpy(var->name, name, size);
 }
 
 
@@ -50,7 +50,7 @@ rpa_var_t *rpa_var_create_namesize(unsigned char type, const char *name, unsigne
 {
 	rpa_var_t *pVar;
 
-	pVar = (rpa_var_t*)rpa_malloc(sizeof(*pVar));
+	pVar = (rpa_var_t*)r_malloc(sizeof(*pVar));
 	if (!pVar)
 		return ((void*)0);
 	rpa_var_init_namesize(pVar, type, name, namesize);
@@ -60,7 +60,7 @@ rpa_var_t *rpa_var_create_namesize(unsigned char type, const char *name, unsigne
 
 void rpa_var_finalize_ptr(rpa_var_t *pVar)
 {
-	rpa_free(pVar->v.ptr);
+	r_free(pVar->v.ptr);
 }
 
 
@@ -74,7 +74,7 @@ void rpa_var_finalize(rpa_var_t *pVar)
 void rpa_var_destroy(rpa_var_t *pVar)
 {
 	rpa_var_finalize(pVar);
-	rpa_free((void*)pVar);
+	r_free((void*)pVar);
 }
 
 

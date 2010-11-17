@@ -18,11 +18,13 @@
  *  Martin Stoilov <martin@rpasearch.com>
  */
 
+#include "rstring.h"
+
 #include "rpamatch.h"
 #include "rpamatchrange.h"
-#include "rpastring.h"
-#include "rpamem.h"
+#include "rmem.h"
 #include "rpastat.h"
+#include "rpacharconv.h"
 
 
 static unsigned int rpa_match_range_getid(rpa_class_t *cls)
@@ -47,7 +49,7 @@ static void rpa_match_range_destroy(rpa_class_t *cls)
 {
 	rpa_match_t *match = (rpa_match_t*)cls;
 	rpa_match_range_cleanup(match);
-	rpa_free(match);
+	r_free(match);
 }
 
 
@@ -91,10 +93,10 @@ rpa_match_t * rpa_match_range_create_namesize(
 {
 	rpa_match_range_t *newMatch;
 	
-	newMatch = (rpa_match_range_t *)rpa_malloc(sizeof(*newMatch));
+	newMatch = (rpa_match_range_t *)r_malloc(sizeof(*newMatch));
 	if (!newMatch)
 		return ((void*)0);
-	rpa_memset(newMatch, 0, sizeof(*newMatch));
+	r_memset(newMatch, 0, sizeof(*newMatch));
 	return rpa_match_range_init((rpa_match_t*)newMatch, name, namesiz, &rpa_match_range_methods, match_function_id, low, high);
 }
 
@@ -105,7 +107,7 @@ rpa_match_t * rpa_match_range_create(
 	unsigned long low,
 	unsigned long high)
 {
-	return rpa_match_range_create_namesize(name, rpa_strlen(name), match_function_id, low, high);
+	return rpa_match_range_create_namesize(name, r_strlen(name), match_function_id, low, high);
 }
 
 

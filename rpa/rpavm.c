@@ -19,8 +19,8 @@
  */
 
 #include "rpavm.h"
-#include "rpamem.h"
-#include "rpastring.h"
+#include "rmem.h"
+#include "rstring.h"
 
 
 static const char *stropcalls[] = {
@@ -95,19 +95,19 @@ int rpa_asm_dump_reg_to_str(unsigned char reg, char *str, unsigned int size)
 	int ret = 0;
 
 	if (reg == XX)
-		ret = rpa_snprintf(str, size, "XX ");
+		ret = r_snprintf(str, size, "XX ");
 	else if (reg == SP)
-		ret = rpa_snprintf(str, size, "SP ");
+		ret = r_snprintf(str, size, "SP ");
 	else if (reg == LR)
-		ret = rpa_snprintf(str, size, "LR ");
+		ret = r_snprintf(str, size, "LR ");
 	else if (reg == PC)
-		ret = rpa_snprintf(str, size, "PC ");
+		ret = r_snprintf(str, size, "PC ");
 	else if (reg == DA)
-		ret = rpa_snprintf(str, size, "DA ");
+		ret = r_snprintf(str, size, "DA ");
 	else if (reg >= 0 && reg < 10)
-		ret = rpa_snprintf(str, size, "R%d ",  reg);
+		ret = r_snprintf(str, size, "R%d ",  reg);
 	else if (reg >= 10)
-		ret = rpa_snprintf(str, size, "R%d",  reg);
+		ret = r_snprintf(str, size, "R%d",  reg);
 
 	return ret;
 }
@@ -117,7 +117,7 @@ int rpa_asm_dump_pi_to_str(rpa_asmins_t *pi, char *str, unsigned int size)
 {
 	int ret = 0, sz = size;
 
-	if ((ret = rpa_snprintf(str, sz, "%10s   ", stropcalls[pi->opcode])) < 0)
+	if ((ret = r_snprintf(str, sz, "%10s   ", stropcalls[pi->opcode])) < 0)
 		return ret;
 	str += ret;
 	sz -= ret;
@@ -127,7 +127,7 @@ int rpa_asm_dump_pi_to_str(rpa_asmins_t *pi, char *str, unsigned int size)
 	str += ret;
 	sz -= ret;
 		
-	if ((ret = rpa_snprintf(str, sz, " ")) < 0)
+	if ((ret = r_snprintf(str, sz, " ")) < 0)
 		return ret;
 	str += ret;
 	sz -= ret;
@@ -137,7 +137,7 @@ int rpa_asm_dump_pi_to_str(rpa_asmins_t *pi, char *str, unsigned int size)
 	str += ret;
 	sz -= ret;
 		
-	if ((ret = rpa_snprintf(str, sz, " ")) < 0)
+	if ((ret = r_snprintf(str, sz, " ")) < 0)
 		return ret;
 	str += ret;
 	sz -= ret;
@@ -147,12 +147,12 @@ int rpa_asm_dump_pi_to_str(rpa_asmins_t *pi, char *str, unsigned int size)
 	str += ret;
 	sz -= ret;
 		
-	if ((ret = rpa_snprintf(str, sz, " ")) < 0)
+	if ((ret = r_snprintf(str, sz, " ")) < 0)
 		return ret;
 	str += ret;
 	sz -= ret;
 
-	if ((ret = rpa_snprintf(str, sz, "0x%lx  ", pi->data)) < 0)
+	if ((ret = r_snprintf(str, sz, "0x%lx  ", pi->data)) < 0)
 		return ret;
 	str += ret;
 	sz -= ret;
@@ -166,7 +166,7 @@ void rpa_asm_dump(rpa_asmins_t *pi, unsigned int count)
 	char buffer[256];
 	while (count) {
 		rpa_asm_dump_pi_to_str(pi, buffer, sizeof(buffer));
-		rpa_printf("%s\n", buffer);
+		r_printf("%s\n", buffer);
 		++pi;
 		--count;
 	}
@@ -181,18 +181,18 @@ static void rpa_vm_dumpregs(rpa_asmins_t *pi, rpa_vm_t *vm)
 	ret = rpa_asm_dump_pi_to_str(pi, buffer, sizeof(buffer));
 	if (ret < 0)
 		return;
-    ret = rpa_snprintf(buffer + ret, sizeof(buffer) - ret, "                                                                                        ");
+    ret = r_snprintf(buffer + ret, sizeof(buffer) - ret, "                                                                                        ");
 	buffer[50] = '\0';
-	rpa_printf("%s", buffer);
+	r_printf("%s", buffer);
 
-   	rpa_printf("0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, SP=0x%lx, LR=0x%lx, PC=%ld, S( %c%c%c%c )", 
+   	r_printf("0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, SP=0x%lx, LR=0x%lx, PC=%ld, S( %c%c%c%c )", 
    		vm->r[0], vm->r[1], vm->r[2], vm->r[3], vm->r[4], vm->r[5], vm->r[6], vm->r[7], vm->r[8], vm->r[SP], vm->r[LR], 
    		(long int)vm->r[PC], 
    		vm->status & RPA_STATUS_V ? 'V' : '_',
    		vm->status & RPA_STATUS_C ? 'C' : '_',
    		vm->status & RPA_STATUS_N ? 'N' : '_',
    		vm->status & RPA_STATUS_Z ? 'Z' : '_');
-	rpa_printf("\n");
+	r_printf("\n");
 }
 
 
@@ -203,7 +203,7 @@ int rpa_vm_check_space(rpa_vm_t *vm)
 
 	if (vm->stacksize - vm->r[SP] <= RPAVM_STACK_CHUNK) {
 		stacksize = vm->stacksize + 2 * RPAVM_STACK_CHUNK;
-		stack = (rpa_word_t *)rpa_realloc(vm->stack, (unsigned long)(sizeof(rpa_word_t) * stacksize));
+		stack = (rpa_word_t *)r_realloc(vm->stack, (unsigned long)(sizeof(rpa_word_t) * stacksize));
 		if (!stack)
 			return -1;
 		vm->stacksize = stacksize;
@@ -802,18 +802,18 @@ rpa_vm_t *rpa_vm_create()
 {
 	rpa_vm_t *vm;
 
-	vm = (rpa_vm_t *)rpa_malloc(sizeof(*vm));
+	vm = (rpa_vm_t *)r_malloc(sizeof(*vm));
 	if (!vm)
 		return ((void*)0);
-	rpa_memset(vm, 0, sizeof(*vm));	
+	r_memset(vm, 0, sizeof(*vm));	
 	return vm;
 }
 
 
 void rpa_vm_destroy(rpa_vm_t * vm)
 {
-	rpa_free(vm->stack);
-	rpa_free(vm);
+	r_free(vm->stack);
+	r_free(vm);
 }
 
 

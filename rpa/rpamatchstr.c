@@ -17,12 +17,14 @@
  *
  *  Martin Stoilov <martin@rpasearch.com>
  */
+#include "rstring.h"
+
 
 #include "rpamatch.h"
 #include "rpamatchstr.h"
-#include "rpamem.h"
-#include "rpastring.h"
+#include "rmem.h"
 #include "rpastat.h"
+#include "rpacharconv.h"
 
 
 static unsigned int rpa_match_str_getid(rpa_class_t *cls)
@@ -47,7 +49,7 @@ static void rpa_match_str_destroy(rpa_class_t *cls)
 {
 	rpa_match_t *match = (rpa_match_t*)cls;
 	rpa_match_str_cleanup(match);
-	rpa_free(match);
+	r_free(match);
 }
 
 static rpa_class_methods_t rpa_match_str_methods = {
@@ -72,7 +74,7 @@ rpa_match_t *rpa_match_str_init(
 
 void rpa_match_str_cleanup(rpa_match_t *match)
 {
-	rpa_free(((rpa_match_str_t*)match)->str);
+	r_free(((rpa_match_str_t*)match)->str);
 	rpa_match_cleanup(match);
 }
 
@@ -84,10 +86,10 @@ rpa_match_t * rpa_match_str_create_namesize(
 {
 	rpa_match_str_t *newMatch;
 	
-	newMatch = (rpa_match_str_t *)rpa_malloc(sizeof(*newMatch) );
+	newMatch = (rpa_match_str_t *)r_malloc(sizeof(*newMatch) );
 	if (!newMatch)
 		return ((void*)0);
-	rpa_memset(newMatch, 0, sizeof(*newMatch));
+	r_memset(newMatch, 0, sizeof(*newMatch));
 	return rpa_match_str_init((rpa_match_t*)newMatch, name, namesiz, &rpa_match_str_methods, match_function_id);
 }
 
@@ -96,7 +98,7 @@ rpa_match_t * rpa_match_str_create(
 	const char *name,
 	rpa_matchfunc_t match_function_id)
 {
-	return rpa_match_str_create_namesize(name, rpa_strlen(name), match_function_id);
+	return rpa_match_str_create_namesize(name, r_strlen(name), match_function_id);
 }
 
 
@@ -104,9 +106,9 @@ rpa_strval_t *rpa_match_str_alloc_strval(rpa_match_t *match, unsigned long count
 {
 	rpa_match_str_t *matchstr = (rpa_match_str_t*)match;
 	if (matchstr->str)
-		rpa_free(matchstr->str);
+		r_free(matchstr->str);
 	matchstr->count = 0;
-	matchstr->str = (rpa_strval_t *) rpa_malloc(sizeof(rpa_strval_t) * (count + 1));
+	matchstr->str = (rpa_strval_t *) r_malloc(sizeof(rpa_strval_t) * (count + 1));
 	if (!matchstr->str)
 		return (void*)0;
 	matchstr->count = count;

@@ -21,8 +21,7 @@ CFLAGS += -DHAVESTDIO
 RPA_OBJECTS = \
 	$(OUTDIR)/rpaclass.o \
 	$(OUTDIR)/rpautf.o \
-	$(OUTDIR)/rpamem.o \
-	$(OUTDIR)/rpastring.o \
+	$(OUTDIR)/rpacharconv.o \
 	$(OUTDIR)/rpamnode.o \
 	$(OUTDIR)/rpamatch.o \
 	$(OUTDIR)/rpamatchspecial.o \

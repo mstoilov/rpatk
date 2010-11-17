@@ -19,22 +19,22 @@
  */
 
 #include "rpawordstack.h"
-#include "rpamem.h"
+#include "rmem.h"
 
 
 rpa_wordstack_t *rpa_wordstack_create(rpa_word_t initialsize, rpa_word_t grow)
 {
 	rpa_wordstack_t *stack;
 
-	stack = (rpa_wordstack_t *)rpa_malloc(sizeof(*stack));
+	stack = (rpa_wordstack_t *)r_malloc(sizeof(*stack));
 	if (!stack)
 		return ((void*)0);
-	rpa_memset(stack, 0, sizeof(*stack));
+	r_memset(stack, 0, sizeof(*stack));
 	stack->size = initialsize;
 	stack->grow = grow;
-	stack->p = stack->buffer = rpa_malloc((unsigned long)(sizeof(rpa_word_t) * initialsize));
+	stack->p = stack->buffer = r_malloc((unsigned long)(sizeof(rpa_word_t) * initialsize));
 	if (!stack->p) {
-		rpa_free(stack);
+		r_free(stack);
 		return (void*)0;
 	}
 	return stack;
@@ -43,8 +43,8 @@ rpa_wordstack_t *rpa_wordstack_create(rpa_word_t initialsize, rpa_word_t grow)
 
 void rpa_wordstack_destroy(rpa_wordstack_t *stack)
 {
-	rpa_free(stack->buffer);
-	rpa_free(stack);
+	r_free(stack->buffer);
+	r_free(stack);
 }
 
 
@@ -72,7 +72,7 @@ int rpa_wordstack_check_space(rpa_wordstack_t *stack)
 	if (stack->size - (stack->p - stack->buffer) < stack->grow) {
 		rpa_word_t *buffer;
 		rpa_word_t off = stack->p - stack->buffer;
-		if ((buffer = rpa_realloc(stack->buffer, (unsigned long)(stack->size + stack->grow) * sizeof(rpa_word_t))) == 0)
+		if ((buffer = r_realloc(stack->buffer, (unsigned long)(stack->size + stack->grow) * sizeof(rpa_word_t))) == 0)
 			return -1;
 		stack->buffer = buffer;
 		stack->p = buffer + off;
