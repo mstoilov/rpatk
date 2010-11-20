@@ -25,6 +25,13 @@ void rvm_codegen_destroy(rvm_codegen_t *cg)
 }
 
 
+void rvm_codegen_clear(rvm_codegen_t *cg)
+{
+	r_array_setsize(cg->code, 0);
+	rvm_codemap_clear(cg->codemap);
+}
+
+
 rvm_asmins_t *rvm_codegen_getcode(rvm_codegen_t *cg, ruint index)
 {
 	return (rvm_asmins_t *)r_array_slot(cg->code, index);
@@ -85,5 +92,5 @@ void rvm_codegen_funcend(rvm_codegen_t *cg)
 {
 	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, SP, FP, XX, 0));
 	rvm_codegen_addins(cg, rvm_asm(RVM_POPM, DA, XX, XX, BIT(FP)|BIT(SP)|BIT(LR)));
-	rvm_codegen_addins(cg, rvm_asm(RVM_RET, XX, XX, XX, 0));
+	rvm_codegen_addins(cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 }

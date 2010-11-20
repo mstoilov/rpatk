@@ -56,6 +56,7 @@ enum {
 	RVM_DIV,		/* Divide: op1 = op2 / op3 */
 	RVM_DVS,		/* Signed division: op1 = op2 / op3 */	
 	RVM_DIVS,		/* Divide: op1 = op2 / op3, Update the status register */
+	RVM_BX,			/* Jump to op1 */
 	RVM_BL,			/* Branch Link */
 	RVM_B,			/* Branch */
 	RVM_STR,		/* Save: val_at_location(op2) = op1 */
@@ -174,13 +175,30 @@ do { \
 #define R13 13
 #define R14 14
 #define R15 15
-#define FP R12
-#define SP R13
-#define LR R14
-#define PC R15
-#define DA 16		/* The DA register should never be modified manually, otherwise the result is undefined */
-#define RLST 16
+#define R16 16
+#define R17 17
+#define R18 18
+#define R19 19
+#define R20 20
+#define R21 21
+#define R22 22
+#define R23 23
+#define R24 24
+#define R25 25
+#define R26 26
+#define R27 27
+#define R28 28
+#define R29 29
+#define R30 30
+#define R31 31
+
+#define FP R26
+#define SP R27
+#define LR R28
+#define PC R29
+#define DA 30		/* The DA register should never be modified manually, otherwise the result is undefined */
 #define XX 31
+#define RLST 31
 
 #define RVM_STACK_CHUNK 256
 #define RVM_ABORT(__cpu__, __e__) do { __cpu__->error = (__e__); (__cpu__)->abort = 1; ASSERT(0); return; } while (0)

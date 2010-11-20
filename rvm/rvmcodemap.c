@@ -35,6 +35,13 @@ void rvm_codemap_destroy(rvm_codemap_t *codemap)
 }
 
 
+void rvm_codemap_clear(rvm_codemap_t *codemap)
+{
+	r_hash_removeall(codemap->hash);
+	r_array_setsize(codemap->labels, 0);
+}
+
+
 void rvm_codemap_add(rvm_codemap_t *codemap, const rchar *name, ruint namesize, rulong index)
 {
 	rvm_codelabel_t *label;

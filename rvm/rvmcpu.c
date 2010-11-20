@@ -56,6 +56,7 @@ static const char *stropcalls[] = {
 	"RVM_DIV",
 	"RVM_DVS",
 	"RVM_DIVS",
+	"RVM_BX",
 	"RVM_BL",
 	"RVM_B",
 	"RVM_STR",
@@ -166,6 +167,12 @@ static void rvm_op_bgre(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	if ((cpu->status & RVM_STATUS_N) == 0 && (cpu->status & RVM_STATUS_Z) == 0)
 		RVM_CPUREG_SETIP(cpu, PC, RVM_CPUREG_GETU(cpu, PC) + RVM_CPUREG_GETU(cpu, ins->op1) - 1);
+}
+
+
+static void rvm_op_bx(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	RVM_CPUREG_SETIP(cpu, PC, RVM_CPUREG_GETIP(cpu, ins->op1));
 }
 
 
@@ -722,7 +729,6 @@ static void rvm_op_ret(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
-
 static int rvm_vsnprintf(char *str, ruint size, const char *format, va_list ap)
 {
 	return vsnprintf(str, size, format, ap);
@@ -1054,6 +1060,7 @@ static rvm_cpu_op ops[] = {
 	rvm_op_div,			// RVM_DIV
 	rvm_op_dvs,			// RVM_DVS
 	rvm_op_divs,		// RVM_DIVS
+	rvm_op_bx,			// RVM_BX
 	rvm_op_bl,			// RVM_BL
 	rvm_op_b,			// RVM_B
 	rvm_op_str,			// RVM_STR
