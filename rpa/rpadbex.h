@@ -64,6 +64,7 @@ rpa_dbex_handle rpa_dbex_create_with_hash(unsigned int uHashEntries);
 void rpa_dbex_destroy(rpa_dbex_handle hDbex);
 unsigned int rpa_dbex_get_error(rpa_dbex_handle hDbex);
 int rpa_dbex_add_callback(rpa_dbex_handle hDbex, const char *namematch, unsigned int reason, rpa_match_callback func, void *userdata);
+int rpa_dbex_add_callback_exact(rpa_dbex_handle hDbex, const char *name, unsigned int reason, rpa_match_callback func, void *userdata);
 int rpa_dbex_open(rpa_dbex_handle hDbex);
 void rpa_dbex_close(rpa_dbex_handle hDbex);
 int rpa_dbex_load(rpa_dbex_handle hDbex, const char *patterns, unsigned int size);

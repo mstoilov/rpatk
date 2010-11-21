@@ -162,28 +162,43 @@ void rpa_dbex_connect_callbacks(rpa_dbex_handle hDbex)
 
 	for (pCallback = rpa_dbex_next_callback(hDbex, 0); pCallback; pCallback = rpa_dbex_next_callback(hDbex, pCallback)) {
 		rpa_callbackdata_t *pCbData = (rpa_callbackdata_t *)pCallback->var.v.ptr;
-		rpa_dbex_init(&strdbex, 16);
-		rpa_dbex_open(&strdbex);
-		if (rpa_dbex_load_string(&strdbex, pCbData->namematch) < 0) {
-			rpa_dbex_cleanup(&strdbex);
-			continue;
-		}
-		rpa_dbex_close_do(&strdbex);
-		hDefault = rpa_dbex_default_pattern(&strdbex);
-		rpa_list_for_each(pos, &hDbex->callbackmnodes) {
+		if (pCbData->exact) {
+			rpa_list_for_each(pos, &hDbex->callbackmnodes) {
 				cbmnode = rpa_list_entry(pos, rpa_mnode_callback_t, cblink);
-			if (!cbmnode->matched_callback) {
-				name = ((rpa_mnode_t*)cbmnode)->match->name;
 				namelen = ((rpa_mnode_t*)cbmnode)->match->namesiz;
-				ret = rpa_stat_match_lite(&strdbex.stat, hDefault, name, name, name + namelen);
-				if (namelen && ret == namelen) {
-					((rpa_mnode_t*)cbmnode)->flags |= pCbData->reason;
-					cbmnode->matched_callback = rpa_common_callback;
-					cbmnode->userdata = pCallback;
+				if (!cbmnode->matched_callback && namelen == pCbData->namematchsiz) {
+					name = ((rpa_mnode_t*)cbmnode)->match->name;
+					if (r_strncmp(pCbData->namematch, name, namelen) == 0) {
+						((rpa_mnode_t*)cbmnode)->flags |= pCbData->reason;
+						cbmnode->matched_callback = rpa_common_callback;
+						cbmnode->userdata = pCallback;
+					}
 				}
 			}
+		} else {
+			rpa_dbex_init(&strdbex, 16);
+			rpa_dbex_open(&strdbex);
+			if (rpa_dbex_load_string(&strdbex, pCbData->namematch) < 0) {
+				rpa_dbex_cleanup(&strdbex);
+				continue;
+			}
+			rpa_dbex_close_do(&strdbex);
+			hDefault = rpa_dbex_default_pattern(&strdbex);
+			rpa_list_for_each(pos, &hDbex->callbackmnodes) {
+					cbmnode = rpa_list_entry(pos, rpa_mnode_callback_t, cblink);
+				if (!cbmnode->matched_callback) {
+					name = ((rpa_mnode_t*)cbmnode)->match->name;
+					namelen = ((rpa_mnode_t*)cbmnode)->match->namesiz;
+					ret = rpa_stat_match_lite(&strdbex.stat, hDefault, name, name, name + namelen);
+					if (namelen && ret == namelen) {
+						((rpa_mnode_t*)cbmnode)->flags |= pCbData->reason;
+						cbmnode->matched_callback = rpa_common_callback;
+						cbmnode->userdata = pCallback;
+					}
+				}
+			}
+			rpa_dbex_cleanup(&strdbex);
 		}
-		rpa_dbex_cleanup(&strdbex);
 	}	
 }
 

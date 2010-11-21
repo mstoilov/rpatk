@@ -86,7 +86,9 @@ struct rpa_dbex_s {
 
 typedef struct rpa_callbackdata_s {
 	unsigned int reason;
+	unsigned int namematchsiz;
 	rpa_match_callback func;
+	int exact;
 	void *userdata;
 	char namematch[1];
 } rpa_callbackdata_t;

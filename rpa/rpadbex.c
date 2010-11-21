@@ -354,7 +354,7 @@ error:
 }
 
 
-int rpa_dbex_add_callback(rpa_dbex_handle hDbex, const char *namematch, unsigned int reason, rpa_match_callback func, void *userdata)
+static int rpa_dbex_add_callback_work(rpa_dbex_handle hDbex, const char *namematch, unsigned int reason, rpa_match_callback func, void *userdata, int exact)
 {
 	int ret = 0, cbsize = 0, namesiz = 0;
 	rpa_varlink_t *pVarLinkCallback;
@@ -373,6 +373,8 @@ int rpa_dbex_add_callback(rpa_dbex_handle hDbex, const char *namematch, unsigned
 	pCbData->userdata = userdata;
 	pCbData->reason = reason;
 	pCbData->func = func;
+	pCbData->exact = exact;
+	pCbData->namematchsiz = namesiz;
 	pVarLinkCallback = rpa_varlink_create(RPA_VAR_PTR, "callback");
 	if (!pVarLinkCallback) {
 		r_free(pCbData);
@@ -385,6 +387,18 @@ int rpa_dbex_add_callback(rpa_dbex_handle hDbex, const char *namematch, unsigned
 	rpa_list_addt(&hDbex->treehead, &pVarLinkCallback->lnk);
 	rpa_list_addt(&hDbex->callbacks, &pVarLinkCallback->hlnk);
 	return ret;	
+}
+
+
+int rpa_dbex_add_callback_exact(rpa_dbex_handle hDbex, const char *name, unsigned int reason, rpa_match_callback func, void *userdata)
+{
+	return rpa_dbex_add_callback_work(hDbex, name, reason, func, userdata, 1);
+}
+
+
+int rpa_dbex_add_callback(rpa_dbex_handle hDbex, const char *namematch, unsigned int reason, rpa_match_callback func, void *userdata)
+{
+	return rpa_dbex_add_callback_work(hDbex, namematch, reason, func, userdata, 0);
 }
 
 

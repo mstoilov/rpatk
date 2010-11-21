@@ -7,7 +7,8 @@ INCLUDE = -I$(SRCDIR)/arch/$(OS)/$(ARCHDIR) -I$(ROBJECT_SRCDIR) -I$(RLIB_SRCDIR)
 LIBS =  -L$(ROBJECT_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
 LIBS += -L$(RLIB_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
 LIBS += -L$(RVM_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
-LIBS += -lrvm -lrlib -lrpa -lrpasx -lpthread --static
+LIBS += -L$(RPA_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
+LIBS += -lrvm -lrpa -lrpasx -lrlib -lpthread --static
 
 
 TESTS	= \

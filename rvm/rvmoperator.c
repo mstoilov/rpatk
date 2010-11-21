@@ -25,7 +25,8 @@ void rvm_opmap_destroy(rvm_opmap_t *opmap)
 		return;
 	for (i = 0; i < opmap->operators->len; i++) {
 		opinfo = ((rvm_opinfo_t*)r_array_slot(opmap->operators, i));
-		r_free(opinfo->handlers);
+		if (opinfo->opid)
+			r_free(opinfo->handlers);
 	}
 	r_array_destroy(opmap->operators);
 	r_free(opmap);

@@ -1,7 +1,7 @@
 #include "rarray.h"
 #include "rmem.h"
 
-#define MIN_ARRAY_LEN 4
+#define MIN_ARRAY_LEN 2
 
 #if 0
 
@@ -53,7 +53,7 @@ rarray_t *r_array_init(rarray_t *array, ruint elt_size)
 {
 	r_memset(array, 0, sizeof(*array));
 	array->elt_size = elt_size;
-	array->data = r_malloc(MIN_ARRAY_LEN * array->elt_size);
+	array->data = r_zmalloc(MIN_ARRAY_LEN * array->elt_size);
 	array->alloc_len = MIN_ARRAY_LEN;
 	if (!array->data)
 		return NULL;

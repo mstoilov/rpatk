@@ -570,7 +570,6 @@ int rpa_mnode_p_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char 
 	int ret;
 	rpa_match_t *match = mnode->match;
 	rpa_mcache_t *mcache = &stat->mcache[RPA_MCACHEHASH(match)];
-	rpa_word_t cboffset = rpa_cbset_getpos(&stat->cbset);
 
 	if (((rpa_match_nlist_t*)match)->loopy) {
 		ret = rpa_mnode_p_plain_loop_detect(mnode, stat, input);
@@ -582,16 +581,13 @@ int rpa_mnode_p_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char 
 		ret = rpa_mnode_p_plain(mnode, stat, input);
 	}
 
-	RPA_MCACHE_CBSET(mcache, match, input, ret, rpa_cbset_getpos(&stat->cbset));
-	if (cboffset > stat->highbound)
-		stat->highbound = cboffset;
-	
 	if (ret > 0) {
 		ret = rpa_mnode_record_callback(mnode, stat, input, ret, RPA_REASON_START|RPA_REASON_END|RPA_REASON_MATCHED);
 		if (!ret) 
 			return -1;
 		rpa_stat_cache_cbreset(stat, rpa_cbset_getpos(&stat->cbset));
 	}
+	RPA_MCACHE_CBSET(mcache, match, input, ret, rpa_cbset_getpos(&stat->cbset));
 	
 	if (ret <= 0) {
 		return -1;

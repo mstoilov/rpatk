@@ -588,18 +588,17 @@ void rpa_stat_cache_reset(rpa_stat_t *stat)
 void rpa_stat_cache_cbreset(rpa_stat_t *stat, rpa_word_t offset)
 {
 	int i;
-	
-	if (offset >= stat->highbound) {
-		/* 
-		 * No need to reset the cache. All offsets
-		 * are still valid because they are lower.
-		 */
-		return;
-	}
-	for (i = 0; i < RPA_MCACHE_SIZE; i++) {
-		if (stat->mcache[i].cboffset >= offset)
-			stat->mcache[i].match = NULL;
+
+	/*
+	 * No need to reset the cache if the offset is higher than highbound.
+	 * All offsets are still valid because they are lower.
+	 */
+
+	if (offset <= stat->highbound) {
+		for (i = 0; i < RPA_MCACHE_SIZE; i++) {
+			if (stat->mcache[i].cboffset >= offset)
+				stat->mcache[i].match = NULL;
+		}
 	}
 	stat->highbound = offset;
 }
-
