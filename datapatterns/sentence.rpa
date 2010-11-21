@@ -1,0 +1,93 @@
+#include <number.rpa>
+#include <personname.rpa>
+#include <word.rpa>
+#include <inet.rpa>
+
+S			::= ( [#x20] | [#x9])+
+N			::= [#xD][#xA] | [#xA]
+SN			::= ( [#x20] | [#x9])* (<:N:> ([#x20] | [#x9])*)?
+
+sequence_simp_member	::= <:word_slash_word:> |
+			    <:sip:> |
+		    	    <:email:> |
+		    	    <:dns_name:> |
+		    	    <:name:> |
+			    <:number_percent:> |
+			    <:number:> |
+			    <:word_unders:> |
+			    <:word_slash:> |
+			    <:word:>
+
+sequence_punctuation	::= [:,\-+*=/]
+
+sequence_between_members::= <:sequence_punctuation:> |
+			    <:SN:> <:sequence_punctuation:> <:SN:> |
+			    <:SN:> <:sequence_punctuation:> |
+			    <:sequence_punctuation:> <:SN:>? |
+			    <:S:>* <:emailthread:> <:S:>* |
+			    <:SN:>
+
+
+sequence_emb_member	::= <:quoted_sequence:> |
+			    <:bracket_sequence:> |
+		    	    <:sq_bracket_sequence:>
+
+
+sequence_any_member	::= <:sequence_emb_member:> |
+			    <:sequence_simp_member:>
+
+
+bracket_sequence	::= [(]<:S:>? <:sentence_sequence:> <:S:>?[)]
+sq_bracket_sequence	::= [\[]<:S:>? <:sentence_sequence:> <:S:>?[\]]
+quoted_sequence		::= ["']<:S:>?<:sentence_sequence:><:S:>?["']
+
+word_slash_word		::= <:word:> [/] <:word:>
+
+endofsentence		::= <:S:>* (([.][.][.]) | ([.][.]) | [.!;?])
+
+sentence_sequence	::= <:sequence_any_member:> (<:sequence_between_members:> <:sequence_any_member:>)*
+
+any_sentence		::= <:sentence_sequence:><:endofsentence:>?
+
+toc_sentence		::= <:sentence_sequence:> <:S:>? <:formatting:> <:S:>? (. - <:N:>)* <:N:>
+
+sentence		::= <:toc_sentence:> |
+			    <:any_sentence:>
+
+
+DICT:word		::= <:WORD:>
+SENTENCE:dictword	::= <:DICT:word:>
+SENTENCE:word		::= <:WORD:>
+SENTENCE:number		::= <:NUMBER:>
+SENTENCE:name		::= <:NAME:>
+SENTENCE:nonalpha	::= [:,\-+*=/<>]
+SENTENCE:nonword	::= <:SENTENCE:nonalpha:>*
+SENTENCE:nonword	++= <:SN:>
+SENTENCE:nonword	++= <:S:>? <:SENTENCE:nonalpha:>* <:SN:>?
+SENTENCE:nonword	++= <:SN:> (~ & [>]) (<:S:>[>])* <:S:>?
+SENTENCE:begin		++= (~ & [+]) (<:S:>[+])* <:S:>?
+
+SENTENCE:end		::= <:S:>* (([.][.][.]) | ([.][.]) | [.!;?]) <:S:>?
+SENTENCE:seq:member	::= <:SENTENCE:number:> |
+			    <:SENTENCE:name:> |
+			    <:SENTENCE:dictword:> |
+			    <:SENTENCE:word:> |
+			    <:SENTENCE:seq:bracketed:> |
+			    <:SENTENCE:seq:sqbracketed:> |
+			    <:SENTENCE:seq:quoted:>
+
+SENTENCE:seq		::= <:SENTENCE:seq:member:>(<:SENTENCE:nonword:>? <:SENTENCE:seq:member:>)*
+SENTENCE:seq:bracketed	::= [(]<:S:>? <;SENTENCE;>? <:S:>?[)]
+SENTENCE:seq:sqbracketed::= [\[]<:S:>? <;SENTENCE;>? <:S:>?[\]]
+SENTENCE:seq:quoted	::= ["']<:S:>? <;SENTENCE;>? <:S:>?["']
+
+SENTENCE		::= <:SENTENCE:begin:>? <:SENTENCE:seq:> <:SENTENCE:end:>?
+
+SENTENCE:formatting	::= [.][.][.][.]+
+SENTENCE:toc		::= <:SENTENCE:seq:> <:S:>? <;SENTENCE:formatting;> <:S:>? (. - <:N:>)* <:N:>
+SENTENCE		++= <:SENTENCE:toc:>
+
+
+DICT:sentence		::= <:SENTENCE:>
+
+v			::= <:DICT:sentence:>

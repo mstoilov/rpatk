@@ -1,0 +1,13 @@
+NAME:initial		::= [A-Z][.]
+NAME:abbr		::= <:NAME:initial:> [#x20]? <:NAME:word:>
+NAME:word		::= [A-Z][A-Z]+ | [A-Z][a-z]+
+NAME:two_initials	::= <:NAME:initial:> [#x20]? <:NAME:initial:>
+NAME:mid_initial	::= <:NAME:word:> [#x20] <:NAME:initial:> [#x20]? <:NAME:word:> ([#x20][SJ][Rr][.]?)?
+NAME:two_names		::= <:NAME:word:> [#x20] <:NAME:word:> ([#x20](Jr[.]? | Sr[.]?))?
+NAME:three_names	::= <:NAME:word:> [#x20] <:NAME:word:> [#x20] <:NAME:word:> ([#x20][SJ][Rr][.]?)?
+
+NAME			::= <:NAME:abbr:> |
+			    <:NAME:two_initials:> |
+			    <:NAME:mid_initial:>
+
+exec:v			::= <:NAME:>

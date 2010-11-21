@@ -1,0 +1,5 @@
+dns_word	::= [a-zA-Z0-9]+([-_][a-zA-Z0-9]+)*
+email		::= 'email:' ( [#x20] | [#x9])* <:dns_word:>([.]<:dns_word:>)*@<:dns_word:>([.]<:dns_word:>) | <:dns_word:>([.]<:dns_word:>)*@<:dns_word:>([.]<:dns_word:>)
+sip		::= 'sip:' ( [#x20] | [#x9])* <:dns_word:>([.]<:dns_word:>)*@<:dns_word:>([.]<:dns_word:>)
+dns_name	::= <:dns_word:>([.]<:dns_word:>)+
+url		::= ('http://')? <:dns_name:> [0-9a-zA-Z/&-_%=+#]*

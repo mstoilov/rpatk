@@ -1,0 +1,13 @@
+S		::= ( [#x20] | [#x9] | [#xD] | [#xA] )+
+P		::= [.,!:]
+sip		::= 'Session Initiation Protocol (SIP)' | '(SIP)' | 'SIP' | 'Session' <:S:>* 'Initiation' <:S:>* 'Protocol'
+document	::= 'document'
+registration	::= 'registration'[s]?
+userlocation	::= 'user' <:S:>* 'location'
+this		::= 'This' | 'this' | 'That' | 'that' | 'The' | 'the'
+describe	::= 'describe'[s] | 'explain'[s] | 'provide'[s]
+
+descr_sip	::= <:this:> (. - <:document:> | [.])* <:document:> (. - <:describe:> | [.])* <:describe:> (. - <:sip:> | [.])* <:sip:> (. - [.])*[.]
+descr_reg	::= (. - <:describe:> | [.])* <:describe:> (. - <:registration:> | [.])* <:registration:> (. - [.])*[.]
+
+sipdoc		::= (. - <:descr_sip:>)* <:descr_sip:> (. - <:descr_reg:>)* <:descr_reg:>

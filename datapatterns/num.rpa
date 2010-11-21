@@ -1,0 +1,10 @@
+digit		::= [0-9]
+number 		::= <:digit:>+
+losign		::= [+-];
+hisign		::= [*/];
+opsign		::= <:losign:> | <:hisign:>
+member		::= [ ]* ( <:number:> | <:bexpr:> ) [ ]*
+bexpr		::= \(<:expr:>\)
+expr		::= <:losign:>? <:member:> (<:opsign:> <:member:>)*
+
+

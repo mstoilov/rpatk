@@ -1,0 +1,11 @@
+NUMBER:digit	::= [0-9]
+NUMBER:sign	::= [+\-]
+NUMBER:int	::= <;NUMBER:sign;>? <;NUMBER:digit;>+
+NUMBER:multiple	::= <;NUMBER:sign;>? <;NUMBER:digit;>+([.,]<;NUMBER:digit;>+)*
+NUMBER:percent	::= <;NUMBER:multiple;><;NUMBER:sign;>? [#x20]? [%] |
+		    [%][#x20]?<;NUMBER:multiple;>
+NUMBER		++= <:NUMBER:int:>
+NUMBER		++= <:NUMBER:multiple:>
+NUMBER		++= <:NUMBER:percent:>
+
+exec:v		::= <:NUMBER:>

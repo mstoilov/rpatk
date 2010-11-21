@@ -1,0 +1,21 @@
+<?xml version="1.0" standalone='yes'?>
+<!DOCTYPE greeting SYSTEM "hello.dtd">
+<?MARTIN this is PI or is this a comment? ?>
+<name>
+	<first val="мартин" />
+	<firsteng val="martin" anotherval='stoilov' ></firsteng>
+	<second val='костадинов'> няма съдържание </second>
+	<last val='stoilov'> ima съдържание </last>
+	<име>мартин костадинов стоилов</име>
+	<!--Here are some comments - my comments -->
+	<!-- declarations for <head> & <body> -->
+	<!-- B+, B, OR B -->
+	<cdsection><![CDATA[<greeting>Hello, world!</greeting>]]></cdsection>
+</name>
+
+
+<!DOCTYPE greeting SYSTEM "hello.dtd">
+<!ELEMENT br EMPTY>
+<!ELEMENT p (#PCDATA|emph)* >
+<!ELEMENT %name.para; %content.para; >
+<!ELEMENT container ANY>

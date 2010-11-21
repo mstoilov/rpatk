@@ -1,0 +1,12 @@
+S	::= [#x20]+
+digit	::= [0-9]
+integer	::= <:digit:>+
+term	::= <:integer:> | '('<:S:>? <:expr:> <:S:>? ')'
+
+mulop	::= <:mulex:> <:S:>? '*' <:S:>? <:term:>
+devop	::= <:mulex:> <:S:>? '/' <:S:>? <:term:>
+mulex	::= <:mulop:> | <:devop:> | <:term:>
+addop	::= <:expr:> <:S:>? '+' <:S:>? <:mulex:>
+subop	::= <:expr:> <:S:>? '-' <:S:>? <:mulex:>
+expr	::= <:subop:> | <:addop:> | <:mulex:>
+numexpr	::= <:expr:>

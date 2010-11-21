@@ -1,0 +1,26 @@
+WORD:char:en		::= [a-zA-Z]
+WORD:decimal		::= [0-9]
+WORD:char		::= <;WORD:char:en;> | <;WORD:decimal;>
+
+WORD:simple		::= <;WORD:char;>+
+WORD:multiple:char	::= "://" | "/?" | [\-_.:@%&/=;]
+WORD:multiple		::= <;WORD:simple;>(<;WORD:multiple:char;><;WORD:simple;>)(<;WORD:multiple:char;><;WORD:simple;>)*
+
+WORD:appostr:base	++= <;WORD:simple;>
+WORD:appostr:base	++= <;WORD:multiple;>
+WORD:appostr		::= <;WORD:appostr:base;>[']([sdt] | ve)?
+
+WORD:decorchar		::= [#*&_\-<>]
+WORD:decorated		::= <;WORD:decorchar;> <;WORD:decorchar;>? <;WORD:decorchar;>? <;WORD;> <;WORD:decorchar;>? <;WORD:decorchar;>? <;WORD:decorchar;>? |
+			    <;WORD:decorchar;>? <;WORD:decorchar;>? <;WORD:decorchar;>? <;WORD;> <;WORD:decorchar;> <;WORD:decorchar;>? <;WORD:decorchar;>?
+
+WORD:apostrphed		::= <:alphaword:>['][sdt] | <:alphaword:>[']ve | <:alphaword:>['] 
+
+WORD			++= <:WORD:simple:>
+WORD			++= <:WORD:multiple:>
+WORD			++= <:WORD:appostr:>
+WORD			++= <:WORD:decorated:>
+WORD			++= [\\][a-z0-9]
+
+exec:v			::= <:WORD:>
+

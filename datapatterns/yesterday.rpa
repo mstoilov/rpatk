@@ -1,0 +1,2 @@
+yesterday ::= "yesterday" | "Jun 19, 2009" | "19 Jun, 2009" | "19 Jun" | 'Jun 19'
+yesterdaydoc ::= (. - <:yesterday:>)* <:yesterday:> .*

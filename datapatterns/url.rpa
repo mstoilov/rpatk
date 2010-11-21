@@ -1,0 +1,64 @@
+# BNF definitions from RFC1738 modified for RPA
+
+# Miscellaneous definitions
+lowalpha	::= "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" |
+                    "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" |
+                    "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" |
+                    "y" | "z"
+
+hialpha		::= "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" |
+                    "J" | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" |
+                    "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z"
+
+alpha		::= <:lowalpha:> | <:hialpha:>
+digit		::= [0-9]
+safe		::= "$" | "-" | "_" | "." | "+"
+
+extra		::= "!" | "*" | "'" | "(" | ")" | ","
+national	::= "{" | "}" | "|" | "\" | "^" | "~" | "[" | "]" | "`"
+punctuation	::= "<" | ">" | "#" | "%" | '"'
+reserved	::= ";" | "/" | "?" | ":" | "@" | "&" | "="
+hex		::= <:digit:> | "A" | "B" | "C" | "D" | "E" | "F" | "a" | "b" | "c" | "d" | "e" | "f"
+escape		::= "%" <:hex:> <:hex:>
+
+unreserved	::= <:alpha:> | <:digit:> | <:safe:> | <:extra:>
+uchar		::= <:unreserved:> | <:escape:>
+xchar		::= <:unreserved:> | <:reserved:> | <:escape:>
+digits		::= <:digit:>+
+
+
+alphadigit	::= <:alpha:> | <:digit:>
+domainlabel	::= <:alphadigit:>+ ("-" <:alphadigit:>+)* 
+
+toplabel	::= <:alpha:> <:alphadigit:>* ("-" <:alphadigit:>+)* 
+hostname	::= ( <:domainlabel:> "." )* <:toplabel:>
+hostnumber	::= <:digits:> "." <:digits:> "." <:digits:> "." <:digits:>
+port		::= <:digits:>
+
+user		::= ( <:uchar:> | ";" | "?" | "&" | "=" )+
+password	::= ( <:uchar:> | ";" | "?" | "&" | "=" )+
+urlpath		::= <:xchar:>+
+host		::= <:hostname:> | <:hostnumber:>
+hostport	::= <:host:> (":" <:port:>)?
+
+
+login		::= (<:user:> (":" <:password:>)? "@")? <:hostport:>
+
+# FTP
+ftpurl		::= "ftp://" <:login:> ("/" <:fpath:> ( ";type=" <:ftptype:>)? )?
+fpath		::= <:fsegment:> ( "/" <:fsegment:> )*
+fsegment	::= ( <:uchar:> | "?" | ":" | "@" | "&" | "=" )*
+ftptype        	::= "A" | "I" | "D" | "a" | "i" | "d"
+
+
+#FILE
+fileurl		::= "file://" ( <:host:> | "localhost" )? "/" fpath
+
+# HTTP
+httpurl		::= "http://" <:hostport:> ( "/" <:hpath:> ( "?" <:search:> )? )?
+hpath		::= <:hsegment:> ( "/" <:hsegment:> )*
+hsegment	::= ( <:uchar:> | ";" | ":" | "@" | "&" | "=" )+
+search		::= ( <:uchar:> | ";" | ":" | "@" | "&" | "=" )+
+
+# URL definition
+url		::= <:ftpurl:> | <:fileurl:> | <:httpurl:>

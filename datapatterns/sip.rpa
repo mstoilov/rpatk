@@ -1,0 +1,22 @@
+S		::= ( [#x20] | [#x9] | [#xD] | [#xA] )+
+P		::= [.,!:]
+sip		::= 'Session Initiation Protocol (SIP)' | '(SIP)' | 'SIP' | 'Session' <:S:>* 'Initiation' <:S:>* 'Protocol'
+internet	::= ((The) <:S:>*)? ('Internet')
+standard	::= 'standard' [s]?
+interstandard	::= <:internet:> <:S:>* <:standard:>
+document	::= 'document'
+tel		::= 'telephone'[s]?
+call		::= 'call'[s]?
+provide		::= 'provide'[s]?
+registration	::= 'registration'[s]?
+header		::= 'Accept' | 'Accept-Encoding' | 'Allow' | 'Call-ID' | 'Call-Info'
+this		::= 'This' | 'this' | 'That' | 'that' | 'The' | 'the'
+describe	::= 'describe'[s] | 'explain'[s] | 'provide'[s]
+eos		::= [.!?:] | \n\n
+sentence	::= [A-Z](. - <:eos:>)* <:eos:>
+eow		::= <:S:> | [,.!;:]
+word		::= [a-zA-Z](. - <:eow:>)*
+
+descr_sip	::= <:sentence:> % <:this:> (. - <:document:>)* <:document:> (. - <:describe:>)* <:describe:> (. - <:sip:>)* <:sip:>
+descr_reg	::= <:sentence:> % (. - <:provide:>)* <:provide:> (. - <:registration:>)* <:registration:>
+sipdoc		::= (. - <:descr_sip:>)* <:descr_sip:> ((. - <:descr_reg:>)* <:descr_reg:>) (. - <:header:>)* <:header:>

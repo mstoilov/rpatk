@@ -1,0 +1,19 @@
+S	::= ( [#x20] | [#x9] | [#xD] | [#xA] )*
+C	::= <S>? ',' <S>?
+SC	::= <S>? ';' <S>?
+EQ	::= <S>? '=' <S>?
+PLUS	::= <S>? '+' <S>?
+MIN	::= <S>? '-' <S>?
+AST	::= <S>? '*' <S>?
+SLASH	::= <S>? '/' <S>?
+digit	::= [0-9]
+integer	::= <:digit:>+
+double	::= <integer> '.' <integer> | '.' <integer>
+term	::= '('<:S:>? <:expr:> <:S:>? ')' | <:double:> | <:integer:>
+mulop	::= <:mulex:> <:AST:> <:term:>
+divop	::= <:mulex:> <:SLASH:> <:term:>
+mulex	::= <:mulop:> | <:divop:> | <:term:>
+addop	::= <:expr:> <:PLUS:> <:mulex:>
+subop	::= <:expr:> <:MIN:> <:mulex:>
+expr   	::= <:addop:> | <:subop:> | <:mulex:>
+numexpr	::= <:expr:>
