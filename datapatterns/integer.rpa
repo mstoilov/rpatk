@@ -1,0 +1,5 @@
+digit	::= [0-9]+
+#integer	::= <:digit:>+
+integer	::= <:integer:><:digit:>|<:digit:>
+expr	::= <:integer:> '+' <:integer:> | <:integer:>
+<:expr:>

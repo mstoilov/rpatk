@@ -1,0 +1,9 @@
+S	::= ( [#x20] | [#x9] | [#xD] | [#xA] )*
+PLUS	::= <:S:>? '+' <:S:>?
+digit	::= [0-9]
+#integer	::= <:integer:><:digit:>|<:digit:>
+integer ::= <:digit:>+
+double	::= <:integer:> '.' <:integer:> | '.' <:integer:>
+term	::= <:double:> | <:integer:>
+exp	::= <:exp:><:PLUS:><:term:>|<:term:>
+all	::= <:exp:>

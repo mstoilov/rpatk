@@ -1,0 +1,17 @@
+abra	::= [0-9]+
+#cadabra ::= <:abra:>abc
+
+n	::= [0-9]+ | '(' <:minus:> ')'
+
+plus	::= <:n:> '+' <:plus:> | <:n:>
+minus	::= <:plus:> '-' <:minus:> | <:cadabra:> | <:plus:>
+mul	::= <:mul:> '*' <:minus:> | (. & <:minus:>)
+div	::= <:div:> '/' <:mul:> | (. &  <:mul:>)
+or	::= <:or:> '|' <:div:> | <:div:>
+xor	::= <:xor:> '^' <:or:> | <:or:>
+and	::= <:and:> '&' <:xor:> | <:xor:>
+at	::= <:and:> '@' <:and:> | <:and:>
+mod	::= <:mod:> '%' <:at:> | <:at:>
+land	::= <:land:> '&&' <:mod:> | <:mod:>
+
+all	::= <:minus:>
