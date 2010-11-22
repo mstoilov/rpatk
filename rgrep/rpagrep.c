@@ -117,10 +117,13 @@ void rpa_grep_destroy(rpa_grep_t *pGrep)
 
 int rpa_grep_load_string_pattern(rpa_grep_t *pGrep, rpa_buffer_t *buf)
 {
+	rpa_dbex_open(pGrep->hDbex);
 	if (rpa_dbex_load_string(pGrep->hDbex, buf->s) < 0) {
 		fprintf(stdout, "ERROR: %s\n", (rpa_dbex_get_error(pGrep->hDbex) == RPA_E_SYNTAX_ERROR) ? "Syntax Error." : "Pattern Loading failed.");
+		rpa_dbex_close(pGrep->hDbex);
 		return -1;
 	}
+	rpa_dbex_close(pGrep->hDbex);
 	pGrep->hPattern = rpa_dbex_default_pattern(pGrep->hDbex);
 	return 0;
 }

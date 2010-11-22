@@ -35,15 +35,15 @@ int wmain(int argc, const wchar_t* argv[])
 	int ret, scanned = 0, i;
 	rpa_grep_t *pGrep = NULL;
 	DWORD eticks, bticks = GetTickCount();
-	
+
+	pGrep = rpa_grep_create();
+
 	for (i = 1; i < argc; i++) {
 		if (wcscmp(argv[i], L"--help") == 0) {
 			usage(argc, argv);
 			goto end;
 		}
 	}
-
-	pGrep = rpa_grep_create();
 
 	for (i = 1; i < argc; i++) {
 		if (wcscmp(argv[i], L"-c") == 0) {

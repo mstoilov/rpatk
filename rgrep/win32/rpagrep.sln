@@ -2,6 +2,14 @@
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rpagrep", "rpagrep.vcproj", "{41FEE8E4-25BC-48DB-A531-DCD451EA9408}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C6285F07-D313-432E-923E-4273D19D4B4A} = {C6285F07-D313-432E-923E-4273D19D4B4A}
+		{80316319-3881-4C59-B9E7-AE2B126C8F96} = {80316319-3881-4C59-B9E7-AE2B126C8F96}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "librpasx", "..\..\librpa\make\librpasx\librpasx.vcproj", "{80316319-3881-4C59-B9E7-AE2B126C8F96}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "librpa", "..\..\librpa\make\win32\librpa.vcproj", "{C6285F07-D313-432E-923E-4273D19D4B4A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,6 +27,22 @@ Global
 		{41FEE8E4-25BC-48DB-A531-DCD451EA9408}.Release|Win32.Build.0 = Release|Win32
 		{41FEE8E4-25BC-48DB-A531-DCD451EA9408}.Release|x64.ActiveCfg = Release|x64
 		{41FEE8E4-25BC-48DB-A531-DCD451EA9408}.Release|x64.Build.0 = Release|x64
+		{80316319-3881-4C59-B9E7-AE2B126C8F96}.Debug|Win32.ActiveCfg = Debug|Win32
+		{80316319-3881-4C59-B9E7-AE2B126C8F96}.Debug|Win32.Build.0 = Debug|Win32
+		{80316319-3881-4C59-B9E7-AE2B126C8F96}.Debug|x64.ActiveCfg = Debug|x64
+		{80316319-3881-4C59-B9E7-AE2B126C8F96}.Debug|x64.Build.0 = Debug|x64
+		{80316319-3881-4C59-B9E7-AE2B126C8F96}.Release|Win32.ActiveCfg = Release|Win32
+		{80316319-3881-4C59-B9E7-AE2B126C8F96}.Release|Win32.Build.0 = Release|Win32
+		{80316319-3881-4C59-B9E7-AE2B126C8F96}.Release|x64.ActiveCfg = Release|x64
+		{80316319-3881-4C59-B9E7-AE2B126C8F96}.Release|x64.Build.0 = Release|x64
+		{C6285F07-D313-432E-923E-4273D19D4B4A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C6285F07-D313-432E-923E-4273D19D4B4A}.Debug|Win32.Build.0 = Debug|Win32
+		{C6285F07-D313-432E-923E-4273D19D4B4A}.Debug|x64.ActiveCfg = Debug|x64
+		{C6285F07-D313-432E-923E-4273D19D4B4A}.Debug|x64.Build.0 = Debug|x64
+		{C6285F07-D313-432E-923E-4273D19D4B4A}.Release|Win32.ActiveCfg = Release|Win32
+		{C6285F07-D313-432E-923E-4273D19D4B4A}.Release|Win32.Build.0 = Release|Win32
+		{C6285F07-D313-432E-923E-4273D19D4B4A}.Release|x64.ActiveCfg = Release|x64
+		{C6285F07-D313-432E-923E-4273D19D4B4A}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <wchar.h>
 #include <time.h>
+#include "rpadbex.h"
 #include "rpagrep.h"
 #include "rpagrepdep.h"
 #include "rpadebug.h"
@@ -36,6 +37,9 @@
 
 int usage(int argc, const char *argv[])
 {
+	    fprintf(stderr, "RPA Grep with RPA Engine: %s (%s)\n", rpa_dbex_version(), rpa_dbex_seversion());
+		fprintf(stderr, "Copyright (C) 2010 Martin Stoilov\n\n");
+
 		fprintf(stderr, "Usage: \n %s [OPTIONS] <filename>\n", argv[0]);
 		fprintf(stderr, " OPTIONS:\n");
 		fprintf(stderr, "\t-e patterns         execute pattern\n");
