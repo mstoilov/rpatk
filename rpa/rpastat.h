@@ -38,8 +38,6 @@ extern "C" {
 #define RPA_LOOPHASH_MASK (RPA_LOOPHASH_SIZE - 1)
 #define RPA_LOOPHASH(p) (((((rpa_word_t)(p)) >> 2) ^ (((rpa_word_t)(p)) >> 4))& RPA_LOOPHASH_MASK)
 
-
-#define RPA_MCACHE_BITS 5
 #define RPA_MCACHE_SIZE (1 << RPA_MCACHE_BITS)
 #define RPA_MCACHE_MASK (RPA_MCACHE_SIZE - 1)
 #define RPA_MCACHEHASH(p) ( ( (((rpa_word_t)(p)) >> 4) ^ (((rpa_word_t)(p)) >> 2) ) & RPA_MCACHE_MASK)

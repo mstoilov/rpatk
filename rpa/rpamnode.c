@@ -282,24 +282,16 @@ int rpa_mnode_record_callback(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *
 		return -1;
 	if (mnode->flags & RPA_MNODE_SYNCRONOUS)
 		return rpa_mnode_exec_callback(mnode, stat, input, size, reason);
-	if ( ((rpa_mnode_callback_t*)mnode)->matched_callback) {
-		if ((cbrec = rpa_cbset_push(&stat->cbset)) != 0) {
-			cbrec->mnode = mnode;
-			cbrec->input = input;
-			cbrec->size = size;
-		}
-	} else {
-		/*
-		 * Make sure we push something on the stack, so the
-		 * cache entries have different cboffset and don't trash
-		 * each other.
-		 */
-		if ((cbrec = rpa_cbset_push(&stat->cbset)) != 0) {
-			cbrec->mnode = NULL;
-			cbrec->input = NULL;
-			cbrec->size = 0;
-		}
 
+	/*
+	 * Make sure we push something on the stack, even if the mnode->matched_callback is NULL.
+	 * So the cache entries have different cboffset and don't trash
+	 * each other.
+	 */
+	if ((cbrec = rpa_cbset_push(&stat->cbset)) != 0) {
+		cbrec->mnode = mnode;
+		cbrec->input = input;
+		cbrec->size = size;
 	}
 	return size;
 }
