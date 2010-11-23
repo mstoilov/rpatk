@@ -12,13 +12,12 @@ ifeq ($(BLDCFG), release)
 CFLAGS := -fPIC -O3
 else
 CFLAGS := -fPIC -O0 -g -Wall 
+CFLAGS += -DR_DEBUG_MEMALLOC
 endif
 
 ifeq ($(CCBLD), yes)
 CFLAGS += -fprofile-arcs -ftest-coverage
 endif
-
-CFLAGS += -DR_DEBUG_MEMALLOC
 
 CFLAGS += $(MACH) $(INCLUDE)
 LDFLAGS := $(MACH)
