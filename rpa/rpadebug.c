@@ -165,10 +165,6 @@ void rpa_dump_pattern_tree(rpa_pattern_handle pattern)
 }
 
 
-
-#ifdef DEBUG
-
-
 long rpa_get_alloc_mem()
 {
 	return r_debug_get_allocmem();
@@ -179,6 +175,9 @@ long rpa_get_alloc_maxmem()
 {
 	return r_debug_get_maxmem();
 }
+
+
+#ifdef DEBUG
 
 
 void rpa_varlink_dump(rpa_varlink_ptr pVarLink)
