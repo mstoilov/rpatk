@@ -288,6 +288,18 @@ int rpa_mnode_record_callback(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *
 			cbrec->input = input;
 			cbrec->size = size;
 		}
+	} else {
+		/*
+		 * Make sure we push something on the stack, so the
+		 * cache entries have different cboffset and don't trash
+		 * each other.
+		 */
+		if ((cbrec = rpa_cbset_push(&stat->cbset)) != 0) {
+			cbrec->mnode = NULL;
+			cbrec->input = NULL;
+			cbrec->size = 0;
+		}
+
 	}
 	return size;
 }

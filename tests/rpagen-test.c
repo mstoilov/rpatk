@@ -378,6 +378,8 @@ int main(int argc, char *argv[])
 	rpa_dbex_load_string(dbex, "declaration			::= 'var' (<:S:> <:varspec:> (<:C:> <:varspec:>)* <:SC:> | <;compile_error;>)");
 	rpa_dbex_load_string(dbex, "assignment			::= <:varassign:> <:SC:>");
 	rpa_dbex_load_string(dbex, "integer				::= <:digit:>+");
+//	rpa_dbex_load_string(dbex, "integer				::= <loopyinteger>");
+//	rpa_dbex_load_string(dbex, "loopyinteger		::= <loopyinteger><digit>|<digit>");
 	rpa_dbex_load_string(dbex, "double				::= <integer> '.' <integer> | '.' <integer>");
 	rpa_dbex_load_string(dbex, "term				::= '('<:S:>? <:expr:> <:S:>? ')' | <:var_push_val:> | <:double:> | <:integer:>");
 	rpa_dbex_load_string(dbex, "mulop				::= <:mulex:> <:AST:> (<:term:> | <;compile_error;>)");

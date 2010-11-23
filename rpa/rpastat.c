@@ -428,6 +428,12 @@ static int rpa_stat_play_cbset(rpa_stat_t *stat, const char *input, unsigned int
 	
 	for (off = 1; off <= cbset->off; off++) {
 		rpa_cbrecord_t *cbrec = &cbset->data[off];
+		if (!cbrec->mnode) {
+			/*
+			 * This is a fake record
+			 */
+			continue;
+		}
 		ret = rpa_mnode_exec_callback(cbrec->mnode, stat, cbrec->input, cbrec->size, RPA_REASON_START);
 		if (!ret)
 			return 0;
