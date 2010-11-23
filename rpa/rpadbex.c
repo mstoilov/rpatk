@@ -334,6 +334,7 @@ int rpa_dbex_strmatch(const char *str, const char *patterns)
 		return -1;
 	len = r_strlen(str);
 	rpa_dbex_init(&dbex, 16);
+	rpa_dbex_open(&dbex);
 	while (*patterns) {
 		if ((ret = rpa_dbex_load_string(&dbex, patterns)) < 0)
 			goto error;
@@ -349,6 +350,7 @@ int rpa_dbex_strmatch(const char *str, const char *patterns)
 	return ret;
 	
 error:
+	rpa_dbex_close_do(&dbex);
 	rpa_dbex_cleanup(&dbex);
 	return -1;
 }
