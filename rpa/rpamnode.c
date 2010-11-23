@@ -399,10 +399,15 @@ int rpa_mnode_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *i
 		ret = rpa_mnode_plain_loop_detect(mnode, stat, input);
 	} else if (stat->usecache && mcache->match == match && mcache->input == input) {
 		ret = mcache->ret;
+		/*
+		 * Debug the cache efficiency
+		 * r_printf("HIT THE CACHE@%d: %s, %d\n", RPA_MCACHEHASH(match), match->name, ret);
+		 */
 	} else {
 		ret = rpa_mnode_plain(mnode, stat, input);
 	}
-	RPA_MCACHE_SET(mcache, match, input, ret);
+	if (ret > 0)
+		RPA_MCACHE_SET(mcache, match, input, ret);
 	if (ret <= 0) {
 		rpa_mnode_exec_callback(mnode, stat, input, 0, RPA_REASON_END);
 		return -1;
@@ -570,27 +575,44 @@ int rpa_mnode_p_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char 
 	int ret;
 	rpa_match_t *match = mnode->match;
 	rpa_mcache_t *mcache = &stat->mcache[RPA_MCACHEHASH(match)];
-	rpa_word_t cboffset = rpa_cbset_getpos(&stat->cbset);
+	rpa_word_t cboffset;
 
 	if (((rpa_match_nlist_t*)match)->loopy) {
 		ret = rpa_mnode_p_plain_loop_detect(mnode, stat, input);
 	} else if (mcache->match == match && mcache->input == input) {
-		if (mcache->ret > 0)
-			rpa_cbset_reset(&stat->cbset, mcache->cboffset);
+		/*
+		 * We can get here only from cache entries that point to
+		 * valid cbset positions. We can only get here if ret > 0
+		 * so reset the cbset position.
+		 */
+		rpa_cbset_reset(&stat->cbset, mcache->cboffset);
 		ret = mcache->ret;
+		/*
+		 * Debug the cache efficiency
+		 * r_printf("HIT THE CACHE @ %d: %s, %d\n", RPA_MCACHEHASH(match), match->name, ret);
+		 */
 	} else {
 		ret = rpa_mnode_p_plain(mnode, stat, input);
 	}
 
-	RPA_MCACHE_CBSET(mcache, match, input, ret, rpa_cbset_getpos(&stat->cbset));
-	if (cboffset > stat->highbound)
-		stat->highbound = cboffset;
-	
 	if (ret > 0) {
+		/*
+		 * Get the cboffset before eventually record on the cbset stack.
+		 */
+		cboffset = rpa_cbset_getpos(&stat->cbset);
 		ret = rpa_mnode_record_callback(mnode, stat, input, ret, RPA_REASON_START|RPA_REASON_END|RPA_REASON_MATCHED);
-		if (!ret) 
-			return -1;
+		/*
+		 * All cache entries that point to cbset positions higher than the current position
+		 * need to be invalidated.
+		 */
 		rpa_stat_cache_cbreset(stat, rpa_cbset_getpos(&stat->cbset));
+		if (!ret)
+			return -1;
+		/*
+		 * Set the cache. All previous entries for the current position of the cbset must be removed
+		 * from the cache with the call to rpa_stat_cache_cbreset().
+		 */
+		RPA_MCACHE_CBSET(mcache, match, input, ret, cboffset);
 	}
 	
 	if (ret <= 0) {

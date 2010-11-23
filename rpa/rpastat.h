@@ -39,10 +39,10 @@ extern "C" {
 #define RPA_LOOPHASH(p) (((((rpa_word_t)(p)) >> 2) ^ (((rpa_word_t)(p)) >> 4))& RPA_LOOPHASH_MASK)
 
 
-#define RPA_MCACHE_BITS 7
+#define RPA_MCACHE_BITS 4
 #define RPA_MCACHE_SIZE (1 << RPA_MCACHE_BITS)
 #define RPA_MCACHE_MASK (RPA_MCACHE_SIZE - 1)
-#define RPA_MCACHEHASH(p) ( ((((rpa_word_t)(p)) >> 2) ^ (((rpa_word_t)(p)) >> 4) ^ (((rpa_word_t)(p)) >> 5)) & RPA_MCACHE_MASK)
+#define RPA_MCACHEHASH(p) ( ( (((rpa_word_t)(p)) >> 4) ^ (((rpa_word_t)(p)) >> 2) ) & RPA_MCACHE_MASK)
 #define RPA_MCACHE_SET(_c_, _m_, _i_, _r_) do {(_c_)->match = (_m_); (_c_)->input = (_i_); (_c_)->ret = (_r_);} while (0)
 #define RPA_MCACHE_CBSET(_c_, _m_, _i_, _r_, _o_) \
 	do {(_c_)->match = (_m_); (_c_)->input = (_i_); (_c_)->ret = (_r_); (_c_)->cboffset = (_o_); } while (0)
