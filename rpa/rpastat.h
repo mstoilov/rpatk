@@ -81,7 +81,6 @@ struct rpa_stat_s {
 	rpa_mcache_t mcache[RPA_MCACHE_SIZE];
 	rpa_head_t loophash[RPA_LOOPHASH_SIZE];
 	rpa_head_t loopstack;
-	rpa_dloop_t *currentloop;
 	rpa_word_t ud[2];
 	RPA_MATCH_FUNCTION *mtable;
 	RPA_MNODE_FUNCTION *ntable;

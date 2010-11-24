@@ -302,7 +302,7 @@ int rpa_mnode_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *input)
 	int ret;
 	rpa_match_t *match = mnode->match;
 
-	if (stat->currentloop && stat->currentloop->size && stat->currentloop->input == input && !(mnode->flags & RPA_MNODE_LOOP))
+	if (rpa_stat_current_loop(stat) && rpa_stat_current_loop(stat)->size && rpa_stat_current_loop(stat)->input == input && !(mnode->flags & RPA_MNODE_LOOP))
 		return 0;
 
 	ret = stat->mtable[match->match_function_id](mnode->match, stat, input);
@@ -348,6 +348,7 @@ int rpa_mnode_multiopt(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *input)
 }
 
 
+#define USELOOPHASHING
 
 int rpa_mnode_plain_loop_detect(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *input)
 {
@@ -369,11 +370,9 @@ int rpa_mnode_plain_loop_detect(rpa_mnode_t *mnode, rpa_stat_t *stat, const char
 			pLoop->mnode = mnode;
 			rpa_list_del(pos);
 			rpa_list_addt(&stat->loopstack, pos);
-			stat->currentloop = pLoop;
 			return pLoop->size;
 		}
 	}
-
 	rpa_list_addt(bucket, &loop.lnk);
 	ret = stat->mtable[match->match_function_id](mnode->match, stat, input);
 	if (loop.mnode) {
@@ -383,7 +382,6 @@ int rpa_mnode_plain_loop_detect(rpa_mnode_t *mnode, rpa_stat_t *stat, const char
 		}
 	}
 	rpa_list_del(&loop.lnk);
-	stat->currentloop = rpa_stat_current_loop(stat);
 	if (loop.size)
 		ret = loop.size;
 	if (ret <= 0)
@@ -476,8 +474,8 @@ int rpa_mnode_p_plain_loop_detect(rpa_mnode_t *mnode, rpa_stat_t *stat, const ch
 	rpa_dloop_t *pLoop;
 	rpa_match_t *match = mnode->match;
 	rpa_dloop_t loop = RPA_DLOOP_INIT(loop, match, input);
-	rpa_head_t *bucket = &stat->loophash[RPA_LOOPHASH(match)];
 	rpa_link_t *pos;
+	rpa_head_t *bucket = &stat->loophash[RPA_LOOPHASH(match)];
 
 	pLoop = rpa_stat_current_loop(stat);
 	if (pLoop && pLoop->match == mnode->match) {
@@ -490,11 +488,9 @@ int rpa_mnode_p_plain_loop_detect(rpa_mnode_t *mnode, rpa_stat_t *stat, const ch
 			pLoop->mnode = mnode;
 			rpa_list_del(pos);
 			rpa_list_addt(&stat->loopstack, pos);
-			stat->currentloop = pLoop;
 			return pLoop->size;
 		}
 	}
-
 	rpa_list_addt(bucket, &loop.lnk);
 	off = rpa_cbset_getpos(&stat->cbset);
 	ret = stat->mtable[match->match_function_id](mnode->match, stat, input);
@@ -510,7 +506,6 @@ int rpa_mnode_p_plain_loop_detect(rpa_mnode_t *mnode, rpa_stat_t *stat, const ch
 		}
 	}
 	rpa_list_del(&loop.lnk);
-	stat->currentloop = rpa_stat_current_loop(stat);
 	if (loop.size)
 		ret = loop.size;
 	if (ret <= 0)
@@ -527,7 +522,7 @@ int rpa_mnode_p_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *input)
 	rpa_word_t off = rpa_cbset_getpos(&stat->cbset);
 	rpa_match_t *match = mnode->match;
 
-	if (stat->currentloop && stat->currentloop->size && stat->currentloop->input == input && !(mnode->flags & RPA_MNODE_LOOP))
+	if (rpa_stat_current_loop(stat) && rpa_stat_current_loop(stat)->size && rpa_stat_current_loop(stat)->input == input && !(mnode->flags & RPA_MNODE_LOOP))
 		return 0;
 	ret = stat->mtable[match->match_function_id](mnode->match, stat, input);
 	if (ret <= 0) {

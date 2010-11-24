@@ -21,8 +21,8 @@
 #ifndef _RPACONFIG_H_
 #define _RPACONFIG_H_
 
-#define RPA_VERSION_STRING "1.0.3-pre"
-#define RPA_LOOPHASH_BITS 8
+#define RPA_VERSION_STRING "1.0.4-pre"
+#define RPA_LOOPHASH_BITS 1
 #define RPA_MCACHE_BITS 5
 #define RPA_MAXSTACK_SIZE (64 * 1024 * sizeof(void*))
 
