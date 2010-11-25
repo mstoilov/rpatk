@@ -301,8 +301,9 @@ int rpa_mnode_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *input)
 {
 	int ret;
 	rpa_match_t *match = mnode->match;
+	rpa_dloop_t *pLoop = rpa_stat_current_loop(stat);
 
-	if (rpa_stat_current_loop(stat) && rpa_stat_current_loop(stat)->size && rpa_stat_current_loop(stat)->input == input && !(mnode->flags & RPA_MNODE_LOOP))
+	if (pLoop && pLoop->size && pLoop->input == input && !(mnode->flags & RPA_MNODE_LOOP))
 		return 0;
 
 	ret = stat->mtable[match->match_function_id](mnode->match, stat, input);
@@ -347,8 +348,6 @@ int rpa_mnode_multiopt(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *input)
 	return ret;
 }
 
-
-#define USELOOPHASHING
 
 int rpa_mnode_plain_loop_detect(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *input)
 {
@@ -521,9 +520,11 @@ int rpa_mnode_p_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *input)
 	int ret;
 	rpa_word_t off = rpa_cbset_getpos(&stat->cbset);
 	rpa_match_t *match = mnode->match;
+	rpa_dloop_t *pLoop = rpa_stat_current_loop(stat);
 
-	if (rpa_stat_current_loop(stat) && rpa_stat_current_loop(stat)->size && rpa_stat_current_loop(stat)->input == input && !(mnode->flags & RPA_MNODE_LOOP))
+	if (pLoop && pLoop->size && pLoop->input == input && !(mnode->flags & RPA_MNODE_LOOP))
 		return 0;
+
 	ret = stat->mtable[match->match_function_id](mnode->match, stat, input);
 	if (ret <= 0) {
 		rpa_cbset_reset(&stat->cbset, off);

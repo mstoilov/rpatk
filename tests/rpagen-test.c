@@ -385,9 +385,19 @@ int main(int argc, char *argv[])
 	rpa_dbex_load_string(dbex, "mulop				::= <:mulex:> <:AST:> (<:term:> | <;compile_error;>)");
 	rpa_dbex_load_string(dbex, "divop				::= <:mulex:> <:SLASH:> (<:term:> | <;compile_error;>)");
 	rpa_dbex_load_string(dbex, "mulex				::= <:mulop:> | <:divop:> | <:term:>");
-	rpa_dbex_load_string(dbex, "addop				::= <:expr:> <:PLUS:> <:mulex:>");
+	rpa_dbex_load_string(dbex, "addop				::= <:expr:> <:PLUS:> <:mulex:> ");
 	rpa_dbex_load_string(dbex, "subop				::= <:expr:> <:MIN:> (<:mulex:> | <;compile_error;>)");
-	rpa_dbex_load_string(dbex, "expr    			::= <:addop:> | <:subop:> | <:mulex:>");
+	rpa_dbex_load_string(dbex, "addop1    			::= <:addop:>");
+	rpa_dbex_load_string(dbex, "addop2    			::= <:addop1:>");
+	rpa_dbex_load_string(dbex, "addop3    			::= <:addop2:>");
+	rpa_dbex_load_string(dbex, "addop4    			::= <:addop3:>");
+	rpa_dbex_load_string(dbex, "addop5    			::= <:addop4:>");
+	rpa_dbex_load_string(dbex, "addop6    			::= <:addop5:>");
+	rpa_dbex_load_string(dbex, "addop7    			::= <:addop6:>");
+	rpa_dbex_load_string(dbex, "addop8    			::= <:addop7:>");
+	rpa_dbex_load_string(dbex, "addop9    			::= <:addop8:>");
+
+	rpa_dbex_load_string(dbex, "expr    			::= <:addop9:> | <:subop:> | <:mulex:>");
 	rpa_dbex_load_string(dbex, "pop_r0				::= <:expr:>");
 	rpa_dbex_load_string(dbex, "compile_error		::= .");
 	rpa_dbex_load_string(dbex, "program				::= ((<:declaration:>|<:assignment:>)* <:S:>? (<:pop_r0:><:SC:>)*) | <;compile_error;>");
