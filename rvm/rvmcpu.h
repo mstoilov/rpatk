@@ -64,20 +64,22 @@ enum {
 	RVM_STRB,		/* Save: byte_at_location(op2) = op1 */
 	RVM_STRH,		/* Save: u16_at_location(op2) = op1 */
 	RVM_STRW,		/* Save: u32_at_location(op2) = op1 */
-	RVM_STRR,		/* Save: rev_reg_t_at_location(op2) = op1 */
+	RVM_STRR,		/* Save: rvmreg_t_at_location(op2) = op1 */
 	RVM_LDR,		/* Load: op1 = val_at_location(op2) */
 	RVM_LDRP,		/* Load pointer: op1 = pointer_at_location(op2) */
 	RVM_LDRB,		/* Load Byte: op1 = byte_at_location(op2) */
 	RVM_LDRH,		/* Load Half Word: op1 = u16_at_location(op2) */
 	RVM_LDRW,		/* Load Word: op1 = u32_at_location(op2) */
 	RVM_LDRR,		/* Load rvmreg_t: op1 = rvmreg_t_at_location(op2) */
+	RVM_CLRR,		/* Clear: rvmreg_t at memory location op1 */
 	RVM_LSL,		/* Logical Shift Left: op1 = op2 << op3, update the status register */
 	RVM_LSR,		/* Logical Shift Right: op1 = op2 >> op3, update the status register */
 	RVM_LSRS,		/* Signed Logical Shift Right: op1 = op2 >> op3, update the status register */
-	RVM_STM,
-	RVM_LDM,
+	RVM_STM,		/* Store multiple */
+	RVM_LDM,		/* Load multiple */
 	RVM_STS,		/* Store op1 on the stack at position op2 + op3, i.e. stack[op2 + op3] = op1 */
 	RVM_LDS,		/* Load op1 from thes stack at position op2 + op3, i.e. op1 = stack[op2 + op3] */
+	RVM_CLS,		/* Clear the stack at pos op2 + op3.  CLEAR(&stack[op2 + op3]) */
 	RVM_ORR,		/* ORR: op1 = op2 | op3, update the status register */
 	RVM_PUSH,
 	RVM_POP,
@@ -95,6 +97,7 @@ enum {
 	RVM_POPM,
 	RVM_TST,
 	RVM_TEQ,
+	RVM_CLR,		/* Clear op1. If the reg has dynamic memory associated with with it (RVM_INFOBIT_ROBJECT) it will be cleared */
 
 /* Extended VM opcodes, */
 	RVM_CAST,		/* Cast: op1 = (op3)op2 */
@@ -112,7 +115,7 @@ enum {
 	RVM_ENOT,		/* Bitwise NOT: op1 = ~op2, Update the status register */
 	RVM_ECMP,		/* Compare: status register is updated based on the result: op1 - op2 */
 	RVM_ECMN,		/* Compare Negative: status register is updated based on the result: op1 + op2 */
-
+	RVM_ALLOCSTR	/* Allocate string in op1, op2 is pointer (char*) to string, op3 is the size */
 };
 
 

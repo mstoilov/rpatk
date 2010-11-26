@@ -71,6 +71,7 @@ static const char *stropcalls[] = {
 	"RVM_LDRH",
 	"RVM_LDRW",
 	"RVM_LDRR",
+	"RVM_CLRR",
 	"RVM_LSL",
 	"RVM_LSR",
 	"RVM_LSRS",
@@ -78,6 +79,7 @@ static const char *stropcalls[] = {
 	"RVM_LDM",
 	"RVM_STS",
 	"RVM_LDS",
+	"RVM_CLS",
 	"RVM_ORR",
 	"RVM_PUSH",
 	"RVM_POP",
@@ -95,6 +97,7 @@ static const char *stropcalls[] = {
 	"RVM_POPM",	
 	"RVM_TST",	
 	"RVM_TEQ",
+	"RVM_CLR",
 	"RVM_CAST",		/* Cast: op1 = (op3)op2 */
 	"RVM_TYPE",		/* Type: op1 = typeof(op2) */
 	"RVM_EMOV",
@@ -110,6 +113,7 @@ static const char *stropcalls[] = {
 	"RVM_ENOT",
 	"RVM_ECMP",
 	"RVM_ECMN",
+	"RVM_ALLOCSTR",
 	"UNKNOWN",
 	"UNKNOWN",
 	"UNKNOWN",
@@ -232,6 +236,12 @@ static void rvm_op_ldrr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static void rvm_op_clrr(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rvm_reg_cleanup(((rvmreg_t*)RVM_CPUREG_GETP(cpu, ins->op1)));
+}
+
+
 static void rvm_op_str(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	*((rword*)RVM_CPUREG_GETP(cpu, ins->op2)) = RVM_CPUREG_GETU(cpu, ins->op1);
@@ -266,7 +276,7 @@ static void rvm_op_strw(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_strr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	*((rvmreg_t*)RVM_CPUREG_GETU(cpu, ins->op2)) = RVM_CPUREG_GET(cpu, ins->op1);
+	*((rvmreg_t*)RVM_CPUREG_GETP(cpu, ins->op2)) = RVM_CPUREG_GET(cpu, ins->op1);
 }
 
 
@@ -435,6 +445,14 @@ static void rvm_op_teq(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, !res);
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_N, res & RVM_SIGN_BIT);
 }
+
+
+static void rvm_op_clr(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rvmreg_t *reg = RVM_CPUREG_PTR(cpu, ins->op1);
+	rvm_reg_cleanup(reg);
+}
+
 
 
 static void rvm_op_bic(rvmcpu_t *cpu, rvm_asmins_t *ins)
@@ -655,6 +673,14 @@ static void rvm_op_lds(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rword sp = RVM_CPUREG_GETU(cpu, ins->op2) + RVM_CPUREG_GETU(cpu, ins->op3);
 
 	RVM_CPUREG_SET(cpu, ins->op1, r_array_index(cpu->stack, sp, rvmreg_t));
+}
+
+
+static void rvm_op_cls(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rword sp = RVM_CPUREG_GETU(cpu, ins->op2) + RVM_CPUREG_GETU(cpu, ins->op3);
+	rvmreg_t *reg = (rvmreg_t*)r_array_slot(cpu->stack, sp);
+	rvm_reg_cleanup(reg);
 }
 
 
@@ -1036,6 +1062,19 @@ static void rvm_op_ecmn(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static void rvm_op_allocstr(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+
+	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
+	rstring_t *s = r_string_create_strsize((const rchar*)RVM_CPUREG_GETP(cpu, ins->op2), RVM_CPUREG_GETU(cpu, ins->op3));
+	if (!s) {
+		RVM_ABORT(cpu, RVM_E_ILLEGAL);
+	}
+	rvm_reg_setstring(arg1, s);
+	rvm_reg_convert_to_refreg(arg1);
+}
+
+
 static rvm_cpu_op ops[] = {
 	rvm_op_exit,		// RVM_EXT
 	rvm_op_prn,			// RVM_PRN
@@ -1075,13 +1114,15 @@ static rvm_cpu_op ops[] = {
 	rvm_op_ldrh,		// RVM_LDRH
 	rvm_op_ldrw,		// RVM_LDRW
 	rvm_op_ldrr,		// RVM_LDRR
+	rvm_op_clrr,		// RVM_CLRR
 	rvm_op_lsl,			// RVM_LSL
 	rvm_op_lsr,			// RVM_LSR
 	rvm_op_lsrs,		// RVM_LSRS
 	rvm_op_stm,			// RVM_STM
-	rvm_op_ldm,			// RVM_LDS
+	rvm_op_ldm,			// RVM_LDM
 	rvm_op_sts,			// RVM_STS
-	rvm_op_lds,			// RVM_LDM
+	rvm_op_lds,			// RVM_LDS
+	rvm_op_cls,			// RVM_CLS
 	rvm_op_orr,			// RVM_ORR
 	rvm_op_push,		// RVM_PUSH
 	rvm_op_pop,			// RVM_POP
@@ -1099,6 +1140,7 @@ static rvm_cpu_op ops[] = {
 	rvm_op_popm, 		// RVM_POPM
 	rvm_op_tst, 		// RVM_TST
 	rvm_op_teq, 		// RVM_TEQ
+	rvm_op_clr, 		// RVM_CLR
 
 /* Extended VM instructions */
 	rvm_op_cast,		// RVM_CAST
@@ -1116,6 +1158,7 @@ static rvm_cpu_op ops[] = {
 	rvm_op_enot,		// RVM_ENOT
 	rvm_op_ecmp,		// RVM_ECMP
 	rvm_op_ecmn,		// RVM_ECMN
+	rvm_op_allocstr,	// RVM_ALLOCSTR
 	(void*) 0,
 	(void*) 0,
 	(void*) 0,

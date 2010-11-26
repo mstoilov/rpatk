@@ -58,7 +58,7 @@ static rvm_switable_t switable[] = {
 		{NULL, NULL},
 };
 
-//#define DEBUGPRINT 1
+#define DEBUGPRINT 1
 int codegen_print_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
 {
 //#ifdef DEBUGPRINT
@@ -189,15 +189,39 @@ int codegen_double_callback(const char *name, void *userdata, const char *input,
 }
 
 
+int codegen_string_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
+{
+	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
+	ruint off = rvm_codegen_getcodesize(co->cg);
+
+	rvm_codegen_addins(co->cg, rvm_asmp(RVM_MOV, R1, DA, XX, (void*)input));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R2, DA, XX, size));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCSTR, R0, R1, R2, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
+
+
+	codegen_print_callback(name, userdata, input, size, reason, start, end);
+	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
+
+	return size;
+}
+
 int codegen_program_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
+	rint i;
 	ruint off;
 
 	rvm_codegen_insertins(co->cg, 0, rvm_asm(RVM_ADD, SP, SP, DA, co->fpoff));
 	rvm_codegen_insertins(co->cg, 0, rvm_asm(RVM_MOV, FP, SP, XX, 0));
 
 	off = rvm_codegen_getcodesize(co->cg);
+	for (i = 1; i < co->fpoff; i++) {
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_CLS, R1, FP, DA, i));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_LDS, R1, FP, DA, i));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_CLR, R1, XX, XX, 0));
+	}
+
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PRN, R0, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
 
@@ -377,9 +401,9 @@ int main(int argc, char *argv[])
 	rpa_dbex_load_string(dbex, "varassign			::= <:var_push_fpoff:> <:EQ:> (<:varassign:> | <:pop_r0:> | <;compile_error;>)");
 	rpa_dbex_load_string(dbex, "declaration			::= 'var' (<:S:> <:varspec:> (<:C:> <:varspec:>)* <:SC:> | <;compile_error;>)");
 	rpa_dbex_load_string(dbex, "assignment			::= <:varassign:> <:SC:>");
-	rpa_dbex_load_string(dbex, "integer				::= <:digit:>+");
-//	rpa_dbex_load_string(dbex, "integer				::= <loopyinteger>");
-//	rpa_dbex_load_string(dbex, "loopyinteger		::= <loopyinteger><digit>|<digit>");
+//	rpa_dbex_load_string(dbex, "integer				::= <:digit:>+");
+	rpa_dbex_load_string(dbex, "integer				::= <loopyinteger>");
+	rpa_dbex_load_string(dbex, "loopyinteger		::= <loopyinteger><digit>|<digit>");
 	rpa_dbex_load_string(dbex, "double				::= <integer> '.' <integer> | '.' <integer>");
 	rpa_dbex_load_string(dbex, "term				::= '('<:S:>? <:expr:> <:S:>? ')' | <:var_push_val:> | <:double:> | <:integer:>");
 	rpa_dbex_load_string(dbex, "mulop				::= <:mulex:> <:AST:> (<:term:> | <;compile_error;>)");

@@ -236,14 +236,27 @@ rstring_t *r_string_create_from_rstr(const rstr_t *str)
 }
 
 
-rstring_t *r_string_create_from_ansistr(const char *str)
+rstring_t *r_string_create_from_ansistr(const rchar *str)
 {
 	rstr_t rstr;
 
 	r_memset(&rstr, 0, sizeof(rstr));
 	if (str) {
-		rstr.str = (char*)str;
+		rstr.str = (rchar*)str;
 		rstr.size = r_strlen(str);
+	}
+	return r_string_create_from_rstr(&rstr);
+}
+
+
+rstring_t *r_string_create_strsize(const rchar *str, ruint size)
+{
+	rstr_t rstr;
+
+	r_memset(&rstr, 0, sizeof(rstr));
+	if (str) {
+		rstr.str = (rchar*)str;
+		rstr.size = size;
 	}
 	return r_string_create_from_rstr(&rstr);
 }

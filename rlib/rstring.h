@@ -48,7 +48,8 @@ typedef struct rstring_s {
 
 #define R_STRING2PTR(__p__) ((rstring_t *)(__p__))->s.str
 rstring_t *r_string_create();
-rstring_t *r_string_create_from_ansistr(const char *str);
+rstring_t *r_string_create_from_ansistr(const rchar *str);
+rstring_t *r_string_create_strsize(const char *str, ruint size);
 rstring_t *r_string_create_from_rstr(const rstr_t *str);
 rstring_t *r_string_init(rstring_t *string);
 void r_string_destroy(rstring_t *string);
