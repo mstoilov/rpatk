@@ -358,6 +358,8 @@ int rpa_stat_scan(rpa_stat_handle hStat, rpa_pattern_handle hPattern, const char
 	hStat->ntable = ntable_match;
 	hStat->start = start;
 	hStat->end = end;
+	hStat->fail = 0;
+	hStat->usecache = 1;
 	hStat->stackmark = &smk;
 	match = (rpa_match_t *)hPattern->var.v.ptr;
 	rpa_stat_cache_reset(hStat);
@@ -386,6 +388,7 @@ int rpa_stat_match(rpa_stat_handle hStat, rpa_pattern_handle hPattern, const cha
 	hStat->start = start;
 	hStat->end = end;
 	hStat->fail = 0;
+	hStat->usecache = 1;
 	hStat->stackmark = &smk;
 	rpa_stat_cache_reset(hStat);
 	match = (rpa_match_t *)hPattern->var.v.ptr;
@@ -456,6 +459,7 @@ int rpa_stat_parse(rpa_stat_handle hStat, rpa_pattern_handle hPattern, const cha
 	hStat->start = start;
 	hStat->end = end;
 	hStat->fail = 0;
+	hStat->usecache = 1;
 	hStat->stackmark = &smk;
 	match = (rpa_match_t *)hPattern->var.v.ptr;
 	rpa_stat_cache_reset(hStat);
@@ -577,7 +581,6 @@ void rpa_stat_cache_reset(rpa_stat_t *stat)
 	int i;
 
 	stat->highbound = 0;
-	stat->usecache = 1;
 	for (i = 0; i < RPA_MCACHE_SIZE; i++) {
 		stat->mcache[i].match = NULL;
 	}

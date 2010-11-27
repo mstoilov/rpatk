@@ -199,7 +199,6 @@ int codegen_string_callback(const char *name, void *userdata, const char *input,
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCSTR, R0, R1, R2, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
 
-
 	codegen_print_callback(name, userdata, input, size, reason, start, end);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
 
@@ -369,6 +368,8 @@ int main(int argc, char *argv[])
 	rpa_dbex_add_callback_exact(dbex, "subop", RPA_REASON_MATCHED, codegen_subop_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "integer", RPA_REASON_MATCHED, codegen_integer_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "double", RPA_REASON_MATCHED, codegen_double_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "sqstring", RPA_REASON_MATCHED, codegen_string_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "dqstring", RPA_REASON_MATCHED, codegen_string_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "program", RPA_REASON_MATCHED, codegen_program_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "varinit", RPA_REASON_MATCHED, codegen_opassign_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "varassign", RPA_REASON_MATCHED, codegen_opassign_callback, co);
@@ -378,6 +379,7 @@ int main(int argc, char *argv[])
 	rpa_dbex_add_callback_exact(dbex, "pop_r0", RPA_REASON_MATCHED, codegen_pop_r0_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "varalloc", RPA_REASON_MATCHED, codegen_varalloc_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "compile_error", RPA_REASON_MATCHED, codegen_compile_error_callback, co);
+//	rpa_dbex_add_callback(dbex, ".*", RPA_REASON_MATCHED, codegen_print_callback, co);
 
 
 	rpa_dbex_open(dbex);
@@ -389,6 +391,8 @@ int main(int argc, char *argv[])
 	rpa_dbex_load_string(dbex, "MIN					::= <S>? '-' <S>?");
 	rpa_dbex_load_string(dbex, "AST					::= <S>? '*' <S>?");
 	rpa_dbex_load_string(dbex, "SLASH				::= <S>? '/' <S>?");
+	rpa_dbex_load_string(dbex, "SQ					::= [#x27]");	// Single quote
+	rpa_dbex_load_string(dbex, "DQ					::= [#x22]");	// Double quote
 	rpa_dbex_load_string(dbex, "digit				::= [0-9]");
 	rpa_dbex_load_string(dbex, "eoe					::= (';' | [#xD] | [#xA])+");
 	rpa_dbex_load_string(dbex, "varname				::= [a-zA-z][a-zA-z0-9]*");
@@ -402,10 +406,13 @@ int main(int argc, char *argv[])
 	rpa_dbex_load_string(dbex, "declaration			::= 'var' (<:S:> <:varspec:> (<:C:> <:varspec:>)* <:SC:> | <;compile_error;>)");
 	rpa_dbex_load_string(dbex, "assignment			::= <:varassign:> <:SC:>");
 //	rpa_dbex_load_string(dbex, "integer				::= <:digit:>+");
+	rpa_dbex_load_string(dbex, "sqstring			::= ^<:SQ:>+");
+	rpa_dbex_load_string(dbex, "dqstring			::= (. - <:DQ:>)+");
+	rpa_dbex_load_string(dbex, "string				::= <:SQ:> <:sqstring:> <:SQ:> | <:DQ:> <:dqstring:> <:DQ:>");
 	rpa_dbex_load_string(dbex, "integer				::= <loopyinteger>");
 	rpa_dbex_load_string(dbex, "loopyinteger		::= <loopyinteger><digit>|<digit>");
 	rpa_dbex_load_string(dbex, "double				::= <integer> '.' <integer> | '.' <integer>");
-	rpa_dbex_load_string(dbex, "term				::= '('<:S:>? <:expr:> <:S:>? ')' | <:var_push_val:> | <:double:> | <:integer:>");
+	rpa_dbex_load_string(dbex, "term				::= '('<:S:>? <:expr:> <:S:>? ')' | <:var_push_val:> | <:double:> | <:integer:> | <:string:>");
 	rpa_dbex_load_string(dbex, "mulop				::= <:mulex:> <:AST:> (<:term:> | <;compile_error;>)");
 	rpa_dbex_load_string(dbex, "divop				::= <:mulex:> <:SLASH:> (<:term:> | <;compile_error;>)");
 	rpa_dbex_load_string(dbex, "mulex				::= <:mulop:> | <:divop:> | <:term:>");

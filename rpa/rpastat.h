@@ -107,6 +107,7 @@ void rpa_stat_cache_reset(rpa_stat_t *stat);
 void rpa_stat_cache_cbreset(rpa_stat_t *stat, rpa_word_t offset);
 int rpa_stat_match_lite(rpa_stat_handle hStat, rpa_pattern_handle hPattern, const char *input, const char *start, const char *end);
 
+
 #ifdef __cplusplus
 }
 #endif

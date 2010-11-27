@@ -398,16 +398,17 @@ int rpa_mnode_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *i
 	rpa_mnode_exec_callback(mnode, stat, input, (unsigned int) (stat->end - input), RPA_REASON_START);
 	if (((rpa_match_nlist_t*)(mnode->match))->loopy) {
 		ret = rpa_mnode_plain_loop_detect(mnode, stat, input);
-	} else if (stat->usecache && mcache->match == match && mcache->input == input) {
+	} else if (mcache->match == match && mcache->input == input) {
 		ret = mcache->ret;
 		/*
 		 * Debug the cache efficiency
 		 * r_printf("HIT THE CACHE@%d: %s, %d\n", RPA_MCACHEHASH(match), match->name, ret);
 		 */
+		r_printf("HIT THE CACHE@%d: %s, %d\n", RPA_MCACHEHASH(match), match->name, ret);
 	} else {
 		ret = rpa_mnode_plain(mnode, stat, input);
 	}
-	if (ret > 0)
+	if (ret > 0 && stat->usecache)
 		RPA_MCACHE_SET(mcache, match, input, ret);
 	if (ret <= 0) {
 		rpa_mnode_exec_callback(mnode, stat, input, 0, RPA_REASON_END);
@@ -608,11 +609,13 @@ int rpa_mnode_p_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char 
 		rpa_stat_cache_cbreset(stat, rpa_cbset_getpos(&stat->cbset));
 		if (!ret)
 			return -1;
-		/*
-		 * Set the cache. All previous entries for the current position of the cbset must be removed
-		 * from the cache with the call to rpa_stat_cache_cbreset().
-		 */
-		RPA_MCACHE_CBSET(mcache, match, input, ret, cboffset);
+		if (stat->usecache) {
+			/*
+			 * Set the cache. All previous entries for the current position of the cbset must be removed
+			 * from the cache with the call to rpa_stat_cache_cbreset().
+			 */
+			RPA_MCACHE_CBSET(mcache, match, input, ret, cboffset);
+		}
 	}
 	
 	if (ret <= 0) {
