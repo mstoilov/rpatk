@@ -340,8 +340,7 @@ int rpa_match_list_minus(rpa_match_t *match, rpa_stat_t *stat, const char *input
 	rpa_head_t *head = &((rpa_match_list_t *)match)->head;
 	rpa_list_t *pos;
 	rpa_mnode_t *hcur;
-	int ret = 0, mret = 0, i = 0;
-	int usecache = stat->usecache;
+	int ret = 0, i = 0;
 
 	rpa_list_for_each(pos, head) {
 		hcur = rpa_list_entry(pos, rpa_mnode_t, mlink);
@@ -349,13 +348,7 @@ int rpa_match_list_minus(rpa_match_t *match, rpa_stat_t *stat, const char *input
 			if ((ret = stat->ntable[hcur->flags & RPA_MNODEFUNC_MASK](hcur, stat, input)) <= 0)
 				return 0;
 		} else {
-			/*
-			 * Disable cache. Anything that matches here MUST not be cached.
-			 */
-			stat->usecache = 0;
-			mret  = stat->ntable[hcur->flags & RPA_MNODEFUNC_MASK](hcur, stat, input);
-			stat->usecache = usecache;
-			if (mret > 0)
+			if (stat->ntable[hcur->flags & RPA_MNODEFUNC_MASK](hcur, stat, input) > 0)
 				return 0;
 		}
 	}
@@ -368,8 +361,7 @@ int rpa_match_list_minus_icase(rpa_match_t *match, rpa_stat_t *stat, const char 
 	rpa_head_t *head = &((rpa_match_list_t *)match)->head;
 	rpa_list_t *pos;
 	rpa_mnode_t *hcur;
-	int ret = 0, mret = 0, i = 0;
-	int usecache = stat->usecache;
+	int ret = 0, i = 0;
 
 	rpa_list_for_each(pos, head) {
 		hcur = rpa_list_entry(pos, rpa_mnode_t, mlink);
@@ -377,13 +369,7 @@ int rpa_match_list_minus_icase(rpa_match_t *match, rpa_stat_t *stat, const char 
 			if ((ret = stat->ntable[hcur->flags & RPA_MNODEFUNC_MASK](hcur, stat, input)) <= 0)
 				return 0;
 		} else {
-			/*
-			 * Disable cache. Anything that matches here MUST not be cached.
-			 */
-			stat->usecache = 0;
-			mret = stat->ntable[hcur->flags & RPA_MNODEFUNC_MASK](hcur, stat, input);
-			stat->usecache = usecache;
-			if (mret > 0)
+			if (stat->ntable[hcur->flags & RPA_MNODEFUNC_MASK](hcur, stat, input) > 0)
 				return 0;
 		}
 	}
@@ -398,16 +384,10 @@ int rpa_match_list_not(rpa_match_t *match, rpa_stat_t *stat, const char *input)
 	rpa_mnode_t *hcur;
 	int ret;
 	unsigned int wc;
-	int usecache = stat->usecache;
 
 	rpa_list_for_each(pos, head) {
 		hcur = rpa_list_entry(pos, rpa_mnode_t, mlink);
-		/*
-		 * Disable cache. Anything that matches here MUST not be cached.
-		 */
-		stat->usecache = 0;
 		ret = stat->ntable[hcur->flags & RPA_MNODEFUNC_MASK](hcur, stat, input);
-		stat->usecache = usecache;
 		if (ret > 0)
 			return 0;
 	}
