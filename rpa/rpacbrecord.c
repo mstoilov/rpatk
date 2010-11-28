@@ -78,3 +78,8 @@ rpa_word_t rpa_cbset_getpos(rpa_cbset_t *cbset)
 	return cbset->off;
 }
 
+
+rpa_cbrecord_t rpa_cbset_getrecord(rpa_cbset_t *cbset, rpa_word_t off)
+{
+	return cbset->data[off];
+}

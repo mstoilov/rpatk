@@ -279,12 +279,22 @@ void rpa_stat_init(rpa_stat_t *stat)
 		stat->checkstack = rpa_stat_checkstack_ascending;
 	else
 		stat->checkstack = rpa_stat_checkstack_descending;
+	for (i = 0; i < RPA_MCACHE_SIZE; i++) {
+		stat->mcache[i].match = NULL;
+		rpa_cbset_init(&stat->mcache[i].cbset);
+	}
 }
 
 
 void rpa_stat_cleanup(rpa_stat_t *stat)
 {
+	int i;
 	rpa_cbset_cleanup(&stat->cbset);
+	for (i = 0; i < RPA_MCACHE_SIZE; i++) {
+		stat->mcache[i].match = NULL;
+		rpa_cbset_cleanup(&stat->mcache[i].cbset);
+	}
+
 }
 
 
@@ -459,7 +469,7 @@ int rpa_stat_parse(rpa_stat_handle hStat, rpa_pattern_handle hPattern, const cha
 	hStat->start = start;
 	hStat->end = end;
 	hStat->fail = 0;
-	hStat->usecache = 1;
+	hStat->usecache = 0;
 	hStat->stackmark = &smk;
 	match = (rpa_match_t *)hPattern->var.v.ptr;
 	rpa_stat_cache_reset(hStat);
@@ -585,18 +595,3 @@ void rpa_stat_cache_reset(rpa_stat_t *stat)
 		stat->mcache[i].match = NULL;
 	}
 }
-
-
-void rpa_stat_cache_cbreset(rpa_stat_t *stat, rpa_word_t offset)
-{
-	int i;
-	
-	if (offset <= stat->highbound) {
-		for (i = 0; i < RPA_MCACHE_SIZE; i++) {
-			if (stat->mcache[i].cboffset >= offset)
-				stat->mcache[i].match = NULL;
-		}
-	}
-	stat->highbound = offset;
-}
-

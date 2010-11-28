@@ -282,16 +282,12 @@ int rpa_mnode_record_callback(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *
 		return -1;
 	if (mnode->flags & RPA_MNODE_SYNCRONOUS)
 		return rpa_mnode_exec_callback(mnode, stat, input, size, reason);
-
-	/*
-	 * Make sure we push something on the stack, even if the mnode->matched_callback is NULL.
-	 * So the cache entries have different cboffset and don't trash
-	 * each other.
-	 */
-	if ((cbrec = rpa_cbset_push(&stat->cbset)) != 0) {
-		cbrec->mnode = mnode;
-		cbrec->input = input;
-		cbrec->size = size;
+	if (((rpa_mnode_callback_t*)mnode)->matched_callback) {
+		if ((cbrec = rpa_cbset_push(&stat->cbset)) != 0) {
+			cbrec->mnode = mnode;
+			cbrec->input = input;
+			cbrec->size = size;
+		}
 	}
 	return size;
 }
@@ -404,7 +400,6 @@ int rpa_mnode_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *i
 		 * Debug the cache efficiency
 		 * r_printf("HIT THE CACHE@%d: %s, %d\n", RPA_MCACHEHASH(match), match->name, ret);
 		 */
-		r_printf("HIT THE CACHE@%d: %s, %d\n", RPA_MCACHEHASH(match), match->name, ret);
 	} else {
 		ret = rpa_mnode_plain(mnode, stat, input);
 	}
@@ -576,6 +571,47 @@ int rpa_mnode_p_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char 
 	int ret;
 	rpa_match_t *match = mnode->match;
 	rpa_mcache_t *mcache = &stat->mcache[RPA_MCACHEHASH(match)];
+	rpa_word_t cboff, cboffset_now = (rpa_word_t)-1, cboffset_before = rpa_cbset_getpos(&stat->cbset);
+
+	if (((rpa_match_nlist_t*)match)->loopy) {
+		ret = rpa_mnode_p_plain_loop_detect(mnode, stat, input);
+	} else if (mcache->match == match && mcache->input == input) {
+		rpa_cbrecord_t *cbrec;
+		for (cboff = 1; cboff <= rpa_cbset_getpos(&mcache->cbset); cboff++) {
+			if ((cbrec = rpa_cbset_push(&stat->cbset)) != 0) {
+				*cbrec = rpa_cbset_getrecord(&mcache->cbset, cboff);
+			}
+		}
+		ret = mcache->ret;
+		/*
+		 * Debug the cache efficiency
+		 * r_printf("HIT THE CACHE @ %d: %s, %d\n", RPA_MCACHEHASH(match), match->name, ret);
+		 */
+	} else {
+		ret = rpa_mnode_p_plain(mnode, stat, input);
+		if (ret > 0) {
+			cboffset_now = rpa_cbset_getpos(&stat->cbset);
+			RPA_MCACHE_CBSET(mcache, match, input, ret, cboffset_before, cboffset_now - cboffset_before);
+		}
+	}
+
+	if (ret > 0) {
+		ret = rpa_mnode_record_callback(mnode, stat, input, ret, RPA_REASON_START|RPA_REASON_END|RPA_REASON_MATCHED);
+	}
+
+	if (ret <= 0) {
+		return -1;
+	}
+	return ret;
+}
+
+
+#if 0
+int rpa_mnode_p_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *input)
+{
+	int ret;
+	rpa_match_t *match = mnode->match;
+	rpa_mcache_t *mcache = &stat->mcache[RPA_MCACHEHASH(match)];
 	rpa_word_t cboffset;
 
 	if (((rpa_match_nlist_t*)match)->loopy) {
@@ -623,7 +659,7 @@ int rpa_mnode_p_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char 
 	}
 	return ret;
 }
-
+#endif
 
 int rpa_mnode_p_callback_optional(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *input)
 {

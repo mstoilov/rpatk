@@ -42,8 +42,18 @@ extern "C" {
 #define RPA_MCACHE_MASK (RPA_MCACHE_SIZE - 1)
 #define RPA_MCACHEHASH(p) ( ( (((rpa_word_t)(p)) >> 4) ^ (((rpa_word_t)(p)) >> 2) ) & RPA_MCACHE_MASK)
 #define RPA_MCACHE_SET(_c_, _m_, _i_, _r_) do {(_c_)->match = (_m_); (_c_)->input = (_i_); (_c_)->ret = (_r_);} while (0)
-#define RPA_MCACHE_CBSET(_c_, _m_, _i_, _r_, _o_) \
-	do {(_c_)->match = (_m_); (_c_)->input = (_i_); (_c_)->ret = (_r_); (_c_)->cboffset = (_o_); } while (0)
+#define RPA_MCACHE_CBSET(_c_, _m_, _i_, _r_, _o_, _s_) \
+	do { \
+		rpa_cbrecord_t *cbrec; \
+		rpa_word_t _off_; \
+		RPA_MCACHE_SET((_c_), (_m_), (_i_), (_r_)); \
+		rpa_cbset_reset(&(_c_)->cbset, 0); \
+		for (_off_ = 1; _off_ <= (_s_); _off_++) {\
+			if ((cbrec = rpa_cbset_push(&(_c_)->cbset)) != 0) { \
+				*cbrec = rpa_cbset_getrecord(&stat->cbset, (_o_) + (_off_)); \
+			}\
+		} \
+	} while (0)
 
 typedef int (*RPA_CHECKSTACK_FUNCTION)(rpa_stat_t *stat);
 
@@ -61,7 +71,7 @@ typedef struct rpa_mcache_s {
 	rpa_match_t *match;
 	const char *input;
 	int ret;
-	rpa_word_t cboffset;
+	rpa_cbset_t cbset;
 } rpa_mcache_t;
 
 
@@ -104,7 +114,6 @@ int rpa_stat_checkstack_ascending(rpa_stat_t *stat);
 int rpa_stat_checkstack_descending(rpa_stat_t *stat);
 rpa_dloop_t *rpa_stat_current_loop(rpa_stat_t *stat);
 void rpa_stat_cache_reset(rpa_stat_t *stat);
-void rpa_stat_cache_cbreset(rpa_stat_t *stat, rpa_word_t offset);
 int rpa_stat_match_lite(rpa_stat_handle hStat, rpa_pattern_handle hPattern, const char *input, const char *start, const char *end);
 
 

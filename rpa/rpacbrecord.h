@@ -50,7 +50,7 @@ int rpa_cbset_check_space(rpa_cbset_t *cbset);
 rpa_cbrecord_t *rpa_cbset_push(rpa_cbset_t *cbset);
 void rpa_cbset_reset(rpa_cbset_t *cbset, rpa_word_t off);
 rpa_word_t rpa_cbset_getpos(rpa_cbset_t *cbset);
-
+rpa_cbrecord_t rpa_cbset_getrecord(rpa_cbset_t *cbset, rpa_word_t off);
 
 #ifdef __cplusplus
 }

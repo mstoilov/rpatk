@@ -306,34 +306,6 @@ int rpa_match_list_at(rpa_match_t *match, rpa_stat_t *stat, const char *input)
 	return ret;
 }
 
-/*
-int rpa_match_list_at_icase(rpa_match_t *match, rpa_stat_t *stat, const char *input)
-{
-	rpa_head_t *head;
-	rpa_list_t *first, *second;
-	rpa_mnode_t *hcur;
-	const char *savedend = stat->end;
-	int ret;
-
-	head = &((rpa_match_list_t *)match)->head;
-	if (!(first = rpa_list_first(head)))
-		return 0;
-	if (!(second = rpa_list_next(head, first)))
-		return 0;
-	hcur = rpa_list_entry(second, rpa_mnode_t, mlink);
-	ret = stat->ntable[hcur->flags & RPA_MNODEFUNC_MASK](hcur, stat, input);
-	if (ret <= 0)
-		return 0;
-	stat->end = input + ret;
-	hcur = rpa_list_entry(first, rpa_mnode_t, mlink);
-	ret = stat->ntable[hcur->flags & RPA_MNODEFUNC_MASK](hcur, stat, input);
-	if (stat->end)
-		stat->end = savedend;
-	if (ret <= 0)
-		return 0;
-	return ret;
-}
-*/
 
 int rpa_match_list_minus(rpa_match_t *match, rpa_stat_t *stat, const char *input)
 {
