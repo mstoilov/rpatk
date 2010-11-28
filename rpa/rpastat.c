@@ -469,7 +469,7 @@ int rpa_stat_parse(rpa_stat_handle hStat, rpa_pattern_handle hPattern, const cha
 	hStat->start = start;
 	hStat->end = end;
 	hStat->fail = 0;
-	hStat->usecache = 0;
+	hStat->usecache = 1;
 	hStat->stackmark = &smk;
 	match = (rpa_match_t *)hPattern->var.v.ptr;
 	rpa_stat_cache_reset(hStat);

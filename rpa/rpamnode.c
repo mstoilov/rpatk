@@ -389,7 +389,7 @@ int rpa_mnode_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *i
 {
 	int ret;
 	rpa_match_t *match = mnode->match;
-	rpa_mcache_t *mcache = &stat->mcache[RPA_MCACHEHASH(match)];
+	rpa_mcache_t *mcache = &stat->mcache[RPA_MCACHEHASH(match, input)];
 
 	rpa_mnode_exec_callback(mnode, stat, input, (unsigned int) (stat->end - input), RPA_REASON_START);
 	if (((rpa_match_nlist_t*)(mnode->match))->loopy) {
@@ -398,7 +398,7 @@ int rpa_mnode_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *i
 		ret = mcache->ret;
 		/*
 		 * Debug the cache efficiency
-		 * r_printf("HIT THE CACHE@%d: %s, %d\n", RPA_MCACHEHASH(match), match->name, ret);
+		 * r_printf("HIT THE CACHE @ %d: %s, %d\n", RPA_MCACHEHASH(match, input), match->name, ret);
 		 */
 	} else {
 		ret = rpa_mnode_plain(mnode, stat, input);
@@ -570,7 +570,7 @@ int rpa_mnode_p_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char 
 {
 	int ret;
 	rpa_match_t *match = mnode->match;
-	rpa_mcache_t *mcache = &stat->mcache[RPA_MCACHEHASH(match)];
+	rpa_mcache_t *mcache = &stat->mcache[RPA_MCACHEHASH(match, input)];
 	rpa_word_t cboff, cboffset_now = (rpa_word_t)-1, cboffset_before = rpa_cbset_getpos(&stat->cbset);
 
 	if (((rpa_match_nlist_t*)match)->loopy) {
@@ -585,11 +585,11 @@ int rpa_mnode_p_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char 
 		ret = mcache->ret;
 		/*
 		 * Debug the cache efficiency
-		 * r_printf("HIT THE CACHE @ %d: %s, %d\n", RPA_MCACHEHASH(match), match->name, ret);
+		 * r_printf("HIT THE CACHE @ %d: %s, %d\n", RPA_MCACHEHASH(match, input), match->name, ret);
 		 */
 	} else {
 		ret = rpa_mnode_p_plain(mnode, stat, input);
-		if (ret > 0) {
+		if (ret > 0 && stat->usecache) {
 			cboffset_now = rpa_cbset_getpos(&stat->cbset);
 			RPA_MCACHE_CBSET(mcache, match, input, ret, cboffset_before, cboffset_now - cboffset_before);
 		}
@@ -605,61 +605,6 @@ int rpa_mnode_p_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char 
 	return ret;
 }
 
-
-#if 0
-int rpa_mnode_p_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *input)
-{
-	int ret;
-	rpa_match_t *match = mnode->match;
-	rpa_mcache_t *mcache = &stat->mcache[RPA_MCACHEHASH(match)];
-	rpa_word_t cboffset;
-
-	if (((rpa_match_nlist_t*)match)->loopy) {
-		ret = rpa_mnode_p_plain_loop_detect(mnode, stat, input);
-	} else if (mcache->match == match && mcache->input == input) {
-		/*
-		 * We can get here only from cache entries that point to
-		 * valid cbset positions. We can only get here if ret > 0
-		 * so reset the cbset position.
-		 */
-		rpa_cbset_reset(&stat->cbset, mcache->cboffset);
-		ret = mcache->ret;
-		/*
-		 * Debug the cache efficiency
-		 * r_printf("HIT THE CACHE @ %d: %s, %d\n", RPA_MCACHEHASH(match), match->name, ret);
-		 */
-	} else {
-		ret = rpa_mnode_p_plain(mnode, stat, input);
-	}
-
-	if (ret > 0) {
-		/*
-		 * Get the cboffset before eventually record on the cbset stack.
-		 */
-		cboffset = rpa_cbset_getpos(&stat->cbset);
-		ret = rpa_mnode_record_callback(mnode, stat, input, ret, RPA_REASON_START|RPA_REASON_END|RPA_REASON_MATCHED);
-		/*
-		 * All cache entries that point to cbset positions higher than the current position
-		 * need to be invalidated.
-		 */
-		rpa_stat_cache_cbreset(stat, rpa_cbset_getpos(&stat->cbset));
-		if (!ret)
-			return -1;
-		if (stat->usecache) {
-			/*
-			 * Set the cache. All previous entries for the current position of the cbset must be removed
-			 * from the cache with the call to rpa_stat_cache_cbreset().
-			 */
-			RPA_MCACHE_CBSET(mcache, match, input, ret, cboffset);
-		}
-	}
-	
-	if (ret <= 0) {
-		return -1;
-	}
-	return ret;
-}
-#endif
 
 int rpa_mnode_p_callback_optional(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *input)
 {
