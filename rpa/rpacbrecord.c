@@ -24,7 +24,7 @@
 #include "rpatypes.h"
 
 
-#define RPA_CBSET_GROW 128
+#define RPA_CBSET_GROW 64
 
 rpa_cbset_t *rpa_cbset_init(rpa_cbset_t *cbset)
 {
