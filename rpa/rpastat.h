@@ -41,19 +41,6 @@ extern "C" {
 #define RPA_MCACHE_SIZE (1 << RPA_MCACHE_BITS)
 #define RPA_MCACHE_MASK (RPA_MCACHE_SIZE - 1)
 #define RPA_MCACHEHASH(p, i) ( ( ((rpa_word_t)(p)) ^ ((rpa_word_t)(i)) ) & RPA_MCACHE_MASK)
-#define RPA_MCACHE_SET(_c_, _m_, _i_, _r_) do {(_c_)->match = (_m_); (_c_)->input = (_i_); (_c_)->ret = (_r_);} while (0)
-#define RPA_MCACHE_CBSET(_c_, _m_, _i_, _r_, _o_, _s_) \
-	do { \
-		rpa_cbrecord_t *cbrec; \
-		rpa_word_t _off_; \
-		RPA_MCACHE_SET((_c_), (_m_), (_i_), (_r_)); \
-		rpa_cbset_reset(&(_c_)->cbset, 0); \
-		for (_off_ = 1; _off_ <= (_s_); _off_++) {\
-			if ((cbrec = rpa_cbset_push(&(_c_)->cbset)) != 0) { \
-				*cbrec = rpa_cbset_getrecord(&stat->cbset, (_o_) + (_off_)); \
-			}\
-		} \
-	} while (0)
 
 typedef int (*RPA_CHECKSTACK_FUNCTION)(rpa_stat_t *stat);
 

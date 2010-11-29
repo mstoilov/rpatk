@@ -24,7 +24,7 @@
 #include "rpatypes.h"
 
 
-#define RPA_CBSET_GROW 64
+#define RPA_CBSET_GROW 16
 
 rpa_cbset_t *rpa_cbset_init(rpa_cbset_t *cbset)
 {
@@ -41,13 +41,13 @@ void rpa_cbset_cleanup(rpa_cbset_t *cbset)
 }
 
 
-int rpa_cbset_check_space(rpa_cbset_t *cbset)
+int rpa_cbset_check_space_min(rpa_cbset_t *cbset, long min)
 {
 	rpa_cbrecord_t *data;
 	rpa_word_t size;
 
-	if (cbset->size - cbset->off < RPA_CBSET_GROW) {
-		size = cbset->size + RPA_CBSET_GROW;
+	if (rpa_cbset_size_available(cbset) < min) {
+		size = cbset->size + min;
 		data = (rpa_cbrecord_t *)r_realloc(cbset->data, (unsigned long)(sizeof(rpa_cbrecord_t) * size));
 		if (!data)
 			return -1;
@@ -55,6 +55,12 @@ int rpa_cbset_check_space(rpa_cbset_t *cbset)
 		cbset->data = data;
 	}
 	return 0;
+}
+
+
+int rpa_cbset_check_space(rpa_cbset_t *cbset)
+{
+	return rpa_cbset_check_space_min(cbset, RPA_CBSET_GROW);
 }
 
 
@@ -82,4 +88,18 @@ rpa_word_t rpa_cbset_getpos(rpa_cbset_t *cbset)
 rpa_cbrecord_t rpa_cbset_getrecord(rpa_cbset_t *cbset, rpa_word_t off)
 {
 	return cbset->data[off];
+}
+
+
+rpa_cbrecord_t *rpa_cbset_getslot(rpa_cbset_t *cbset, rpa_word_t off)
+{
+	if (off >= cbset->size)
+		return NULL;
+	return &cbset->data[off];
+}
+
+
+long rpa_cbset_size_available(rpa_cbset_t *cbset)
+{
+	return cbset->size - cbset->off - 1;
 }

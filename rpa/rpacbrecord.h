@@ -47,10 +47,13 @@ typedef struct rpa_cbset_s {
 rpa_cbset_t *rpa_cbset_init(rpa_cbset_t *cbset);
 void rpa_cbset_cleanup(rpa_cbset_t *cbset);
 int rpa_cbset_check_space(rpa_cbset_t *cbset);
+int rpa_cbset_check_space_min(rpa_cbset_t *cbset, long min);
 rpa_cbrecord_t *rpa_cbset_push(rpa_cbset_t *cbset);
 void rpa_cbset_reset(rpa_cbset_t *cbset, rpa_word_t off);
 rpa_word_t rpa_cbset_getpos(rpa_cbset_t *cbset);
 rpa_cbrecord_t rpa_cbset_getrecord(rpa_cbset_t *cbset, rpa_word_t off);
+rpa_cbrecord_t *rpa_cbset_getslot(rpa_cbset_t *cbset, rpa_word_t off);
+long rpa_cbset_size_available(rpa_cbset_t *cbset);
 
 #ifdef __cplusplus
 }

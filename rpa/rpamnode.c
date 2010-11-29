@@ -27,6 +27,27 @@
 #include "rpastat.h"
 #include "rpadbex.h"
 
+
+#define RPA_MCACHE_SET(_c_, _m_, _i_, _r_) do {(_c_)->match = (_m_); (_c_)->input = (_i_); (_c_)->ret = (_r_);} while (0)
+#define RPA_MCACHE_CBSET(_c_, _m_, _i_, _r_, _o_, _s_) \
+	do { \
+		rpa_cbrecord_t *cbrec; \
+		rpa_word_t _off_; \
+		RPA_MCACHE_SET((_c_), (_m_), (_i_), (_r_)); \
+		rpa_cbset_reset(&(_c_)->cbset, 0); \
+		if ((_s_) > 0) { \
+			if (rpa_cbset_check_space_min(&(_c_)->cbset, (_s_) + 1) < 0) { \
+				RPA_MCACHE_SET((_c_), NULL, NULL, 0); \
+				break; \
+			} \
+			for (_off_ = 1; _off_ <= (_s_); _off_++) {\
+				if ((cbrec = rpa_cbset_getslot(&(_c_)->cbset, _off_)) != 0) { \
+					*cbrec = rpa_cbset_getrecord(&stat->cbset, (_o_) + (_off_)); \
+				}\
+			} \
+		} \
+	} while (0)
+
 #define RPA_MAX_RECURSION 100
 #define RPA_DLOOP_INIT(__name__, __match__, __input__) {{&(__name__).lnk, &(__name__).lnk }, (__match__), (__input__), 0, 0}
 
@@ -577,7 +598,9 @@ int rpa_mnode_p_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char 
 		ret = rpa_mnode_p_plain_loop_detect(mnode, stat, input);
 	} else if (mcache->match == match && mcache->input == input) {
 		rpa_cbrecord_t *cbrec;
-		for (cboff = 1; cboff <= rpa_cbset_getpos(&mcache->cbset); cboff++) {
+		rpa_word_t lastoff = rpa_cbset_getpos(&mcache->cbset);
+		rpa_cbset_check_space_min(&stat->cbset, lastoff + 1);
+		for (cboff = 1; cboff <= lastoff; cboff++) {
 			if ((cbrec = rpa_cbset_push(&stat->cbset)) != 0) {
 				*cbrec = rpa_cbset_getrecord(&mcache->cbset, cboff);
 			}
