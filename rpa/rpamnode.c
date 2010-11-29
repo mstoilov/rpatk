@@ -599,7 +599,6 @@ int rpa_mnode_p_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char 
 	} else if (mcache->match == match && mcache->input == input) {
 		rpa_cbrecord_t *cbrec;
 		rpa_word_t lastoff = rpa_cbset_getpos(&mcache->cbset);
-		rpa_cbset_check_space_min(&stat->cbset, lastoff + 1);
 		for (cboff = 1; cboff <= lastoff; cboff++) {
 			if ((cbrec = rpa_cbset_push(&stat->cbset)) != 0) {
 				*cbrec = rpa_cbset_getrecord(&mcache->cbset, cboff);

@@ -54,6 +54,8 @@ int usage(int argc, const char *argv[])
 		fprintf(stderr, "\t-d                  dump the pattern tree.\n");
 		fprintf(stderr, "\t-t                  display time elapsed.\n");
 		fprintf(stderr, "\t-L                  List all patterns.\n");
+		fprintf(stderr, "\t-v                  Display version information.\n");
+		fprintf(stderr, "\t-h, --help          Display this help.\n");
 		
 		return 0;
 }
@@ -66,13 +68,25 @@ int main(int argc, const char *argv[])
 	rpa_grep_t *pGrep;
 
 	pGrep = rpa_grep_create();
+	if (argc <= 1) {
+		usage(argc, argv);
+		goto end;
+	}
+
 	for (i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "--help") == 0) {
+		if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-help") == 0 || strcmp(argv[i], "/?") == 0 || strcmp(argv[i], "-h") == 0) {
 			usage(argc, argv);
 			goto end;
 		}
 	}
-	
+
+	for (i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "-v") == 0) {
+			fprintf(stderr, "RPA Grep with RPA Engine: %s (%s)\n", rpa_dbex_version(), rpa_dbex_seversion());
+			goto end;
+		}
+	}
+
 	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-c") == 0) {
 			if (++i < argc) {

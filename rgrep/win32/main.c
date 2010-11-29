@@ -24,6 +24,7 @@ int usage(int argc, const wchar_t *argv[])
 		fwprintf(stderr, L"\t-d                  dump the pattern tree.\n");
 		fwprintf(stderr, L"\t-t                  display time elapsed.\n");
 		fwprintf(stderr, L"\t-L                  List all patterns.\n");
+		fwprintf(stderr, L"\t-h, --help          Display this help.\n");
 
 		return 0;
 }
@@ -38,13 +39,16 @@ int wmain(int argc, const wchar_t* argv[])
 
 	pGrep = rpa_grep_create();
 
+	if (argc <= 1) {
+		usage(argc, argv);
+		goto end;
+	}
 	for (i = 1; i < argc; i++) {
-		if (wcscmp(argv[i], L"--help") == 0) {
+		if (wcscmp(argv[i], L"--help") == 0 || wcscmp(argv[i], L"-help") == 0 || wcscmp(argv[i], L"/?") == 0 || wcscmp(argv[i], L"-h") == 0) {
 			usage(argc, argv);
 			goto end;
 		}
 	}
-
 	for (i = 1; i < argc; i++) {
 		if (wcscmp(argv[i], L"-c") == 0) {
 			if (++i < argc) {
@@ -111,9 +115,9 @@ int wmain(int argc, const wchar_t* argv[])
 			pGrep->icase = 1;
 		} else if (wcscmp(argv[i], L"-l") == 0) {
 			pGrep->linemode = 1;
-		} else if (strcmp(argv[i], "-16") == 0) {
+		} else if (wcscmp(argv[i], L"-16") == 0) {
 			pGrep->forceEncoding = RPA_GREP_FORCE_UTF16;
-		} else if (strcmp(argv[i], "-b") == 0) {
+		} else if (wcscmp(argv[i], L"-b") == 0) {
 			pGrep->forceEncoding = RPA_GREP_FORCE_BYTE;
 		} else if (wcscmp(argv[i], L"-m") == 0) {
 			pGrep->matchonly = 1;
