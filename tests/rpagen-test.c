@@ -360,6 +360,7 @@ int main(int argc, char *argv[])
 	ruint ntable;
 	rpa_dbex_handle dbex = rpa_dbex_create();
 	rvm_compiler_t *co = rvm_compiler_create(dbex);
+//	char e[] = "var a = '1'; a + 1;";
 
 
 	rpa_dbex_add_callback_exact(dbex, "mulop", RPA_REASON_MATCHED, codegen_mulop_callback, co);
@@ -437,6 +438,8 @@ int main(int argc, char *argv[])
 	rpa_dbex_close(dbex);
 	if (argc > 1) {
 		res = rpa_dbex_parse(dbex, rpa_dbex_default_pattern(dbex), argv[1], argv[1], argv[1] + r_strlen(argv[1]));
+//		res = rpa_dbex_parse(dbex, rpa_dbex_default_pattern(dbex), e, e, e + r_strlen(e));
+
 		if (res <= 0)
 			rvm_codegen_clear(co->cg);
 	}
