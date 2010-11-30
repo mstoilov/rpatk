@@ -4,28 +4,28 @@ RVM_SO = $(OUTDIR)/librvm.so.1.0
 
 CFLAGS += -I$(RVM_SRCDIR)/config -I$(SRCDIR)/rlib
 
-RVM_OBJECTS =	\
-	$(OUTDIR)/rrefreg.o \
-	$(OUTDIR)/rvmcpu.o \
-	$(OUTDIR)/rvmoperator.o \
-	$(OUTDIR)/rvmoperatorand.o \
-	$(OUTDIR)/rvmoperatorxor.o \
-	$(OUTDIR)/rvmoperatoror.o \
-	$(OUTDIR)/rvmoperatorcmp.o \
-	$(OUTDIR)/rvmoperatorcmn.o \
-	$(OUTDIR)/rvmoperatornot.o \
-	$(OUTDIR)/rvmoperatorlsl.o \
-	$(OUTDIR)/rvmoperatorlsr.o \
-	$(OUTDIR)/rvmoperatorcast.o \
-	$(OUTDIR)/rvmoperatorcat.o \
-	$(OUTDIR)/rvmoperatoradd.o \
-	$(OUTDIR)/rvmoperatorsub.o \
-	$(OUTDIR)/rvmoperatormul.o \
-	$(OUTDIR)/rvmoperatordiv.o \
-	$(OUTDIR)/rvmcodemap.o \
-	$(OUTDIR)/rvmcodegen.o \
-	$(OUTDIR)/rvmreg.o \
-	$(OUTDIR)/rvmscope.o \
+
+RVM_OBJECTS +=	$(OUTDIR)/rrefreg.o
+RVM_OBJECTS +=	$(OUTDIR)/rvmcpu.o 
+RVM_OBJECTS +=	$(OUTDIR)/rvmoperator.o
+RVM_OBJECTS +=	$(OUTDIR)/rvmoperatorand.o
+RVM_OBJECTS +=	$(OUTDIR)/rvmoperatorxor.o
+RVM_OBJECTS +=	$(OUTDIR)/rvmoperatoror.o
+RVM_OBJECTS +=	$(OUTDIR)/rvmoperatorcmp.o
+RVM_OBJECTS +=	$(OUTDIR)/rvmoperatorcmn.o
+RVM_OBJECTS +=	$(OUTDIR)/rvmoperatornot.o
+RVM_OBJECTS +=	$(OUTDIR)/rvmoperatorlsl.o
+RVM_OBJECTS +=	$(OUTDIR)/rvmoperatorlsr.o
+RVM_OBJECTS +=	$(OUTDIR)/rvmoperatorcast.o
+RVM_OBJECTS +=	$(OUTDIR)/rvmoperatorcat.o
+RVM_OBJECTS +=	$(OUTDIR)/rvmoperatoradd.o
+RVM_OBJECTS +=	$(OUTDIR)/rvmoperatorsub.o
+RVM_OBJECTS +=	$(OUTDIR)/rvmoperatormul.o
+RVM_OBJECTS +=	$(OUTDIR)/rvmoperatordiv.o
+RVM_OBJECTS +=	$(OUTDIR)/rvmcodemap.o
+RVM_OBJECTS +=	$(OUTDIR)/rvmcodegen.o
+RVM_OBJECTS +=	$(OUTDIR)/rvmreg.o
+RVM_OBJECTS +=	$(OUTDIR)/rvmscope.o
 
 
 ifeq ($(OS), linux)
@@ -36,7 +36,7 @@ endif
 
 
 $(OUTDIR)/%.o: $(RVM_SRCDIR)/%.c
-	$(CC) $(CFLAGS) -o $(OUTDIR)/$*.o -c $(RVM_SRCDIR)/$*.c
+	+ $(CC) $(CFLAGS) -o $(OUTDIR)/$*.o -c $(RVM_SRCDIR)/$*.c
 
 $(RVM_LIB): $(RVM_OBJECTS)
 	$(AR) -cr $@ $^

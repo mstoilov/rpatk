@@ -18,32 +18,32 @@ CFLAGS += -DHAVESTDIO
 
 
 
-RPA_OBJECTS = \
-	$(OUTDIR)/rpaclass.o \
-	$(OUTDIR)/rpautf.o \
-	$(OUTDIR)/rpacharconv.o \
-	$(OUTDIR)/rpamnode.o \
-	$(OUTDIR)/rpamatch.o \
-	$(OUTDIR)/rpamatchspecial.o \
-	$(OUTDIR)/rpamatchrangelist.o \
-	$(OUTDIR)/rpamatchval.o \
-	$(OUTDIR)/rpamatchlist.o \
-	$(OUTDIR)/rpamatchstr.o \
-	$(OUTDIR)/rpamatchrange.o \
-	$(OUTDIR)/rpastat.o \
-	$(OUTDIR)/rpavar.o \
-	$(OUTDIR)/rpavarlink.o \
-	$(OUTDIR)/rpadebug.o \
-	$(OUTDIR)/rpaparser.o \
-	$(OUTDIR)/rpavm.o \
-	$(OUTDIR)/rpawordstack.o \
-	$(OUTDIR)/rpaposmnodestack.o \
-	$(OUTDIR)/rpadbex.o \
-	$(OUTDIR)/rpadbexpriv.o \
-	$(OUTDIR)/rpacbrecord.o
 
-RPASX_OBJECTS =	\
-	$(OUTDIR)/rpasearch.o \
+RPA_OBJECTS +=	$(OUTDIR)/rpaclass.o
+RPA_OBJECTS +=	$(OUTDIR)/rpautf.o
+RPA_OBJECTS +=	$(OUTDIR)/rpacharconv.o
+RPA_OBJECTS +=	$(OUTDIR)/rpamnode.o
+RPA_OBJECTS +=	$(OUTDIR)/rpamatch.o
+RPA_OBJECTS +=	$(OUTDIR)/rpamatchspecial.o
+RPA_OBJECTS +=	$(OUTDIR)/rpamatchrangelist.o
+RPA_OBJECTS +=	$(OUTDIR)/rpamatchval.o
+RPA_OBJECTS +=	$(OUTDIR)/rpamatchlist.o
+RPA_OBJECTS +=	$(OUTDIR)/rpamatchstr.o
+RPA_OBJECTS +=	$(OUTDIR)/rpamatchrange.o
+RPA_OBJECTS +=	$(OUTDIR)/rpastat.o
+RPA_OBJECTS +=	$(OUTDIR)/rpavar.o
+RPA_OBJECTS +=	$(OUTDIR)/rpavarlink.o
+RPA_OBJECTS +=	$(OUTDIR)/rpadebug.o
+RPA_OBJECTS +=	$(OUTDIR)/rpaparser.o
+RPA_OBJECTS +=	$(OUTDIR)/rpavm.o
+RPA_OBJECTS +=	$(OUTDIR)/rpawordstack.o
+RPA_OBJECTS +=	$(OUTDIR)/rpaposmnodestack.o
+RPA_OBJECTS +=	$(OUTDIR)/rpadbex.o
+RPA_OBJECTS +=	$(OUTDIR)/rpadbexpriv.o
+RPA_OBJECTS +=	$(OUTDIR)/rpacbrecord.o
+
+
+RPASX_OBJECTS += $(OUTDIR)/rpasearch.o 
 
 
 
@@ -55,7 +55,7 @@ endif
 
 
 $(OUTDIR)/%.o: $(RPA_SRCDIR)/%.c
-	$(CC) $(CFLAGS) -o $(OUTDIR)/$*.o -c $(RPA_SRCDIR)/$*.c
+	+ $(CC) $(CFLAGS) -o $(OUTDIR)/$*.o -c $(RPA_SRCDIR)/$*.c
 
 $(RPA_LIB): $(RPA_OBJECTS)
 	$(AR) -cr $@ $^
