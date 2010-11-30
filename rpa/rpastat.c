@@ -283,6 +283,10 @@ void rpa_stat_init(rpa_stat_t *stat)
 		stat->mcache[i].match = NULL;
 		rpa_cbset_init(&stat->mcache[i].cbset);
 	}
+	for (i = 0; i < RPA_MCACHE_SIZE; i++) {
+		stat->ncache[i].match = NULL;
+	}
+
 }
 
 
@@ -294,7 +298,9 @@ void rpa_stat_cleanup(rpa_stat_t *stat)
 		stat->mcache[i].match = NULL;
 		rpa_cbset_cleanup(&stat->mcache[i].cbset);
 	}
-
+	for (i = 0; i < RPA_MCACHE_SIZE; i++) {
+		stat->ncache[i].match = NULL;
+	}
 }
 
 

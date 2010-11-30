@@ -76,6 +76,7 @@ struct rpa_stat_s {
 	const unsigned char *stackmark;
 	rpa_word_t highbound;
 	rpa_mcache_t mcache[RPA_MCACHE_SIZE];
+	rpa_mcache_t ncache[RPA_MCACHE_SIZE];
 	rpa_head_t loophash[RPA_LOOPHASH_SIZE];
 	rpa_head_t loopstack;
 	rpa_word_t ud[2];

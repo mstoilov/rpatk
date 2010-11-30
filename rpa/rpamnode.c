@@ -410,22 +410,34 @@ int rpa_mnode_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *i
 {
 	int ret;
 	rpa_match_t *match = mnode->match;
-	rpa_mcache_t *mcache = &stat->mcache[RPA_MCACHEHASH(match, input)];
+	rpa_word_t hash = RPA_MCACHEHASH(match, input);
+	rpa_mcache_t *ncache = &stat->ncache[hash];
+	rpa_mcache_t *mcache = &stat->mcache[hash];
 
 	rpa_mnode_exec_callback(mnode, stat, input, (unsigned int) (stat->end - input), RPA_REASON_START);
 	if (((rpa_match_nlist_t*)(mnode->match))->loopy) {
 		ret = rpa_mnode_plain_loop_detect(mnode, stat, input);
+	} else if (ncache->match == match && ncache->input == input) {
+		/*
+		 * Debug the cache efficiency
+		 * r_printf("HIT THE CACHE @ %d: %s, %d\n", hash, match->name, ncache->ret);
+		 */
+		return -1;
 	} else if (mcache->match == match && mcache->input == input) {
 		ret = mcache->ret;
 		/*
 		 * Debug the cache efficiency
-		 * r_printf("HIT THE CACHE @ %d: %s, %d\n", RPA_MCACHEHASH(match, input), match->name, ret);
+		 * r_printf("HIT THE CACHE @ %d: %s, %d\n", hash, match->name, mcache->ret);
 		 */
 	} else {
 		ret = rpa_mnode_plain(mnode, stat, input);
+		if (stat->usecache) {
+			if (ret > 0)
+				RPA_MCACHE_SET(mcache, match, input, ret);
+			else
+				RPA_MCACHE_SET(ncache, match, input, ret);
+		}
 	}
-	if (ret > 0 && stat->usecache)
-		RPA_MCACHE_SET(mcache, match, input, ret);
 	if (ret <= 0) {
 		rpa_mnode_exec_callback(mnode, stat, input, 0, RPA_REASON_END);
 		return -1;
@@ -589,13 +601,18 @@ int rpa_mnode_p_multiopt(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *input
 
 int rpa_mnode_p_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *input)
 {
-	int ret;
+	int ret = 0;
 	rpa_match_t *match = mnode->match;
-	rpa_mcache_t *mcache = &stat->mcache[RPA_MCACHEHASH(match, input)];
+	rpa_word_t hash = RPA_MCACHEHASH(match, input);
+	rpa_mcache_t *mcache = &stat->mcache[hash];
+	rpa_mcache_t *ncache = &stat->ncache[hash];
 	rpa_word_t cboff, cboffset_now = (rpa_word_t)-1, cboffset_before = rpa_cbset_getpos(&stat->cbset);
 
 	if (((rpa_match_nlist_t*)match)->loopy) {
 		ret = rpa_mnode_p_plain_loop_detect(mnode, stat, input);
+	} else if (ncache->match == match && ncache->input == input) {
+		r_printf("HIT THE CACHE @ %d: %s, %d\n", hash, match->name, ncache->ret);
+		return -1;
 	} else if (mcache->match == match && mcache->input == input) {
 		rpa_cbrecord_t *cbrec;
 		rpa_word_t lastoff = rpa_cbset_getpos(&mcache->cbset);
@@ -607,13 +624,18 @@ int rpa_mnode_p_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char 
 		ret = mcache->ret;
 		/*
 		 * Debug the cache efficiency
-		 * r_printf("HIT THE CACHE @ %d: %s, %d\n", RPA_MCACHEHASH(match, input), match->name, ret);
+		 * r_printf("HIT THE CACHE @ %d: %s, %d\n", hash, match->name, ret);
 		 */
+		r_printf("HIT THE CACHE @ %d: %s, %d\n", hash, match->name, ret);
 	} else {
 		ret = rpa_mnode_p_plain(mnode, stat, input);
-		if (ret > 0 && stat->usecache) {
-			cboffset_now = rpa_cbset_getpos(&stat->cbset);
-			RPA_MCACHE_CBSET(mcache, match, input, ret, cboffset_before, cboffset_now - cboffset_before);
+		if (stat->usecache) {
+			if (ret > 0) {
+				cboffset_now = rpa_cbset_getpos(&stat->cbset);
+				RPA_MCACHE_CBSET(mcache, match, input, ret, cboffset_before, cboffset_now - cboffset_before);
+			} else {
+				RPA_MCACHE_SET(ncache, match, input, ret);
+			}
 		}
 	}
 
