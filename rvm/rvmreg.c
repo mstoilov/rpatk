@@ -269,18 +269,15 @@ int rvm_reg_str2num(rvmreg_t *dst, const rvmreg_t *ssrc)
 	l = r_strtol(R_STRING2PTR(RVM_REG_GETP(src)), &lptr, 10);
 	if (!lptr)
 		return -1;
-	if (*lptr == '\0') {
+	if (*lptr != '.') {
 		rvm_reg_setlong(dst, l);
 		return 0;
 	}
 	d = r_strtod(R_STRING2PTR(RVM_REG_GETP(src)), &dptr);
 	if (!dptr)
 		return -1;
-	if (*dptr == '\0') {
-		rvm_reg_setdouble(dst, d);
-		return 0;
-	}
-	return -1;
+	rvm_reg_setdouble(dst, d);
+	return 0;
 }
 
 
@@ -293,11 +290,8 @@ int rvm_reg_str2long(rvmreg_t *dst, const rvmreg_t *ssrc)
 	d = r_strtod(R_STRING2PTR(RVM_REG_GETP(src)), &dptr);
 	if (!dptr)
 		return -1;
-	if (*dptr == '\0') {
-		rvm_reg_setlong(dst, (long)d);
-		return 0;
-	}
-	return -1;
+	rvm_reg_setlong(dst, (long)d);
+	return 0;
 }
 
 
@@ -310,9 +304,6 @@ int rvm_reg_str2double(rvmreg_t *dst, const rvmreg_t *ssrc)
 	d = r_strtod(R_STRING2PTR(RVM_REG_GETP(src)), &dptr);
 	if (!dptr)
 		return -1;
-	if (*dptr == '\0') {
-		rvm_reg_setdouble(dst, d);
-		return 0;
-	}
-	return -1;
+	rvm_reg_setdouble(dst, d);
+	return 0;
 }
