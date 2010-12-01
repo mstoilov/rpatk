@@ -79,7 +79,6 @@ enum {
 	RVM_LDM,		/* Load multiple */
 	RVM_STS,		/* Store op1 on the stack at position op2 + op3, i.e. stack[op2 + op3] = op1 */
 	RVM_LDS,		/* Load op1 from thes stack at position op2 + op3, i.e. op1 = stack[op2 + op3] */
-	RVM_CLS,		/* Clear the stack at pos op2 + op3.  CLEAR(&stack[op2 + op3]) */
 	RVM_ORR,		/* ORR: op1 = op2 | op3, update the status register */
 	RVM_PUSH,
 	RVM_POP,
@@ -98,8 +97,6 @@ enum {
 	RVM_TST,
 	RVM_TEQ,
 	RVM_CLR,		/* Clear op1. If the reg has dynamic memory associated with with it (RVM_INFOBIT_ROBJECT) it will be cleared */
-	RVM_REF,		/* Increase reference in op1 if it is refreg type */
-
 
 /* Extended VM opcodes, */
 	RVM_CAST,		/* Cast: op1 = (op3)op2 */

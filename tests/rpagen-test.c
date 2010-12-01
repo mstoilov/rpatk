@@ -198,8 +198,6 @@ int codegen_string_callback(const char *name, void *userdata, const char *input,
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R2, DA, XX, size));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCSTR, R0, R1, R2, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_STS, R0, FP, DA, co->fpoff++));
-	co->dectip++;
 
 	codegen_print_callback(name, userdata, input, size, reason, start, end);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
@@ -210,19 +208,12 @@ int codegen_string_callback(const char *name, void *userdata, const char *input,
 int codegen_program_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rint i;
 	ruint off;
 
 	rvm_codegen_insertins(co->cg, 0, rvm_asm(RVM_ADD, SP, SP, DA, co->fpoff));
 	rvm_codegen_insertins(co->cg, 0, rvm_asm(RVM_MOV, FP, SP, XX, 0));
 
 	off = rvm_codegen_getcodesize(co->cg);
-	for (i = 1; i < co->fpoff; i++) {
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_CLS, R1, FP, DA, i));
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_LDS, R1, FP, DA, i));
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_CLR, R1, XX, XX, 0));
-	}
-
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PRN, R0, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
 
@@ -239,7 +230,7 @@ int codegen_opassign_callback(const char *name, void *userdata, const char *inpu
 	ruint off = rvm_codegen_getcodesize(co->cg);
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_REF, R0, XX, XX, 0));
+//	rvm_codegen_addins(co->cg, rvm_asm(RVM_REF, R0, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_STS, R0, FP, R1, 0));
 
 	codegen_print_callback(name, userdata, input, size, reason, start, end);
@@ -383,7 +374,7 @@ int main(int argc, char *argv[])
 	rpa_dbex_add_callback_exact(dbex, "pop_r0", RPA_REASON_MATCHED, codegen_pop_r0_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "varalloc", RPA_REASON_MATCHED, codegen_varalloc_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "compile_error", RPA_REASON_MATCHED, codegen_compile_error_callback, co);
-//	rpa_dbex_add_callback(dbex, ".*", RPA_REASON_MATCHED, codegen_print_callback, co);
+	rpa_dbex_add_callback(dbex, ".*", RPA_REASON_MATCHED, codegen_print_callback, co);
 
 
 	rpa_dbex_open(dbex);
@@ -432,7 +423,7 @@ int main(int argc, char *argv[])
 	rpa_dbex_load_string(dbex, "addop8    			::= <:addop7:>");
 	rpa_dbex_load_string(dbex, "addop9    			::= <:addop8:>");
 
-	rpa_dbex_load_string(dbex, "expr    			::= <:addop9:> | <:subop:> | <:mulex:>");
+	rpa_dbex_load_string(dbex, "expr    			::= <:addop:> | <:subop:> | <:mulex:>");
 	rpa_dbex_load_string(dbex, "pop_r0				::= <:expr:>");
 	rpa_dbex_load_string(dbex, "compile_error		::= .");
 	rpa_dbex_load_string(dbex, "program				::= ((<:declaration:>|<:assignment:>)* <:S:>? (<:pop_r0:><:SC:>)*) | <;compile_error;>");
