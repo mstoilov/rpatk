@@ -98,6 +98,8 @@ enum {
 	RVM_TST,
 	RVM_TEQ,
 	RVM_CLR,		/* Clear op1. If the reg has dynamic memory associated with with it (RVM_INFOBIT_ROBJECT) it will be cleared */
+	RVM_REF,		/* Increase reference in op1 if it is refreg type */
+
 
 /* Extended VM opcodes, */
 	RVM_CAST,		/* Cast: op1 = (op3)op2 */

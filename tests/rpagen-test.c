@@ -198,6 +198,8 @@ int codegen_string_callback(const char *name, void *userdata, const char *input,
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R2, DA, XX, size));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCSTR, R0, R1, R2, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_STS, R0, FP, DA, co->fpoff++));
+	co->dectip++;
 
 	codegen_print_callback(name, userdata, input, size, reason, start, end);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
@@ -237,6 +239,7 @@ int codegen_opassign_callback(const char *name, void *userdata, const char *inpu
 	ruint off = rvm_codegen_getcodesize(co->cg);
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_REF, R0, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_STS, R0, FP, R1, 0));
 
 	codegen_print_callback(name, userdata, input, size, reason, start, end);

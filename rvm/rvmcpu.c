@@ -98,6 +98,7 @@ static const char *stropcalls[] = {
 	"RVM_TST",	
 	"RVM_TEQ",
 	"RVM_CLR",
+	"RVM_REF",
 	"RVM_CAST",		/* Cast: op1 = (op3)op2 */
 	"RVM_TYPE",		/* Type: op1 = typeof(op2) */
 	"RVM_EMOV",
@@ -453,6 +454,12 @@ static void rvm_op_clr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvm_reg_cleanup(reg);
 }
 
+
+static void rvm_op_ref(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rvmreg_t *reg = RVM_CPUREG_PTR(cpu, ins->op1);
+	rvm_reg_refer(reg, reg);
+}
 
 
 static void rvm_op_bic(rvmcpu_t *cpu, rvm_asmins_t *ins)
@@ -1141,6 +1148,7 @@ static rvm_cpu_op ops[] = {
 	rvm_op_tst, 		// RVM_TST
 	rvm_op_teq, 		// RVM_TEQ
 	rvm_op_clr, 		// RVM_CLR
+	rvm_op_ref,			// RVM_REF
 
 /* Extended VM instructions */
 	rvm_op_cast,		// RVM_CAST
