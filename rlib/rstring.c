@@ -159,6 +159,22 @@ static robject_t *r_objectstub_copy(const robject_t *ptr)
 }
 
 
+static rstring_t *r_string_init(rstring_t *string)
+{
+	r_memset(string, 0, sizeof(*string));
+	return string;
+}
+
+
+static void r_string_cleanup(rstring_t *string)
+{
+	if (string) {
+		r_free(string->s.str);
+		r_memset(&string->s, 0, sizeof(rstr_t));
+	}
+}
+
+
 rstring_t *r_string_create()
 {
 	rstring_t *string;
@@ -174,26 +190,10 @@ rstring_t *r_string_create()
 }
 
 
-rstring_t *r_string_init(rstring_t *string)
-{
-	r_memset(string, 0, sizeof(*string));
-	return string;
-}
-
-
 void r_string_destroy(rstring_t *string)
 {
 	r_string_cleanup(string);
 	r_free(string);
-}
-
-
-void r_string_cleanup(rstring_t *string)
-{
-	if (string) {
-		r_free(string->s.str);
-		r_memset(&string->s, 0, sizeof(rstr_t));
-	}
 }
 
 

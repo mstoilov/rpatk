@@ -22,11 +22,23 @@ static ruint r_nearest_pow (ruint num)
 static void r_array_checkexpand(rarray_t *array, ruint index);
 
 
-void r_array_cleanup(rarray_t *array)
+static void r_array_cleanup(rarray_t *array)
 {
 	if (array->ondestroy)
 		array->ondestroy(array);
 	r_free(array->data);
+}
+
+
+static rarray_t *r_array_init(rarray_t *array, ruint elt_size)
+{
+	r_memset(array, 0, sizeof(*array));
+	array->elt_size = elt_size;
+	array->data = r_zmalloc(MIN_ARRAY_LEN * array->elt_size);
+	array->alloc_len = MIN_ARRAY_LEN;
+	if (!array->data)
+		return NULL;
+	return array;
 }
 
 
@@ -46,18 +58,6 @@ static void r_objectstub_destroy(robject_t *ptr)
 static robject_t *r_objectstub_copy(const robject_t *ptr)
 {
 	return (robject_t*) r_array_copy((const rarray_t*)ptr);
-}
-
-
-rarray_t *r_array_init(rarray_t *array, ruint elt_size)
-{
-	r_memset(array, 0, sizeof(*array));
-	array->elt_size = elt_size;
-	array->data = r_zmalloc(MIN_ARRAY_LEN * array->elt_size);
-	array->alloc_len = MIN_ARRAY_LEN;
-	if (!array->data)
-		return NULL;
-	return array;
 }
 
 

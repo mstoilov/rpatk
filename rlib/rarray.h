@@ -28,7 +28,6 @@ struct rarray_s {
 #define r_array_slot(__array__, __index__) (((ruint8*)(__array__)->data) + (__array__)->elt_size * (__index__))
 
 rarray_t *r_array_create(ruint elt_size);
-rarray_t *r_array_init(rarray_t *array, ruint elt_size);
 rarray_t *r_array_copy(const rarray_t *array);
 void r_array_destroy(rarray_t *array);
 rint r_array_add(rarray_t *array, rconstpointer data);
