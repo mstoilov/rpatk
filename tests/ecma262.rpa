@@ -121,21 +121,15 @@ IdentifierOp					::= <:Identifier:>
 ArrayLiteral 					::= '[' <S>? <:Elision:>? <S>? ']' |
 			    					'[' <S>? <:ElementList:> <S>? ']' |
 			    					'[' <S>? <:ElementList:> <S>? ',' <S>? <:Elision:> <S>? ']'
-ElementList					::= <:Elision:>? <S>? <:AssignmentExpression:> (<S>? ',' <S>? <:Elision:>? <S>? <:AssignmentExpression:> )*
-Elision						::= ',' <S>? <:Elision:> | <S>? ','
-
-#ArrayElementValue				::= <:IdentifierValue:> <:S:>? <:ArrayLiteral:>
-#term							::= <:Literal:> | 
-#									<:ArrayElementValue:> | 
-#	    							'(' <S>? <:Expression:> <S>? ')' |
-#	    							<:IdentifierValue:> 
+ElementList						::= <:Elision:>? <S>? <:AssignmentExpression:> (<S>? ',' <S>? <:Elision:>? <S>? <:AssignmentExpression:> )*
+Elision							::= ',' <S>? <:Elision:> | <S>? ','
 
 
 # 11.2 Left-Hand-Side Expressions
 NewKeyword						::= 'new' - 'new' <IdentifierPart>
 
 MemberExpressionIndexBaseOp		::= <:MemberExpression:>
-MemberExpressionIndexOp			::= <:MemberExpressionIndexBaseOp:> <S>? '[' <:S:>? <:AssignmentExpression:> <:S:>? ']'
+MemberExpressionIndexOp			::= <:MemberExpressionIndexBaseOp:> <S>? '[' <:S:>? <:Expression:> <:S:>? ']'
 MemberExpression 				::= <:MemberExpressionIndexOp:>  |
 									<:MemberExpression:> '.' <:IdentifierName:> |
 									<:NewKeyword:> <S>? <:MemberExpression:> <S>? <:Arguments:> |
@@ -151,7 +145,7 @@ NewExpression 					::= <:NewArrayExpression:> |
 FunctionCallName				::= <:CallExpression:> | <:MemberExpression:>
 CallExpressionOp				::= <:FunctionCallName:> <S>? <:Arguments:>
 CallExpressionIndexBaseOp		::= <:CallExpression:>
-CallExpressionIndexOp			::= <:CallExpressionIndexBaseOp:> <S>? '[' <S>? <:AssignmentExpression:> <S>? ']'
+CallExpressionIndexOp			::= <:CallExpressionIndexBaseOp:> <S>? '[' <S>? <:Expression:> <S>? ']'
 
 CallExpression					::= <:CallExpressionIndexOp:> |
 									<:CallExpression:> '.' <:IdentifierName:> |
@@ -176,19 +170,19 @@ FunctionCallParameter			::= <:AssignmentExpression:>
 
 # 11.3 Postfix Expressions
 # RULE: LeftHandSideExpression always ends up in R0 (Let see if this would work)
-PostfixOperator 		::= '++' | '--'
-PostfixExpressionOp 	::= <:LeftHandSideExpression:> <:PostfixOperator:>
-PostfixExpression 		::= <:PostfixExpressionOp:> |
-							<:LeftHandSideExpression:>
+PostfixOperator 				::= '++' | '--'
+PostfixExpressionOp 			::= <:LeftHandSideExpression:> <:PostfixOperator:>
+PostfixExpression 				::= <:PostfixExpressionOp:> |
+									<:LeftHandSideExpression:>
 
 # 11.4 Unary Operators
-UnaryOperator		    ::= 'delete' | 'void' | 'typeof' | '++' | '--' | '+' | '-' | '~' | '!'
-UnaryExpressionOp	    ::=	<S>? <:UnaryOperator:> <S>? <:UnaryExpression:>
-UnaryExpression		    ::=	<:UnaryExpressionOp:> | <:PostfixExpression:>
+UnaryOperator		    		::= 'delete' | 'void' | 'typeof' | '++' | '--' | '+' | '-' | '~' | '!'
+UnaryExpressionOp	    		::=	<S>? <:UnaryOperator:> <S>? <:UnaryExpression:>
+UnaryExpression		    		::=	<:UnaryExpressionOp:> | <:PostfixExpression:>
 
 
 # 11.5 Multiplicative Operators
-MultiplicativeOperator 		::= '*' | '/' | '%' # Not used
+MultiplicativeOperator 			::= '*' | '/' | '%' # Not used
 MultiplicativeExpressionOp		::= <:MultiplicativeExpression:> <S>? <:MultiplicativeOperator:> <S>? <:UnaryExpression:>
 MultiplicativeExpression		::= <:MultiplicativeExpressionOp:> | 
 									<:UnaryExpression:>
@@ -203,7 +197,7 @@ AdditiveExpression				::= <:AdditiveExpressionOp:> |
 11.7 Bitwise Shift Operators
 ShiftOperator					::= '>>>' | '<<' | '>>'
 ShiftExpressionOp				::= <:ShiftExpression:> <S>? <:ShiftOperator:> <S>? <:AdditiveExpression:>
-ShiftExpression				::= <:ShiftExpressionOp:> |
+ShiftExpression					::= <:ShiftExpressionOp:> |
 			    					<:AdditiveExpression:> 
 
 
@@ -216,21 +210,21 @@ RelationalExpression 			::= <:RelationalExpressionOp:> |
 # 11.9 Equality Operators
 EqualityOperator 				::= '===' | '==' | '!==' | '!='
 EqualityExpressionOp 			::= <:EqualityExpression:> <S>? <:EqualityOperator:> <S>? <:RelationalExpression:> 
-EqualityExpression 			::= <:EqualityExpressionOp:> |
+EqualityExpression 				::= <:EqualityExpressionOp:> |
 			    					<:RelationalExpression:>
 
-BitwiseANDOperator 			::= '&' - '&&'
+BitwiseANDOperator 				::= '&' - '&&'
 BitwiseANDOp		 			::= <:BitwiseANDExpression:> <S>? <:BitwiseANDOperator:> <S>? <:EqualityExpression:>
 BitwiseANDExpression 			::= <:BitwiseANDOp:> |
 			    					<:EqualityExpression:>
 
-BitwiseXOROperator 			::= '^'
+BitwiseXOROperator 				::= '^'
 BitwiseXOROp		 			::= <:BitwiseXORExpression:> <S>? <:BitwiseXOROperator:> <S>? <:BitwiseANDExpression:>
 BitwiseXORExpression 			::= <:BitwiseXOROp:> |
 			    					<:BitwiseANDExpression:>
 
 BitwiseOROperator 				::= '|' - '||'
-BitwiseOROp		 			::= <:BitwiseORExpression:> <S>? <:BitwiseOROperator:> <S>? <:BitwiseXORExpression:>
+BitwiseOROp		 				::= <:BitwiseORExpression:> <S>? <:BitwiseOROperator:> <S>? <:BitwiseXORExpression:>
 BitwiseORExpression 			::= <:BitwiseOROp:> |
 			    					<:BitwiseXORExpression:>
 
@@ -245,16 +239,14 @@ LogicalOROp			 			::= <:LogicalORExpression:> <S>? <:LogicalOROperator:> <S>? <:
 LogicalORExpression 			::= <:LogicalOROp:> |
 			    					<:LogicalANDExpression:>
 
-#Expression						::= <:LogicalORExpression:>
-
 
 # 12.6 Iteration Statements
 WhileKeyword						::= 'while'
-WhileExpression					::= <:WhileKeyword:> <S>? '(' <S>? <:ValueOfExpression:> <S>? ')'
+WhileExpression						::= <:WhileKeyword:> <S>? '(' <S>? <:ValueOfExpression:> <S>? ')'
 IterationWhile						::= <:WhileKeyword:> '(' <S>? <:Expression:> <S>? ')' <S>? <:Statement:>
 DoKeyword							::= 'do'
-IterationDo						::= <:DoKeyword:> <S>? <:Statement:> <S>? <:WhileExpression:> (<S>? ';')
-IterationStatement 				::= <:IterationWhile:> |
+IterationDo							::= <:DoKeyword:> <S>? <:Statement:> <S>? <:WhileExpression:> (<S>? ';')
+IterationStatement 					::= <:IterationWhile:> |
 	    								<:IterationDo:>
 
 
@@ -299,15 +291,6 @@ Expression    		::= <:AssignmentExpression:> ( <S>? ',' <S>? <:AssignmentExpress
 ExpressionNoIn		::= <:AssignmentExpressionNoIn:> ( <S>? ',' <S>? <:AssignmentExpressionNoIn:> )*
 
 
-
-
-# 12.3 Empty Statement
-EmptyStatement					::= <:SC:>
-
-# 12.4 Expression Statement
-#ExpressionStatement 			::= (<:Expression:> - ('function' | '{')) (<S>? ';')
-ExpressionStatement 			::= <:AssignmentExpression:> <:SC:>
-
 # 12 Statements
 Statement						::= <:Block:> |
 			    					<:Comment:> |
@@ -340,6 +323,28 @@ VariableAllocate					::= <:Identifier:>
 VariableAllocateAndInit				::= <:Identifier:>
 VariableDeclaration					::= <:VariableAllocateAndInit:> <:Initialiser:> | <:VariableAllocate:>
 Initialiser							::= <:EQ:> <:AssignmentExpression:>
+
+
+# 12.3 Empty Statement
+EmptyStatement						::= <:SC:>
+
+# 12.4 Expression Statement
+ExpressionStatement 				::= (<:Expression:> - ('function' | '{')) <:SC:>
+
+
+# 12.5 The if Statement
+
+ElseOp								::= 'else'
+IfConditionOp						::= 'if' <S>? '(' <S>? <:Expression:> <S>? ')'
+IfOp								::= <:IfConditionOp:> <S>? <:Statement:>
+IfElseOp							::= <:IfConditionOp:> <S>? <:Statement:> <S>? <:ElseOp:> <S>? <:Statement:>
+
+IfStatement							::= <:IfElseOp:> |
+										<:IfOp:>
+
+#IfStatement							::= 'if' <S>? '(' <S>? <:Expression:> <S>? ')'<S>? <:Statement:> <S>? 'else' <S>? <:Statement:> |
+#			    						'if' <S>? '(' <S>? <:Expression:> <S>? ')'<S>? <:Statement:> 
+
 
 # 12.9 The return Statement
 ReturnOp						::= ('return' - 'return' <:IdentifierPart:>) <WhiteSpace>* <:AssignmentExpression:>? (<S>? ';')

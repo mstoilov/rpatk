@@ -21,18 +21,24 @@ typedef struct rvm_vardeclaration_s {
 
 typedef struct rvm_fundecl_s {
 	const rchar *funname;
-	ruint funnamesiz;
-	ruint params;
-	ruint codestart;
-	ruint codesize;
+	rword funnamesiz;
+	rword params;
+	rword codestart;
+	rword codesize;
 } rvm_fundecl_t;
 
 
 typedef struct rvm_funcall_s {
 	const rchar *funname;
-	ruint funnamesiz;
-	ruint params;
+	rword funnamesiz;
+	rword params;
 } rvm_funcall_t;
+
+
+typedef struct rvm_codespan_s {
+	rword codestart;
+	rword codesize;
+} rvm_codespan_t;
 
 
 typedef struct rvm_compiler_s {
@@ -43,6 +49,7 @@ typedef struct rvm_compiler_s {
 	rarray_t *funcall;
 	rarray_t *fundecl;
 	rarray_t *opcodes;
+	rarray_t *codespan;
 	rvmcpu_t *cpu;
 } rvm_compiler_t;
 
@@ -61,6 +68,7 @@ rvm_compiler_t *rvm_compiler_create(rpa_dbex_handle dbex)
 	co->fp = r_array_create(sizeof(rword));
 	co->funcall = r_array_create(sizeof(rvm_funcall_t));
 	co->fundecl = r_array_create(sizeof(rvm_fundecl_t));
+	co->codespan = r_array_create(sizeof(rvm_codespan_t));
 	r_array_push(co->fp, 0, rword);
 	co->dbex = dbex;
 	return co;
@@ -76,6 +84,7 @@ void rvm_compiler_destroy(rvm_compiler_t *co)
 		r_object_destroy((robject_t*) co->fp);
 		r_object_destroy((robject_t*) co->funcall);
 		r_object_destroy((robject_t*) co->fundecl);
+		r_object_destroy((robject_t*) co->codespan);
 		r_free(co);
 	}
 }
@@ -967,6 +976,7 @@ int codegen_fundecl_callback(const char *name, void *userdata, const char *input
 	return size;
 }
 
+
 int codegen_opreturn_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
@@ -981,6 +991,78 @@ int codegen_opreturn_callback(const char *name, void *userdata, const char *inpu
 	return size;
 }
 
+
+int codegen_ifconditionop_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
+{
+	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
+	rulong off = rvm_codegen_getcodesize(co->cg);
+	rvm_codespan_t cs = {0, 0};
+
+	cs.codestart = rvm_codegen_getcodesize(co->cg);
+	r_array_add(co->codespan, &cs);
+
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_CMP, R0, DA, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_BEQ, DA, XX, XX, -1));	//This has to be redefined when we know the size of the code block
+
+	codegen_print_callback(name, userdata, input, size, reason, start, end);
+	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
+
+	return size;
+}
+
+
+int codegen_ifop_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
+{
+	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
+	rulong off = rvm_codegen_getcodesize(co->cg);
+	rvm_codespan_t cs = r_array_pop(co->codespan, rvm_codespan_t);
+
+	cs.codesize = rvm_codegen_getcodesize(co->cg) - cs.codestart;
+	rvm_codegen_replaceins(co->cg, cs.codestart + 1, rvm_asm(RVM_BEQ, DA, XX, XX, cs.codesize - 1));	//This has to be redefined when we know the size of the code block
+
+	codegen_print_callback(name, userdata, input, size, reason, start, end);
+	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
+
+	return size;
+}
+
+
+int codegen_elseop_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
+{
+	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
+	rulong off = rvm_codegen_getcodesize(co->cg);
+	rvm_codespan_t cs = r_array_pop(co->codespan, rvm_codespan_t);
+
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, - 1)); 		// Branch to the end of the else block, has to be redefined
+	cs.codesize = rvm_codegen_getcodesize(co->cg) - cs.codestart;
+	rvm_codegen_replaceins(co->cg, cs.codestart + 1, rvm_asm(RVM_BEQ, DA, XX, XX, cs.codesize - 1));	// Branch to the begining of the else block
+
+	/* Reuse the cs to define the *else* codespan */
+	cs.codestart = rvm_codegen_getcodesize(co->cg);
+	cs.codesize = 0;
+	r_array_add(co->codespan, &cs);
+
+	codegen_print_callback(name, userdata, input, size, reason, start, end);
+	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
+
+	return size;
+}
+
+
+int codegen_ifelseop_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
+{
+	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
+	rulong off = rvm_codegen_getcodesize(co->cg);
+	rvm_codespan_t cs = r_array_pop(co->codespan, rvm_codespan_t);
+
+	cs.codesize = rvm_codegen_getcodesize(co->cg) - cs.codestart;
+	rvm_codegen_replaceins(co->cg, cs.codestart - 1, rvm_asm(RVM_B, DA, XX, XX, cs.codesize));	//Branch to the end of the else block, now we know the size
+
+	codegen_print_callback(name, userdata, input, size, reason, start, end);
+	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
+
+	return size;
+}
 
 int main(int argc, char *argv[])
 {
@@ -1105,7 +1187,6 @@ void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co)
 	rpa_dbex_add_callback_exact(dbex, "AssignmentEq", RPA_REASON_MATCHED, codegen_opassign_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "AssignmentExpressionOp", RPA_REASON_MATCHED, codegen_opassign_callback, co);
 
-	rpa_dbex_add_callback_exact(dbex, "varassign", RPA_REASON_MATCHED, codegen_opassign_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "VariableAllocate", RPA_REASON_MATCHED, codegen_varalloc_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "VariableAllocateAndInit", RPA_REASON_MATCHED, codegen_varalloc_to_ptr_callback, co);
 
@@ -1114,8 +1195,6 @@ void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co)
 	rpa_dbex_add_callback_exact(dbex, "IdentifierOp", RPA_REASON_MATCHED, codegen_identifier_to_ptr_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "PostfixExpression", RPA_REASON_MATCHED, codegen_postfixexpression_callback, co);
 
-
-//	rpa_dbex_add_callback_exact(dbex, "IdentifierOp", RPA_REASON_MATCHED, codegen_identifiervalue_callback, co);
 
 	rpa_dbex_add_callback_exact(dbex, "LeftHandSideExpressionPush", RPA_REASON_MATCHED, codegen_push_r0_callback, co);
 
@@ -1127,15 +1206,6 @@ void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co)
 
 	rpa_dbex_add_callback_exact(dbex, "ConditionalExpression", RPA_REASON_MATCHED, codegen_pop_r0_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "LeftHandSideExpressionDeref", RPA_REASON_MATCHED, codegen_ptr_deref_callback, co);
-
-
-
-
-
-	rpa_dbex_add_callback_exact(dbex, "offset_to_ptr", RPA_REASON_MATCHED, codegen_offset_to_ptr_callback, co);
-	rpa_dbex_add_callback_exact(dbex, "identifier_ptr_deref", RPA_REASON_MATCHED, codegen_ptr_deref_callback, co);
-//	rpa_dbex_add_callback_exact(dbex, "IdentifierValue", RPA_REASON_MATCHED, codegen_ptr_deref_callback, co);
-
 	rpa_dbex_add_callback_exact(dbex, "IdentifierValue", RPA_REASON_MATCHED, codegen_identifiervalue_callback, co);
 
 
@@ -1157,10 +1227,14 @@ void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co)
 	rpa_dbex_add_callback_exact(dbex, "FunctionCallParameter", RPA_REASON_MATCHED, codegen_funcallparameter_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "FunctionCallName", RPA_REASON_MATCHED, codegen_funcallname_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "CallExpressionOp", RPA_REASON_MATCHED, codegen_funcallexpression_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "IfConditionOp", RPA_REASON_MATCHED, codegen_ifconditionop_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "IfOp", RPA_REASON_MATCHED, codegen_ifop_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "ElseOp", RPA_REASON_MATCHED, codegen_elseop_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "IfElseOp", RPA_REASON_MATCHED, codegen_ifelseop_callback, co);
 
 
 
-	rpa_dbex_add_callback(dbex, ".*", RPA_REASON_MATCHED, codegen_print_callback, co);
+//	rpa_dbex_add_callback(dbex, ".*", RPA_REASON_MATCHED, codegen_print_callback, co);
 
 	while ((ret = rpa_dbex_load(dbex, pattern, inputsize)) > 0) {
 		inputsize -= ret;
