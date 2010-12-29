@@ -25,16 +25,7 @@
  *
  */
 
-static void r_objectstub_destroy(robject_t *ptr)
-{
-	r_harray_destroy((rharray_t*)ptr);
-}
 
-
-static robject_t *r_objectstub_copy(const robject_t *ptr)
-{
-	return (robject_t*) r_harray_copy((const rharray_t*)ptr);
-}
 
 /*
  * Copy the names in the hashed array.
@@ -47,7 +38,7 @@ static void r_array_oncopy_rstr(rarray_t *array)
 	ruint index;
 	rstr_t *src, *dst;
 
-	for (index = 0; index < array->len; index++) {
+	for (index = 0; index < r_array_length(array); index++) {
 		src = r_array_index(array, index, rstr_t*);
 		if (src)
 			dst = r_rstrdup(src->str, src->size);
@@ -58,12 +49,12 @@ static void r_array_oncopy_rstr(rarray_t *array)
 /*
  * Destroy the names in the hashed array.
  */
-static void r_array_ondestroy_rstr(rarray_t *array)
+static void r_array_oncleanup_rstr(rarray_t *array)
 {
 	ruint index;
 	rstr_t *src;
 
-	for (index = 0; index < array->len; index++) {
+	for (index = 0; index < r_array_length(array); index++) {
 		src = r_array_index(array, index, rstr_t*);
 		if (src)
 			r_free(src);
@@ -71,51 +62,55 @@ static void r_array_ondestroy_rstr(rarray_t *array)
 }
 
 
+robject_t *r_harray_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, ruint elt_size)
+{
+	rharray_t *harray = (rharray_t*)obj;
+	r_object_init(obj, type, cleanup, copy);
+	harray->hash = r_hash_create(5, r_hash_rstrequal, r_hash_rstrhash);
+	harray->members = r_array_create(elt_size);
+	harray->names = r_array_create(sizeof(rstr_t*));
+	harray->names->oncleanup = r_array_oncleanup_rstr;
+	harray->names->oncopy = r_array_oncopy_rstr;
+	return obj;
+}
+
 rharray_t *r_harray_create(ruint elt_size)
 {
 	rharray_t *harray;
 
-	harray = (rharray_t*)r_malloc(sizeof(*harray));
-	if (!harray)
-		return NULL;
-	r_memset(harray, 0, sizeof(*harray));
-	harray->members = r_array_create(elt_size);
-	harray->names = r_array_create(sizeof(rstr_t*));
-	harray->names->ondestroy = r_array_ondestroy_rstr;
-	harray->names->oncopy = r_array_oncopy_rstr;
-	harray->hash = r_hash_create(5, r_hash_rstrequal, r_hash_rstrhash);
-	r_object_init(&harray->obj, R_OBJECT_HARRAY, r_objectstub_destroy, r_objectstub_copy);
+	harray = (rharray_t*)r_object_create(sizeof(*harray));
+	r_harray_init((robject_t*)harray, R_OBJECT_HARRAY,r_harray_cleanup, r_harray_copy, elt_size);
 	return harray;
 }
 
 
-rharray_t *r_harray_copy(const rharray_t *src)
+robject_t *r_harray_copy(const robject_t *obj)
 {
 	rharray_t *harray;
 	int i;
 	rstr_t *n;
+	const rharray_t *src = (const rharray_t *)obj;
 
-	harray = (rharray_t*)r_malloc(sizeof(*harray));
-	if (!harray)
-		return NULL;
-	harray->names = r_array_copy(src->names);
-	harray->members = r_array_copy(src->members);
+	harray = (rharray_t*)r_object_create(sizeof(*harray));
+	r_object_init(&harray->obj, R_OBJECT_HARRAY, r_harray_cleanup, r_harray_copy);
+	harray->names = (rarray_t*)r_array_copy((robject_t*)src->names);
+	harray->members = (rarray_t*)r_array_copy((robject_t*)src->members);
 	harray->hash = r_hash_create(5, r_hash_rstrequal, r_hash_rstrhash);
-	for (i = 0; i < src->members->len; i++) {
+	for (i = 0; i < r_array_length(src->members); i++) {
 		n = r_array_index(harray->names, i, rstr_t*);
 		r_hash_insert_indexval(harray->hash, (rconstpointer)n, i);
 	}
-	r_object_init(&harray->obj, R_OBJECT_HARRAY, r_objectstub_destroy, r_objectstub_copy);
-	return harray;
+	return (robject_t*)harray;
 }
 
 
-void r_harray_destroy(rharray_t *harray)
+void r_harray_cleanup(robject_t *obj)
 {
-	r_array_destroy(harray->members);
-	r_array_destroy(harray->names);
-	r_hash_destroy(harray->hash);
-	r_free(harray);
+	rharray_t *harray = (rharray_t *)obj;
+	r_object_destroy((robject_t*)harray->members);
+	r_object_destroy((robject_t*)harray->names);
+	r_object_destroy((robject_t*)harray->hash);
+	r_object_cleanup(&harray->obj);
 }
 
 
@@ -180,7 +175,7 @@ rint r_harray_set(rharray_t *harray, rlong index, rconstpointer pval)
 
 rpointer r_harray_get(rharray_t *harray, rulong index)
 {
-	if (index >= r_array_size(harray->members))
+	if (index >= r_array_length(harray->members))
 		return NULL;
 	return r_array_slot(harray->members, index);
 }

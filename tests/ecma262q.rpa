@@ -1,0 +1,445 @@
+	"# 6 Source Text"		EOL
+	"SourceCharacter		::= ."		EOL
+	""		EOL
+	"# 7.2 White space"		EOL
+	"WhiteSpace		::= [#0x0009] | [#0x000B] | [#0x000C] | [#0x0020] | [#0x00A0] | [#0xFEFF]"		EOL
+	""		EOL
+	"# 7.3 Line Terminators"		EOL
+	"LineTerminator		::= [#0x000D] [#0x000A] | [#0x000A] | [#0x000D] | [#0x2028] | [#0x2029]"		EOL
+	"LineTerminatorSequence	::= [#0x000D] [#0x000A] |"		EOL
+	"			    [#0x000A] | "		EOL
+	"			    [#0x000D] | "		EOL
+	"			    [#0x2028] | "		EOL
+	"			    [#0x2029]"		EOL
+	""		EOL
+	"S			::= ( <WhiteSpace> | <LineTerminator> )+"		EOL
+	""		EOL
+	"# 7.4 Comments"		EOL
+	"Comment			::= <:MultiLineComment:> | <:SingleLineComment:>"		EOL
+	"MultiLineComment	::= '/*' <:MultiLineCommentChar:>* '*/'"		EOL
+	"MultiLineCommentChar	::= . - '*/'"		EOL
+	"SingleLineComment	::= '//' <:SingleLineCommentChar:>*"		EOL
+	"SingleLineCommentChar	::= <:SourceCharacter:> - <:LineTerminator:>"		EOL
+	""		EOL
+	""		EOL
+	"# 7.5 Tokens"		EOL
+	"Token			::= <:IdentifierName:> |"		EOL
+	"			    <:Punctuator:> |"		EOL
+	"			    <:NumericLiteral:> |"		EOL
+	"			    <:StringLiteral:>"		EOL
+	""		EOL
+	"# 7.6 Identifier Names and Identifiers"		EOL
+	""		EOL
+	"Identifier		::= <IdentifierName> - <ReservedWord> - <ReservedWord> <IdentifierPart>"		EOL
+	"IdentifierName		::= <IdentifierStart> <IdentifierPart>*"		EOL
+	"IdentifierStart		::= <UnicodeLetter> | '$' | '_' | '\' <:UnicodeEscapeSequence:>"		EOL
+	"UnicodeLetter		::= <Lu> |"		EOL
+	"			<Ll> |"		EOL
+	"			<Lt> |"		EOL
+	"			<Lm> |"		EOL
+	"			<Lo> |"		EOL
+	"			<Nl>"		EOL
+	""		EOL
+	"Lu			::= [#0x0041-#0x005A] | [#0x00C0-#0x00DE] | [#0x0100-#0x0232]  	# TBD"		EOL
+	"Ll			::= [#0x0061-#0x007A] | [#0x00C0-#0x00DE] 			# TBD"		EOL
+	"IdentifierPart		::= <IdentifierStart> | "		EOL
+	"			<:UnicodeCombiningMark:> |"		EOL
+	"			<:UnicodeDigit:> | "		EOL
+	"			<:UnicodeConnectorPunctuation:>					# TBD"		EOL
+	""		EOL
+	"UnicodeDigit		::= [0-9] | [#0x0660-#0x0669]					# TBD"		EOL
+	"ReservedWord		::= <:Keyword:>"		EOL
+	"			<:Keyword:> | "		EOL
+	"			<:FutureReservedWord:> |"		EOL
+	"			<:NullLiteral:> |"		EOL
+	"			<:BooleanLiteral:>"		EOL
+	""		EOL
+	"Keyword			::= 'instanceof' | 'typeof'	| 'break' | "		EOL
+	"			    'do' | 'new' | 'var' |"		EOL
+	"			    'case' | 'else' | 'return' | 'void' | "		EOL
+	"			    'catch' | 'finally' | 'continue' | 'for' | "		EOL
+	"			    'switch' | 'while' | 'this' | 'with' | "		EOL
+	"			    'debugger' | 'function' | 'throw' | 'default' |  "		EOL
+	"			    'if' | 'try' | 'delete' | 'in'"		EOL
+	""		EOL
+	"FutureReservedWord	::= 'class' | 'enum' | 'extends' | 'import' | 'const' | 'export' |"		EOL
+	"			    'implements' | 'let' | 'private' | 'public' |"		EOL
+	"                            'static' | 'interface' | 'package' | 'protected'"		EOL
+	""		EOL
+	"NullLiteral		::= 'null'"		EOL
+	"BooleanLiteral 		::= 'true' | 'false'"		EOL
+	"Literal 		::= <:NullLiteral:> |"		EOL
+	"			    <:BooleanLiteral:> |"		EOL
+	"			    <:NumericLiteral:> |"		EOL
+	"			    <:StringLiteral:> |"		EOL
+	"			    <:RegularExpressionLiteral:>"		EOL
+	""		EOL
+	""		EOL
+	""		EOL
+	"# 7.7 Punctuators"		EOL
+	"Punctuator		::= '{' | '}' | '(' | ')' | '[' | ']' |"		EOL
+	"                            '===' | '!==' | '>=' | '<=' | '==' | '!=' |"		EOL
+	"			    '<<' | '>>>' | '>>' | '&' | '^=' | '^' |"		EOL
+	"			    '!' | '~' | '&&' | '||' | '?' | ':' |"		EOL
+	"			    '>>=' | '>>>=' | '&=' | '|=' |"		EOL
+	"			    '=' | '+='| '-=' | '*=' | '%=' | '<<=' |"		EOL
+	"			    '.' | ';' | ',' | '<' | '>' | '|' |"		EOL
+	"			    '+' | '-' | '*' | '%' | '++' | '--'"		EOL
+	"DivPunctuator 		::= '/' | '/='"		EOL
+	""		EOL
+	""		EOL
+	""		EOL
+	"# 7.8.3 Numeric Literals"		EOL
+	"NumericLiteral		::= <:HexIntegerLiteral:> | <:DecimalLiteral:>"		EOL
+	"DecimalLiteral		::= <:DecimalIntegerLiteral:> '.' <:DecimalDigits:>? <:ExponentPart:>? |"		EOL
+	"			    '.' <:DecimalDigits:> <:ExponentPart:>? |"		EOL
+	"			    <:DecimalIntegerLiteral:> <:ExponentPart:>?"		EOL
+	""		EOL
+	"DecimalIntegerLiteral	::= '0' |"		EOL
+	"			    <:NonZeroDigit:> <:DecimalDigits:>?"		EOL
+	""		EOL
+	"DecimalDigits		::= <:DecimalDigit:>+"		EOL
+	"DecimalDigit		::= [0-9]"		EOL
+	"NonZeroDigit		::= [1-9]"		EOL
+	"ExponentPart		::= <:ExponentIndicator:> <:SignedInteger:>"		EOL
+	"ExponentIndicator 	::= [eE]"		EOL
+	"SignedInteger 		::= <:DecimalDigits:> |"		EOL
+	"			    '+' <:DecimalDigits:> |"		EOL
+	"			    '-' <:DecimalDigits:>"		EOL
+	"HexIntegerLiteral 	::= '0' [xX] <:HexDigit:>+"		EOL
+	"HexDigit 		::= [0-9a-fA-F]"		EOL
+	""		EOL
+	""		EOL
+	"# 7.8.4 String Literals"		EOL
+	""		EOL
+	"StringLiteral		::= '"' <:DoubleStringCharacters:>? '"' |"		EOL
+	"			    "'" <:SingleStringCharacters:>? "'""		EOL
+	""		EOL
+	"DoubleStringCharacters	::= <:DoubleStringCharacter:>+"		EOL
+	"SingleStringCharacters	::= <:SingleStringCharacter:>+"		EOL
+	""		EOL
+	""		EOL
+	"DoubleStringCharacter	::= '\' <:EscapeSequence:> |"		EOL
+	"			    <:LineContinuation:> |"		EOL
+	"			    <:SourceCharacter:> - ('"' | '\' | <:LineTerminator:>)"		EOL
+	""		EOL
+	"SingleStringCharacter	::= '\' <:EscapeSequence:> |"		EOL
+	"			    <:LineContinuation:> |"		EOL
+	"			    <:SourceCharacter:> - ("'" | '\' | <:LineTerminator:>)"		EOL
+	""		EOL
+	"LineContinuation	::= '\' <:LineTerminatorSequence:>"		EOL
+	""		EOL
+	""		EOL
+	"EscapeSequence 		::= <:CharacterEscapeSequence:> |"		EOL
+	"       			    '0' ^<:DecimalDigit:> |"		EOL
+	"			    <:HexEscapeSequence:> |"		EOL
+	"			    <:UnicodeEscapeSequence:>"		EOL
+	""		EOL
+	"CharacterEscapeSequence ::= <:SingleEscapeCharacter:> |"		EOL
+	"			    <:NonEscapeCharacter:>"		EOL
+	""		EOL
+	"SingleEscapeCharacter 	::= "'" | '"' | '\' | [bfnrtv]"		EOL
+	"NonEscapeCharacter	::= <:SourceCharacter:> - (<:EscapeCharacter:> | <:LineTerminator:>)"		EOL
+	"EscapeCharacter 	::= <:SingleEscapeCharacter:> |"		EOL
+	"			    <:DecimalDigit:> |"		EOL
+	"			    'x' |"		EOL
+	"			    'u'"		EOL
+	""		EOL
+	"HexEscapeSequence 	::= 'x' <:HexDigit:> <:HexDigit:>"		EOL
+	"UnicodeEscapeSequence	::= 'u' <:HexDigit:> <:HexDigit:> <:HexDigit:> <:HexDigit:>"		EOL
+	""		EOL
+	""		EOL
+	"# 7.8.5 Regular Expression Literals"		EOL
+	"RegularExpressionLiteral::= '/' <:RegularExpressionBody:> '/' <:RegularExpressionFlags:>"		EOL
+	"RegularExpressionBody	::= <:RegularExpressionFirstChar:> <:RegularExpressionChars:>?"		EOL
+	"RegularExpressionChars	::= <:RegularExpressionChar:>+"		EOL
+	"RegularExpressionFirstChar ::= <:RegularExpressionNonTerminator:> - ( '*' | '\' | '/' | '[' ) |"		EOL
+	"			       <:RegularExpressionBackslashSequence:> |"		EOL
+	"			       <:RegularExpressionClass:>"		EOL
+	""		EOL
+	"RegularExpressionChar 	::= <:RegularExpressionNonTerminator:> - ( '\' | '/' | '[') |"		EOL
+	"			    <:RegularExpressionBackslashSequence:> |"		EOL
+	"			    <:RegularExpressionClass:>"		EOL
+	""		EOL
+	""		EOL
+	"RegularExpressionBackslashSequence ::= '\' <:RegularExpressionNonTerminator:>"		EOL
+	"RegularExpressionNonTerminator	   ::= <:SourceCharacter:> - <:LineTerminator:>"		EOL
+	"RegularExpressionClass 		   ::= '[' <:RegularExpressionClassChars:> ']'"		EOL
+	"RegularExpressionClassChars	   ::= <:RegularExpressionClassChar:>+"		EOL
+	"RegularExpressionClassChar 	   ::= <:RegularExpressionNonTerminator:> - ( ']' | '\' ) |"		EOL
+	"				       <:RegularExpressionBackslashSequence:>"		EOL
+	""		EOL
+	"RegularExpressionFlags		   ::= <:IdentifierPart:> <:RegularExpressionFlags:> | <:IdentifierPart:>"		EOL
+	""		EOL
+	"# 11.1 Primary Expressions"		EOL
+	""		EOL
+	"PrimaryExpression	::= <:Identifier:> |"		EOL
+	"			    <:Literal:> |"		EOL
+	"			    <:ArrayLiteral:> |"		EOL
+	"			    <:ObjectLiteral:> |"		EOL
+	"			    '(' <S>? <:Expression:> <S>? ')' |"		EOL
+	"			    'this'"		EOL
+	""		EOL
+	"ArrayLiteral 		::= '[' <S>? <:Elision:>? <S>? ']' |"		EOL
+	"			    '[' <S>? <:ElementList:> <S>? ']' |"		EOL
+	"			    '[' <S>? <:ElementList:> <S>? ',' <S>? <:Elision:> <S>? ']'"		EOL
+	""		EOL
+	""		EOL
+	"ElementList		::= <:Elision:>? <S>? <:AssignmentExpression:> (<S>? ',' <S>? <:Elision:>? <S>? <:AssignmentExpression:> )*"		EOL
+	"Elision			::= ',' <S>? <:Elision:> | <S>? ','"		EOL
+	"ObjectLiteral		::= '{' <S>? '}' |"		EOL
+	"			    '{' <S>? <:PropertyNameAndValueList:>  <S>? '}' |"		EOL
+	"			    '{' <S>? <:PropertyNameAndValueList:>  <S>? ','  <S>? '}'"		EOL
+	""		EOL
+	"PropertyNameAndValueList::= <:PropertyAssignment:> ( <S>? ','  <S>? <:PropertyAssignment:>)*"		EOL
+	""		EOL
+	"PropertyAssignment	::= <:PropertyName:>  <S>? ':'  <S>? <:AssignmentExpression:> |"		EOL
+	"			    'get'  <S>? <:PropertyName:>  <S>? '(' <S>? ')'  <S>? '{' <S>? <:FunctionBody:>?  <S>? '}' |"		EOL
+	"			    'set'  <S>? <:PropertyName:>  <S>? '(' <S>? <:PropertySetParameterList:>  <S>? ')' <S>? '{' <S>? <:FunctionBody:>?  <S>? '}'"		EOL
+	""		EOL
+	""		EOL
+	"PropertyName 		::= <:IdentifierName:> |"		EOL
+	"			    <:StringLiteral:> |"		EOL
+	"			    <:NumericLiteral:>"		EOL
+	""		EOL
+	"PropertySetParameterList::= <:Identifier:>"		EOL
+	""		EOL
+	""		EOL
+	"# 11.2 Left-Hand-Side Expressions" 																						EOL
+	"NewKeyword						::= 'new' - 'new' <IdentifierPart>"															EOL
+	"MemberExpression 				::= <:MemberExpression:> <S>? '[' <S>? <:Expression:> <S>? ']' |"							EOL
+	"									<:MemberExpression:> '.' <:IdentifierName:> |" 											EOL
+	"									<:NewKeyword:> <S>? <:MemberExpression:> <S>? <:Arguments:> |" 							EOL
+	"									<:FunctionExpression:> |" 																EOL
+	"									<:PrimaryExpression:>" 																	EOL
+
+	"NewExpression 					::= <:NewKeyword:> <S>? <:NewExpression:> |"												EOL
+	"									<:MemberExpression:>"																	EOL
+
+
+	"CallExpression					::= <:CallExpression:> <:Arguments:> |"														EOL
+	"									<:CallExpression:> <S>? '[' <S>? Expression <S>? ']' |"									EOL
+	"									<:CallExpression:> '.' <:IdentifierName:> |"											EOL
+	"									<:MemberExpression:> <S>? <:Arguments:>"												EOL
+
+	"Arguments						::= '(' <S>? ')' |" 																		EOL
+	"			    					'(' <S>? <:ArgumentList:> <S>? ')'" 													EOL
+	"ArgumentList					::= <:ArgumentList:> <S>? ',' <S>? <:AssignmentExpression:> |" 								EOL
+	"									<:AssignmentExpression:>"											 					EOL
+	"LeftHandSideExpression			::= <:CallExpression:> | <:NewExpression:>" 												EOL
+	""		EOL
+	""		EOL
+	"# 11.3 Postfix Expressions"		EOL
+	"PostfixOperator 	::= '++' | '--'"		EOL
+	"PostfixExpression 	::= <:LeftHandSideExpression:> <:PostfixOperator:>?"		EOL
+	""		EOL
+	"# 11.4 Unary Operators"		EOL
+	"UnaryOperator		    ::= 'delete' | 'void' | 'typeof' | '++' | '--' | '+' | '-' | '~' | '!'"		EOL
+	"UnaryExpression		    ::=	<S>? <:UnaryOperator:> <S>? <:UnaryExpression:> | <:PostfixExpression:>"		EOL
+	""		EOL
+	""		EOL
+	"# 11.5 Multiplicative Operators"		EOL
+	"MultiplicativeOperator 	::= '*' | '/' | '%'"		EOL
+	"MultiplicativeExpression::= <:MultiplicativeExpression:> <S>? <:MultiplicativeOperator:> <S>? <:UnaryExpression:> |"		EOL
+	"			    <:UnaryExpression:>"		EOL
+	""		EOL
+	""		EOL
+	"# 11.6 Additive Operators"		EOL
+	"AdditiveOperator 	::= '+' | '-'"		EOL
+	"AdditiveExpression	::= <:AdditiveExpression:> <S>? <:AdditiveOperator:> <S>? <:MultiplicativeExpression:> |"		EOL
+	"			    <:MultiplicativeExpression:>"		EOL
+	""		EOL
+	"11.7 Bitwise Shift Operators"		EOL
+	"ShiftOperator		::= '>>>' | '<<' | '>>'"		EOL
+	"ShiftExpression		::= <:ShiftExpression:> <S>? <:ShiftOperator:> <S>? <:AdditiveExpression:> |"		EOL
+	"			    <:AdditiveExpression:>"		EOL
+	""		EOL
+	"# 11.8 Relational Operators"		EOL
+	"RelationalOperatorNoIn 	::= '<=' | '>=' | '<' | '>' | 'instanceof'"		EOL
+	"RelationalOperator 	::= <:RelationalOperatorNoIn:> | 'in'"		EOL
+	"RelationalExpression 	::= <:RelationalExpression:> <S>? <:RelationalOperator:> <S>? <:ShiftExpression:> |"		EOL
+	"			    <:ShiftExpression:>"		EOL
+	"RelationalExpressionNoIn::= <:RelationalExpressionNoIn:> <S>? <:RelationalOperatorNoIn:> <S>? <:ShiftExpression:> |"		EOL
+	"			    <:ShiftExpression:>"		EOL
+	""		EOL
+	""		EOL
+	"# 11.9 Equality Operators"		EOL
+	"EqualityOperator 	::= '===' | '==' | '!==' | '!='"		EOL
+	"EqualityExpression 	::= <:EqualityExpression:> <S>? <:EqualityOperator:> <S>? <:RelationalExpression:> |"		EOL
+	"			    <:RelationalExpression:>"		EOL
+	"EqualityExpressionNoIn 	::= <:EqualityExpression:> <S>? <:EqualityOperator:> <S>? <:RelationalExpressionNoIn:> |"		EOL
+	"			    <:RelationalExpressionNoIn:>"		EOL
+	""		EOL
+	"# 11.10 Binary Bitwise Operators"		EOL
+	"BitwiseANDExpression 	::= <:BitwiseANDExpression:> <S>? <:BitwiseANDOperator:> <S>? <:EqualityExpression:> |"		EOL
+	"			    <:EqualityExpression:>"		EOL
+	"BitwiseANDExpressionNoIn::= <:BitwiseANDExpressionNoIn:> <S>? <:BitwiseANDOperator:> <S>? <:EqualityExpressionNoIn:> |"		EOL
+	"			    <:EqualityExpressionNoIn:>"		EOL
+	"BitwiseANDOperator 	::= '&'"		EOL
+	""		EOL
+	""		EOL
+	"BitwiseXORExpression 	::= <:BitwiseXORExpression:> <S>? <:BitwiseXOROperator:> <S>? <:BitwiseANDExpression:> |"		EOL
+	"			    <:BitwiseANDExpression:>"		EOL
+	"BitwiseXORExpressionNoIn::= <:BitwiseXORExpressionNoIn:> <S>? <:BitwiseXOROperator:> <S>? <:BitwiseANDExpressionNoIn:> |"		EOL
+	"			    <:BitwiseANDExpressionNoIn:>"		EOL
+	"BitwiseXOROperator 	::= '^'"		EOL
+	""		EOL
+	"BitwiseORExpression 	::= <:BitwiseORExpression:> <S>? <:BitwiseOROperator:> <S>? <:BitwiseXORExpression:> |"		EOL
+	"			    <:BitwiseXORExpression:>"		EOL
+	"BitwiseORExpressionNoIn::= <:BitwiseORExpressionNoIn:> <S>? <:BitwiseOROperator:> <S>? <:BitwiseXORExpressionNoIn:> |"		EOL
+	"			   <:BitwiseXORExpressionNoIn:>"		EOL
+	"BitwiseOROperator 	::= '|'"		EOL
+	""		EOL
+	""		EOL
+	""		EOL
+	"# 11.11 Binary Logical Operators"		EOL
+	"LogicalANDExpression 	::= <:LogicalANDExpression:> <S>? <:LogicalANDOperator:>  <S>? <:BitwiseORExpression:> |"		EOL
+	"			    <:BitwiseORExpression:>"		EOL
+	"LogicalANDExpressionNoIn::= <:LogicalANDExpressionNoIn:> <S>? <:LogicalANDOperator:>  <S>? <:BitwiseORExpressionNoIn:> |"		EOL
+	"			    <:BitwiseORExpressionNoIn:>"		EOL
+	"LogicalANDOperator 	::= '&&'"		EOL
+	""		EOL
+	"LogicalORExpression 	::= <:LogicalORExpression:> <S>? <:LogicalOROperator:> <S>? <:LogicalANDExpression:> |"		EOL
+	"			    <:LogicalANDExpression:>"		EOL
+	"LogicalORExpressionNoIn ::= <:LogicalORExpressionNoIn:> <S>? <:LogicalOROperator:> <S>? <:LogicalANDExpressionNoIn:> |"		EOL
+	"			    <:LogicalANDExpressionNoIn:> "		EOL
+	"LogicalOROperator 	::= '||'"		EOL
+	""		EOL
+	"# 11.12 Conditional Operator ( ? : )"		EOL
+	"ConditionalExpression 	::= <:LogicalORExpression:> ( <S>? '?' <S>? <:AssignmentExpression:> <S>? ':' <S>? <:AssignmentExpression:> )?"		EOL
+	"ConditionalExpressionNoIn::=<:LogicalORExpressionNoIn:> ( <S>? '?' <S>? <:AssignmentExpression:> <S>? ':' <S>? <:AssignmentExpressionNoIn:> )?"		EOL
+	""		EOL
+	"# 11.13 Assignment Operators"		EOL
+	"AssignmentExpression 	::= <:LeftHandSideExpression:> <S>? <:AssignmentOperator:> <S>? <:AssignmentExpression:> | <:ConditionalExpression:>"		EOL
+	"AssignmentExpressionNoIn::= <:LeftHandSideExpression:> <S>? <:AssignmentOperator:> <S>? <:AssignmentExpressionNoIn:> | <:ConditionalExpressionNoIn:>"		EOL
+	"AssignmentOperator 	::= '=' | '*=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>=' | '>>>=' | '&=' | '^=' | '|='"		EOL
+	""		EOL
+	""		EOL
+	"# 11.14 Comma Operator 	( , )"		EOL
+	"Expression    		::= <:AssignmentExpression:> ( <S>? ',' <S>? <:AssignmentExpression:> )*"		EOL
+	"ExpressionNoIn		::= <:AssignmentExpressionNoIn:> ( <S>? ',' <S>? <:AssignmentExpressionNoIn:> )*"		EOL
+	""		EOL
+	""		EOL
+	"# 12 Statements"		EOL
+	""		EOL
+	"Statement		::= <:Block:> |"		EOL
+	"			    <:Comment:> |"		EOL
+	"			    <:VariableStatement:> |"		EOL
+	"			    <:EmptyStatement:> |"		EOL
+	"			    <:ExpressionStatement:> |"		EOL
+	"			    <:IfStatement:> |"		EOL
+	"			    <:IterationStatement:> |"		EOL
+	"			    <:ContinueStatement:> |"		EOL
+	"			    <:BreakStatement:> |"		EOL
+	"			    <:ReturnStatement:> |"		EOL
+	"			    <:ImportStatement:> |"		EOL
+	"			    <:WithStatement:> |"		EOL
+	"			    <:LabelledStatement:> |"		EOL
+	"			    <:SwitchStatement:> |"		EOL
+	"			    <:ThrowStatement:> |"		EOL
+	"			    <:TryStatement:> |"		EOL
+	"			    <:DebuggerStatement:>"		EOL
+	""		EOL
+	"# 12.1 Block"		EOL
+	"Block			::= '{' <S>? <:StatementList:>? <S>? '}'"		EOL
+	"StatementList		::= (<S>? <:Statement:>)+"		EOL
+	""		EOL
+	"# 12.2 Variable Statement"		EOL
+	"VariableStatement 	::= 'var' <S>? <:VariableDeclarationList:> (<S>? ';')"		EOL
+	"VariableDeclarationList ::= <:VariableDeclaration:> (<S>? ',' <S>? <:VariableDeclaration:> )*"		EOL
+	"VariableDeclarationListNoIn::= <:VariableDeclarationNoIn:> (<S>? ',' <S>? <:VariableDeclarationNoIn:> )*"		EOL
+	"VariableDeclaration	::= <:Identifier:> <:Initialiser:>?"		EOL
+	"VariableDeclarationNoIn ::= <:Identifier:> <:InitialiserNoIn:>?"		EOL
+	"Initialiser		::= <S>? '=' <S>? <:AssignmentExpression:>"		EOL
+	"InitialiserNoIn 	::= <S>? '=' <S>? <:AssignmentExpressionNoIn:>"		EOL
+	""		EOL
+	"# 12.3 Empty Statement"		EOL
+	"EmptyStatement		::= <S>? ';'"		EOL
+	""		EOL
+	""		EOL
+	"# 12.4 Expression Statement"		EOL
+	"ExpressionStatement 	::= (<:Expression:> - ('function' | '{')) (<S>? ';')"		EOL
+	""		EOL
+	"12.5 The if Statement"		EOL
+	"IfStatement		::= 'if' <S>? '(' <S>? <:Expression:> <S>? ')'<S>? <:Statement:> <S>? 'else' <S>? <:Statement:> |"		EOL
+	"			    'if' <S>? '(' <S>? <:Expression:> <S>? ')'<S>? <:Statement:> "		EOL
+	""		EOL
+	""		EOL
+	""		EOL
+	""		EOL
+	"# 12.6 Iteration Statements"		EOL
+	"IterationStatement 	::= 'do' <S>? <:Statement:> <S>? 'while' <S>? '(' <S>? <:Expression:> <S>? ')' (<S>? ';') |"		EOL
+	"	    'while' <S>? '(' <S>? <:Expression:> <S>? ')' <S>? <:Statement:> |"		EOL
+	"	    'for' <S>? '(' <S>?'var' <S>? <:VariableDeclarationListNoIn:> <S>? ';' <S>? <:Expression:>? <S>? ';'<S>? <:Expression:>? <S>? ')' <S>? <:Statement:> |"		EOL
+	"	    'for' <S>? '(' <S>?'var' <S>? <:VariableDeclarationNoIn:> <S>? 'in' <S>? <:Expression:> <S>? ')' <S>?  <:Statement:> |"		EOL
+	"	    'for' <S>? '(' <S>? <:LeftHandSideExpression:> <S>? 'in' <S>? <:Expression:> <S>? ')' <S>?  <:Statement:> |"		EOL
+	"	    'for' <S>? '(' <S>? <:ExpressionNoIn:>? <S>? ';' <S>? <:Expression:>? <S>? ';' <S>? <:Expression:>? <S>? ')' <S>? <:Statement:>"		EOL
+	""		EOL
+	""		EOL
+	"# 12.7 The continue Statement"		EOL
+	"ContinueStatement 	::= ('continue' - 'continue' <:IdentifierPart:>) <WhiteSpace>* <:Identifier:>? (<S>? ';')"		EOL
+	""		EOL
+	""		EOL
+	"# 12.8 The break Statement"		EOL
+	"BreakStatement		::= ('break' - 'break' <:IdentifierPart:>)<WhiteSpace>* <:Identifier:>? (<S>? ';')"		EOL
+	""		EOL
+	""		EOL
+	"# 12.9 The return Statement"		EOL
+	"ReturnStatement		::= ('return' - 'return' <:IdentifierPart:>) <WhiteSpace>* <:Expression:>? (<S>? ';')"		EOL
+	""		EOL
+	""		EOL
+	"# 12.10 The with Statement"		EOL
+	"WithStatement		::= 'with' <S>? '(' <S>? <:Expression:> <S>? ')' <S>? <:Statement:>"		EOL
+	""		EOL
+	""		EOL
+	"# 12.11 The switch Statement"		EOL
+	"SwitchStatement		::= 'switch' <S>? '(' <S>? <:Expression:> <S>? ')' <S>? <:CaseBlock:>"		EOL
+	""		EOL
+	"CaseBlock		::= '{' <S>? <:CaseClauses:>? <S>? <:DefaultClause:> <S>? <:CaseClauses:>? <S>? '}' |"		EOL
+	"			    '{' <S>? <:CaseClauses:>? <S>? '}'"		EOL
+	""		EOL
+	""		EOL
+	""		EOL
+	"CaseClauses 		::= (<S>? <:CaseClause:>)+"		EOL
+	""		EOL
+	"CaseClause		::= 'case' <S>? <:Expression:> <S>? ':' <S>? <:StatementList:>?"		EOL
+	"DefaultClause 		::= 'default' <S>? ':' <S>? <:StatementList:>"		EOL
+	""		EOL
+	"# 12.12 Labelled Statements"		EOL
+	"LabelledStatement	::= <:Identifier:> <S>? ':' <S>? <:Statement:>"		EOL
+	""		EOL
+	"# 12.13 The throw Statement"		EOL
+	"ThrowStatement		::= ('throw' - 'throw' <:IdentifierPart:>) <WhiteSpace>* <:Expression:> (<S>? ';')"		EOL
+	""		EOL
+	"12.14 The try Statement"		EOL
+	"TryStatement		::= 'try' <S>? <:Block:> <S>? <:Catch:> <S>? <:Finally:> |"		EOL
+	"			    'try' <S>? <:Block:> <S>? <:Catch:> |"		EOL
+	"			    'try' <S>? <:Block:> <S>? <:Finally:>"		EOL
+	""		EOL
+	""		EOL
+	"Catch 			::= 'catch' <S>? '(' <:Identifier:> ')' <S>? <:Block:>"		EOL
+	"Finally 		::= 'finally' <S>? <:Block:>"		EOL
+	""		EOL
+	"# 12.15 The debugger statement"		EOL
+	"DebuggerStatement	::= 'debugger' <S>? ';'"		EOL
+	""		EOL
+	""		EOL
+	"# 13 Function Definition"		EOL
+	"FunctionDeclaration	::= ('function'-'function'<:IdentifierPart:>)<S>?<:Identifier:><S>?'('<S>?<:FormalParameterList:>?<S>?')'<S>?'{'<S>?<:FunctionBody:>?<S>?'}'"		EOL
+	"FunctionExpression	::= ('function'-'function'<:IdentifierPart:>)<S>?<:Identifier:>?<S>?'('<S>?<:FormalParameterList:>?<S>?')'<S>?'{'<S>?<:FunctionBody:>?<S>?'}'"		EOL
+	"FormalParameterList 	::= <:Identifier:> ( <S>? ',' <S>? <:Identifier:> )*"		EOL
+	"FunctionBody		::= <:SourceElements:>"		EOL
+	""		EOL
+	""		EOL
+	"# Other"		EOL
+	"ImportStatement 	::= 'import' <:Name:> ( '.' '*' )? (<S>? ';')"		EOL
+	"Name 			::= <:IdentifierName:> ( '.' <:IdentifierName:> )*"		EOL
+	""		EOL
+	""		EOL
+	"# 14 Program"		EOL
+	"SourceElements 		::= (<S>? <:SourceElement:>)+"		EOL
+	"SourceElement 		::= <:FunctionDeclaration:> |"		EOL
+	"			    <:Statement:>"		EOL
+	"Program			::= <:SourceElements:>?"		EOL
+	""		EOL
+	"<:Program:>"		EOL

@@ -1,12 +1,34 @@
 #include "rref.h"
 
 
-void r_ref_init(rref_t *ref, ruint32 count, ruint32 objtype, rref_type_t type, r_object_destroyfun destroy, r_object_copyfun copy)
+robject_t *r_ref_init(robject_t *obj, ruint32 objtype, r_object_cleanupfun cleanup, r_object_copyfun copy, ruint32 count, rref_type_t type)
 {
-	r_object_init(&ref->obj, objtype, destroy, copy);
+	rref_t *ref = (rref_t *)obj;
+	r_object_init(&ref->obj, objtype, cleanup, copy);
 	ref->count = count;
 	ref->type = type;
 	r_spinlock_init(&ref->lock);
+	return obj;
+}
+
+
+rref_t *r_ref_create(rref_type_t type)
+{
+	rref_t *ref;
+	ref = (rref_t*)r_object_create(sizeof(*ref));
+	r_ref_init((robject_t*)ref, R_OBJECT_REF, r_ref_cleanup, r_ref_copy, 1, RREF_TYPE_SHARED);
+	return ref;
+}
+
+robject_t *r_ref_copy(const robject_t *obj)
+{
+	return (robject_t*) r_ref_create(((rref_t *)obj)->type);
+}
+
+
+void r_ref_cleanup(robject_t *obj)
+{
+	r_object_cleanup(obj);
 }
 
 

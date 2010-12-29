@@ -45,6 +45,7 @@
 					*cbrec = rpa_cbset_getrecord(&stat->cbset, (_o_) + (_off_)); \
 				}\
 			} \
+			rpa_cbset_reset(&(_c_)->cbset, _s_); \
 		} \
 	} while (0)
 
@@ -376,7 +377,7 @@ int rpa_mnode_plain_loop_detect(rpa_mnode_t *mnode, rpa_stat_t *stat, const char
 	rpa_link_t *pos;
 
 	pLoop = rpa_stat_current_loop(stat);
-	if (pLoop && pLoop->match == mnode->match) {
+	if (pLoop && pLoop->match == mnode->match && pLoop->input == input) {
 		return pLoop->size;
 	}
 
@@ -506,7 +507,7 @@ int rpa_mnode_p_plain_loop_detect(rpa_mnode_t *mnode, rpa_stat_t *stat, const ch
 	rpa_head_t *bucket = &stat->loophash[RPA_LOOPHASH(match)];
 
 	pLoop = rpa_stat_current_loop(stat);
-	if (pLoop && pLoop->match == mnode->match) {
+	if (pLoop && pLoop->match == mnode->match && pLoop->input == input) {
 		return pLoop->size;
 	}
 
@@ -599,6 +600,27 @@ int rpa_mnode_p_multiopt(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *input
 }
 
 
+void rpa_mcache_cbset(rpa_stat_t *stat, rpa_mcache_t *_c_, rpa_match_t *_m_, const char* _i_, int _r_, rpa_word_t _o_, int _s_)
+{
+	rpa_cbrecord_t *cbrec;
+	rpa_word_t _off_;
+	RPA_MCACHE_SET((_c_), (_m_), (_i_), (_r_));
+	rpa_cbset_reset(&(_c_)->cbset, 0);
+	if ((_s_) > 0) {
+		if (rpa_cbset_check_space_min(&(_c_)->cbset, (_s_) + 1) < 0) {
+			RPA_MCACHE_SET((_c_), NULL, NULL, 0);
+			return;
+		}
+		for (_off_ = 1; _off_ <= (_s_); _off_++) {
+			if ((cbrec = rpa_cbset_getslot(&(_c_)->cbset, _off_)) != 0) {
+				*cbrec = rpa_cbset_getrecord(&stat->cbset, (_o_) + (_off_));
+			}
+		}
+		rpa_cbset_reset(&(_c_)->cbset, _s_);
+	}
+}
+
+
 int rpa_mnode_p_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *input)
 {
 	int ret = 0;
@@ -611,7 +633,10 @@ int rpa_mnode_p_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char 
 	if (((rpa_match_nlist_t*)match)->loopy) {
 		ret = rpa_mnode_p_plain_loop_detect(mnode, stat, input);
 	} else if (ncache->match == match && ncache->input == input) {
-		r_printf("HIT THE CACHE @ %d: %s, %d\n", hash, match->name, ncache->ret);
+		/*
+		 * Debug the cache efficiency
+		 * r_printf("HIT THE CACHE @ %d: %s, %d\n", hash, match->name, ncache->ret);
+		 */
 		return -1;
 	} else if (mcache->match == match && mcache->input == input) {
 		rpa_cbrecord_t *cbrec;
@@ -626,7 +651,6 @@ int rpa_mnode_p_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char 
 		 * Debug the cache efficiency
 		 * r_printf("HIT THE CACHE @ %d: %s, %d\n", hash, match->name, ret);
 		 */
-		r_printf("HIT THE CACHE @ %d: %s, %d\n", hash, match->name, ret);
 	} else {
 		ret = rpa_mnode_p_plain(mnode, stat, input);
 		if (stat->usecache) {

@@ -6,11 +6,6 @@
 #include "rvmcpu.h"
 #include "rvmreg.h"
 #include "rvmoperator.h"
-#include "rvmoperatoradd.h"
-#include "rvmoperatorsub.h"
-#include "rvmoperatormul.h"
-#include "rvmoperatordiv.h"
-#include "rvmoperatorcat.h"
 
 
 typedef struct rvm_testctx_s {

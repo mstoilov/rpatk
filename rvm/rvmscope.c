@@ -2,6 +2,7 @@
 #include "rstring.h"
 #include "rmem.h"
 
+
 rvm_scope_t *rvm_scope_create()
 {
 	rvm_scope_t *scope;
@@ -21,14 +22,14 @@ rvm_scope_t *rvm_scope_create()
 void rvm_scope_destroy(rvm_scope_t *scope)
 {
 	int i;
-	int len = scope->names->len;
+	int len = r_array_length(scope->names);
 
 	for (i = 0; i < len; i++)
 		r_free(r_array_index(scope->names, i, rchar*));
-	r_array_destroy(scope->names);
-	r_array_destroy(scope->varstack);
-	r_array_destroy(scope->scopestack);
-	r_hash_destroy(scope->nameshash);
+	r_object_destroy((robject_t*)scope->names);
+	r_object_destroy((robject_t*)scope->varstack);
+	r_object_destroy((robject_t*)scope->scopestack);
+	r_object_destroy((robject_t*)scope->nameshash);
 	r_free(scope);
 }
 
@@ -53,18 +54,27 @@ rchar *rvm_scope_addstrname(rvm_scope_t *scope, const rchar *name)
 }
 
 
+ruint rvm_scope_count(rvm_scope_t* scope)
+{
+	return r_array_length(scope->scopestack);
+}
+
+
 void rvm_scope_push(rvm_scope_t* scope)
 {
-	ruint scopesize = scope->varstack->len;
-	r_array_add(scope->scopestack, &scopesize);
+	ruint scopelen = r_array_length(scope->varstack);
+//	r_printf("SCOPE FRAME: %d, PUSH: %d\n", r_array_length(scope->scopestack), scopelen);
+	r_array_add(scope->scopestack, &scopelen);
 }
 
 
 void rvm_scope_pop(rvm_scope_t* scope)
 {
-	ruint scopesize = r_array_index(scope->scopestack, scope->scopestack->len - 1, ruint);
-	r_array_setsize(scope->scopestack, scope->scopestack->len - 1);
-	r_array_setsize(scope->varstack, scopesize);
+	ruint scopelen = r_array_index(scope->scopestack, r_array_length(scope->scopestack) - 1, ruint);
+//	r_array_setlength(scope->scopestack, r_array_length(scope->scopestack));
+	r_array_remove(scope->scopestack);
+	r_array_setlength(scope->varstack, scopelen);
+//	r_printf("SCOPE FRAME: %d, POP: %d\n", r_array_length(scope->scopestack), scopelen);
 }
 
 
@@ -74,14 +84,14 @@ void rvm_scope_addoffset(rvm_scope_t *scope, const rchar *name, ruint namesize, 
 
 	vmap.name = rvm_scope_addname(scope, name, namesize);
 	vmap.data.offset = off;
-	vmap.datatype = VARMAP_DATATYPE_OFFSET;
+	vmap.datatype = r_array_empty(scope->scopestack) ? VARMAP_DATATYPE_OFFSET : VARMAP_DATATYPE_FPOFFSET;
 	r_array_add(scope->varstack, &vmap);
 }
 
 
 ruint rvm_scope_numentries(rvm_scope_t *scope)
 {
-	return r_array_size(scope->varstack);
+	return r_array_length(scope->varstack);
 }
 
 
@@ -98,16 +108,16 @@ void rvm_scope_addpointer(rvm_scope_t *scope, const rchar *name, ruint namesize,
 
 rvm_varmap_t *rvm_scope_lookup(rvm_scope_t *scope, const rchar *name, ruint namesize)
 {
-	ruint scopesize = scope->varstack->len;
+	ruint scopelen = r_array_length(scope->varstack);
 	rvm_varmap_t *varmap;
 	rint i;
 
-	if (!scopesize)
+	if (!scopelen)
 		return NULL;
 
-	for (i = scopesize - 1; i >= 0; i--) {
+	for (i = scopelen - 1; i >= 0; i--) {
 		varmap = (rvm_varmap_t*)r_array_slot(scope->varstack, i);
-		if (r_strncmp(varmap->name, name, namesize) == 0)
+		if (r_strlen(varmap->name) == namesize && r_strncmp(varmap->name, name, namesize) == 0)
 			return varmap;
 	}
 	return NULL;
@@ -116,16 +126,16 @@ rvm_varmap_t *rvm_scope_lookup(rvm_scope_t *scope, const rchar *name, ruint name
 
 rvm_varmap_t *rvm_scope_tiplookup(rvm_scope_t *scope, const rchar *name, ruint namesize)
 {
-	ruint scopesize = scope->varstack->len;
+	ruint scopelen = r_array_length(scope->varstack);
 	ruint tipstart = r_array_empty(scope->scopestack) ? 0 : r_array_last(scope->scopestack, ruint);
 	rvm_varmap_t *varmap;
 	rint i;
 
-	if (!scopesize)
+	if (!scopelen)
 		return NULL;
-	for (i = scopesize - 1; i >= (rint)tipstart; i--) {
+	for (i = scopelen - 1; i >= (rint)tipstart; i--) {
 		varmap = (rvm_varmap_t*)r_array_slot(scope->varstack, i);
-		if (r_strncmp(varmap->name, name, namesize) == 0)
+		if (r_strlen(varmap->name) == namesize && r_strncmp(varmap->name, name, namesize) == 0)
 			return varmap;
 	}
 	return NULL;

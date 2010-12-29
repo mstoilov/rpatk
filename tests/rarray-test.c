@@ -16,6 +16,17 @@ int main(int argc, char *argv[])
 	rarray_t *a;
 
 	a = r_array_create(sizeof(int));
+	r_array_push(a, 20, int);
+	r_array_push(a, 21, int);
+	r_array_push(a, 22, int);
+	r_array_push(a, 23, int);
+	r_array_push(a, 24, int);
+
+	for (i = 0; i < 5; i++) {
+		fprintf(stdout, "r_array_pop %d: %d\n", i, r_array_pop(a, int));
+	}
+
+
 	for (i = 0; i < 10; i++) {
 		r_array_addint(a, i);
 	}
@@ -27,11 +38,13 @@ int main(int argc, char *argv[])
 	i = 99;
 	r_array_replace(a, 19, &i);
 
-	for (i = 0; i < a->len; i++) {
+
+
+	for (i = 0; i < r_array_length(a); i++) {
 		fprintf(stdout, "index %d: %d\n", i, *((int*)r_array_slot(a, i)));
 	}
 
-	r_array_destroy(a);
+	r_object_destroy((robject_t*)a);
 
 	fprintf(stdout, "Max alloc mem: %ld\n", r_debug_get_maxmem());
 	fprintf(stdout, "Leaked mem: %ld\n", r_debug_get_allocmem());

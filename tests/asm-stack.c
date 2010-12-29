@@ -45,12 +45,12 @@ int main(int argc, char *argv[])
 	vmcode[off++] = rvm_asm(RVM_MOV, R1, DA, XX, 1);
 	vmcode[off++] = rvm_asm(RVM_MOV, R2, DA, XX, 2);
 	vmcode[off++] = rvm_asm(RVM_MOV, R5, DA, XX, 5);
-	vmcode[off++] = rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(0)|BIT(1)|BIT(2)|BIT(5));
+	vmcode[off++] = rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(0)|BIT(1)|BIT(2)|BIT(5)|BIT(SP));
 	vmcode[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_MOV, R1, DA, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_MOV, R2, DA, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_MOV, R5, DA, XX, 0);
-	vmcode[off++] = rvm_asm(RVM_POPM, DA, XX, XX, BIT(0)|BIT(1)|BIT(2)|BIT(5));
+	vmcode[off++] = rvm_asm(RVM_POPM, DA, XX, XX, BIT(0)|BIT(1)|BIT(2)|BIT(5)|BIT(SP));
 	VMTEST_REG(vmcode, off, 5, 5, "PUSHM/POPM");
 	VMTEST_REG(vmcode, off, 1, 1, "PUSHM/POPM");
 

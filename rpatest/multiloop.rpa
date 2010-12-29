@@ -1,0 +1,16 @@
+S			::= ([#0x0009] | [#0x000B] | [#0x000C] | [#0x0020] | [#0x00A0] | [#0xFEFF])+
+Identifier		::= [a-zA-Z0-9]+
+AssignmentOperator	::= '='
+
+MemberExpressionBase	::= <:Expression:>
+CallExpressionBase	::= <:Expression:>
+MemberExpression	::= <:MemberExpressionBase:> '[' <S>? ']'
+CallExpression		::= <:CallExpressionBase:> '(' <S>? ')'
+
+Expression		::= <:MemberExpression:> |
+			    <:CallExpression:> |
+			    <:Identifier:>
+
+
+
+all			::= <:Expression:>					

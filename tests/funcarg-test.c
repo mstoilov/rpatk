@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "rrefreg.h"
 #include "rvmcpu.h"
+#include "rvmreg.h"
 #include "rvmcodegen.h"
 #include "rvmcodemap.h"
 
@@ -10,8 +10,6 @@ static void test_swi_print_r(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_t *r = RVM_CPUREG_PTR(cpu, ins->op1);
 
-	if (rvm_reg_gettype(r) == RVM_DTYPE_REFREG)
-		r = REFREG2REGPTR(RVM_REG_GETP(r));
 	if (rvm_reg_gettype(r) == RVM_DTYPE_WORD)
 		fprintf(stdout, "R%d = %ld\n", ins->op1, RVM_REG_GETL(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_LONG)

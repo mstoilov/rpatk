@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include "rvmcodegen.h"
 #include "rvmreg.h"
-#include "rrefreg.h"
 
 #include "rstring.h"
 #include "rmem.h"
@@ -14,8 +13,6 @@ static void test_swi_print_r(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_t *r = RVM_CPUREG_PTR(cpu, ins->op1);
 
-	if (rvm_reg_gettype(r) == RVM_DTYPE_REFREG)
-		r = REFREG2REGPTR(RVM_REG_GETP(r));
 	if (rvm_reg_gettype(r) == RVM_DTYPE_LONG)
 		fprintf(stdout, "R%d = %ld\n", ins->op1, RVM_REG_GETL(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_DOUBLE)
@@ -55,9 +52,6 @@ int main(int argc, char *argv[])
 	ag = rvm_reg_create_double(4.55);
 	rh = rvm_reg_create_string_ansi("Hello World");
 	rt = rvm_reg_create_long(55);
-	rvm_reg_convert_to_refreg(&rh);
-	rvm_reg_refer(&rh_copy, &rh);
-
 
 	na = r_harray_create_rvmreg();
 	r_harray_add_s(na, "again", &ag);
@@ -65,7 +59,7 @@ int main(int argc, char *argv[])
 	r_harray_add_s(na, "hellocopy", &rh_copy);
 	r_harray_add_s(na, "there", NULL);
 	r_harray_set(na, r_harray_lookup_s(na, "there"), &rt);
-	nc = (rharray_t*)r_object_copy(&na->obj);
+	nc = (rharray_t*)r_object_v_copy(&na->obj);
 
 	fprintf(stdout, "lookup 'missing': %ld\n", r_harray_lookup_s(nc, "missing"));
 	for (node = r_harray_nodelookup_s(nc, NULL, "again"); node; node = r_harray_nodelookup_s(nc, node, "again"))

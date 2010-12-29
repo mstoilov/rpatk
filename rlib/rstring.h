@@ -47,14 +47,21 @@ typedef struct rstring_s {
 } rstring_t;
 
 #define R_STRING2PTR(__p__) ((rstring_t *)(__p__))->s.str
+#define r_string_empty(__p__) (!((__p__) && ((rstring_t *)(__p__))->s.size)) ? 1 : 0
 rstring_t *r_string_create();
 rstring_t *r_string_create_from_ansistr(const rchar *str);
 rstring_t *r_string_create_strsize(const char *str, ruint size);
 rstring_t *r_string_create_from_rstr(const rstr_t *str);
-void r_string_destroy(rstring_t *string);
+robject_t *r_string_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy);
 void r_string_assign(rstring_t *string, const rstr_t *str);
 void r_string_cat(rstring_t *string, const rstr_t *str);
-rstring_t *r_string_copy(const rstring_t *string);
+
+/*
+ * Virtual methods implementation
+ */
+void r_string_cleanup(robject_t *obj);
+robject_t *r_string_copy(const robject_t *obj);
+
 
 #ifdef __cplusplus
 }

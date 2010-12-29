@@ -1,0 +1,16 @@
+Identifier: hello
+Expression: hello
+CallExpressionBase: hello
+CallExpression: hello()
+Expression: hello()
+MemberExpressionBase: hello()
+MemberExpression: hello()[]
+Expression: hello()[]
+MemberExpressionBase: hello()[]
+MemberExpression: hello()[][]
+Expression: hello()[][]
+CallExpressionBase: hello()[][]
+CallExpression: hello()[][]()
+Expression: hello()[][]()
+multiloop.in:
+hello()[][]()

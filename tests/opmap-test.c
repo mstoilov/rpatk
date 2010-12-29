@@ -3,10 +3,6 @@
 #include "rvmcpu.h"
 #include "rvmreg.h"
 #include "rvmoperator.h"
-#include "rvmoperatoradd.h"
-#include "rvmoperatorsub.h"
-#include "rvmoperatormul.h"
-#include "rvmoperatordiv.h"
 
 
 int main(int argc, char *argv[])

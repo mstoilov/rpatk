@@ -1,0 +1,443 @@
+# 6 Source Text
+SourceCharacter		::= .
+
+# 7.2 White space
+WhiteSpace		::= [#0x0009] | [#0x000B] | [#0x000C] | [#0x0020] | [#0x00A0] | [#0xFEFF]
+
+# 7.3 Line Terminators
+LineTerminator		::= [#0x000D] [#0x000A] | [#0x000A] | [#0x000D] | [#0x2028] | [#0x2029]
+LineTerminatorSequence	::= [#0x000D] [#0x000A] |
+			    [#0x000A] | 
+			    [#0x000D] | 
+			    [#0x2028] | 
+			    [#0x2029]
+
+S			::= ( <WhiteSpace> | <LineTerminator> )+
+
+# 7.4 Comments
+Comment			::= <:MultiLineComment:> | <:SingleLineComment:>
+MultiLineComment	::= '/*' <:MultiLineCommentChar:>* '*/'
+MultiLineCommentChar	::= . - '*/'
+SingleLineComment	::= '//' <:SingleLineCommentChar:>*
+SingleLineCommentChar	::= <:SourceCharacter:> - <:LineTerminator:>
+
+
+# 7.5 Tokens
+Token			::= <:IdentifierName:> |
+			    <:Punctuator:> |
+			    <:NumericLiteral:> |
+			    <:StringLiteral:>
+
+# 7.6 Identifier Names and Identifiers
+
+Identifier		::= <IdentifierName> - <ReservedWord> - <ReservedWord> <IdentifierPart>
+IdentifierName		::= <IdentifierStart> <IdentifierPart>*
+IdentifierStart		::= <UnicodeLetter> | '$' | '_' | '\' <:UnicodeEscapeSequence:>
+UnicodeLetter		::= <Lu> |
+			<Ll> |
+			<Lt> |
+			<Lm> |
+			<Lo> |
+			<Nl>
+
+Lu			::= [#0x0041-#0x005A] | [#0x00C0-#0x00DE] | [#0x0100-#0x0232]  	# TBD
+Ll			::= [#0x0061-#0x007A] | [#0x00C0-#0x00DE] 			# TBD
+IdentifierPart		::= <IdentifierStart> | 
+			<:UnicodeCombiningMark:> |
+			<:UnicodeDigit:> | 
+			<:UnicodeConnectorPunctuation:>					# TBD
+
+UnicodeDigit		::= [0-9] | [#0x0660-#0x0669]					# TBD
+ReservedWord		::= <:Keyword:>
+			<:Keyword:> | 
+			<:FutureReservedWord:> |
+			<:NullLiteral:> |
+			<:BooleanLiteral:>
+
+Keyword			::= 'instanceof' | 'typeof'	| 'break' | 
+			    'do' | 'new' | 'var' |
+			    'case' | 'else' | 'return' | 'void' | 
+			    'catch' | 'finally' | 'continue' | 'for' | 
+			    'switch' | 'while' | 'this' | 'with' | 
+			    'debugger' | 'function' | 'throw' | 'default' |  
+			    'if' | 'try' | 'delete' | 'in'
+
+FutureReservedWord	::= 'class' | 'enum' | 'extends' | 'import' | 'const' | 'export' |
+			    'implements' | 'let' | 'private' | 'public' |
+                            'static' | 'interface' | 'package' | 'protected'
+
+NullLiteral		::= 'null'
+BooleanLiteral 		::= 'true' | 'false'
+Literal 		::= <:NullLiteral:> |
+			    <:BooleanLiteral:> |
+			    <:NumericLiteral:> |
+			    <:StringLiteral:> |
+			    <:RegularExpressionLiteral:>
+
+
+
+# 7.7 Punctuators
+Punctuator		::= '{' | '}' | '(' | ')' | '[' | ']' |
+                            '===' | '!==' | '>=' | '<=' | '==' | '!=' |
+			    '<<' | '>>>' | '>>' | '&' | '^=' | '^' |
+			    '!' | '~' | '&&' | '||' | '?' | ':' |
+			    '>>=' | '>>>=' | '&=' | '|=' |
+			    '=' | '+='| '-=' | '*=' | '%=' | '<<=' |
+			    '.' | ';' | ',' | '<' | '>' | '|' |
+			    '+' | '-' | '*' | '%' | '++' | '--'
+DivPunctuator 		::= '/' | '/='
+
+
+
+# 7.8.3 Numeric Literals
+NumericLiteral		::= <:HexIntegerLiteral:> | <:DecimalLiteral:>
+DecimalLiteral		::= <:DecimalIntegerLiteral:> '.' <:DecimalDigits:>? <:ExponentPart:>? |
+			    '.' <:DecimalDigits:> <:ExponentPart:>? |
+			    <:DecimalIntegerLiteral:> <:ExponentPart:>?
+
+DecimalIntegerLiteral	::= '0' |
+			    <:NonZeroDigit:> <:DecimalDigits:>?
+
+DecimalDigits		::= <:DecimalDigit:>+
+DecimalDigit		::= [0-9]
+NonZeroDigit		::= [1-9]
+ExponentPart		::= <:ExponentIndicator:> <:SignedInteger:>
+ExponentIndicator 	::= [eE]
+SignedInteger 		::= <:DecimalDigits:> |
+			    '+' <:DecimalDigits:> |
+			    '-' <:DecimalDigits:>
+HexIntegerLiteral 	::= '0' [xX] <:HexDigit:>+
+HexDigit 		::= [0-9a-fA-F]
+
+
+# 7.8.4 String Literals
+
+StringLiteral		::= '"' <:DoubleStringCharacters:>? '"' |
+			    "'" <:SingleStringCharacters:>? "'"
+
+DoubleStringCharacters	::= <:DoubleStringCharacter:>+
+SingleStringCharacters	::= <:SingleStringCharacter:>+
+
+
+DoubleStringCharacter	::= '\' <:EscapeSequence:> |
+			    <:LineContinuation:> |
+			    <:SourceCharacter:> - ('"' | '\' | <:LineTerminator:>)
+
+SingleStringCharacter	::= '\' <:EscapeSequence:> |
+			    <:LineContinuation:> |
+			    <:SourceCharacter:> - ("'" | '\' | <:LineTerminator:>)
+
+LineContinuation	::= '\' <:LineTerminatorSequence:>
+
+
+EscapeSequence 		::= <:CharacterEscapeSequence:> |
+       			    '0' ^<:DecimalDigit:> |
+			    <:HexEscapeSequence:> |
+			    <:UnicodeEscapeSequence:>
+
+CharacterEscapeSequence ::= <:SingleEscapeCharacter:> |
+			    <:NonEscapeCharacter:>
+
+SingleEscapeCharacter 	::= "'" | '"' | '\' | [bfnrtv]
+NonEscapeCharacter	::= <:SourceCharacter:> - (<:EscapeCharacter:> | <:LineTerminator:>)
+EscapeCharacter 	::= <:SingleEscapeCharacter:> |
+			    <:DecimalDigit:> |
+			    'x' |
+			    'u'
+
+HexEscapeSequence 	::= 'x' <:HexDigit:> <:HexDigit:>
+UnicodeEscapeSequence	::= 'u' <:HexDigit:> <:HexDigit:> <:HexDigit:> <:HexDigit:>
+
+
+# 7.8.5 Regular Expression Literals
+RegularExpressionLiteral::= '/' <:RegularExpressionBody:> '/' <:RegularExpressionFlags:>
+RegularExpressionBody	::= <:RegularExpressionFirstChar:> <:RegularExpressionChars:>?
+RegularExpressionChars	::= <:RegularExpressionChar:>+
+RegularExpressionFirstChar ::= <:RegularExpressionNonTerminator:> - ( '*' | '\' | '/' | '[' ) |
+			       <:RegularExpressionBackslashSequence:> |
+			       <:RegularExpressionClass:>
+
+RegularExpressionChar 	::= <:RegularExpressionNonTerminator:> - ( '\' | '/' | '[') |
+			    <:RegularExpressionBackslashSequence:> |
+			    <:RegularExpressionClass:>
+
+
+RegularExpressionBackslashSequence ::= '\' <:RegularExpressionNonTerminator:>
+RegularExpressionNonTerminator	   ::= <:SourceCharacter:> - <:LineTerminator:>
+RegularExpressionClass 		   ::= '[' <:RegularExpressionClassChars:> ']'
+RegularExpressionClassChars	   ::= <:RegularExpressionClassChar:>+
+RegularExpressionClassChar 	   ::= <:RegularExpressionNonTerminator:> - ( ']' | '\' ) |
+				       <:RegularExpressionBackslashSequence:>
+
+RegularExpressionFlags		   ::= <:IdentifierPart:> <:RegularExpressionFlags:> | <:IdentifierPart:>
+
+# 11.1 Primary Expressions
+
+PrimaryExpression	::= <:Identifier:> |
+			    <:Literal:> |
+			    <:ArrayLiteral:> |
+			    <:ObjectLiteral:> |
+			    '(' <S>? <:Expression:> <S>? ')' |
+			    'this'
+
+ArrayLiteral 		::= '[' <S>? <:Elision:>? <S>? ']' |
+			    '[' <S>? <:ElementList:> <S>? ']' |
+			    '[' <S>? <:ElementList:> <S>? ',' <S>? <:Elision:> <S>? ']'
+
+
+ElementList		::= <:Elision:>? <S>? <:AssignmentExpression:> (<S>? ',' <S>? <:Elision:>? <S>? <:AssignmentExpression:> )*
+Elision			::= ',' <S>? <:Elision:> | <S>? ','
+ObjectLiteral		::= '{' <S>? '}' |
+			    '{' <S>? <:PropertyNameAndValueList:>  <S>? '}' |
+			    '{' <S>? <:PropertyNameAndValueList:>  <S>? ','  <S>? '}'
+
+PropertyNameAndValueList::= <:PropertyAssignment:> ( <S>? ','  <S>? <:PropertyAssignment:>)*
+
+PropertyAssignment	::= <:PropertyName:>  <S>? ':'  <S>? <:AssignmentExpression:> |
+			    'get'  <S>? <:PropertyName:>  <S>? '(' <S>? ')'  <S>? '{' <S>? <:FunctionBody:>?  <S>? '}' |
+			    'set'  <S>? <:PropertyName:>  <S>? '(' <S>? <:PropertySetParameterList:>  <S>? ')' <S>? '{' <S>? <:FunctionBody:>?  <S>? '}'
+
+
+PropertyName 		::= <:IdentifierName:> |
+			    <:StringLiteral:> |
+			    <:NumericLiteral:>
+
+PropertySetParameterList::= <:Identifier:>
+
+
+# 11.2 Left-Hand-Side Expressions
+MemberExpression 				::= <:MemberExpression:> <S>? '[' <S>? <:Expression:> <S>? ']' |
+									<:MemberExpression:> '.' <:IdentifierName:> |
+									'new' <S> <:MemberExpression:> <S>? <:Arguments:> |
+									<:FunctionExpression:> |
+									<:PrimaryExpression:>
+
+NewExpression 					::= <:NewKeyword:> <S>? <:NewExpression:> |
+									<:MemberExpression:>
+
+
+CallExpression					::= <:CallExpression:> <:Arguments:> |
+									<:CallExpression:> <S>? '[' <S>? Expression <S>? ']' |
+									<:CallExpression:> '.' <:IdentifierName:> |
+									<:MemberExpression:> <S>? <:Arguments:>
+
+Arguments						::= '(' <S>? ')' |
+			    					'(' <S>? <:ArgumentList:> <S>? ')'
+ArgumentList					::= <:ArgumentList:> <S>? ',' <S>? <:AssignmentExpression:> |
+									<:AssignmentExpression:>
+LeftHandSideExpression			::= <:CallExpression:> | <:NewExpression:>
+	
+# 11.3 Postfix Expressions
+PostfixOperator 	::= '++' | '--'
+PostfixExpression 	::= <:LeftHandSideExpression:> <:PostfixOperator:>?
+
+# 11.4 Unary Operators
+UnaryOperator		    ::= 'delete' | 'void' | 'typeof' | '++' | '--' | '+' | '-' | '~' | '!'
+UnaryExpression		    ::=	<S>? <:UnaryOperator:> <S>? <:UnaryExpression:> | <:PostfixExpression:>
+
+
+# 11.5 Multiplicative Operators
+MultiplicativeOperator 	::= '*' | '/' | '%'
+MultiplicativeExpression::= <:MultiplicativeExpression:> <S>? <:MultiplicativeOperator:> <S>? <:UnaryExpression:> |
+			    <:UnaryExpression:>
+
+
+# 11.6 Additive Operators
+AdditiveOperator 	::= '+' | '-'
+AdditiveExpression	::= <:AdditiveExpression:> <S>? <:AdditiveOperator:> <S>? <:MultiplicativeExpression:> |
+			    <:MultiplicativeExpression:>
+
+11.7 Bitwise Shift Operators
+ShiftOperator		::= '>>>' | '<<' | '>>'
+ShiftExpression		::= <:ShiftExpression:> <S>? <:ShiftOperator:> <S>? <:AdditiveExpression:> |
+			    <:AdditiveExpression:>
+
+# 11.8 Relational Operators
+RelationalOperatorNoIn 	::= '<=' | '>=' | '<' | '>' | 'instanceof'
+RelationalOperator 	::= <:RelationalOperatorNoIn:> | 'in'
+RelationalExpression 	::= <:RelationalExpression:> <S>? <:RelationalOperator:> <S>? <:ShiftExpression:> |
+			    <:ShiftExpression:>
+RelationalExpressionNoIn::= <:RelationalExpressionNoIn:> <S>? <:RelationalOperatorNoIn:> <S>? <:ShiftExpression:> |
+			    <:ShiftExpression:>
+
+
+# 11.9 Equality Operators
+EqualityOperator 	::= '===' | '==' | '!==' | '!='
+EqualityExpression 	::= <:EqualityExpression:> <S>? <:EqualityOperator:> <S>? <:RelationalExpression:> |
+			    <:RelationalExpression:>
+EqualityExpressionNoIn 	::= <:EqualityExpression:> <S>? <:EqualityOperator:> <S>? <:RelationalExpressionNoIn:> |
+			    <:RelationalExpressionNoIn:>
+
+# 11.10 Binary Bitwise Operators
+BitwiseANDExpression 	::= <:BitwiseANDExpression:> <S>? <:BitwiseANDOperator:> <S>? <:EqualityExpression:> |
+			    <:EqualityExpression:>
+BitwiseANDExpressionNoIn::= <:BitwiseANDExpressionNoIn:> <S>? <:BitwiseANDOperator:> <S>? <:EqualityExpressionNoIn:> |
+			    <:EqualityExpressionNoIn:>
+BitwiseANDOperator 	::= '&'
+
+
+BitwiseXORExpression 	::= <:BitwiseXORExpression:> <S>? <:BitwiseXOROperator:> <S>? <:BitwiseANDExpression:> |
+			    <:BitwiseANDExpression:>
+BitwiseXORExpressionNoIn::= <:BitwiseXORExpressionNoIn:> <S>? <:BitwiseXOROperator:> <S>? <:BitwiseANDExpressionNoIn:> |
+			    <:BitwiseANDExpressionNoIn:>
+BitwiseXOROperator 	::= '^'
+
+BitwiseORExpression 	::= <:BitwiseORExpression:> <S>? <:BitwiseOROperator:> <S>? <:BitwiseXORExpression:> |
+			    <:BitwiseXORExpression:>
+BitwiseORExpressionNoIn::= <:BitwiseORExpressionNoIn:> <S>? <:BitwiseOROperator:> <S>? <:BitwiseXORExpressionNoIn:> |
+			   <:BitwiseXORExpressionNoIn:>
+BitwiseOROperator 	::= '|'
+
+
+
+# 11.11 Binary Logical Operators
+LogicalANDExpression 	::= <:LogicalANDExpression:> <S>? <:LogicalANDOperator:>  <S>? <:BitwiseORExpression:> |
+			    <:BitwiseORExpression:>
+LogicalANDExpressionNoIn::= <:LogicalANDExpressionNoIn:> <S>? <:LogicalANDOperator:>  <S>? <:BitwiseORExpressionNoIn:> |
+			    <:BitwiseORExpressionNoIn:>
+LogicalANDOperator 	::= '&&'
+
+LogicalORExpression 	::= <:LogicalORExpression:> <S>? <:LogicalOROperator:> <S>? <:LogicalANDExpression:> |
+			    <:LogicalANDExpression:>
+LogicalORExpressionNoIn ::= <:LogicalORExpressionNoIn:> <S>? <:LogicalOROperator:> <S>? <:LogicalANDExpressionNoIn:> |
+			    <:LogicalANDExpressionNoIn:> 
+LogicalOROperator 	::= '||'
+
+# 11.12 Conditional Operator ( ? : )
+ConditionalExpression 	::= <:LogicalORExpression:> ( <S>? '?' <S>? <:AssignmentExpression:> <S>? ':' <S>? <:AssignmentExpression:> )?
+ConditionalExpressionNoIn::=<:LogicalORExpressionNoIn:> ( <S>? '?' <S>? <:AssignmentExpression:> <S>? ':' <S>? <:AssignmentExpressionNoIn:> )?
+
+# 11.13 Assignment Operators
+AssignmentExpression 	::= <:LeftHandSideExpression:> <S>? <:AssignmentOperator:> <S>? <:AssignmentExpression:> | <:ConditionalExpression:>
+AssignmentExpressionNoIn::= <:LeftHandSideExpression:> <S>? <:AssignmentOperator:> <S>? <:AssignmentExpressionNoIn:> | <:ConditionalExpressionNoIn:>
+AssignmentOperator 	::= '=' | '*=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>=' | '>>>=' | '&=' | '^=' | '|='
+
+
+# 11.14 Comma Operator 	( , )
+Expression    		::= <:AssignmentExpression:> ( <S>? ',' <S>? <:AssignmentExpression:> )*
+ExpressionNoIn		::= <:AssignmentExpressionNoIn:> ( <S>? ',' <S>? <:AssignmentExpressionNoIn:> )*
+
+
+# 12 Statements
+
+Statement		::= <:Block:> |
+			    <:Comment:> |
+			    <:VariableStatement:> |
+			    <:EmptyStatement:> |
+			    <:ExpressionStatement:> |
+			    <:IfStatement:> |
+			    <:IterationStatement:> |
+			    <:ContinueStatement:> |
+			    <:BreakStatement:> |
+			    <:ReturnStatement:> |
+			    <:ImportStatement:> |
+			    <:WithStatement:> |
+			    <:LabelledStatement:> |
+			    <:SwitchStatement:> |
+			    <:ThrowStatement:> |
+			    <:TryStatement:> |
+			    <:DebuggerStatement:>
+
+# 12.1 Block
+Block			::= '{' <S>? <:StatementList:>? <S>? '}'
+StatementList		::= (<S>? <:Statement:>)+
+
+# 12.2 Variable Statement
+VariableStatement 	::= 'var' <S>? <:VariableDeclarationList:> (<S>? ';')
+VariableDeclarationList ::= <:VariableDeclaration:> (<S>? ',' <S>? <:VariableDeclaration:> )*
+VariableDeclarationListNoIn::= <:VariableDeclarationNoIn:> (<S>? ',' <S>? <:VariableDeclarationNoIn:> )*
+VariableDeclaration	::= <:Identifier:> <:Initialiser:>?
+VariableDeclarationNoIn ::= <:Identifier:> <:InitialiserNoIn:>?
+Initialiser		::= <S>? '=' <S>? <:AssignmentExpression:>
+InitialiserNoIn 	::= <S>? '=' <S>? <:AssignmentExpressionNoIn:>
+
+# 12.3 Empty Statement
+EmptyStatement		::= <S>? ';'
+
+
+# 12.4 Expression Statement
+ExpressionStatement 	::= (<:Expression:> - ('function' | '{')) (<S>? ';')
+
+12.5 The if Statement
+IfStatement		::= 'if' <S>? '(' <S>? <:Expression:> <S>? ')'<S>? <:Statement:> <S>? 'else' <S>? <:Statement:> |
+			    'if' <S>? '(' <S>? <:Expression:> <S>? ')'<S>? <:Statement:> 
+
+
+
+
+# 12.6 Iteration Statements
+IterationStatement 	::= 'do' <S>? <:Statement:> <S>? 'while' <S>? '(' <S>? <:Expression:> <S>? ')' (<S>? ';') |
+	    'while' <S>? '(' <S>? <:Expression:> <S>? ')' <S>? <:Statement:> |
+	    'for' <S>? '(' <S>?'var' <S>? <:VariableDeclarationListNoIn:> <S>? ';' <S>? <:Expression:>? <S>? ';'<S>? <:Expression:>? <S>? ')' <S>? <:Statement:> |
+	    'for' <S>? '(' <S>?'var' <S>? <:VariableDeclarationNoIn:> <S>? 'in' <S>? <:Expression:> <S>? ')' <S>?  <:Statement:> |
+	    'for' <S>? '(' <S>? <:LeftHandSideExpression:> <S>? 'in' <S>? <:Expression:> <S>? ')' <S>?  <:Statement:> |
+	    'for' <S>? '(' <S>? <:ExpressionNoIn:>? <S>? ';' <S>? <:Expression:>? <S>? ';' <S>? <:Expression:>? <S>? ')' <S>? <:Statement:>
+
+
+# 12.7 The continue Statement
+ContinueStatement 	::= ('continue' - 'continue' <:IdentifierPart:>) <WhiteSpace>* <:Identifier:>? (<S>? ';')
+
+
+# 12.8 The break Statement
+BreakStatement		::= ('break' - 'break' <:IdentifierPart:>)<WhiteSpace>* <:Identifier:>? (<S>? ';')
+
+
+# 12.9 The return Statement
+ReturnStatement		::= ('return' - 'return' <:IdentifierPart:>) <WhiteSpace>* <:Expression:>? (<S>? ';')
+
+
+# 12.10 The with Statement
+WithStatement		::= 'with' <S>? '(' <S>? <:Expression:> <S>? ')' <S>? <:Statement:>
+
+
+# 12.11 The switch Statement
+SwitchStatement		::= 'switch' <S>? '(' <S>? <:Expression:> <S>? ')' <S>? <:CaseBlock:>
+
+CaseBlock		::= '{' <S>? <:CaseClauses:>? <S>? <:DefaultClause:> <S>? <:CaseClauses:>? <S>? '}' |
+			    '{' <S>? <:CaseClauses:>? <S>? '}'
+
+
+
+CaseClauses 		::= (<S>? <:CaseClause:>)+
+
+CaseClause		::= 'case' <S>? <:Expression:> <S>? ':' <S>? <:StatementList:>?
+DefaultClause 		::= 'default' <S>? ':' <S>? <:StatementList:>
+
+# 12.12 Labelled Statements
+LabelledStatement	::= <:Identifier:> <S>? ':' <S>? <:Statement:>
+
+# 12.13 The throw Statement
+ThrowStatement		::= ('throw' - 'throw' <:IdentifierPart:>) <WhiteSpace>* <:Expression:> (<S>? ';')
+
+12.14 The try Statement
+TryStatement		::= 'try' <S>? <:Block:> <S>? <:Catch:> <S>? <:Finally:> |
+			    'try' <S>? <:Block:> <S>? <:Catch:> |
+			    'try' <S>? <:Block:> <S>? <:Finally:>
+
+
+Catch 			::= 'catch' <S>? '(' <:Identifier:> ')' <S>? <:Block:>
+Finally 		::= 'finally' <S>? <:Block:>
+
+# 12.15 The debugger statement
+DebuggerStatement	::= 'debugger' <S>? ';'
+
+
+# 13 Function Definition
+FunctionDeclaration	::= ('function'-'function'<:IdentifierPart:>)<S>?<:Identifier:><S>?'('<S>?<:FormalParameterList:>?<S>?')'<S>?'{'<S>?<:FunctionBody:>?<S>?'}'
+FunctionExpression	::= ('function'-'function'<:IdentifierPart:>)<S>?<:Identifier:>?<S>?'('<S>?<:FormalParameterList:>?<S>?')'<S>?'{'<S>?<:FunctionBody:>?<S>?'}'
+FormalParameterList 	::= <:Identifier:> ( <S>? ',' <S>? <:Identifier:> )*
+FunctionBody		::= <:SourceElements:>
+
+
+# Other
+ImportStatement 	::= 'import' <:Name:> ( '.' '*' )? (<S>? ';')
+Name 			::= <:IdentifierName:> ( '.' <:IdentifierName:> )*
+
+
+# 14 Program
+SourceElements 		::= (<S>? <:SourceElement:>)+
+SourceElement 		::= <:FunctionDeclaration:> |
+			    <:Statement:>
+Program			::= <:SourceElements:>?
+
+<:Program:>

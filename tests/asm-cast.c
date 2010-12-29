@@ -1,5 +1,6 @@
 #include <stdio.h>
-#include "rrefreg.h"
+#include "rstring.h"
+#include "rvmreg.h"
 #include "rvmcpu.h"
 #include "common.h"
 
@@ -8,8 +9,6 @@ static void test_swi_print_r(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	ruint8 R = ins->op1;
 	rvmreg_t *r = RVM_CPUREG_PTR(cpu, R);
 
-	if (rvm_reg_gettype(r) == RVM_DTYPE_REFREG)
-		r = REFREG2REGPTR(RVM_REG_GETP(r));
 	if (rvm_reg_gettype(r) == RVM_DTYPE_WORD)
 		fprintf(stdout, "R%d = %ld\n", R, RVM_REG_GETL(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_LONG)

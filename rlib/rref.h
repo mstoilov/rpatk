@@ -11,8 +11,8 @@ extern "C" {
 #endif
 
 typedef enum {
-	RREF_TYPE_COW = 0,
-	RREF_TYPE_SHARED,
+	RREF_TYPE_SHARED = 0,
+	RREF_TYPE_COW,
 } rref_type_t;
 
 typedef struct rref_s rref_t;
@@ -24,13 +24,20 @@ struct rref_s {
 	rspinlock_t lock;
 };
 
+rref_t *r_ref_create(rref_type_t type);
+robject_t *r_ref_init(robject_t *obj, ruint32 objtype, r_object_cleanupfun cleanup, r_object_copyfun copy, ruint32 count, rref_type_t type);
+
 ruint32 r_ref_inc(rref_t *ref);
 ruint32 r_ref_dec(rref_t *ref);
 ruint32 r_ref_get(rref_t *ref);
 void r_ref_typeset(rref_t *ref, rref_type_t type);
 rref_type_t r_ref_typeget(rref_t *ref);
-void r_ref_init(rref_t *ref, ruint32 count, ruint32 objtype, rref_type_t type, r_object_destroyfun destroy, r_object_copyfun copy);
 
+/*
+ * Virtual methods implementation
+ */
+void r_ref_cleanup(robject_t *obj);
+robject_t *r_ref_copy(const robject_t *obj);
 
 #ifdef __cplusplus
 }

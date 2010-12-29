@@ -8,7 +8,7 @@ LIBS =  -L$(ROBJECT_SRCDIR)/build/$(OS)/$(ARCHDIR)/out
 LIBS += -L$(RLIB_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
 LIBS += -L$(RVM_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
 LIBS += -L$(RPA_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
-LIBS += -lrvm -lrpa -lrpasx -lrlib -lpthread --static
+LIBS += -lrvm -lrpa -lrpasx -lrlib -lpthread -lm --static
 
 
 
@@ -21,6 +21,7 @@ TESTS   += $(OUTDIR)/opmap-test
 TESTS   += $(OUTDIR)/string-test
 TESTS   += $(OUTDIR)/rlock-test
 TESTS   += $(OUTDIR)/rarray-test
+TESTS   += $(OUTDIR)/rcarray-test
 TESTS   += $(OUTDIR)/rharray-test
 TESTS   += $(OUTDIR)/scope-test
 TESTS   += $(OUTDIR)/rhash-test
@@ -49,8 +50,18 @@ TESTS   += $(OUTDIR)/asm-eadd
 
 all : $(OUTDIR) $(TESTS)
 
+$(OUTDIR)/%.o: $(TESTS_SRCDIR)/%.c
+	+ $(CC) $(CFLAGS) -c -o $(OUTDIR)/$*.o $(TESTS_SRCDIR)/$*.c $(INCLUDE)
+
+$(OUTDIR)/rpagen-test : $(OUTDIR)/ecma262.o $(OUTDIR)/rpagen-test.o
+	$(CC) $(CFLAGS)  -o $@ $^ $(LIBS)
+
 $(OUTDIR)/%: $(TESTS_SRCDIR)/%.c
 	+ $(CC) $(CFLAGS) -o $(OUTDIR)/$* $(TESTS_SRCDIR)/$*.c $(LIBS) $(INCLUDE)
+
+
+$(OUTDIR)/%.o: $(TESTS_SRCDIR)/%.rpa
+	$(LD) -r -b binary -o $(OUTDIR)/$*.o $(TESTS_SRCDIR)/$*.rpa
 
 
 $(OUTDIR):

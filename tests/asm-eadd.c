@@ -19,8 +19,8 @@ int main(int argc, char *argv[])
 	vmcode[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 1);
 	vmcode[off++] = rvm_asmp(RVM_LDRR, R1, DA, XX, &d1s);
 	vmcode[off++] = rvm_asm(RVM_EADD, R0, R0, R1, 0);
-	VMTEST_REGD(vmcode, off, 0, 3.0, "ADD");
-	VMTEST_STATUS(vmcode, off, 0, "ADD STATUS");
+	VMTEST_REGD(vmcode, off, 0, 3.0, "1: EADD");
+	VMTEST_STATUS(vmcode, off, 0, "1: EADD STATUS");
 	vmcode[off++] = rvm_asm(RVM_PRN, R0, XX, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_PRN, R1, XX, XX, 0);
 
@@ -28,32 +28,54 @@ int main(int argc, char *argv[])
 	vmcode[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 1);
 	vmcode[off++] = rvm_asmp(RVM_LDRR, R1, DA, XX, &d1s);
 	vmcode[off++] = rvm_asm(RVM_EADD, R0, R1, R0, 0);
-	VMTEST_REGP(vmcode, off, 0, &d2, "ADD");
-	VMTEST_STATUS(vmcode, off, 0, "ADD STATUS");
+	VMTEST_REGP(vmcode, off, 0, &d2, "2: EADD");
+	VMTEST_STATUS(vmcode, off, 0, "2: EADD STATUS");
 
 	vmcode[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 1);
 	vmcode[off++] = rvm_asm(RVM_MOV, R1, DA, XX, 2);
 	vmcode[off++] = rvm_asm(RVM_EADD, R0, R1, R0, 0);
-	VMTEST_REG(vmcode, off, 0, 3, "ADD");
-	VMTEST_STATUS(vmcode, off, 0, "ADD STATUS");
+	VMTEST_REG(vmcode, off, 0, 3, "3: EADD");
+	VMTEST_STATUS(vmcode, off, 0, "3: EADD STATUS");
 
 	vmcode[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 1);
 	vmcode[off++] = rvm_asmd(RVM_MOV, R1, DA, XX, 2.0);
+//	vmcode[off++] = rvm_asm(RVM_SETTYPE, R1, DA, XX, RVM_DTYPE_DOUBLE);
+
 	vmcode[off++] = rvm_asm(RVM_EADD, R0, R1, R0, 0);
-	VMTEST_REGP(vmcode, off, 0, &d2, "ADD");
-	VMTEST_STATUS(vmcode, off, 0, "ADD STATUS");
+	vmcode[off++] = rvm_asm(RVM_PRN, R0, XX, XX, 0);
+	VMTEST_REGP(vmcode, off, 0, &d2, "4: EADD");
+	VMTEST_STATUS(vmcode, off, 0, "4: EADD STATUS");
 
 	vmcode[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 1);
 	vmcode[off++] = rvm_asmp(RVM_LDRR, R1, DA, XX, &d1);
 	vmcode[off++] = rvm_asm(RVM_EADD, R0, R0, R1, 0);
-	VMTEST_REGP(vmcode, off, 0, &d2, "ADD");
-	VMTEST_STATUS(vmcode, off, 0, "ADD STATUS");
+	VMTEST_REGP(vmcode, off, 0, &d2, "5: EADD");
+	VMTEST_STATUS(vmcode, off, 0, "5: EADD STATUS");
 
 	vmcode[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 1);
 	vmcode[off++] = rvm_asml(RVM_MOV, R1, DA, XX, -2);
 	vmcode[off++] = rvm_asm(RVM_EADD, R0, R1, R0, 0);
-	VMTEST_REGL(vmcode, off, 0, -1, "ADD");
-	VMTEST_STATUS(vmcode, off, 0, "ADD STATUS");
+	VMTEST_REGL(vmcode, off, 0, -1, "6: EADD");
+	VMTEST_STATUS(vmcode, off, RVM_STATUS_N, "6: EADD STATUS");
+
+	vmcode[off++] = rvm_asmb(RVM_MOV, R1, DA, XX, 1);
+	vmcode[off++] = rvm_asmb(RVM_MOV, R2, DA, XX, 1);
+	vmcode[off++] = rvm_asm(RVM_EADD, R0, R1, R2, 0);
+	VMTEST_REGL(vmcode, off, 0, 2, "7: EADD");
+	VMTEST_STATUS(vmcode, off, 0, "7: EADD STATUS");
+
+	vmcode[off++] = rvm_asmb(RVM_MOV, R1, DA, XX, 1);
+	vmcode[off++] = rvm_asml(RVM_MOV, R2, DA, XX, -2);
+	vmcode[off++] = rvm_asm(RVM_EADD, R0, R1, R2, 0);
+	VMTEST_REGL(vmcode, off, 0, -1, "8: EADD");
+	VMTEST_STATUS(vmcode, off, RVM_STATUS_N, "8: EADD STATUS");
+
+	vmcode[off++] = rvm_asmb(RVM_MOV, R1, DA, XX, 1);
+	vmcode[off++] = rvm_asmd(RVM_MOV, R2, DA, XX, -3.0);
+	vmcode[off++] = rvm_asm(RVM_EADD, R0, R1, R2, 0);
+	VMTEST_REGD(vmcode, off, 0, -2.0, "8: EADD");
+	VMTEST_STATUS(vmcode, off, RVM_STATUS_N, "8: EADD STATUS");
+
 
 	vmcode[off++] = rvm_asm(RVM_EXT, R0, XX, XX, 0);
 #ifdef EXECDEBUG

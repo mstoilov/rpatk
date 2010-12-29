@@ -23,12 +23,12 @@ void rvm_opmap_destroy(rvm_opmap_t *opmap)
 
 	if (!opmap)
 		return;
-	for (i = 0; i < opmap->operators->len; i++) {
+	for (i = 0; i < r_array_length(opmap->operators); i++) {
 		opinfo = ((rvm_opinfo_t*)r_array_slot(opmap->operators, i));
 		if (opinfo->opid)
 			r_free(opinfo->handlers);
 	}
-	r_array_destroy(opmap->operators);
+	r_object_destroy((robject_t*)opmap->operators);
 	r_free(opmap);
 }
 
@@ -39,7 +39,7 @@ void rvm_opmap_add_binary_operator(rvm_opmap_t *opmap, rushort opid)
 
 	r_memset(&opinfo, 0, sizeof(opinfo));
 	opinfo.opid = opid;
-	opinfo.handlers = r_malloc(RVM_DTYPE_MAX * RVM_DTYPE_MAX * sizeof(rvm_ophandler_t));
+	opinfo.handlers = r_zmalloc(RVM_DTYPE_MAX * RVM_DTYPE_MAX * sizeof(rvm_ophandler_t));
 	r_array_replace(opmap->operators, opid, &opinfo);
 }
 
@@ -87,13 +87,13 @@ void rvm_opmap_invoke_binary_handler(rvm_opmap_t *opmap, rushort opid, rvmcpu_t 
 	rvm_opinfo_t *opinfo;
 	ruint index = RVM_OP_HANDLER(RVM_REG_GETTYPE(arg1), RVM_REG_GETTYPE(arg2));
 
-	if (opid >= opmap->operators->len)
+	if (opid >= r_array_length(opmap->operators))
 		goto error;
 	opinfo = ((rvm_opinfo_t*)r_array_slot(opmap->operators, opid));
 	h = &opinfo->handlers[index];
 	if (h->op == NULL)
 		goto error;
-	h->op(cpu, res, arg1, arg2);
+	h->op(cpu, opid, res, arg1, arg2);
 	return;
 
 error:
@@ -107,13 +107,13 @@ void rvm_opmap_invoke_unary_handler(rvm_opmap_t *opmap, rushort opid, rvmcpu_t *
 	rvm_opinfo_t *opinfo;
 	ruint index = RVM_UNARY_HANDLER(RVM_REG_GETTYPE(arg));
 
-	if (opid >= opmap->operators->len)
+	if (opid >= r_array_length(opmap->operators))
 		goto error;
 	opinfo = ((rvm_opinfo_t*)r_array_slot(opmap->operators, opid));
 	h = &opinfo->handlers[index];
 	if (h->unary == NULL)
 		goto error;
-	h->unary(cpu, res, arg);
+	h->unary(cpu, opid, res, arg);
 	return;
 
 error:

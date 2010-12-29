@@ -78,7 +78,7 @@ rstr_t *r_rstrdup(const rchar *s, ruint size)
 	rsize_t allocsize = sizeof(rstr_t) + size + sizeof(rchar);
 	rstr_t *d = (rstr_t*)r_malloc(allocsize);
 	if (d) {
-		r_memset(d, allocsize, 0);
+		r_memset(d, 0, allocsize);
 		d->size = size;
 		d->str = (rchar*)&d[1];
 		r_memcpy((rchar*)d->str, s, size);
@@ -147,63 +147,44 @@ rdouble r_strtod(const rchar *s, rchar **endptr)
 }
 
 
-static void r_objectstub_destroy(robject_t *ptr)
+robject_t *r_string_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy)
 {
-	r_string_destroy((rstring_t*)ptr);
+	rstring_t *string = (rstring_t*)obj;
+	r_object_init(obj, type, cleanup, copy);
+	r_memset(&string->s, 0, sizeof(string->s));
+	return obj;
 }
 
 
-static robject_t *r_objectstub_copy(const robject_t *ptr)
+void r_string_cleanup(robject_t *obj)
 {
-	return (robject_t*) r_string_copy((const rstring_t*)ptr);
-}
-
-
-static rstring_t *r_string_init(rstring_t *string)
-{
-	r_memset(string, 0, sizeof(*string));
-	return string;
-}
-
-
-static void r_string_cleanup(rstring_t *string)
-{
+	rstring_t *string = (rstring_t*)obj;
 	if (string) {
 		r_free(string->s.str);
-		r_memset(&string->s, 0, sizeof(rstr_t));
+		r_memset(&string->s, 0, sizeof(string->s));
 	}
+	r_object_cleanup(obj);
 }
 
 
 rstring_t *r_string_create()
 {
 	rstring_t *string;
-	if ((string = (rstring_t*)r_malloc(sizeof(*string))) == NULL)
-		return NULL;
-	if (!r_string_init(string)) {
-		r_string_destroy(string);
-		return NULL;
-	}
-	r_object_init(&string->obj, R_OBJECT_STRING, r_objectstub_destroy, r_objectstub_copy);
+	string = (rstring_t*)r_object_create(sizeof(*string));
+	r_string_init(&string->obj, R_OBJECT_STRING, r_string_cleanup, r_string_copy);
 	return string;
 
 }
 
 
-void r_string_destroy(rstring_t *string)
-{
-	r_string_cleanup(string);
-	r_free(string);
-}
-
-
 void r_string_assign(rstring_t *string, const rstr_t *str)
 {
-	r_string_cleanup(string);
 	if (str && str->size) {
+		r_free(string->s.str);
 		string->s.str = (rchar*)r_malloc(str->size + 1);
 		if (!string->s.str)
 			return;
+		r_memset(string->s.str, 0, str->size);
 		r_memcpy(string->s.str, str->str, str->size);
 		string->s.size = str->size;
 	}
@@ -221,9 +202,10 @@ void r_string_cat(rstring_t *string, const rstr_t *str)
 }
 
 
-rstring_t *r_string_copy(const rstring_t *srcString)
+robject_t *r_string_copy(const robject_t *obj)
 {
-	return r_string_create_from_rstr(&srcString->s);
+	const rstring_t *srcString = (const rstring_t *)obj;
+	return (robject_t*)r_string_create_from_rstr(&srcString->s);
 }
 
 

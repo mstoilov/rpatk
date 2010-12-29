@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 	fprintf(stdout, "key: %s, value: %d\n", sdig[5], *((ruint*)r_hash_lookup(h, sdig[5])));
 	fprintf(stdout, "key: %s, value: %d\n", sdig[0], *((ruint*)r_hash_lookup(h, sdig[0])));
 
-	r_hash_destroy(h);
+	r_object_destroy((robject_t*)h);
 
 	fprintf(stdout, "Max alloc mem: %ld\n", r_debug_get_maxmem());
 	fprintf(stdout, "Leaked mem: %ld\n", r_debug_get_allocmem());

@@ -1,4 +1,4 @@
-#include "rvmoperatorcat.h"
+#include "rvmoperator.h"
 #include "rstring.h"
 #include "rvmreg.h"
 

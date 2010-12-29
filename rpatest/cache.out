@@ -1,0 +1,9 @@
+a: a
+A: a
+B: b
+C: c
+a: a
+B: b
+C: c
+cache.in:
+abc

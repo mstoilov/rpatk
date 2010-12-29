@@ -10,9 +10,10 @@
 extern "C" {
 #endif
 
-
 #define VARMAP_DATATYPE_OFFSET 0
-#define VARMAP_DATATYPE_PTR 1
+#define VARMAP_DATATYPE_FPOFFSET 1
+#define VARMAP_DATATYPE_PTR 2
+
 
 typedef struct rvm_varmap_s {
 	const rchar *name;
@@ -40,6 +41,7 @@ void rvm_scope_addoffset(rvm_scope_t *scope, const rchar *name, ruint namesize, 
 void rvm_scope_addpointer(rvm_scope_t *scope, const rchar *name, ruint namesize, rpointer ptr);
 void rvm_scope_push(rvm_scope_t* scope);
 void rvm_scope_pop(rvm_scope_t* scope);
+ruint rvm_scope_count(rvm_scope_t* scope);
 ruint rvm_scope_numentries(rvm_scope_t *scope);
 rvm_varmap_t *rvm_scope_lookup(rvm_scope_t *scope, const rchar *name, ruint namesize);
 rvm_varmap_t *rvm_scope_lookup_s(rvm_scope_t *scope, const rchar *name);

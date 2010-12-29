@@ -87,39 +87,22 @@ rboolean r_hash_rstrequal(rconstpointer key1, rconstpointer key2)
 }
 
 
-static void r_objectstub_destroy(robject_t *ptr)
-{
-	r_hash_destroy((rhash_t*)ptr);
-}
-
-
-static robject_t *r_objectstub_copy(const robject_t *ptr)
-{
-	return (robject_t*) r_hash_copy((const rhash_t*)ptr);
-}
-
-
 rhash_t *r_hash_create(ruint nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfunc)
 {
 	rhash_t *hash;
 
-	hash = (rhash_t*)r_malloc(sizeof(*hash));
-	if (!hash)
-		return NULL;
-	r_memset(hash, 0, sizeof(*hash));
-	if (!r_hash_init(hash, nbits, eqfunc, hfunc)) {
-		r_hash_destroy(hash);
-		return NULL;
-	}
-	r_object_init(&hash->obj, R_OBJECT_HASH, r_objectstub_destroy, r_objectstub_copy);
+	hash = (rhash_t*)r_object_create(sizeof(*hash));
+	r_hash_init((robject_t *)hash, R_OBJECT_HASH, r_hash_cleanup, r_hash_copy, nbits, eqfunc, hfunc);
 	return hash;
 }
 
 
-rhash_t *r_hash_init(rhash_t *hash, ruint nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfunc)
+robject_t *r_hash_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy,
+						ruint nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfunc)
 {
 	ruint i;
 	rsize_t size;
+	rhash_t *hash = (rhash_t *)obj;
 
 	hash->nbits = nbits;
 	hash->eqfunc = eqfunc;
@@ -131,25 +114,20 @@ rhash_t *r_hash_init(rhash_t *hash, ruint nbits, r_hash_equalfunc eqfunc, r_hash
 	for (i = 0; i < size; i++) {
 		r_list_init(&hash->buckets[i]);
 	}
-	return hash;
+	r_object_init(obj, type, cleanup, copy);
+	return obj;
 }
 
 
-rhash_t *r_hash_copy(const rhash_t *hash)
+robject_t *r_hash_copy(const robject_t *obj)
 {
 	return NULL;
 }
 
 
-void r_hash_destroy(rhash_t *hash)
+void r_hash_cleanup(robject_t *obj)
 {
-	r_hash_cleanup(hash);
-	r_free(hash);
-}
-
-
-void r_hash_cleanup(rhash_t *hash)
-{
+	rhash_t *hash = (rhash_t *)obj;
 	r_hash_removeall(hash);
 	r_free(hash->buckets);
 }
