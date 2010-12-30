@@ -111,11 +111,15 @@ SingleStringCharacter			::= '\\' <:EscapeSequence:> |
 
 PrimaryExpression				::= 'this' | 
 			    					'(' <S>? <:Expression:> <S>? ')' |
-			    					<:IdentifierOp:> |
-			    					<:Literal:>
+			    					<:Literal:> |
+			    					(<;SwiIdExist;> & <:SwiId:>) |
+			    					<:IdentifierOp:>
+			    					
 
 # The next line is mine
 IdentifierOp					::= <:Identifier:> 
+SwiId							::= <:Identifier:> 
+SwiIdExist						::= <SwiId> 
 
 
 ArrayLiteral 					::= '[' <S>? <:Elision:>? <S>? ']' |

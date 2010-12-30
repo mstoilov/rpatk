@@ -37,6 +37,7 @@ static const char *stropcalls[] = {
 	"RVM_PRN",
 	"RVM_ASR",
 	"RVM_SWI",
+	"RVM_SWIID",
 	"RVM_MOV",
 	"RVM_INC",
 	"RVM_DEC",
@@ -613,6 +614,21 @@ static void rvm_op_swi(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static void rvm_op_swiid(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rvmcpu_swi swi;
+	rvm_switable_t *switable;
+	ruint ntable = (ruint) RVM_SWI_TABLE(RVM_CPUREG_GETU(cpu, ins->op1));
+	ruint nswi = (ruint) RVM_SWI_NUM(RVM_CPUREG_GETU(cpu, ins->op1));
+
+	if (r_array_length(cpu->switables) <= ntable)
+		RVM_ABORT(cpu, RVM_E_SWITABLE);
+	switable = r_array_index(cpu->switables, ntable, rvm_switable_t*);
+	swi = switable[nswi].op;
+	swi(cpu, ins);
+}
+
+
 static void rvm_op_sub(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	RVM_CPUREG_SETU(cpu, ins->op1, RVM_CPUREG_GETU(cpu, ins->op2) - RVM_CPUREG_GETU(cpu, ins->op3));
@@ -969,6 +985,8 @@ static void rvm_op_prn(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		rvm_printf("(STRING) R%d = %s\n", ins->op1, ((rstring_t*) RVM_REG_GETP(r))->s.str);
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_ARRAY)
 		rvm_printf("(ARRAY) R%d = %p\n", ins->op1, RVM_REG_GETP(r));
+	else if (rvm_reg_gettype(r) == RVM_DTYPE_SWIID)
+		rvm_printf("(SWI) R%d = %p\n", ins->op1, RVM_REG_GETP(r));
 	else
 		rvm_printf("(UNKNOWN) R%d = ?\n", ins->op1);
 }
@@ -1356,10 +1374,14 @@ static void rvm_op_addra(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	ruint index = RVM_CPUREG_GETU(cpu, ins->op3);
+	rvmreg_t tmp = rvm_reg_create_long(0);
 	rcarray_t *a = RVM_REG_GETP(arg2);
+	rlong index;
 
-	if (rvm_reg_gettype(arg2) != RVM_DTYPE_ARRAY) {
+	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
+	index = RVM_REG_GETL(&tmp);
+
+	if (rvm_reg_gettype(arg2) != RVM_DTYPE_ARRAY || index < 0) {
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	}
 	RVM_REG_CLEAR(arg1);
@@ -1421,7 +1443,8 @@ static rvm_cpu_op ops[] = {
 	rvm_op_abort,		// RVM_ABORT
 	rvm_op_prn,			// RVM_PRN
 	rvm_op_asr,			// RVM_ASR
-	rvm_op_swi,			// RVM_swi
+	rvm_op_swi,			// RVM_SWI
+	rvm_op_swiid,		// RVM_SWIID
 	rvm_op_mov,			// RVM_MOV
 	rvm_op_inc,			// RVM_INC
 	rvm_op_dec,			// RVM_DEC
@@ -1612,7 +1635,7 @@ rint rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off)
 }
 
 
-rint rvm_cpu_getswi(rvmcpu_t *cpu, const rchar *swiname)
+rint rvm_cpu_getswi(rvmcpu_t *cpu, const rchar *swiname, rsize_t size)
 {
 	rint ntable, nswi;
 	rvm_switable_t *swientry;
@@ -1620,7 +1643,7 @@ rint rvm_cpu_getswi(rvmcpu_t *cpu, const rchar *swiname)
 	for (ntable = 0; ntable < r_array_length(cpu->switables); ntable++) {
 		swientry = r_array_index(cpu->switables, ntable, rvm_switable_t*);
 		for (nswi = 0; swientry[nswi].name; nswi++) {
-			if (r_strcmp(swientry[nswi].name, swiname) == 0)
+			if (r_strncmp(swientry[nswi].name, swiname, size) == 0 && r_strlen(swientry[nswi].name) == size)
 				return (rint)RVM_SWI_ID(ntable, nswi);
 		}
 	}
@@ -1629,12 +1652,18 @@ rint rvm_cpu_getswi(rvmcpu_t *cpu, const rchar *swiname)
 }
 
 
-rint rvmcpu_switable_add(rvmcpu_t *cpu, rvm_switable_t *switable)
+rint rvm_cpu_getswi_s(rvmcpu_t *cpu, const rchar *swiname)
+{
+	return rvm_cpu_getswi(cpu, swiname, r_strlen(swiname));
+}
+
+
+rint rvm_cpu_addswitable(rvmcpu_t *cpu, rvm_switable_t *switable)
 {
 	rint nswi;
 
 	for (nswi = 0; switable[nswi].name; nswi++) {
-		if (rvm_cpu_getswi(cpu, switable[nswi].name) >= 0)
+		if (rvm_cpu_getswi_s(cpu, switable[nswi].name) >= 0)
 			return -1;
 	}
 

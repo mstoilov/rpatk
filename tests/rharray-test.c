@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
 	rvmcpu_t *cpu;
 
 	cpu = rvm_cpu_create();
-	rvmcpu_switable_add(cpu, switable);
+	rvm_cpu_addswitable(cpu, switable);
 	cg = rvm_codegen_create();
 
 	ag = rvm_reg_create_double(4.55);
@@ -82,9 +82,9 @@ int main(int argc, char *argv[])
 	 */
 	rvm_codegen_addins(cg, rvm_asmp(RVM_LDRR, R2, DA, XX, r_harray_get(nc, r_harray_lookup_s(nc, "there"))));
 
-	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_getswi(cpu, "print")), R0, XX, XX, 0));	// print
-	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_getswi(cpu, "print")), R1, XX, XX, 0));	// print
-	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_getswi(cpu, "print")), R2, XX, XX, 0));	// print
+	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_getswi_s(cpu, "print")), R0, XX, XX, 0));	// print
+	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_getswi_s(cpu, "print")), R1, XX, XX, 0));	// print
+	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_getswi_s(cpu, "print")), R2, XX, XX, 0));	// print
 	rvm_codegen_addins(cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
 
 	rvm_relocate(rvm_codegen_getcode(cg, 0), rvm_codegen_getcodesize(cg));

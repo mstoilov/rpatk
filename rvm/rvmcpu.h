@@ -39,6 +39,7 @@ enum {
 	RVM_PRN,
 	RVM_ASR,		/* Arithmetic shift right: op1 = op2 >> op3, preserve the signed bit */
 	RVM_SWI,
+	RVM_SWIID,
 	RVM_MOV,
 	RVM_INC,		/* INC: op1 = op1 + 1 */
 	RVM_DEC,		/* DEC: op1 = op1 - 1 */
@@ -276,11 +277,12 @@ struct rvmcpu_s {
 
 rvmcpu_t *rvm_cpu_create();
 void rvm_cpu_destroy(rvmcpu_t * vm);
-rint rvmcpu_switable_add(rvmcpu_t * cpu, rvm_switable_t *switalbe);
+rint rvm_cpu_addswitable(rvmcpu_t * cpu, rvm_switable_t *switalbe);
 rint rvm_cpu_exec(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off);
 rint rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off);
 rint rvm_cpu_dbgarg_exec(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off, rint debug);
-rint rvm_cpu_getswi(rvmcpu_t *cpu, const rchar *swiname);
+rint rvm_cpu_getswi(rvmcpu_t *cpu, const rchar *swiname, rsize_t size);
+rint rvm_cpu_getswi_s(rvmcpu_t *cpu, const rchar *swiname);
 void rvm_relocate(rvm_asmins_t *code, rsize_t size);
 rvm_asmins_t rvm_asm(rword opcode, rword op1, rword op2, rword op3, rword data);
 rvm_asmins_t rvm_asml(rword opcode, rword op1, rword op2, rword op3, rlong data);
