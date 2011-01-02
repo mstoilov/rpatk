@@ -43,6 +43,11 @@ rulong rvm_codegen_getcodesize(rvm_codegen_t *cg)
 	return r_array_length(cg->code);
 }
 
+void rvm_codegen_setcodesize(rvm_codegen_t *cg, ruint size)
+{
+	r_array_setlength(cg->code, size);
+}
+
 
 ruint rvm_codegen_addins(rvm_codegen_t *cg, rvm_asmins_t ins)
 {

@@ -35,6 +35,7 @@ ruint rvm_codegen_insertins(rvm_codegen_t *cg, ruint index, rvm_asmins_t ins);
 ruint rvm_codegen_replaceins(rvm_codegen_t *cg, ruint index, rvm_asmins_t ins);
 rvm_asmins_t *rvm_codegen_getcode(rvm_codegen_t *cg, ruint index);
 rulong rvm_codegen_getcodesize(rvm_codegen_t *cg);
+void rvm_codegen_setcodesize(rvm_codegen_t *cg, ruint size);
 void rvm_codegen_clear(rvm_codegen_t *cg);
 
 #ifdef __cplusplus

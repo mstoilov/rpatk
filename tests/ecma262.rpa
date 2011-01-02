@@ -179,10 +179,13 @@ PostfixExpressionOp 			::= <:LeftHandSideExpression:> <:PostfixOperator:>
 PostfixExpression 				::= <:PostfixExpressionOp:> |
 									<:LeftHandSideExpression:>
 
+LiteralPushOp					::= <:Literal:>
+IdentifierValueOp				::= <:Identifier:> - (<:Identifier:> <S>? ('.' | '[' | '++' | '--'))
+
 # 11.4 Unary Operators
 UnaryOperator		    		::= 'delete' | 'void' | 'typeof' | '++' | '--' | '+' | '-' | '~' | '!'
 UnaryExpressionOp	    		::=	<S>? <:UnaryOperator:> <S>? <:UnaryExpression:>
-UnaryExpression		    		::=	<:UnaryExpressionOp:> | <:PostfixExpression:>
+UnaryExpression		    		::=	<:UnaryExpressionOp:> | (<:LiteralPushOp:> | <:PostfixExpression:>)
 
 
 # 11.5 Multiplicative Operators
@@ -246,7 +249,7 @@ LogicalORExpression 			::= <:LogicalOROp:> |
 
 # 12.6 Iteration Statements
 WhileKeyword						::= 'while'
-WhileExpression						::= <:WhileKeyword:> <S>? '(' <S>? <:ValueOfExpression:> <S>? ')'
+WhileExpression						::= <:WhileKeyword:> <S>? '(' <S>? <:Expression:> <S>? ')'
 IterationWhile						::= <:WhileKeyword:> '(' <S>? <:Expression:> <S>? ')' <S>? <:Statement:>
 DoKeyword							::= 'do'
 IterationDo							::= <:DoKeyword:> <S>? <:Statement:> <S>? <:WhileExpression:> (<S>? ';')

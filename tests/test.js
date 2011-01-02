@@ -19,4 +19,4 @@ if ( (a == 4) )
 } 
 
 
-add(a, sub(3,2));
+print(add(a, sub(3,2)));
