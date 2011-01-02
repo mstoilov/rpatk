@@ -28,16 +28,16 @@
 #include "rpadbex.h"
 
 
-#define RPA_MCACHE_SET(_c_, _m_, _i_, _r_) do {(_c_)->match = (_m_); (_c_)->input = (_i_); (_c_)->ret = (_r_);} while (0)
-#define RPA_MCACHE_CBSET(_c_, _m_, _i_, _r_, _o_, _s_) \
+#define RPA_MCACHE_SET(_c_, _m_, _i_, _r_, _d_) do {(_c_)->match = (_m_); (_c_)->input = (_i_); (_c_)->ret = (_r_); (_c_)->cbdisable = (_d_);} while (0)
+#define RPA_MCACHE_CBSET(_c_, _m_, _i_, _r_, _d_, _o_, _s_) \
 	do { \
 		rpa_cbrecord_t *cbrec; \
 		rpa_word_t _off_; \
-		RPA_MCACHE_SET((_c_), (_m_), (_i_), (_r_)); \
+		RPA_MCACHE_SET((_c_), (_m_), (_i_), (_r_), (_d_)); \
 		rpa_cbset_reset(&(_c_)->cbset, 0); \
 		if ((_s_) > 0) { \
 			if (rpa_cbset_check_space_min(&(_c_)->cbset, (_s_) + 1) < 0) { \
-				RPA_MCACHE_SET((_c_), NULL, NULL, 0); \
+				RPA_MCACHE_SET((_c_), NULL, NULL, 0, 0); \
 				break; \
 			} \
 			for (_off_ = 1; _off_ <= (_s_); _off_++) {\
@@ -290,6 +290,8 @@ int rpa_mnode_exec_callback(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *in
 
 	if (input >= stat->end)
 		return -1;
+	if (stat->cbdisable)
+		return size;
 	if ( ((rpa_mnode_callback_t*)mnode)->matched_callback && (reason & mnode->flags))
 		ret = ((rpa_mnode_callback_t*)mnode)->matched_callback(mnode, stat, input, size, (reason & mnode->flags));
 	return ret;
@@ -302,6 +304,8 @@ int rpa_mnode_record_callback(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *
 
 	if (input >= stat->end)
 		return -1;
+	if (stat->cbdisable)
+		return size;
 	if (mnode->flags & RPA_MNODE_SYNCRONOUS)
 		return rpa_mnode_exec_callback(mnode, stat, input, size, reason);
 	if (((rpa_mnode_callback_t*)mnode)->matched_callback) {
@@ -409,11 +413,16 @@ int rpa_mnode_plain_loop_detect(rpa_mnode_t *mnode, rpa_stat_t *stat, const char
 
 int rpa_mnode_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *input)
 {
-	int ret;
+	int ret = 0;
 	rpa_match_t *match = mnode->match;
 	rpa_word_t hash = RPA_MCACHEHASH(match, input);
 	rpa_mcache_t *ncache = &stat->ncache[hash];
 	rpa_mcache_t *mcache = &stat->mcache[hash];
+	unsigned char cbdisable = stat->cbdisable;
+
+	if (mnode->flags & RPA_MNODE_NOCONNECT) {
+		stat->cbdisable = 1;
+	}
 
 	rpa_mnode_exec_callback(mnode, stat, input, (unsigned int) (stat->end - input), RPA_REASON_START);
 	if (((rpa_match_nlist_t*)(mnode->match))->loopy) {
@@ -423,7 +432,8 @@ int rpa_mnode_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *i
 		 * Debug the cache efficiency
 		 * r_printf("HIT THE CACHE @ %d: %s, %d\n", hash, match->name, ncache->ret);
 		 */
-		return -1;
+		ret = -1;
+		goto end;
 	} else if (mcache->match == match && mcache->input == input) {
 		ret = mcache->ret;
 		/*
@@ -434,17 +444,21 @@ int rpa_mnode_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *i
 		ret = rpa_mnode_plain(mnode, stat, input);
 		if (stat->usecache) {
 			if (ret > 0)
-				RPA_MCACHE_SET(mcache, match, input, ret);
+				RPA_MCACHE_SET(mcache, match, input, ret, stat->cbdisable);
 			else
-				RPA_MCACHE_SET(ncache, match, input, ret);
+				RPA_MCACHE_SET(ncache, match, input, ret, stat->cbdisable);
 		}
 	}
 	if (ret <= 0) {
 		rpa_mnode_exec_callback(mnode, stat, input, 0, RPA_REASON_END);
-		return -1;
+		ret = -1;
+		goto end;
 	}
 	ret = rpa_mnode_exec_callback(mnode, stat, input, ret, RPA_REASON_END|RPA_REASON_MATCHED);
-	if (!ret) 
+
+end:
+	stat->cbdisable = cbdisable;
+	if (ret <= 0)
 		return -1;
 	return ret;
 }
@@ -604,11 +618,11 @@ void rpa_mcache_cbset(rpa_stat_t *stat, rpa_mcache_t *_c_, rpa_match_t *_m_, con
 {
 	rpa_cbrecord_t *cbrec;
 	rpa_word_t _off_;
-	RPA_MCACHE_SET((_c_), (_m_), (_i_), (_r_));
+	RPA_MCACHE_SET((_c_), (_m_), (_i_), (_r_), stat->cbdisable);
 	rpa_cbset_reset(&(_c_)->cbset, 0);
 	if ((_s_) > 0) {
 		if (rpa_cbset_check_space_min(&(_c_)->cbset, (_s_) + 1) < 0) {
-			RPA_MCACHE_SET((_c_), NULL, NULL, 0);
+			RPA_MCACHE_SET((_c_), NULL, NULL, 0, 0);
 			return;
 		}
 		for (_off_ = 1; _off_ <= (_s_); _off_++) {
@@ -629,6 +643,11 @@ int rpa_mnode_p_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char 
 	rpa_mcache_t *mcache = &stat->mcache[hash];
 	rpa_mcache_t *ncache = &stat->ncache[hash];
 	rpa_word_t cboff, cboffset_now = (rpa_word_t)-1, cboffset_before = rpa_cbset_getpos(&stat->cbset);
+	unsigned char cbdisable = stat->cbdisable;
+
+	if (mnode->flags & RPA_MNODE_NOCONNECT) {
+		stat->cbdisable = 1;
+	}
 
 	if (((rpa_match_nlist_t*)match)->loopy) {
 		ret = rpa_mnode_p_plain_loop_detect(mnode, stat, input);
@@ -637,8 +656,9 @@ int rpa_mnode_p_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char 
 		 * Debug the cache efficiency
 		 * r_printf("HIT THE CACHE @ %d: %s, %d\n", hash, match->name, ncache->ret);
 		 */
-		return -1;
-	} else if (mcache->match == match && mcache->input == input) {
+		ret = -1;
+		goto end;
+	} else if (mcache->match == match && mcache->input == input && mcache->cbdisable == stat->cbdisable) {
 		rpa_cbrecord_t *cbrec;
 		rpa_word_t lastoff = rpa_cbset_getpos(&mcache->cbset);
 		for (cboff = 1; cboff <= lastoff; cboff++) {
@@ -653,12 +673,16 @@ int rpa_mnode_p_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char 
 		 */
 	} else {
 		ret = rpa_mnode_p_plain(mnode, stat, input);
-		if (stat->usecache) {
+		if (stat->usecache ) {
+			/*
+			 * We can only use the cache if the CB recording is NOT disabled,
+			 * because we insert the recorded callbacks in the cache.
+			 */
 			if (ret > 0) {
 				cboffset_now = rpa_cbset_getpos(&stat->cbset);
-				RPA_MCACHE_CBSET(mcache, match, input, ret, cboffset_before, cboffset_now - cboffset_before);
+				RPA_MCACHE_CBSET(mcache, match, input, ret, stat->cbdisable, cboffset_before, cboffset_now - cboffset_before);
 			} else {
-				RPA_MCACHE_SET(ncache, match, input, ret);
+				RPA_MCACHE_SET(ncache, match, input, ret, stat->cbdisable);
 			}
 		}
 	}
@@ -667,6 +691,11 @@ int rpa_mnode_p_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char 
 		ret = rpa_mnode_record_callback(mnode, stat, input, ret, RPA_REASON_START|RPA_REASON_END|RPA_REASON_MATCHED);
 	}
 
+end:
+	/*
+	 * Restore the original state
+	 */
+	stat->cbdisable = cbdisable;
 	if (ret <= 0) {
 		return -1;
 	}

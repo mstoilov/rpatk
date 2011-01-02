@@ -157,16 +157,31 @@ int rpa_match_list_best_alt(rpa_match_t *match, rpa_stat_t *stat, const char *in
 {
 	rpa_head_t *head;
 	rpa_list_t *pos;
-	rpa_mnode_t *hcur;
+	rpa_mnode_t *hcur, *best = NULL;
 	int ret, mret = 0;
+	unsigned char cbdisable = stat->cbdisable;
 
+	/*
+	 * Disable callbacks while looking for the best match
+	 */
+	stat->cbdisable = 1;
 	head = &((rpa_match_list_t *)match)->head;
 	rpa_list_for_each(pos, head) {
 		hcur = rpa_list_entry(pos, rpa_mnode_t, mlink);
 		ret = stat->ntable[hcur->flags & RPA_MNODEFUNC_MASK](hcur, stat, input);
-		if (ret > mret)
+		if (ret > mret) {
+			best = hcur;
 			mret = ret;
+		}
 	}
+
+	/*
+	 * Restore the original state
+	 */
+	stat->cbdisable = cbdisable;
+	if (best)
+		mret = stat->ntable[best->flags & RPA_MNODEFUNC_MASK](best, stat, input);
+
 	return mret;
 }
 

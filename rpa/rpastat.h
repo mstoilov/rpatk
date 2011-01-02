@@ -57,8 +57,9 @@ typedef struct rpa_dloop_s {
 typedef struct rpa_mcache_s {
 	rpa_match_t *match;
 	const char *input;
-	int ret;
 	rpa_cbset_t cbset;
+	int ret;
+	int cbdisable;
 } rpa_mcache_t;
 
 
@@ -89,6 +90,7 @@ struct rpa_stat_s {
 	int (*getchar)(unsigned int *pwc, rpa_stat_t *stat, const char *input);
 	const char *where;
 	unsigned char usecache;	
+	unsigned char cbdisable;
 };
 
 

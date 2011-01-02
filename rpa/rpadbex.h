@@ -44,9 +44,9 @@ extern "C" {
  * RPA_REASON_END and RPA_REASON_MATCHED can be combined and delivered
  * in the same call, if there is a match.
  */
-#define RPA_REASON_START 	(1 << 5)
-#define RPA_REASON_END	 	(1 << 6)
-#define RPA_REASON_MATCHED	(1 << 7)
+#define RPA_REASON_START 	(1 << 8)
+#define RPA_REASON_END	 	(1 << 9)
+#define RPA_REASON_MATCHED	(1 << 10)
 #define RPA_REASON_ALL		(RPA_REASON_START|RPA_REASON_END|RPA_REASON_MATCHED)
 
 

@@ -410,7 +410,6 @@ rpa_varlink_t *rpa_dbex_create_mnode_callback(rpa_dbex_handle hDbex, rpa_match_t
 	rpa_varlink_t *pVarLinkMnodePtr;
 	rpa_mnode_callback_t *pCbMnode;
 
-
 	pVarLinkMnodePtr = rpa_varlink_create(RPA_VAR_PTR, "MNODECB");
 	if (!pVarLinkMnodePtr)
 		return (void*)0;
