@@ -22,6 +22,7 @@ typedef struct rstr_s {
 
 rint r_strcmp(const rchar *s1, const rchar *s2);
 rint r_strncmp(const rchar *s1, const rchar *s2, rsize_t n);
+rboolean r_stringncmp(const rchar *str, const rchar *s2, rsize_t n);
 rsize_t r_strlen(const rchar *s);
 rchar *r_strstr(const rchar *haystack, const rchar *needle);
 rchar *r_strchr(const rchar *s, rint c);

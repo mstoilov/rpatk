@@ -20,6 +20,14 @@ rint r_strncmp(const rchar *s1, const rchar *s2, rsize_t n)
 }
 
 
+rboolean r_stringncmp(const rchar *str, const rchar *s2, rsize_t n)
+{
+	if (r_strlen(str) == n && r_strncmp(str, s2, (size_t)n) == 0)
+		return 1;
+	return 0;
+}
+
+
 rsize_t r_strlen(const rchar *s)
 {
 	return strlen(s);
