@@ -415,14 +415,18 @@ int rpa_mnode_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *i
 {
 	int ret = 0;
 	rpa_match_t *match = mnode->match;
-	rpa_word_t hash = RPA_MCACHEHASH(match, input);
-	rpa_mcache_t *ncache = &stat->ncache[hash];
-	rpa_mcache_t *mcache = &stat->mcache[hash];
+	rpa_word_t hash = 0;
+	rpa_mcache_t *ncache = NULL;
+	rpa_mcache_t *mcache = NULL;
 	unsigned char cbdisable = stat->cbdisable;
 
 	if (mnode->flags & RPA_MNODE_NOCONNECT) {
 		stat->cbdisable = 1;
 	}
+	hash = RPA_MCACHEHASH(match, input, stat->cbdisable);
+	mcache = &stat->mcache[hash];
+	ncache = &stat->ncache[hash];
+
 
 	rpa_mnode_exec_callback(mnode, stat, input, (unsigned int) (stat->end - input), RPA_REASON_START);
 	if (((rpa_match_nlist_t*)(mnode->match))->loopy) {
@@ -639,15 +643,18 @@ int rpa_mnode_p_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char 
 {
 	int ret = 0;
 	rpa_match_t *match = mnode->match;
-	rpa_word_t hash = RPA_MCACHEHASH(match, input);
-	rpa_mcache_t *mcache = &stat->mcache[hash];
-	rpa_mcache_t *ncache = &stat->ncache[hash];
+	rpa_word_t hash = 0;
+	rpa_mcache_t *mcache = NULL;
+	rpa_mcache_t *ncache = NULL;
 	rpa_word_t cboff, cboffset_now = (rpa_word_t)-1, cboffset_before = rpa_cbset_getpos(&stat->cbset);
 	unsigned char cbdisable = stat->cbdisable;
 
 	if (mnode->flags & RPA_MNODE_NOCONNECT) {
 		stat->cbdisable = 1;
 	}
+	hash = RPA_MCACHEHASH(match, input, stat->cbdisable);
+	mcache = &stat->mcache[hash];
+	ncache = &stat->ncache[hash];
 
 	if (((rpa_match_nlist_t*)match)->loopy) {
 		ret = rpa_mnode_p_plain_loop_detect(mnode, stat, input);

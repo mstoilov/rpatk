@@ -90,6 +90,7 @@ extern "C" {
 #define RVM_CPUREG_CLEAR(__cpu__, __r__) RVM_REG_CLEAR(RVM_CPUREG_PTR(__cpu__, __r__))
 
 
+
 #define RVM_MIN_REGSIZE (sizeof(rword)/8)
 
 typedef ruint16 rvmreg_type_t;

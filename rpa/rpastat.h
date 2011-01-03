@@ -40,7 +40,7 @@ extern "C" {
 
 #define RPA_MCACHE_SIZE (1 << RPA_MCACHE_BITS)
 #define RPA_MCACHE_MASK (RPA_MCACHE_SIZE - 1)
-#define RPA_MCACHEHASH(p, i) ( ( ((rpa_word_t)(p)) ^ ((rpa_word_t)(i)) ) & RPA_MCACHE_MASK)
+#define RPA_MCACHEHASH(_p_, _i_, _d_) ( ( ((rpa_word_t)(_p_)) ^ ((rpa_word_t)(_i_)) ^ (_d_)) & RPA_MCACHE_MASK)
 
 typedef int (*RPA_CHECKSTACK_FUNCTION)(rpa_stat_t *stat);
 

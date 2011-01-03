@@ -230,8 +230,12 @@ int codegen_opcode_callback(const char *name, void *userdata, const char *input,
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 
-	if (r_stringncmp("+", input,  size))
+	if (r_stringncmp("++", input,  size))
 		r_array_push(co->opcodes, RVM_EADD, ruint);
+	else if (r_stringncmp("+", input,  size))
+		r_array_push(co->opcodes, RVM_EADD, ruint);
+	else if (r_stringncmp("--", input,  size))
+		r_array_push(co->opcodes, RVM_ESUB, ruint);
 	else if (r_stringncmp("-", input,  size))
 		r_array_push(co->opcodes, RVM_ESUB, ruint);
 	else if (r_stringncmp("*", input,  size))
@@ -289,11 +293,51 @@ int codegen_binary_asmop_callback(const char *name, void *userdata, const char *
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
 	ruint opcode = r_array_pop(co->opcodes, ruint);
+	rvm_asmins_t * last = rvm_codegen_getcode(co->cg, off - 1);
 
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R0, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(opcode, R0, R0, R1, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
+	if (co->optimized && last->opcode == RVM_PUSH && last->op1 == R1) {
+		rvm_codegen_setcodesize(co->cg, off - 1);
+		off = rvm_codegen_getcodesize(co->cg);
+
+		last = rvm_codegen_getcode(co->cg, off - 1);
+		if (last->opcode == RVM_MOV && last->op1 == R1 && last->op2 == DA) {
+			rvm_asmins_t binop = *last;
+			binop.opcode = opcode;
+			binop.op1 = R0;
+			binop.op2 = R0;
+			binop.op3 = DA;
+			rvm_codegen_setcodesize(co->cg, off - 1);
+			off = rvm_codegen_getcodesize(co->cg);
+
+			last = rvm_codegen_getcode(co->cg, off - 1);
+			if (last->opcode == RVM_PUSH && last->op1 == R0) {
+				rvm_codegen_setcodesize(co->cg, off - 1);
+			} else {
+				rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R0, XX, XX, 0));
+			}
+			rvm_codegen_addins(co->cg, binop);
+			rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
+		} else {
+			rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R0, XX, XX, 0));
+			rvm_codegen_addins(co->cg, rvm_asm(opcode, R0, R0, R1, 0));
+			rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
+		}
+	} else if (co->optimized && last->opcode == RVM_PUSH && last->op1 == R0) {
+		rvm_codegen_setcodesize(co->cg, off - 1);
+		off = rvm_codegen_getcodesize(co->cg);
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R1, R0, XX, 0));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R0, XX, XX, 0));
+		rvm_codegen_addins(co->cg, rvm_asm(opcode, R0, R0, R1, 0));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
+	} else 	{
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R0, XX, XX, 0));
+		rvm_codegen_addins(co->cg, rvm_asm(opcode, R0, R0, R1, 0));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
+	}
+
+
+
 
 	codegen_print_callback(name, userdata, input, size, reason, start, end);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
@@ -330,15 +374,15 @@ int codegen_unary_asmop_callback(const char *name, void *userdata, const char *i
 }
 
 
-int codegen_postfixexpression_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
+int codegen_postfixexpressionvalop_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
 
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_TYPE, R1, R0, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_CMP, R1, DA, XX, RVM_DTYPE_POINTER));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_BNEQ, DA, XX, XX, 2));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDRR, R0, R0, XX, 0));
+//	rvm_codegen_addins(co->cg, rvm_asm(RVM_TYPE, R1, R0, XX, 0));
+//	rvm_codegen_addins(co->cg, rvm_asm(RVM_CMP, R1, DA, XX, RVM_DTYPE_POINTER));
+//	rvm_codegen_addins(co->cg, rvm_asm(RVM_BNEQ, DA, XX, XX, 2));
+//	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDRR, R0, R0, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
 
 	codegen_print_callback(name, userdata, input, size, reason, start, end);
@@ -352,8 +396,15 @@ int codegen_push_r0_callback(const char *name, void *userdata, const char *input
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
+	rvm_asmins_t *last = rvm_codegen_getcode(co->cg, off - 1);
 
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
+	if (co->optimized && last->opcode == RVM_MOV && last->op1 == R0 && last->op2 == R1) {
+		rvm_codegen_setcodesize(co->cg, off - 1);
+		off = rvm_codegen_getcodesize(co->cg);
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R1, XX, XX, 0));
+	} else {
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
+	}
 
 	codegen_print_callback(name, userdata, input, size, reason, start, end);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
@@ -400,12 +451,26 @@ int codegen_pop_r0_callback(const char *name, void *userdata, const char *input,
 }
 
 
+int codegen_literalop_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
+{
+	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
+	rulong off = rvm_codegen_getcodesize(co->cg);
+
+	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, R0, R1, XX, 0));
+
+	codegen_print_callback(name, userdata, input, size, reason, start, end);
+	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
+
+	return size;
+}
+
+
 int codegen_integer_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
 
-	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, R0, DA, XX, r_strtol(input, NULL, 10)));
+	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, R1, DA, XX, r_strtol(input, NULL, 10)));
 
 	codegen_print_callback(name, userdata, input, size, reason, start, end);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
@@ -419,7 +484,7 @@ int codegen_double_callback(const char *name, void *userdata, const char *input,
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
 
-	rvm_codegen_addins(co->cg, rvm_asmd(RVM_MOV, R0, DA, XX, r_strtod(input, NULL)));
+	rvm_codegen_addins(co->cg, rvm_asmd(RVM_MOV, R1, DA, XX, r_strtod(input, NULL)));
 
 	codegen_print_callback(name, userdata, input, size, reason, start, end);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
@@ -435,7 +500,7 @@ int codegen_string_callback(const char *name, void *userdata, const char *input,
 
 	rvm_codegen_addins(co->cg, rvm_asmp(RVM_MOV, R1, DA, XX, (void*)input));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R2, DA, XX, size));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCSTR, R0, R1, R2, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCSTR, R1, R1, R2, 0));
 
 	codegen_print_callback(name, userdata, input, size, reason, start, end);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
@@ -493,15 +558,16 @@ int codegen_opassign_callback(const char *name, void *userdata, const char *inpu
 }
 
 
-int codegen_postfixinc_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
+int codegen_oppostfix_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
+	ruint opcode = r_array_pop(co->opcodes, ruint);
 
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R1, R0, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDRR, R0, R1, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_EADD, R0, R0, DA, 1));
+	rvm_codegen_addins(co->cg, rvm_asm(opcode, R0, R0, DA, 1));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_STRR, R0, R1, XX, 0));
 
 	codegen_print_callback(name, userdata, input, size, reason, start, end);
@@ -511,50 +577,15 @@ int codegen_postfixinc_callback(const char *name, void *userdata, const char *in
 }
 
 
-int codegen_postfixdec_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
+int codegen_opprefix_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
+	ruint opcode = r_array_pop(co->opcodes, ruint);
 
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R1, R0, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDRR, R0, R1, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_ESUB, R0, R0, DA, 1));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_STRR, R0, R1, XX, 0));
-
-	codegen_print_callback(name, userdata, input, size, reason, start, end);
-	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
-
-	return size;
-}
-
-
-int codegen_prefixinc_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
-{
-	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
-
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDRR, R0, R1, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_EADD, R0, R0, DA, 1));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_STRR, R0, R1, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
-
-	codegen_print_callback(name, userdata, input, size, reason, start, end);
-	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
-
-	return size;
-}
-
-
-int codegen_prefixdec_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
-{
-	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
-
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDRR, R0, R1, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_ESUB, R0, R0, DA, 1));
+	rvm_codegen_addins(co->cg, rvm_asm(opcode, R0, R0, DA, 1));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_STRR, R0, R1, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
 
@@ -627,7 +658,6 @@ int codegen_arrayelementaddress_callback(const char *name, void *userdata, const
 
 	return size;
 }
-
 
 
 int codegen_offset_to_ptr_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
@@ -720,6 +750,32 @@ int codegen_opidentifier_callback(const char *name, void *userdata, const char *
 			rvm_codegen_addins(co->cg, rvm_asm(RVM_ADDRS, R0, FP, DA, v->data.offset));
 		} else {
 			rvm_codegen_addins(co->cg, rvm_asm(RVM_ADDRS, R0, DA, XX, v->data.offset));
+		}
+		codegen_print_callback(name, userdata, input, size, reason, start, end);
+		codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
+
+		return size;
+	}
+
+	fprintf(stdout, "ERROR: undefined variable: ");
+	fwrite(input, sizeof(char), size, stdout);
+	fprintf(stdout, "\n");
+	rpa_dbex_abort(co->dbex);
+	return 0;
+}
+
+
+int codegen_validentifierop_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
+{
+	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
+	rulong off = rvm_codegen_getcodesize(co->cg);
+	rvm_varmap_t *v = rvm_scope_lookup(co->scope, input, size);
+
+	if (v) {
+		if (v->datatype == VARMAP_DATATYPE_FPOFFSET) {
+			rvm_codegen_addins(co->cg, rvm_asm(RVM_LDS, R0, FP, DA, v->data.offset));
+		} else {
+			rvm_codegen_addins(co->cg, rvm_asm(RVM_LDS, R0, DA, XX, v->data.offset));
 		}
 		codegen_print_callback(name, userdata, input, size, reason, start, end);
 		codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
@@ -1155,7 +1211,7 @@ int codegen_iterationdo_callback(const char *name, void *userdata, const char *i
 	rvm_codespan_t cs = r_array_pop(co->codespan, rvm_codespan_t);
 
 
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_CMP, R0, DA, XX, 0));
+//	rvm_codegen_addins(co->cg, rvm_asm(RVM_CMP, R0, DA, XX, 0));
 	cs.codesize = rvm_codegen_getcodesize(co->cg) - cs.codestart;
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BNEQ, DA, XX, XX, -cs.codesize));
 	rvm_codemap_poploopblock(co->cg->codemap);
@@ -1328,6 +1384,7 @@ void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co)
 	rpa_dbex_add_callback_exact(dbex, "BitwiseXOROp", RPA_REASON_MATCHED, codegen_binary_asmop_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "BitwiseOROp", RPA_REASON_MATCHED, codegen_binary_asmop_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "AdditiveExpressionOp", RPA_REASON_MATCHED, codegen_binary_asmop_callback, co);
+
 	rpa_dbex_add_callback_exact(dbex, "MultiplicativeExpressionOp", RPA_REASON_MATCHED, codegen_binary_asmop_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "ShiftExpressionOp", RPA_REASON_MATCHED, codegen_binary_asmop_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "EqualityExpressionOp", RPA_REASON_MATCHED, codegen_binary_asmop_callback, co);
@@ -1345,23 +1402,26 @@ void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co)
 	rpa_dbex_add_callback_exact(dbex, "BitwiseOROperator", RPA_REASON_MATCHED, codegen_opcode_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "LogicalANDOperator", RPA_REASON_MATCHED, codegen_opcode_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "LogicalOROperator", RPA_REASON_MATCHED, codegen_opcode_callback, co);
-	rpa_dbex_add_callback_exact(dbex, "UnaryOperator", RPA_REASON_MATCHED, codegen_opcode_unary_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "LogicalNotOperator", RPA_REASON_MATCHED, codegen_opcode_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "BitwiseNotOperator", RPA_REASON_MATCHED, codegen_opcode_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "UnaryOperatorOpcode", RPA_REASON_MATCHED, codegen_opcode_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "NegativeOperator", RPA_REASON_MATCHED, codegen_opcode_unary_callback, co);
+
+
+	rpa_dbex_add_callback_exact(dbex, "PostfixOperator", RPA_REASON_MATCHED, codegen_opcode_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "PostfixExpressionOp", RPA_REASON_MATCHED, codegen_oppostfix_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "PrefixExpressionOp", RPA_REASON_MATCHED, codegen_opprefix_callback, co);
 
 
 	rpa_dbex_add_callback_exact(dbex, "UnaryExpressionOp", RPA_REASON_MATCHED, codegen_unary_asmop_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "LogicalNotExpressionOp", RPA_REASON_MATCHED, codegen_unary_asmop_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "BitwiseNotExpressionOp", RPA_REASON_MATCHED, codegen_unary_asmop_callback, co);
 
+	rpa_dbex_add_callback_exact(dbex, "LiteralOp", RPA_REASON_MATCHED, codegen_literalop_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "DecimalIntegerLiteral", RPA_REASON_MATCHED, codegen_integer_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "DecimalNonIntegerLiteral", RPA_REASON_MATCHED, codegen_double_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "BlockBegin", RPA_REASON_MATCHED, codegen_scopepush_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "BlockEnd", RPA_REASON_MATCHED, codegen_scopepop_callback, co);
-	rpa_dbex_add_callback_exact(dbex, "PostfixExpressionInc", RPA_REASON_MATCHED, codegen_postfixinc_callback, co);
-	rpa_dbex_add_callback_exact(dbex, "PostfixExpressionDec", RPA_REASON_MATCHED, codegen_postfixdec_callback, co);
-	rpa_dbex_add_callback_exact(dbex, "PrefixExpressionInc", RPA_REASON_MATCHED, codegen_prefixinc_callback, co);
-	rpa_dbex_add_callback_exact(dbex, "PrefixExpressionDec", RPA_REASON_MATCHED, codegen_prefixdec_callback, co);
 
 	rpa_dbex_add_callback_exact(dbex, "DoKeyword", RPA_REASON_MATCHED, codegen_dokeyword_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "IterationDo", RPA_REASON_MATCHED, codegen_iterationdo_callback, co);
@@ -1387,31 +1447,33 @@ void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co)
 	rpa_dbex_add_callback_exact(dbex, "SwiIdExist", RPA_REASON_MATCHED, codegen_swiidexist_callback, co);
 
 	rpa_dbex_add_callback_exact(dbex, "IdentifierOp", RPA_REASON_MATCHED, codegen_opidentifier_callback, co);
-	rpa_dbex_add_callback_exact(dbex, "PostfixExpression", RPA_REASON_MATCHED, codegen_postfixexpression_callback, co);
+
+	rpa_dbex_add_callback_exact(dbex, "ValIdentifierOp", RPA_REASON_MATCHED, codegen_validentifierop_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "PostfixExpressionValOp", RPA_REASON_MATCHED, codegen_push_r0_callback, co);
+
+//	rpa_dbex_add_callback_exact(dbex, "AssignmentOperator", RPA_REASON_MATCHED, codegen_push_r0_callback, co);
 
 
 	rpa_dbex_add_callback_exact(dbex, "LeftHandSideExpressionPush", RPA_REASON_MATCHED, codegen_push_r0_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "LiteralPushOp", RPA_REASON_MATCHED, codegen_push_r0_callback, co);
 
-
 	rpa_dbex_add_callback_exact(dbex, "MemberExpressionIndexBaseOp", RPA_REASON_MATCHED, codegen_memberexpressionbase_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "MemberExpressionIndexOp", RPA_REASON_MATCHED, codegen_arrayelementaddress_callback, co);
+
+	rpa_dbex_add_callback_exact(dbex, "ValMemberExpressionIndexBaseOp", RPA_REASON_MATCHED, codegen_push_r0_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "ValMemberExpressionIndexOp", RPA_REASON_MATCHED, codegen_arrayelementvalue_callback, co);
 
 	rpa_dbex_add_callback_exact(dbex, "CallExpressionIndexBaseOp", RPA_REASON_MATCHED, codegen_memberexpressionbase_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "CallExpressionIndexOp", RPA_REASON_MATCHED, codegen_arrayelementaddress_callback, co);
 
+
+	rpa_dbex_add_callback_exact(dbex, "ValCallExpressionIndexBaseOp", RPA_REASON_MATCHED, codegen_push_r0_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "ValCallExpressionIndexOp", RPA_REASON_MATCHED, codegen_arrayelementvalue_callback, co);
+
 	rpa_dbex_add_callback_exact(dbex, "ConditionalExpression", RPA_REASON_MATCHED, codegen_pop_r0_callback, co);
-	rpa_dbex_add_callback_exact(dbex, "LeftHandSideExpressionDeref", RPA_REASON_MATCHED, codegen_ptr_deref_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "IdentifierValueOp", RPA_REASON_MATCHED, codegen_identifiervalue_callback, co);
 
-
-	rpa_dbex_add_callback_exact(dbex, "array_member_val", RPA_REASON_MATCHED, codegen_ptr_deref_callback, co);
-	rpa_dbex_add_callback_exact(dbex, "AssignmetRightHandSide", RPA_REASON_MATCHED, codegen_pop_r0_callback, co);
-	rpa_dbex_add_callback_exact(dbex, "pop_r0", RPA_REASON_MATCHED, codegen_pop_r0_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "ValueOfExpression", RPA_REASON_MATCHED, codegen_pop_r0_callback, co);
-
-	rpa_dbex_add_callback_exact(dbex, "ArrayElementValue", RPA_REASON_MATCHED, codegen_arrayelementvalue_callback, co);
-	rpa_dbex_add_callback_exact(dbex, "ArrayElementAddress", RPA_REASON_MATCHED, codegen_arrayelementaddress_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "NewArraySize", RPA_REASON_MATCHED, codegen_newarraysize_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "NewArrayNoSize", RPA_REASON_MATCHED, codegen_newarraynosize_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "compile_error", RPA_REASON_MATCHED, codegen_compile_error_callback, co);
@@ -1423,6 +1485,11 @@ void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co)
 	rpa_dbex_add_callback_exact(dbex, "FunctionCallParameter", RPA_REASON_MATCHED, codegen_funcallparameter_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "FunctionCallName", RPA_REASON_MATCHED, codegen_funcallname_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "CallExpressionOp", RPA_REASON_MATCHED, codegen_funcallexpression_callback, co);
+
+	rpa_dbex_add_callback_exact(dbex, "ValFunctionCallName", RPA_REASON_MATCHED, codegen_funcallname_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "ValCallExpressionOp", RPA_REASON_MATCHED, codegen_funcallexpression_callback, co);
+
+
 	rpa_dbex_add_callback_exact(dbex, "IfConditionOp", RPA_REASON_MATCHED, codegen_ifconditionop_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "IfOp", RPA_REASON_MATCHED, codegen_ifop_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "ElseOp", RPA_REASON_MATCHED, codegen_elseop_callback, co);

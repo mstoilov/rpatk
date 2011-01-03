@@ -69,13 +69,15 @@ FutureReservedWord			::= 'class' | 'enum' | 'extends' | 'import' | 'const' | 'ex
 			    				'implements' | 'let' | 'private' | 'public' |
                             	'static' | 'interface' | 'package' | 'protected'
 
-NullLiteral				::= 'null'
-BooleanLiteral 			::= 'true' | 'false'
+NullLiteral					::= 'null'
+BooleanLiteral 				::= 'true' | 'false'
 Literal 					::= <:NullLiteral:> |
 			    				<:BooleanLiteral:> |
 			    				<:NumericLiteral:> |
 			    				<:StringLiteral:> |
 			    				<:RegularExpressionLiteral:>
+			    				
+LiteralOp					::= <:Literal:>
 
 # 7.8.3 Numeric Literals
 
@@ -111,13 +113,21 @@ SingleStringCharacter			::= '\\' <:EscapeSequence:> |
 
 PrimaryExpression				::= 'this' | 
 			    					'(' <S>? <:Expression:> <S>? ')' |
-			    					<:Literal:> |
+			    					<:LiteralOp:> |
 			    					(<;SwiIdExist;> & <:SwiId:>) |
 			    					<:IdentifierOp:>
 			    					
+ValPrimaryExpression			::= 'this' | 
+			    					'(' <S>? <:Expression:> <S>? ')' |
+			    					<:LiteralOp:> |
+			    					(<;SwiIdExist;> & <:SwiId:>) |
+			    					<:ValIdentifierOp:>
+
+
 
 # The next line is mine
 IdentifierOp					::= <:Identifier:> 
+ValIdentifierOp					::= <:Identifier:> 
 SwiId							::= <:Identifier:> 
 SwiIdExist						::= <SwiId> 
 
@@ -159,37 +169,64 @@ Arguments						::= '(' <S>? ')' |
 			    					'(' <S>? <:ArgumentList:> <S>? ')'
 ArgumentList					::= <:ArgumentList:> <S>? ',' <S>? <:AssignmentExpression:> |
 									<:AssignmentExpression:>
-LeftHandSideExpression			::= <:CallExpression:> | <:NewExpression:>
 
-# The next lines are mine
-LeftHandSideExpressionDeref		::= <:LeftHandSideExpression:>
-LeftHandSideExpressionValue		::= <:NewArrayExpression:> |
-									<:LeftHandSideExpressionDeref:> |
-									<:Literal:>
 ArgumentList					::= <:ArgumentList:> <S>? ',' <S>? <:FunctionCallParameter:> |
 									<:FunctionCallParameter:>
 FunctionCallParameter			::= <:AssignmentExpression:>
+									
+LeftHandSideExpression			::= <:CallExpression:> | <:NewExpression:>
 
+
+
+# 11.2a Left-Hand-Side Expressions
+ValMemberExpressionIndexBaseOp	::= <:ValMemberExpression:>
+ValMemberExpressionIndexOp		::= <:ValMemberExpressionIndexBaseOp:> <S>? '[' <:S:>? <:Expression:> <:S:>? ']'
+ValMemberExpression				::= <:ValMemberExpressionIndexOp:>  |
+									<:ValMemberExpression:> '.' <:IdentifierName:> |
+									<:NewKeyword:> <S>? <:ValMemberExpression:> <S>? <:Arguments:> |
+									<:ValFunctionExpression:> |
+									<:ValPrimaryExpression:>
+
+
+ValNewExpression				::= <:NewArrayExpression:> |
+									<:NewKeyword:> <S>? <:ValNewExpression:> |
+									<:ValMemberExpression:>
+
+
+ValFunctionCallName				::= <:ValCallExpression:> | <:ValMemberExpression:>
+ValCallExpressionOp				::= <:ValFunctionCallName:> <S>? <:Arguments:>
+ValCallExpressionIndexBaseOp	::= <:ValCallExpression:>
+ValCallExpressionIndexOp		::= <:ValCallExpressionIndexBaseOp:> <S>? '[' <S>? <:Expression:> <S>? ']'
+
+ValCallExpression				::= <:ValCallExpressionIndexOp:> |
+									<:ValCallExpression:> '.' <:IdentifierName:> |
+									<:ValCallExpressionOp:>
+		
+ValLeftHandSideExpression		::= <:ValCallExpression:> | <:ValNewExpression:>
 
 
 # 11.3 Postfix Expressions
 # RULE: LeftHandSideExpression always ends up in R0 (Let see if this would work)
 PostfixOperator 				::= '++' | '--'
 PostfixExpressionOp 			::= <:LeftHandSideExpression:> <:PostfixOperator:>
+PostfixExpressionValOp			::= <:ValLeftHandSideExpression:>
 PostfixExpression 				::= <:PostfixExpressionOp:> |
-									<:LeftHandSideExpression:>
+									<:PostfixExpressionValOp:>
 
-LiteralPushOp					::= <:Literal:>
-IdentifierValueOp				::= <:Identifier:> - (<:Identifier:> <S>? ('.' | '[' | '++' | '--'))
+PrefixOperator 					::= <:PostfixOperator:>
+PrefixExpressionOp 				::= <:PrefixOperator:> <:LeftHandSideExpression:>
+PrefixExpression 				::= <:PrefixExpressionOp:>
 
 # 11.4 Unary Operators
-UnaryOperator		    		::= 'delete' | 'void' | 'typeof' | '++' | '--' | '+' | '-' | '~' | '!'
+NegativeOperator				::= ('-' - '--')
+UnaryOperatorOpcode				::= '~' | '!'
+UnaryOperator		    		::= 'delete' | 'void' | 'typeof' | ('+' - '++') | <:UnaryOperatorOpcode:> | <:NegativeOperator:>
 UnaryExpressionOp	    		::=	<S>? <:UnaryOperator:> <S>? <:UnaryExpression:>
-UnaryExpression		    		::=	<:UnaryExpressionOp:> | (<:LiteralPushOp:> | <:PostfixExpression:>)
+UnaryExpression		    		::=	<:UnaryExpressionOp:> | <:PrefixExpression:> | <:PostfixExpression:>
 
 
 # 11.5 Multiplicative Operators
-MultiplicativeOperator 			::= '*' | '/' | '%' # Not used
+MultiplicativeOperator 			::= '*' | '/' | '%'
 MultiplicativeExpressionOp		::= <:MultiplicativeExpression:> <S>? <:MultiplicativeOperator:> <S>? <:UnaryExpression:>
 MultiplicativeExpression		::= <:MultiplicativeExpressionOp:> | 
 									<:UnaryExpression:>
@@ -236,7 +273,7 @@ BitwiseORExpression 			::= <:BitwiseOROp:> |
 			    					<:BitwiseXORExpression:>
 
 # 11.11 Binary Logical Operators
-LogicalANDOperator 			::= '&&'
+LogicalANDOperator 				::= '&&'
 LogicalANDOp		 			::= <:LogicalANDExpression:> <S>? <:LogicalANDOperator:>  <S>? <:BitwiseORExpression:>
 LogicalANDExpression 			::= <:LogicalANDOp:> |
 			    					<:BitwiseORExpression:>
@@ -261,21 +298,6 @@ IterationStatement 					::= <:IterationWhile:> |
 #ConditionalExpression 			::= <:LogicalORExpression:> ( <S>? '?' <S>? <:AssignmentExpression:> <S>? ':' <S>? <:AssignmentExpression:> )?
 #ValueOfExpression				::= <:NewArrayExpression:> |
 #									<:Expression:>
-## 11.13 Assignment Operators
-#ArrayElementAddress			::= <:IdentifierValue:> <:S:>? <:ArrayLiteral:>
-#IdentifierAddress				::= <:Identifier:>
-#Address						::= <:ArrayElementAddress:> | <:IdentifierAddress:>
-#IdentifierValue				::= <:Identifier:>
-#AssignmetLHS					::= <:LeftHandSideExpression:>
-#AssignmentEq					::= <:AssignmetLHS:> <:S:>? '=' <:S:>? <:AssignmentExpression:> 
-#AssignmentAddEq				::= <:AssignmetLHS:> <:S:>? '+=' <:S:>? <:AssignmentExpression:> 
-#AssignmentMulEq				::= <:AssignmetLHS:> <:S:>? '*=' <:S:>? <:AssignmentExpression:> 
-#
-#AssignmentExpression 			::= <:AssignmentEq:> | 
-#									<:AssignmentAddEq:> | 
-#									<:AssignmentMulEq:> | 
-#									<:CallExpression:> |
-#									<:ValueOfExpression:>
 
 
 # 11.12 Conditional Operator ( ? : )
@@ -287,6 +309,11 @@ ConditionalExpression 	::= <:LogicalORExpression:>
 # 11.13 Assignment Operators
 LeftHandSideExpressionPush		::= <:LeftHandSideExpression:>
 AssignmentExpressionOp 			::= <:LeftHandSideExpressionPush:> <S>? <:AssignmentOperator:> <S>? <:AssignmentExpression:>
+#AssignmentExpressionOp 			::= (<LeftHandSideExpression> <S>? <AssignmentOperator> <S>? <AssignmentExpression>) & 
+#									(<LeftHandSideExpression> <S>? <AssignmentOperator> <S>? <:AssignmentExpression:>) &
+#									(<LeftHandSideExpression> <S>? <:AssignmentOperator:> <S>? <AssignmentExpression>) &
+#									(<:LeftHandSideExpression:> <S>? <AssignmentOperator> <S>? <AssignmentExpression>)
+
 AssignmentExpression 			::= <:AssignmentExpressionOp:> | <:ConditionalExpression:>
 
 AssignmentExpressionNoIn::= <:LeftHandSideExpression:> <S>? <:AssignmentOperator:> <S>? <:AssignmentExpressionNoIn:> | <:ConditionalExpressionNoIn:>
