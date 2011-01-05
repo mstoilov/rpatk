@@ -688,6 +688,11 @@ int rpa_mnode_p_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char 
 			if (ret > 0) {
 				cboffset_now = rpa_cbset_getpos(&stat->cbset);
 				RPA_MCACHE_CBSET(mcache, match, input, ret, stat->cbdisable, cboffset_before, cboffset_now - cboffset_before);
+				/*
+				 * If the callbacks are not disabled we can also set the cache for the cases when they are disabled.
+				 */
+				if (!stat->cbdisable)
+					RPA_MCACHE_SET(&stat->mcache[RPA_MCACHEHASH(match, input, 1)], match, input, ret, 1);
 			} else {
 				RPA_MCACHE_SET(ncache, match, input, ret, stat->cbdisable);
 			}
