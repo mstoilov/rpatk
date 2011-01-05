@@ -1211,7 +1211,7 @@ int codegen_iterationdo_callback(const char *name, void *userdata, const char *i
 	rvm_codespan_t cs = r_array_pop(co->codespan, rvm_codespan_t);
 
 
-//	rvm_codegen_addins(co->cg, rvm_asm(RVM_CMP, R0, DA, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_CMP, R0, DA, XX, 0));
 	cs.codesize = rvm_codegen_getcodesize(co->cg) - cs.codestart;
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BNEQ, DA, XX, XX, -cs.codesize));
 	rvm_codemap_poploopblock(co->cg->codemap);
