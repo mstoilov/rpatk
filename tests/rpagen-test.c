@@ -1613,7 +1613,6 @@ void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co)
 	rpa_dbex_add_callback_exact(dbex, "NewArrayNoSize", RPA_REASON_MATCHED, codegen_newarraynosize_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "compile_error", RPA_REASON_MATCHED, codegen_compile_error_callback, co);
 
-//	rpa_dbex_add_callback_exact(dbex, "ValCallExpression", RPA_REASON_ALL, codegen_costate_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "ArgumentsOp", RPA_REASON_ALL, codegen_costate_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "BracketExpressionOp", RPA_REASON_ALL, codegen_costate_callback, co);
 

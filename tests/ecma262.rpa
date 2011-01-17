@@ -296,10 +296,14 @@ IterationStatement 					::= <:IterationWhileOp:> |
 	    								<:IterationDo:>
 
 # 11.12 Conditional Operator ( ? : )
-#ConditionalExpression 	::= <:LogicalORExpression:> ( <S>? '?' <S>? <:AssignmentExpression:> <S>? ':' <S>? <:AssignmentExpression:> )?
-#ConditionalExpressionNoIn::=<:LogicalORExpressionNoIn:> ( <S>? '?' <S>? <:AssignmentExpression:> <S>? ':' <S>? <:AssignmentExpressionNoIn:> )?
+#ConditionalExpression 				::= <:LogicalORExpression:> ( <S>? '?' <S>? <:AssignmentExpression:> <S>? ':' <S>? <:AssignmentExpression:> )?
+#ConditionalExpressionNoIn			::=<:LogicalORExpressionNoIn:> ( <S>? '?' <S>? <:AssignmentExpression:> <S>? ':' <S>? <:AssignmentExpressionNoIn:> )?
 #
-ConditionalExpression 	::= <:LogicalORExpression:>
+
+AssignmentExpressionTrueOp			::= <:AssignmentExpression:>
+AssignmentExpressionFalseOp			::= <:AssignmentExpression:>
+ConditionalExpressionActionOp		::= <S>? '?' <S>? <:AssignmentExpressionTrueOp:> <S>? ':' <S>? <:AssignmentExpressionFalseOp:> 
+ConditionalExpression 				::= <:LogicalORExpression:> <:ConditionalExpressionActionOp:>?
 
 # 11.13 Assignment Operators
 LeftHandSideExpressionPush		::= <:LeftHandSideExpression:>
