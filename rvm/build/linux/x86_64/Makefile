@@ -11,7 +11,11 @@ LD = ld
 ifeq ($(BLDCFG), release)
 CFLAGS := -fPIC -O3
 else
+ifeq ($(BLDCFG), profile)
+CFLAGS := -fPIC -O0 -pg -Wall 
+else
 CFLAGS := -fPIC -O0 -g -Wall 
+endif
 endif
 
 ifeq ($(CCBLD), yes)

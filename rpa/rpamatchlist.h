@@ -40,6 +40,7 @@ typedef struct rpa_match_list_s {
 typedef struct rpa_match_nlist_s {
 	rpa_match_list_t base;
 	unsigned char loopy;
+	void *callback;
 } rpa_match_nlist_t;
 
 rpa_match_t * rpa_match_list_create(const char *name, rpa_matchfunc_t match_function_id);

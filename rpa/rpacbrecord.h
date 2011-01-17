@@ -35,6 +35,7 @@ typedef struct rpa_cbrecord_s {
 	rpa_mnode_t *mnode;
 	const char *input;
 	unsigned int size;
+	unsigned int reason;
 } rpa_cbrecord_t;
 
 

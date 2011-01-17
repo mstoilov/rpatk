@@ -121,31 +121,54 @@ error:
 }
 
 
-void rpa_mnode_connect_callback_dontuse(rpa_dbex_handle hDbex, rpa_mnode_t *mnode)
+void rpa_dbex_set_nlist_callbackptr(rpa_dbex_handle hDbex, rpa_match_nlist_t *nlistmatch)
 {
-	int ret = 0;
+	rpa_dbex_t strdbex;
+	rpa_pattern_handle hDefault;
 	rpa_varlink_t *pCallback;
-	const char *name = (void*)0;
-	int size = name ? r_strlen(name) : 0;
+	const char *name;
+	int namelen, ret;
+	rpa_match_t *match = (rpa_match_t*)nlistmatch;
 
-	if (!mnode || (mnode->flags & RPA_MNODE_NOCONNECT) || !mnode->match || !mnode->match->name)
-		return;
-	name = mnode->match->name;
-	size = mnode->match->namesiz;
-	for (pCallback = rpa_dbex_prev_callback(hDbex, 0); pCallback; pCallback = rpa_dbex_prev_callback(hDbex, pCallback)) {
+	for (pCallback = rpa_dbex_next_callback(hDbex, 0); pCallback; pCallback = rpa_dbex_next_callback(hDbex, pCallback)) {
 		rpa_callbackdata_t *pCbData = (rpa_callbackdata_t *)pCallback->var.v.ptr;
-		ret = rpa_dbex_strmatch(name, pCbData->namematch);
-		if (size && ret == size) {
-			if (mnode->flags & RPA_MNODE_CALLBACK) {
-				mnode->flags |= pCbData->reason;
-				((rpa_mnode_callback_t*)mnode)->matched_callback = rpa_common_callback;
-				((rpa_mnode_callback_t*)mnode)->userdata = pCallback;
+		if (pCbData->exact) {
+			if (match->namesiz == pCbData->namematchsiz && r_strncmp(pCbData->namematch, match->name, match->namesiz) == 0) {
+				nlistmatch->callback = (void*)pCallback;
 			}
-			return;
+		} else {
+			rpa_dbex_init(&strdbex, 16);
+			rpa_dbex_open(&strdbex);
+			if (rpa_dbex_load_string(&strdbex, pCbData->namematch) < 0) {
+				rpa_dbex_cleanup(&strdbex);
+				continue;
+			}
+			rpa_dbex_close_do(&strdbex);
+			hDefault = rpa_dbex_default_pattern(&strdbex);
+			name = match->name;
+			namelen = match->namesiz;
+			ret = rpa_stat_match_lite(&strdbex.stat, hDefault, name, name, name + namelen);
+			if (namelen && ret == namelen && !nlistmatch->callback) {
+				nlistmatch->callback = (void*)pCallback;
+			}
+			rpa_dbex_cleanup(&strdbex);
 		}
-	}	
+	}
+}
 
 
+void rpa_dbex_mnode_connect(rpa_dbex_handle hDbex, rpa_mnode_callback_t *cbmnode)
+{
+	rpa_varlink_t *pCallback;
+	rpa_match_nlist_t *nlistmatch = (rpa_match_nlist_t *)((rpa_mnode_t*)cbmnode)->match;
+	pCallback = (rpa_varlink_t *)nlistmatch->callback;
+
+	if (pCallback) {
+		rpa_callbackdata_t *pCbData = (rpa_callbackdata_t *)pCallback->var.v.ptr;
+		((rpa_mnode_t*)cbmnode)->flags |= pCbData->reason;
+		cbmnode->matched_callback = rpa_common_callback;
+		cbmnode->userdata = pCallback;
+	}
 }
 
 
@@ -421,8 +444,10 @@ rpa_varlink_t *rpa_dbex_create_mnode_callback(rpa_dbex_handle hDbex, rpa_match_t
 	pVarLinkMnodePtr->var.userdata4 = (rpa_word_t)MATCH_CLASS_MNODEPTR;
 	pVarLinkMnodePtr->var.finalize = rpa_var_class_destroy;
 	rpa_list_addt(&hDbex->treehead, &pVarLinkMnodePtr->lnk);
-	if ((((rpa_mnode_t *)pCbMnode)->flags & RPA_MNODE_NOCONNECT) == 0)
+	if ((((rpa_mnode_t *)pCbMnode)->flags & RPA_MNODE_NOCONNECT) == 0) {
 		rpa_list_addt(&hDbex->callbackmnodes, &pCbMnode->cblink);
+		rpa_dbex_mnode_connect(hDbex, pCbMnode);
+	}
 	return pVarLinkMnodePtr;
 }
 
@@ -568,14 +593,17 @@ static rpa_word_t rpa_vmcb_create_ragnelist_matchptr(rpa_vm_t *vm)
 rpa_varlink_t *rpa_dbex_create_nlist_matchptr(rpa_dbex_handle hDbex, const char *name, unsigned int size, rpa_matchfunc_t match_function_id)
 {
 	rpa_varlink_t *pVarLinkListMatchPtr;
+	rpa_match_nlist_t *nlistmatch;
 
 	pVarLinkListMatchPtr = rpa_varlink_create(RPA_VAR_PTR, "NLIST");
 	if (!pVarLinkListMatchPtr)
 		return (void*)0;
-	if ((pVarLinkListMatchPtr->var.v.ptr = (void*) rpa_match_nlist_create_namesize(name, size, match_function_id)) == (void*)0) {
+	nlistmatch = (rpa_match_nlist_t *)rpa_match_nlist_create_namesize(name, size, match_function_id);
+	if ((pVarLinkListMatchPtr->var.v.ptr = (void*) nlistmatch) == (void*)0) {
 		rpa_varlink_destroy(pVarLinkListMatchPtr);
 		return (void*)0;
 	}
+	rpa_dbex_set_nlist_callbackptr(hDbex, nlistmatch);
 	pVarLinkListMatchPtr->var.userdata4 = (rpa_word_t)MATCH_CLASS_NAMEDMATCHPTR;
 	pVarLinkListMatchPtr->var.finalize = rpa_var_class_destroy;
 	rpa_list_addt(&hDbex->treehead, &pVarLinkListMatchPtr->lnk);

@@ -71,8 +71,7 @@ void rvm_scope_push(rvm_scope_t* scope)
 void rvm_scope_pop(rvm_scope_t* scope)
 {
 	ruint scopelen = r_array_index(scope->scopestack, r_array_length(scope->scopestack) - 1, ruint);
-//	r_array_setlength(scope->scopestack, r_array_length(scope->scopestack));
-	r_array_remove(scope->scopestack);
+	r_array_removelast(scope->scopestack);
 	r_array_setlength(scope->varstack, scopelen);
 //	r_printf("SCOPE FRAME: %d, POP: %d\n", r_array_length(scope->scopestack), scopelen);
 }
@@ -84,7 +83,7 @@ void rvm_scope_addoffset(rvm_scope_t *scope, const rchar *name, ruint namesize, 
 
 	vmap.name = rvm_scope_addname(scope, name, namesize);
 	vmap.data.offset = off;
-	vmap.datatype = r_array_empty(scope->scopestack) ? VARMAP_DATATYPE_OFFSET : VARMAP_DATATYPE_FPOFFSET;
+	vmap.datatype = VARMAP_DATATYPE_OFFSET;
 	r_array_add(scope->varstack, &vmap);
 }
 

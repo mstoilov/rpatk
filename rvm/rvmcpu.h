@@ -40,6 +40,7 @@ enum {
 	RVM_ASR,		/* Arithmetic shift right: op1 = op2 >> op3, preserve the signed bit */
 	RVM_SWI,
 	RVM_SWIID,
+	RVM_CALL,		/* if op1 is of type RVM_DTYPE_SWIID, then invoke RVM_SWIID, otherwise invoke RVM_BL */
 	RVM_MOV,
 	RVM_INC,		/* INC: op1 = op1 + 1 */
 	RVM_DEC,		/* DEC: op1 = op1 - 1 */
@@ -111,11 +112,11 @@ enum {
 	RVM_TYPE,		/* Type: op1 = typeof(op2) */
 	RVM_SETTYPE,	/* Type: op1.type = op2 */
 	RVM_EMOV,
-	RVM_EADD,		/* Add: op1 = op2 + op3 */
-	RVM_ESUB,		/* Subtract: op1 = op2 - op3 */
-	RVM_EMUL,		/* Multiply: op1 = op2 * op3 */
-	RVM_EDIV,		/* Divide: op1 = op2 / op3 */
-	RVM_EMOD,		/* Modulo: op1 = op2 % op3 */
+	RVM_EADD,		/* Add: op1 = op2 + op3, update the status register */
+	RVM_ESUB,		/* Subtract: op1 = op2 - op3, update the status register */
+	RVM_EMUL,		/* Multiply: op1 = op2 * op3, update the status register */
+	RVM_EDIV,		/* Divide: op1 = op2 / op3, update the status register */
+	RVM_EMOD,		/* Modulo: op1 = op2 % op3, update the status register */
 	RVM_ELSL,		/* Logical Shift Left: op1 = op2 << op3, update the status register */
 	RVM_ELSR,		/* Logical Shift Right: op1 = op2 >> op3, update the status register */
 	RVM_ELSRU,		/* Logical Unsigned Shift Right: op1 = op2 >>> op3, update the status register */
@@ -126,12 +127,12 @@ enum {
 	RVM_ELAND,		/* Logical AND: op1 = op2 && op3, update status register */
 	RVM_ELOR,		/* Logical OR: op1 = op2 || op3, update the status register */
 	RVM_ELNOT,		/* Logical NOT: op1 = !op2, update the status register */
-	RVM_EEQ,		/* op1 = op2 == op3 ? 1 : 0 */
-	RVM_ENOTEQ,		/* op1 = op2 != op3 ? 1 : 0 */
-	RVM_EGREAT,		/* op1 = op2 > op3 ? 1 : 0 */
-	RVM_EGREATEQ,	/* op1 = op2 >= op3 ? 1 : 0 */
-	RVM_ELESS,		/* op1 = op2 < op3 ? 1 : 0 */
-	RVM_ELESSEQ,	/* op1 = op2 <= op3 ? 1 : 0 */
+	RVM_EEQ,		/* op1 = op2 == op3 ? 1 : 0, update the status register */
+	RVM_ENOTEQ,		/* op1 = op2 != op3 ? 1 : 0, update the status register */
+	RVM_EGREAT,		/* op1 = op2 > op3 ? 1 : 0, update the status register */
+	RVM_EGREATEQ,	/* op1 = op2 >= op3 ? 1 : 0, update the status register */
+	RVM_ELESS,		/* op1 = op2 < op3 ? 1 : 0, update the status register */
+	RVM_ELESSEQ,	/* op1 = op2 <= op3 ? 1 : 0, update the status register */
 
 	RVM_ECMP,		/* Compare: status register is updated based on the result: op1 - op2 */
 	RVM_ECMN,		/* Compare Negative: status register is updated based on the result: op1 + op2 */
@@ -140,9 +141,6 @@ enum {
 	RVM_ADDRA,		/* op1 is the destination memory, op2 is the array, op3 is the offset */
 	RVM_ELDA,		/* op1 is the destination, op2 is the array, op3 is the offset */
 	RVM_ESTA,		/* op1 is the source, op2 is the array, op3 is the offset */
-	RVM_ELDS,		/* op1 is the destination, load the value from stack at offset op2 + op3 */
-	RVM_ESTS,		/* op1 is the source, store the value on stack at offset op2 + op3  */
-
 };
 
 
@@ -165,7 +163,7 @@ do { \
         RVM_STATUS_CLRBIT(cpu, b); \
 } while (0)
 
-#define RVM_OPERAND_BITS 5
+#define RVM_OPERAND_BITS 4
 #define RVM_REGS_NUM (1 << RVM_OPERAND_BITS)
 #define R0 0
 #define R1 1
@@ -200,19 +198,27 @@ do { \
 #define R30 30
 #define R31 31
 
-#define FP R26
-#define SP R27
-#define LR R28
-#define PC R29
-#define DA R30		/* The DA register should never be modified manually, otherwise the result is undefined */
-#define XX R31
-#define RLST XX
+#define RLST (RVM_REGS_NUM - 1)
+#define FP (RLST - 5)
+#define SP (RLST - 4)
+#define LR (RLST - 3)
+#define PC (RLST - 2)
+#define DA (RLST - 1)				/* The DA register should never be modified manually, otherwise the result is undefined */
+#define XX (RLST)
+
 
 #define RVM_STACK_CHUNK 256
 #define RVM_ABORT(__cpu__, __e__) do { __cpu__->error = (__e__); (__cpu__)->abort = 1; ASSERT(0); return; } while (0)
 #define BIT(__shiftby__) (1 << (__shiftby__))
-
-
+#define BITR(__f__, __l__, __r__) (((__r__) >= (__f__) && (__r__) <= (__l__)) ? BIT(__r__) : 0)
+#define BITS(__f__, __l__)  (BITR(__f__, __l__, R0)) | (BITR(__f__, __l__, R1)) | (BITR(__f__, __l__, R2)) | (BITR(__f__, __l__, R3)) | \
+							(BITR(__f__, __l__, R4)) | (BITR(__f__, __l__, R5)) | (BITR(__f__, __l__, R6)) | (BITR(__f__, __l__, R7)) | \
+							(BITR(__f__, __l__, R8)) | (BITR(__f__, __l__, R9)) | (BITR(__f__, __l__, R10)) | (BITR(__f__, __l__, R11)) | \
+							(BITR(__f__, __l__, R12)) | (BITR(__f__, __l__, R13)) | (BITR(__f__, __l__, R14)) | (BITR(__f__, __l__, R15)) | \
+							(BITR(__f__, __l__, R16)) | (BITR(__f__, __l__, R17)) | (BITR(__f__, __l__, R18)) | (BITR(__f__, __l__, R19)) | \
+							(BITR(__f__, __l__, R20)) | (BITR(__f__, __l__, R21)) | (BITR(__f__, __l__, R22)) | (BITR(__f__, __l__, R23)) | \
+							(BITR(__f__, __l__, R24)) | (BITR(__f__, __l__, R25)) | (BITR(__f__, __l__, R26)) | (BITR(__f__, __l__, R27)) | \
+							(BITR(__f__, __l__, R28)) | (BITR(__f__, __l__, R29)) | (BITR(__f__, __l__, R30)) | (BITR(__f__, __l__, R31))
 
 #define RVM_OPCODE_BITS 8
 #define RVM_SWI_TABLE_BITS 10
@@ -223,6 +229,16 @@ do { \
 #define RVM_ASMINS_OPCODE(__opcode__) ((__opcode__) & ((1 << RVM_OPCODE_BITS) - 1))
 #define RVM_ASMINS_SWI(__opcode__) ((__opcode__) >> RVM_OPCODE_BITS)
 #define RVM_OPSWI(__id__) (((__id__) << RVM_OPCODE_BITS) | RVM_SWI)
+
+//#define RVM_STACK_WRITE(__s__, __sp__, __p__) r_carray_replace((__s__), (__sp__), (rconstpointer)(__p__));
+//#define RVM_STACK_READ(__s__, __sp__) r_carray_index((__s__), (__sp__), rvmreg_t)
+//#define RVM_STACK_ADDR(__s__, __sp__) r_carray_slot_expand((__s__), (__sp__))
+
+
+#define RVM_STACK_WRITE(__s__, __sp__, __p__) do { r_memcpy(((rvmreg_t*)(__s__)) + (__sp__), (__p__), sizeof(rvmreg_t)); } while(0)
+#define RVM_STACK_READ(__s__, __sp__) *RVM_STACK_ADDR(__s__, __sp__)
+#define RVM_STACK_ADDR(__s__, __sp__) (((rvmreg_t*)(__s__)) + (__sp__))
+
 
 #define RVM_E_DIVZERO		(1)
 #define RVM_E_ILLEGAL		(2)
@@ -268,7 +284,9 @@ struct rvmcpu_s {
 	rword error;
 	rword abort;
 	rarray_t *switables;
-	rcarray_t *stack;
+//	rcarray_t *stack;
+	void *stack;
+	rcarray_t *data;
 	struct rvm_opmap_s *opmap;
 	void *userdata;
 	rvm_gc_t *gc;
@@ -280,7 +298,6 @@ void rvm_cpu_destroy(rvmcpu_t * vm);
 rint rvm_cpu_addswitable(rvmcpu_t * cpu, rvm_switable_t *switalbe);
 rint rvm_cpu_exec(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off);
 rint rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off);
-rint rvm_cpu_dbgarg_exec(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off, rint debug);
 rint rvm_cpu_getswi(rvmcpu_t *cpu, const rchar *swiname, rsize_t size);
 rint rvm_cpu_getswi_s(rvmcpu_t *cpu, const rchar *swiname);
 void rvm_relocate(rvm_asmins_t *code, rsize_t size);

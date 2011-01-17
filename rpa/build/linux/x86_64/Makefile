@@ -8,10 +8,15 @@ CC = gcc
 AR = ar
 LD = ld
 
+
 ifeq ($(BLDCFG), release)
 CFLAGS := -fPIC -O3
 else
+ifeq ($(BLDCFG), profile)
+CFLAGS := -fPIC -O0 -pg -Wall -DDEBUG
+else
 CFLAGS := -fPIC -O0 -g -Wall -DDEBUG
+endif
 endif
 
 ifeq ($(CCBLD), yes)

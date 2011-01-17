@@ -28,7 +28,7 @@
 #include "rpadbex.h"
 
 
-#define RPA_MCACHE_SET(_c_, _m_, _i_, _r_, _d_) do {(_c_)->match = (_m_); (_c_)->input = (_i_); (_c_)->ret = (_r_); (_c_)->cbdisable = (_d_);} while (0)
+#define RPA_MCACHE_SET(_c_, _m_, _i_, _r_, _d_) do {(_c_)->match = (_m_); (_c_)->input = (_i_); (_c_)->ret = (_r_); (_c_)->cbmod = (_d_); rpa_cbset_reset(&(_c_)->cbset, 0); } while (0)
 #define RPA_MCACHE_CBSET(_c_, _m_, _i_, _r_, _d_, _o_, _s_) \
 	do { \
 		rpa_cbrecord_t *cbrec; \
@@ -290,7 +290,7 @@ int rpa_mnode_exec_callback(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *in
 
 	if (input >= stat->end)
 		return -1;
-	if (stat->cbdisable)
+	if (stat->cbmod)
 		return size;
 	if ( ((rpa_mnode_callback_t*)mnode)->matched_callback && (reason & mnode->flags))
 		ret = ((rpa_mnode_callback_t*)mnode)->matched_callback(mnode, stat, input, size, (reason & mnode->flags));
@@ -304,7 +304,7 @@ int rpa_mnode_record_callback(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *
 
 	if (input >= stat->end)
 		return -1;
-	if (stat->cbdisable)
+	if (stat->cbmod)
 		return size;
 	if (mnode->flags & RPA_MNODE_SYNCRONOUS)
 		return rpa_mnode_exec_callback(mnode, stat, input, size, reason);
@@ -313,6 +313,7 @@ int rpa_mnode_record_callback(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *
 			cbrec->mnode = mnode;
 			cbrec->input = input;
 			cbrec->size = size;
+			cbrec->reason = reason;
 		}
 	}
 	return size;
@@ -418,12 +419,12 @@ int rpa_mnode_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *i
 	rpa_word_t hash = 0;
 	rpa_mcache_t *ncache = NULL;
 	rpa_mcache_t *mcache = NULL;
-	unsigned char cbdisable = stat->cbdisable;
+	unsigned char cbmod = stat->cbmod;
 
 	if (mnode->flags & RPA_MNODE_NOCONNECT) {
-		stat->cbdisable = 1;
+		stat->cbmod = RPA_CB_DISABLED;
 	}
-	hash = RPA_MCACHEHASH(match, input, stat->cbdisable);
+	hash = RPA_MCACHEHASH(match, input, stat->cbmod);
 	mcache = &stat->mcache[hash];
 	ncache = &stat->ncache[hash];
 
@@ -448,9 +449,9 @@ int rpa_mnode_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *i
 		ret = rpa_mnode_plain(mnode, stat, input);
 		if (stat->usecache) {
 			if (ret > 0)
-				RPA_MCACHE_SET(mcache, match, input, ret, stat->cbdisable);
+				RPA_MCACHE_SET(mcache, match, input, ret, stat->cbmod);
 			else
-				RPA_MCACHE_SET(ncache, match, input, ret, stat->cbdisable);
+				RPA_MCACHE_SET(ncache, match, input, ret, stat->cbmod);
 		}
 	}
 	if (ret <= 0) {
@@ -461,7 +462,7 @@ int rpa_mnode_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *i
 	ret = rpa_mnode_exec_callback(mnode, stat, input, ret, RPA_REASON_END|RPA_REASON_MATCHED);
 
 end:
-	stat->cbdisable = cbdisable;
+	stat->cbmod = cbmod;
 	if (ret <= 0)
 		return -1;
 	return ret;
@@ -622,7 +623,7 @@ void rpa_mcache_cbset(rpa_stat_t *stat, rpa_mcache_t *_c_, rpa_match_t *_m_, con
 {
 	rpa_cbrecord_t *cbrec;
 	rpa_word_t _off_;
-	RPA_MCACHE_SET((_c_), (_m_), (_i_), (_r_), stat->cbdisable);
+	RPA_MCACHE_SET((_c_), (_m_), (_i_), (_r_), stat->cbmod);
 	rpa_cbset_reset(&(_c_)->cbset, 0);
 	if ((_s_) > 0) {
 		if (rpa_cbset_check_space_min(&(_c_)->cbset, (_s_) + 1) < 0) {
@@ -646,16 +647,21 @@ int rpa_mnode_p_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char 
 	rpa_word_t hash = 0;
 	rpa_mcache_t *mcache = NULL;
 	rpa_mcache_t *ncache = NULL;
-	rpa_word_t cboff, cboffset_now = (rpa_word_t)-1, cboffset_before = rpa_cbset_getpos(&stat->cbset);
-	unsigned char cbdisable = stat->cbdisable;
+	rpa_word_t cboff, cboffset_now = (rpa_word_t)-1, cboffset_before = (rpa_word_t)-1;
+	unsigned char cbmod = stat->cbmod;
 
 	if (mnode->flags & RPA_MNODE_NOCONNECT) {
-		stat->cbdisable = 1;
+		stat->cbmod = RPA_CB_DISABLED;
 	}
-	hash = RPA_MCACHEHASH(match, input, stat->cbdisable);
+	hash = RPA_MCACHEHASH(match, input, stat->cbmod);
 	mcache = &stat->mcache[hash];
 	ncache = &stat->ncache[hash];
 
+	ret = rpa_mnode_record_callback(mnode, stat, input, (unsigned int) (stat->end - input), RPA_REASON_START);
+	if (!ret)
+		goto end;
+
+	cboffset_before = rpa_cbset_getpos(&stat->cbset);
 	if (((rpa_match_nlist_t*)match)->loopy) {
 		ret = rpa_mnode_p_plain_loop_detect(mnode, stat, input);
 	} else if (ncache->match == match && ncache->input == input) {
@@ -665,7 +671,7 @@ int rpa_mnode_p_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char 
 		 */
 		ret = -1;
 		goto end;
-	} else if (mcache->match == match && mcache->input == input && mcache->cbdisable == stat->cbdisable) {
+	} else if (mcache->match == match && mcache->input == input && mcache->cbmod == stat->cbmod) {
 		rpa_cbrecord_t *cbrec;
 		rpa_word_t lastoff = rpa_cbset_getpos(&mcache->cbset);
 		for (cboff = 1; cboff <= lastoff; cboff++) {
@@ -687,27 +693,31 @@ int rpa_mnode_p_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char 
 			 */
 			if (ret > 0) {
 				cboffset_now = rpa_cbset_getpos(&stat->cbset);
-				RPA_MCACHE_CBSET(mcache, match, input, ret, stat->cbdisable, cboffset_before, cboffset_now - cboffset_before);
+				RPA_MCACHE_CBSET(mcache, match, input, ret, stat->cbmod, cboffset_before, cboffset_now - cboffset_before);
 				/*
 				 * If the callbacks are not disabled we can also set the cache for the cases when they are disabled.
 				 */
-				if (!stat->cbdisable)
+				if (!stat->cbmod) {
+					ASSERT(&stat->mcache[RPA_MCACHEHASH(match, input, 1)] != mcache);
 					RPA_MCACHE_SET(&stat->mcache[RPA_MCACHEHASH(match, input, 1)], match, input, ret, 1);
+				}
 			} else {
-				RPA_MCACHE_SET(ncache, match, input, ret, stat->cbdisable);
+				RPA_MCACHE_SET(ncache, match, input, ret, stat->cbmod);
 			}
 		}
 	}
 
+end:
 	if (ret > 0) {
-		ret = rpa_mnode_record_callback(mnode, stat, input, ret, RPA_REASON_START|RPA_REASON_END|RPA_REASON_MATCHED);
+		ret = rpa_mnode_record_callback(mnode, stat, input, ret, RPA_REASON_END|RPA_REASON_MATCHED);
+	} else {
+		ret = rpa_mnode_record_callback(mnode, stat, input, 0, RPA_REASON_END);
 	}
 
-end:
 	/*
 	 * Restore the original state
 	 */
-	stat->cbdisable = cbdisable;
+	stat->cbmod = cbmod;
 	if (ret <= 0) {
 		return -1;
 	}

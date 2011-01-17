@@ -1,7 +1,7 @@
 #include "rcarray.h"
 #include "rmem.h"
 
-#define MIN_CARRAY_LEN 2
+#define MIN_CARRAY_LEN 2048
 
 
 
@@ -112,7 +112,21 @@ rint r_carray_add(rcarray_t *carray, rconstpointer data)
 void r_carray_setlength(rcarray_t *carray, ruint len)
 {
 	r_carray_checkexpand(carray, len);
-	carray->len = len;
+	r_carray_length(carray) = len;
+}
+
+
+void r_carray_inclength(rcarray_t *carray)
+{
+	r_carray_checkexpand(carray, r_carray_length(carray) + 1);
+	r_carray_length(carray) += 1;
+}
+
+
+void r_carray_declength(rcarray_t *carray)
+{
+	if (r_carray_length(carray))
+		r_carray_length(carray) -= 1;
 }
 
 

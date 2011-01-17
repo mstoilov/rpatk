@@ -70,6 +70,7 @@ void rpa_grep_output(rpa_grep_t *pGrep, const char *s, unsigned long size, unsig
 void rpa_grep_output_utf8_string(rpa_grep_t *pGrep, const char *s);
 void rpa_grep_output_utf16_string(rpa_grep_t *pGrep, const unsigned short *s);
 void rpa_grep_setup_callback(rpa_grep_t *pGrep, rpa_buffer_t *pattern);
+void rpa_grep_setup_matched_callback(rpa_grep_t *pGrep, rpa_buffer_t *pattern);
 void rpa_grep_dump_pattern_tree(rpa_grep_t *pGrep, rpa_buffer_t *pattern);
 
 

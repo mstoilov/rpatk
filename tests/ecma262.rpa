@@ -111,14 +111,16 @@ SingleStringCharacter			::= '\\' <:EscapeSequence:> |
 			    					<:LineContinuation:> |
 			    					<:SourceCharacter:> - (['] | '\\' | <:LineTerminator:>)
 
+BracketExpressionOp				::= '(' <S>? <:Expression:> <S>? ')'
+
 PrimaryExpression				::= 'this' | 
 			    					'(' <S>? <:Expression:> <S>? ')' |
 			    					<:LiteralOp:> |
 			    					(<;SwiIdExist;> & <:SwiId:>) |
 			    					<:IdentifierOp:>
-			    					
+			    				
 ValPrimaryExpression			::= 'this' | 
-			    					'(' <S>? <:Expression:> <S>? ')' |
+									<:BracketExpressionOp:> |
 			    					<:LiteralOp:> |
 			    					(<;SwiIdExist;> & <:SwiId:>) |
 			    					<:ValIdentifierOp:>
@@ -146,7 +148,7 @@ MemberExpressionIndexBaseOp		::= <:MemberExpression:>
 MemberExpressionIndexOp			::= <:MemberExpressionIndexBaseOp:> <S>? '[' <:S:>? <:Expression:> <:S:>? ']'
 MemberExpression 				::= <:MemberExpressionIndexOp:>  |
 									<:MemberExpression:> '.' <:IdentifierName:> |
-									<:NewKeyword:> <S>? <:MemberExpression:> <S>? <:Arguments:> |
+									<:NewKeyword:> <S>? <:MemberExpression:> <S>? <:ArgumentsOp:> |
 									<:FunctionExpression:> |
 									<:PrimaryExpression:>
 
@@ -157,7 +159,7 @@ NewExpression 					::= <:NewArrayExpression:> |
 
 
 FunctionCallName				::= <:CallExpression:> | <:MemberExpression:>
-CallExpressionOp				::= <:FunctionCallName:> <S>? <:Arguments:>
+CallExpressionOp				::= <:FunctionCallName:> <S>? <:ArgumentsOp:>
 CallExpressionIndexBaseOp		::= <:CallExpression:>
 CallExpressionIndexOp			::= <:CallExpressionIndexBaseOp:> <S>? '[' <S>? <:Expression:> <S>? ']'
 
@@ -165,7 +167,7 @@ CallExpression					::= <:CallExpressionIndexOp:> |
 									<:CallExpression:> '.' <:IdentifierName:> |
 									<:CallExpressionOp:>
 
-Arguments						::= '(' <S>? ')' |
+ArgumentsOp						::= '(' <S>? ')' |
 			    					'(' <S>? <:ArgumentList:> <S>? ')'
 ArgumentList					::= <:ArgumentList:> <S>? ',' <S>? <:AssignmentExpression:> |
 									<:AssignmentExpression:>
@@ -183,7 +185,7 @@ ValMemberExpressionIndexBaseOp	::= <:ValMemberExpression:>
 ValMemberExpressionIndexOp		::= <:ValMemberExpressionIndexBaseOp:> <S>? '[' <:S:>? <:Expression:> <:S:>? ']'
 ValMemberExpression				::= <:ValMemberExpressionIndexOp:>  |
 									<:ValMemberExpression:> '.' <:IdentifierName:> |
-									<:NewKeyword:> <S>? <:ValMemberExpression:> <S>? <:Arguments:> |
+									<:NewKeyword:> <S>? <:ValMemberExpression:> <S>? <:ArgumentsOp:> |
 									<:ValFunctionExpression:> |
 									<:ValPrimaryExpression:>
 
@@ -194,7 +196,7 @@ ValNewExpression				::= <:NewArrayExpression:> |
 
 
 ValFunctionCallName				::= <:ValCallExpression:> | <:ValMemberExpression:>
-ValCallExpressionOp				::= <:ValFunctionCallName:> <S>? <:Arguments:>
+ValCallExpressionOp				::= <:ValFunctionCallName:> <S>? <:ArgumentsOp:>
 ValCallExpressionIndexBaseOp	::= <:ValCallExpression:>
 ValCallExpressionIndexOp		::= <:ValCallExpressionIndexBaseOp:> <S>? '[' <S>? <:Expression:> <S>? ']'
 
@@ -211,16 +213,15 @@ PostfixOperator 				::= '++' | '--'
 PostfixExpressionOp 			::= <:LeftHandSideExpression:> <:PostfixOperator:>
 PostfixExpressionValOp			::= <:ValLeftHandSideExpression:>
 PostfixExpression 				::= <:PostfixExpressionOp:> |
-									<:PostfixExpressionValOp:>
+									<:PostfixExpressionValOp:> 
 
 PrefixOperator 					::= <:PostfixOperator:>
 PrefixExpressionOp 				::= <:PrefixOperator:> <:LeftHandSideExpression:>
 PrefixExpression 				::= <:PrefixExpressionOp:>
 
 # 11.4 Unary Operators
-NegativeOperator				::= ('-' - '--')
-UnaryOperatorOpcode				::= '~' | '!'
-UnaryOperator		    		::= 'delete' | 'void' | 'typeof' | ('+' - '++') | <:UnaryOperatorOpcode:> | <:NegativeOperator:>
+UnaryOperatorOpcode				::= '~' | '!' | ('+' - '++') | ('-' - '--') | 'delete' | 'void' | 'typeof'
+UnaryOperator		    		::= <:UnaryOperatorOpcode:>
 UnaryExpressionOp	    		::=	<S>? <:UnaryOperator:> <S>? <:UnaryExpression:>
 UnaryExpression		    		::=	<:UnaryExpressionOp:> | <:PrefixExpression:> | <:PostfixExpression:>
 
@@ -293,13 +294,6 @@ IterationDo							::= <:DoKeyword:> <S>? <:Statement:> <S>? <:WhileExpression:> 
 IterationStatement 					::= <:IterationWhile:> |
 	    								<:IterationDo:>
 
-
-## 11.12 Conditional Operator ( ? : )
-#ConditionalExpression 			::= <:LogicalORExpression:> ( <S>? '?' <S>? <:AssignmentExpression:> <S>? ':' <S>? <:AssignmentExpression:> )?
-#ValueOfExpression				::= <:NewArrayExpression:> |
-#									<:Expression:>
-
-
 # 11.12 Conditional Operator ( ? : )
 #ConditionalExpression 	::= <:LogicalORExpression:> ( <S>? '?' <S>? <:AssignmentExpression:> <S>? ':' <S>? <:AssignmentExpression:> )?
 #ConditionalExpressionNoIn::=<:LogicalORExpressionNoIn:> ( <S>? '?' <S>? <:AssignmentExpression:> <S>? ':' <S>? <:AssignmentExpressionNoIn:> )?
@@ -308,25 +302,25 @@ ConditionalExpression 	::= <:LogicalORExpression:>
 
 # 11.13 Assignment Operators
 LeftHandSideExpressionPush		::= <:LeftHandSideExpression:>
+IdentifierAddressPush			::= <:Identifier:>
 AssignmentExpressionOp 			::= <:LeftHandSideExpressionPush:> <S>? <:AssignmentOperator:> <S>? <:AssignmentExpression:>
-#AssignmentExpressionOp 			::= (<LeftHandSideExpression> <S>? <AssignmentOperator> <S>? <AssignmentExpression>) & 
-#									(<LeftHandSideExpression> <S>? <AssignmentOperator> <S>? <:AssignmentExpression:>) &
-#									(<LeftHandSideExpression> <S>? <:AssignmentOperator:> <S>? <AssignmentExpression>) &
-#									(<:LeftHandSideExpression:> <S>? <AssignmentOperator> <S>? <AssignmentExpression>)
+AssignmentExpression 			::= <:AssignmentExpressionOp:> | 
+									<:ConditionalExpression:>
 
-AssignmentExpression 			::= <:AssignmentExpressionOp:> | <:ConditionalExpression:>
-
-AssignmentExpressionNoIn::= <:LeftHandSideExpression:> <S>? <:AssignmentOperator:> <S>? <:AssignmentExpressionNoIn:> | <:ConditionalExpressionNoIn:>
-AssignmentOperator 	::= '=' | '*=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>=' | '>>>=' | '&=' | '^=' | '|='
+AssignmentExpressionNoIn		::= <:LeftHandSideExpression:> <S>? <:AssignmentOperator:> <S>? <:AssignmentExpressionNoIn:> | <:ConditionalExpressionNoIn:>
+AssignmentOperator				::= '=' | '*=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>=' | '>>>=' | '&=' | '^=' | '|='
 
 
 # 11.14 Comma Operator 	( , )
 Expression    		::= <:AssignmentExpression:> ( <S>? ',' <S>? <:AssignmentExpression:> )*
 ExpressionNoIn		::= <:AssignmentExpressionNoIn:> ( <S>? ',' <S>? <:AssignmentExpressionNoIn:> )*
 
+#Print statement;
+PrintOp							::= '%'print'%'
 
 # 12 Statements
-Statement						::= <:Block:> |
+Statement						::= <:PrintOp:> |
+									<:Block:> |
 			    					<:Comment:> |
 			    					<:VariableStatement:> |
 			    					<:EmptyStatement:> |
@@ -400,7 +394,6 @@ SourceElements 					::= (<S>? <:SourceElement:>)+
 SourceElement 						::= <:FunctionDeclaration:> |
 			    						<:Statement:>
 Program							::= <:SourceElements:>
-ProgramInit						::= <:SourceCharacter:>
 # The root rule, it is anonymous
 <:Program:>
 	

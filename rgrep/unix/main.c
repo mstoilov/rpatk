@@ -45,6 +45,7 @@ int usage(int argc, const char *argv[])
 		fprintf(stderr, "\t-e patterns         execute pattern\n");
 		fprintf(stderr, "\t-f patternfile      read the patterns from a file, the last pattern will be executed\n");
 		fprintf(stderr, "\t-c printpatterns    print these patterns when there is a match.\n");
+		fprintf(stderr, "\t-C printpatterns    print these patterns at START MATCH END.\n");
 		fprintf(stderr, "\t-i                  ignore case.\n");		
 		fprintf(stderr, "\t-m                  match from the beginning.\n");		
 		fprintf(stderr, "\t-p                  parse the stream.\n");		
@@ -93,10 +94,22 @@ int main(int argc, const char *argv[])
 				rpa_buffer_t pattern;
 				pattern.s = (char*)argv[i];
 				pattern.size = strlen(argv[i]);			
+				rpa_grep_setup_matched_callback(pGrep, &pattern);
+			}
+		}
+	}
+
+	for (i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "-C") == 0) {
+			if (++i < argc) {
+				rpa_buffer_t pattern;
+				pattern.s = (char*)argv[i];
+				pattern.size = strlen(argv[i]);
 				rpa_grep_setup_callback(pGrep, &pattern);
 			}
 		}
 	}
+
 
 	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-f") == 0) {
@@ -164,7 +177,7 @@ int main(int argc, const char *argv[])
 		if (argv[i][0] != '-') {
 			++scanned;
 			rpa_grep_scan_path(pGrep, argv[i]);
-		} else if (argv[i][1] == 'e' || argv[i][1] == 'f' || argv[i][1] == 'c'){
+		} else if (argv[i][1] == 'e' || argv[i][1] == 'f' || argv[i][1] == 'c' || argv[i][1] == 'C'){
 			++i;
 		}
 		

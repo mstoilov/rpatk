@@ -59,8 +59,14 @@ typedef struct rpa_mcache_s {
 	const char *input;
 	rpa_cbset_t cbset;
 	int ret;
-	int cbdisable;
+	int cbmod;
 } rpa_mcache_t;
+
+
+typedef enum {
+	RPA_CB_DEFAULT = 0,
+	RPA_CB_DISABLED,
+} rap_cbmod_t;
 
 
 struct rpa_stat_s {
@@ -90,7 +96,7 @@ struct rpa_stat_s {
 	int (*getchar)(unsigned int *pwc, rpa_stat_t *stat, const char *input);
 	const char *where;
 	unsigned char usecache;	
-	unsigned char cbdisable;
+	rap_cbmod_t cbmod;
 };
 
 

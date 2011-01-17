@@ -8,6 +8,7 @@
 #include "rcarray.h"
 #include "rstring.h"
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -35,9 +36,6 @@ extern "C" {
 #define RVM_INFOBIT_LAST (1 << 15)
 #define RVM_INFOBIT_ALL (RVM_INFOBIT_ROBJECT | RVM_INFOBIT_LAST)
 
-#define r_carray_rvmregslot(__carray__, __index__)((rvmreg_t*)(((rchar*)r_array_index((__carray__)->array, (__index__) >> R_CARRAY_CHUNKBITS, rpointer)) + ((__index__) & R_CARRAY_CHUNKMASK) * sizeof(rvmreg_t)))
-#define RVM_STACK_ADDR(__cpu__, __off__) ((rvmreg_t*)r_carray_rvmregslot((__cpu__)->stack, (__off__) ))
-#define RVM_SPOFF_ADDR(__cpu__, __spoff__) RVM_STACK_ADDR(__cpu__, (RVM_CPUREG_GETU(__cpu__, SP) - (__spoff__)))
 
 #define RVM_CPUREG_R_PTR(__cpu__, __r__) (&(__cpu__)->r[(__r__)])
 #define RVM_CPUREG_PTR(__cpu__, __r__) RVM_CPUREG_R_PTR(__cpu__, __r__)
@@ -51,10 +49,12 @@ extern "C" {
 
 #define RVM_REG_TSTFLAG(__r__, __flag__) ((__r__)->flags & (__flag__)) ? TRUE : FALSE
 #define RVM_REG_SETFLAG(__r__, __flag__) do { (__r__)->flags |= (__flag__); } while (0)
+#define RVM_REG_GETFLAGS(__r__) (__r__)->flags
 #define RVM_REG_CLRFLAG(__r__, __flag__) do { (__r__)->flags &= ~(__flag__); } while (0)
-#define RVM_REG_ASSIGNFLAGS(__r__, __flags__) do { (__r__)->flags = ~(__flags__); } while (0)
+#define RVM_REG_ASSIGNFLAGS(__r__, __flags__) do { (__r__)->flags = (__flags__); } while (0)
 #define RVM_CPUREG_TSTFLAG(__cpu__, __r__, __flag__) RVM_REG_TSTFLAG(RVM_CPUREG_PTR(__cpu__, __r__), __flag__)
 #define RVM_CPUREG_SETFLAG(__cpu__, __r__, __flag__) RVM_REG_SETFLAG(RVM_CPUREG_PTR(__cpu__, __r__), __flag__)
+#define RVM_CPUREG_GETFLAGS(__cpu__, __r__) RVM_REG_GETFLAGS(RVM_CPUREG_PTR(__cpu__, __r__))
 #define RVM_CPUREG_CLRFLAG(__cpu__, __r__, __flag__) RVM_REG_CLRFLAG(RVM_CPUREG_PTR(__cpu__, __r__), __flag__)
 #define RVM_CPUREG_ASSIGNFLAGS(__cpu__, __r__, __flags__) RVM_REG_ASSIGNFLAGS(RVM_CPUREG_PTR(__cpu__, __r__), __flags__)
 

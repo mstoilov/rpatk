@@ -1,7 +1,11 @@
 var a = 2; 
 
+function mul(a,b) {
+	return a*b;
+}
+
 function add (a, b) {
-	return a + b;
+	return 2*(a+mul(2,b)-b) - (a+mul(2,b)-b);
 }
 
 function sub (a, b) {
@@ -9,14 +13,19 @@ function sub (a, b) {
 }
 
 
-if ( (a == 4) ) 
-{
-	a=3;
-	a=4;
-} else if (a==2) {
-	a=5;
-	a=10;
-} 
+function iter() {
+	var i = 0;
 
+	do {
+		i = add(i,1.001);
+	} while (i < 2000000);
+	print(i);
+}
 
-print(add(a, sub(3,2)));
+var i = 0;
+
+do {
+	i = add(i,1.001);
+} while (i < 2000000);
+print(i);
+iter();

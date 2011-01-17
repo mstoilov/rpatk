@@ -9,7 +9,11 @@ AR = ar
 ifeq ($(BLDCFG), release)
 CFLAGS = -O3
 else
+ifeq ($(BLDCFG), profile)
+CFLAGS = -O0 -pg
+else
 CFLAGS = -g -O0 -Wall 
+endif
 endif
 
 ifeq ($(CCBLD), yes)

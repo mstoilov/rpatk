@@ -11,8 +11,7 @@ extern "C" {
 #endif
 
 #define VARMAP_DATATYPE_OFFSET 0
-#define VARMAP_DATATYPE_FPOFFSET 1
-#define VARMAP_DATATYPE_PTR 2
+#define VARMAP_DATATYPE_PTR 1
 
 
 typedef struct rvm_varmap_s {

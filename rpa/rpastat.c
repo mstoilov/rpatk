@@ -446,11 +446,8 @@ static int rpa_stat_play_cbset(rpa_stat_t *stat, const char *input, unsigned int
 
 	for (off = 1; off <= cbset->off; off++) {
 		rpa_cbrecord_t *cbrec = &cbset->data[off];
-		ret = rpa_mnode_exec_callback(cbrec->mnode, stat, cbrec->input, cbrec->size, RPA_REASON_START);
-		if (!ret)
-			return 0;
-		ret = rpa_mnode_exec_callback(cbrec->mnode, stat, cbrec->input, cbrec->size, RPA_REASON_MATCHED | RPA_REASON_END);
-		if (!ret)
+		ret = rpa_mnode_exec_callback(cbrec->mnode, stat, cbrec->input, cbrec->size, cbrec->reason);
+		if (cbrec->size && !ret)
 			return 0;
 	}
 	return size;

@@ -10,9 +10,14 @@ LD = ld
 
 ifeq ($(BLDCFG), release)
 CFLAGS := -fPIC -O3
+else 
+ifeq ($(BLDCFG), profile)
+CFLAGS := -fPIC -O0 -pg -Wall 
+CFLAGS += -DR_DEBUG_MEMALLOC
 else
 CFLAGS := -fPIC -O0 -g -Wall 
 CFLAGS += -DR_DEBUG_MEMALLOC
+endif
 endif
 
 ifeq ($(CCBLD), yes)

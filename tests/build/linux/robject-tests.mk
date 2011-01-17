@@ -27,6 +27,7 @@ TESTS   += $(OUTDIR)/scope-test
 TESTS   += $(OUTDIR)/rhash-test
 TESTS   += $(OUTDIR)/rvm-test
 TESTS   += $(OUTDIR)/loop-test
+TESTS   += $(OUTDIR)/speed-test
 TESTS   += $(OUTDIR)/memalloc-test
 TESTS   += $(OUTDIR)/asm-cast
 TESTS   += $(OUTDIR)/asm-add
