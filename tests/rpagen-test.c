@@ -48,6 +48,8 @@ typedef struct rvm_funcall_s {
 typedef struct rvm_codespan_s {
 	rword codestart;
 	rword codesize;
+	rword l1;
+	rword l2;
 } rvm_codespan_t;
 
 
@@ -1210,7 +1212,7 @@ int codegen_ifconditionop_callback(const char *name, void *userdata, const char 
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
-	rvm_codespan_t cs = {0, 0};
+	rvm_codespan_t cs = {0, 0, 0, 0};
 
 	cs.codestart = rvm_codegen_getcodesize(co->cg);
 	r_array_add(co->codespan, &cs);
@@ -1283,7 +1285,7 @@ int codegen_dokeyword_callback(const char *name, void *userdata, const char *inp
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
-	rvm_codespan_t cs = {0, 0};
+	rvm_codespan_t cs = {0, 0, 0, 0};
 
 	cs.codestart = rvm_codegen_getcodesize(co->cg);
 	r_array_add(co->codespan, &cs);
@@ -1318,6 +1320,52 @@ int codegen_iterationdo_callback(const char *name, void *userdata, const char *i
 	return size;
 }
 
+
+int codegen_whileconditionop_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
+{
+	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
+	rulong off = rvm_codegen_getcodesize(co->cg);
+	rvm_codespan_t *cs = (rvm_codespan_t*)r_array_lastslot(co->codespan);
+
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_CMP, R0, DA, XX, 0));
+	cs->l1 = rvm_codegen_getcodesize(co->cg);
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_BEQ, DA, XX, XX, -1));	//This has to be redefined when we know the size of the code block
+
+	codegen_print_callback(name, userdata, input, size, reason, start, end);
+	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
+
+	return size;
+}
+
+
+int codegen_iterationwhileop_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
+{
+	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
+	rulong off = rvm_codegen_getcodesize(co->cg);
+
+	if (reason & RPA_REASON_START) {
+		rvm_codespan_t cs = {0, 0, 0, 0};
+
+		cs.codestart = rvm_codegen_getcodesize(co->cg);
+		r_array_add(co->codespan, &cs);
+	} else if (reason & RPA_REASON_MATCHED) {
+		rvm_codespan_t cs = r_array_pop(co->codespan, rvm_codespan_t);
+
+		cs.codesize = rvm_codegen_getcodesize(co->cg) + 1 - cs.codestart;
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, -(cs.codesize - 1)));
+//		rvm_codegen_addins(co->cg, rvm_asm(RVM_NOP, DA, XX, XX, 0xaaaaa));
+
+		rvm_codegen_replaceins(co->cg, cs.l1, rvm_asm(RVM_BEQ, DA, XX, XX, cs.codesize - (cs.l1 - cs.codestart)));	// Re-writing the instruction
+	} else if (reason & RPA_REASON_END) {
+		rvm_codespan_t cs = r_array_pop(co->codespan, rvm_codespan_t);
+		cs.codesize = rvm_codegen_getcodesize(co->cg) - cs.codestart;
+	}
+
+	codegen_print_callback(name, userdata, input, size, reason, start, end);
+	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
+
+	return size;
+}
 
 
 void codegen_unmap_file(rstr_t *buf)
@@ -1585,6 +1633,10 @@ void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co)
 	rpa_dbex_add_callback_exact(dbex, "IfOp", RPA_REASON_MATCHED, codegen_ifop_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "ElseOp", RPA_REASON_MATCHED, codegen_elseop_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "IfElseOp", RPA_REASON_MATCHED, codegen_ifelseop_callback, co);
+
+	rpa_dbex_add_callback_exact(dbex, "WhileConditionOp", RPA_REASON_MATCHED, codegen_whileconditionop_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "IterationWhileOp", RPA_REASON_ALL, codegen_iterationwhileop_callback, co);
+
 
 
 	if (verboseinfo)

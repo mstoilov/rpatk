@@ -288,10 +288,11 @@ LogicalORExpression 			::= <:LogicalOROp:> |
 # 12.6 Iteration Statements
 WhileKeyword						::= 'while'
 WhileExpression						::= <:WhileKeyword:> <S>? '(' <S>? <:Expression:> <S>? ')'
-IterationWhile						::= <:WhileKeyword:> '(' <S>? <:Expression:> <S>? ')' <S>? <:Statement:>
 DoKeyword							::= 'do'
 IterationDo							::= <:DoKeyword:> <S>? <:Statement:> <S>? <:WhileExpression:> (<S>? ';')
-IterationStatement 					::= <:IterationWhile:> |
+WhileConditionOp					::= 'while' <S>? '(' <S>? <:Expression:> <S>? ')'
+IterationWhileOp					::= <:WhileConditionOp:> <S>? <:Statement:>
+IterationStatement 					::= <:IterationWhileOp:> |
 	    								<:IterationDo:>
 
 # 11.12 Conditional Operator ( ? : )
