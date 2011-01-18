@@ -245,7 +245,7 @@ do { \
 #define RVM_E_CAST			(3)
 #define RVM_E_SWINUM		(4)
 #define RVM_E_SWITABLE		(5)
-#define RVM_E_ILLEGALDST	(6)
+#define RVM_E_LVALUE		(6)
 
 typedef struct rvm_asmins_s rvm_asmins_t;
 typedef struct rvmcpu_s rvmcpu_t;

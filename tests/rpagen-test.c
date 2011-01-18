@@ -1686,6 +1686,7 @@ void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co)
 
 	rpa_dbex_add_callback_exact(dbex, "WhileConditionOp", RPA_REASON_MATCHED, codegen_whileconditionop_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "IterationWhileOp", RPA_REASON_ALL, codegen_iterationwhileop_callback, co);
+
 	rpa_dbex_add_callback_exact(dbex, "QuestionMarkOp", RPA_REASON_MATCHED, codegen_questionmarkop_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "AssignmentExpressionIfTrueOp", RPA_REASON_MATCHED, codegen_iftrueop_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "AssignmentExpressionIfFalseOp", RPA_REASON_MATCHED, codegen_iffalseop_callback, co);

@@ -371,7 +371,11 @@ static void rvm_op_strw(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_strr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	*((rvmreg_t*)RVM_CPUREG_GETP(cpu, ins->op2)) = RVM_CPUREG_GET(cpu, ins->op1);
+	rvmreg_t *dest = RVM_CPUREG_PTR(cpu, ins->op2);
+	if (RVM_REG_GETTYPE(dest) != RVM_DTYPE_POINTER)
+		RVM_ABORT(cpu, RVM_E_LVALUE);
+	else
+		*((rvmreg_t*)RVM_REG_GETP(dest)) = RVM_CPUREG_GET(cpu, ins->op1);
 }
 
 
@@ -1577,7 +1581,6 @@ rvmcpu_t *rvm_cpu_create()
 		return ((void*)0);
 	r_memset(cpu, 0, sizeof(*cpu));
 	cpu->switables = r_array_create(sizeof(rvm_switable_t*));
-//	cpu->stack = r_carray_create(sizeof(rvmreg_t));
 	cpu->stack = r_malloc(4 * 1024 *sizeof(rvmreg_t));
 	cpu->data = r_carray_create(sizeof(rvmreg_t));
 	cpu->opmap = rvm_opmap_create();

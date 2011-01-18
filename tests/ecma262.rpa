@@ -296,10 +296,6 @@ IterationStatement 					::= <:IterationWhileOp:> |
 	    								<:IterationDo:>
 
 # 11.12 Conditional Operator ( ? : )
-#ConditionalExpression 				::= <:LogicalORExpression:> ( <S>? '?' <S>? <:AssignmentExpression:> <S>? ':' <S>? <:AssignmentExpression:> )?
-#ConditionalExpressionNoIn			::= <:LogicalORExpressionNoIn:> ( <S>? '?' <S>? <:AssignmentExpression:> <S>? ':' <S>? <:AssignmentExpressionNoIn:> )?
-#
-
 AssignmentExpressionIfTrueOp		::= <:AssignmentExpression:>
 AssignmentExpressionIfFalseOp		::= <:AssignmentExpression:>
 QuestionMarkOp						::= '?'
