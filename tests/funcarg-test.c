@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 	ruint ntable;
 
 	cg = rvm_codegen_create();
-	cpu = rvm_cpu_create();
+	cpu = rvm_cpu_create_default();
 	ntable = rvm_cpu_addswitable(cpu, switable);
 
 	rvm_codemap_invalid_add_s(cg->codemap, "add2");

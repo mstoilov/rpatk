@@ -1472,7 +1472,7 @@ int main(int argc, char *argv[])
 	rpa_dbex_handle dbex = rpa_dbex_create();
 	rvm_compiler_t *co = rvm_compiler_create(dbex);
 
-	cpu = rvm_cpu_create();
+	cpu = rvm_cpu_create_default();
 	ntable = rvm_cpu_addswitable(cpu, switable);
 	rvm_cpu_addswitable(cpu, switable_js);
 	co->cpu = cpu;

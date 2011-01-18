@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 	rvmreg_t d2 = rvm_reg_create_double(-1.0);
 	rvmreg_t ds = rvm_reg_create_string_ansi("-3.5785");
 	rvm_asmins_t vmcode[256];
-	rvmcpu_t *vm = rvm_cpu_create();
+	rvmcpu_t *vm = rvm_cpu_create_default();
 	
 	rvm_cpu_addswitable(vm, common_calltable);
 	rvm_cpu_addswitable(vm, switable);

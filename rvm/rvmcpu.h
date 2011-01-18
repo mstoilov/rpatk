@@ -238,6 +238,7 @@ do { \
 #define RVM_STACK_WRITE(__s__, __sp__, __p__) do { r_memcpy(((rvmreg_t*)(__s__)) + (__sp__), (__p__), sizeof(rvmreg_t)); } while(0)
 #define RVM_STACK_READ(__s__, __sp__) *RVM_STACK_ADDR(__s__, __sp__)
 #define RVM_STACK_ADDR(__s__, __sp__) (((rvmreg_t*)(__s__)) + (__sp__))
+#define RVM_STACK_CHECKSIZE(__cpu__, __s__, __sp__)  ((__sp__) < (__cpu__)->stacksize ? 1 : 0)
 
 
 #define RVM_E_DIVZERO		(1)
@@ -246,6 +247,8 @@ do { \
 #define RVM_E_SWINUM		(4)
 #define RVM_E_SWITABLE		(5)
 #define RVM_E_LVALUE		(6)
+#define RVM_E_NOMEM			(7)
+
 
 typedef struct rvm_asmins_s rvm_asmins_t;
 typedef struct rvmcpu_s rvmcpu_t;
@@ -284,7 +287,7 @@ struct rvmcpu_s {
 	rword error;
 	rword abort;
 	rarray_t *switables;
-//	rcarray_t *stack;
+	rulong stacksize;
 	void *stack;
 	rcarray_t *data;
 	struct rvm_opmap_s *opmap;
@@ -293,7 +296,8 @@ struct rvmcpu_s {
 };
 
 
-rvmcpu_t *rvm_cpu_create();
+rvmcpu_t *rvm_cpu_create_default();
+rvmcpu_t *rvm_cpu_create(rulong stacksize);
 void rvm_cpu_destroy(rvmcpu_t * vm);
 rint rvm_cpu_addswitable(rvmcpu_t * cpu, rvm_switable_t *switalbe);
 rint rvm_cpu_exec(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off);

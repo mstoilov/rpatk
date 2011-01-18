@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 	rhash_node_t *node;
 	rvmcpu_t *cpu;
 
-	cpu = rvm_cpu_create();
+	cpu = rvm_cpu_create_default();
 	rvm_cpu_addswitable(cpu, switable);
 	cg = rvm_codegen_create();
 

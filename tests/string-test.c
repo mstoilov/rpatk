@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
 	ruint ntable;
 
 	ctx.opmap = opmap = rvm_opmap_create();
-	cpu = rvm_cpu_create();
+	cpu = rvm_cpu_create_default();
 	cpu->userdata = &ctx;
 	cg = rvm_codegen_create();
 

@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
 	rvm_asmins_t code[1024];
 	ruint off = 0;
 
-	cpu = rvm_cpu_create();
+	cpu = rvm_cpu_create_default();
 
 
 	code[off++] = rvm_asm(RVM_EXT, XX, XX, XX, 0);

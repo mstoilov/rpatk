@@ -30,6 +30,7 @@
 #include "rstring.h"
 #include "rvmreg.h"
 
+#define RVM_DEFAULT_STACKSIZE (4 * 1024)
 
 static const char *stropcalls[] = {
 	"RVM_EXT",
@@ -771,6 +772,8 @@ static void rvm_op_push(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rword sp = RVM_CPUREG_GETU(cpu, SP) + 1;
 
+	if (!RVM_STACK_CHECKSIZE(cpu, cpu->stack, sp))
+		RVM_ABORT(cpu, RVM_E_NOMEM);
 	RVM_STACK_WRITE(cpu->stack, sp, &RVM_CPUREG_GET(cpu, ins->op1));
 	RVM_CPUREG_SETU(cpu, SP, sp);
 }
@@ -788,6 +791,8 @@ static void rvm_op_sts(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rword sp = ((ins->op2 != XX) ? RVM_CPUREG_GETU(cpu, ins->op2) : 0) + ((ins->op3 != XX) ? RVM_CPUREG_GETU(cpu, ins->op3) : 0);
 
+	if (!RVM_STACK_CHECKSIZE(cpu, cpu->stack, sp))
+		RVM_ABORT(cpu, RVM_E_NOMEM);
 	RVM_STACK_WRITE(cpu->stack, sp, &RVM_CPUREG_GET(cpu, ins->op1));
 }
 
@@ -797,6 +802,9 @@ static void rvm_op_pushm(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rword n, i = 0;
 	rword bits = RVM_CPUREG_GETU(cpu, ins->op1);
 	rword sp = RVM_CPUREG_GETU(cpu, SP);
+
+	if (!RVM_STACK_CHECKSIZE(cpu, cpu->stack, sp + RVM_REGS_NUM))
+		RVM_ABORT(cpu, RVM_E_NOMEM);
 
 	if (!(bits & ((1<<(RVM_REGS_NUM / 2)) - 1)))
 		i = RVM_REGS_NUM / 2;
@@ -847,6 +855,9 @@ static void rvm_op_pop(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rvm_op_addrs(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rword sp = ((ins->op2 != XX) ? RVM_CPUREG_GETU(cpu, ins->op2) : 0) + ((ins->op3 != XX) ? RVM_CPUREG_GETU(cpu, ins->op3) : 0);
+
+	if (!RVM_STACK_CHECKSIZE(cpu, cpu->stack, sp))
+		RVM_ABORT(cpu, RVM_E_NOMEM);
 
 	RVM_CPUREG_CLEAR(cpu, ins->op1);
 	RVM_CPUREG_SETTYPE(cpu, ins->op1, RVM_DTYPE_POINTER);
@@ -1572,7 +1583,7 @@ static rvm_cpu_op ops[] = {
 };
 
 
-rvmcpu_t *rvm_cpu_create()
+rvmcpu_t *rvm_cpu_create(rulong stacksize)
 {
 	rvmcpu_t *cpu;
 
@@ -1580,8 +1591,9 @@ rvmcpu_t *rvm_cpu_create()
 	if (!cpu)
 		return ((void*)0);
 	r_memset(cpu, 0, sizeof(*cpu));
+	cpu->stacksize = stacksize;
 	cpu->switables = r_array_create(sizeof(rvm_switable_t*));
-	cpu->stack = r_malloc(4 * 1024 *sizeof(rvmreg_t));
+	cpu->stack = r_malloc(stacksize * sizeof(rvmreg_t));
 	cpu->data = r_carray_create(sizeof(rvmreg_t));
 	cpu->opmap = rvm_opmap_create();
 	cpu->gc = rvm_gc_create();
@@ -1594,12 +1606,17 @@ rvmcpu_t *rvm_cpu_create()
 }
 
 
+rvmcpu_t *rvm_cpu_create_default()
+{
+	return rvm_cpu_create(RVM_DEFAULT_STACKSIZE);
+}
+
+
 void rvm_cpu_destroy(rvmcpu_t *cpu)
 {
 	rvm_gc_deallocate_all(cpu->gc);
 	rvm_gc_destroy(cpu->gc);
 	r_object_destroy((robject_t*)cpu->switables);
-//	r_object_destroy((robject_t*)cpu->stack);
 	r_free(cpu->stack);
 	r_object_destroy((robject_t*)cpu->data);
 	rvm_opmap_destroy(cpu->opmap);

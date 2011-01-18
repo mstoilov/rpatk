@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 	ruint off = 0;
 	ruint ntable;
 
-	cpu = rvm_cpu_create();
+	cpu = rvm_cpu_create_default();
 	ntable = rvm_cpu_addswitable(cpu, switable);
 
 	code[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 1);

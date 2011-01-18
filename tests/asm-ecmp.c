@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 	rvmreg_t d2 = rvm_reg_create_double(3.0);
 
 	rvm_asmins_t vmcode[256];
-	rvmcpu_t *vm = rvm_cpu_create();
+	rvmcpu_t *vm = rvm_cpu_create_default();
 	
 	rvm_cpu_addswitable(vm, common_calltable);
 

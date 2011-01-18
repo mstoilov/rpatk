@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
 	ruint ret = 0;
 	ruint off = 0;
 	rvm_asmins_t vmcode[256];
-	rvmcpu_t *vm = rvm_cpu_create();
+	rvmcpu_t *vm = rvm_cpu_create_default();
 	
 	rvm_cpu_addswitable(vm, common_calltable);
 
