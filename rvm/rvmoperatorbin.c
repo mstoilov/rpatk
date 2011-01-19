@@ -189,6 +189,12 @@ void rvm_op_binary_init(rvm_opmap_t *opmap)
 	}
 
 	rvm_op_binary_insert(opmap, RVM_OPID_ADD, rvm_op_add_unsigned, rvm_op_add_long, rvm_op_add_double);
+	/*
+	 * Overwrite RVM_OPID_ADD for string concatenation
+	 */
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rvm_op_concat_string_string, RVM_DTYPE_STRING, RVM_DTYPE_STRING);
+
+
 	rvm_op_binary_insert(opmap, RVM_OPID_SUB, rvm_op_sub_unsigned, rvm_op_sub_long, rvm_op_sub_double);
 	rvm_op_binary_insert(opmap, RVM_OPID_MUL, rvm_op_mul_unsigned, rvm_op_mul_long, rvm_op_mul_double);
 	rvm_op_binary_insert(opmap, RVM_OPID_DIV, rvm_op_div_unsigned, rvm_op_div_long, rvm_op_div_double);
@@ -209,5 +215,4 @@ void rvm_op_binary_init(rvm_opmap_t *opmap)
 	rvm_op_binary_insert(opmap, RVM_OPID_LESSEQ, rvm_op_lesseq_unsigned, rvm_op_lesseq_long, rvm_op_lesseq_double);
 	rvm_op_binary_insert(opmap, RVM_OPID_GREATER, rvm_op_greater_unsigned, rvm_op_greater_long, rvm_op_greater_double);
 	rvm_op_binary_insert(opmap, RVM_OPID_GREATEREQ, rvm_op_greatereq_unsigned, rvm_op_greatereq_long, rvm_op_greatereq_double);
-
 }

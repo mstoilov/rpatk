@@ -306,14 +306,10 @@ AssignmentOperator				::= '=' | '*=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>='
 Expression    		::= <:AssignmentExpression:> ( <S>? ',' <S>? <:AssignmentExpression:> )*
 ExpressionNoIn		::= <:AssignmentExpressionNoIn:> ( <S>? ',' <S>? <:AssignmentExpressionNoIn:> )*
 
-#Print statement;
-PrintOp							::= '%'print'%'
-
-BreakOp							::= 'break'
-BreakStatement					::= <S>? <:BreakOp:> <:SC:>
 
 # 12 Statements
 Statement						::= <:BreakStatement:> |
+									<:ContinueStatement:> |
 									<:Block:> |
 			    					<:Comment:> |
 			    					<:VariableStatement:> |
@@ -397,6 +393,14 @@ IterationStatement 					::= <:IterationWhileOp:> |
 # 12.9 The return Statement
 ReturnOp						::= ('return' - 'return' <:IdentifierPart:>) <WhiteSpace>* <:AssignmentExpression:>? (<S>? ';')
 ReturnStatement					::= <:ReturnOp:>
+
+# The Break Statement
+BreakOp							::= 'break' - 'break' <:IdentifierPart:>
+BreakStatement					::= <S>? <:BreakOp:> <:SC:>
+
+# The Continue Statement
+ContinueOp						::= 'continue' - 'continue' <:IdentifierPart:>
+ContinueStatement				::= <S>? <:ContinueOp:> <:SC:>
 
 
 # 13 Function Definition

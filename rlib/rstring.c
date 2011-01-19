@@ -192,7 +192,7 @@ void r_string_assign(rstring_t *string, const rstr_t *str)
 		string->s.str = (rchar*)r_malloc(str->size + 1);
 		if (!string->s.str)
 			return;
-		r_memset(string->s.str, 0, str->size);
+		r_memset(string->s.str, 0, str->size + 1);
 		r_memcpy(string->s.str, str->str, str->size);
 		string->s.size = str->size;
 	}

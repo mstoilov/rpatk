@@ -34,3 +34,27 @@ void rvm_op_add_double(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, rdouble op1, 
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, !r);
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_N, r < 0.0);
 }
+
+
+void rvm_op_concat_string_string(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+{
+	rstring_t *s1 = (rstring_t *)RVM_REG_GETP(arg1);
+	rstring_t *s2 = (rstring_t *)RVM_REG_GETP(arg2);
+	rstring_t *d = r_string_create_from_rstr(&s1->s);
+	r_string_cat(d, &s2->s);
+
+	rvm_gc_add(cpu->gc, (robject_t*)d);
+	rvm_reg_setstring(res, d);
+}
+
+
+void rvm_op_concat_long_string(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+{
+
+}
+
+
+void rvm_op_concat_string_long(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+{
+
+}

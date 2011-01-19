@@ -80,6 +80,7 @@ typedef struct rvm_compiler_s {
 	rarray_t *fundecl;
 	rarray_t *opcodes;
 	rarray_t *codespan;
+	rarray_t *loops;
 	rarray_t *varmap;
 	rarray_t *stat;
 	rvmcpu_t *cpu;
@@ -190,6 +191,7 @@ rvm_compiler_t *rvm_compiler_create(rpa_dbex_handle dbex)
 	co->stat = r_array_create(sizeof(rvm_costat_t));
 	co->fundecl = r_array_create(sizeof(rvm_fundecl_t));
 	co->codespan = r_array_create(sizeof(rvm_codespan_t));
+	co->loops = r_array_create(sizeof(rvm_codespan_t*));
 	co->varmap = r_array_create(sizeof(rvm_varmap_t*));
 	r_array_push(co->fp, 0, rword);
 	co->dbex = dbex;
@@ -209,6 +211,7 @@ void rvm_compiler_destroy(rvm_compiler_t *co)
 		r_object_destroy((robject_t*) co->fundecl);
 		r_object_destroy((robject_t*) co->codespan);
 		r_object_destroy((robject_t*) co->varmap);
+		r_object_destroy((robject_t*) co->loops);
 		r_free(co);
 	}
 }
@@ -1410,13 +1413,32 @@ int codegen_breakkeyword_callback(const char *name, void *userdata, const char *
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
-	rvm_codespan_t *cs = (rvm_codespan_t *)r_array_lastslot(co->codespan);
+	rvm_codespan_t *cs = (rvm_codespan_t *)r_array_last(co->loops, rvm_codespan_t*);
 
 	if (cs->type != RVM_CODESPAN_LOOP) {
 		return 0;
 	}
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, -(rvm_codegen_getcodesize(co->cg) - cs->l2)));
+
+
+	codegen_print_callback(name, userdata, input, size, reason, start, end);
+	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
+	return size;
+}
+
+
+int codegen_continuekeyword_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
+{
+	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
+	rulong off = rvm_codegen_getcodesize(co->cg);
+	rvm_codespan_t *cs = (rvm_codespan_t *)r_array_last(co->loops, rvm_codespan_t*);
+
+	if (cs->type != RVM_CODESPAN_LOOP) {
+		return 0;
+	}
+
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, -(rvm_codegen_getcodesize(co->cg) - cs->l3)));
 
 
 	codegen_print_callback(name, userdata, input, size, reason, start, end);
@@ -1434,6 +1456,7 @@ int codegen_forkeyword_callback(const char *name, void *userdata, const char *in
 	cs.codestart = rvm_codegen_getcodesize(co->cg);
 	r_array_add(co->codespan, &cs);
 	rvm_scope_push(co->scope);
+	r_array_push(co->loops, r_array_lastslot(co->codespan), rvm_codespan_t*);
 
 	codegen_print_callback(name, userdata, input, size, reason, start, end);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
@@ -1511,6 +1534,7 @@ int codegen_iterationforop_callback(const char *name, void *userdata, const char
 	rvm_codegen_replaceins(co->cg, cs.l2, rvm_asm(RVM_B, DA, XX, XX, cs.codesize - (cs.l2 - cs.codestart)));	// Re-writing the instruction
 
 	rvm_scope_pop(co->scope);
+	r_array_removelast(co->loops);
 
 	codegen_print_callback(name, userdata, input, size, reason, start, end);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
@@ -1795,6 +1819,7 @@ void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co)
 	rpa_dbex_add_callback_exact(dbex, "ForExpressionIncrementOp", RPA_REASON_END, codegen_forincrementop_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "IterationForOp", RPA_REASON_MATCHED, codegen_iterationforop_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "BreakOp", RPA_REASON_MATCHED, codegen_breakkeyword_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "ContinueOp", RPA_REASON_MATCHED, codegen_continuekeyword_callback, co);
 
 
 	if (verboseinfo)
