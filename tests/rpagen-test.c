@@ -45,11 +45,19 @@ typedef struct rvm_funcall_s {
 } rvm_funcall_t;
 
 
+typedef enum {
+	RVM_CODESPAN_NONE = 0,
+	RVM_CODESPAN_LOOP,
+} rvm_codespantype_t;
+
 typedef struct rvm_codespan_s {
+	rvm_codespantype_t type;
 	rword codestart;
 	rword codesize;
 	rword l1;
 	rword l2;
+	rword l3;
+	rword l4;
 } rvm_codespan_t;
 
 
@@ -136,27 +144,6 @@ void rvm_costat_decbinaryop(rvm_compiler_t *co)
 {
 	rvm_costat_current(co)->binaryop -= 1;
 }
-
-/*
-ruint rvm_costat_getfuncalls(rvm_compiler_t *co)
-{
-	if (!rvm_costat_current(co))
-		return 0;
-	return rvm_costat_current(co)->root->funcalls;
-}
-
-
-void rvm_costat_incfuncalls(rvm_compiler_t *co)
-{
-	rvm_costat_current(co)->root->funcalls += 1;
-}
-
-
-void rvm_costat_decfuncalls(rvm_compiler_t *co)
-{
-	rvm_costat_current(co)->root->funcalls -= 1;
-}
-*/
 
 ruint rvm_costat_getdirty(rvm_compiler_t *co)
 {
@@ -1212,7 +1199,7 @@ int codegen_ifconditionop_callback(const char *name, void *userdata, const char 
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
-	rvm_codespan_t cs = {0, 0, 0, 0};
+	rvm_codespan_t cs = {RVM_CODESPAN_NONE, 0, 0, 0, 0, 0, 0};
 
 	cs.codestart = rvm_codegen_getcodesize(co->cg);
 	r_array_add(co->codespan, &cs);
@@ -1285,7 +1272,7 @@ int codegen_dokeyword_callback(const char *name, void *userdata, const char *inp
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
-	rvm_codespan_t cs = {0, 0, 0, 0};
+	rvm_codespan_t cs = {RVM_CODESPAN_NONE, 0, 0, 0, 0, 0, 0};
 
 	cs.codestart = rvm_codegen_getcodesize(co->cg);
 	r_array_add(co->codespan, &cs);
@@ -1344,7 +1331,7 @@ int codegen_iterationwhileop_callback(const char *name, void *userdata, const ch
 	rulong off = rvm_codegen_getcodesize(co->cg);
 
 	if (reason & RPA_REASON_START) {
-		rvm_codespan_t cs = {0, 0, 0, 0};
+		rvm_codespan_t cs = {RVM_CODESPAN_NONE, 0, 0, 0, 0, 0, 0};
 
 		cs.codestart = rvm_codegen_getcodesize(co->cg);
 		r_array_add(co->codespan, &cs);
@@ -1372,7 +1359,7 @@ int codegen_questionmarkop_callback(const char *name, void *userdata, const char
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
-	rvm_codespan_t cs = {0, 0, 0, 0};
+	rvm_codespan_t cs = {RVM_CODESPAN_NONE, 0, 0, 0, 0, 0, 0};
 
 	cs.codestart = rvm_codegen_getcodesize(co->cg);
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_CMP, R0, DA, XX, 0));
@@ -1415,6 +1402,118 @@ int codegen_iffalseop_callback(const char *name, void *userdata, const char *inp
 	codegen_print_callback(name, userdata, input, size, reason, start, end);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
 
+	return size;
+}
+
+
+int codegen_breakkeyword_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
+{
+	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
+	rulong off = rvm_codegen_getcodesize(co->cg);
+	rvm_codespan_t *cs = (rvm_codespan_t *)r_array_lastslot(co->codespan);
+
+	if (cs->type != RVM_CODESPAN_LOOP) {
+		return 0;
+	}
+
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, -(rvm_codegen_getcodesize(co->cg) - cs->l2)));
+
+
+	codegen_print_callback(name, userdata, input, size, reason, start, end);
+	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
+	return size;
+}
+
+
+int codegen_forkeyword_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
+{
+	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
+	rulong off = rvm_codegen_getcodesize(co->cg);
+	rvm_codespan_t cs = {RVM_CODESPAN_LOOP, 0, 0, 0, 0, 0, 0};
+
+	cs.codestart = rvm_codegen_getcodesize(co->cg);
+	r_array_add(co->codespan, &cs);
+	rvm_scope_push(co->scope);
+
+	codegen_print_callback(name, userdata, input, size, reason, start, end);
+	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
+	return size;
+}
+
+
+int codegen_forinitop_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
+{
+	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
+	rulong off = rvm_codegen_getcodesize(co->cg);
+	rvm_codespan_t *cs = (rvm_codespan_t *)r_array_lastslot(co->codespan);
+
+
+	cs->l1 = rvm_codegen_getcodesize(co->cg);
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, 1)); // This will be re-written, when we know the start point of the comparison expression
+	cs->l2 = rvm_codegen_getcodesize(co->cg);
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, 1)); // Break point, This will be re-written.
+	cs->l3 = rvm_codegen_getcodesize(co->cg);
+
+	codegen_print_callback(name, userdata, input, size, reason, start, end);
+	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
+	return size;
+}
+
+/*
+ * The code generated for the increment expression will appear before the comparison expression
+ * due to the trick we did in the BNF schema. That will make the implementation of the for ( ; ; ) loops
+ * a lot more easier and the generated code having less branch instructions
+ */
+int codegen_forincrementop_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
+{
+	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
+	rulong off = rvm_codegen_getcodesize(co->cg);
+	rvm_codespan_t *cs = (rvm_codespan_t *)r_array_lastslot(co->codespan);
+
+	rvm_codegen_replaceins(co->cg, cs->l1, rvm_asm(RVM_B, DA, XX, XX, rvm_codegen_getcodesize(co->cg) - cs->l1));	// Re-writing the instruction
+
+	codegen_print_callback(name, userdata, input, size, reason, start, end);
+	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
+	return size;
+}
+
+
+int codegen_forcompareop_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
+{
+	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
+	rulong off = rvm_codegen_getcodesize(co->cg);
+	rvm_codespan_t *cs = (rvm_codespan_t *)r_array_lastslot(co->codespan);
+
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_CMP, R0, DA, XX, 0));
+	cs->l4 = rvm_codegen_getcodesize(co->cg);
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_BEQ, DA, XX, XX, 0)); // This will be re-written when we know the size of the code inside the loop.
+	/*
+	 * The beginning loop starts here, right after the RVM_BEQ instruction.
+	 */
+
+	codegen_print_callback(name, userdata, input, size, reason, start, end);
+	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
+	return size;
+}
+
+
+
+
+int codegen_iterationforop_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
+{
+	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
+	rulong off = rvm_codegen_getcodesize(co->cg);
+	rvm_codespan_t cs = r_array_pop(co->codespan, rvm_codespan_t);
+
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, -(rvm_codegen_getcodesize(co->cg) - (cs.l3))));
+	cs.codesize = rvm_codegen_getcodesize(co->cg) - cs.codestart;
+	rvm_codegen_replaceins(co->cg, cs.l4, rvm_asm(RVM_BEQ, DA, XX, XX, cs.codesize - (cs.l4 - cs.codestart)));
+	rvm_codegen_replaceins(co->cg, cs.l2, rvm_asm(RVM_B, DA, XX, XX, cs.codesize - (cs.l2 - cs.codestart)));	// Re-writing the instruction
+
+	rvm_scope_pop(co->scope);
+
+	codegen_print_callback(name, userdata, input, size, reason, start, end);
+	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
 	return size;
 }
 
@@ -1643,7 +1742,6 @@ void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co)
 	rpa_dbex_add_callback_exact(dbex, "PostfixExpressionValOp", RPA_REASON_ALL, codegen_valop_callback, co);
 
 	rpa_dbex_add_callback_exact(dbex, "LeftHandSideExpressionPush", RPA_REASON_MATCHED, codegen_push_r0_callback, co);
-	rpa_dbex_add_callback_exact(dbex, "LiteralPushOp", RPA_REASON_MATCHED, codegen_push_r0_callback, co);
 
 	rpa_dbex_add_callback_exact(dbex, "MemberExpressionIndexBaseOp", RPA_REASON_MATCHED, codegen_memberexpressionbase_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "MemberExpressionIndexOp", RPA_REASON_MATCHED, codegen_arrayelementaddress_callback, co);
@@ -1691,6 +1789,12 @@ void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co)
 	rpa_dbex_add_callback_exact(dbex, "AssignmentExpressionIfTrueOp", RPA_REASON_MATCHED, codegen_iftrueop_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "AssignmentExpressionIfFalseOp", RPA_REASON_MATCHED, codegen_iffalseop_callback, co);
 
+	rpa_dbex_add_callback_exact(dbex, "ForKeyword", RPA_REASON_MATCHED, codegen_forkeyword_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "ForExpressionInitOp", RPA_REASON_END, codegen_forinitop_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "ForExpressionCompareOp", RPA_REASON_END, codegen_forcompareop_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "ForExpressionIncrementOp", RPA_REASON_END, codegen_forincrementop_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "IterationForOp", RPA_REASON_MATCHED, codegen_iterationforop_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "BreakOp", RPA_REASON_MATCHED, codegen_breakkeyword_callback, co);
 
 
 	if (verboseinfo)

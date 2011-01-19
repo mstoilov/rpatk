@@ -57,7 +57,7 @@ ReservedWord			::= <:Keyword:>
 							<:NullLiteral:> |
 							<:BooleanLiteral:>
 
-Keyword				::= 'instanceof' | 'typeof'	| 'break' | 
+Keyword				::= 'instanceof' | 'typeof'	| 'break' |
 			    			'do' | 'new' | 'var' |
 			    			'case' | 'else' | 'return' | 'void' | 
 			    			'catch' | 'finally' | 'continue' | 'for' | 
@@ -285,16 +285,6 @@ LogicalORExpression 			::= <:LogicalOROp:> |
 			    					<:LogicalANDExpression:>
 
 
-# 12.6 Iteration Statements
-WhileKeyword						::= 'while'
-WhileExpression						::= <:WhileKeyword:> <S>? '(' <S>? <:Expression:> <S>? ')'
-DoKeyword							::= 'do'
-IterationDo							::= <:DoKeyword:> <S>? <:Statement:> <S>? <:WhileExpression:> (<S>? ';')
-WhileConditionOp					::= 'while' <S>? '(' <S>? <:Expression:> <S>? ')'
-IterationWhileOp					::= <:WhileConditionOp:> <S>? <:Statement:>
-IterationStatement 					::= <:IterationWhileOp:> |
-	    								<:IterationDo:>
-
 # 11.12 Conditional Operator ( ? : )
 AssignmentExpressionIfTrueOp		::= <:AssignmentExpression:>
 AssignmentExpressionIfFalseOp		::= <:AssignmentExpression:>
@@ -319,8 +309,11 @@ ExpressionNoIn		::= <:AssignmentExpressionNoIn:> ( <S>? ',' <S>? <:AssignmentExp
 #Print statement;
 PrintOp							::= '%'print'%'
 
+BreakOp							::= 'break'
+BreakStatement					::= <S>? <:BreakOp:> <:SC:>
+
 # 12 Statements
-Statement						::= <:PrintOp:> |
+Statement						::= <:BreakStatement:> |
 									<:Block:> |
 			    					<:Comment:> |
 			    					<:VariableStatement:> |
@@ -371,9 +364,35 @@ IfElseOp							::= <:IfConditionOp:> <S>? <:Statement:> <S>? <:ElseOp:> <S>? <:S
 IfStatement							::= <:IfElseOp:> |
 										<:IfOp:>
 
-#IfStatement							::= 'if' <S>? '(' <S>? <:Expression:> <S>? ')'<S>? <:Statement:> <S>? 'else' <S>? <:Statement:> |
-#			    						'if' <S>? '(' <S>? <:Expression:> <S>? ')'<S>? <:Statement:> 
+# 12.6 Iteration Statements
+# 12.6a Iteration do ... while() 
+WhileKeyword						::= 'while'
+WhileExpression						::= <:WhileKeyword:> <S>? '(' <S>? <:Expression:> <S>? ')'
+DoKeyword							::= 'do'
+IterationDo							::= <:DoKeyword:> <S>? <:Statement:> <S>? <:WhileExpression:> (<S>? ';')
 
+# 12.6b Iteration while()
+WhileConditionOp					::= 'while' <S>? '(' <S>? <:Expression:> <S>? ')'
+IterationWhileOp					::= <:WhileConditionOp:> <S>? <:Statement:>
+
+# 12.6c Iteration for ( ; ; )
+ForKeyword							::= 'for'
+ExpressionNoIn						::= <:Expression:>
+ForExpressionInitOp					::= ('var' <S>? <:VariableDeclarationList:>) | <:ExpressionNoIn:>
+ForExpressionCompareOp				::= <:Expression:>
+ForExpressionIncrementOp			::= <:Expression:>
+
+# The following & expression is done in order to swap the places of the code generated for the comparison and increment.
+# This is done by selectively turning on/off callbacks in both statement so that the final result appears as if the
+# <:ForExpressionCompareOp:> <:ForExpressionIncrementOp:> appear in the opposite order.
+ForIterationStatementOp				::= <:ForKeyword:> <S>? '(' <S>? <:ForExpressionInitOp:>? <S>? ';' <S>? <ForExpressionCompareOp>? <S>? ';' <S>? <:ForExpressionIncrementOp:>? <S>? ')' &
+										<ForKeyword> <S>? '(' <S>? <ForExpressionInitOp>? <S>? ';' <S>? <:ForExpressionCompareOp:>? <S>? ';' <S>? <ForExpressionIncrementOp>? <S>? ')'
+IterationForOp						::= <:ForIterationStatementOp:> <S>? <:Statement:>
+
+
+IterationStatement 					::= <:IterationWhileOp:> |
+										<:IterationForOp:> |
+	    								<:IterationDo:>
 
 # 12.9 The return Statement
 ReturnOp						::= ('return' - 'return' <:IdentifierPart:>) <WhiteSpace>* <:AssignmentExpression:>? (<S>? ';')
