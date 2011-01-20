@@ -138,6 +138,10 @@ enum {
 	RVM_ECMN,		/* Compare Negative: status register is updated based on the result: op1 + op2 */
 	RVM_ALLOCSTR,	/* Allocate string in op1, op2 is pointer (char*) to string, op3 is the size */
 	RVM_ALLOCARR,	/* Allocate array in op1, op2 is the size */
+	RVM_ALLOCHARR,	/* Allocate harray in op1, op2 is the size */
+	RVM_KEYLOOKUP,	/* Lookup harray member op1 size of member name string, index(when return), op2 is the array, op3 member name */
+	RVM_KEYADD,		/* Add harray member op1 size of member name string, index(when return), op2 is the array, op3 member name */
+	RVM_KEYLOOKUPADD, /* Lookup first, if it doesn't exist add it */
 	RVM_ADDRA,		/* op1 is the destination memory, op2 is the array, op3 is the offset */
 	RVM_ELDA,		/* op1 is the destination, op2 is the array, op3 is the offset */
 	RVM_ESTA,		/* op1 is the source, op2 is the array, op3 is the offset */

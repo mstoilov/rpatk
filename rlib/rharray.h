@@ -24,8 +24,8 @@ typedef struct rharray_s {
 
 rharray_t *r_harray_create(ruint elt_size);
 robject_t *r_harray_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, ruint elt_size);
-rint r_harray_add(rharray_t *harray, const rchar *name, ruint namesize, rconstpointer pval);
-rint r_harray_add_s(rharray_t *harray, const rchar *name, rconstpointer pval);
+rlong r_harray_add(rharray_t *harray, const rchar *name, ruint namesize, rconstpointer pval);
+rlong r_harray_add_s(rharray_t *harray, const rchar *name, rconstpointer pval);
 rlong r_harray_lookup(rharray_t *harray, const rchar *name, ruint namesize);
 rlong r_harray_lookup_s(rharray_t *harray, const rchar *name);
 rhash_node_t* r_harray_nodelookup(rharray_t *harray, rhash_node_t *cur, const rchar *name, ruint namesize);

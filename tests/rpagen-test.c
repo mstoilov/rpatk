@@ -243,9 +243,18 @@ static void rvm_swi_eadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static void rvm_swi_object(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rvmreg_t *res = RVM_CPUREG_PTR(cpu, R0);
+	rharray_t *a = r_harray_create_rvmreg();
+	rvm_reg_setharray(res, (robject_t*)a);
+}
+
+
 static rvm_switable_t switable[] = {
 		{"none", test_swi_none},
 		{"RVM_SWI_NEG", rvm_swi_negative},
+		{"Object", rvm_swi_object},
 		{"rvm_swi_eadd", rvm_swi_eadd},
 		{NULL, NULL},
 };

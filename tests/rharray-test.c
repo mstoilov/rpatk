@@ -39,7 +39,7 @@ static rvm_switable_t switable[] = {
 
 int main(int argc, char *argv[])
 {
-	rvmreg_t ag, rh, rt, rh_copy;
+	rvmreg_t ag, rh, rt, rh_copy, nareg;
 	rharray_t *na, *nc;
 	rvm_codegen_t *cg;
 	rhash_node_t *node;
@@ -55,6 +55,7 @@ int main(int argc, char *argv[])
 	rt = rvm_reg_create_long(55);
 
 	na = r_harray_create_rvmreg();
+	rvm_reg_setharray(&nareg, (robject_t*)na);
 	r_harray_add_s(na, "again", &ag);
 	r_harray_add_s(na, "hello", &rh);
 	r_harray_add_s(na, "hellocopy", &rh_copy);
@@ -78,14 +79,27 @@ int main(int argc, char *argv[])
 	 * Lookup the array member "again" and load the content to R1
 	 */
 	rvm_codegen_addins(cg, rvm_asmp(RVM_LDRR, R1, DA, XX, r_harray_get(nc, r_harray_lookup_s(nc, "again"))));
-	/*
-	 * Lookup the array member "again" and load the content to R2
-	 */
-	rvm_codegen_addins(cg, rvm_asmp(RVM_LDRR, R2, DA, XX, r_harray_get(nc, r_harray_lookup_s(nc, "there"))));
 
 	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_getswi_s(cpu, "print")), R0, XX, XX, 0));	// print
 	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_getswi_s(cpu, "print")), R1, XX, XX, 0));	// print
-	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_getswi_s(cpu, "print")), R2, XX, XX, 0));	// print
+
+	/*
+	 * Lookup the array member "there" and load the content to R2
+	 */
+	rvm_codegen_addins(cg, rvm_asmp(RVM_LDRR, R1, DA, XX, &nareg));
+	rvm_codegen_addins(cg, rvm_asmp(RVM_MOV, R2, DA, XX, "where"));
+	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, R0, DA, XX, r_strlen("where")));
+	rvm_codegen_addins(cg, rvm_asm(RVM_KEYADD, R0, R1, R2, 0));
+	rvm_codegen_addins(cg, rvm_asmd(RVM_ESTA, DA, R1, R0, 5.777));
+	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, R0, DA, XX, r_strlen("where")));
+	rvm_codegen_addins(cg, rvm_asm(RVM_KEYLOOKUP, R0, R1, R2, 0));
+	rvm_codegen_addins(cg, rvm_asm(RVM_ELDA, R0, R1, R0, 0));
+
+	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, R0, DA, XX, r_strlen("where")));
+	rvm_codegen_addins(cg, rvm_asm(RVM_KEYLOOKUPADD, R0, R1, R2, 0));
+	rvm_codegen_addins(cg, rvm_asm(RVM_ELDA, R0, R1, R0, 0));
+
+	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_getswi_s(cpu, "print")), R0, XX, XX, 0));	// print
 	rvm_codegen_addins(cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
 
 	rvm_relocate(rvm_codegen_getcode(cg, 0), rvm_codegen_getcodesize(cg));

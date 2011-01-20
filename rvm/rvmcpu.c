@@ -135,6 +135,10 @@ static const char *stropcalls[] = {
 	"RVM_ECMN",
 	"RVM_ALLOCSTR",
 	"RVM_ALLOCARR",
+	"RVM_ALLOCHARR",
+	"RVM_KEYLOOKUP",
+	"RVM_KEYADD",
+	"RVM_KEYLOOKUPADD",
 	"RVM_ADDRA",
 	"RVM_ELDA",
 	"RVM_ESTA",
@@ -1395,6 +1399,59 @@ static void rvm_op_allocarr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static void rvm_op_keylookup(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
+	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
+	rlong index;
+
+	if (rvm_reg_gettype(arg2) != RVM_DTYPE_HARRAY) {
+		RVM_ABORT(cpu, RVM_E_ILLEGAL);
+	}
+	index = r_harray_lookup((rharray_t*)RVM_REG_GETP(arg2), RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1));
+
+	RVM_REG_CLEAR(arg1);
+	RVM_REG_SETTYPE(arg1, RVM_DTYPE_LONG);
+	RVM_REG_SETL(arg1, index);
+}
+
+
+static void rvm_op_keyadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
+	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
+	rlong index;
+
+	if (rvm_reg_gettype(arg2) != RVM_DTYPE_HARRAY) {
+		RVM_ABORT(cpu, RVM_E_ILLEGAL);
+	}
+	index = r_harray_add((rharray_t*)RVM_REG_GETP(arg2), RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1), NULL);
+
+	RVM_REG_CLEAR(arg1);
+	RVM_REG_SETTYPE(arg1, RVM_DTYPE_LONG);
+	RVM_REG_SETL(arg1, index);
+}
+
+
+static void rvm_op_keylookupadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
+	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
+	rlong index;
+
+	if (rvm_reg_gettype(arg2) != RVM_DTYPE_HARRAY) {
+		RVM_ABORT(cpu, RVM_E_ILLEGAL);
+	}
+	index = r_harray_lookup((rharray_t*)RVM_REG_GETP(arg2), RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1));
+	if (index < 0)
+		index = r_harray_add((rharray_t*)RVM_REG_GETP(arg2), RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1), NULL);
+
+	RVM_REG_CLEAR(arg1);
+	RVM_REG_SETTYPE(arg1, RVM_DTYPE_LONG);
+	RVM_REG_SETL(arg1, index);
+}
+
+
 static void rvm_op_allocharr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
@@ -1415,13 +1472,18 @@ static void rvm_op_addra(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t tmp = rvm_reg_create_long(0);
-	rcarray_t *a = RVM_REG_GETP(arg2);
+	rcarray_t *a;
 	rlong index;
 
 	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = RVM_REG_GETL(&tmp);
-
-	if (rvm_reg_gettype(arg2) != RVM_DTYPE_ARRAY || index < 0) {
+	if (index < 0)
+		RVM_ABORT(cpu, RVM_E_ILLEGAL);
+	if (rvm_reg_gettype(arg2) == RVM_DTYPE_HARRAY)
+		a = ((rharray_t*)RVM_REG_GETP(arg2))->members;
+	else if (rvm_reg_gettype(arg2) == RVM_DTYPE_ARRAY) {
+		a = (rcarray_t*)RVM_REG_GETP(arg2);
+	} else {
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	}
 	RVM_REG_CLEAR(arg1);
@@ -1434,10 +1496,19 @@ static void rvm_op_elda(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	ruint index = RVM_CPUREG_GETU(cpu, ins->op3);
-	rcarray_t *a = RVM_REG_GETP(arg2);
+	rvmreg_t tmp = rvm_reg_create_long(0);
+	rcarray_t *a = NULL;
+	ruint index;
 
-	if (rvm_reg_gettype(arg2) != RVM_DTYPE_ARRAY) {
+	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
+	index = RVM_REG_GETL(&tmp);
+	if (index < 0)
+		RVM_ABORT(cpu, RVM_E_ILLEGAL);
+	if (rvm_reg_gettype(arg2) == RVM_DTYPE_HARRAY)
+		a = ((rharray_t*)RVM_REG_GETP(arg2))->members;
+	else if (rvm_reg_gettype(arg2) == RVM_DTYPE_ARRAY) {
+		a = (rcarray_t*)RVM_REG_GETP(arg2);
+	} else {
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	}
 	*arg1 = *((rvmreg_t*)r_carray_slot_expand(a, index));
@@ -1448,10 +1519,19 @@ static void rvm_op_esta(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	ruint index = RVM_CPUREG_GETU(cpu, ins->op3);
-	rcarray_t *a = RVM_REG_GETP(arg2);
+	rvmreg_t tmp = rvm_reg_create_long(0);
+	rcarray_t *a = NULL;
+	ruint index;
 
-	if (rvm_reg_gettype(arg2) != RVM_DTYPE_ARRAY) {
+	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
+	index = RVM_REG_GETL(&tmp);
+	if (index < 0)
+		RVM_ABORT(cpu, RVM_E_ILLEGAL);
+	if (rvm_reg_gettype(arg2) == RVM_DTYPE_HARRAY)
+		a = ((rharray_t*)RVM_REG_GETP(arg2))->members;
+	else if (rvm_reg_gettype(arg2) == RVM_DTYPE_ARRAY) {
+		a = (rcarray_t*)RVM_REG_GETP(arg2);
+	} else {
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	}
 	r_carray_replace(a, index, arg1);
@@ -1583,6 +1663,10 @@ static rvm_cpu_op ops[] = {
 	rvm_op_ecmn,		// RVM_ECMN
 	rvm_op_allocstr,	// RVM_ALLOCSTR
 	rvm_op_allocarr,	// RVM_ALLOCARR
+	rvm_op_allocharr,	// RVM_ALLOCHARR
+	rvm_op_keylookup,	// RVM_KEYLOOKUP
+	rvm_op_keyadd,		// RVM_KEYADD
+	rvm_op_keylookupadd,// RVM_KEYLOOKUPADD
 	rvm_op_addra,		// RVM_ADDRA
 	rvm_op_elda,		// RVM_ELDA
 	rvm_op_esta,		// RVM_ESTA

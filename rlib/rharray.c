@@ -114,10 +114,10 @@ void r_harray_cleanup(robject_t *obj)
 }
 
 
-rint r_harray_add(rharray_t *harray, const rchar *name, ruint namesize, rconstpointer pval)
+rlong r_harray_add(rharray_t *harray, const rchar *name, ruint namesize, rconstpointer pval)
 {
 	rstr_t *membrName;
-	rint index;
+	rlong index;
 
 	membrName = r_rstrdup(name, namesize);
 	index = r_carray_add(harray->members, pval);
@@ -127,7 +127,7 @@ rint r_harray_add(rharray_t *harray, const rchar *name, ruint namesize, rconstpo
 }
 
 
-rint r_harray_add_s(rharray_t *harray, const rchar *name, rconstpointer pval)
+rlong r_harray_add_s(rharray_t *harray, const rchar *name, rconstpointer pval)
 {
 	return r_harray_add(harray, name, r_strlen(name), pval);
 }
