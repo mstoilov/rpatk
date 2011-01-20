@@ -14,6 +14,8 @@ void rvm_op_add_double(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, rdouble op1, 
 void rvm_op_concat_string_string(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2);
 void rvm_op_concat_long_string(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2);
 void rvm_op_concat_string_long(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2);
+void rvm_op_concat_double_string(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2);
+void rvm_op_concat_string_double(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2);
 
 
 #ifdef __cplusplus

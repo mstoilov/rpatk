@@ -193,6 +193,12 @@ void rvm_op_binary_init(rvm_opmap_t *opmap)
 	 * Overwrite RVM_OPID_ADD for string concatenation
 	 */
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rvm_op_concat_string_string, RVM_DTYPE_STRING, RVM_DTYPE_STRING);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rvm_op_concat_string_long, RVM_DTYPE_STRING, RVM_DTYPE_LONG);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rvm_op_concat_string_long, RVM_DTYPE_STRING, RVM_DTYPE_UNSIGNED);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rvm_op_concat_long_string, RVM_DTYPE_LONG, RVM_DTYPE_STRING);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rvm_op_concat_long_string, RVM_DTYPE_UNSIGNED, RVM_DTYPE_STRING);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rvm_op_concat_string_double, RVM_DTYPE_STRING, RVM_DTYPE_DOUBLE);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rvm_op_concat_double_string, RVM_DTYPE_DOUBLE, RVM_DTYPE_STRING);
 
 
 	rvm_op_binary_insert(opmap, RVM_OPID_SUB, rvm_op_sub_unsigned, rvm_op_sub_long, rvm_op_sub_double);

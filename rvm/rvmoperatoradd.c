@@ -50,11 +50,51 @@ void rvm_op_concat_string_string(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, con
 
 void rvm_op_concat_long_string(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
+	rstring_t *s1 = r_string_create_from_long(RVM_REG_GETL(arg1));
+	rstring_t *s2 = (rstring_t *)RVM_REG_GETP(arg2);
+	rstring_t *d = r_string_create_from_rstr(&s1->s);
+	r_string_cat(d, &s2->s);
+	r_object_destroy((robject_t*)s1);
 
+	rvm_gc_add(cpu->gc, (robject_t*)d);
+	rvm_reg_setstring(res, d);
 }
 
 
 void rvm_op_concat_string_long(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
+	rstring_t *s1 = (rstring_t *)RVM_REG_GETP(arg1);
+	rstring_t *s2 = r_string_create_from_long(RVM_REG_GETL(arg2));
+	rstring_t *d = r_string_create_from_rstr(&s1->s);
+	r_string_cat(d, &s2->s);
+	r_object_destroy((robject_t*)s2);
 
+	rvm_gc_add(cpu->gc, (robject_t*)d);
+	rvm_reg_setstring(res, d);
+}
+
+
+void rvm_op_concat_double_string(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+{
+	rstring_t *s1 = r_string_create_from_double(RVM_REG_GETD(arg1));
+	rstring_t *s2 = (rstring_t *)RVM_REG_GETP(arg2);
+	rstring_t *d = r_string_create_from_rstr(&s1->s);
+	r_string_cat(d, &s2->s);
+	r_object_destroy((robject_t*)s1);
+
+	rvm_gc_add(cpu->gc, (robject_t*)d);
+	rvm_reg_setstring(res, d);
+}
+
+
+void rvm_op_concat_string_double(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+{
+	rstring_t *s1 = (rstring_t *)RVM_REG_GETP(arg1);
+	rstring_t *s2 = r_string_create_from_long(RVM_REG_GETD(arg2));
+	rstring_t *d = r_string_create_from_rstr(&s1->s);
+	r_string_cat(d, &s2->s);
+	r_object_destroy((robject_t*)s2);
+
+	rvm_gc_add(cpu->gc, (robject_t*)d);
+	rvm_reg_setstring(res, d);
 }

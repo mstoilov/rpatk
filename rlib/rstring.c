@@ -46,6 +46,15 @@ rchar *r_strchr(const rchar *s, rint c)
 }
 
 
+rchar *r_strtrimr(rchar *s, const char *chrs)
+{
+	int i;
+	for (i = r_strlen(s) - 1; i >= 0 && r_strchr(chrs, s[i]) != NULL; i--)
+		s[i] = '\0';
+	return s;
+}
+
+
 rchar *r_strcpy(rchar *dest, const rchar *src)
 {
 	return (rchar*) strcpy(dest, src);
@@ -236,6 +245,37 @@ rstring_t *r_string_create_from_ansistr(const rchar *str)
 		rstr.size = r_strlen(str);
 	}
 	return r_string_create_from_rstr(&rstr);
+}
+
+
+
+
+rstring_t *r_string_create_from_double(rdouble d)
+{
+	char temp[128];
+	rint size;
+
+	r_memset(temp, 0, sizeof(temp));
+	size = r_snprintf(temp, sizeof(temp) - 1, "%f", d);
+	if (size > 0 && size < sizeof(temp)) {
+		r_strtrimr(temp, ".0");
+		return r_string_create_strsize(temp, r_strlen(temp));
+	}
+	return NULL;
+}
+
+
+rstring_t *r_string_create_from_long(rlong l)
+{
+	char temp[128];
+	rint size;
+
+	r_memset(temp, 0, sizeof(temp));
+	size = r_snprintf(temp, sizeof(temp) - 1, "%ld", l);
+	if (size > 0 && size < sizeof(temp)) {
+		return r_string_create_strsize(temp, size);
+	}
+	return NULL;
 }
 
 

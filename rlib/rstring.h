@@ -51,6 +51,8 @@ typedef struct rstring_s {
 #define r_string_empty(__p__) (!((__p__) && ((rstring_t *)(__p__))->s.size)) ? 1 : 0
 rstring_t *r_string_create();
 rstring_t *r_string_create_from_ansistr(const rchar *str);
+rstring_t *r_string_create_from_double(rdouble d);
+rstring_t *r_string_create_from_long(rlong l);
 rstring_t *r_string_create_strsize(const char *str, ruint size);
 rstring_t *r_string_create_from_rstr(const rstr_t *str);
 robject_t *r_string_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy);
