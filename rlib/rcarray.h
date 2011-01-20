@@ -42,7 +42,8 @@ rint r_carray_add(rcarray_t *carray, rconstpointer data);
 void r_carray_setlength(rcarray_t *carray, ruint len);
 void r_carray_inclength(rcarray_t *carray);
 void r_carray_inclength(rcarray_t *carray);
-void *r_carray_slot_expand(rcarray_t *carray, ruint index);
+void r_carray_checkexpand(rcarray_t *carray, ruint size);
+rpointer r_carray_slot_expand(rcarray_t *carray, ruint index);
 
 /*
  * Virtual methods implementation

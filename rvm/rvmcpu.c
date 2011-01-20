@@ -1395,6 +1395,21 @@ static void rvm_op_allocarr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static void rvm_op_allocharr(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
+	ruint size = RVM_CPUREG_GETU(cpu, ins->op2);
+	rharray_t *a = r_harray_create_rvmreg();
+	if (!a) {
+		RVM_ABORT(cpu, RVM_E_ILLEGAL);
+	}
+	if (size)
+		r_carray_checkexpand(a->members, size);
+	rvm_gc_add(cpu->gc, (robject_t*)a);
+	rvm_reg_setarray(arg1, (robject_t*)a);
+}
+
+
 static void rvm_op_addra(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);

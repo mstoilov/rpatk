@@ -67,7 +67,7 @@ robject_t *r_harray_init(robject_t *obj, ruint32 type, r_object_cleanupfun clean
 	rharray_t *harray = (rharray_t*)obj;
 	r_object_init(obj, type, cleanup, copy);
 	harray->hash = r_hash_create(5, r_hash_rstrequal, r_hash_rstrhash);
-	harray->members = r_array_create(elt_size);
+	harray->members = r_carray_create(elt_size);
 	harray->names = r_array_create(sizeof(rstr_t*));
 	harray->names->oncleanup = r_array_oncleanup_rstr;
 	harray->names->oncopy = r_array_oncopy_rstr;
@@ -94,9 +94,9 @@ robject_t *r_harray_copy(const robject_t *obj)
 	harray = (rharray_t*)r_object_create(sizeof(*harray));
 	r_object_init(&harray->obj, R_OBJECT_HARRAY, r_harray_cleanup, r_harray_copy);
 	harray->names = (rarray_t*)r_array_copy((robject_t*)src->names);
-	harray->members = (rarray_t*)r_array_copy((robject_t*)src->members);
+	harray->members = (rcarray_t*)r_carray_copy((robject_t*)src->members);
 	harray->hash = r_hash_create(5, r_hash_rstrequal, r_hash_rstrhash);
-	for (i = 0; i < r_array_length(src->members); i++) {
+	for (i = 0; i < r_carray_length(src->members); i++) {
 		n = r_array_index(harray->names, i, rstr_t*);
 		r_hash_insert_indexval(harray->hash, (rconstpointer)n, i);
 	}
@@ -120,7 +120,7 @@ rint r_harray_add(rharray_t *harray, const rchar *name, ruint namesize, rconstpo
 	rint index;
 
 	membrName = r_rstrdup(name, namesize);
-	index = r_array_add(harray->members, pval);
+	index = r_carray_add(harray->members, pval);
 	r_array_add(harray->names, &membrName);
 	r_hash_insert_indexval(harray->hash, (rconstpointer)membrName, index);
 	return index;
@@ -168,16 +168,16 @@ rint r_harray_set(rharray_t *harray, rlong index, rconstpointer pval)
 {
 	if (index < 0)
 		return -1;
-	r_array_replace(harray->members, index, pval);
+	r_carray_replace(harray->members, index, pval);
 	return 0;
 }
 
 
 rpointer r_harray_get(rharray_t *harray, rulong index)
 {
-	if (index >= r_array_length(harray->members))
+	if (index >= r_carray_length(harray->members))
 		return NULL;
-	return r_array_slot(harray->members, index);
+	return r_carray_slot(harray->members, index);
 }
 
 

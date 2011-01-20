@@ -1,12 +1,6 @@
 #include "rcarray.h"
 #include "rmem.h"
 
-#define MIN_CARRAY_LEN 2048
-
-
-
-static void r_carray_checkexpand(rcarray_t *carray, ruint index);
-
 
 static rpointer r_carray_allocate_chunk(ruint elt_size)
 {
@@ -105,6 +99,7 @@ rint r_carray_replace(rcarray_t *carray, ruint index, rconstpointer data)
 rint r_carray_add(rcarray_t *carray, rconstpointer data)
 {
 	ruint index = r_carray_length(carray);
+	r_carray_inclength(carray);
 	return r_carray_replace(carray, index, data);
 }
 
@@ -130,7 +125,7 @@ void r_carray_declength(rcarray_t *carray)
 }
 
 
-static void r_carray_checkexpand(rcarray_t *carray, ruint size)
+void r_carray_checkexpand(rcarray_t *carray, ruint size)
 {
 	ruint chunks;
 
@@ -141,7 +136,7 @@ static void r_carray_checkexpand(rcarray_t *carray, ruint size)
 }
 
 
-void *r_carray_slot_expand(rcarray_t *carray, ruint index)
+rpointer r_carray_slot_expand(rcarray_t *carray, ruint index)
 {
 	r_carray_checkexpand(carray, index+1);
 	return (void*) r_carray_slot(carray, index);

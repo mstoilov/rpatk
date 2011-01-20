@@ -3,6 +3,7 @@
 
 #include "rtypes.h"
 #include "rarray.h"
+#include "rcarray.h"
 #include "rhash.h"
 #include "rstring.h"
 #include "robject.h"
@@ -15,7 +16,7 @@ extern "C" {
 
 typedef struct rharray_s {
 	robject_t obj;
-	rarray_t *members;
+	rcarray_t *members;
 	rarray_t *names;
 	rhash_t *hash;
 } rharray_t;

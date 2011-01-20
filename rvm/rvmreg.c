@@ -70,12 +70,8 @@ void rvm_reg_array_unref_gcdata(robject_t *obj)
 	int i;
 	rvmreg_t *r;
 
-	if (obj->type == R_OBJECT_ARRAY || obj->type == R_OBJECT_HARRAY) {
-		rarray_t *array;
-		if (obj->type == R_OBJECT_ARRAY)
-			array = (rarray_t*)obj;
-		else
-			array = ((rharray_t*)obj)->members;
+	if (obj->type == R_OBJECT_ARRAY) {
+		rarray_t *array = (rarray_t*)obj;
 		if ((size = r_array_length(array)) > 0) {
 			/*
 			 * set the size to 0, to prevent circular references to come back here
@@ -102,8 +98,10 @@ void rvm_reg_array_unref_gcdata(robject_t *obj)
 			 */
 			r_array_setlength(array, size);
 		}
-	} else if (obj->type == R_OBJECT_CARRAY) {
+	} else if (obj->type == R_OBJECT_CARRAY || obj->type == R_OBJECT_HARRAY) {
 		rcarray_t *array = (rcarray_t*)obj;
+		if (obj->type == R_OBJECT_HARRAY)
+			array = ((rharray_t*)obj)->members;
 		if ((size = r_carray_length(array)) > 0) {
 			/*
 			 * set the size to 0, to prevent circular references to come back here
@@ -161,8 +159,8 @@ rharray_t *r_harray_create_rvmreg()
 {
 	rharray_t *harray = r_harray_create(sizeof(rvmreg_t));
 	if (harray) {
-		harray->members->oncopy = rvm_reg_array_oncopy;
-		harray->members->oncleanup = rvm_reg_array_oncleanup;
+		harray->members->oncopy = rvm_reg_carray_oncopy;
+		harray->members->oncleanup = rvm_reg_carray_oncleanup;
 	}
 	return harray;
 }
