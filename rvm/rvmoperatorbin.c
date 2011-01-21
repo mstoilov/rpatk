@@ -143,13 +143,30 @@ static void rvm_op_binary_long_string(rvmcpu_t *cpu, rushort opid, rvmreg_t *res
 }
 
 
+static void rvm_op_binary_nan(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+{
+	rvm_reg_cleanup(res);
+	RVM_REG_SETTYPE(res, RVM_DTYPE_NAN);
+}
+
+
 void rvm_op_binary_insert(rvm_opmap_t *opmap, rushort opid, rvm_binop_unsigned u, rvm_binop_long l, rvm_binop_double d)
 {
+	int i;
+
 	binary_operations[opid].opid = opid;
 	binary_operations[opid].unsigned_binop_fun = u;
 	binary_operations[opid].long_binop_fun = l;
 	binary_operations[opid].double_binop_fun = d;
 	rvm_opmap_add_binary_operator(opmap, opid);
+
+	for (i = 0; i < RVM_DTYPE_USER; i++) {
+		rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_nan, RVM_DTYPE_NAN, i);
+		rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_nan, RVM_DTYPE_UNDEF, i);
+		rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_nan, i, RVM_DTYPE_NAN);
+		rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_nan, i, RVM_DTYPE_UNDEF);
+	}
+
 	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_unsigned_unsigned, RVM_DTYPE_BOOLEAN, RVM_DTYPE_BOOLEAN);
 	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_unsigned_unsigned, RVM_DTYPE_BOOLEAN, RVM_DTYPE_UNSIGNED);
 	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_long_long, RVM_DTYPE_BOOLEAN, RVM_DTYPE_LONG);

@@ -26,9 +26,23 @@ static void rvm_op_not_castunsigned(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, 
 }
 
 
+static void rvm_op_not_nan(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1)
+{
+	rvm_reg_cleanup(res);
+	RVM_REG_SETTYPE(res, RVM_DTYPE_NAN);
+}
+
+
 void rvm_op_not_init(rvm_opmap_t *opmap)
 {
+	int i;
+
 	rvm_opmap_add_unary_operator(opmap, RVM_OPID_NOT);
+	for (i = 0; i < RVM_DTYPE_USER; i++) {
+		rvm_opmap_set_unary_handler(opmap, RVM_OPID_NOT, rvm_op_not_nan, RVM_DTYPE_NAN);
+		rvm_opmap_set_unary_handler(opmap, RVM_OPID_NOT, rvm_op_not_nan, RVM_DTYPE_UNDEF);
+	}
+
 	rvm_opmap_set_unary_handler(opmap, RVM_OPID_NOT, rvm_op_not_unsigned, RVM_DTYPE_UNSIGNED);
 	rvm_opmap_set_unary_handler(opmap, RVM_OPID_NOT, rvm_op_not_unsigned, RVM_DTYPE_BOOLEAN);
 	rvm_opmap_set_unary_handler(opmap, RVM_OPID_NOT, rvm_op_not_castunsigned, RVM_DTYPE_LONG);

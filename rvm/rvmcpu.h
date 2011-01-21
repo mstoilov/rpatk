@@ -203,6 +203,7 @@ do { \
 #define R31 31
 
 #define RLST (RVM_REGS_NUM - 1)
+#define TP (RLST - 6)
 #define FP (RLST - 5)
 #define SP (RLST - 4)
 #define LR (RLST - 3)

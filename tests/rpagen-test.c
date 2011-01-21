@@ -90,7 +90,7 @@ typedef struct rvm_compiler_s {
 
 
 #define RVM_SAVEDREGS_FIRST 4
-#define RVM_SAVEDREGS_MAX (RLST - (RLST - FP) - RVM_SAVEDREGS_FIRST - 1)
+#define RVM_SAVEDREGS_MAX (RLST - (RLST - TP) - RVM_SAVEDREGS_FIRST - 1)
 
 
 void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co);
@@ -266,6 +266,10 @@ static void rvm_js_print(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 	if (rvm_reg_gettype(r) == RVM_DTYPE_UNSIGNED)
 		r_printf("%lu\n", RVM_REG_GETU(r));
+	else if (rvm_reg_gettype(r) == RVM_DTYPE_NAN)
+		r_printf("NaN\n");
+	else if (rvm_reg_gettype(r) == RVM_DTYPE_UNDEF)
+		r_printf("undefined\n");
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_BOOLEAN)
 		r_printf("%s\n", RVM_REG_GETU(r) ? "true" : "false");
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_POINTER)
@@ -278,6 +282,8 @@ static void rvm_js_print(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		r_printf("%s\n", ((rstring_t*) RVM_REG_GETP(r))->s.str);
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_ARRAY)
 		r_printf("(array) %p\n",RVM_REG_GETP(r));
+	else if (rvm_reg_gettype(r) == RVM_DTYPE_HARRAY)
+		r_printf("(hashed array) %p\n",RVM_REG_GETP(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_SWIID)
 		r_printf("(function) %p\n",RVM_REG_GETP(r));
 	else
@@ -327,13 +333,16 @@ int codegen_opcode_unary_callback(const char *name, void *userdata, const char *
 		r_array_push(co->opcodes, RVM_OPSWI(rvm_cpu_getswi_s(co->cpu, "RVM_SWI_NEG")), ruint);
 	else if (r_stringncmp("+", input, size))
 		r_array_push(co->opcodes, RVM_NOP, ruint);
+	else if (r_stringncmp("!", input, size))
+		r_array_push(co->opcodes, RVM_ELNOT, ruint);
+	else if (r_stringncmp("~", input, size))
+		r_array_push(co->opcodes, RVM_ENOT, ruint);
 	else if (r_stringncmp("delete", input, size))
 		r_array_push(co->opcodes, RVM_NOP, ruint);
 	else if (r_stringncmp("void", input, size))
 		r_array_push(co->opcodes, RVM_NOP, ruint);
 	else if (r_stringncmp("typeof", input, size))
 		r_array_push(co->opcodes, RVM_NOP, ruint);
-
 	else
 		r_array_push(co->opcodes, RVM_ABORT, ruint);
 
@@ -941,6 +950,16 @@ int codegen_varalloc_callback(const char *name, void *userdata, const char *inpu
 		r_carray_inclength(co->cpu->data);
 	}
 
+	v = rvm_scope_tiplookup(co->scope, input, size);
+//	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, DA, XX, 0));
+//	rvm_codegen_addins(co->cg, rvm_asm(RVM_SETTYPE, R0, DA, XX, RVM_DTYPE_UNDEF));
+	if (v->datatype == VARMAP_DATATYPE_OFFSET) {
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_ADDRS, R1, FP, DA, v->data.offset));
+	} else {
+		rvm_codegen_addins(co->cg, rvm_asmp(RVM_MOV, R1, DA, XX, v->data.ptr));
+	}
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_CLRR, R1, XX, XX, 0));
+
 	codegen_print_callback(name, userdata, input, size, reason, start, end);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
 
@@ -1048,7 +1067,7 @@ int codegen_funcallname_callback(const char *name, void *userdata, const char *i
 //	rvm_codegen_addins(co->cg, rvm_asm(RVM_BNEQ, DA, XX, XX, 2));
 //	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDRR, R0, R0, XX, 0));
 
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(FP)|BIT(SP)));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(TP)|BIT(FP)|BIT(SP)));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
 
 	codegen_print_callback(name, userdata, input, size, reason, start, end);
@@ -1069,7 +1088,7 @@ int codegen_funcallexpression_callback(const char *name, void *userdata, const c
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_STS, LR, FP, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_CALL, R1, DA, XX, -rvm_codegen_getcodesize(co->cg)));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, SP, FP, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BITS(FP,LR)));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BITS(TP,LR)));
 
 	r_array_removelast(co->funcall);
 	codegen_print_callback(name, userdata, input, size, reason, start, end);

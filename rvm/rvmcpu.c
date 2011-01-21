@@ -339,6 +339,7 @@ static void rvm_op_ldrr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rvm_op_clrr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvm_reg_cleanup(((rvmreg_t*)RVM_CPUREG_GETP(cpu, ins->op1)));
+	RVM_REG_SETTYPE((rvmreg_t*)RVM_CPUREG_GETP(cpu, ins->op1), RVM_DTYPE_UNDEF);
 }
 
 
