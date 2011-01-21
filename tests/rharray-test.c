@@ -89,14 +89,14 @@ int main(int argc, char *argv[])
 	rvm_codegen_addins(cg, rvm_asmp(RVM_LDRR, R1, DA, XX, &nareg));
 	rvm_codegen_addins(cg, rvm_asmp(RVM_MOV, R2, DA, XX, "where"));
 	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, R0, DA, XX, r_strlen("where")));
-	rvm_codegen_addins(cg, rvm_asm(RVM_KEYADD, R0, R1, R2, 0));
+//	rvm_codegen_addins(cg, rvm_asm(RVM_KEYADD, R0, R1, R2, 0));
 	rvm_codegen_addins(cg, rvm_asmd(RVM_ESTA, DA, R1, R0, 5.777));
 	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, R0, DA, XX, r_strlen("where")));
-	rvm_codegen_addins(cg, rvm_asm(RVM_KEYLOOKUP, R0, R1, R2, 0));
+//	rvm_codegen_addins(cg, rvm_asm(RVM_KEYLOOKUP, R0, R1, R2, 0));
 	rvm_codegen_addins(cg, rvm_asm(RVM_ELDA, R0, R1, R0, 0));
 
 	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, R0, DA, XX, r_strlen("where")));
-	rvm_codegen_addins(cg, rvm_asm(RVM_KEYLOOKUPADD, R0, R1, R2, 0));
+//	rvm_codegen_addins(cg, rvm_asm(RVM_KEYLOOKUPADD, R0, R1, R2, 0));
 	rvm_codegen_addins(cg, rvm_asm(RVM_ELDA, R0, R1, R0, 0));
 
 	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_getswi_s(cpu, "print")), R0, XX, XX, 0));	// print
