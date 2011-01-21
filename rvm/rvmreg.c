@@ -221,6 +221,14 @@ void rvm_reg_setarray(rvmreg_t *r, robject_t *ptr)
 }
 
 
+void rvm_reg_setjsobject(rvmreg_t *r, robject_t *ptr)
+{
+	RVM_REG_SETP(r, ptr);
+	RVM_REG_SETTYPE(r, RVM_DTYPE_JSOBJECT);
+	RVM_REG_SETFLAG(r, RVM_INFOBIT_ROBJECT);
+}
+
+
 void rvm_reg_setharray(rvmreg_t *r, robject_t *ptr)
 {
 	RVM_REG_SETP(r, ptr);

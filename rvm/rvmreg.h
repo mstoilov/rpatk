@@ -25,6 +25,7 @@ extern "C" {
 #define RVM_DTYPE_DOUBLE 7
 #define RVM_DTYPE_NAN 8
 #define RVM_DTYPE_UNDEF 9
+#define RVM_DTYPE_JSOBJECT 10
 #define RVM_DTYPE_SWIID 13			/* SWI ID */
 #define RVM_DTYPE_RELOCPTR 14		/* Relocation, using pointers */
 #define RVM_DTYPE_RELOCINDEX 15		/* Relocation, using offsets */
@@ -138,6 +139,7 @@ void rvm_reg_setdouble(rvmreg_t *r, rdouble d);
 void rvm_reg_setstring(rvmreg_t *r, rstring_t *ptr);
 void rvm_reg_setarray(rvmreg_t *r, robject_t *ptr);
 void rvm_reg_setharray(rvmreg_t *r, robject_t *ptr);
+void rvm_reg_setjsobject(rvmreg_t *r, robject_t *ptr);
 int rvm_reg_str2num(rvmreg_t *dst, const rvmreg_t *src);
 int rvm_reg_str2long(rvmreg_t *dst, const rvmreg_t *ssrc);
 int rvm_reg_str2double(rvmreg_t *dst, const rvmreg_t *ssrc);
