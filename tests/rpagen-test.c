@@ -1548,8 +1548,6 @@ int codegen_forcompareop_callback(const char *name, void *userdata, const char *
 }
 
 
-
-
 int codegen_iterationforop_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
@@ -1563,6 +1561,27 @@ int codegen_iterationforop_callback(const char *name, void *userdata, const char
 
 	rvm_scope_pop(co->scope);
 	r_array_removelast(co->loops);
+
+	codegen_print_callback(name, userdata, input, size, reason, start, end);
+	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
+	return size;
+}
+
+
+int codegen_newexpressionop_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
+{
+	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
+	rulong off = rvm_codegen_getcodesize(co->cg);
+
+	if (reason & RPA_REASON_START) {
+
+	} else 	if (reason & RPA_REASON_MATCHED) {
+
+	}
+
+
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_NOP, XX, XX, XX, 0));
+
 
 	codegen_print_callback(name, userdata, input, size, reason, start, end);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
@@ -1849,6 +1868,7 @@ void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co)
 	rpa_dbex_add_callback_exact(dbex, "BreakOp", RPA_REASON_MATCHED, codegen_breakkeyword_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "ContinueOp", RPA_REASON_MATCHED, codegen_continuekeyword_callback, co);
 
+	rpa_dbex_add_callback_exact(dbex, "NewExpressionOp", RPA_REASON_ALL, codegen_newexpressionop_callback, co);
 
 	if (verboseinfo)
 		rpa_dbex_add_callback(dbex, ".*", RPA_REASON_MATCHED, codegen_print_callback, co);

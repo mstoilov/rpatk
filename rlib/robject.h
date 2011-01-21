@@ -16,6 +16,7 @@ extern "C" {
 #define R_OBJECT_CARRAY 4
 #define R_OBJECT_HASH 5
 #define R_OBJECT_REF 6
+#define R_OBJECT_JSOBJECT 7
 #define R_OBJECT_USER 256
 
 
