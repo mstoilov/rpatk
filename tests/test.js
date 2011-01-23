@@ -1,4 +1,9 @@
 var a = 2; 
+var arr = new Array();
+
+arr[1] = 7;
+print('arr[0] = ' + arr[1]);
+
 
 function mul(a,b) {
 	return a*b;
@@ -23,6 +28,8 @@ function iter() {
 }
 
 var i = 0;
+
+
 
 do {
 	i = add(i,1.001);

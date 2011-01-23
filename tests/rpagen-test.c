@@ -752,7 +752,7 @@ int codegen_arrayelementvalue_callback(const char *name, void *userdata, const c
 	rulong off = rvm_codegen_getcodesize(co->cg);
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0)); 	// Array
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDA, R0, R1, R0, 0));	// Load the value from array offset
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDOBJN, R0, R1, R0, 0));	// Load the value from array offset
 
 	codegen_print_callback(name, userdata, input, size, reason, start, end);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
@@ -782,25 +782,7 @@ int codegen_arrayelementaddress_callback(const char *name, void *userdata, const
 	rulong off = rvm_codegen_getcodesize(co->cg);
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0)); 	// Supposedly Array Address
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_ADDRA, R0, R1, R0, 0));	// Get the address of the element at offset R0
-
-	codegen_print_callback(name, userdata, input, size, reason, start, end);
-	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
-
-	return size;
-}
-
-
-int codegen_offset_to_ptr_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
-{
-	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
-
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R2, XX, XX, 0)); 	// Offset
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_CAST, R2, R2, DA, RVM_DTYPE_UNSIGNED)); 	// cast to unsigned
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0)); 	// Array
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_ADDRA, R0, R1, R2, 0));	// Pointer to element at offset
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));	// Push it on the stack
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_ADDROBJN, R0, R1, R0, 0));	// Get the address of the element at offset R0
 
 	codegen_print_callback(name, userdata, input, size, reason, start, end);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
@@ -971,7 +953,7 @@ int codegen_newarraysize_callback(const char *name, void *userdata, const char *
 	rulong off = rvm_codegen_getcodesize(co->cg);
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R1, R0, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCARR, R0, R1, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCOBJ, R0, R1, XX, 0));
 
 	codegen_print_callback(name, userdata, input, size, reason, start, end);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
@@ -986,8 +968,7 @@ int codegen_newarraynosize_callback(const char *name, void *userdata, const char
 	rulong off = rvm_codegen_getcodesize(co->cg);
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R1, DA, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCARR, R0, R1, XX, 0));
-//	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCOBJ, R0, R1, XX, 0));
 
 	codegen_print_callback(name, userdata, input, size, reason, start, end);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
@@ -1638,6 +1619,7 @@ error:
 int main(int argc, char *argv[])
 {
 	int res, i;
+	rstr_t *script = NULL, *unmapscript = NULL;
 	rvmcpu_t *cpu;
 	ruint ntable;
 	rpa_dbex_handle dbex = rpa_dbex_create();
@@ -1687,12 +1669,12 @@ int main(int argc, char *argv[])
 
 	for (i = 1; i < argc; i++) {
 		if (r_strcmp(argv[i], "-f") == 0) {
-			rstr_t *script = NULL;
+
 			if (++i < argc) {
 				script = codegen_map_file(argv[i]);
 				if (script) {
 					res = rpa_dbex_parse(dbex, rpa_dbex_default_pattern(dbex), script->str, script->str, script->str + script->size);
-					codegen_unmap_file(script);
+					unmapscript = script;
 				}
 
 			}
@@ -1718,7 +1700,8 @@ exec:
 			rvm_cpu_exec(cpu, rvm_codegen_getcode(co->cg, 0), 0);
 	}
 
-
+	if (unmapscript)
+		codegen_unmap_file(unmapscript);
 	rpa_dbex_destroy(dbex);
 	rvm_cpu_destroy(cpu);
 	rvm_compiler_destroy(co);
@@ -1836,6 +1819,8 @@ void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co)
 
 	rpa_dbex_add_callback_exact(dbex, "ArgumentsOp", RPA_REASON_ALL, codegen_costate_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "BracketExpressionOp", RPA_REASON_ALL, codegen_costate_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "ValLeftHandSideExpression", RPA_REASON_ALL, codegen_costate_callback, co);
+
 
 	rpa_dbex_add_callback_exact(dbex, "FunctionName", RPA_REASON_MATCHED, codegen_fundeclname_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "FunctionDefinition", RPA_REASON_MATCHED, codegen_fundeclsignature_callback, co);

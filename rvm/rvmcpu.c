@@ -1129,8 +1129,8 @@ static void rvm_cpu_dumpregs(rvm_asmins_t *pi, rvmcpu_t *vm)
 	buffer[50] = '\0';
 	rvm_printf("%s", buffer);
 
-   	rvm_printf("0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, FP=%ld, SP=%ld, LR=%ld, PC=%ld, DA=0x%lx, S( %c%c%c%c )",
-   		RVM_CPUREG_GETU(vm, 0), RVM_CPUREG_GETU(vm, 1), RVM_CPUREG_GETU(vm, 2), RVM_CPUREG_GETU(vm, 3),
+   	rvm_printf("0x%lx(t: %d), 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, FP=%ld, SP=%ld, LR=%ld, PC=%ld, DA=0x%lx, S( %c%c%c%c )",
+   		RVM_CPUREG_GETU(vm, 0), RVM_CPUREG_GETTYPE(vm, 0), RVM_CPUREG_GETU(vm, 1), RVM_CPUREG_GETU(vm, 2), RVM_CPUREG_GETU(vm, 3),
    		RVM_CPUREG_GETU(vm, 4), RVM_CPUREG_GETU(vm, 5), RVM_CPUREG_GETU(vm, 6), RVM_CPUREG_GETU(vm, 7),
    		RVM_CPUREG_GETU(vm, 8), (long int)RVM_CPUREG_GETU(vm, FP), (long int)RVM_CPUREG_GETU(vm, SP),
    		(long int)RVM_CPUREG_GETU(vm, LR), (long int)RVM_CPUREG_GETU(vm, PC), RVM_CPUREG_GETU(vm, DA),
