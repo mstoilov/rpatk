@@ -265,6 +265,12 @@ void rvm_reg_cleanup(rvmreg_t *reg)
 }
 
 
+void rvm_reg_init(rvmreg_t *reg)
+{
+	RVM_REG_CLEAR(reg);
+}
+
+
 rvmreg_t *rvm_reg_copy(rvmreg_t *dst, const rvmreg_t *src)
 {
 	if (dst != src)

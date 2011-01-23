@@ -79,6 +79,7 @@ enum {
 	RVM_LDRH,		/* Load Half Word: op1 = u16_at_location(op2) */
 	RVM_LDRW,		/* Load Word: op1 = u32_at_location(op2) */
 	RVM_LDRR,		/* Load rvmreg_t: op1 = rvmreg_t_at_location(op2) */
+	RVM_CLR,		/* Clear op1 */
 	RVM_CLRR,		/* Clear: rvmreg_t at memory location op1 */
 	RVM_LSL,		/* Logical Shift Left: op1 = op2 << op3, update the status register */
 	RVM_LSR,		/* Logical Shift Right: op1 = op2 >> op3, update the status register */
@@ -104,7 +105,6 @@ enum {
 	RVM_POPM,
 	RVM_TST,
 	RVM_TEQ,
-	RVM_CLR,		/* Clear op1. If the reg has dynamic memory associated with with it (RVM_INFOBIT_ROBJECT) it will be cleared */
 	RVM_ADDRS,		/* Memory location of the stack at offset op2 + op3 */
 
 /* Extended VM opcodes, */
@@ -139,8 +139,18 @@ enum {
 	RVM_ALLOCSTR,	/* Allocate string in op1, op2 is pointer (char*) to string, op3 is the size */
 	RVM_ALLOCARR,	/* Allocate array in op1, op2 is the size */
 	RVM_ADDRA,		/* op1 is the destination memory, op2 is the array, op3 is the offset */
-	RVM_ELDA,		/* op1 is the destination, op2 is the array, op3 is the offset */
-	RVM_ESTA,		/* op1 is the source, op2 is the array, op3 is the offset */
+	RVM_LDA,		/* op1 is the destination, op2 is the array, op3 is the offset */
+	RVM_STA,		/* op1 is the source, op2 is the array, op3 is the offset */
+	RVM_ALLOCOBJ,
+	RVM_ADDROBJN,
+	RVM_ADDROBJH,
+	RVM_LDOBJN,
+	RVM_STOBJN,
+	RVM_LDOBJH,
+	RVM_STOBJH,
+	RVM_OBJLKUP,
+	RVM_OBJADD,
+	RVM_OBJLKUPADD,
 };
 
 

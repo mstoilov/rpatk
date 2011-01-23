@@ -209,6 +209,7 @@ void rvm_op_binary_init(rvm_opmap_t *opmap)
 	/*
 	 * Overwrite RVM_OPID_ADD for string concatenation
 	 */
+
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rvm_op_concat_string_string, RVM_DTYPE_STRING, RVM_DTYPE_STRING);
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rvm_op_concat_string_long, RVM_DTYPE_STRING, RVM_DTYPE_LONG);
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rvm_op_concat_string_long, RVM_DTYPE_STRING, RVM_DTYPE_UNSIGNED);

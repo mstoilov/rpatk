@@ -79,6 +79,7 @@ static const char *stropcalls[] = {
 	"RVM_LDRH",
 	"RVM_LDRW",
 	"RVM_LDRR",
+	"RVM_CLR",
 	"RVM_CLRR",
 	"RVM_LSL",
 	"RVM_LSR",
@@ -104,7 +105,6 @@ static const char *stropcalls[] = {
 	"RVM_POPM",	
 	"RVM_TST",
 	"RVM_TEQ",
-	"RVM_CLR",
 	"RVM_ADDRS",
 
 	"RVM_CAST",		/* Cast: op1 = (op3)op2 */
@@ -137,8 +137,18 @@ static const char *stropcalls[] = {
 	"RVM_ALLOCSTR",
 	"RVM_ALLOCARR",
 	"RVM_ADDRA",
-	"RVM_ELDA",
-	"RVM_ESTA",
+	"RVM_LDA",
+	"RVM_STA",
+	"RVM_ALLOCOBJ",
+	"RVM_ADDROBJN",
+	"RVM_ADDROBJH",
+	"RVM_LDOBJN",
+	"RVM_STOBJN",
+	"RVM_LDOBJH",
+	"RVM_STOBJH",
+	"RVM_OBJLKUP",
+	"RVM_OBJADD",
+	"RVM_OBJLKUPADD",
 	"UNKNOWN",
 	"UNKNOWN",
 	"UNKNOWN",
@@ -333,9 +343,17 @@ static void rvm_op_ldrr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static void rvm_op_clr(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	RVM_REG_CLEAR(((rvmreg_t*)RVM_CPUREG_PTR(cpu, ins->op1)));
+	RVM_REG_SETTYPE(((rvmreg_t*)RVM_CPUREG_PTR(cpu, ins->op1)), RVM_DTYPE_UNDEF);
+}
+
+
 static void rvm_op_clrr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rvm_reg_cleanup(((rvmreg_t*)RVM_CPUREG_GETP(cpu, ins->op1)));
+	RVM_REG_CLEAR(((rvmreg_t*)RVM_CPUREG_GETP(cpu, ins->op1)));
+	RVM_REG_SETTYPE(((rvmreg_t*)RVM_CPUREG_GETP(cpu, ins->op1)), RVM_DTYPE_UNDEF);
 }
 
 
@@ -545,13 +563,6 @@ static void rvm_op_teq(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	RVM_STATUS_CLRALL(cpu);
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, !res);
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_N, res & RVM_SIGN_BIT);
-}
-
-
-static void rvm_op_clr(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *reg = RVM_CPUREG_PTR(cpu, ins->op1);
-	rvm_reg_cleanup(reg);
 }
 
 
@@ -1591,7 +1602,7 @@ static void rvm_op_addra(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
-static void rvm_op_elda(rvmcpu_t *cpu, rvm_asmins_t *ins)
+static void rvm_op_lda(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
@@ -1605,7 +1616,7 @@ static void rvm_op_elda(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
-static void rvm_op_esta(rvmcpu_t *cpu, rvm_asmins_t *ins)
+static void rvm_op_sta(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
@@ -1685,6 +1696,7 @@ static rvm_cpu_op ops[] = {
 	rvm_op_ldrh,		// RVM_LDRH
 	rvm_op_ldrw,		// RVM_LDRW
 	rvm_op_ldrr,		// RVM_LDRR
+	rvm_op_clr,			// RVM_CLR
 	rvm_op_clrr,		// RVM_CLRR
 	rvm_op_lsl,			// RVM_LSL
 	rvm_op_lsr,			// RVM_LSR
@@ -1710,7 +1722,6 @@ static rvm_cpu_op ops[] = {
 	rvm_op_popm, 		// RVM_POPM
 	rvm_op_tst, 		// RVM_TST
 	rvm_op_teq, 		// RVM_TEQ
-	rvm_op_clr, 		// RVM_CLR
 	rvm_op_addrs, 		// RVM_ADDRS
 
 /* Extended VM instructions */
@@ -1745,8 +1756,18 @@ static rvm_cpu_op ops[] = {
 	rvm_op_allocstr,	// RVM_ALLOCSTR
 	rvm_op_allocarr,	// RVM_ALLOCARR
 	rvm_op_addra,		// RVM_ADDRA
-	rvm_op_elda,		// RVM_ELDA
-	rvm_op_esta,		// RVM_ESTA
+	rvm_op_lda,			// RVM_LDA
+	rvm_op_sta,			// RVM_STA
+	rvm_op_allocobj,	// RVM_ALLOCOBJ
+	rvm_op_addrobjn,	// RVM_ADDROBJN,
+	rvm_op_addrobjh,	// RVM_ADDROBJH,
+	rvm_op_ldobjn,		// RVM_LDOBJN,
+	rvm_op_stobjn,		// RVM_STOBJN,
+	rvm_op_ldobjh,		// RVM_LDOBJH,
+	rvm_op_stobjh,		// RVM_STOBJH,
+	rvm_op_objlookup,	// RVM_OBJLKUP,
+	rvm_op_objkeyadd,	// RVM_OBJADD,
+	rvm_op_objkeylookupadd,	// RVM_OBJLKUPADD,
 	(void*) 0,
 	(void*) 0,
 	(void*) 0,

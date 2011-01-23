@@ -752,7 +752,7 @@ int codegen_arrayelementvalue_callback(const char *name, void *userdata, const c
 	rulong off = rvm_codegen_getcodesize(co->cg);
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0)); 	// Array
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_ELDA, R0, R1, R0, 0));	// Load the value from array offset
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDA, R0, R1, R0, 0));	// Load the value from array offset
 
 	codegen_print_callback(name, userdata, input, size, reason, start, end);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
@@ -951,8 +951,6 @@ int codegen_varalloc_callback(const char *name, void *userdata, const char *inpu
 	}
 
 	v = rvm_scope_tiplookup(co->scope, input, size);
-//	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, DA, XX, 0));
-//	rvm_codegen_addins(co->cg, rvm_asm(RVM_SETTYPE, R0, DA, XX, RVM_DTYPE_UNDEF));
 	if (v->datatype == VARMAP_DATATYPE_OFFSET) {
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_ADDRS, R1, FP, DA, v->data.offset));
 	} else {
@@ -1125,13 +1123,16 @@ int codegen_fundeclparameter_callback(const char *name, void *userdata, const ch
 int codegen_fundeclname_callback(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
-	rvm_fundecl_t fundecl = {input, size, 0, off};
+	rulong off;
+	rvm_fundecl_t fundecl = {input, size, 0, 0};
 	rint ret;
 
 	ret = codegen_varalloc_callback(name, userdata, input, size, reason, start, end);
 	if (ret == 0)
 		return ret;
+
+	off = rvm_codegen_getcodesize(co->cg);
+	fundecl.codestart = off;
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, DA, XX, 0)); 	/* Will be re-written later */
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_STRR, DA, R0, XX, 0)); 	/* Will be re-written later */

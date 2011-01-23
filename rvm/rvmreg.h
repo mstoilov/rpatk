@@ -125,6 +125,7 @@ rvmreg_t rvm_reg_create_array();
 rvmreg_t rvm_reg_create_harray();
 rvmreg_t rvm_reg_create_double(rdouble d);
 rvmreg_t rvm_reg_create_long(rlong l);
+void rvm_reg_init(rvmreg_t *reg);
 void rvm_reg_cleanup(rvmreg_t *reg);
 rvmreg_t *rvm_reg_copy(rvmreg_t *dst, const rvmreg_t *src);
 void rvm_reg_array_unref_gcdata(robject_t *obj);
