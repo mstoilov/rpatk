@@ -409,6 +409,19 @@ static int rpa_callback_output(const char *name, void *userdata, const char *inp
 }
 
 
+static int rpa_callback_matched_output(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
+{
+	rpa_grep_t *pGrep = (rpa_grep_t *)userdata;
+
+	rpa_grep_output_utf8_string(pGrep, name);
+	rpa_grep_output_utf8_string(pGrep, ": ");
+	rpa_grep_output(pGrep, input, size, pGrep->encoding);
+	rpa_grep_output_utf8_string(pGrep, "\n");
+
+	return size;
+}
+
+
 void rpa_grep_setup_callback(rpa_grep_t *pGrep, rpa_buffer_t *pattern)
 {
 	rpa_dbex_add_callback(pGrep->hDbex, pattern->s, RPA_REASON_ALL, rpa_callback_output, pGrep);
@@ -417,7 +430,7 @@ void rpa_grep_setup_callback(rpa_grep_t *pGrep, rpa_buffer_t *pattern)
 
 void rpa_grep_setup_matched_callback(rpa_grep_t *pGrep, rpa_buffer_t *pattern)
 {
-	rpa_dbex_add_callback(pGrep->hDbex, pattern->s, RPA_REASON_MATCHED, rpa_callback_output, pGrep);
+	rpa_dbex_add_callback(pGrep->hDbex, pattern->s, RPA_REASON_MATCHED, rpa_callback_matched_output, pGrep);
 }
 
 
