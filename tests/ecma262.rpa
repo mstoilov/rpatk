@@ -162,7 +162,7 @@ NewExpression 					::= <:NewArrayExpression:> |
 									<:MemberExpression:>
 
 
-FunctionCallName				::= <:CallExpression:> | <:MemberExpression:>
+FunctionCallName				::= <:CallExpression:> | <:ValMemberExpression:>
 CallExpressionOp				::= <:FunctionCallName:> <S>? <:ArgumentsOp:>
 CallExpressionBaseOp			::= <:CallExpression:>
 CallExpressionIndexOp			::= <:CallExpressionBaseOp:> <S>? '[' <S>? <:Expression:> <S>? ']'

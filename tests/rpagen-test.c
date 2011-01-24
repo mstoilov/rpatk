@@ -796,7 +796,7 @@ int codegen_h_arrayelementaddress_callback(const char *name, void *userdata, con
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
 
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0)); 	// Supposedly Array Address
+//	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0)); 	// Supposedly Array Address
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_ADDROBJH, R0, R1, R0, 0));	// Get the address of the element at offset R0
 
 	codegen_print_callback(name, userdata, input, size, reason, start, end);
@@ -811,7 +811,11 @@ int codegen_h_arraynamelookupadd_callback(const char *name, void *userdata, cons
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
 
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDS, R1, SP, XX, 0)); 	// Supposedly Array Address
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0)); 	// Supposedly Array or Array Address
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_TYPE, R0, R1, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_CMP, R0, DA, XX, RVM_DTYPE_POINTER));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_BNEQ, DA, XX, XX, 2));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDRR, R1, R1, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, DA, XX, size));
 	rvm_codegen_addins(co->cg, rvm_asmp(RVM_MOV, R2, DA, XX, (void*)input));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_OBJLKUPADD, R0, R1, R2, 0));	// Get the address of the element at offset R0
@@ -828,7 +832,7 @@ int codegen_h_arraynamelookup_callback(const char *name, void *userdata, const c
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
 
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDS, R1, SP, XX, 0)); 	// Supposedly Array Address
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0)); 	// Supposedly Array Address
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, DA, XX, size));
 	rvm_codegen_addins(co->cg, rvm_asmp(RVM_MOV, R2, DA, XX, (void*)input));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_OBJLKUP, R0, R1, R2, 0));	// Get the address of the element at offset R0
@@ -845,7 +849,7 @@ int codegen_h_arrayelementvalue_callback(const char *name, void *userdata, const
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
 
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0)); 	// Supposedly Array Address
+//	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0)); 	// Supposedly Array Address
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDOBJH, R0, R1, R0, 0));	// Get the address of the element at offset R0
 
 	codegen_print_callback(name, userdata, input, size, reason, start, end);
@@ -1876,7 +1880,7 @@ void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co)
 	rpa_dbex_add_callback_exact(dbex, "ValMemberExpressionBaseOp", RPA_REASON_MATCHED, codegen_push_r0_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "ValMemberExpressionIndexOp", RPA_REASON_MATCHED, codegen_arrayelementvalue_callback, co);
 
-	rpa_dbex_add_callback_exact(dbex, "CallExpressionIndexBaseOp", RPA_REASON_MATCHED, codegen_memberexpressionbase_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "CallExpressionBaseOp", RPA_REASON_MATCHED, codegen_push_r0_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "CallExpressionIndexOp", RPA_REASON_MATCHED, codegen_n_arrayelementaddress_callback, co);
 
 
