@@ -1445,7 +1445,7 @@ static void rvm_op_ldobjn(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t tmp = rvm_reg_create_long(0);
 	rjs_object_t *a = NULL;
-	ruint index;
+	rlong index;
 
 	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = RVM_REG_GETL(&tmp);
@@ -1462,7 +1462,7 @@ static void rvm_op_stobjn(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t tmp = rvm_reg_create_long(0);
 	rjs_object_t *a = NULL;
-	ruint index;
+	rlong index;
 
 	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = RVM_REG_GETL(&tmp);
@@ -1519,7 +1519,7 @@ static void rvm_op_objkeylookupadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT) {
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	}
-	index = r_harray_add(a->harray, RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1), NULL);
+	index = r_harray_lookup(a->harray, RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1));
 	if (index < 0)
 		index = r_harray_add(a->harray, RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1), NULL);
 
@@ -1554,14 +1554,19 @@ static void rvm_op_ldobjh(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t tmp = rvm_reg_create_long(0);
 	rjs_object_t *a = NULL;
-	ruint index;
+	rlong index;
 
 	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = RVM_REG_GETL(&tmp);
-	if (index < 0 || rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT)
+	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT)
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	a = (rjs_object_t*)RVM_REG_GETP(arg2);
-	*arg1 = *((rvmreg_t*)r_carray_slot_expand(a->harray->members, index));
+	if (index < 0) {
+		RVM_REG_CLEAR(arg1);
+		RVM_REG_SETTYPE(arg1, RVM_DTYPE_UNDEF);
+	} else {
+		*arg1 = *((rvmreg_t*)r_carray_slot_expand(a->harray->members, index));
+	}
 }
 
 
@@ -1571,7 +1576,7 @@ static void rvm_op_stobjh(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t tmp = rvm_reg_create_long(0);
 	rjs_object_t *a = NULL;
-	ruint index;
+	rlong index;
 
 	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = RVM_REG_GETL(&tmp);

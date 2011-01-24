@@ -144,10 +144,14 @@ Elision							::= ',' <S>? <:Elision:> | <S>? ','
 # 11.2 Left-Hand-Side Expressions
 NewKeyword						::= 'new' - 'new' <IdentifierPart>
 
-MemberExpressionIndexBaseOp		::= <:MemberExpression:>
-MemberExpressionIndexOp			::= <:MemberExpressionIndexBaseOp:> <S>? '[' <:S:>? <:Expression:> <:S:>? ']'
+MemberIdentifierNameOp			::= <:Identifier:>
+MemberIdentifierNameLookupOp	::= <:Identifier:>
+MemberExpressionBaseOp			::= <:MemberExpression:>
+MemberExpressionIndexOp			::= <:MemberExpressionBaseOp:> <S>? '[' <:S:>? <:Expression:> <:S:>? ']'
+MemberExpressionNameOp			::= <:MemberExpressionBaseOp:> '.' <:MemberIdentifierNameOp:>
+
 MemberExpression 				::= <:MemberExpressionIndexOp:>  |
-									<:MemberExpression:> '.' <:IdentifierName:> |
+									<:MemberExpressionNameOp:> |
 									<:NewKeyword:> <S>? <:MemberExpression:> <S>? <:ArgumentsOp:> |
 									<:FunctionExpression:> |
 									<:PrimaryExpression:>
@@ -160,11 +164,12 @@ NewExpression 					::= <:NewArrayExpression:> |
 
 FunctionCallName				::= <:CallExpression:> | <:MemberExpression:>
 CallExpressionOp				::= <:FunctionCallName:> <S>? <:ArgumentsOp:>
-CallExpressionIndexBaseOp		::= <:CallExpression:>
-CallExpressionIndexOp			::= <:CallExpressionIndexBaseOp:> <S>? '[' <S>? <:Expression:> <S>? ']'
+CallExpressionBaseOp			::= <:CallExpression:>
+CallExpressionIndexOp			::= <:CallExpressionBaseOp:> <S>? '[' <S>? <:Expression:> <S>? ']'
+CallExpressionNameOp			::= <:CallExpressionBaseOp:> '.' <:MemberIdentifierNameOp:>
 
 CallExpression					::= <:CallExpressionIndexOp:> |
-									<:CallExpression:> '.' <:IdentifierName:> |
+									<:CallExpressionNameOp:> |
 									<:CallExpressionOp:>
 
 ArgumentsOp						::= '(' <S>? ')' |
@@ -181,10 +186,11 @@ LeftHandSideExpression			::= <:CallExpression:> | <:NewExpression:>
 
 
 # 11.2a Left-Hand-Side Expressions
-ValMemberExpressionIndexBaseOp	::= <:ValMemberExpression:>
-ValMemberExpressionIndexOp		::= <:ValMemberExpressionIndexBaseOp:> <S>? '[' <:S:>? <:Expression:> <:S:>? ']'
+ValMemberExpressionBaseOp		::= <:ValMemberExpression:>
+ValMemberExpressionIndexOp		::= <:ValMemberExpressionBaseOp:> <S>? '[' <:S:>? <:Expression:> <:S:>? ']'
+ValMemberExpressionNameOp		::= <:ValMemberExpressionBaseOp:> '.' <:MemberIdentifierNameLookupOp:>
 ValMemberExpression				::= <:ValMemberExpressionIndexOp:>  |
-									<:ValMemberExpression:> '.' <:IdentifierName:> |
+									<:ValMemberExpressionNameOp:> |
 									<:NewKeyword:> <S>? <:ValMemberExpression:> <S>? <:ArgumentsOp:> |
 									<:ValFunctionExpression:> |
 									<:ValPrimaryExpression:>
@@ -197,11 +203,12 @@ ValNewExpression				::= <:NewArrayExpression:> |
 
 ValFunctionCallName				::= <:ValCallExpression:> | <:ValMemberExpression:>
 ValCallExpressionOp				::= <:ValFunctionCallName:> <S>? <:ArgumentsOp:>
-ValCallExpressionIndexBaseOp	::= <:ValCallExpression:>
-ValCallExpressionIndexOp		::= <:ValCallExpressionIndexBaseOp:> <S>? '[' <S>? <:Expression:> <S>? ']'
+ValCallExpressionBaseOp			::= <:ValCallExpression:>
+ValCallExpressionIndexOp		::= <:ValCallExpressionBaseOp:> <S>? '[' <S>? <:Expression:> <S>? ']'
+ValCallExpressionNameOp			::= <:ValCallExpressionBaseOp:> '.' <:MemberIdentifierNameLookupOp:>
 
 ValCallExpression				::= <:ValCallExpressionIndexOp:> |
-									<:ValCallExpression:> '.' <:IdentifierName:> |
+									<:ValCallExpressionNameOp:> |
 									<:ValCallExpressionOp:>
 		
 ValLeftHandSideExpression		::= <:ValCallExpression:> | <:ValNewExpression:>
