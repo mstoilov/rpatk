@@ -115,7 +115,7 @@ int rpa_common_callback(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *input,
 		goto error;
 	pCbData = pVarLinkCallback->var.v.ptr;
 	if  (pCbData->func)
-		return pCbData->func(stat, mnode->match->name, pCbData->userdata, input, size, reason, stat->start, stat->end);
+		return pCbData->func(stat, mnode->match->name, pCbData->userdata, input, size, reason);
 error:
 	return size;
 }

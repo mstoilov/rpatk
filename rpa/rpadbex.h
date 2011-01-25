@@ -50,13 +50,21 @@ extern "C" {
 #define RPA_REASON_ALL		(RPA_REASON_START|RPA_REASON_END|RPA_REASON_MATCHED)
 
 
+typedef struct rpa_recordpeek_s {
+	const char *name;
+	const char *input;
+	unsigned int size;
+	unsigned int reason;
+} rpa_recordpeek_t;
+
+
 typedef struct rpa_stat_s *rpa_stat_handle;
 typedef struct rpa_dbex_s *rpa_dbex_handle;
 typedef struct rpa_varlink_s *rpa_group_handle;
 typedef struct rpa_varlink_s *rpa_pattern_handle;
 typedef struct rpa_varlink_s *rpa_callback_handle;
 typedef void (*rpa_progress_callback)(void *userdata, const char *input, const char *start, const char *end);
-typedef int (*rpa_match_callback)(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end);
+typedef int (*rpa_match_callback)(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason);
 
 
 rpa_dbex_handle rpa_dbex_create(void);
@@ -110,9 +118,12 @@ int rpa_stat_match(rpa_stat_handle hStat, rpa_pattern_handle hPattern, const cha
 int rpa_stat_parse(rpa_stat_handle hStat, rpa_pattern_handle hPattern, const char *input, const char *start, const char *end);
 int rpa_stat_set_progress_callback(rpa_stat_handle hStat, rpa_progress_callback progress, void *userdata);
 int rpa_stat_abort(rpa_stat_handle hStat);
+const rpa_recordpeek_t *rpa_stat_record_lookahead(rpa_stat_handle hStat, unsigned long n);
+const rpa_recordpeek_t *rpa_stat_record_lookback(rpa_stat_handle hStat, unsigned long n);
 void *rpa_stat_get_userdata(rpa_stat_handle hStat, unsigned int index);
 int rpa_stat_set_userdata(rpa_stat_handle hStat, unsigned int index, void *ud);
-
+const char *rpa_stat_input_start(rpa_stat_handle hStat);
+const char *rpa_stat_input_end(rpa_stat_handle hStat);
 
 #ifdef __cplusplus
 }

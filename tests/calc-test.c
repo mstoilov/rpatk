@@ -31,7 +31,7 @@ int lc_stack_pop(lc_stack_t *stack)
 }
 
 
-int lc_print(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
+int lc_print(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 #ifdef DEBUGPRINT
 	fprintf(stdout, "%s: ", name);
@@ -42,7 +42,7 @@ int lc_print(rpa_stat_handle stat, const char *name, void *userdata, const char 
 }
 
 
-int lc_addop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
+int lc_addop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	lc_stack_t *stack = (lc_stack_t*)userdata;
 	int op1 = 0, op2 = 0;
@@ -50,11 +50,11 @@ int lc_addop_callback(rpa_stat_handle stat, const char *name, void *userdata, co
 	op2 = lc_stack_pop(stack);
 	op1 = lc_stack_pop(stack);	
 	lc_stack_push(stack, op1 + op2);
-	lc_print(stat, name, userdata, input, size, reason, start, end);
+	lc_print(stat, name, userdata, input, size, reason);
 	return size;
 }
 
-int lc_subop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
+int lc_subop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	lc_stack_t *stack = (lc_stack_t*)userdata;
 	int op1 = 0, op2 = 0;
@@ -62,12 +62,12 @@ int lc_subop_callback(rpa_stat_handle stat, const char *name, void *userdata, co
 	op2 = lc_stack_pop(stack);
 	op1 = lc_stack_pop(stack);	
 	lc_stack_push(stack, op1 - op2);
-	lc_print(stat, name, userdata, input, size, reason, start, end);
+	lc_print(stat, name, userdata, input, size, reason);
 	return size;
 }
 
 
-int lc_divop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
+int lc_divop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	lc_stack_t *stack = (lc_stack_t*)userdata;
 	int op1 = 0, op2 = 0;
@@ -75,11 +75,11 @@ int lc_divop_callback(rpa_stat_handle stat, const char *name, void *userdata, co
 	op2 = lc_stack_pop(stack);
 	op1 = lc_stack_pop(stack);	
 	lc_stack_push(stack, op1 / op2);
-	lc_print(stat, name, userdata, input, size, reason, start, end);
+	lc_print(stat, name, userdata, input, size, reason);
 	return size;
 }
 
-int lc_mulop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
+int lc_mulop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	lc_stack_t *stack = (lc_stack_t*)userdata;
 	int op1 = 0, op2 = 0;
@@ -87,16 +87,16 @@ int lc_mulop_callback(rpa_stat_handle stat, const char *name, void *userdata, co
 	op2 = lc_stack_pop(stack);
 	op1 = lc_stack_pop(stack);	
 	lc_stack_push(stack, op1 * op2);
-	lc_print(stat, name, userdata, input, size, reason, start, end);
+	lc_print(stat, name, userdata, input, size, reason);
 	return size;
 }
 
-int lc_integer_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end)
+int lc_integer_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	lc_stack_t *stack = (lc_stack_t*)userdata;
 
 	lc_stack_push(stack, atoi(input));
-	lc_print(stat, name, userdata, input, size, reason, start, end);
+	lc_print(stat, name, userdata, input, size, reason);
 	return size;
 }
 

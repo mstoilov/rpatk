@@ -92,6 +92,8 @@ struct rpa_stat_s {
 	RPA_CHECKSTACK_FUNCTION checkstack;
 	rpa_progress_callback progress;
 	rpa_cbset_t cbset;
+	rpa_sword_t currecord;
+	rpa_recordpeek_t record;
 	void *progress_userdata;
 	int (*getchar)(unsigned int *pwc, rpa_stat_t *stat, const char *input);
 	const char *where;

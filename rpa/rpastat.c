@@ -438,20 +438,60 @@ int rpa_stat_match_lite(rpa_stat_handle hStat, rpa_pattern_handle hPattern, cons
 }
 
 
+static int rpa_mnode_play_callback(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *input, unsigned int size, unsigned int reason)
+{
+	int ret = size;
+	if ( ((rpa_mnode_callback_t*)mnode)->matched_callback && (reason & mnode->flags))
+		ret = ((rpa_mnode_callback_t*)mnode)->matched_callback(mnode, stat, input, size, (reason & mnode->flags));
+	return ret;
+}
+
+
 static int rpa_stat_play_cbset(rpa_stat_t *stat, const char *input, unsigned int size)
 {
 	rpa_cbset_t *cbset = &stat->cbset;
-	rpa_word_t off;
 	int ret;
 
-	for (off = 1; off <= cbset->off; off++) {
-		rpa_cbrecord_t *cbrec = &cbset->data[off];
-		ret = rpa_mnode_exec_callback(cbrec->mnode, stat, cbrec->input, cbrec->size, cbrec->reason);
-		if (cbrec->size && !ret)
+	for (stat->currecord = 1; stat->currecord <= cbset->off; stat->currecord++) {
+		rpa_cbrecord_t *cbrec = &cbset->data[stat->currecord];
+		ret = rpa_mnode_play_callback(cbrec->mnode, stat, cbrec->input, cbrec->size, cbrec->reason);
+		if (cbrec->size && !ret) {
+			stat->currecord = -1;
 			return 0;
+		}
 	}
+	stat->currecord = -1;
 	return size;
 }
+
+
+const rpa_recordpeek_t *rpa_stat_record_lookahead(rpa_stat_handle stat, unsigned long n)
+{
+	rpa_cbrecord_t *cbrec;
+	if (stat->currecord < 0 || stat->currecord + n > stat->cbset.off)
+		return NULL;
+	cbrec = &stat->cbset.data[stat->currecord + n];
+	stat->record.input = cbrec->input;
+	stat->record.name = cbrec->mnode->match->name;
+	stat->record.size = cbrec->size;
+	stat->record.reason = cbrec->reason;
+	return &stat->record;
+}
+
+
+const rpa_recordpeek_t *rpa_stat_record_lookback(rpa_stat_handle stat, unsigned long n)
+{
+	rpa_cbrecord_t *cbrec;
+	if (stat->currecord < 0 || stat->currecord - n < 1)
+		return NULL;
+	cbrec = &stat->cbset.data[stat->currecord - n];
+	stat->record.input = cbrec->input;
+	stat->record.name = cbrec->mnode->match->name;
+	stat->record.size = cbrec->size;
+	stat->record.reason = cbrec->reason;
+	return &stat->record;
+}
+
 
 
 int rpa_stat_parse(rpa_stat_handle hStat, rpa_pattern_handle hPattern, const char *input, const char *start, const char *end)
@@ -589,6 +629,7 @@ rpa_dloop_t *rpa_stat_current_loop(rpa_stat_t *stat)
 	return (void*)0;
 }
 
+
 void rpa_stat_cache_reset(rpa_stat_t *stat)
 {
 	int i;
@@ -598,3 +639,20 @@ void rpa_stat_cache_reset(rpa_stat_t *stat)
 		stat->mcache[i].match = NULL;
 	}
 }
+
+
+const char *rpa_stat_input_start(rpa_stat_handle hStat)
+{
+	if (!hStat)
+		return NULL;
+	return hStat->start;
+}
+
+
+const char *rpa_stat_input_end(rpa_stat_handle hStat)
+{
+	if (!hStat)
+		return NULL;
+	return hStat->end;
+}
+
