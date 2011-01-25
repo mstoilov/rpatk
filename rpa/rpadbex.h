@@ -56,7 +56,7 @@ typedef struct rpa_varlink_s *rpa_group_handle;
 typedef struct rpa_varlink_s *rpa_pattern_handle;
 typedef struct rpa_varlink_s *rpa_callback_handle;
 typedef void (*rpa_progress_callback)(void *userdata, const char *input, const char *start, const char *end);
-typedef int (*rpa_match_callback)(const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end);
+typedef int (*rpa_match_callback)(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason, const char *start, const char *end);
 
 
 rpa_dbex_handle rpa_dbex_create(void);
