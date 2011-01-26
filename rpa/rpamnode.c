@@ -308,13 +308,12 @@ int rpa_mnode_record_callback(rpa_mnode_t *mnode, rpa_stat_t *stat, const char *
 		return size;
 	if (mnode->flags & RPA_MNODE_SYNCRONOUS)
 		return rpa_mnode_exec_callback(mnode, stat, input, size, reason);
-	if (((rpa_mnode_callback_t*)mnode)->matched_callback) {
-		if ((cbrec = rpa_cbset_push(&stat->cbset)) != 0) {
-			cbrec->mnode = mnode;
-			cbrec->input = input;
-			cbrec->size = size;
-			cbrec->reason = reason;
-		}
+	if ((cbrec = rpa_cbset_push(&stat->cbset)) != 0) {
+		cbrec->reserved = mnode;
+		cbrec->name = mnode->match->name;
+		cbrec->input = input;
+		cbrec->size = size;
+		cbrec->reason = reason;
 	}
 	return size;
 }

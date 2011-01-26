@@ -454,7 +454,7 @@ static int rpa_stat_play_cbset(rpa_stat_t *stat, const char *input, unsigned int
 
 	for (stat->currecord = 1; stat->currecord <= cbset->off; stat->currecord++) {
 		rpa_cbrecord_t *cbrec = &cbset->data[stat->currecord];
-		ret = rpa_mnode_play_callback(cbrec->mnode, stat, cbrec->input, cbrec->size, cbrec->reason);
+		ret = rpa_mnode_play_callback((rpa_mnode_t*)cbrec->reserved, stat, cbrec->input, cbrec->size, cbrec->reason);
 		if (cbrec->size && !ret) {
 			stat->currecord = -1;
 			return 0;
@@ -465,32 +465,74 @@ static int rpa_stat_play_cbset(rpa_stat_t *stat, const char *input, unsigned int
 }
 
 
-const rpa_recordpeek_t *rpa_stat_record_lookahead(rpa_stat_handle stat, unsigned long n)
+const rpa_cbrecord_t *rpa_stat_cbrecord_first(rpa_stat_handle stat)
 {
-	rpa_cbrecord_t *cbrec;
-	if (stat->currecord < 0 || stat->currecord + n > stat->cbset.off)
-		return NULL;
-	cbrec = &stat->cbset.data[stat->currecord + n];
-	stat->record.input = cbrec->input;
-	stat->record.name = cbrec->mnode->match->name;
-	stat->record.size = cbrec->size;
-	stat->record.reason = cbrec->reason;
-	return &stat->record;
+	if (stat->cbset.off > 0)
+		return &stat->cbset.data[1];
+	return NULL;
 }
 
 
-const rpa_recordpeek_t *rpa_stat_record_lookback(rpa_stat_handle stat, unsigned long n)
+const rpa_cbrecord_t *rpa_stat_cbrecord_last(rpa_stat_handle stat)
 {
-	rpa_cbrecord_t *cbrec;
-	if (stat->currecord < 0 || stat->currecord - n < 1)
-		return NULL;
-	cbrec = &stat->cbset.data[stat->currecord - n];
-	stat->record.input = cbrec->input;
-	stat->record.name = cbrec->mnode->match->name;
-	stat->record.size = cbrec->size;
-	stat->record.reason = cbrec->reason;
-	return &stat->record;
+	if (stat->cbset.off > 0)
+		return &stat->cbset.data[stat->cbset.off];
+	return NULL;
 }
+
+
+const rpa_cbrecord_t *rpa_stat_cbrecord_current(rpa_stat_handle stat)
+{
+	if (stat->currecord < 0 || stat->currecord > stat->cbset.off)
+		return NULL;
+	return &stat->cbset.data[stat->currecord];
+}
+
+
+const rpa_cbrecord_t *rpa_stat_cbrecord_lookahead(rpa_stat_handle stat, const rpa_cbrecord_t *current, const char *name, const char *input, unsigned int reason, unsigned long maxhops)
+{
+	const rpa_cbrecord_t *last = rpa_stat_cbrecord_last(stat);
+
+	if (!last)
+		return NULL;
+	if (!current)
+		current = rpa_stat_cbrecord_first(stat);
+	else
+		current++;
+	if (!maxhops)
+		maxhops = (unsigned long)-1;
+	for ( ;maxhops && current <= last; current++, maxhops--) {
+		if (!(current->reason & reason))
+			continue;
+		if (name && r_strcmp(name, current->name) != 0)
+			continue;
+		if (input && current->input != input)
+			continue;
+		return current;
+	}
+
+	return NULL;
+}
+
+
+//const rpa_cbrecord_t *rpa_stat_cbrecord_lookahead(rpa_stat_handle stat, unsigned long n)
+//{
+//	rpa_cbrecord_t *cbrec;
+//	if (stat->currecord < 0 || stat->currecord + n > stat->cbset.off)
+//		return NULL;
+//	cbrec = &stat->cbset.data[stat->currecord + n];
+//	return cbrec;
+//}
+//
+//
+//const rpa_cbrecord_t *rpa_stat_cbrecord_lookback(rpa_stat_handle stat, unsigned long n)
+//{
+//	rpa_cbrecord_t *cbrec;
+//	if (stat->currecord < 0 || stat->currecord - n < 1)
+//		return NULL;
+//	cbrec = &stat->cbset.data[stat->currecord - n];
+//	return cbrec;
+//}
 
 
 

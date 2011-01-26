@@ -50,12 +50,13 @@ extern "C" {
 #define RPA_REASON_ALL		(RPA_REASON_START|RPA_REASON_END|RPA_REASON_MATCHED)
 
 
-typedef struct rpa_recordpeek_s {
+typedef struct rpa_cbrecord_s {
+	void *reserved;
 	const char *name;
 	const char *input;
 	unsigned int size;
 	unsigned int reason;
-} rpa_recordpeek_t;
+} rpa_cbrecord_t;
 
 
 typedef struct rpa_stat_s *rpa_stat_handle;
@@ -118,12 +119,16 @@ int rpa_stat_match(rpa_stat_handle hStat, rpa_pattern_handle hPattern, const cha
 int rpa_stat_parse(rpa_stat_handle hStat, rpa_pattern_handle hPattern, const char *input, const char *start, const char *end);
 int rpa_stat_set_progress_callback(rpa_stat_handle hStat, rpa_progress_callback progress, void *userdata);
 int rpa_stat_abort(rpa_stat_handle hStat);
-const rpa_recordpeek_t *rpa_stat_record_lookahead(rpa_stat_handle hStat, unsigned long n);
-const rpa_recordpeek_t *rpa_stat_record_lookback(rpa_stat_handle hStat, unsigned long n);
 void *rpa_stat_get_userdata(rpa_stat_handle hStat, unsigned int index);
 int rpa_stat_set_userdata(rpa_stat_handle hStat, unsigned int index, void *ud);
 const char *rpa_stat_input_start(rpa_stat_handle hStat);
 const char *rpa_stat_input_end(rpa_stat_handle hStat);
+
+
+const rpa_cbrecord_t *rpa_stat_cbrecord_first(rpa_stat_handle hStat);
+const rpa_cbrecord_t *rpa_stat_cbrecord_last(rpa_stat_handle hStat);
+const rpa_cbrecord_t *rpa_stat_cbrecord_current(rpa_stat_handle hStat);
+const rpa_cbrecord_t *rpa_stat_cbrecord_lookahead(rpa_stat_handle hStat, const rpa_cbrecord_t *current, const char *name, const char *input, unsigned int reason, unsigned long maxhops);
 
 #ifdef __cplusplus
 }

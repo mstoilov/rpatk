@@ -24,7 +24,7 @@ Comment				::= <:MultiLineComment:> | <:SingleLineComment:>
 MultiLineComment		::= '/*' <:MultiLineCommentChar:>* '*/'
 MultiLineCommentChar	::= . - '*/'
 SingleLineComment		::= '#' <:SingleLineCommentChar:>*
-SingleLineCommentChar	::= <:SourceCharacter:> - <:LineTerminator:>
+SingleLineCommentChar	::= <SourceCharacter> - <LineTerminator>
 
 # 7.5 Tokens
 Token					::= <:IdentifierName:> |
@@ -100,8 +100,8 @@ HexDigit 						::= [0-9a-fA-F]
 StringLiteral					::= '\"' <:DoubleStringCharacters:>? '\"' |
 			    					['] <:SingleStringCharacters:>? [']
 
-DoubleStringCharacters			::= <:DoubleStringCharacter:>+
-SingleStringCharacters			::= <:SingleStringCharacter:>+
+DoubleStringCharacters			::= <DoubleStringCharacter>+
+SingleStringCharacters			::= <SingleStringCharacter>+
 
 DoubleStringCharacter			::= '\\' <:EscapeSequence:> |
 			    					<:LineContinuation:> |
@@ -143,12 +143,14 @@ Elision							::= ',' <S>? <:Elision:> | <S>? ','
 
 # 11.2 Left-Hand-Side Expressions
 NewKeyword						::= 'new' - 'new' <IdentifierPart>
-
+LSB								::= <S>? '[' <S>?
+RSB								::= <S>? ']' <S>?
+dot								::= '.'
 MemberIdentifierNameOp			::= <:Identifier:>
 MemberIdentifierNameLookupOp	::= <:Identifier:>
 MemberExpressionBaseOp			::= <:MemberExpression:>
-MemberExpressionIndexOp			::= <:MemberExpressionBaseOp:> <S>? '[' <:S:>? <:Expression:> <:S:>? ']'
-MemberExpressionNameOp			::= <:MemberExpressionBaseOp:> '.' <:MemberIdentifierNameOp:>
+MemberExpressionIndexOp			::= <:MemberExpressionBaseOp:>  <:LSB:> <:Expression:> <:RSB:>
+MemberExpressionNameOp			::= <:MemberExpressionBaseOp:> <:dot:> <:MemberIdentifierNameOp:>
 
 MemberExpression 				::= <:MemberExpressionIndexOp:>  |
 									<:MemberExpressionNameOp:> |
@@ -181,14 +183,18 @@ ArgumentList					::= <:ArgumentList:> <S>? ',' <S>? <:FunctionCallParameter:> |
 									<:FunctionCallParameter:>
 FunctionCallParameter			::= <:AssignmentExpression:>
 									
-LeftHandSideExpression			::= <:CallExpression:> | <:NewExpression:>
-
+#LeftHandSideExpression			::= <:CallExpression:> | <:NewExpression:>
+LeftHandSideExpression			::= <:AddressLeftHandSideExpression:>
 
 
 # 11.2a Left-Hand-Side Expressions
+NewKeyword						::= 'new' - 'new' <IdentifierPart>
+LSB								::= <S>? '[' <S>?
+RSB								::= <S>? ']' <S>?
+dot								::= '.'
 ValMemberExpressionBaseOp		::= <:ValMemberExpression:>
-ValMemberExpressionIndexOp		::= <:ValMemberExpressionBaseOp:> <S>? '[' <:S:>? <:Expression:> <:S:>? ']'
-ValMemberExpressionNameOp		::= <:ValMemberExpressionBaseOp:> '.' <:MemberIdentifierNameLookupOp:>
+ValMemberExpressionIndexOp		::= <:ValMemberExpressionBaseOp:> <:LSB:> <:Expression:> <:RSB:>
+ValMemberExpressionNameOp		::= <:ValMemberExpressionBaseOp:> <:dot:> <:MemberIdentifierNameLookupOp:>
 ValMemberExpression				::= <:ValMemberExpressionIndexOp:>  |
 									<:ValMemberExpressionNameOp:> |
 									<:NewKeyword:> <S>? <:ValMemberExpression:> <S>? <:ArgumentsOp:> |
@@ -212,7 +218,8 @@ ValCallExpression				::= <:ValCallExpressionIndexOp:> |
 									<:ValCallExpressionOp:>
 		
 ValLeftHandSideExpression		::= <:ValCallExpression:> | <:ValNewExpression:>
-
+AddressLeftHandSideExpression	::= <:ValLeftHandSideExpression:>
+LeftHandSideExpression			::= <:AddressLeftHandSideExpression:>
 
 # 11.3 Postfix Expressions
 # RULE: LeftHandSideExpression always ends up in R0 (Let see if this would work)

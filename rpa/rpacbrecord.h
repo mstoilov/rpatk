@@ -24,19 +24,11 @@
 #include "rpamatch.h"
 #include "rpamnode.h"
 #include "rpatypedef.h"
-
+#include "rpadbex.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-
-typedef struct rpa_cbrecord_s {
-	rpa_mnode_t *mnode;
-	const char *input;
-	unsigned int size;
-	unsigned int reason;
-} rpa_cbrecord_t;
 
 
 typedef struct rpa_cbset_s {

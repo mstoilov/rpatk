@@ -298,7 +298,7 @@ static rvm_switable_t switable_js[] = {
 inline int codegen_print_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	const rpa_recordpeek_t *rec = rpa_stat_record_lookahead(stat, 1);
+	const rpa_cbrecord_t *rec;
 
 
 	if (parseinfo) {
@@ -311,8 +311,10 @@ inline int codegen_print_callback(rpa_stat_handle stat, const char *name, void *
 		fprintf(stdout, "%s: ", name);
 		if (!(reason & RPA_REASON_START))
 				fwrite(input, sizeof(char), size, stdout);
-		if (rec)
-			fprintf(stdout, "(next name: %s)", rec->name);
+		rec = rpa_stat_cbrecord_lookahead(stat, rpa_stat_cbrecord_current(stat), NULL, input+size, RPA_REASON_MATCHED, 0);
+		if (rec) {
+			fprintf(stdout, " (next: %s, input: %p)", rec->name, rec->input);
+		}
 		fprintf(stdout, " (debth: %d, level: %d, binaryop: %d, dirty: %d)", rvm_costat_getdebth(co), rvm_costat_getlevel(co), rvm_costat_getbinaryop(co), rvm_costat_getdirty(co));
 		fprintf(stdout, "\n");
 		fflush(stdout);
@@ -748,6 +750,37 @@ int codegen_ptr_deref_callback(rpa_stat_handle stat, const char *name, void *use
 
 	return size;
 }
+
+
+
+int codegen_addressoflefthandside_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
+{
+	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
+	rulong off = rvm_codegen_getcodesize(co->cg);
+	rvm_asmins_t *last = rvm_codegen_getcode(co->cg, off - 1);
+	rvm_asmins_t *lastlast = rvm_codegen_getcode(co->cg, off - 2);
+
+	if (last->opcode == RVM_LDRR) {
+		last->opcode = RVM_MOV;
+		off -= 1;
+	} else if (last->opcode == RVM_LDS) {
+		last->opcode = RVM_ADDRS;
+		off -= 1;
+	} else if (last->opcode == RVM_LDOBJN) {
+		last->opcode = RVM_ADDROBJN;
+		off -= 1;
+	} else if (last->opcode == RVM_LDOBJH && lastlast->opcode == RVM_OBJLKUP) {
+		lastlast->opcode = RVM_OBJLKUPADD;
+		last->opcode = RVM_ADDROBJH;
+		off -= 2;
+	}
+
+	codegen_print_callback(stat, name, userdata, input, size, reason);
+	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
+
+	return size;
+}
+
 
 
 int codegen_arrayelementvalue_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
@@ -1864,18 +1897,27 @@ void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co)
 	rpa_dbex_add_callback_exact(dbex, "SwiId", RPA_REASON_MATCHED, codegen_swiid_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "SwiIdExist", RPA_REASON_MATCHED, codegen_swiidexist_callback, co);
 
-	rpa_dbex_add_callback_exact(dbex, "IdentifierOp", RPA_REASON_MATCHED, codegen_opidentifier_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "ValIdentifierOp", RPA_REASON_MATCHED, codegen_validentifierop_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "PostfixExpressionValOp", RPA_REASON_ALL, codegen_valop_callback, co);
 
 	rpa_dbex_add_callback_exact(dbex, "LeftHandSideExpressionPush", RPA_REASON_MATCHED, codegen_push_r0_callback, co);
 
+
+	////////////////
+
+	rpa_dbex_add_callback_exact(dbex, "IdentifierOp", RPA_REASON_MATCHED, codegen_opidentifier_callback, co);
+
+
+
+
+	////////////////
+
 	rpa_dbex_add_callback_exact(dbex, "MemberExpressionBaseOp", RPA_REASON_MATCHED, codegen_memberexpressionbase_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "MemberExpressionIndexOp", RPA_REASON_MATCHED, codegen_n_arrayelementaddress_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "MemberIdentifierNameOp", RPA_REASON_MATCHED, codegen_h_arraynamelookupadd_callback, co);
 
 	rpa_dbex_add_callback_exact(dbex, "MemberExpressionNameOp", RPA_REASON_MATCHED, codegen_h_arrayelementaddress_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "CallExpressionNameOp", RPA_REASON_MATCHED, codegen_h_arrayelementaddress_callback, co);
-	rpa_dbex_add_callback_exact(dbex, "MemberIdentifierNameOp", RPA_REASON_MATCHED, codegen_h_arraynamelookupadd_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "MemberIdentifierNameLookupOp", RPA_REASON_MATCHED, codegen_h_arraynamelookup_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "ValMemberExpressionNameOp", RPA_REASON_MATCHED, codegen_h_arrayelementvalue_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "ValCallExpressionNameOp", RPA_REASON_MATCHED, codegen_h_arrayelementvalue_callback, co);
@@ -1890,6 +1932,8 @@ void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co)
 
 	rpa_dbex_add_callback_exact(dbex, "ValCallExpressionBaseOp", RPA_REASON_MATCHED, codegen_push_r0_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "ValCallExpressionIndexOp", RPA_REASON_MATCHED, codegen_arrayelementvalue_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "AddressLeftHandSideExpression", RPA_REASON_MATCHED, codegen_addressoflefthandside_callback, co);
+
 
 	rpa_dbex_add_callback_exact(dbex, "ConditionalExpression", RPA_REASON_MATCHED, codegen_conditionalexp_callback, co);
 
