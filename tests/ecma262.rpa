@@ -118,18 +118,9 @@ PrimaryExpression				::= 'this' |
 			    					<:LiteralOp:> |
 			    					(<;SwiIdExist;> & <:SwiId:>) |
 			    					<:IdentifierOp:>
-			    				
-ValPrimaryExpression			::= 'this' | 
-									<:BracketExpressionOp:> |
-			    					<:LiteralOp:> |
-			    					(<;SwiIdExist;> & <:SwiId:>) |
-			    					<:ValIdentifierOp:>
-
-
 
 # The next line is mine
 IdentifierOp					::= <:Identifier:> 
-ValIdentifierOp					::= <:Identifier:> 
 SwiId							::= <:Identifier:> 
 SwiIdExist						::= <SwiId> 
 
@@ -164,7 +155,7 @@ NewExpression 					::= <:NewArrayExpression:> |
 									<:MemberExpression:>
 
 
-FunctionCallName				::= <:CallExpression:> | <:ValMemberExpression:>
+FunctionCallName				::= <:CallExpression:> | <:MemberExpression:>
 CallExpressionOp				::= <:FunctionCallName:> <S>? <:ArgumentsOp:>
 CallExpressionBaseOp			::= <:CallExpression:>
 CallExpressionIndexOp			::= <:CallExpressionBaseOp:> <S>? '[' <S>? <:Expression:> <S>? ']'
@@ -183,43 +174,10 @@ ArgumentList					::= <:ArgumentList:> <S>? ',' <S>? <:FunctionCallParameter:> |
 									<:FunctionCallParameter:>
 FunctionCallParameter			::= <:AssignmentExpression:>
 									
-#LeftHandSideExpression			::= <:CallExpression:> | <:NewExpression:>
-LeftHandSideExpression			::= <:AddressLeftHandSideExpression:>
-
-
-# 11.2a Left-Hand-Side Expressions
-NewKeyword						::= 'new' - 'new' <IdentifierPart>
-LSB								::= <S>? '[' <S>?
-RSB								::= <S>? ']' <S>?
-dot								::= '.'
-ValMemberExpressionBaseOp		::= <:ValMemberExpression:>
-ValMemberExpressionIndexOp		::= <:ValMemberExpressionBaseOp:> <:LSB:> <:Expression:> <:RSB:>
-ValMemberExpressionNameOp		::= <:ValMemberExpressionBaseOp:> <:dot:> <:MemberIdentifierNameLookupOp:>
-ValMemberExpression				::= <:ValMemberExpressionIndexOp:>  |
-									<:ValMemberExpressionNameOp:> |
-									<:NewKeyword:> <S>? <:ValMemberExpression:> <S>? <:ArgumentsOp:> |
-									<:ValFunctionExpression:> |
-									<:ValPrimaryExpression:>
-
-
-ValNewExpression				::= <:NewArrayExpression:> |
-									<:NewKeyword:> <S>? <:ValNewExpression:> |
-									<:ValMemberExpression:>
-
-
-ValFunctionCallName				::= <:ValCallExpression:> | <:ValMemberExpression:>
-ValCallExpressionOp				::= <:ValFunctionCallName:> <S>? <:ArgumentsOp:>
-ValCallExpressionBaseOp			::= <:ValCallExpression:>
-ValCallExpressionIndexOp		::= <:ValCallExpressionBaseOp:> <S>? '[' <S>? <:Expression:> <S>? ']'
-ValCallExpressionNameOp			::= <:ValCallExpressionBaseOp:> '.' <:MemberIdentifierNameLookupOp:>
-
-ValCallExpression				::= <:ValCallExpressionIndexOp:> |
-									<:ValCallExpressionNameOp:> |
-									<:ValCallExpressionOp:>
-		
-ValLeftHandSideExpression		::= <:ValCallExpression:> | <:ValNewExpression:>
+ValLeftHandSideExpression		::= <:CallExpression:> | <:NewExpression:>
 AddressLeftHandSideExpression	::= <:ValLeftHandSideExpression:>
 LeftHandSideExpression			::= <:AddressLeftHandSideExpression:>
+
 
 # 11.3 Postfix Expressions
 # RULE: LeftHandSideExpression always ends up in R0 (Let see if this would work)
