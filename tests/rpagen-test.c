@@ -1022,6 +1022,32 @@ int codegen_funcallparameter_callback(rpa_stat_handle stat, const char *name, vo
 }
 
 
+int codegen_newkeyword_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
+{
+	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
+	rulong off = rvm_codegen_getcodesize(co->cg);
+
+
+	codegen_print_callback(stat, name, userdata, input, size, reason);
+	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
+
+	return size;
+}
+
+
+int codegen_newexpression_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
+{
+	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
+	rulong off = rvm_codegen_getcodesize(co->cg);
+
+
+	codegen_print_callback(stat, name, userdata, input, size, reason);
+	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
+
+	return size;
+}
+
+
 int codegen_funcallname_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
@@ -1036,11 +1062,6 @@ int codegen_funcallname_callback(rpa_stat_handle stat, const char *name, void *u
 	 * and FP will point there. After the call we save the LR at that spot
 	 * as we don't need the RO anymore.
 	 */
-//	rvm_codegen_addins(co->cg, rvm_asm(RVM_TYPE, R1, R0, XX, 0));
-//	rvm_codegen_addins(co->cg, rvm_asm(RVM_CMP, R1, DA, XX, RVM_DTYPE_POINTER));
-//	rvm_codegen_addins(co->cg, rvm_asm(RVM_BNEQ, DA, XX, XX, 2));
-//	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDRR, R0, R0, XX, 0));
-
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(TP)|BIT(FP)|BIT(SP)));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
 
@@ -1822,6 +1843,8 @@ void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co)
 	rpa_dbex_add_callback_exact(dbex, "FunctionCallParameter", RPA_REASON_MATCHED, codegen_funcallparameter_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "FunctionCallName", RPA_REASON_MATCHED, codegen_funcallname_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "CallExpressionOp", RPA_REASON_MATCHED, codegen_funcallexpression_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "NewKeyword", RPA_REASON_MATCHED, codegen_newkeyword_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "MemberExpressionNewOp", RPA_REASON_MATCHED, codegen_newexpression_callback, co);
 
 
 	rpa_dbex_add_callback_exact(dbex, "IfConditionOp", RPA_REASON_MATCHED, codegen_ifconditionop_callback, co);

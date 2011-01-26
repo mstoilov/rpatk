@@ -142,10 +142,11 @@ MemberIdentifierNameLookupOp	::= <:Identifier:>
 MemberExpressionBaseOp			::= <:MemberExpression:>
 MemberExpressionIndexOp			::= <:MemberExpressionBaseOp:>  <:LSB:> <:Expression:> <:RSB:>
 MemberExpressionNameOp			::= <:MemberExpressionBaseOp:> <:dot:> <:MemberIdentifierNameOp:>
+MemberExpressionNewOp			::= <:NewKeyword:> <S>? <:CallExpression:>
 
 MemberExpression 				::= <:MemberExpressionIndexOp:>  |
 									<:MemberExpressionNameOp:> |
-									<:NewKeyword:> <S>? <:MemberExpression:> <S>? <:ArgumentsOp:> |
+									<:MemberExpressionNewOp:> |
 									<:FunctionExpression:> |
 									<:PrimaryExpression:>
 
