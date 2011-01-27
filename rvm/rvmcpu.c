@@ -985,6 +985,8 @@ int rvm_asm_dump_reg_to_str(unsigned char reg, char *str, ruint size)
 
 	if (reg == XX)
 		ret = rvm_snprintf(str, size, "XX ");
+	else if (reg == TP)
+		ret = rvm_snprintf(str, size, "TP ");
 	else if (reg == FP)
 		ret = rvm_snprintf(str, size, "FP ");
 	else if (reg == SP)
@@ -995,10 +997,8 @@ int rvm_asm_dump_reg_to_str(unsigned char reg, char *str, ruint size)
 		ret = rvm_snprintf(str, size, "PC ");
 	else if (reg == DA)
 		ret = rvm_snprintf(str, size, "DA ");
-	else if (reg >= 0 && reg < RVM_REGS_NUM/2)
+	else
 		ret = rvm_snprintf(str, size, "R%d ",  reg);
-	else if (reg >= RVM_REGS_NUM/2)
-		ret = rvm_snprintf(str, size, "S%d ",  reg & ((1 << (RVM_OPERAND_BITS-1))-1));
 
 	return ret;
 }
@@ -1129,10 +1129,10 @@ static void rvm_cpu_dumpregs(rvm_asmins_t *pi, rvmcpu_t *vm)
 	buffer[50] = '\0';
 	rvm_printf("%s", buffer);
 
-   	rvm_printf("0x%lx(t: %d), 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, FP=%ld, SP=%ld, LR=%ld, PC=%ld, DA=0x%lx, S( %c%c%c%c )",
-   		RVM_CPUREG_GETU(vm, 0), RVM_CPUREG_GETTYPE(vm, 0), RVM_CPUREG_GETU(vm, 1), RVM_CPUREG_GETU(vm, 2), RVM_CPUREG_GETU(vm, 3),
+   	rvm_printf("0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, TP=%p, FP=%ld, SP=%ld, LR=%ld, PC=%ld, DA=0x%lx, S( %c%c%c%c )",
+   		RVM_CPUREG_GETU(vm, 0), RVM_CPUREG_GETU(vm, 1), RVM_CPUREG_GETU(vm, 2), RVM_CPUREG_GETU(vm, 3),
    		RVM_CPUREG_GETU(vm, 4), RVM_CPUREG_GETU(vm, 5), RVM_CPUREG_GETU(vm, 6), RVM_CPUREG_GETU(vm, 7),
-   		RVM_CPUREG_GETU(vm, 8), (long int)RVM_CPUREG_GETU(vm, FP), (long int)RVM_CPUREG_GETU(vm, SP),
+   		RVM_CPUREG_GETU(vm, 8), RVM_CPUREG_GETP(vm, TP), (long int)RVM_CPUREG_GETU(vm, FP), (long int)RVM_CPUREG_GETU(vm, SP),
    		(long int)RVM_CPUREG_GETU(vm, LR), (long int)RVM_CPUREG_GETU(vm, PC), RVM_CPUREG_GETU(vm, DA),
    		vm->status & RVM_STATUS_V ? 'V' : '_',
    		vm->status & RVM_STATUS_C ? 'C' : '_',

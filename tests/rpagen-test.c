@@ -844,6 +844,20 @@ int codegen_swiid_callback(rpa_stat_handle stat, const char *name, void *userdat
 }
 
 
+int codegen_opthis_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
+{
+	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
+	rulong off = rvm_codegen_getcodesize(co->cg);
+
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, TP, XX, 0));
+	codegen_print_callback(stat, name, userdata, input, size, reason);
+	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
+
+	return size;
+
+}
+
+
 int codegen_opidentifier_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
@@ -942,28 +956,12 @@ int codegen_varalloc_callback(rpa_stat_handle stat, const char *name, void *user
 }
 
 
-int codegen_newarraysize_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
+int codegen_opnewarray_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
 
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R1, R0, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCOBJ, R0, R1, XX, 0));
-
-	codegen_print_callback(stat, name, userdata, input, size, reason);
-	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
-
-	return size;
-}
-
-
-int codegen_newarraynosize_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
-{
-	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
-
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R1, DA, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCOBJ, R0, R1, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCOBJ, R0, DA, XX, 0));
 
 	codegen_print_callback(stat, name, userdata, input, size, reason);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
@@ -1035,10 +1033,22 @@ int codegen_newkeyword_callback(rpa_stat_handle stat, const char *name, void *us
 }
 
 
-int codegen_newexpression_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
+int codegen_newexpressioncallop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
+	rvm_funcall_t *funcall = r_array_empty(co->funcall) ? NULL : (rvm_funcall_t *) r_array_slot(co->funcall, r_array_length(co->funcall) - 1);
+
+
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCOBJ, TP, DA, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_SUB, FP, SP, DA, funcall->params));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDS, R1, FP, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_STS, LR, FP, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_CALL, R1, DA, XX, -rvm_codegen_getcodesize(co->cg)));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, SP, FP, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, TP, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BITS(TP,LR)));
+
 
 
 	codegen_print_callback(stat, name, userdata, input, size, reason);
@@ -1052,6 +1062,7 @@ int codegen_funcallname_callback(rpa_stat_handle stat, const char *name, void *u
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
+	rvm_asmins_t *last = rvm_codegen_getcode(co->cg, off - 1);
 	rvm_funcall_t funcall = {input, size, 0};
 
 	r_array_add(co->funcall, &funcall);
@@ -1062,7 +1073,17 @@ int codegen_funcallname_callback(rpa_stat_handle stat, const char *name, void *u
 	 * and FP will point there. After the call we save the LR at that spot
 	 * as we don't need the RO anymore.
 	 */
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(TP)|BIT(FP)|BIT(SP)));
+
+	if (last->op1 == R0 && last->op2 == R1 && (last->opcode == RVM_LDOBJN || last->opcode == RVM_LDOBJH)) {
+		/*
+		 * The function call id is comming from an object, so we set the this pointer (TP)
+		 * to point to the object (R1)
+		 */
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(TP)|BIT(FP)|BIT(SP)));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, TP, R1, XX, 0));
+	} else {
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(TP)|BIT(FP)|BIT(SP)));
+	}
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
 
 	codegen_print_callback(stat, name, userdata, input, size, reason);
@@ -1566,27 +1587,6 @@ int codegen_iterationforop_callback(rpa_stat_handle stat, const char *name, void
 }
 
 
-int codegen_newexpressionop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
-{
-	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
-
-	if (reason & RPA_REASON_START) {
-
-	} else 	if (reason & RPA_REASON_MATCHED) {
-
-	}
-
-
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_NOP, XX, XX, XX, 0));
-
-
-	codegen_print_callback(stat, name, userdata, input, size, reason);
-	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
-	return size;
-}
-
-
 void codegen_unmap_file(rstr_t *buf)
 {
 	if (buf) {
@@ -1813,6 +1813,7 @@ void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co)
 
 	////////////////
 
+	rpa_dbex_add_callback_exact(dbex, "ThisOp", RPA_REASON_MATCHED, codegen_opthis_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "IdentifierOp", RPA_REASON_MATCHED, codegen_opidentifier_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "MemberIdentifierNameOp", RPA_REASON_MATCHED, codegen_h_arraynamelookup_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "MemberExpressionBaseOp", RPA_REASON_MATCHED, codegen_push_r0_callback, co);
@@ -1827,8 +1828,7 @@ void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co)
 
 
 	rpa_dbex_add_callback_exact(dbex, "ConditionalExpression", RPA_REASON_MATCHED, codegen_conditionalexp_callback, co);
-	rpa_dbex_add_callback_exact(dbex, "NewArraySize", RPA_REASON_MATCHED, codegen_newarraysize_callback, co);
-	rpa_dbex_add_callback_exact(dbex, "NewArrayNoSize", RPA_REASON_MATCHED, codegen_newarraynosize_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "NewArrayExpressionOp", RPA_REASON_MATCHED, codegen_opnewarray_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "compile_error", RPA_REASON_MATCHED, codegen_compile_error_callback, co);
 
 	rpa_dbex_add_callback_exact(dbex, "ArgumentsOp", RPA_REASON_ALL, codegen_costate_callback, co);
@@ -1844,7 +1844,9 @@ void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co)
 	rpa_dbex_add_callback_exact(dbex, "FunctionCallName", RPA_REASON_MATCHED, codegen_funcallname_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "CallExpressionOp", RPA_REASON_MATCHED, codegen_funcallexpression_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "NewKeyword", RPA_REASON_MATCHED, codegen_newkeyword_callback, co);
-	rpa_dbex_add_callback_exact(dbex, "MemberExpressionNewOp", RPA_REASON_MATCHED, codegen_newexpression_callback, co);
+
+	rpa_dbex_add_callback_exact(dbex, "NewExpressionCallName", RPA_REASON_MATCHED, codegen_funcallname_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "NewExpressionCallOp", RPA_REASON_MATCHED, codegen_newexpressioncallop_callback, co);
 
 
 	rpa_dbex_add_callback_exact(dbex, "IfConditionOp", RPA_REASON_MATCHED, codegen_ifconditionop_callback, co);
@@ -1867,7 +1869,6 @@ void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co)
 	rpa_dbex_add_callback_exact(dbex, "BreakOp", RPA_REASON_MATCHED, codegen_breakkeyword_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "ContinueOp", RPA_REASON_MATCHED, codegen_continuekeyword_callback, co);
 
-	rpa_dbex_add_callback_exact(dbex, "NewExpressionOp", RPA_REASON_ALL, codegen_newexpressionop_callback, co);
 
 	if (verboseinfo)
 		rpa_dbex_add_callback(dbex, ".*", RPA_REASON_MATCHED, codegen_print_callback, co);

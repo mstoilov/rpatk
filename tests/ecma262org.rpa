@@ -199,8 +199,8 @@ PropertyAssignment	::= <:PropertyName:>  <S>? ':'  <S>? <:AssignmentExpression:>
 
 
 PropertyName 		::= <:IdentifierName:> |
-			    <:StringLiteral:> |
-			    <:NumericLiteral:>
+						<:StringLiteral:> |
+						<:NumericLiteral:>
 
 PropertySetParameterList::= <:Identifier:>
 

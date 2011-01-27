@@ -1,10 +1,3 @@
-# Temporary staff
-NewKeyword				::= 'new'
-ArrayKeyword			::= 'Array'
-NewArrayNoSize			::= <S>? <:NewKeyword:> <S> <:ArrayKeyword:> <S>? '(' <S>? ')'
-NewArraySize			::= <S>? <:NewKeyword:> <S> <:ArrayKeyword:> <S>? '(' <S>? <:AssignmentExpression:> <S>? ')'
-NewArrayExpression		::= <:NewArraySize:> | <:NewArrayNoSize:>
-
 # 6 Source Text
 SourceCharacter		::= .
 
@@ -97,23 +90,24 @@ HexIntegerLiteral 				::= '0' [xX] <:HexDigit:>+
 HexDigit 						::= [0-9a-fA-F]
 
 # 7.8.4 String Literals
-StringLiteral					::= '\"' <:DoubleStringCharacters:>? '\"' |
-			    					['] <:SingleStringCharacters:>? [']
+StringLiteral					::= '"' <:DoubleStringCharacters:>? '"' |
+			    					"'" <:SingleStringCharacters:>? "'"
 
 DoubleStringCharacters			::= <DoubleStringCharacter>+
 SingleStringCharacters			::= <SingleStringCharacter>+
 
 DoubleStringCharacter			::= '\\' <:EscapeSequence:> |
 			    					<:LineContinuation:> |
-			    					<:SourceCharacter:> - ('\"' | '\\' | <:LineTerminator:>)
+			    					<:SourceCharacter:> - ('"' | '\\' | <:LineTerminator:>)
 
 SingleStringCharacter			::= '\\' <:EscapeSequence:> |
 			    					<:LineContinuation:> |
-			    					<:SourceCharacter:> - (['] | '\\' | <:LineTerminator:>)
+			    					<:SourceCharacter:> - ("'" | '\\' | <:LineTerminator:>)
 
 BracketExpressionOp				::= '(' <S>? <:Expression:> <S>? ')'
+ThisOp							::= 'this'
 
-PrimaryExpression				::= 'this' | 
+PrimaryExpression				::= <:ThisOp:> | 
 			    					'(' <S>? <:Expression:> <S>? ')' |
 			    					<:LiteralOp:> |
 			    					(<;SwiIdExist;> & <:SwiId:>) |
@@ -146,15 +140,16 @@ MemberExpressionNewOp			::= <:NewKeyword:> <S>? <:CallExpression:>
 
 MemberExpression 				::= <:MemberExpressionIndexOp:>  |
 									<:MemberExpressionNameOp:> |
-									<:MemberExpressionNewOp:> |
 									<:FunctionExpression:> |
 									<:PrimaryExpression:>
 
+NewExpressionCallName			::= <:MemberExpression:>
+NewExpressionCallOp				::= <:NewKeyword:> <S>? <:NewExpressionCallName:> <S>? <:ArgumentsOp:>?
+NewArrayExpressionOp			::= <S>? 'new' <S> ( 'Array' | 'Object') <S>? <ArgumentsOp>?
 
-NewExpression 					::= <:NewArrayExpression:> |
-									<:NewKeyword:> <S>? <:NewExpression:> |
+NewExpression 					::= <:NewArrayExpressionOp:> |
+									<:NewExpressionCallOp:> |
 									<:MemberExpression:>
-
 
 FunctionCallName				::= <:CallExpression:> | <:MemberExpression:>
 CallExpressionOp				::= <:FunctionCallName:> <S>? <:ArgumentsOp:>
