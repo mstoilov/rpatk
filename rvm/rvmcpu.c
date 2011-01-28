@@ -149,6 +149,8 @@ static const char *stropcalls[] = {
 	"RVM_OBJLKUP",
 	"RVM_OBJADD",
 	"RVM_OBJLKUPADD",
+	"RVM_PROPSET",
+	"RVM_PROPGET",
 	"UNKNOWN",
 	"UNKNOWN",
 	"UNKNOWN",
@@ -396,6 +398,24 @@ static void rvm_op_strr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		RVM_ABORT(cpu, RVM_E_LVALUE);
 	else
 		*((rvmreg_t*)RVM_REG_GETP(dest)) = RVM_CPUREG_GET(cpu, ins->op1);
+}
+
+
+static void rvm_op_propset(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rvmreg_t *src = RVM_CPUREG_PTR(cpu, ins->op1);
+	rlong index = RVM_CPUREG_GETU(cpu, ins->op2);
+
+	r_carray_replace(cpu->prop, index, src);
+}
+
+
+static void rvm_op_propget(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rvmreg_t *dest = RVM_CPUREG_PTR(cpu, ins->op1);
+	rlong index = RVM_CPUREG_GETU(cpu, ins->op2);
+
+	*dest = r_carray_index(cpu->prop, index, rvmreg_t);
 }
 
 
@@ -1773,6 +1793,8 @@ static rvm_cpu_op ops[] = {
 	rvm_op_objlookup,	// RVM_OBJLKUP,
 	rvm_op_objkeyadd,	// RVM_OBJADD,
 	rvm_op_objkeylookupadd,	// RVM_OBJLKUPADD,
+	rvm_op_propset,		// RVM_PROPSET
+	rvm_op_propget,		// RVM_PROPGET
 	(void*) 0,
 	(void*) 0,
 	(void*) 0,
@@ -1797,6 +1819,7 @@ rvmcpu_t *rvm_cpu_create(rulong stacksize)
 	cpu->switables = r_array_create(sizeof(rvm_switable_t*));
 	cpu->stack = r_malloc(stacksize * sizeof(rvmreg_t));
 	cpu->data = r_carray_create(sizeof(rvmreg_t));
+	cpu->prop = r_carray_create(sizeof(rvmreg_t));
 	cpu->opmap = rvm_opmap_create();
 	cpu->gc = rvm_gc_create();
 	rvm_op_binary_init(cpu->opmap);
@@ -1821,6 +1844,7 @@ void rvm_cpu_destroy(rvmcpu_t *cpu)
 	r_object_destroy((robject_t*)cpu->switables);
 	r_free(cpu->stack);
 	r_object_destroy((robject_t*)cpu->data);
+	r_object_destroy((robject_t*)cpu->prop);
 	rvm_opmap_destroy(cpu->opmap);
 	r_free(cpu);
 }

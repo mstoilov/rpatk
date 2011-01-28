@@ -644,6 +644,10 @@ int codegen_program_callback(rpa_stat_handle stat, const char *name, void *userd
 		rvm_costat_pushroot(co);
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_NOP, XX, XX, XX, 0));
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_NOP, XX, XX, XX, 0));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCOBJ, R0, DA, XX, 0));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_PROPSET, R0, DA, XX, 0));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_PROPGET, TP, DA, XX, 0));
+
 	} else {
 		rvm_codegen_replaceins(co->cg, 0, rvm_asm(RVM_MOV, FP, SP, XX, 0));
 		rvm_codegen_replaceins(co->cg, 1, rvm_asm(RVM_ADD, SP, SP, DA, r_array_pop(co->fp, rword)));
@@ -1083,6 +1087,7 @@ int codegen_funcallname_callback(rpa_stat_handle stat, const char *name, void *u
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, TP, R1, XX, 0));
 	} else {
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(TP)|BIT(FP)|BIT(SP)));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_PROPGET, TP, DA, XX, 0));
 	}
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
 

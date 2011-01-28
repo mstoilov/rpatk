@@ -151,6 +151,8 @@ enum {
 	RVM_OBJLKUP,
 	RVM_OBJADD,
 	RVM_OBJLKUPADD,
+	RVM_PROPSET,
+	RVM_PROPGET,
 };
 
 
@@ -301,6 +303,7 @@ struct rvmcpu_s {
 	rulong stacksize;
 	void *stack;
 	rcarray_t *data;
+	rcarray_t *prop;
 	struct rvm_opmap_s *opmap;
 	void *userdata;
 	rvm_gc_t *gc;
