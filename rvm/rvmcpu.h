@@ -151,8 +151,6 @@ enum {
 	RVM_OBJLKUP,
 	RVM_OBJADD,
 	RVM_OBJLKUPADD,
-	RVM_PROPSET,
-	RVM_PROPGET,
 };
 
 
@@ -303,8 +301,8 @@ struct rvmcpu_s {
 	rulong stacksize;
 	void *stack;
 	rcarray_t *data;
-	rcarray_t *prop;
 	struct rvm_opmap_s *opmap;
+	rvmreg_t *thisptr;
 	void *userdata;
 	rvm_gc_t *gc;
 };
@@ -319,6 +317,9 @@ rint rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off);
 rint rvm_cpu_getswi(rvmcpu_t *cpu, const rchar *swiname, rsize_t size);
 rint rvm_cpu_getswi_s(rvmcpu_t *cpu, const rchar *swiname);
 void rvm_relocate(rvm_asmins_t *code, rsize_t size);
+rvmreg_t *rvm_cpu_alloc_global(rvmcpu_t *cpu);
+int rvm_cpu_setreg(rvmcpu_t *cpu, rword regnum, const rvmreg_t *src);
+rvmreg_t * rvm_cpu_getreg(rvmcpu_t *cpu, rword regnum);
 rvm_asmins_t rvm_asm(rword opcode, rword op1, rword op2, rword op3, rword data);
 rvm_asmins_t rvm_asml(rword opcode, rword op1, rword op2, rword op3, rlong data);
 rvm_asmins_t rvm_asmb(rword opcode, rword op1, rword op2, rword op3, rword data);

@@ -144,7 +144,8 @@ MemberExpression 				::= <:MemberExpressionIndexOp:>  |
 									<:PrimaryExpression:>
 
 NewExpressionCallName			::= <:MemberExpression:>
-NewExpressionCallOp				::= <:NewKeyword:> <S>? <:NewExpressionCallName:> <S>? <:ArgumentsOp:>?
+NewExpressionCallOp				::= <:NewKeyword:> <S>? <NewExpressionCallName> <S>? <:ArgumentsOp:>? & 
+									<NewKeyword> <S>? <:NewExpressionCallName:> <S>? <ArgumentsOp>?
 NewArrayExpressionOp			::= <S>? 'new' <S> ( 'Array' | 'Object') <S>? <ArgumentsOp>?
 
 NewExpression 					::= <:NewArrayExpressionOp:> |
@@ -152,7 +153,8 @@ NewExpression 					::= <:NewArrayExpressionOp:> |
 									<:MemberExpression:>
 
 FunctionCallName				::= <:CallExpression:> | <:MemberExpression:>
-CallExpressionOp				::= <:FunctionCallName:> <S>? <:ArgumentsOp:>
+CallExpressionOp				::= <FunctionCallName> <S>? <:ArgumentsOp:> & 
+									<:FunctionCallName:> <S>? <ArgumentsOp>
 CallExpressionBaseOp			::= <:CallExpression:>
 CallExpressionIndexOp			::= <:CallExpressionBaseOp:> <S>? '[' <S>? <:Expression:> <S>? ']'
 CallExpressionNameOp			::= <:CallExpressionBaseOp:> '.' <:MemberIdentifierNameOp:>

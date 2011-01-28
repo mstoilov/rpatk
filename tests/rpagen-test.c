@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include "rmem.h"
+#include "rjsobject.h"
 #include "rvmcpu.h"
 #include "rpadbex.h"
 #include "rpaerror.h"
@@ -89,8 +90,8 @@ typedef struct rvm_compiler_s {
 
 
 
-#define RVM_SAVEDREGS_FIRST 4
-#define RVM_SAVEDREGS_MAX (RLST - (RLST - TP) - RVM_SAVEDREGS_FIRST - 1)
+#define RVM_SAVEDREGS_FIRST R4
+#define RVM_SAVEDREGS_MAX (RLST - (RLST - R8) - RVM_SAVEDREGS_FIRST)
 
 
 void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co);
@@ -316,6 +317,7 @@ inline int codegen_print_callback(rpa_stat_handle stat, const char *name, void *
 			fprintf(stdout, " (next: %s, input: %p)", rec->name, rec->input);
 		}
 		fprintf(stdout, " (debth: %d, level: %d, binaryop: %d, dirty: %d)", rvm_costat_getdebth(co), rvm_costat_getlevel(co), rvm_costat_getbinaryop(co), rvm_costat_getdirty(co));
+//		fprintf(stdout, "(RVM_SAVEDREGS_MAX = %d)", RVM_SAVEDREGS_MAX);
 		fprintf(stdout, "\n");
 		fflush(stdout);
 	}
@@ -644,10 +646,8 @@ int codegen_program_callback(rpa_stat_handle stat, const char *name, void *userd
 		rvm_costat_pushroot(co);
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_NOP, XX, XX, XX, 0));
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_NOP, XX, XX, XX, 0));
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCOBJ, R0, DA, XX, 0));
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_PROPSET, R0, DA, XX, 0));
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_PROPGET, TP, DA, XX, 0));
-
+//		rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCOBJ, R8, DA, XX, 0));
+//		rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, TP, R8, XX, 0));
 	} else {
 		rvm_codegen_replaceins(co->cg, 0, rvm_asm(RVM_MOV, FP, SP, XX, 0));
 		rvm_codegen_replaceins(co->cg, 1, rvm_asm(RVM_ADD, SP, SP, DA, r_array_pop(co->fp, rword)));
@@ -1041,18 +1041,28 @@ int codegen_newexpressioncallop_callback(rpa_stat_handle stat, const char *name,
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
-	rvm_funcall_t *funcall = r_array_empty(co->funcall) ? NULL : (rvm_funcall_t *) r_array_slot(co->funcall, r_array_length(co->funcall) - 1);
 
+	if (reason & RPA_REASON_START) {
+		rvm_funcall_t funcall = {input, size, 0};
+		r_array_add(co->funcall, &funcall);
 
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCOBJ, TP, DA, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_SUB, FP, SP, DA, funcall->params));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDS, R1, FP, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_STS, LR, FP, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_CALL, R1, DA, XX, -rvm_codegen_getcodesize(co->cg)));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, SP, FP, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, TP, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BITS(TP,LR)));
-
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(TP)|BIT(FP)|BIT(SP)|BIT(LR)));
+	} else if (reason & RPA_REASON_MATCHED){
+		rvm_funcall_t *funcall = r_array_empty(co->funcall) ? NULL : (rvm_funcall_t *) r_array_slot(co->funcall, r_array_length(co->funcall) - 1);
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCOBJ, TP, DA, XX, 0));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_SUB, FP, SP, DA, funcall->params));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_CALL, R0, DA, XX, -rvm_codegen_getcodesize(co->cg)));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, SP, FP, XX, 0));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, TP, XX, 0));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BITS(TP,LR)));
+		r_array_removelast(co->funcall);
+	} else if (reason & RPA_REASON_END) {
+		/*
+		 * We should never get here
+		 */
+		r_array_removelast(co->funcall);
+		ASSERT(0);
+	}
 
 
 	codegen_print_callback(stat, name, userdata, input, size, reason);
@@ -1067,30 +1077,16 @@ int codegen_funcallname_callback(rpa_stat_handle stat, const char *name, void *u
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
 	rvm_asmins_t *last = rvm_codegen_getcode(co->cg, off - 1);
-	rvm_funcall_t funcall = {input, size, 0};
-
-	r_array_add(co->funcall, &funcall);
-
-
-	/*
-	 * R0 holds the label of the called function, we save on the stack
-	 * and FP will point there. After the call we save the LR at that spot
-	 * as we don't need the RO anymore.
-	 */
 
 	if (last->op1 == R0 && last->op2 == R1 && (last->opcode == RVM_LDOBJN || last->opcode == RVM_LDOBJH)) {
 		/*
 		 * The function call id is comming from an object, so we set the this pointer (TP)
 		 * to point to the object (R1)
 		 */
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(TP)|BIT(FP)|BIT(SP)));
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, TP, R1, XX, 0));
 	} else {
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(TP)|BIT(FP)|BIT(SP)));
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_PROPGET, TP, DA, XX, 0));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, TP, R8, XX, 0));
 	}
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
-
 	codegen_print_callback(stat, name, userdata, input, size, reason);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
 
@@ -1102,19 +1098,29 @@ int codegen_funcallexpression_callback(rpa_stat_handle stat, const char *name, v
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
-	rvm_funcall_t *funcall = r_array_empty(co->funcall) ? NULL : (rvm_funcall_t *) r_array_slot(co->funcall, r_array_length(co->funcall) - 1);
 
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_SUB, FP, SP, DA, funcall->params));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDS, R1, FP, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_STS, LR, FP, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_CALL, R1, DA, XX, -rvm_codegen_getcodesize(co->cg)));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, SP, FP, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BITS(TP,LR)));
+	if (reason & RPA_REASON_START) {
+		rvm_funcall_t funcall = {input, size, 0};
 
-	r_array_removelast(co->funcall);
+		r_array_add(co->funcall, &funcall);
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(TP)|BIT(FP)|BIT(SP)|BIT(LR)));
+	} else if (reason & RPA_REASON_MATCHED) {
+		rvm_funcall_t *funcall = r_array_empty(co->funcall) ? NULL : (rvm_funcall_t *) r_array_slot(co->funcall, r_array_length(co->funcall) - 1);
+
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_SUB, FP, SP, DA, funcall->params));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_CALL, R0, DA, XX, -rvm_codegen_getcodesize(co->cg)));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, SP, FP, XX, 0));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BITS(TP,LR)));
+		r_array_removelast(co->funcall);
+	} else if (reason & RPA_REASON_END) {
+		/*
+		 * We should never get here
+		 */
+		r_array_removelast(co->funcall);
+		ASSERT(0);
+	}
 	codegen_print_callback(stat, name, userdata, input, size, reason);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
-
 	return size;
 }
 
@@ -1138,7 +1144,6 @@ int codegen_fundeclparameter_callback(rpa_stat_handle stat, const char *name, vo
 	rvm_scope_addoffset(co->scope, input, size, r_array_last(co->fp, rword));
 	codegen_print_callback(stat, name, userdata, input, size, reason);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
-
 	return size;
 }
 
@@ -1153,39 +1158,20 @@ int codegen_fundeclname_callback(rpa_stat_handle stat, const char *name, void *u
 	ret = codegen_varalloc_callback(stat, name, userdata, input, size, reason);
 	if (ret == 0)
 		return ret;
-
 	off = rvm_codegen_getcodesize(co->cg);
 	fundecl.codestart = off;
-
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, DA, XX, 0)); 	/* Will be re-written later */
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_STRR, DA, R0, XX, 0)); 	/* Will be re-written later */
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, 0)); 		/* Will be re-written later */
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_ADD, SP, FP, DA, 0)); 	/* Will be re-written later */
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_NOP, XX, XX, XX, 0xffffffff));
 //	rvm_codegen_addins(co->cg, rvm_asm(RVM_NOP, XX, XX, XX, 0xffffffff));
-
 	r_array_push(co->fp, 0, rword);
 	r_array_add(co->fundecl, &fundecl);
 	rvm_scope_push(co->scope);
 	rvm_costat_pushroot(co);
-
 	codegen_print_callback(stat, name, userdata, input, size, reason);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
-	return size;
-}
-
-
-
-int codegen_fundeclsignature_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
-{
-	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
-
-//	rvm_codemap_add(cg->codemap, fundecl->funname, fundecl->funnamesiz, rvm_codegen_getcodesize(co->cg));
-
-	codegen_print_callback(stat, name, userdata, input, size, reason);
-	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
-
 	return size;
 }
 
@@ -1642,6 +1628,7 @@ int main(int argc, char *argv[])
 	int res, i;
 	rstr_t *script = NULL, *unmapscript = NULL;
 	rvmcpu_t *cpu;
+	rvmreg_t *thisptr;
 	ruint ntable;
 	rpa_dbex_handle dbex = rpa_dbex_create();
 	rvm_compiler_t *co = rvm_compiler_create(dbex);
@@ -1650,6 +1637,12 @@ int main(int argc, char *argv[])
 	ntable = rvm_cpu_addswitable(cpu, switable);
 	rvm_cpu_addswitable(cpu, switable_js);
 	co->cpu = cpu;
+
+	thisptr = rvm_cpu_alloc_global(cpu);
+	rvm_reg_setjsobject(thisptr, (robject_t *)rjs_object_create(sizeof(rvmreg_t)));
+	rvm_cpu_setreg(cpu, R8, thisptr);
+	rvm_cpu_setreg(cpu, TP, thisptr);
+
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_NOP, XX, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_NOP, XX, XX, XX, 0));
@@ -1840,18 +1833,16 @@ void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co)
 	rpa_dbex_add_callback_exact(dbex, "BracketExpressionOp", RPA_REASON_ALL, codegen_costate_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "ValLeftHandSideExpression", RPA_REASON_ALL, codegen_costate_callback, co);
 
-
 	rpa_dbex_add_callback_exact(dbex, "FunctionName", RPA_REASON_MATCHED, codegen_fundeclname_callback, co);
-	rpa_dbex_add_callback_exact(dbex, "FunctionDefinition", RPA_REASON_MATCHED, codegen_fundeclsignature_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "FunctionDeclaration", RPA_REASON_MATCHED, codegen_fundecl_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "FunctionParameter", RPA_REASON_MATCHED, codegen_fundeclparameter_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "FunctionCallParameter", RPA_REASON_MATCHED, codegen_funcallparameter_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "FunctionCallName", RPA_REASON_MATCHED, codegen_funcallname_callback, co);
-	rpa_dbex_add_callback_exact(dbex, "CallExpressionOp", RPA_REASON_MATCHED, codegen_funcallexpression_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "CallExpressionOp", RPA_REASON_ALL, codegen_funcallexpression_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "NewKeyword", RPA_REASON_MATCHED, codegen_newkeyword_callback, co);
 
 	rpa_dbex_add_callback_exact(dbex, "NewExpressionCallName", RPA_REASON_MATCHED, codegen_funcallname_callback, co);
-	rpa_dbex_add_callback_exact(dbex, "NewExpressionCallOp", RPA_REASON_MATCHED, codegen_newexpressioncallop_callback, co);
+	rpa_dbex_add_callback_exact(dbex, "NewExpressionCallOp", RPA_REASON_ALL, codegen_newexpressioncallop_callback, co);
 
 
 	rpa_dbex_add_callback_exact(dbex, "IfConditionOp", RPA_REASON_MATCHED, codegen_ifconditionop_callback, co);
