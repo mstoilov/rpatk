@@ -278,7 +278,8 @@ ExpressionNoIn		::= <:AssignmentExpressionNoIn:> ( <S>? ',' <S>? <:AssignmentExp
 
 
 # 12 Statements
-Statement						::= <:BreakStatement:> |
+Statement						::= <:FunctionDefinitionStatement:> |
+									<:BreakStatement:> |
 									<:ContinueStatement:> |
 									<:Block:> |
 			    					<:Comment:> |
@@ -375,11 +376,13 @@ ContinueStatement				::= <S>? <:ContinueOp:> <:SC:>
 
 # 13 Function Definition
 FunctionName						::= <:Identifier:>
+FunctionNameLookupAlloc				::= <:Identifier:>
 FunctionDefinition					::= ('function' - 'function' <IdentifierPart>)<S>?<:FunctionName:><S>?'('<S>?<:FormalParameterList:>?<S>?')'
 FunctionDeclaration					::= <:FunctionDefinition:><S>?'{'<S>?<:FunctionBody:>?<S>?'}'
 FunctionExpression					::= ('function' - 'function'<IdentifierPart>)<S>?<:FunctionName:>?<S>?'('<S>?<:FormalParameterList:>?<S>?')'<S>?'{'<S>?<:FunctionBody:>?<S>?'}'
 FunctionParameter 					::= <:Identifier:>
 FormalParameterList 				::= <:FunctionParameter:> ( <S>? ',' <S>? <:FunctionParameter:> )*
+FunctionDefinitionStatement			::= ('function' - 'function' <IdentifierPart>)<S>?<:FunctionNameLookupAlloc:><S>?'('<S>?<FormalParameterList>?<S>?')' <:SC:>
 FunctionBody						::= <:SourceElements:>
 
 

@@ -760,6 +760,12 @@ int codegen_addressoflefthandside_callback(rpa_stat_handle stat, const char *nam
 		lastlast->opcode = RVM_OBJLKUPADD;
 		last->opcode = RVM_ADDROBJH;
 		off -= 2;
+	} else {
+		fprintf(stdout, "ERROR: Invalid Left-Hand side expression: ");
+		fwrite(input, sizeof(char), size, stdout);
+		fprintf(stdout, "\n");
+		rpa_dbex_abort(co->dbex);
+		return 0;
 	}
 
 	codegen_print_callback(stat, name, userdata, input, size, reason);
@@ -1148,24 +1154,42 @@ int codegen_fundeclparameter_callback(rpa_stat_handle stat, const char *name, vo
 }
 
 
+int codegen_funnamelookupalloc_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
+{
+	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
+	rvm_varmap_t *v = rvm_scope_tiplookup(co->scope, input, size);
+
+	if (!v) {
+		if (codegen_varalloc_callback(stat, name, userdata, input, size, reason) == 0)
+			return 0;
+	}
+	return size;
+}
+
+
 int codegen_fundeclname_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off;
 	rvm_fundecl_t fundecl = {input, size, 0, 0};
-	rint ret;
+	rvm_varmap_t *v = rvm_scope_tiplookup(co->scope, input, size);
 
-	ret = codegen_varalloc_callback(stat, name, userdata, input, size, reason);
-	if (ret == 0)
-		return ret;
+	if (!v) {
+		if (codegen_varalloc_callback(stat, name, userdata, input, size, reason) == 0)
+			return 0;
+	}
 	off = rvm_codegen_getcodesize(co->cg);
 	fundecl.codestart = off;
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R1, DA, XX, 0)); 	/* Will be re-written later */
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, DA, XX, 0)); 	/* Will be re-written later */
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_STRR, DA, R0, XX, 0)); 	/* Will be re-written later */
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_SETTYPE, R0, DA, XX, RVM_DTYPE_FUNCTION)); 	/* Will be re-written later */
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_STRR, R0, R1, XX, 0)); 	/* Will be re-written later */
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, 0)); 		/* Will be re-written later */
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_ADD, SP, FP, DA, 0)); 	/* Will be re-written later */
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_NOP, XX, XX, XX, 0xffffffff));
-//	rvm_codegen_addins(co->cg, rvm_asm(RVM_NOP, XX, XX, XX, 0xffffffff));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_NOP, XX, XX, XX, 0xffffffff));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_NOP, XX, XX, XX, 0xffffffff));
+
 	r_array_push(co->fp, 0, rword);
 	r_array_add(co->fundecl, &fundecl);
 	rvm_scope_push(co->scope);
@@ -1198,15 +1222,17 @@ int codegen_fundecl_callback(rpa_stat_handle stat, const char *name, void *userd
 	 */
 	fundecl->codesize = rvm_codegen_getcodesize(co->cg) - fundecl->codestart;
 	if (fname->datatype == VARMAP_DATATYPE_OFFSET) {
-		rvm_codegen_replaceins(co->cg, fundecl->codestart + 0, rvm_asm(RVM_ADDRS, R0, FP, DA, fname->data.offset));
+		rvm_codegen_replaceins(co->cg, fundecl->codestart + 0, rvm_asm(RVM_ADDRS, R1, FP, DA, fname->data.offset));
 	} else {
-		rvm_codegen_replaceins(co->cg, fundecl->codestart + 0, rvm_asmp(RVM_MOV, R0, DA, XX, fname->data.ptr));
+		rvm_codegen_replaceins(co->cg, fundecl->codestart + 0, rvm_asmp(RVM_MOV, R1, DA, XX, fname->data.ptr));
 	}
-	rvm_codegen_replaceins(co->cg, fundecl->codestart + 1, rvm_asm(RVM_STRR, DA, R0, XX, fundecl->codestart + 3));
-	rvm_codegen_replaceins(co->cg, fundecl->codestart + 2, rvm_asm(RVM_B, DA, XX, XX, fundecl->codesize - 2));
-	rvm_codegen_replaceins(co->cg, fundecl->codestart + 3, rvm_asm(RVM_ADD, SP, FP, DA, fp));
+	rvm_codegen_replaceins(co->cg, fundecl->codestart + 1, rvm_asm(RVM_MOV, R0, DA, XX, fundecl->codestart + 5));
+	rvm_codegen_replaceins(co->cg, fundecl->codestart + 2, rvm_asm(RVM_SETTYPE, R0, DA, XX, RVM_DTYPE_FUNCTION));
+	rvm_codegen_replaceins(co->cg, fundecl->codestart + 3, rvm_asm(RVM_STRR, R0, R1, XX, 0));
+	rvm_codegen_replaceins(co->cg, fundecl->codestart + 4, rvm_asm(RVM_B, DA, XX, XX, fundecl->codesize - 4));
+	rvm_codegen_replaceins(co->cg, fundecl->codestart + 5, rvm_asm(RVM_ADD, SP, FP, DA, fp));
 	if (rvm_costat_getdirty(co))
-		rvm_codegen_replaceins(co->cg, fundecl->codestart + 4, rvm_asm(RVM_PUSHM, DA, XX, XX, BITS(RVM_SAVEDREGS_FIRST, RVM_SAVEDREGS_FIRST + rvm_costat_getdirty(co) - 1)));
+		rvm_codegen_replaceins(co->cg, fundecl->codestart + 6, rvm_asm(RVM_PUSHM, DA, XX, XX, BITS(RVM_SAVEDREGS_FIRST, RVM_SAVEDREGS_FIRST + rvm_costat_getdirty(co) - 1)));
 
 	fundecl->codesize = rvm_codegen_getcodesize(co->cg) - fundecl->codestart;
 	fundecl->params = r_array_last(co->fp, rword);
@@ -1689,6 +1715,8 @@ int main(int argc, char *argv[])
 				if (script) {
 					res = rpa_dbex_parse(dbex, rpa_dbex_default_pattern(dbex), script->str, script->str, script->str + script->size);
 					unmapscript = script;
+					if (res <= 0)
+						rvm_codegen_clear(co->cg);
 				}
 
 			}
@@ -1833,6 +1861,7 @@ void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co)
 	rpa_dbex_add_callback_exact(dbex, "BracketExpressionOp", RPA_REASON_ALL, codegen_costate_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "ValLeftHandSideExpression", RPA_REASON_ALL, codegen_costate_callback, co);
 
+	rpa_dbex_add_callback_exact(dbex, "FunctionNameLookupAlloc", RPA_REASON_MATCHED, codegen_funnamelookupalloc_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "FunctionName", RPA_REASON_MATCHED, codegen_fundeclname_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "FunctionDeclaration", RPA_REASON_MATCHED, codegen_fundecl_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "FunctionParameter", RPA_REASON_MATCHED, codegen_fundeclparameter_callback, co);

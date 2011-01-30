@@ -26,6 +26,7 @@ extern "C" {
 #define RVM_DTYPE_NAN 8
 #define RVM_DTYPE_UNDEF 9
 #define RVM_DTYPE_JSOBJECT 10
+#define RVM_DTYPE_FUNCTION 11
 #define RVM_DTYPE_SWIID 13			/* SWI ID */
 #define RVM_DTYPE_RELOCPTR 14		/* Relocation, using pointers */
 #define RVM_DTYPE_RELOCINDEX 15		/* Relocation, using offsets */

@@ -645,8 +645,10 @@ static void rvm_op_call(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	if (RVM_REG_GETTYPE(arg1) == RVM_DTYPE_SWIID) {
 		RVM_CPUREG_SETIP(cpu, LR, RVM_CPUREG_GETIP(cpu, PC));
 		rvm_op_swiid(cpu, ins);
-	} else {
+	} else if (RVM_REG_GETTYPE(arg1) == RVM_DTYPE_FUNCTION) {
 		rvm_op_bl(cpu, ins);
+	} else {
+		RVM_ABORT(cpu, RVM_E_NOFUNCTION);
 	}
 }
 
