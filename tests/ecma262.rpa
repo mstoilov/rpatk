@@ -391,7 +391,8 @@ CaseBlock							::= '{' <S>? <:CaseClauses:>? <S>? <:DefaultClauseOp:>? <S>? <:C
 CaseClauses 						::= (<S>? <:CaseClauseOp:>)+
 CaseExpressionOp					::= ('case' - 'case' <IdentifierPart>) <S>? <:Expression:> <S>? ':'
 CaseClauseOp						::= <:CaseExpressionOp:> <S>? <:StatementList:>?
-DefaultClauseOp						::= 'default' <S>? ':' <S>? <:StatementList:>?
+DefaultKeywordOp					::= 'default' - 'default' <IdentifierPart>
+DefaultClauseOp						::= <:DefaultKeywordOp:> <S>? ':' <S>? <:StatementList:>?
 
 
 # 13 Function Definition
