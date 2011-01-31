@@ -259,7 +259,8 @@ do { \
 #define RVM_E_SWITABLE		(5)
 #define RVM_E_LVALUE		(6)
 #define RVM_E_NOMEM			(7)
-#define RVM_E_NOFUNCTION	(8)
+#define RVM_E_NOTFUNCTION	(8)
+#define RVM_E_NOTOBJECT		(9)
 
 typedef struct rvm_asmins_s rvm_asmins_t;
 typedef struct rvmcpu_s rvmcpu_t;

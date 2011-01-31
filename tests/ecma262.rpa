@@ -294,7 +294,7 @@ Statement						::= <:FunctionDefinitionStatement:> |
 			    					<:ImportStatement:> |
 			    					<:WithStatement:> |
 			    					<:LabelledStatement:> |
-			    					<:SwitchStatement:> |
+			    					<:SwitchStatementOp:> |
 			    					<:ThrowStatement:> |
 			    					<:TryStatement:> |
 			    					<:DebuggerStatement:>
@@ -372,6 +372,25 @@ BreakStatement					::= <S>? <:BreakOp:> <:SC:>
 # The Continue Statement
 ContinueOp						::= 'continue' - 'continue' <:IdentifierPart:>
 ContinueStatement				::= <S>? <:ContinueOp:> <:SC:>
+
+
+
+# 12.10 The with Statement
+WithStatement					::= 'with' <S>? '(' <S>? <:Expression:> <S>? ')' <S>? <:Statement:>
+
+
+# 12.11 The switch Statement
+SwitchStatementOp					::= 'switch' <S>? '(' <S>? <:Expression:> <S>? ')' <S>? <:CaseBlock:>
+
+CaseBlock						::= '{' <S>? <:CaseClauses:>? <S>? <:DefaultClause:> <S>? <:CaseClauses:>? <S>? '}' |
+				    				'{' <S>? <:CaseClauses:>? <S>? '}'
+
+
+
+CaseClauses 					::= (<S>? <:CaseClause:>)+
+
+CaseClause						::= 'case' <S>? <:Expression:> <S>? ':' <S>? <:StatementList:>?
+DefaultClause 					::= 'default' <S>? ':' <S>? <:StatementList:>
 
 
 # 13 Function Definition

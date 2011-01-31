@@ -49,6 +49,7 @@ typedef struct rvm_funcall_s {
 typedef enum {
 	RVM_CODESPAN_NONE = 0,
 	RVM_CODESPAN_LOOP,
+	RVM_CODESPAN_SWITCH,
 } rvm_codespantype_t;
 
 typedef struct rvm_codespan_s {
@@ -1407,8 +1408,6 @@ int codegen_iterationwhileop_callback(rpa_stat_handle stat, const char *name, vo
 
 		cs.codesize = rvm_codegen_getcodesize(co->cg) + 1 - cs.codestart;
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, -(cs.codesize - 1)));
-//		rvm_codegen_addins(co->cg, rvm_asm(RVM_NOP, DA, XX, XX, 0xaaaaa));
-
 		rvm_codegen_replaceins(co->cg, cs.l1, rvm_asm(RVM_BEQ, DA, XX, XX, cs.codesize - (cs.l1 - cs.codestart)));	// Re-writing the instruction
 	} else if (reason & RPA_REASON_END) {
 		rvm_codespan_t cs = r_array_pop(co->codespan, rvm_codespan_t);
@@ -1417,7 +1416,6 @@ int codegen_iterationwhileop_callback(rpa_stat_handle stat, const char *name, vo
 
 	codegen_print_callback(stat, name, userdata, input, size, reason);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
-
 	return size;
 }
 
@@ -1477,14 +1475,23 @@ int codegen_breakkeyword_callback(rpa_stat_handle stat, const char *name, void *
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
-	rvm_codespan_t *cs = (rvm_codespan_t *)r_array_last(co->loops, rvm_codespan_t*);
+	rvm_codespan_t *cs = NULL;
 
-	if (cs->type != RVM_CODESPAN_LOOP) {
+	if (r_array_empty(co->loops)) {
+		fprintf(stdout, "ERROR: Invalid break use. ");
+		fprintf(stdout, "\n");
 		return 0;
 	}
+	cs = (rvm_codespan_t *)r_array_last(co->loops, rvm_codespan_t*);
 
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, -(rvm_codegen_getcodesize(co->cg) - cs->l2)));
+	if (cs->type == RVM_CODESPAN_LOOP || cs->type == RVM_CODESPAN_SWITCH) {
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, -(rvm_codegen_getcodesize(co->cg) - cs->l2)));
+	} else {
+		/*
+		 * Error
+		 */
 
+	}
 
 	codegen_print_callback(stat, name, userdata, input, size, reason);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
@@ -1602,6 +1609,42 @@ int codegen_iterationforop_callback(rpa_stat_handle stat, const char *name, void
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
 	return size;
 }
+
+
+int codegen_switchstatementop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
+{
+	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
+	rulong off = rvm_codegen_getcodesize(co->cg);
+
+	if (reason & RPA_REASON_START) {
+		rvm_codespan_t cs = {RVM_CODESPAN_NONE, 0, 0, 0, 0, 0, 0};
+		cs.codestart = rvm_codegen_getcodesize(co->cg);
+
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, 0)); /* Re-write later */
+		cs.l2 = rvm_codegen_getcodesize(co->cg);
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, 0)); /* Re-write later, this is the break point */
+
+		r_array_add(co->codespan, &cs);
+		r_array_push(co->loops, r_array_lastslot(co->codespan), rvm_codespan_t*);
+	} else if (reason & RPA_REASON_MATCHED) {
+		rvm_codespan_t cs = r_array_pop(co->codespan, rvm_codespan_t);
+		r_array_removelast(co->loops);
+
+		cs.codesize = rvm_codegen_getcodesize(co->cg) - cs.codestart;
+
+		rvm_codegen_replaceins(co->cg, cs.codestart, rvm_asm(RVM_B, DA, XX, XX, cs.codesize));						// Re-writing the instruction
+		rvm_codegen_replaceins(co->cg, cs.l2, rvm_asm(RVM_B, DA, XX, XX, cs.codesize - (cs.l2 - cs.codestart)));	// Re-writing the instruction
+	} else if (reason & RPA_REASON_END) {
+		rvm_codespan_t cs = r_array_pop(co->codespan, rvm_codespan_t);
+		r_array_removelast(co->loops);
+
+		cs.codesize = rvm_codegen_getcodesize(co->cg) - cs.codestart;
+	}
+	codegen_print_callback(stat, name, userdata, input, size, reason);
+	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
+	return size;
+}
+
 
 
 void codegen_unmap_file(rstr_t *buf)
@@ -1893,6 +1936,9 @@ void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co)
 	rpa_dbex_add_callback_exact(dbex, "IterationForOp", RPA_REASON_MATCHED, codegen_iterationforop_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "BreakOp", RPA_REASON_MATCHED, codegen_breakkeyword_callback, co);
 	rpa_dbex_add_callback_exact(dbex, "ContinueOp", RPA_REASON_MATCHED, codegen_continuekeyword_callback, co);
+
+	rpa_dbex_add_callback_exact(dbex, "SwitchStatementOp", RPA_REASON_ALL, codegen_switchstatementop_callback, co);
+
 
 
 	if (verboseinfo)

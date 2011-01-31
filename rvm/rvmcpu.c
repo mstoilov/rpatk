@@ -648,7 +648,7 @@ static void rvm_op_call(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	} else if (RVM_REG_GETTYPE(arg1) == RVM_DTYPE_FUNCTION) {
 		rvm_op_bl(cpu, ins);
 	} else {
-		RVM_ABORT(cpu, RVM_E_NOFUNCTION);
+		RVM_ABORT(cpu, RVM_E_NOTFUNCTION);
 	}
 }
 
@@ -1432,7 +1432,9 @@ static void rvm_op_addrobjn(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = RVM_REG_GETL(&tmp);
-	if (index < 0 || rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT)
+	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT)
+		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
+	if (index < 0)
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	a = (rjs_object_t*)RVM_REG_GETP(arg2);
 	RVM_REG_CLEAR(arg1);
@@ -1451,7 +1453,9 @@ static void rvm_op_ldobjn(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = RVM_REG_GETL(&tmp);
-	if (index < 0 || rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT)
+	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT)
+		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
+	if (index < 0)
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	a = (rjs_object_t*)RVM_REG_GETP(arg2);
 	*arg1 = *((rvmreg_t*)r_carray_slot_expand(a->narray, index));
@@ -1468,7 +1472,9 @@ static void rvm_op_stobjn(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = RVM_REG_GETL(&tmp);
-	if (index < 0 || rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT)
+	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT)
+		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
+	if (index < 0)
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	a = (rjs_object_t*)RVM_REG_GETP(arg2);
 	r_carray_replace(a->narray, index, arg1);
@@ -1483,7 +1489,7 @@ static void rvm_op_objlookup(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rjs_object_t *a = (rjs_object_t*)RVM_REG_GETP(arg2);
 
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT) {
-		RVM_ABORT(cpu, RVM_E_ILLEGAL);
+		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	}
 	index = r_harray_lookup(a->harray, RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1));
 
@@ -1501,7 +1507,7 @@ static void rvm_op_objkeyadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rjs_object_t *a = (rjs_object_t*)RVM_REG_GETP(arg2);
 
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT) {
-		RVM_ABORT(cpu, RVM_E_ILLEGAL);
+		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	}
 	index = r_harray_add(a->harray, RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1), NULL);
 
@@ -1519,7 +1525,7 @@ static void rvm_op_objkeylookupadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rjs_object_t *a = (rjs_object_t*)RVM_REG_GETP(arg2);
 
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT) {
-		RVM_ABORT(cpu, RVM_E_ILLEGAL);
+		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	}
 	index = r_harray_lookup(a->harray, RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1));
 	if (index < 0)
@@ -1541,7 +1547,9 @@ static void rvm_op_addrobjh(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = RVM_REG_GETL(&tmp);
-	if (index < 0 || rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT)
+	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT)
+		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
+	if (index < 0)
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	a = (rjs_object_t*)RVM_REG_GETP(arg2);
 	RVM_REG_CLEAR(arg1);
@@ -1561,7 +1569,7 @@ static void rvm_op_ldobjh(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = RVM_REG_GETL(&tmp);
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT)
-		RVM_ABORT(cpu, RVM_E_ILLEGAL);
+		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	a = (rjs_object_t*)RVM_REG_GETP(arg2);
 	if (index < 0) {
 		RVM_REG_CLEAR(arg1);
@@ -1582,7 +1590,9 @@ static void rvm_op_stobjh(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = RVM_REG_GETL(&tmp);
-	if (index < 0 || rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT)
+	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT)
+		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
+	if (index < 0)
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	a = (rjs_object_t*)RVM_REG_GETP(arg2);
 	r_carray_replace(a->harray->members, index, arg1);
