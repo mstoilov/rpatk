@@ -4,7 +4,7 @@ RAST_SO = $(OUTDIR)/librast.so.1.0
 
 RAST_OBJECTS =	\
 	$(OUTDIR)/rastnode.o \
-	$(OUTDIR)/rastallocator.o \
+	$(OUTDIR)/rastgc.o \
 
 
 ifeq ($(OS), linux)
