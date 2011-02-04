@@ -124,8 +124,11 @@ inline int r_astcompiler_notify(rpa_stat_handle stat, const char *name, void *us
 		r_astcompiler_dumpnotification(stat, name, userdata, input, size, reason);
 
 	if (reason & RPA_REASON_START) {
-
+		rastnode_t *node = r_astnode_create();
+		r_gc_add(aco->gc, (robject_t*)node);
+		node->parent = aco->root;
 	} else if (reason & RPA_REASON_MATCHED) {
+
 
 	} else {
 
