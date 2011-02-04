@@ -39,7 +39,9 @@ void r_hash_removeall(rhash_t* hash);
 rpointer r_hash_lookup(rhash_t* hash, rconstpointer key);
 void r_hash_insert_indexval(rhash_t* hash, rconstpointer key, rulong index);
 rulong r_hash_lookup_indexval(rhash_t* hash, rconstpointer key);
+rulong r_hash_taillookup_indexval(rhash_t* hash, rconstpointer key);
 rhash_node_t *r_hash_nodelookup(rhash_t* hash, rhash_node_t *cur, rconstpointer key);
+rhash_node_t *r_hash_nodetaillookup(rhash_t* hash, rhash_node_t *cur, rconstpointer key);
 rpointer r_hash_value(rhash_node_t *node);
 rulong r_hash_indexval(rhash_node_t *node);
 

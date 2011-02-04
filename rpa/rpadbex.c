@@ -63,7 +63,6 @@ void rpa_dbex_close_do(rpa_dbex_handle hDbex)
 void rpa_dbex_close(rpa_dbex_handle hDbex)
 {
 	rpa_dbex_close_do(hDbex);
-//	rpa_dbex_connect_callbacks(hDbex);
 }
 
 

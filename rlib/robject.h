@@ -17,6 +17,7 @@ extern "C" {
 #define R_OBJECT_HASH 5
 #define R_OBJECT_REF 6
 #define R_OBJECT_JSOBJECT 7
+#define R_OBJECT_GC 8
 #define R_OBJECT_USER 256
 
 
@@ -29,7 +30,7 @@ typedef robject_t* (*r_object_copyfun)(const robject_t *ptr);
 
 struct robject_s {
 	rlink_t lnk;
-	rlist_t *lst;
+	rpointer *gc;
 	ruint32 type;
 	ruint32 size;
 	r_object_cleanupfun cleanup;

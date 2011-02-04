@@ -14,14 +14,6 @@ extern "C" {
 typedef struct rastnode_s rastnode_t;
 
 
-typedef enum {
-	R_AST_NONE = 0,
-	R_AST_STRING,
-	R_AST_DOUBLE,
-	R_AST_LONG,
-} r_asttype_t;
-
-
 typedef struct rastsource_s {
 	rpointer ptr;
 	rulong size;
@@ -33,6 +25,7 @@ typedef struct rastsource_s {
 #define R_ASTVAL_POINTER 3
 #define R_ASTVAL_STRING 4
 #define R_ASTVAL_ARRAY 5
+#define R_ASTVAL_NODE 6
 
 typedef struct rastval_s {
 	union {
@@ -47,9 +40,12 @@ typedef struct rastval_s {
 	ruint type;
 } rastval_t;
 
+#define R_ASTVAL_SET_ARRAY(__p__, __a__) do { (__p__)->v.arr = __a__; (__p__)->type =  R_ASTVAL_ARRAY; } while (0)
+
 
 struct rastnode_s {
 	robject_t obj;
+	rastnode_t *parent;
 	rastval_t val;
 	rastsource_t src;
 	rharray_t *props;
@@ -58,6 +54,7 @@ struct rastnode_s {
 
 robject_t *r_astnode_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy);
 rastnode_t *r_astnode_create();
+void r_astnode_addchild(rastnode_t *node, rastnode_t *child);
 
 /*
  * Virtual methods implementation

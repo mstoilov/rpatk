@@ -14,7 +14,7 @@ robject_t *r_object_create(rsize_t size)
 void r_object_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy)
 {
 	r_list_init(&obj->lnk);
-	obj->lst = NULL;
+	obj->gc = NULL;
 	obj->type = type;
 	obj->cleanup = cleanup;
 	obj->copy = copy;

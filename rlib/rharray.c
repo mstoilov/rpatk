@@ -133,6 +133,22 @@ rlong r_harray_add_s(rharray_t *harray, const rchar *name, rconstpointer pval)
 }
 
 
+rlong r_harray_replace(rharray_t *harray, const rchar *name, ruint namesize, rconstpointer pval)
+{
+	rlong index = r_harray_lookup(harray, name, namesize);
+
+	if (index < 0)
+		return r_harray_add(harray, name, namesize, pval);
+	index = r_carray_replace(harray->members, index,  pval);
+	return index;
+}
+
+rlong r_harray_replace_s(rharray_t *harray, const rchar *name, rconstpointer pval)
+{
+	return r_harray_replace(harray, name, r_strlen(name), pval);
+}
+
+
 rlong r_harray_lookup(rharray_t *harray, const rchar *name, ruint namesize)
 {
 	rulong found;
@@ -151,6 +167,25 @@ rlong r_harray_lookup_s(rharray_t *harray, const rchar *name)
 }
 
 
+rlong r_harray_taillookup(rharray_t *harray, const rchar *name, ruint namesize)
+{
+	rulong found;
+
+	rstr_t lookupstr = {(char*)name, namesize};
+	found = r_hash_taillookup_indexval(harray->hash, &lookupstr);
+	if (found == R_HASH_INVALID_INDEXVAL)
+		return -1;
+	return (rlong)found;
+}
+
+
+rlong r_harray_taillookup_s(rharray_t *harray, const rchar *name)
+{
+	return r_harray_lookup(harray, name, r_strlen(name));
+}
+
+
+
 rhash_node_t* r_harray_nodelookup(rharray_t *harray, rhash_node_t *cur, const rchar *name, ruint namesize)
 {
 	rstr_t lookupstr = {(char*)name, namesize};
@@ -161,6 +196,19 @@ rhash_node_t* r_harray_nodelookup(rharray_t *harray, rhash_node_t *cur, const rc
 rhash_node_t* r_harray_nodelookup_s(rharray_t *harray, rhash_node_t *cur, const rchar *name)
 {
 	return r_harray_nodelookup(harray, cur, name, r_strlen(name));
+}
+
+
+rhash_node_t* r_harray_nodetaillookup(rharray_t *harray, rhash_node_t *cur, const rchar *name, ruint namesize)
+{
+	rstr_t lookupstr = {(char*)name, namesize};
+	return r_hash_nodetaillookup(harray->hash, cur, &lookupstr);
+}
+
+
+rhash_node_t* r_harray_nodetaillookup_s(rharray_t *harray, rhash_node_t *cur, const rchar *name)
+{
+	return r_harray_nodetaillookup(harray, cur, name, r_strlen(name));
 }
 
 
