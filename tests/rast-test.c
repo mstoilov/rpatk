@@ -35,32 +35,6 @@ static int verboseinfo = 0;
 static int compileonly = 0;
 
 
-rastcompiler_t *r_astcompiler_create()
-{
-	rastcompiler_t *aco;
-
-	aco = r_malloc(sizeof(*aco));
-	r_memset(aco, 0, sizeof(*aco));
-	aco->gc = r_gc_create();
-	return aco;
-}
-
-
-void r_astcompiler_destroy(rastcompiler_t *aco)
-{
-	if (aco) {
-		r_object_destroy((robject_t*)aco->gc);
-	}
-	r_free(aco);
-}
-
-
-void r_astcompiler_dumptree(rastcompiler_t *aco)
-{
-
-}
-
-
 void codegen_unmap_file(rstr_t *buf)
 {
 	if (buf) {
@@ -106,17 +80,90 @@ error:
 }
 
 
-inline int r_astcompiler_dumpnotification(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
+rastcompiler_t *r_astcompiler_create()
+{
+	rastcompiler_t *aco;
+
+	aco = r_malloc(sizeof(*aco));
+	r_memset(aco, 0, sizeof(*aco));
+	aco->gc = r_gc_create();
+	aco->root = r_astnode_create();
+	r_gc_add(aco->gc, (robject_t*)aco->root);
+	return aco;
+}
+
+
+void r_astcompiler_destroy(rastcompiler_t *aco)
+{
+	if (aco) {
+		r_object_destroy((robject_t*)aco->gc);
+	}
+	r_free(aco);
+}
+
+
+void r_astnode_dump(rastnode_t *node, ruint level)
+{
+	ruint i;
+	rastval_t *nodename;
+
+	for (i = 0; i < level; i++)
+		fprintf(stdout, "  ");
+	nodename = (rastval_t*)r_harray_get(node->props, r_harray_lookup_s(node->props, "name"));
+
+	if (node->val.type == R_ASTVAL_ARRAY) {
+		if (nodename) {
+			fprintf(stdout, "%s: ", nodename->v.str->s.str);
+			fwrite(node->src.ptr, sizeof(char), node->src.size, stdout);
+			fprintf(stdout, "\n");
+		}
+
+		for (i = 0; i < r_carray_length(node->val.v.arr); i++) {
+			rastval_t *val = (rastval_t *)r_carray_slot(node->val.v.arr, i);
+			r_astnode_dump(val->v.node, level + 1);
+		}
+
+	} else {
+		if (nodename) {
+			fprintf(stdout, "%s: ", nodename->v.str->s.str);
+		}
+		fwrite(node->src.ptr, sizeof(char), node->src.size, stdout);
+		fprintf(stdout, "\n");
+	}
+
+}
+
+
+void r_astnode_propery_set_string(rastnode_t *node, const char *key, rstring_t *str)
+{
+	rastval_t val;
+	R_ASTVAL_SET_STRING(&val, str);
+	r_harray_add_s(node->props, key, &val);
+}
+
+void r_astcompiler_dumptree(rastcompiler_t *aco)
+{
+	r_astnode_dump(aco->root, 0);
+}
+
+
+int r_astcompiler_dumpnotification(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rastcompiler_t *aco = (rastcompiler_t *)userdata;
 
+	if (reason & RPA_REASON_START)
+		fprintf(stdout, "START ");
+	if (reason & RPA_REASON_MATCHED)
+		fprintf(stdout, "MATCHED ");
+	if (reason & RPA_REASON_END)
+		fprintf(stdout, "END ");
 	fprintf(stdout, "%s: ", name);
 	fprintf(stdout, "\n");
 	return size;
 }
 
 
-inline int r_astcompiler_notify(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
+int r_astcompiler_notify(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rastcompiler_t *aco = (rastcompiler_t *)userdata;
 
@@ -127,11 +174,18 @@ inline int r_astcompiler_notify(rpa_stat_handle stat, const char *name, void *us
 		rastnode_t *node = r_astnode_create();
 		r_gc_add(aco->gc, (robject_t*)node);
 		node->parent = aco->root;
+		aco->root = node;
 	} else if (reason & RPA_REASON_MATCHED) {
-
-
+		rastnode_t *node = aco->root;
+		rstring_t *nodename = r_string_create_from_ansistr(name);
+		r_gc_add(aco->gc, (robject_t*)nodename);
+		r_astnode_propery_set_string(node, "name", nodename);
+		aco->root = node->parent;
+		r_astnode_addchild(aco->root, node);
+		node->src.ptr = (rpointer)input;
+		node->src.size = size;
 	} else {
-
+		aco->root = aco->root->parent;
 	}
 
 	return size;
@@ -215,19 +269,158 @@ end:
 
 
 
-extern char _binary_____________tests_ecma262_rpa_start[];
-extern char _binary_____________tests_ecma262_rpa_end[];
-extern unsigned long *_binary_____________tests_ecma262_rpa_size;
+extern char _binary_____________tests_astecma262_rpa_start[];
+extern char _binary_____________tests_astecma262_rpa_end[];
+extern unsigned long *_binary_____________tests_astecma262_rpa_size;
 
 void r_astcompiler_loadrules(rastcompiler_t *aco)
 {
 	int ret, line;
-	int inputsize = _binary_____________tests_ecma262_rpa_end - _binary_____________tests_ecma262_rpa_start;
-	const char *buffer = _binary_____________tests_ecma262_rpa_start;
+	int inputsize = _binary_____________tests_astecma262_rpa_end - _binary_____________tests_astecma262_rpa_start;
+	const char *buffer = _binary_____________tests_astecma262_rpa_start;
 	const char *pattern = buffer;
 
 	rpa_dbex_open(aco->dbex);
-	rpa_dbex_add_callback(aco->dbex, ".*", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "Identifier", RPA_REASON_ALL, r_astcompiler_notify, aco);
+
+
+
+	rpa_dbex_add_callback_exact(aco->dbex, "BitwiseANDOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "BitwiseXOROp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "BitwiseOROp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "AdditiveExpressionOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "MultiplicativeExpressionOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+
+//	rpa_dbex_add_callback_exact(aco->dbex, "AdditiveExpression", RPA_REASON_ALL, r_astcompiler_notify, aco);
+//	rpa_dbex_add_callback_exact(aco->dbex, "MultiplicativeExpression", RPA_REASON_ALL, r_astcompiler_notify, aco);
+
+
+	rpa_dbex_add_callback_exact(aco->dbex, "ShiftExpressionOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "EqualityExpressionOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "RelationalExpressionOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "LogicalOROp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "LogicalANDOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+
+	rpa_dbex_add_callback_exact(aco->dbex, "AssignmentOperator", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "EqualityOperator", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "RelationalOperator", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "AdditiveOperator", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "MultiplicativeOperator", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "ShiftOperator", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "BitwiseANDOperator", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "BitwiseXOROperator", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "BitwiseOROperator", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "LogicalANDOperator", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "LogicalOROperator", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "LogicalNotOperator", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "BitwiseNotOperator", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "UnaryOperatorOpcode", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "PrintOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+
+
+	rpa_dbex_add_callback_exact(aco->dbex, "PostfixOperator", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "PostfixExpressionOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "PrefixExpressionOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+
+
+	rpa_dbex_add_callback_exact(aco->dbex, "UnaryExpressionOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "LogicalNotExpressionOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "BitwiseNotExpressionOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+
+	rpa_dbex_add_callback_exact(aco->dbex, "DecimalIntegerLiteral", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "DecimalNonIntegerLiteral", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "BlockBegin", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "BlockEnd", RPA_REASON_ALL, r_astcompiler_notify, aco);
+
+	rpa_dbex_add_callback_exact(aco->dbex, "DoKeyword", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "IterationDo", RPA_REASON_ALL, r_astcompiler_notify, aco);
+
+	rpa_dbex_add_callback_exact(aco->dbex, "sqstring", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "dqstring", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "DoubleStringCharacters", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "SingleStringCharacters", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "Program", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "Initialiser", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "AssignmentExpressionOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+
+	rpa_dbex_add_callback_exact(aco->dbex, "VariableAllocate", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "VariableAllocateAndInit", RPA_REASON_ALL, r_astcompiler_notify, aco);
+
+	rpa_dbex_add_callback_exact(aco->dbex, "ReturnOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+
+//	rpa_dbex_add_callback_exact(aco->dbex, "SwiId", RPA_REASON_ALL, r_astcompiler_notify, aco);
+//	rpa_dbex_add_callback_exact(aco->dbex, "SwiIdExist", RPA_REASON_ALL, r_astcompiler_notify, aco);
+
+	rpa_dbex_add_callback_exact(aco->dbex, "PostfixExpressionValOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "LeftHandSideExpressionPush", RPA_REASON_ALL, r_astcompiler_notify, aco);
+
+	////////////////
+
+	rpa_dbex_add_callback_exact(aco->dbex, "ThisOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "IdentifierOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "MemberIdentifierNameOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "MemberExpressionBaseOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "MemberExpressionIndexOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "MemberExpressionNameOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "CallExpressionNameOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "CallExpressionBaseOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "CallExpressionIndexOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "AddressLeftHandSideExpression", RPA_REASON_ALL, r_astcompiler_notify, aco);
+
+	////////////////
+
+
+	rpa_dbex_add_callback_exact(aco->dbex, "ConditionalExpression", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "NewArrayExpressionOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "compile_error", RPA_REASON_ALL, r_astcompiler_notify, aco);
+
+	rpa_dbex_add_callback_exact(aco->dbex, "ArgumentsOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "BracketExpressionOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "ValLeftHandSideExpression", RPA_REASON_ALL, r_astcompiler_notify, aco);
+
+	rpa_dbex_add_callback_exact(aco->dbex, "FunctionNameLookupAlloc", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "FunctionName", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "FunctionDeclaration", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "FunctionParameter", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "FunctionCallParameter", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "FunctionCallName", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "CallExpressionOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "NewKeyword", RPA_REASON_ALL, r_astcompiler_notify, aco);
+
+	rpa_dbex_add_callback_exact(aco->dbex, "NewExpressionCallName", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "NewExpressionCallOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+
+
+	rpa_dbex_add_callback_exact(aco->dbex, "IfConditionOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "IfOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "ElseOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "IfElseOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+
+	rpa_dbex_add_callback_exact(aco->dbex, "WhileConditionOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "IterationWhileOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+
+	rpa_dbex_add_callback_exact(aco->dbex, "QuestionMarkOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "AssignmentExpressionIfTrueOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "AssignmentExpressionIfFalseOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+
+	rpa_dbex_add_callback_exact(aco->dbex, "ForKeyword", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "ForExpressionInitOp", RPA_REASON_END, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "ForExpressionCompareOp", RPA_REASON_END, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "ForExpressionIncrementOp", RPA_REASON_END, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "IterationForOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "BreakOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "ContinueOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+
+	rpa_dbex_add_callback_exact(aco->dbex, "SwitchExpressionOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "SwitchStatementOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "CaseExpressionOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "CaseClauseOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "DefaultKeywordOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+	rpa_dbex_add_callback_exact(aco->dbex, "DefaultClauseOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
+
+
+
+//	rpa_dbex_add_callback(aco->dbex, ".*", RPA_REASON_ALL, r_astcompiler_notify, aco);
 
 	while ((ret = rpa_dbex_load(aco->dbex, pattern, inputsize)) > 0) {
 		inputsize -= ret;

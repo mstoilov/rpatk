@@ -223,7 +223,7 @@ rint r_harray_set(rharray_t *harray, rlong index, rconstpointer pval)
 
 rpointer r_harray_get(rharray_t *harray, rulong index)
 {
-	if (index >= r_carray_length(harray->members))
+	if (index >= r_carray_length(harray->members) || index < 0)
 		return NULL;
 	return r_carray_slot(harray->members, index);
 }

@@ -40,8 +40,8 @@ typedef struct rastval_s {
 	ruint type;
 } rastval_t;
 
-#define R_ASTVAL_SET_ARRAY(__p__, __a__) do { (__p__)->v.arr = __a__; (__p__)->type =  R_ASTVAL_ARRAY; } while (0)
-
+#define R_ASTVAL_SET_ARRAY(__p__, __v__) do { (__p__)->v.arr = __v__; (__p__)->type =  R_ASTVAL_ARRAY; } while (0)
+#define R_ASTVAL_SET_STRING(__p__, __v__) do { (__p__)->v.str = __v__; (__p__)->type =  R_ASTVAL_STRING; } while (0)
 
 struct rastnode_s {
 	robject_t obj;

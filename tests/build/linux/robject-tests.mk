@@ -59,8 +59,9 @@ $(OUTDIR)/%.o: $(TESTS_SRCDIR)/%.c
 $(OUTDIR)/rpagen-test : $(OUTDIR)/ecma262.o $(OUTDIR)/rpagen-test.o
 	$(CC) $(CFLAGS)  -o $@ $^ $(LIBS)
 
-$(OUTDIR)/rast-test : $(OUTDIR)/ecma262.o $(OUTDIR)/rast-test.o
+$(OUTDIR)/rast-test : $(OUTDIR)/astecma262.o $(OUTDIR)/rast-test.o
 	$(CC) $(CFLAGS)  -o $@ $^ $(LIBS)
+
 
 $(OUTDIR)/%: $(TESTS_SRCDIR)/%.c
 	+ $(CC) $(CFLAGS) -o $(OUTDIR)/$* $(TESTS_SRCDIR)/$*.c $(LIBS) $(INCLUDE)
