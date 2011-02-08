@@ -1,9 +1,8 @@
 #include "rvmcpu.h"
 #include <stdio.h>
 
-#define EXECDEBUG 1
-#define VMTEST_CHECK_REG 0
-#define VMTEST_CHECK_STATUS 1
+//#define EXECDEBUG 1
+
 
 #define VMTEST_REG(code, index, reg, val, msg) \
 	do { code[index++] = rvm_asm(RVM_MOV, R8, DA, XX, reg); \

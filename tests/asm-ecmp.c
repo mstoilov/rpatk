@@ -9,20 +9,10 @@ int main(int argc, char *argv[])
 	ruint off = 0;
 	rvmreg_t d1 = rvm_reg_create_double(1.0);
 	rvmreg_t d1s = rvm_reg_create_string_ansi("2.0");
-	rvmreg_t d2 = rvm_reg_create_double(3.0);
-
 	rvm_asmins_t vmcode[256];
 	rvmcpu_t *vm = rvm_cpu_create_default();
 	
 	rvm_cpu_addswitable(vm, common_calltable);
-
-	vmcode[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 1);
-	vmcode[off++] = rvm_asmp(RVM_LDRR, R1, DA, XX, &d1s);
-	vmcode[off++] = rvm_asm(RVM_EADD, R0, R0, R1, 0);
-	VMTEST_REGP(vmcode, off, 0, &d2, "ADD");
-	VMTEST_STATUS(vmcode, off, 0, "ADD STATUS");
-	vmcode[off++] = rvm_asm(RVM_PRN, R0, XX, XX, 0);
-	vmcode[off++] = rvm_asm(RVM_PRN, R1, XX, XX, 0);
 
 	vmcode[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 8);
 	vmcode[off++] = rvm_asm(RVM_MOV, R1, DA, XX, 1);

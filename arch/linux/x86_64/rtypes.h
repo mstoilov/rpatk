@@ -1,23 +1,6 @@
 #ifndef _RTYPES_H_
 #define _RTYPES_H_
 
-/*
- * Common types. These types should be the same for most of the architectures.
- */
-typedef long rlong;
-typedef int rint;
-typedef short rshort;
-typedef char rchar;
-typedef unsigned long rulong;
-typedef unsigned int ruint;
-typedef unsigned short rushort;
-typedef unsigned char ruchar;
-typedef double rdouble;
-typedef float rfloat;
-typedef rint rboolean;
-typedef void *rpointer;
-typedef const void *rconstpointer;
-
 /* 
  * Architecture dependent types. These types have to be redifined 
  * for every architecture
@@ -35,6 +18,25 @@ typedef long rsword;
 typedef unsigned long rsize_t;
 typedef signed long rssize_t;
 typedef unsigned int ratomic_t;
+
+
+/*
+ * Common types. These types should be the same for most of the architectures.
+ */
+typedef long rlong;
+typedef int rint;
+typedef short rshort;
+typedef char rchar;
+typedef unsigned long rulong;
+typedef unsigned int ruint;
+typedef unsigned short rushort;
+typedef unsigned char ruchar;
+typedef double rdouble;
+typedef float rfloat;
+typedef rint rboolean;
+typedef void *rpointer;
+typedef const void *rconstpointer;
+typedef struct {ruint32 p1; ruint32 p2;} rpair;
 
 /*
  * Atomic operations (Architecture Dependent)

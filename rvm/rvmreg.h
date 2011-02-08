@@ -62,6 +62,7 @@ extern "C" {
 #define RVM_CPUREG_CLRFLAG(__cpu__, __r__, __flag__) RVM_REG_CLRFLAG(RVM_CPUREG_PTR(__cpu__, __r__), __flag__)
 #define RVM_CPUREG_ASSIGNFLAGS(__cpu__, __r__, __flags__) RVM_REG_ASSIGNFLAGS(RVM_CPUREG_PTR(__cpu__, __r__), __flags__)
 
+
 #define RVM_REG_GETU(__r__) (__r__)->v.w
 #define RVM_REG_SETU(__r__, __val__) do { (__r__)->v.w = (rword)(__val__); } while (0)
 #define RVM_CPUREG_GETU(__cpu__, __r__) RVM_CPUREG_PTR(__cpu__, __r__)->v.w
@@ -81,6 +82,17 @@ extern "C" {
 #define RVM_REG_SETD(__r__, __val__) do { (__r__)->v.d = (rdouble)(__val__); } while (0)
 #define RVM_CPUREG_GETD(__cpu__, __r__) RVM_CPUREG_PTR(__cpu__, __r__)->v.d
 #define RVM_CPUREG_SETD(__cpu__, __r__, __val__) RVM_REG_SETD(RVM_CPUREG_PTR(__cpu__, __r__), __val__)
+
+#define RVM_REG_GETU64(__r__) (__r__)->v.u64
+#define RVM_REG_SETU64(__r__, __val__) do { (__r__)->v.u64 = (ruint64)(__val__); } while (0)
+#define RVM_CPUREG_GETU64(__cpu__, __r__) RVM_CPUREG_PTR(__cpu__, __r__)->v.u64
+#define RVM_CPUREG_SETU64(__cpu__, __r__, __val__) RVM_REG_SETU64(RVM_CPUREG_PTR(__cpu__, __r__), __val__)
+
+#define RVM_REG_GETPAIR(__r__) (__r__)->v.pair
+#define RVM_REG_SETPAIR(__r__, __val__) do { (__r__)->v.pair = (ruint64)(__val__); } while (0)
+#define RVM_CPUREG_GETPAIR(__cpu__, __r__) RVM_CPUREG_PTR(__cpu__, __r__)->v.pair
+#define RVM_CPUREG_SETPAIR(__cpu__, __r__, __val__) RVM_REG_SETPAIR(RVM_CPUREG_PTR(__cpu__, __r__), __val__)
+
 
 #define RVM_REG_GETIP(__r__) (rvm_asmins_t*)((__r__)->v.p)
 #define RVM_REG_SETIP(__r__, __val__) do { (__r__)->v.p = (rpointer)(__val__); } while (0)
@@ -102,6 +114,8 @@ typedef ruint16 rvmreg_flags_t;
 
 typedef struct rvmreg_s {
 	union {
+		ruint64 u64;
+		rpair pair;
 		rword w;
 		rlong l;
 		rpointer p;

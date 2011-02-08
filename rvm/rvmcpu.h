@@ -278,8 +278,9 @@ typedef struct rvm_switable_s {
 
 struct rvm_asmins_s {
 	union {
-		rword u;
+		ruint64 u;
 		rdouble d;
+		rpair p;
 	} data;
 	ruint16 op1:RVM_OPERAND_BITS;
 	ruint16 op2:RVM_OPERAND_BITS;

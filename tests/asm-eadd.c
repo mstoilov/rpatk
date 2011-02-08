@@ -16,20 +16,6 @@ int main(int argc, char *argv[])
 	
 	rvm_cpu_addswitable(vm, common_calltable);
 
-	vmcode[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 1);
-	vmcode[off++] = rvm_asmp(RVM_LDRR, R1, DA, XX, &d1s);
-	vmcode[off++] = rvm_asm(RVM_EADD, R0, R0, R1, 0);
-	VMTEST_REGD(vmcode, off, 0, 3.0, "1: EADD");
-	VMTEST_STATUS(vmcode, off, 0, "1: EADD STATUS");
-	vmcode[off++] = rvm_asm(RVM_PRN, R0, XX, XX, 0);
-	vmcode[off++] = rvm_asm(RVM_PRN, R1, XX, XX, 0);
-
-
-	vmcode[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 1);
-	vmcode[off++] = rvm_asmp(RVM_LDRR, R1, DA, XX, &d1s);
-	vmcode[off++] = rvm_asm(RVM_EADD, R0, R1, R0, 0);
-	VMTEST_REGP(vmcode, off, 0, &d2, "2: EADD");
-	VMTEST_STATUS(vmcode, off, 0, "2: EADD STATUS");
 
 	vmcode[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 1);
 	vmcode[off++] = rvm_asm(RVM_MOV, R1, DA, XX, 2);
@@ -39,7 +25,6 @@ int main(int argc, char *argv[])
 
 	vmcode[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 1);
 	vmcode[off++] = rvm_asmd(RVM_MOV, R1, DA, XX, 2.0);
-//	vmcode[off++] = rvm_asm(RVM_SETTYPE, R1, DA, XX, RVM_DTYPE_DOUBLE);
 
 	vmcode[off++] = rvm_asm(RVM_EADD, R0, R1, R0, 0);
 	vmcode[off++] = rvm_asm(RVM_PRN, R0, XX, XX, 0);

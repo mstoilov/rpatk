@@ -1882,7 +1882,7 @@ rint rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off)
 			if (pi->type == RVM_DTYPE_DOUBLE) {
 				RVM_REG_SETD(regda, pi->data.d);
 			} else {
-				RVM_REG_SETU(regda, pi->data.u);
+				RVM_REG_SETU64(regda, pi->data.u);
 			}
 			RVM_REG_SETTYPE(regda, pi->type);
 			RVM_REG_ASSIGNFLAGS(regda, (pi->type >= RVM_DTYPE_STRING) ? RVM_INFOBIT_ROBJECT : 0);
