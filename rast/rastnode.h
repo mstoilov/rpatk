@@ -22,16 +22,18 @@ typedef struct rastsource_s {
 #define R_ASTVAL_WORD 0
 #define R_ASTVAL_LONG 1
 #define R_ASTVAL_DOUBLE 2
-#define R_ASTVAL_POINTER 3
-#define R_ASTVAL_STRING 4
-#define R_ASTVAL_ARRAY 5
-#define R_ASTVAL_NODE 6
+#define R_ASTVAL_HEAD 3
+#define R_ASTVAL_POINTER 4
+#define R_ASTVAL_STRING 5
+#define R_ASTVAL_ARRAY 6
+#define R_ASTVAL_NODE 7
 
 typedef struct rastval_s {
 	union {
 		rword w;
 		rlong l;
 		rdouble d;
+		rhead_t h;
 		rpointer ptr;
 		rstring_t *str;
 		rcarray_t *arr;
@@ -45,10 +47,13 @@ typedef struct rastval_s {
 
 struct rastnode_s {
 	robject_t obj;
+	rlink_t lnk;
 	rastnode_t *parent;
 	rastval_t val;
 	rastsource_t src;
-	rharray_t *props;
+	const rchar *name;
+	rhash_t *props;
+//	rharray_t *props;
 };
 
 

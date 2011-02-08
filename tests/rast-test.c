@@ -105,27 +105,29 @@ void r_astcompiler_destroy(rastcompiler_t *aco)
 void r_astnode_dump(rastnode_t *node, ruint level)
 {
 	ruint i;
-	rastval_t *nodename;
+	rlink_t *pos;
 
 	for (i = 0; i < level; i++)
 		fprintf(stdout, "  ");
-	nodename = (rastval_t*)r_harray_get(node->props, r_harray_lookup_s(node->props, "name"));
 
-	if (node->val.type == R_ASTVAL_ARRAY) {
-		if (nodename) {
-			fprintf(stdout, "%s: ", nodename->v.str->s.str);
+	if (node->val.type == R_ASTVAL_HEAD) {
+		if (node->name) {
+			fprintf(stdout, "%s: ", node->name);
 			fwrite(node->src.ptr, sizeof(char), node->src.size, stdout);
 			fprintf(stdout, "\n");
 		}
 
-		for (i = 0; i < r_carray_length(node->val.v.arr); i++) {
-			rastval_t *val = (rastval_t *)r_carray_slot(node->val.v.arr, i);
-			r_astnode_dump(val->v.node, level + 1);
+		r_list_foreach(pos, &node->val.v.h) {
+			r_astnode_dump(r_list_entry(pos, rastnode_t, lnk), level + 1);
 		}
+//		for (i = 0; i < r_carray_length(node->val.v.arr); i++) {
+//			rastval_t *val = (rastval_t *)r_carray_slot(node->val.v.arr, i);
+//			r_astnode_dump(val->v.node, level + 1);
+//		}
 
 	} else {
-		if (nodename) {
-			fprintf(stdout, "%s: ", nodename->v.str->s.str);
+		if (node->name) {
+			fprintf(stdout, "%s: ", node->name);
 		}
 		fwrite(node->src.ptr, sizeof(char), node->src.size, stdout);
 		fprintf(stdout, "\n");
@@ -138,7 +140,9 @@ void r_astnode_propery_set_string(rastnode_t *node, const char *key, rstring_t *
 {
 	rastval_t val;
 	R_ASTVAL_SET_STRING(&val, str);
-	r_harray_add_s(node->props, key, &val);
+//	if (!node->props)
+//		node->props = r_harray_create(sizeof(rastval_t));
+//	r_harray_add_s(node->props, key, &val);
 }
 
 void r_astcompiler_dumptree(rastcompiler_t *aco)
@@ -170,6 +174,9 @@ int r_astcompiler_notify(rpa_stat_handle stat, const char *name, void *userdata,
 	if (parseinfo)
 		r_astcompiler_dumpnotification(stat, name, userdata, input, size, reason);
 
+	if (compileonly)
+		return size;
+
 	if (reason & RPA_REASON_START) {
 		rastnode_t *node = r_astnode_create();
 		r_gc_add(aco->gc, (robject_t*)node);
@@ -177,9 +184,7 @@ int r_astcompiler_notify(rpa_stat_handle stat, const char *name, void *userdata,
 		aco->root = node;
 	} else if (reason & RPA_REASON_MATCHED) {
 		rastnode_t *node = aco->root;
-		rstring_t *nodename = r_string_create_from_ansistr(name);
-		r_gc_add(aco->gc, (robject_t*)nodename);
-		r_astnode_propery_set_string(node, "name", nodename);
+		node->name = name;
 		aco->root = node->parent;
 		r_astnode_addchild(aco->root, node);
 		node->src.ptr = (rpointer)input;
@@ -197,8 +202,10 @@ int main(int argc, char *argv[])
 	int res, i;
 	rstr_t *script = NULL, *unmapscript = NULL;
 	rastcompiler_t *aco = r_astcompiler_create();
-	aco->dbex = rpa_dbex_create();
+	rastnode_t *node;
 
+
+	aco->dbex = rpa_dbex_create();
 
 	for (i = 1; i < argc; i++) {
 		if (r_strcmp(argv[i], "-L") == 0) {
@@ -217,6 +224,12 @@ int main(int argc, char *argv[])
 
 		}
 	}
+
+//	for (i = 0; i < 500000; i++) {
+//		node = r_astnode_create();
+//		r_gc_add(aco->gc, (robject_t*)node);
+//	}
+
 
 	r_astcompiler_loadrules(aco);
 
@@ -257,7 +270,8 @@ exec:
 end:
 	if (unmapscript)
 		codegen_unmap_file(unmapscript);
-	rpa_dbex_destroy(aco->dbex);
+	if (aco->dbex)
+		rpa_dbex_destroy(aco->dbex);
 	r_astcompiler_destroy(aco);
 
 	if (debuginfo) {
@@ -281,19 +295,12 @@ void r_astcompiler_loadrules(rastcompiler_t *aco)
 	const char *pattern = buffer;
 
 	rpa_dbex_open(aco->dbex);
-	rpa_dbex_add_callback_exact(aco->dbex, "Identifier", RPA_REASON_ALL, r_astcompiler_notify, aco);
-
-
 
 	rpa_dbex_add_callback_exact(aco->dbex, "BitwiseANDOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
 	rpa_dbex_add_callback_exact(aco->dbex, "BitwiseXOROp", RPA_REASON_ALL, r_astcompiler_notify, aco);
 	rpa_dbex_add_callback_exact(aco->dbex, "BitwiseOROp", RPA_REASON_ALL, r_astcompiler_notify, aco);
 	rpa_dbex_add_callback_exact(aco->dbex, "AdditiveExpressionOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
 	rpa_dbex_add_callback_exact(aco->dbex, "MultiplicativeExpressionOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
-
-//	rpa_dbex_add_callback_exact(aco->dbex, "AdditiveExpression", RPA_REASON_ALL, r_astcompiler_notify, aco);
-//	rpa_dbex_add_callback_exact(aco->dbex, "MultiplicativeExpression", RPA_REASON_ALL, r_astcompiler_notify, aco);
-
 
 	rpa_dbex_add_callback_exact(aco->dbex, "ShiftExpressionOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
 	rpa_dbex_add_callback_exact(aco->dbex, "EqualityExpressionOp", RPA_REASON_ALL, r_astcompiler_notify, aco);
