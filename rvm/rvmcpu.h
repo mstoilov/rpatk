@@ -305,8 +305,14 @@ struct rvmcpu_s {
 	rcarray_t *data;
 	struct rvm_opmap_s *opmap;
 	rvmreg_t *thisptr;
-	void *userdata;
 	rvm_gc_t *gc;
+	void *userdata1;
+	void *userdata2;
+	void *userdata3;
+	void *userdata4;
+	void *userdata5;
+	void *userdata6;
+	void *userdata7;
 };
 
 
@@ -327,6 +333,7 @@ rvm_asmins_t rvm_asml(rword opcode, rword op1, rword op2, rword op3, rlong data)
 rvm_asmins_t rvm_asmb(rword opcode, rword op1, rword op2, rword op3, rword data);
 rvm_asmins_t rvm_asmd(rword opcode, rword op1, rword op2, rword op3, rdouble data);
 rvm_asmins_t rvm_asmp(rword opcode, rword op1, rword op2, rword op3, rpointer data);
+rvm_asmins_t rvm_asm2(rword opcode, rword op1, rword op2, rword op3, ruint32 p1, ruint32 p2);
 rvm_asmins_t rvm_asmr(rword opcode, rword op1, rword op2, rword op3, rpointer pReloc);
 rvm_asmins_t rvm_asmx(rword opcode, rword op1, rword op2, rword op3, rpointer pReloc);
 void rvm_asm_dump(rvm_asmins_t *pi, ruint count);

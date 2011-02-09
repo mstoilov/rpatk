@@ -2022,6 +2022,26 @@ rvm_asmins_t rvm_asmd(rword opcode, rword op1, rword op2, rword op3, rdouble dat
 }
 
 
+rvm_asmins_t rvm_asm2(rword opcode, rword op1, rword op2, rword op3, ruint32 p1, ruint32 p2)
+{
+	rvm_asmins_t a;
+
+	r_memset(&a, 0, sizeof(a));
+	a.opcode = (ruint32) RVM_ASMINS_OPCODE(opcode);
+	a.swi = (ruint32) RVM_ASMINS_SWI(opcode);
+	a.op1 = (ruint8)op1;
+	a.op2 = (ruint8)op2;
+	a.op3 = (ruint8)op3;
+	a.data.p.p1 = p1;
+	a.data.p.p2 = p2;
+	a.type = RVM_DTYPE_PAIR;
+	if ((ruint8)op1 == DA || (ruint8)op2 == DA || (ruint8)op3 == DA)
+		a.da = 1;
+	return a;
+}
+
+
+
 rvm_asmins_t rvm_asmr(rword opcode, rword op1, rword op2, rword op3, rpointer pReloc)
 {
 	rvm_asmins_t a;

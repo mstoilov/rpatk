@@ -13,6 +13,7 @@ LIBS += -L$(RAST_SRCDIR)/build/$(OS)/$(ARCHDIR)/out
 LIBS += -lrvm -lrpa -lrpasx -lrast -lrlib -lpthread -lm --static
 
 
+TESTS	+= $(OUTDIR)/regex-test
 TESTS	+= $(OUTDIR)/rast-test
 TESTS	+= $(OUTDIR)/rpagen-test
 TESTS	+= $(OUTDIR)/calc-test

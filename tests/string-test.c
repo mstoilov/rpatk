@@ -15,7 +15,7 @@ typedef struct rvm_testctx_s {
 
 static void test_swi_cat(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rvm_testctx_t *ctx = (rvm_testctx_t *)cpu->userdata;
+	rvm_testctx_t *ctx = (rvm_testctx_t *)cpu->userdata1;
 	rvm_opmap_invoke_binary_handler(ctx->opmap, RVM_OPID_CAT, cpu, RVM_CPUREG_PTR(cpu, ins->op1), RVM_CPUREG_PTR(cpu, ins->op2), RVM_CPUREG_PTR(cpu, ins->op3));
 }
 
@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 
 	ctx.opmap = opmap = rvm_opmap_create();
 	cpu = rvm_cpu_create_default();
-	cpu->userdata = &ctx;
+	cpu->userdata1 = &ctx;
 	cg = rvm_codegen_create();
 
 

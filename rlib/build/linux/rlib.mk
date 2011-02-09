@@ -17,6 +17,7 @@ RLIB_OBJECTS +=	$(OUTDIR)/rarray.o
 RLIB_OBJECTS +=	$(OUTDIR)/rhash.o
 RLIB_OBJECTS +=	$(OUTDIR)/rstring.o
 RLIB_OBJECTS +=	$(OUTDIR)/rlist.o
+RLIB_OBJECTS +=	$(OUTDIR)/rutf.o
 
 
 ifeq ($(OS), linux)

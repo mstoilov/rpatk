@@ -19,14 +19,15 @@ extern "C" {
 #define RVM_DTYPE_LONG 1
 #define RVM_DTYPE_POINTER 2			/* Generic pointer, it can point to any memory object */
 #define RVM_DTYPE_BOOLEAN 3
-#define RVM_DTYPE_STRING 4
-#define RVM_DTYPE_ARRAY 5
-#define RVM_DTYPE_HARRAY 6
-#define RVM_DTYPE_DOUBLE 7
-#define RVM_DTYPE_NAN 8
-#define RVM_DTYPE_UNDEF 9
-#define RVM_DTYPE_JSOBJECT 10
-#define RVM_DTYPE_FUNCTION 11
+#define RVM_DTYPE_DOUBLE 4
+#define RVM_DTYPE_PAIR 5
+#define RVM_DTYPE_STRING 6
+#define RVM_DTYPE_ARRAY 7
+#define RVM_DTYPE_HARRAY 8
+#define RVM_DTYPE_NAN 9
+#define RVM_DTYPE_UNDEF 10
+#define RVM_DTYPE_JSOBJECT 11
+#define RVM_DTYPE_FUNCTION 12
 #define RVM_DTYPE_SWIID 13			/* SWI ID */
 #define RVM_DTYPE_RELOCPTR 14		/* Relocation, using pointers */
 #define RVM_DTYPE_RELOCINDEX 15		/* Relocation, using offsets */
