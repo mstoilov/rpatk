@@ -987,6 +987,8 @@ int rvm_asm_dump_reg_to_str(unsigned char reg, char *str, ruint size)
 
 	if (reg == XX)
 		ret = rvm_snprintf(str, size, "XX ");
+	else if (reg == IP)
+		ret = rvm_snprintf(str, size, "IP ");
 	else if (reg == TP)
 		ret = rvm_snprintf(str, size, "TP ");
 	else if (reg == FP)
@@ -1136,6 +1138,7 @@ static void rvm_cpu_dumpregs(rvm_asmins_t *pi, rvmcpu_t *vm)
    		RVM_CPUREG_GETU(vm, 4), RVM_CPUREG_GETU(vm, 5), RVM_CPUREG_GETU(vm, 6), RVM_CPUREG_GETU(vm, 7),
    		RVM_CPUREG_GETU(vm, 8), RVM_CPUREG_GETP(vm, TP), (long int)RVM_CPUREG_GETU(vm, FP), (long int)RVM_CPUREG_GETU(vm, SP),
    		(long int)RVM_CPUREG_GETU(vm, LR), (long int)RVM_CPUREG_GETU(vm, PC), RVM_CPUREG_GETU(vm, DA),
+   		vm->status & RVM_STATUS_E ? 'E' : '_',
    		vm->status & RVM_STATUS_V ? 'V' : '_',
    		vm->status & RVM_STATUS_C ? 'C' : '_',
    		vm->status & RVM_STATUS_N ? 'N' : '_',

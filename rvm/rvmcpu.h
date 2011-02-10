@@ -160,6 +160,7 @@ enum {
 #define RVM_STATUS_N (1 << 1)
 #define RVM_STATUS_C (1 << 2)
 #define RVM_STATUS_V (1 << 3)
+#define RVM_STATUS_E (1 << 4)
 #define RVM_STATUS_GETBIT(cpu, bit) ((cpu)->status & (bit))
 #define RVM_STATUS_SETBIT(cpu, bit) do { (cpu)->status |= (bit); } while (0)
 #define RVM_STATUS_CLRBIT(cpu, bit) do { (cpu)->status &= ~(bit); } while (0)
@@ -209,6 +210,7 @@ do { \
 #define R31 31
 
 #define RLST (RVM_REGS_NUM - 1)
+#define IP (RLST - 7)
 #define TP (RLST - 6)
 #define FP (RLST - 5)
 #define SP (RLST - 4)
