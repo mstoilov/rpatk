@@ -335,6 +335,8 @@ rvm_asmins_t rvm_asml(rword opcode, rword op1, rword op2, rword op3, rlong data)
 rvm_asmins_t rvm_asmb(rword opcode, rword op1, rword op2, rword op3, rword data);
 rvm_asmins_t rvm_asmd(rword opcode, rword op1, rword op2, rword op3, rdouble data);
 rvm_asmins_t rvm_asmp(rword opcode, rword op1, rword op2, rword op3, rpointer data);
+rvm_asmins_t rvm_asms(rword opcode, rword op1, rword op2, rword op3, rword data);
+rvm_asmins_t rvm_asmf(rword opcode, rword op1, rword op2, rword op3, rword data);
 rvm_asmins_t rvm_asm2(rword opcode, rword op1, rword op2, rword op3, ruint32 p1, ruint32 p2);
 rvm_asmins_t rvm_asmr(rword opcode, rword op1, rword op2, rword op3, rpointer pReloc);
 rvm_asmins_t rvm_asmx(rword opcode, rword op1, rword op2, rword op3, rpointer pReloc);

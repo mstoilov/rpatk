@@ -105,6 +105,18 @@ void rvm_scope_addpointer(rvm_scope_t *scope, const rchar *name, ruint namesize,
 }
 
 
+void rvm_scope_addoffset_s(rvm_scope_t *scope, const rchar *name, ruint32 off)
+{
+	rvm_scope_addoffset(scope, name ,r_strlen(name), off);
+}
+
+
+void rvm_scope_addpointer_s(rvm_scope_t *scope, const rchar *name, rpointer ptr)
+{
+	rvm_scope_addpointer(scope, name ,r_strlen(name), ptr);
+}
+
+
 rvm_varmap_t *rvm_scope_lookup(rvm_scope_t *scope, const rchar *name, ruint namesize)
 {
 	ruint scopelen = r_array_length(scope->varstack);

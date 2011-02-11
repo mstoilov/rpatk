@@ -1133,7 +1133,7 @@ static void rvm_cpu_dumpregs(rvm_asmins_t *pi, rvmcpu_t *vm)
 	buffer[50] = '\0';
 	rvm_printf("%s", buffer);
 
-   	rvm_printf("0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, TP=%p, FP=%ld, SP=%ld, LR=%ld, PC=%ld, DA=0x%lx, S( %c%c%c%c )",
+   	rvm_printf("0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, TP=%p, FP=%ld, SP=%ld, LR=%ld, PC=%ld, DA=0x%lx, S( %c%c%c%c%c )",
    		RVM_CPUREG_GETU(vm, 0), RVM_CPUREG_GETU(vm, 1), RVM_CPUREG_GETU(vm, 2), RVM_CPUREG_GETU(vm, 3),
    		RVM_CPUREG_GETU(vm, 4), RVM_CPUREG_GETU(vm, 5), RVM_CPUREG_GETU(vm, 6), RVM_CPUREG_GETU(vm, 7),
    		RVM_CPUREG_GETU(vm, 8), RVM_CPUREG_GETP(vm, TP), (long int)RVM_CPUREG_GETU(vm, FP), (long int)RVM_CPUREG_GETU(vm, SP),
@@ -1947,6 +1947,40 @@ rvm_asmins_t rvm_asmp(rword opcode, rword op1, rword op2, rword op3, rpointer da
 	a.op3 = (ruint8)op3;
 	a.data.u = (rword)data;
 	a.type = RVM_DTYPE_POINTER;
+	if ((ruint8)op1 == DA || (ruint8)op2 == DA || (ruint8)op3 == DA)
+		a.da = 1;
+	return a;
+}
+
+
+rvm_asmins_t rvm_asms(rword opcode, rword op1, rword op2, rword op3, rword data)
+{
+	rvm_asmins_t a;
+
+	r_memset(&a, 0, sizeof(a));
+	a.opcode = (ruint8) opcode;
+	a.op1 = (ruint8)op1;
+	a.op2 = (ruint8)op2;
+	a.op3 = (ruint8)op3;
+	a.data.u = (rword)data;
+	a.type = RVM_DTYPE_SWIID;
+	if ((ruint8)op1 == DA || (ruint8)op2 == DA || (ruint8)op3 == DA)
+		a.da = 1;
+	return a;
+}
+
+
+rvm_asmins_t rvm_asmf(rword opcode, rword op1, rword op2, rword op3, rword data)
+{
+	rvm_asmins_t a;
+
+	r_memset(&a, 0, sizeof(a));
+	a.opcode = (ruint8) opcode;
+	a.op1 = (ruint8)op1;
+	a.op2 = (ruint8)op2;
+	a.op3 = (ruint8)op3;
+	a.data.u = (rword)data;
+	a.type = RVM_DTYPE_FUNCTION;
 	if ((ruint8)op1 == DA || (ruint8)op2 == DA || (ruint8)op3 == DA)
 		a.da = 1;
 	return a;

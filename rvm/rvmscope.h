@@ -38,6 +38,8 @@ rchar *rvm_scope_addname(rvm_scope_t *scope, const rchar *name, ruint namesize);
 rchar *rvm_scope_addstrname(rvm_scope_t *scope, const rchar *name);
 void rvm_scope_addoffset(rvm_scope_t *scope, const rchar *name, ruint namesize, ruint32 off);
 void rvm_scope_addpointer(rvm_scope_t *scope, const rchar *name, ruint namesize, rpointer ptr);
+void rvm_scope_addoffset_s(rvm_scope_t *scope, const rchar *name, ruint32 off);
+void rvm_scope_addpointer_s(rvm_scope_t *scope, const rchar *name, rpointer ptr);
 void rvm_scope_push(rvm_scope_t* scope);
 void rvm_scope_pop(rvm_scope_t* scope);
 ruint rvm_scope_count(rvm_scope_t* scope);
