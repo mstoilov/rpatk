@@ -65,6 +65,7 @@ static const char *stropcalls[] = {
 	"RVM_MOD",
 	"RVM_MODS",
 	"RVM_BX",
+	"RVM_BXL",
 	"RVM_BL",
 	"RVM_B",
 	"RVM_STR",
@@ -167,12 +168,13 @@ static void rvm_op_b(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rword pc = 0;
 
-	if (ins->op1 != XX)
-		pc += RVM_CPUREG_GETU(cpu, ins->op1);
-	if (ins->op2 != XX)
-		pc += RVM_CPUREG_GETU(cpu, ins->op2);
-	if (ins->op3 != XX)
-		pc += RVM_CPUREG_GETU(cpu, ins->op3);
+//	if (ins->op1 != XX)
+//		pc += RVM_CPUREG_GETU(cpu, ins->op1);
+//	if (ins->op2 != XX)
+//		pc += RVM_CPUREG_GETU(cpu, ins->op2);
+//	if (ins->op3 != XX)
+//		pc += RVM_CPUREG_GETU(cpu, ins->op3);
+	pc += RVM_CPUREG_GETU(cpu, ins->op1);
 	RVM_CPUREG_INCIP(cpu, PC, pc - 1);
 }
 
@@ -182,12 +184,13 @@ static void rvm_op_beq(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rword pc = 0;
 
 	if ((cpu->status & RVM_STATUS_Z)) {
-		if (ins->op1 != XX)
-			pc += RVM_CPUREG_GETU(cpu, ins->op1);
-		if (ins->op2 != XX)
-			pc += RVM_CPUREG_GETU(cpu, ins->op2);
-		if (ins->op3 != XX)
-			pc += RVM_CPUREG_GETU(cpu, ins->op3);
+//		if (ins->op1 != XX)
+//			pc += RVM_CPUREG_GETU(cpu, ins->op1);
+//		if (ins->op2 != XX)
+//			pc += RVM_CPUREG_GETU(cpu, ins->op2);
+//		if (ins->op3 != XX)
+//			pc += RVM_CPUREG_GETU(cpu, ins->op3);
+		pc += RVM_CPUREG_GETU(cpu, ins->op1);
 		RVM_CPUREG_INCIP(cpu, PC, pc - 1);
 	}
 }
@@ -198,12 +201,13 @@ static void rvm_op_bneq(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rword pc = 0;
 
 	if ((cpu->status & RVM_STATUS_Z) == 0) {
-		if (ins->op1 != XX)
-			pc += RVM_CPUREG_GETU(cpu, ins->op1);
-		if (ins->op2 != XX)
-			pc += RVM_CPUREG_GETU(cpu, ins->op2);
-		if (ins->op3 != XX)
-			pc += RVM_CPUREG_GETU(cpu, ins->op3);
+//		if (ins->op1 != XX)
+//			pc += RVM_CPUREG_GETU(cpu, ins->op1);
+//		if (ins->op2 != XX)
+//			pc += RVM_CPUREG_GETU(cpu, ins->op2);
+//		if (ins->op3 != XX)
+//			pc += RVM_CPUREG_GETU(cpu, ins->op3);
+		pc += RVM_CPUREG_GETU(cpu, ins->op1);
 		RVM_CPUREG_INCIP(cpu, PC, pc - 1);
 	}
 }
@@ -214,12 +218,13 @@ static void rvm_op_bleq(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rword pc = 0;
 
 	if ((cpu->status & RVM_STATUS_N) || (cpu->status & RVM_STATUS_Z)) {
-		if (ins->op1 != XX)
-			pc += RVM_CPUREG_GETU(cpu, ins->op1);
-		if (ins->op2 != XX)
-			pc += RVM_CPUREG_GETU(cpu, ins->op2);
-		if (ins->op3 != XX)
-			pc += RVM_CPUREG_GETU(cpu, ins->op3);
+//		if (ins->op1 != XX)
+//			pc += RVM_CPUREG_GETU(cpu, ins->op1);
+//		if (ins->op2 != XX)
+//			pc += RVM_CPUREG_GETU(cpu, ins->op2);
+//		if (ins->op3 != XX)
+//			pc += RVM_CPUREG_GETU(cpu, ins->op3);
+		pc += RVM_CPUREG_GETU(cpu, ins->op1);
 		RVM_CPUREG_INCIP(cpu, PC, pc - 1);
 	}
 }
@@ -229,12 +234,13 @@ static void rvm_op_bgeq(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rword pc = 0;
 
 	if ((cpu->status & RVM_STATUS_N) == 0 || (cpu->status & RVM_STATUS_Z) == 1){
-		if (ins->op1 != XX)
-			pc += RVM_CPUREG_GETU(cpu, ins->op1);
-		if (ins->op2 != XX)
-			pc += RVM_CPUREG_GETU(cpu, ins->op2);
-		if (ins->op3 != XX)
-			pc += RVM_CPUREG_GETU(cpu, ins->op3);
+//		if (ins->op1 != XX)
+//			pc += RVM_CPUREG_GETU(cpu, ins->op1);
+//		if (ins->op2 != XX)
+//			pc += RVM_CPUREG_GETU(cpu, ins->op2);
+//		if (ins->op3 != XX)
+//			pc += RVM_CPUREG_GETU(cpu, ins->op3);
+		pc += RVM_CPUREG_GETU(cpu, ins->op1);
 		RVM_CPUREG_INCIP(cpu, PC, pc - 1);
 	}
 }
@@ -245,13 +251,14 @@ static void rvm_op_bles(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rword pc = 0;
 
 
-	if ((cpu->status & RVM_STATUS_N)){
-		if (ins->op1 != XX)
-			pc += RVM_CPUREG_GETU(cpu, ins->op1);
-		if (ins->op2 != XX)
-			pc += RVM_CPUREG_GETU(cpu, ins->op2);
-		if (ins->op3 != XX)
-			pc += RVM_CPUREG_GETU(cpu, ins->op3);
+	if ((cpu->status & RVM_STATUS_N)) {
+//		if (ins->op1 != XX)
+//			pc += RVM_CPUREG_GETU(cpu, ins->op1);
+//		if (ins->op2 != XX)
+//			pc += RVM_CPUREG_GETU(cpu, ins->op2);
+//		if (ins->op3 != XX)
+//			pc += RVM_CPUREG_GETU(cpu, ins->op3);
+		pc += RVM_CPUREG_GETU(cpu, ins->op1);
 		RVM_CPUREG_INCIP(cpu, PC, pc - 1);
 	}
 }
@@ -262,12 +269,13 @@ static void rvm_op_bgre(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rword pc = 0;
 
 	if ((cpu->status & RVM_STATUS_N) == 0 && (cpu->status & RVM_STATUS_Z) == 0) {
-		if (ins->op1 != XX)
-			pc += RVM_CPUREG_GETU(cpu, ins->op1);
-		if (ins->op2 != XX)
-			pc += RVM_CPUREG_GETU(cpu, ins->op2);
-		if (ins->op3 != XX)
-			pc += RVM_CPUREG_GETU(cpu, ins->op3);
+//		if (ins->op1 != XX)
+//			pc += RVM_CPUREG_GETU(cpu, ins->op1);
+//		if (ins->op2 != XX)
+//			pc += RVM_CPUREG_GETU(cpu, ins->op2);
+//		if (ins->op3 != XX)
+//			pc += RVM_CPUREG_GETU(cpu, ins->op3);
+		pc += RVM_CPUREG_GETU(cpu, ins->op1);
 		RVM_CPUREG_INCIP(cpu, PC, pc - 1);
 	}
 }
@@ -279,16 +287,24 @@ static void rvm_op_bx(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static void rvm_op_bxl(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	RVM_CPUREG_SETIP(cpu, LR, RVM_CPUREG_GETIP(cpu, PC));
+	RVM_CPUREG_SETIP(cpu, PC, RVM_CPUREG_GETIP(cpu, ins->op1));
+}
+
+
 static void rvm_op_bl(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rword pc = 0;
-	if (ins->op1 != XX)
-		pc += RVM_CPUREG_GETU(cpu, ins->op1);
-	if (ins->op2 != XX)
-		pc += RVM_CPUREG_GETU(cpu, ins->op2);
-	if (ins->op3 != XX)
-		pc += RVM_CPUREG_GETU(cpu, ins->op3);
 
+//	if (ins->op1 != XX)
+//		pc += RVM_CPUREG_GETU(cpu, ins->op1);
+//	if (ins->op2 != XX)
+//		pc += RVM_CPUREG_GETU(cpu, ins->op2);
+//	if (ins->op3 != XX)
+//		pc += RVM_CPUREG_GETU(cpu, ins->op3);
+	pc += RVM_CPUREG_GETU(cpu, ins->op1);
 	RVM_CPUREG_SETIP(cpu, LR, RVM_CPUREG_GETIP(cpu, PC));
 	RVM_CPUREG_INCIP(cpu, PC, pc - 1);
 }
@@ -646,7 +662,7 @@ static void rvm_op_call(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		RVM_CPUREG_SETIP(cpu, LR, RVM_CPUREG_GETIP(cpu, PC));
 		rvm_op_swiid(cpu, ins);
 	} else if (RVM_REG_GETTYPE(arg1) == RVM_DTYPE_FUNCTION) {
-		rvm_op_bl(cpu, ins);
+		rvm_op_bxl(cpu, ins);
 	} else {
 		RVM_ABORT(cpu, RVM_E_NOTFUNCTION);
 	}
@@ -1702,6 +1718,7 @@ static rvm_cpu_op ops[] = {
 	rvm_op_mod,			// RVM_MOD
 	rvm_op_mods,		// RVM_MODS
 	rvm_op_bx,			// RVM_BX
+	rvm_op_bxl,			// RVM_BXL
 	rvm_op_bl,			// RVM_BL
 	rvm_op_b,			// RVM_B
 	rvm_op_str,			// RVM_STR

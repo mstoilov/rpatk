@@ -65,6 +65,7 @@ enum {
 	RVM_MOD,		/* Modulo: op1 = op2 % op3 */
 	RVM_MODS,		/* Modulo: op1 = op2 % op3, Update the status register */
 	RVM_BX,			/* Jump to op1 */
+	RVM_BXL,		/* Jump to op1, link */
 	RVM_BL,			/* Branch Link */
 	RVM_B,			/* Branch */
 	RVM_STR,		/* Save: val_at_location(op2) = op1 */
