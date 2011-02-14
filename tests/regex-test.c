@@ -368,8 +368,8 @@ int main(int argc, char *argv[])
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDS, R4, DA, XX, rvm_scope_lookup_s(co->scope, "rpa_match")->data.offset));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDS, R0, DA, XX, rvm_scope_lookup_s(co->scope, "rpa_match_abc")->data.offset));
 
-//	rvm_codegen_addins(co->cg, rvm_asm(RVM_BXL, R4, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asmx(RVM_BL, DA, XX, XX, rvm_codemap_lookup_s(co->cg->codemap, "rpa_match")));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_BXL, R4, XX, XX, 0));
+//	rvm_codegen_addins(co->cg, rvm_asmx(RVM_BL, DA, XX, XX, rvm_codemap_lookup_s(co->cg->codemap, "rpa_match")));
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_NOP, XX, XX, XX, 0xabc));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
