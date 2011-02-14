@@ -39,8 +39,6 @@ int main(int argc, char *argv[])
 	cpu = rvm_cpu_create_default();
 	ntable = rvm_cpu_addswitable(cpu, switable);
 
-	rvm_codemap_invalid_add_s(cg->codemap, "add2");
-
 	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, R0, DA, XX, 7));
 	rvm_codegen_addins(cg, rvm_asm(RVM_STS, R0, SP, DA, 1 + RVM_CODEGEN_FUNCINITOFFSET));
 	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, R0, DA, XX, 8));

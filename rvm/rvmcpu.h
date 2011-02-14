@@ -65,6 +65,8 @@ enum {
 	RVM_MOD,		/* Modulo: op1 = op2 % op3 */
 	RVM_MODS,		/* Modulo: op1 = op2 % op3, Update the status register */
 	RVM_BX,			/* Jump to op1 */
+	RVM_BXEQ,		/* Jump to op1, if equal */
+	RVM_BXNEQ,		/* Jump to op1, if not equal */
 	RVM_BXL,		/* Jump to op1, link */
 	RVM_BL,			/* Branch Link */
 	RVM_B,			/* Branch */
@@ -235,7 +237,7 @@ do { \
 							(BITR(__f__, __l__, R28)) | (BITR(__f__, __l__, R29)) | (BITR(__f__, __l__, R30)) | (BITR(__f__, __l__, R31))
 
 #define RVM_OPCODE_BITS 8
-#define RVM_SWI_TABLE_BITS 10
+#define RVM_SWI_TABLE_BITS 8
 #define RVM_SWI_NUM_BITS 8
 #define RVM_SWI_TABLE(__op__) ((__op__) >> RVM_SWI_NUM_BITS)
 #define RVM_SWI_NUM(__op__) ((__op__) & ((1 << RVM_SWI_NUM_BITS) - 1))
@@ -290,8 +292,8 @@ struct rvm_asmins_s {
 	ruint16 op3:RVM_OPERAND_BITS;
 	ruint16 da:1;
 	ruint32 opcode:8;
-	ruint32 swi:18;
-	ruint32 type:3;
+	ruint32 swi:(RVM_SWI_TABLE_BITS + RVM_SWI_NUM_BITS);
+	ruint32 type:5;
 	ruint32 flags:3;
 };
 

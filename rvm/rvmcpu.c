@@ -65,6 +65,8 @@ static const char *stropcalls[] = {
 	"RVM_MOD",
 	"RVM_MODS",
 	"RVM_BX",
+	"RVM_BXEQ",
+	"RVM_BXNEQ",
 	"RVM_BXL",
 	"RVM_BL",
 	"RVM_B",
@@ -284,6 +286,22 @@ static void rvm_op_bgre(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rvm_op_bx(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	RVM_CPUREG_SETIP(cpu, PC, RVM_CPUREG_GETIP(cpu, ins->op1));
+}
+
+
+static void rvm_op_bxeq(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	if ((cpu->status & RVM_STATUS_Z)) {
+		RVM_CPUREG_SETIP(cpu, PC, RVM_CPUREG_GETIP(cpu, ins->op1));
+	}
+}
+
+
+static void rvm_op_bxneq(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	if (!(cpu->status & RVM_STATUS_Z)) {
+		RVM_CPUREG_SETIP(cpu, PC, RVM_CPUREG_GETIP(cpu, ins->op1));
+	}
 }
 
 
@@ -1718,6 +1736,8 @@ static rvm_cpu_op ops[] = {
 	rvm_op_mod,			// RVM_MOD
 	rvm_op_mods,		// RVM_MODS
 	rvm_op_bx,			// RVM_BX
+	rvm_op_bxeq,		// RVM_BXEQ
+	rvm_op_bxneq,		// RVM_BXNEQ
 	rvm_op_bxl,			// RVM_BXL
 	rvm_op_bl,			// RVM_BL
 	rvm_op_b,			// RVM_B

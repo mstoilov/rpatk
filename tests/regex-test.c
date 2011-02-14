@@ -175,7 +175,6 @@ static void rpa_matchchr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	if (flags == RPA_MATCH_OPTIONAL) {
 		RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, (!(cpu->status & RVM_STATUS_V) && stat->instack[RVM_CPUREG_GETL(cpu, TP)].wc == wc) ? 1 : 0);
 		rpa_eqshift(cpu, ins);
-		RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, 1);
 	} else if (flags == RPA_MATCH_MULTIPLE) {
 		RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, (!(cpu->status & RVM_STATUS_V) && stat->instack[RVM_CPUREG_GETL(cpu, TP)].wc == wc) ? 1 : 0);
 		if (cpu->status & RVM_STATUS_Z)
@@ -183,14 +182,20 @@ static void rpa_matchchr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		while (!(cpu->status & RVM_STATUS_V) && stat->instack[RVM_CPUREG_GETL(cpu, TP)].wc == wc) {
 			rpa_shift(cpu, ins);
 		}
+//		if (!(cpu->status & RVM_STATUS_Z))
+//			RVM_CPUREG_SETIP(cpu, PC, RVM_CPUREG_GETIP(cpu, LR));
 	} else if (flags == RPA_MATCH_MULTIOPT) {
+		ruint matched = 0;
 		while (!(cpu->status & RVM_STATUS_V) && stat->instack[RVM_CPUREG_GETL(cpu, TP)].wc == wc) {
+			matched = 1;
 			rpa_shift(cpu, ins);
 		}
-		RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, 1);
+		RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, matched);
 	} else {
 		RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, (!(cpu->status & RVM_STATUS_V) && stat->instack[RVM_CPUREG_GETL(cpu, TP)].wc == wc) ? 1 : 0);
 		rpa_eqshift(cpu, ins);
+//		if (!(cpu->status & RVM_STATUS_Z))
+//			RVM_CPUREG_SETIP(cpu, PC, RVM_CPUREG_GETIP(cpu, LR));
 	}
 }
 
@@ -261,14 +266,33 @@ void codegen_rpa_match(rpa_compiler_t *co)
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_STRR, R0, R1, XX, 0));
 	l2 = rvm_codegen_getcodesize(co->cg);
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, 0)); 							/* Will be re-written later */
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(FP)|BIT(SP)|BIT(LR)));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(TP)|BIT(FP)|BIT(SP)|BIT(LR)));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, FP, SP, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BXL, R0, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, SP, FP, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BITS(FP,LR)));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, DA, XX, BITS(FP,LR)));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_BEQ, DA, XX, XX, 2));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_ORR, R0, R0, DA, BIT(TP)));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, R0, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 	off = rvm_codegen_getcodesize(co->cg);
 	rvm_codegen_replaceins(co->cg, l2, rvm_asm(RVM_B, DA, XX, XX, off - l2));
+}
+
+
+void codegen_rpa_match_char(rpa_compiler_t *co, rword wc, rchar q)
+{
+	if (q == '?') {
+		rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR, DA, R_OPT, XX, wc));
+	} else if (q == '+') {
+		rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR, DA, R_MUL, XX, wc));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_BXNEQ, LR, XX, XX, 0));
+	} else if (q == '*') {
+		rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR, DA, R_MOP, XX, wc));
+	} else {
+		rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR, DA, R_NAN, XX, wc));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_BXNEQ, LR, XX, XX, 0));
+	}
 }
 
 
@@ -284,9 +308,9 @@ void codegen_rpa_match_abc(rpa_compiler_t *co)
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_STRR, R0, R1, XX, 0));
 	l2 = rvm_codegen_getcodesize(co->cg);
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, 0)); 							/* Will be re-written later */
-	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR, DA, R_NAN, XX, 'a'));
-	rvm_codegen_addins(co->cg, rvm_asm(RPA_EQMATCHCHR, DA, R_MUL, XX, 'b'));
-	rvm_codegen_addins(co->cg, rvm_asm(RPA_EQMATCHCHR, DA, R_NAN, XX, 'c'));
+	codegen_rpa_match_char(co, 'a', ' ');
+	codegen_rpa_match_char(co, 'b', '?');
+	codegen_rpa_match_char(co, 'c', '+');
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 	off = rvm_codegen_getcodesize(co->cg);
 	rvm_codegen_replaceins(co->cg, l2, rvm_asm(RVM_B, DA, XX, XX, off - l2));
@@ -298,9 +322,7 @@ void codegen_rpa_match_abc(rpa_compiler_t *co)
 int main(int argc, char *argv[])
 {
 	rvmcpu_t *cpu;
-	rvm_asmins_t code[1024];
 	rpa_compiler_t *co;
-	ruint off = 0;
 	rint i;
 
 	co = rpa_compiler_create();

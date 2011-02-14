@@ -72,11 +72,19 @@ void rvm_codemap_clear(rvm_codemap_t *codemap)
 }
 
 
-void rvm_codemap_add(rvm_codemap_t *codemap, const rchar *name, ruint namesize, rulong index)
+static rvm_codelabel_t *rvm_codemap_dolookup(rvm_codemap_t *codemap, const rchar *name, ruint namesize)
+{
+	rstr_t lookupstr = {(char*)name, namesize};
+	return (rvm_codelabel_t *)r_hash_lookup(codemap->hash, &lookupstr);
+}
+
+
+
+rvm_codelabel_t *rvm_codemap_add(rvm_codemap_t *codemap, const rchar *name, ruint namesize, rulong index)
 {
 	rvm_codelabel_t *label;
 
-	label = rvm_codemap_lookup(codemap, name, namesize);
+	label = rvm_codemap_dolookup(codemap, name, namesize);
 	if (!label) {
 		label = r_malloc(sizeof(*label));
 		label->name = r_rstrdup(name, namesize);
@@ -84,24 +92,25 @@ void rvm_codemap_add(rvm_codemap_t *codemap, const rchar *name, ruint namesize, 
 		r_array_add(codemap->labels, &label);
 	}
 	label->index = index;
+	return label;
 }
 
 
-void rvm_codemap_add_s(rvm_codemap_t *codemap, const rchar *name, rulong index)
+rvm_codelabel_t *rvm_codemap_add_s(rvm_codemap_t *codemap, const rchar *name, rulong index)
 {
-	rvm_codemap_add(codemap, name, r_strlen(name), index);
+	return rvm_codemap_add(codemap, name, r_strlen(name), index);
 }
 
 
-void rvm_codemap_invalid_add(rvm_codemap_t *codemap, const rchar *name, ruint namesize)
+rvm_codelabel_t *rvm_codemap_invalid_add(rvm_codemap_t *codemap, const rchar *name, ruint namesize)
 {
-	rvm_codemap_add(codemap, name, namesize, RVM_CODELABEL_INVALID);
+	return rvm_codemap_add(codemap, name, namesize, RVM_CODELABEL_INVALID);
 }
 
 
-void rvm_codemap_invalid_add_s(rvm_codemap_t *codemap, const rchar *name)
+rvm_codelabel_t *rvm_codemap_invalid_add_s(rvm_codemap_t *codemap, const rchar *name)
 {
-	rvm_codemap_invalid_add(codemap, name, r_strlen(name));
+	return rvm_codemap_invalid_add(codemap, name, r_strlen(name));
 }
 
 
@@ -113,10 +122,15 @@ rvm_codelabel_t *rvm_codemap_lastlabel(rvm_codemap_t *codemap)
 	return NULL;
 }
 
+
 rvm_codelabel_t *rvm_codemap_lookup(rvm_codemap_t *codemap, const rchar *name, ruint namesize)
 {
 	rstr_t lookupstr = {(char*)name, namesize};
-	return (rvm_codelabel_t*) r_hash_lookup(codemap->hash, &lookupstr);
+	rvm_codelabel_t *label = (rvm_codelabel_t *)r_hash_lookup(codemap->hash, &lookupstr);
+
+	if (!label)
+		label = rvm_codemap_invalid_add(codemap, name, namesize);
+	return label;
 }
 
 
