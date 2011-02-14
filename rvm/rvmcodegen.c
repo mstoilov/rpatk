@@ -75,7 +75,7 @@ ruint rvm_codegen_funcstart(rvm_codegen_t *cg, const rchar* name, ruint namesize
 	start = rvm_codegen_addins(cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(FP)|BIT(SP)|BIT(LR)));
 	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, FP, SP, XX, 0));
 	rvm_codegen_addins(cg, rvm_asm(RVM_ADD, SP, SP, DA, args));
-	rvm_codemap_add(cg->codemap, name, namesize, start);
+	rvm_codemap_addindex(cg->codemap, name, namesize, start);
 	return start;
 }
 
@@ -93,7 +93,7 @@ ruint rvm_codegen_vargs_funcstart(rvm_codegen_t *cg, const rchar* name, ruint na
 	start = rvm_codegen_addins(cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(FP)|BIT(SP)|BIT(LR)));
 	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, FP, SP, XX, 0));
 	rvm_codegen_addins(cg, rvm_asm(RVM_ADD, SP, SP, R0, 0));
-	rvm_codemap_add(cg->codemap, name, namesize, start);
+	rvm_codemap_addindex(cg->codemap, name, namesize, start);
 	return start;
 }
 

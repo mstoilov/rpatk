@@ -153,8 +153,6 @@ void r_astcompiler_dumptree(rastcompiler_t *aco)
 
 int r_astcompiler_dumpnotification(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
-	rastcompiler_t *aco = (rastcompiler_t *)userdata;
-
 	if (reason & RPA_REASON_START)
 		fprintf(stdout, "START ");
 	if (reason & RPA_REASON_MATCHED)
@@ -202,8 +200,6 @@ int main(int argc, char *argv[])
 	int res, i;
 	rstr_t *script = NULL, *unmapscript = NULL;
 	rastcompiler_t *aco = r_astcompiler_create();
-	rastnode_t *node;
-
 
 	aco->dbex = rpa_dbex_create();
 

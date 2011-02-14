@@ -88,14 +88,14 @@ int main(int argc, char *argv[])
 	rvm_codegen_addins(cg, rvm_asm(RVM_STS, R0, SP, DA, 1 + RVM_CODEGEN_FUNCINITOFFSET));
 	rvm_codegen_addins(cg, rvm_asml(RVM_MOV, R0, DA, XX, r_strlen(hello)));
 	rvm_codegen_addins(cg, rvm_asm(RVM_STS, R0, SP, DA, 2 + RVM_CODEGEN_FUNCINITOFFSET));
-	rvm_codegen_addins(cg, rvm_asmx(RVM_BL,  DA, XX, XX, &rvm_codemap_lookup_s(cg->codemap, "str_init")->index));
+	rvm_codegen_addins(cg, rvm_asmx(RVM_BL,  DA, XX, XX, rvm_codemap_lookup_s(cg->codemap, "str_init")));
 	rvm_codegen_addins(cg, rvm_asmp(RVM_MOV, R7, R0, XX, 0));
 
 	rvm_codegen_addins(cg, rvm_asmp(RVM_MOV, R0, DA, XX, there));
 	rvm_codegen_addins(cg, rvm_asm(RVM_STS, R0, SP, DA, 1 + RVM_CODEGEN_FUNCINITOFFSET));
 	rvm_codegen_addins(cg, rvm_asml(RVM_MOV, R0, DA, XX, r_strlen(there)));
 	rvm_codegen_addins(cg, rvm_asm(RVM_STS, R0, SP, DA, 2 + RVM_CODEGEN_FUNCINITOFFSET));
-	rvm_codegen_addins(cg, rvm_asmx(RVM_BL,  DA, XX, XX, &rvm_codemap_lookup_s(cg->codemap, "str_init")->index));
+	rvm_codegen_addins(cg, rvm_asmx(RVM_BL,  DA, XX, XX, rvm_codemap_lookup_s(cg->codemap, "str_init")));
 	rvm_codegen_addins(cg, rvm_asmp(RVM_MOV, R8, R0, XX, 0));
 
 	rvm_codegen_addins(cg, rvm_asmp(RVM_MOV, R0, R7, XX, 0));

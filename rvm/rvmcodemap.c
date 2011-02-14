@@ -79,32 +79,66 @@ static rvm_codelabel_t *rvm_codemap_dolookup(rvm_codemap_t *codemap, const rchar
 }
 
 
-
-rvm_codelabel_t *rvm_codemap_add(rvm_codemap_t *codemap, const rchar *name, ruint namesize, rulong index)
+static rvm_codelabel_t *rvm_codemap_add(rvm_codemap_t *codemap, const rchar *name, ruint namesize)
 {
 	rvm_codelabel_t *label;
 
 	label = rvm_codemap_dolookup(codemap, name, namesize);
 	if (!label) {
-		label = r_malloc(sizeof(*label));
+		label = r_zmalloc(sizeof(*label));
 		label->name = r_rstrdup(name, namesize);
 		r_hash_insert(codemap->hash, label->name, label);
 		r_array_add(codemap->labels, &label);
 	}
-	label->index = index;
 	return label;
 }
 
 
-rvm_codelabel_t *rvm_codemap_add_s(rvm_codemap_t *codemap, const rchar *name, rulong index)
+
+rvm_codelabel_t *rvm_codemap_addindex(rvm_codemap_t *codemap, const rchar *name, ruint namesize, rulong index)
 {
-	return rvm_codemap_add(codemap, name, r_strlen(name), index);
+	rvm_codelabel_t *label = rvm_codemap_add(codemap, name, namesize);
+
+	if (label) {
+		label->loc.index = index;
+		label->type = RVM_CODELABEL_INDEX;
+	}
+	return label;
+}
+
+
+rvm_codelabel_t *rvm_codemap_addindex_s(rvm_codemap_t *codemap, const rchar *name, rulong index)
+{
+	return rvm_codemap_addindex(codemap, name, r_strlen(name), index);
+}
+
+
+rvm_codelabel_t *rvm_codemap_addpointer(rvm_codemap_t *codemap, const rchar *name, ruint namesize, rvm_asmins_t *ptr)
+{
+	rvm_codelabel_t *label = rvm_codemap_add(codemap, name, namesize);
+
+	if (label) {
+		label->loc.ptr = ptr;
+		label->type = RVM_CODELABEL_POINTER;
+	}
+	return label;
+}
+
+
+rvm_codelabel_t *rvm_codemap_addpointer_s(rvm_codemap_t *codemap, const rchar *name, rvm_asmins_t *ptr)
+{
+	return rvm_codemap_addpointer(codemap, name, r_strlen(name), ptr);
 }
 
 
 rvm_codelabel_t *rvm_codemap_invalid_add(rvm_codemap_t *codemap, const rchar *name, ruint namesize)
 {
-	return rvm_codemap_add(codemap, name, namesize, RVM_CODELABEL_INVALID);
+	rvm_codelabel_t *label = rvm_codemap_add(codemap, name, namesize);
+
+	if (label) {
+		label->type = RVM_CODELABEL_INVALID;
+	}
+	return label;
 }
 
 

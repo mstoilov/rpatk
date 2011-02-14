@@ -31,10 +31,6 @@ void r_astnode_addchild(rastnode_t *node, rastnode_t *child)
 
 void r_astnode_cleanup(robject_t *obj)
 {
-	rastnode_t *node = (rastnode_t*)obj;
-
-//	if (node->props)
-//		r_object_destroy((robject_t*)node->props);
 	r_object_cleanup(obj);
 }
 

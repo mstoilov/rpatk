@@ -14,7 +14,7 @@ void codelabel_print_info(rvm_codemap_t *codemap, rchar* name)
 	if (!label)
 		fprintf(stdout, "%s (not found)\n", name);
 	else
-		fprintf(stdout, "%s, asmins: 0x%d\n", label->name->str, (ruint)label->index);
+		fprintf(stdout, "%s, asmins: 0x%d\n", label->name->str, (ruint)label->loc.index);
 }
 
 
@@ -22,9 +22,9 @@ int main(int argc, char *argv[])
 {
 	rvm_codemap_t *codemap = rvm_codemap_create();
 
-	rvm_codemap_add_s(codemap, "add2", 0);
-	rvm_codemap_add_s(codemap, "add3", 3);
-	rvm_codemap_add_s(codemap, "sub2", 7);
+	rvm_codemap_addindex_s(codemap, "add2", 0);
+	rvm_codemap_addindex_s(codemap, "add3", 3);
+	rvm_codemap_addindex_s(codemap, "sub2", 7);
 
 	codelabel_print_info(codemap, "add2");
 	codelabel_print_info(codemap, "add7");

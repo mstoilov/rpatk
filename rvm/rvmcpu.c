@@ -26,6 +26,7 @@
 #include "rvmoperatorcast.h"
 #include "rvmoperatornot.h"
 #include "rvmoperatorlogicnot.h"
+#include "rvmcodemap.h"
 #include "rmem.h"
 #include "rstring.h"
 #include "rvmreg.h"
@@ -2115,25 +2116,6 @@ rvm_asmins_t rvm_asm2(rword opcode, rword op1, rword op2, rword op3, ruint32 p1,
 }
 
 
-
-rvm_asmins_t rvm_asmr(rword opcode, rword op1, rword op2, rword op3, rpointer pReloc)
-{
-	rvm_asmins_t a;
-
-	r_memset(&a, 0, sizeof(a));
-	a.opcode = (ruint32) RVM_ASMINS_OPCODE(opcode);
-	a.swi = (ruint32) RVM_ASMINS_SWI(opcode);
-	a.op1 = (ruint8)op1;
-	a.op2 = (ruint8)op2;
-	a.op3 = (ruint8)op3;
-	a.data.u = (rword)pReloc;
-	a.flags = RVM_ASMINS_RELOC | RVM_ASMINS_RELOCPTR;
-	a.da = 1;
-
-	return a;
-}
-
-
 rvm_asmins_t rvm_asmx(rword opcode, rword op1, rword op2, rword op3, rpointer pReloc)
 {
 	rvm_asmins_t a;
@@ -2151,25 +2133,37 @@ rvm_asmins_t rvm_asmx(rword opcode, rword op1, rword op2, rword op3, rpointer pR
 	return a;
 }
 
+/*
+ * On success return NULL, otherwise
+ * return a pointer to undefined label
+ */
 
-void rvm_relocate(rvm_asmins_t *code, rsize_t size)
+rvm_codelabel_t *rvm_relocate(rvm_asmins_t *code, rsize_t size)
 {
+	rvm_codelabel_t *label;
 	rvm_asmins_t *reloc;
 	rulong relocindex;
 	rulong off;
 
+//	code->data.u = reloc - code;
+
 	for (off = 0; off < size; off++, code++) {
 		if (code->flags & RVM_ASMINS_RELOC) {
-			if (code->flags & RVM_ASMINS_RELOCPTR) {
-				reloc = *((rvm_asmins_t **)code->data.u);
-				code->data.u = reloc - code;
-			} else {
-				relocindex = *((rulong *)code->data.u);
+			label = (rvm_codelabel_t *)code->data.u;
+			if (label->type == RVM_CODELABEL_INDEX) {
+				relocindex = label->loc.index;
 				code->data.u = relocindex - off;
+				code->flags &= ~RVM_ASMINS_RELOC;
+			} else if (label->type == RVM_CODELABEL_POINTER) {
+				reloc = label->loc.ptr;
+				code->data.u = reloc - code;
+				code->flags &= ~RVM_ASMINS_RELOC;
+			} else {
+				return label;
 			}
-			code->flags &= ~(RVM_ASMINS_RELOCPTR | RVM_ASMINS_RELOC);
 		}
 	}
+	return NULL;
 }
 
 

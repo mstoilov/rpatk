@@ -11,15 +11,6 @@
 extern "C" {
 #endif
 
-#define RVM_CODELABEL_INVALID ((rulong)-1)
-
-typedef struct rvm_codelabel_s {
-	rstr_t *name;
-	rulong index;
-	rulong size; // Optional, used for function declarations
-} rvm_codelabel_t;
-
-
 typedef struct rvm_loopblock_s {
 	rulong begin;
 	rulong size;
@@ -38,8 +29,10 @@ void rvm_codemap_destroy(rvm_codemap_t *codemap);
 void rvm_codemap_clear(rvm_codemap_t *codemap);
 rvm_codelabel_t *rvm_codemap_invalid_add(rvm_codemap_t *codemap, const rchar *name, ruint namesize);
 rvm_codelabel_t *rvm_codemap_invalid_add_s(rvm_codemap_t *codemap, const rchar *name);
-rvm_codelabel_t *rvm_codemap_add(rvm_codemap_t *codemap, const rchar *name, ruint namesize, rulong index);
-rvm_codelabel_t *rvm_codemap_add_s(rvm_codemap_t *codemap, const rchar *name, rulong index);
+rvm_codelabel_t *rvm_codemap_addindex(rvm_codemap_t *codemap, const rchar *name, ruint namesize, rulong index);
+rvm_codelabel_t *rvm_codemap_addindex_s(rvm_codemap_t *codemap, const rchar *name, rulong index);
+rvm_codelabel_t *rvm_codemap_addpointer(rvm_codemap_t *codemap, const rchar *name, ruint namesize, rvm_asmins_t *ptr);
+rvm_codelabel_t *rvm_codemap_addpointer_s(rvm_codemap_t *codemap, const rchar *name, rvm_asmins_t *ptr);
 rvm_codelabel_t *rvm_codemap_lookup(rvm_codemap_t *codemap, const rchar *name, ruint namesize);
 rvm_codelabel_t *rvm_codemap_lookup_s(rvm_codemap_t *codemap, const rchar *name);
 rvm_codelabel_t *rvm_codemap_lastlabel(rvm_codemap_t *codemap);
