@@ -12,6 +12,15 @@ static int debuginfo = 0;
 static int parseinfo = 0;
 static int compileonly = 0;
 
+#define RPA_MATCH_NONE 0
+#define RPA_MATCH_MULTIPLE (1 << 0)
+#define RPA_MATCH_OPTIONAL (1 << 1)
+#define RPA_MATCH_MULTIOPT (RPA_MATCH_MULTIPLE | RPA_MATCH_OPTIONAL)
+#define R_NAN R4
+#define R_MUL R5
+#define R_OPT R6
+#define R_MOP R7
+
 
 #define RPA_MATCHCHR 		RVM_OPSWI(RVM_SWI_ID(regextable, 0))
 #define RPA_EQMATCHCHR 		RVM_OPSWI(RVM_SWI_ID(regextable, 1))
@@ -119,14 +128,70 @@ void rpa_stat_destroy(rpastat_t *stat)
 }
 
 
+static void rpa_shift(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
+	rlong tp = RVM_CPUREG_GETL(cpu, TP);
+
+	if (stat->ip.input >= stat->end) {
+		RVM_STATUS_UPDATE(cpu, RVM_STATUS_V, 1);
+		return;
+	}
+
+	tp += 1;
+	if (tp >= (rlong)stat->ip.serial) {
+		rint inc;
+		inc = r_utf8_mbtowc(&stat->instack[tp].wc, (const ruchar*)stat->ip.input, (const ruchar*)stat->end);
+		stat->instack[tp].input = stat->ip.input;
+		stat->ip.input += inc;
+		stat->ip.serial += inc;
+	}
+	RVM_CPUREG_SETL(cpu, IP, stat->instack[tp].wc);
+	RVM_CPUREG_SETL(cpu, TP, tp);
+	RVM_STATUS_UPDATE(cpu, RVM_STATUS_V, 0);
+}
+
+
+static void rpa_eqshift(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	if (cpu->status & RVM_STATUS_Z)
+		rpa_shift(cpu, ins);
+}
+
+
+static void rpa_neqshift(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	if (!(cpu->status & RVM_STATUS_Z))
+		rpa_shift(cpu, ins);
+}
+
 
 static void rpa_matchchr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
-	rlong tp = RVM_CPUREG_GETL(cpu, TP);
-	rword op1 = RVM_CPUREG_GETU(cpu, ins->op1);
+	rword wc = RVM_CPUREG_GETU(cpu, ins->op1);
+	rword flags = RVM_CPUREG_GETU(cpu, ins->op2);
 
-	RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, (!(cpu->status & RVM_STATUS_V) && stat->instack[tp].wc == op1) ? 1 : 0);
+	if (flags == RPA_MATCH_OPTIONAL) {
+		RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, (!(cpu->status & RVM_STATUS_V) && stat->instack[RVM_CPUREG_GETL(cpu, TP)].wc == wc) ? 1 : 0);
+		rpa_eqshift(cpu, ins);
+		RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, 1);
+	} else if (flags == RPA_MATCH_MULTIPLE) {
+		RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, (!(cpu->status & RVM_STATUS_V) && stat->instack[RVM_CPUREG_GETL(cpu, TP)].wc == wc) ? 1 : 0);
+		if (cpu->status & RVM_STATUS_Z)
+			rpa_shift(cpu, ins);
+		while (!(cpu->status & RVM_STATUS_V) && stat->instack[RVM_CPUREG_GETL(cpu, TP)].wc == wc) {
+			rpa_shift(cpu, ins);
+		}
+	} else if (flags == RPA_MATCH_MULTIOPT) {
+		while (!(cpu->status & RVM_STATUS_V) && stat->instack[RVM_CPUREG_GETL(cpu, TP)].wc == wc) {
+			rpa_shift(cpu, ins);
+		}
+		RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, 1);
+	} else {
+		RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, (!(cpu->status & RVM_STATUS_V) && stat->instack[RVM_CPUREG_GETL(cpu, TP)].wc == wc) ? 1 : 0);
+		rpa_eqshift(cpu, ins);
+	}
 }
 
 
@@ -168,42 +233,6 @@ static void rpa_neqmatchrng(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
-static void rpa_shift(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
-	rlong tp = RVM_CPUREG_GETL(cpu, TP);
-
-	if (stat->ip.input >= stat->end) {
-		RVM_STATUS_UPDATE(cpu, RVM_STATUS_V, 1);
-		return;
-	}
-
-	tp += 1;
-	if (tp >= (rlong)stat->ip.serial) {
-		rint inc;
-		inc = r_utf8_mbtowc(&stat->instack[tp].wc, (const ruchar*)stat->ip.input, (const ruchar*)stat->end);
-		stat->instack[tp].input = stat->ip.input;
-		stat->ip.input += inc;
-		stat->ip.serial += inc;
-	}
-	RVM_CPUREG_SETL(cpu, IP, stat->instack[tp].wc);
-	RVM_CPUREG_SETL(cpu, TP, tp);
-	RVM_STATUS_UPDATE(cpu, RVM_STATUS_V, 0);
-}
-
-
-static void rpa_eqshift(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	if (cpu->status & RVM_STATUS_Z)
-		rpa_shift(cpu, ins);
-}
-
-
-static void rpa_neqshift(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	if (!(cpu->status & RVM_STATUS_Z))
-		rpa_shift(cpu, ins);
-}
 
 
 static rvm_switable_t switable[] = {
@@ -227,16 +256,37 @@ void codegen_rpa_match(rpa_compiler_t *co)
 	rvm_scope_addoffset_s(co->scope, "rpa_match", co->fpoff);
 	l1 = rvm_codegen_getcodesize(co->cg);
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_ADDRS, R1, FP, DA, co->fpoff++));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, DA, XX, l1 + 5));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_ADD, R0, PC, DA, sizeof(rvm_asmins_t) * 3));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_SETTYPE, R0, DA, XX, RVM_DTYPE_FUNCTION));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_STRR, R0, R1, XX, 0));
 	l2 = rvm_codegen_getcodesize(co->cg);
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, 0)); 							/* Will be re-written later */
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(FP)|BIT(SP)|BIT(LR)));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_CALL, R0, DA, XX, -rvm_codegen_getcodesize(co->cg)));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, FP, SP, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_BXL, R0, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, SP, FP, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BITS(FP,LR)));
-	rvm_codegen_addins(co->cg, rvm_asm(RPA_EQSHIFT, XX, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
+	off = rvm_codegen_getcodesize(co->cg);
+	rvm_codegen_replaceins(co->cg, l2, rvm_asm(RVM_B, DA, XX, XX, off - l2));
+}
+
+
+void codegen_rpa_match_abc(rpa_compiler_t *co)
+{
+	rulong off, l1, l2;
+
+	rvm_scope_addoffset_s(co->scope, "rpa_match_abc", co->fpoff);
+	l1 = rvm_codegen_getcodesize(co->cg);
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_ADDRS, R1, FP, DA, co->fpoff++));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_ADD, R0, PC, DA, sizeof(rvm_asmins_t) * 3));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_SETTYPE, R0, DA, XX, RVM_DTYPE_FUNCTION));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_STRR, R0, R1, XX, 0));
+	l2 = rvm_codegen_getcodesize(co->cg);
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, 0)); 							/* Will be re-written later */
+	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR, DA, R_NAN, XX, 'a'));
+	rvm_codegen_addins(co->cg, rvm_asm(RPA_EQMATCHCHR, DA, R_MUL, XX, 'b'));
+	rvm_codegen_addins(co->cg, rvm_asm(RPA_EQMATCHCHR, DA, R_NAN, XX, 'c'));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 	off = rvm_codegen_getcodesize(co->cg);
 	rvm_codegen_replaceins(co->cg, l2, rvm_asm(RVM_B, DA, XX, XX, off - l2));
@@ -280,29 +330,24 @@ int main(int argc, char *argv[])
 
 
 	codegen_rpa_match(co);
+	codegen_rpa_match_abc(co);
+
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, TP, DA, XX, -1));
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, FP, DA, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, SP, DA, XX, co->fpoff));
-
+	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, R_NAN, DA, XX, RPA_MATCH_NONE));
+	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, R_MUL, DA, XX, RPA_MATCH_MULTIPLE));
+	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, R_OPT, DA, XX, RPA_MATCH_OPTIONAL));
+	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, R_MOP, DA, XX, RPA_MATCH_MULTIOPT));
 
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_SHIFT, XX, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR, DA, XX, XX, 'a'));
-	rvm_codegen_addins(co->cg, rvm_asm(RPA_EQSHIFT, XX, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDS, R4, DA, XX, rvm_scope_lookup_s(co->scope, "rpa_match")->data.offset));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDS, R0, DA, XX, rvm_scope_lookup_s(co->scope, "rpa_match_abc")->data.offset));
 
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, DA, XX, 'b'));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDS, R1, FP, DA, rvm_scope_lookup_s(co->scope, "rpa_match")->data.offset));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_BL, R1, DA, XX, -rvm_codegen_getcodesize(co->cg)));
-
-//	rvm_codegen_addins(co->cg, rvm_asm(RPA_EQMATCHCHR, DA, XX, XX, 'b'));
-//	rvm_codegen_addins(co->cg, rvm_asm(RPA_EQSHIFT, XX, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RPA_EQMATCHCHR, DA, XX, XX, 'c'));
-	rvm_codegen_addins(co->cg, rvm_asm(RPA_EQSHIFT, XX, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RPA_EQMATCHCHR, DA, XX, XX, 'd'));
-	rvm_codegen_addins(co->cg, rvm_asm(RPA_EQSHIFT, XX, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_BXL, R4, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_NOP, XX, XX, XX, 0xabc));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
 
-
-	rvm_cpu_exec_debug(cpu, rvm_codegen_getcode(co->cg, 0), 0);
 
 	if (debuginfo) {
 		fprintf(stdout, "\nGenerated Code:\n");
