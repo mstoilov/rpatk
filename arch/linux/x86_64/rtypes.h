@@ -36,7 +36,7 @@ typedef float rfloat;
 typedef rint rboolean;
 typedef void *rpointer;
 typedef const void *rconstpointer;
-typedef struct {ruint32 p1; ruint32 p2;} rpair;
+typedef struct {ruint32 p1; ruint32 p2;} rpair_t;
 
 /*
  * Atomic operations (Architecture Dependent)

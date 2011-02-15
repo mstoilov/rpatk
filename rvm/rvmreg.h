@@ -21,16 +21,15 @@ extern "C" {
 #define RVM_DTYPE_BOOLEAN 3
 #define RVM_DTYPE_DOUBLE 4
 #define RVM_DTYPE_PAIR 5
-#define RVM_DTYPE_STRING 6
-#define RVM_DTYPE_ARRAY 7
-#define RVM_DTYPE_HARRAY 8
-#define RVM_DTYPE_NAN 9
-#define RVM_DTYPE_UNDEF 10
-#define RVM_DTYPE_JSOBJECT 11
-#define RVM_DTYPE_FUNCTION 12
-#define RVM_DTYPE_SWIID 13			/* SWI ID */
-#define RVM_DTYPE_RELOCPTR 14		/* Relocation, using pointers */
-#define RVM_DTYPE_RELOCINDEX 15		/* Relocation, using offsets */
+#define RVM_DTYPE_UNDEF 6
+#define RVM_DTYPE_STRPTR 7
+#define RVM_DTYPE_STRING 8
+#define RVM_DTYPE_ARRAY 9
+#define RVM_DTYPE_HARRAY 10
+#define RVM_DTYPE_NAN 11
+#define RVM_DTYPE_JSOBJECT 12
+#define RVM_DTYPE_FUNCTION 13
+#define RVM_DTYPE_SWIID 14
 #define RVM_DTYPE_USER 16
 #define RVM_DTYPE_SIZE (1 << 5)
 #define RVM_DTYPE_MASK (RVM_DTYPE_SIZE - 1)
@@ -116,16 +115,17 @@ typedef ruint16 rvmreg_flags_t;
 typedef struct rvmreg_s {
 	union {
 		ruint64 u64;
-		rpair pair;
 		rword w;
 		rlong l;
 		rpointer p;
 		rdouble d;
+		rchar *s;
+		rpair_t pair;
 		ruint8 c[RVM_MIN_REGSIZE];
 	} v;
+	ruint32 size;
 	rvmreg_type_t type;
 	rvmreg_flags_t flags;
-	ruint32 size;
 } rvmreg_t;
 
 /* Create array with rvmreg elements */

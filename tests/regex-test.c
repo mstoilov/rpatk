@@ -218,7 +218,7 @@ static void rpa_matchrng(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	rlong tp = RVM_CPUREG_GETL(cpu, TP);
-	rpair op1 = RVM_CPUREG_GETPAIR(cpu, ins->op1);
+	rpair_t op1 = RVM_CPUREG_GETPAIR(cpu, ins->op1);
 
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, (!(cpu->status & RVM_STATUS_V) && stat->instack[tp].wc >= op1.p1 && stat->instack[tp].wc <= op1.p2) ? 1 : 0);
 }
