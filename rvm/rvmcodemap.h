@@ -17,6 +17,22 @@ typedef struct rvm_loopblock_s {
 } rvm_loopblock_t;
 
 
+typedef struct rvm_codelabel_s {
+	enum {
+		RVM_CODELABEL_INDEX = 0,
+		RVM_CODELABEL_POINTER,
+		RVM_CODELABEL_INVALID,
+	} type;
+	rulong base;
+	union {
+		rulong index;
+		rpointer ptr;
+	} loc;
+	rstr_t *name;
+	rulong size; // Optional, used for function declarations
+} rvm_codelabel_t;
+
+
 typedef struct rvm_codemap_s {
 	rarray_t *blocks;
 	rarray_t *labels;
@@ -27,19 +43,17 @@ typedef struct rvm_codemap_s {
 rvm_codemap_t *rvm_codemap_create();
 void rvm_codemap_destroy(rvm_codemap_t *codemap);
 void rvm_codemap_clear(rvm_codemap_t *codemap);
-rvm_codelabel_t *rvm_codemap_invalid_add(rvm_codemap_t *codemap, const rchar *name, ruint namesize);
-rvm_codelabel_t *rvm_codemap_invalid_add_s(rvm_codemap_t *codemap, const rchar *name);
-rvm_codelabel_t *rvm_codemap_addindex(rvm_codemap_t *codemap, const rchar *name, ruint namesize, rulong index);
-rvm_codelabel_t *rvm_codemap_addindex_s(rvm_codemap_t *codemap, const rchar *name, rulong index);
-rvm_codelabel_t *rvm_codemap_addpointer(rvm_codemap_t *codemap, const rchar *name, ruint namesize, rvm_asmins_t *ptr);
-rvm_codelabel_t *rvm_codemap_addpointer_s(rvm_codemap_t *codemap, const rchar *name, rvm_asmins_t *ptr);
-rvm_codelabel_t *rvm_codemap_lookup(rvm_codemap_t *codemap, const rchar *name, ruint namesize);
-rvm_codelabel_t *rvm_codemap_lookup_s(rvm_codemap_t *codemap, const rchar *name);
-rvm_codelabel_t *rvm_codemap_lastlabel(rvm_codemap_t *codemap);
+rlong rvm_codemap_invalid_add(rvm_codemap_t *codemap, const rchar *name, ruint namesize);
+rlong rvm_codemap_invalid_add_s(rvm_codemap_t *codemap, const rchar *name);
+rlong rvm_codemap_addoffset(rvm_codemap_t *codemap, rulong base, const rchar *name, ruint namesize, rulong offset);
+rlong rvm_codemap_addoffset_s(rvm_codemap_t *codemap, rulong base, const rchar *name, rulong offset);
+rlong rvm_codemap_addpointer(rvm_codemap_t *codemap, const rchar *name, ruint namesize, rvm_asmins_t *ptr);
+rlong rvm_codemap_addpointer_s(rvm_codemap_t *codemap, const rchar *name, rvm_asmins_t *ptr);
+rlong rvm_codemap_lookup(rvm_codemap_t *codemap, const rchar *name, ruint namesize);
+rlong rvm_codemap_lookup_s(rvm_codemap_t *codemap, const rchar *name);
+rlong rvm_codemap_lastlabel(rvm_codemap_t *codemap);
+rvm_codelabel_t *rvm_codemap_label(rvm_codemap_t *codemap, rlong index);
 
-void rvm_codemap_pushloopblock(rvm_codemap_t *codemap, rulong begin, rulong size);
-void rvm_codemap_poploopblock(rvm_codemap_t *codemap);
-rvm_loopblock_t *rvm_codemap_currentloopblock(rvm_codemap_t *codemap);
 
 #ifdef __cplusplus
 }

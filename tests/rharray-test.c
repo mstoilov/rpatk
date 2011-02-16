@@ -102,7 +102,6 @@ int main(int argc, char *argv[])
 	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_getswi_s(cpu, "print")), R0, XX, XX, 0));	// print
 	rvm_codegen_addins(cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
 
-	rvm_relocate(rvm_codegen_getcode(cg, 0), rvm_codegen_getcodesize(cg));
 	rvm_cpu_exec_debug(cpu, rvm_codegen_getcode(cg, 0), 0);
 	rvm_cpu_destroy(cpu);
 	rvm_codegen_destroy(cg);

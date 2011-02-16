@@ -22,9 +22,9 @@ int main(int argc, char *argv[])
 {
 	rvm_codemap_t *codemap = rvm_codemap_create();
 
-	rvm_codemap_addindex_s(codemap, "add2", 0);
-	rvm_codemap_addindex_s(codemap, "add3", 3);
-	rvm_codemap_addindex_s(codemap, "sub2", 7);
+	rvm_codemap_addoffset_s(codemap, rvm_codemap_lookup_s(codemap, ".code"), "add2", 0);
+	rvm_codemap_addoffset_s(codemap, rvm_codemap_lookup_s(codemap, ".code"), "add3", 3);
+	rvm_codemap_addoffset_s(codemap, rvm_codemap_lookup_s(codemap, ".code"), "sub2", 7);
 
 	codelabel_print_info(codemap, "add2");
 	codelabel_print_info(codemap, "add7");

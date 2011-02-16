@@ -89,9 +89,15 @@ extern "C" {
 #define RVM_CPUREG_SETU64(__cpu__, __r__, __val__) RVM_REG_SETU64(RVM_CPUREG_PTR(__cpu__, __r__), __val__)
 
 #define RVM_REG_GETPAIR(__r__) (__r__)->v.pair
-#define RVM_REG_SETPAIR(__r__, __val__) do { (__r__)->v.pair = (ruint64)(__val__); } while (0)
+#define RVM_REG_SETPAIR(__r__, __val1__, __val2__) do { (__r__)->v.pair.p1 = (__val1__); (__r__)->v.pair.p2 = (__val2__);} while (0)
 #define RVM_CPUREG_GETPAIR(__cpu__, __r__) RVM_CPUREG_PTR(__cpu__, __r__)->v.pair
-#define RVM_CPUREG_SETPAIR(__cpu__, __r__, __val__) RVM_REG_SETPAIR(RVM_CPUREG_PTR(__cpu__, __r__), __val__)
+#define RVM_CPUREG_SETPAIR(__cpu__, __r__, __val1__, __val2__) RVM_REG_SETPAIR(RVM_CPUREG_PTR(__cpu__, __r__), __val1__, __val2__)
+
+#define RVM_REG_GETSTRSIZE(__r__) (__r__)->size
+#define RVM_REG_GETSTR(__r__) (__r__)->v.s
+#define RVM_REG_SETSTR(__r__, __str__, __size__) do { (__r__)->v.s = (__str__); if ((__size__) == (ruint)-1) (__r__)->size = r_strlen(__str__); else (__r__)->size = (__size__);} while (0)
+#define RVM_CPUREG_GETSTR(__cpu__, __r__) RVM_REG_GETSTR(RVM_CPUREG_PTR(__cpu__, __r__))
+#define RVM_CPUREG_SETSTR(__cpu__, __r__, __str__, __size__) RVM_REG_SETSTR(RVM_CPUREG_PTR(__cpu__, __r__), __str__, __size__)
 
 
 #define RVM_REG_GETIP(__r__) (rvm_asmins_t*)((__r__)->v.p)
@@ -141,6 +147,8 @@ rvmreg_t rvm_reg_create_array();
 rvmreg_t rvm_reg_create_harray();
 rvmreg_t rvm_reg_create_double(rdouble d);
 rvmreg_t rvm_reg_create_long(rlong l);
+rvmreg_t rvm_reg_create_pair(ruint p1, ruint p2);
+rvmreg_t rvm_reg_create_strptr(rchar *s, ruint size);
 void rvm_reg_init(rvmreg_t *reg);
 void rvm_reg_cleanup(rvmreg_t *reg);
 rvmreg_t *rvm_reg_copy(rvmreg_t *dst, const rvmreg_t *src);
@@ -151,8 +159,12 @@ rboolean rvm_reg_tstflag(const rvmreg_t *r, ruint16 flag);
 void rvm_reg_setflag(rvmreg_t *r, ruint16 flag);
 void rvm_reg_clrflag(rvmreg_t *r, ruint16 flag);
 void rvm_reg_setunsigned(rvmreg_t *r, rword u);
+void rvm_reg_setboolean(rvmreg_t *r, ruint b);
 void rvm_reg_setlong(rvmreg_t *r, rlong l);
 void rvm_reg_setdouble(rvmreg_t *r, rdouble d);
+void rvm_reg_setpointer(rvmreg_t *r, rpointer p);
+void rvm_reg_setpair(rvmreg_t *r, ruint p1, ruint p2);
+void rvm_reg_setstrptr(rvmreg_t *r, rchar *s, ruint size);
 void rvm_reg_setstring(rvmreg_t *r, rstring_t *ptr);
 void rvm_reg_setarray(rvmreg_t *r, robject_t *ptr);
 void rvm_reg_setharray(rvmreg_t *r, robject_t *ptr);

@@ -213,6 +213,23 @@ void rvm_reg_setstring(rvmreg_t *r, rstring_t *ptr)
 }
 
 
+void rvm_reg_setpair(rvmreg_t *r, ruint p1, ruint p2)
+{
+
+	RVM_REG_SETPAIR(r, p1, p2);
+	RVM_REG_SETTYPE(r, RVM_DTYPE_PAIR);
+	RVM_REG_CLRFLAG(r, RVM_INFOBIT_ROBJECT);
+}
+
+
+void rvm_reg_setstrptr(rvmreg_t *r, rchar *s, ruint size)
+{
+	RVM_REG_SETSTR(r, s, size);
+	RVM_REG_SETTYPE(r, RVM_DTYPE_STRPTR);
+	RVM_REG_CLRFLAG(r, RVM_INFOBIT_ROBJECT);
+}
+
+
 void rvm_reg_setarray(rvmreg_t *r, robject_t *ptr)
 {
 	RVM_REG_SETP(r, ptr);
@@ -234,6 +251,23 @@ void rvm_reg_setharray(rvmreg_t *r, robject_t *ptr)
 	RVM_REG_SETP(r, ptr);
 	RVM_REG_SETTYPE(r, RVM_DTYPE_HARRAY);
 	RVM_REG_SETFLAG(r, RVM_INFOBIT_ROBJECT);
+}
+
+rvmreg_t rvm_reg_create_pair(ruint p1, ruint p2)
+{
+	rvmreg_t r;
+	r_memset(&r, 0, sizeof(r));
+	rvm_reg_setpair(&r, p1, p2);
+	return r;
+}
+
+
+rvmreg_t rvm_reg_create_strptr(rchar *s, ruint size)
+{
+	rvmreg_t r;
+	r_memset(&r, 0, sizeof(r));
+	rvm_reg_setstrptr(&r, s, size);
+	return r;
 }
 
 
@@ -328,12 +362,27 @@ void rvm_reg_setlong(rvmreg_t *r, rlong l)
 }
 
 
+void rvm_reg_setboolean(rvmreg_t *r, ruint b)
+{
+	RVM_REG_SETU(r, b ? 1 : 0);
+	RVM_REG_SETTYPE(r, RVM_DTYPE_BOOLEAN);
+	RVM_REG_CLRFLAG(r, RVM_INFOBIT_ROBJECT);
+}
+
+
 void rvm_reg_setdouble(rvmreg_t *r, rdouble d)
 {
 	RVM_REG_SETD(r, d);
 	RVM_REG_SETTYPE(r, RVM_DTYPE_DOUBLE);
 	RVM_REG_CLRFLAG(r, RVM_INFOBIT_ROBJECT);
+}
 
+
+void rvm_reg_setpointer(rvmreg_t *r, rpointer p)
+{
+	RVM_REG_SETP(r, p);
+	RVM_REG_SETTYPE(r, RVM_DTYPE_POINTER);
+	RVM_REG_CLRFLAG(r, RVM_INFOBIT_ROBJECT);
 }
 
 

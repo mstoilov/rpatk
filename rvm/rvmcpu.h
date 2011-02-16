@@ -281,35 +281,15 @@ typedef struct rvm_switable_s {
 #define RVM_ASMINS_RELOC (1 << 0)
 
 struct rvm_asmins_s {
-	union {
-		ruint64 u;
-		rdouble d;
-		rpair_t p;
-	} data;
+	rvmreg_t data;
 	ruint16 op1:RVM_OPERAND_BITS;
 	ruint16 op2:RVM_OPERAND_BITS;
 	ruint16 op3:RVM_OPERAND_BITS;
 	ruint16 da:1;
-	ruint32 opcode:8;
-	ruint32 swi:(RVM_SWI_TABLE_BITS + RVM_SWI_NUM_BITS);
-	ruint32 type:5;
-	ruint32 flags:3;
+	ruint16 swi;
+	ruint8 flags;
+	ruint8 opcode;
 };
-
-
-typedef struct rvm_codelabel_s {
-	enum {
-		RVM_CODELABEL_INDEX = 0,
-		RVM_CODELABEL_POINTER,
-		RVM_CODELABEL_INVALID,
-	} type;
-	union {
-		rulong index;
-		rvm_asmins_t *ptr;
-	} loc;
-	rstr_t *name;
-	rulong size; // Optional, used for function declarations
-} rvm_codelabel_t;
 
 
 struct rvm_opmap_s;
@@ -344,14 +324,13 @@ rint rvm_cpu_exec(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off);
 rint rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off);
 rint rvm_cpu_getswi(rvmcpu_t *cpu, const rchar *swiname, rsize_t size);
 rint rvm_cpu_getswi_s(rvmcpu_t *cpu, const rchar *swiname);
-rvm_codelabel_t *rvm_relocate(rvm_asmins_t *code, rsize_t size);
 rvmreg_t *rvm_cpu_alloc_global(rvmcpu_t *cpu);
 int rvm_cpu_setreg(rvmcpu_t *cpu, rword regnum, const rvmreg_t *src);
 rvmreg_t * rvm_cpu_getreg(rvmcpu_t *cpu, rword regnum);
 rvm_asmins_t rvm_asm(rword opcode, rword op1, rword op2, rword op3, rword data);
 rvm_asmins_t rvm_asma(rword opcode, rword op1, rword op2, rword op3, rchar *data, rulong size);
 rvm_asmins_t rvm_asml(rword opcode, rword op1, rword op2, rword op3, rlong data);
-rvm_asmins_t rvm_asmb(rword opcode, rword op1, rword op2, rword op3, rword data);
+rvm_asmins_t rvm_asmb(rword opcode, rword op1, rword op2, rword op3, ruint data);
 rvm_asmins_t rvm_asmd(rword opcode, rword op1, rword op2, rword op3, rdouble data);
 rvm_asmins_t rvm_asmp(rword opcode, rword op1, rword op2, rword op3, rpointer data);
 rvm_asmins_t rvm_asms(rword opcode, rword op1, rword op2, rword op3, rword data);

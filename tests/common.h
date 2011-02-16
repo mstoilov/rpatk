@@ -1,7 +1,7 @@
 #include "rvmcpu.h"
 #include <stdio.h>
 
-//#define EXECDEBUG 1
+#define EXECDEBUG 1
 
 
 #define VMTEST_REG(code, index, reg, val, msg) \

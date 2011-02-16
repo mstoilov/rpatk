@@ -266,7 +266,7 @@ void codegen_rpa_match(rpa_compiler_t *co)
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_STRR, R0, R1, XX, 0));
 	l2 = rvm_codegen_getcodesize(co->cg);
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, 0)); 							/* Will be re-written later */
-	rvm_codemap_addindex_s(co->cg->codemap, "rpa_match", rvm_codegen_getcodesize(co->cg));
+	rvm_codemap_addoffset_s(co->cg->codemap, rvm_codemap_lookup_s(co->cg->codemap, ".code"), "rpa_match", rvm_codegen_getcodesize(co->cg));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(TP)|BIT(FP)|BIT(SP)|BIT(LR)));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, FP, SP, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BXL, R0, XX, XX, 0));
@@ -309,7 +309,7 @@ void codegen_rpa_match_abc(rpa_compiler_t *co)
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_STRR, R0, R1, XX, 0));
 	l2 = rvm_codegen_getcodesize(co->cg);
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, 0)); 							/* Will be re-written later */
-	rvm_codemap_addindex_s(co->cg->codemap, "rpa_match_abc", rvm_codegen_getcodesize(co->cg));
+	rvm_codemap_addoffset_s(co->cg->codemap, rvm_codemap_lookup_s(co->cg->codemap, ".code"), "rpa_match_abc", rvm_codegen_getcodesize(co->cg));
 	codegen_rpa_match_char(co, 'a', ' ');
 	codegen_rpa_match_char(co, 'b', '?');
 	codegen_rpa_match_char(co, 'c', '+');
@@ -369,18 +369,12 @@ int main(int argc, char *argv[])
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDS, R4, DA, XX, rvm_scope_lookup_s(co->scope, "rpa_match")->data.offset));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDS, R0, DA, XX, rvm_scope_lookup_s(co->scope, "rpa_match_abc")->data.offset));
 
-//	rvm_codegen_addins(co->cg, rvm_asm(RVM_BXL, R4, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_SUB, R0, PC, DA, (rvm_codegen_getcodesize(co->cg) - rvm_codemap_lookup_s(co->cg->codemap, "rpa_match_abc")->loc.index  + 1) * sizeof(rvm_asmins_t)));
-	rvm_codegen_addins(co->cg, rvm_asmx(RVM_BL, DA, XX, XX, rvm_codemap_lookup_s(co->cg->codemap, "rpa_match")));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_BXL, R4, XX, XX, 0));
+//	rvm_codegen_addins(co->cg, rvm_asm(RVM_SUB, R0, PC, DA, (rvm_codegen_getcodesize(co->cg) - rvm_codemap_lookup_s(co->cg->codemap, "rpa_match_abc")->loc.index  + 1) * sizeof(rvm_asmins_t)));
+//	rvm_codegen_addins(co->cg, rvm_asmx(RVM_BL, DA, XX, XX, rvm_codemap_lookup_s(co->cg->codemap, "rpa_match")));
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_NOP, XX, XX, XX, 0xabc));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
-
-	unresolved = rvm_relocate(rvm_codegen_getcode(co->cg, 0), rvm_codegen_getcodesize(co->cg));
-	if (unresolved) {
-		fprintf(stderr, "ERROR: Undefined reference to: %s\n", unresolved->name->str);
-		goto end;
-	}
 
 	if (debuginfo) {
 		fprintf(stdout, "\nGenerated Code:\n");

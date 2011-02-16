@@ -90,9 +90,6 @@ int main(int argc, char *argv[])
 	rvm_codegen_addins(cg, rvm_asm(RVM_NOP, XX, XX, XX, 0));
 	rvm_codegen_addins(cg, rvm_asm(RVM_NOP, XX, XX, XX, 0));
 
-	rvm_relocate(rvm_codegen_getcode(cg, 0), rvm_codegen_getcodesize(cg));
-
-
 	rvm_asm_dump(rvm_codegen_getcode(cg, 0), rvm_codegen_getcodesize(cg));
 
 	rvm_cpu_exec_debug(cpu, rvm_codegen_getcode(cg, 0), 0);

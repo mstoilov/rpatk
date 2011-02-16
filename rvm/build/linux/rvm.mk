@@ -8,6 +8,7 @@ CFLAGS += -I$(RVM_SRCDIR)/config -I$(SRCDIR)/rlib
 RVM_OBJECTS +=	$(OUTDIR)/rvmcpu.o 
 RVM_OBJECTS +=	$(OUTDIR)/rvmoperator.o
 RVM_OBJECTS +=	$(OUTDIR)/rvmcodemap.o
+RVM_OBJECTS +=	$(OUTDIR)/rvmrelocmap.o
 RVM_OBJECTS +=	$(OUTDIR)/rvmcodegen.o
 RVM_OBJECTS +=	$(OUTDIR)/rvmreg.o
 RVM_OBJECTS +=	$(OUTDIR)/rvmscope.o

@@ -61,7 +61,6 @@ int main(int argc, char *argv[])
 	vmcode[off++] = rvm_asm(RVM_EXT, R0, XX, XX, 0);
 
 
-	rvm_relocate(vmcode, off);
 	ret = rvm_cpu_exec(vm, vmcode, 0);
 	fprintf(stdout, "R0 = %ld (%ld operations)\n", (unsigned long) RVM_CPUREG_GETU(vm, R0), (unsigned long)RVM_CPUREG_GETU(vm, R5));
 	rvm_cpu_destroy(vm);

@@ -1366,7 +1366,6 @@ int codegen_iterationdo_callback(rpa_stat_handle stat, const char *name, void *u
 
 	cs.codesize = rvm_codegen_getcodesize(co->cg) - cs.codestart;
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BNEQ, DA, XX, XX, -cs.codesize));
-	rvm_codemap_poploopblock(co->cg->codemap);
 
 	codegen_print_callback(stat, name, userdata, input, size, reason);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
@@ -1903,8 +1902,6 @@ int main(int argc, char *argv[])
 
 
 exec:
-	rvm_relocate(rvm_codegen_getcode(co->cg, 0), rvm_codegen_getcodesize(co->cg));
-
 	if (debuginfo) {
 		fprintf(stdout, "\nGenerated Code:\n");
 		rvm_asm_dump(rvm_codegen_getcode(co->cg, 0), rvm_codegen_getcodesize(co->cg));

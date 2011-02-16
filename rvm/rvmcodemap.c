@@ -37,34 +37,6 @@ void rvm_codemap_destroy(rvm_codemap_t *codemap)
 }
 
 
-void rvm_codemap_pushloopblock(rvm_codemap_t *codemap, rulong begin, rulong size)
-{
-	rvm_loopblock_t loop;
-	loop.begin = begin;
-	loop.size = size;
-	r_array_add(codemap->blocks, &loop);
-}
-
-
-void rvm_codemap_poploopblock(rvm_codemap_t *codemap)
-{
-	ruint len;
-	if ((len = r_array_length(codemap->blocks)) > 0) {
-		r_array_setlength(codemap->blocks, len - 1);
-	}
-}
-
-
-rvm_loopblock_t *rvm_codemap_currentloopblock(rvm_codemap_t *codemap)
-{
-	ruint len;
-	if ((len = r_array_length(codemap->blocks)) > 0) {
-		return (rvm_loopblock_t*)r_array_slot(codemap->blocks, len - 1);
-	}
-	return NULL;
-}
-
-
 void rvm_codemap_clear(rvm_codemap_t *codemap)
 {
 	r_hash_removeall(codemap->hash);
@@ -72,104 +44,115 @@ void rvm_codemap_clear(rvm_codemap_t *codemap)
 }
 
 
-static rvm_codelabel_t *rvm_codemap_dolookup(rvm_codemap_t *codemap, const rchar *name, ruint namesize)
+rvm_codelabel_t *rvm_codemap_label(rvm_codemap_t *codemap, rlong index)
+{
+	if (index < 0)
+		return NULL;
+	return r_array_index(codemap->labels, index, rvm_codelabel_t*);
+}
+
+
+static rlong rvm_codemap_dolookup(rvm_codemap_t *codemap, const rchar *name, ruint namesize)
 {
 	rstr_t lookupstr = {(char*)name, namesize};
-	return (rvm_codelabel_t *)r_hash_lookup(codemap->hash, &lookupstr);
+	return r_hash_lookup_indexval(codemap->hash, &lookupstr);
 }
 
 
-static rvm_codelabel_t *rvm_codemap_add(rvm_codemap_t *codemap, const rchar *name, ruint namesize)
+static rlong rvm_codemap_add(rvm_codemap_t *codemap, const rchar *name, ruint namesize)
 {
 	rvm_codelabel_t *label;
+	rlong labelidx = -1;
 
-	label = rvm_codemap_dolookup(codemap, name, namesize);
-	if (!label) {
+	labelidx = rvm_codemap_dolookup(codemap, name, namesize);
+	if (labelidx < 0) {
 		label = r_zmalloc(sizeof(*label));
-		label->name = r_rstrdup(name, namesize);
-		r_hash_insert(codemap->hash, label->name, label);
-		r_array_add(codemap->labels, &label);
+		labelidx = r_array_add(codemap->labels, &label);
+		if (name) {
+			label->name = r_rstrdup(name, namesize);
+			r_hash_insert_indexval(codemap->hash, label->name, labelidx);
+		}
 	}
-	return label;
+	return labelidx;
 }
 
 
 
-rvm_codelabel_t *rvm_codemap_addindex(rvm_codemap_t *codemap, const rchar *name, ruint namesize, rulong index)
+rlong rvm_codemap_addoffset(rvm_codemap_t *codemap, rulong base, const rchar *name, ruint namesize, rulong offset)
 {
-	rvm_codelabel_t *label = rvm_codemap_add(codemap, name, namesize);
+	rlong labelidx = rvm_codemap_add(codemap, name, namesize);
+	rvm_codelabel_t *label = rvm_codemap_label(codemap, labelidx);
 
 	if (label) {
-		label->loc.index = index;
+		label->base = base;
+		label->loc.index = offset;
 		label->type = RVM_CODELABEL_INDEX;
 	}
-	return label;
+	return labelidx;
 }
 
 
-rvm_codelabel_t *rvm_codemap_addindex_s(rvm_codemap_t *codemap, const rchar *name, rulong index)
+rlong rvm_codemap_addoffset_s(rvm_codemap_t *codemap, rulong base, const rchar *name, rulong offset)
 {
-	return rvm_codemap_addindex(codemap, name, r_strlen(name), index);
+	return rvm_codemap_addoffset(codemap, base, name, r_strlen(name), offset);
 }
 
 
-rvm_codelabel_t *rvm_codemap_addpointer(rvm_codemap_t *codemap, const rchar *name, ruint namesize, rvm_asmins_t *ptr)
+rlong rvm_codemap_addpointer(rvm_codemap_t *codemap, const rchar *name, ruint namesize, rvm_asmins_t *ptr)
 {
-	rvm_codelabel_t *label = rvm_codemap_add(codemap, name, namesize);
+	rlong labelidx = rvm_codemap_add(codemap, name, namesize);
+	rvm_codelabel_t *label = rvm_codemap_label(codemap, labelidx);
 
 	if (label) {
 		label->loc.ptr = ptr;
 		label->type = RVM_CODELABEL_POINTER;
 	}
-	return label;
+	return labelidx;
 }
 
 
-rvm_codelabel_t *rvm_codemap_addpointer_s(rvm_codemap_t *codemap, const rchar *name, rvm_asmins_t *ptr)
+rlong rvm_codemap_addpointer_s(rvm_codemap_t *codemap, const rchar *name, rvm_asmins_t *ptr)
 {
 	return rvm_codemap_addpointer(codemap, name, r_strlen(name), ptr);
 }
 
 
-rvm_codelabel_t *rvm_codemap_invalid_add(rvm_codemap_t *codemap, const rchar *name, ruint namesize)
+rlong rvm_codemap_invalid_add(rvm_codemap_t *codemap, const rchar *name, ruint namesize)
 {
-	rvm_codelabel_t *label = rvm_codemap_add(codemap, name, namesize);
+	rlong labelidx = rvm_codemap_add(codemap, name, namesize);
+	rvm_codelabel_t *label = rvm_codemap_label(codemap, labelidx);
 
 	if (label) {
 		label->type = RVM_CODELABEL_INVALID;
 	}
-	return label;
+	return labelidx;
 }
 
 
-rvm_codelabel_t *rvm_codemap_invalid_add_s(rvm_codemap_t *codemap, const rchar *name)
+rlong rvm_codemap_invalid_add_s(rvm_codemap_t *codemap, const rchar *name)
 {
 	return rvm_codemap_invalid_add(codemap, name, r_strlen(name));
 }
 
 
-rvm_codelabel_t *rvm_codemap_lastlabel(rvm_codemap_t *codemap)
+rlong rvm_codemap_lastlabel(rvm_codemap_t *codemap)
 {
-	if (r_array_size(codemap->labels)) {
-		return (rvm_codelabel_t*)r_array_last(codemap->labels, rvm_codelabel_t*);
-	}
-	return NULL;
+	return r_array_length(codemap->labels) - 1;
 }
 
 
-rvm_codelabel_t *rvm_codemap_lookup(rvm_codemap_t *codemap, const rchar *name, ruint namesize)
+rlong rvm_codemap_lookup(rvm_codemap_t *codemap, const rchar *name, ruint namesize)
 {
 	rstr_t lookupstr = {(char*)name, namesize};
-	rvm_codelabel_t *label = (rvm_codelabel_t *)r_hash_lookup(codemap->hash, &lookupstr);
+	rlong labelidx = r_hash_lookup_indexval(codemap->hash, &lookupstr);
 
-	if (!label)
-		label = rvm_codemap_invalid_add(codemap, name, namesize);
-	return label;
+	if (labelidx < 0)
+		labelidx = rvm_codemap_invalid_add(codemap, name, namesize);
+	return labelidx;
 }
 
 
-
-rvm_codelabel_t *rvm_codemap_lookup_s(rvm_codemap_t *codemap, const rchar *name)
+rlong rvm_codemap_lookup_s(rvm_codemap_t *codemap, const rchar *name)
 {
 	return rvm_codemap_lookup(codemap, name, r_strlen(name));
 }

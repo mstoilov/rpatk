@@ -25,7 +25,7 @@ struct rhash_s {
 };
 
 
-#define R_HASH_INVALID_INDEXVAL ((ruint)-1)
+#define R_HASH_INVALID_INDEXVAL ((rulong)-1)
 
 #define r_hash_size(__h__) (1 << (__h__)->nbits)
 #define r_hash_mask(__h__) (r_hash_size(__h__) - 1)
