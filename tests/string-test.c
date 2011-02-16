@@ -70,6 +70,7 @@ int main(int argc, char *argv[])
 
 	rvm_testctx_t ctx;
 	rvm_codegen_t *cg;
+	rvm_codelabel_t *err;
 	rvmcpu_t *cpu;
 	rvm_opmap_t *opmap;
 	ruint ntable;
@@ -88,14 +89,14 @@ int main(int argc, char *argv[])
 	rvm_codegen_addins(cg, rvm_asm(RVM_STS, R0, SP, DA, 1 + RVM_CODEGEN_FUNCINITOFFSET));
 	rvm_codegen_addins(cg, rvm_asml(RVM_MOV, R0, DA, XX, r_strlen(hello)));
 	rvm_codegen_addins(cg, rvm_asm(RVM_STS, R0, SP, DA, 2 + RVM_CODEGEN_FUNCINITOFFSET));
-	rvm_codegen_addins(cg, rvm_asmx(RVM_BL,  DA, XX, XX, rvm_codemap_lookup_s(cg->codemap, "str_init")));
+	rvm_codegen_addrelocins_s(cg, RVM_RELOC_BRANCH, "str_init", rvm_asm(RVM_BL,  DA, XX, XX, 0));
 	rvm_codegen_addins(cg, rvm_asmp(RVM_MOV, R7, R0, XX, 0));
 
 	rvm_codegen_addins(cg, rvm_asmp(RVM_MOV, R0, DA, XX, there));
 	rvm_codegen_addins(cg, rvm_asm(RVM_STS, R0, SP, DA, 1 + RVM_CODEGEN_FUNCINITOFFSET));
 	rvm_codegen_addins(cg, rvm_asml(RVM_MOV, R0, DA, XX, r_strlen(there)));
 	rvm_codegen_addins(cg, rvm_asm(RVM_STS, R0, SP, DA, 2 + RVM_CODEGEN_FUNCINITOFFSET));
-	rvm_codegen_addins(cg, rvm_asmx(RVM_BL,  DA, XX, XX, rvm_codemap_lookup_s(cg->codemap, "str_init")));
+	rvm_codegen_addrelocins_s(cg, RVM_RELOC_BRANCH, "str_init", rvm_asm(RVM_BL,  DA, XX, XX, 0));
 	rvm_codegen_addins(cg, rvm_asmp(RVM_MOV, R8, R0, XX, 0));
 
 	rvm_codegen_addins(cg, rvm_asmp(RVM_MOV, R0, R7, XX, 0));
@@ -119,7 +120,14 @@ int main(int argc, char *argv[])
 	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_getswi_s(cpu, "str_to_double")), R0, R0, XX, 0));
 	rvm_codegen_funcend(cg);
 
+	if (rvm_codegen_relocate(cg, &err) < 0) {
+		r_printf("Unresolved symbol: %s\n", err->name.str);
+		goto end;
+	}
+
 	rvm_cpu_exec_debug(cpu, rvm_codegen_getcode(cg, 0), 0);
+
+end:
 	rvm_cpu_destroy(cpu);
 	rvm_opmap_destroy(opmap);
 	rvm_codegen_destroy(cg);

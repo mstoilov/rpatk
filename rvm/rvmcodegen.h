@@ -7,7 +7,7 @@
 #include "rhash.h"
 #include "rvmcpu.h"
 #include "rvmcodemap.h"
-
+#include "rvmrelocmap.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,6 +20,7 @@ typedef struct rvm_codegen_s {
 	rarray_t *code;
 	ruint codeoff;
 	rvm_codemap_t *codemap;
+	rvm_relocmap_t *relocmap;
 } rvm_codegen_t;
 
 
@@ -31,12 +32,19 @@ ruint rvm_codegen_vargs_funcstart(rvm_codegen_t *cg, const rchar* name, ruint na
 ruint rvm_codegen_vargs_funcstart_s(rvm_codegen_t *cg, const rchar* name);
 void rvm_codegen_funcend(rvm_codegen_t *cg);
 ruint rvm_codegen_addins(rvm_codegen_t *cg, rvm_asmins_t ins);
+ruint rvm_codegen_addlabelins(rvm_codegen_t *cg, const rchar* name, ruint namesize, rvm_asmins_t ins);
+ruint rvm_codegen_addlabelins_s(rvm_codegen_t *cg, const rchar* name, rvm_asmins_t ins);
+ruint rvm_codegen_addrelocins(rvm_codegen_t *cg, rvm_reloctype_t type, const rchar* name, ruint namesize, rvm_asmins_t ins);
+ruint rvm_codegen_addrelocins_s(rvm_codegen_t *cg, rvm_reloctype_t type, const rchar* name, rvm_asmins_t ins);
 ruint rvm_codegen_insertins(rvm_codegen_t *cg, ruint index, rvm_asmins_t ins);
 ruint rvm_codegen_replaceins(rvm_codegen_t *cg, ruint index, rvm_asmins_t ins);
 rvm_asmins_t *rvm_codegen_getcode(rvm_codegen_t *cg, ruint index);
 rulong rvm_codegen_getcodesize(rvm_codegen_t *cg);
 void rvm_codegen_setcodesize(rvm_codegen_t *cg, ruint size);
 void rvm_codegen_clear(rvm_codegen_t *cg);
+rint rvm_codegen_relocate(rvm_codegen_t *cg, rvm_codelabel_t **err);
+rlong rvm_codegen_addlabel(rvm_codegen_t *cg, const rchar* name, ruint namesize);
+rlong rvm_codegen_addlabel_s(rvm_codegen_t *cg, const rchar* name);
 
 #ifdef __cplusplus
 }

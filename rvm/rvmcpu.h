@@ -255,7 +255,8 @@ do { \
 #define RVM_STACK_READ(__s__, __sp__) *RVM_STACK_ADDR(__s__, __sp__)
 #define RVM_STACK_ADDR(__s__, __sp__) (((rvmreg_t*)(__s__)) + (__sp__))
 #define RVM_STACK_CHECKSIZE(__cpu__, __s__, __sp__)  ((__sp__) < (__cpu__)->stacksize ? 1 : 0)
-
+#define RVM_CODE2BYTE_OFFSET(__codeoff__) ((rword)(((rsword)(__codeoff__)) * ((rsword)sizeof(rvm_asmins_t))))
+#define RVM_BYTE2CODE_OFFSET(__byteoff__) ((rword)(((rsword)(__byteoff__)) / ((rsword)sizeof(rvm_asmins_t))))
 
 #define RVM_E_DIVZERO		(1)
 #define RVM_E_ILLEGAL		(2)

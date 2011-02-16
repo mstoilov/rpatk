@@ -13,6 +13,7 @@ rvm_codegen_t *rvm_codegen_create()
 	r_memset(cg, 0, sizeof(*cg));
 	cg->code = r_array_create(sizeof(rvm_asmins_t));
 	cg->codemap = rvm_codemap_create();
+	cg->relocmap = rvm_relocmap_create();
 	return cg;
 }
 
@@ -20,6 +21,7 @@ rvm_codegen_t *rvm_codegen_create()
 void rvm_codegen_destroy(rvm_codegen_t *cg)
 {
 	rvm_codemap_destroy(cg->codemap);
+	rvm_relocmap_destroy(cg->relocmap);
 	r_object_destroy((robject_t*)cg->code);
 	r_free(cg);
 }
@@ -55,6 +57,51 @@ ruint rvm_codegen_addins(rvm_codegen_t *cg, rvm_asmins_t ins)
 }
 
 
+rlong rvm_codegen_addlabel(rvm_codegen_t *cg, const rchar* name, ruint namesize)
+{
+	return rvm_codemap_addoffset(cg->codemap, name, namesize, rvm_codemap_lookup_s(cg->codemap, ".code"), RVM_CODE2BYTE_OFFSET(rvm_codegen_getcodesize(cg)));
+}
+
+
+rlong rvm_codegen_addlabel_s(rvm_codegen_t *cg, const rchar* name)
+{
+	return rvm_codegen_addlabel(cg, name, r_strlen(name));
+}
+
+
+ruint rvm_codegen_addlabelins(rvm_codegen_t *cg, const rchar* name, ruint namesize, rvm_asmins_t ins)
+{
+	rvm_codemap_addoffset(cg->codemap, name, namesize, rvm_codemap_lookup_s(cg->codemap, ".code"), RVM_CODE2BYTE_OFFSET(rvm_codegen_getcodesize(cg)));
+	return rvm_codegen_addins(cg, ins);
+}
+
+
+ruint rvm_codegen_addlabelins_s(rvm_codegen_t *cg, const rchar* name, rvm_asmins_t ins)
+{
+	return rvm_codegen_addlabelins(cg, name, r_strlen(name), ins);
+}
+
+
+ruint rvm_codegen_addrelocins(rvm_codegen_t *cg, rvm_reloctype_t type, const rchar* name, ruint namesize, rvm_asmins_t ins)
+{
+	rvm_relocmap_add(cg->relocmap, type, rvm_codegen_getcodesize(cg), rvm_codemap_lookup(cg->codemap, name, namesize));
+	return rvm_codegen_addins(cg, ins);
+}
+
+
+ruint rvm_codegen_addrelocins_s(rvm_codegen_t *cg, rvm_reloctype_t type, const rchar* name, rvm_asmins_t ins)
+{
+	return rvm_codegen_addrelocins(cg, type, name, r_strlen(name), ins);
+}
+
+
+rint rvm_codegen_relocate(rvm_codegen_t *cg, rvm_codelabel_t **err)
+{
+	rvm_codemap_addpointer_s(cg->codemap, ".code", r_array_slot(cg->code, 0));
+	return rvm_relocmap_relocate(cg->relocmap, cg->codemap, (rvm_asmins_t *)r_array_slot(cg->code, 0), err);
+}
+
+
 ruint rvm_codegen_insertins(rvm_codegen_t *cg, ruint index, rvm_asmins_t ins)
 {
 	return r_array_insert(cg->code, index, &ins);
@@ -72,10 +119,10 @@ ruint rvm_codegen_funcstart(rvm_codegen_t *cg, const rchar* name, ruint namesize
 {
 	ruint start;
 	rvm_codegen_addins(cg, rvm_asm(RVM_NOP, XX, XX, XX, 0));
-	start = rvm_codegen_addins(cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(FP)|BIT(SP)|BIT(LR)));
+	start = rvm_codegen_addlabelins(cg, name, namesize, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(FP)|BIT(SP)|BIT(LR)));
 	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, FP, SP, XX, 0));
 	rvm_codegen_addins(cg, rvm_asm(RVM_ADD, SP, SP, DA, args));
-	rvm_codemap_addoffset(cg->codemap, rvm_codemap_lookup_s(cg->codemap, ".code"), name, namesize, start);
+//	rvm_codemap_addoffset(cg->codemap, name, namesize, rvm_codemap_lookup_s(cg->codemap, ".code"), start);
 	return start;
 }
 
@@ -90,10 +137,10 @@ ruint rvm_codegen_vargs_funcstart(rvm_codegen_t *cg, const rchar* name, ruint na
 {
 	ruint start;
 	rvm_codegen_addins(cg, rvm_asm(RVM_NOP, XX, XX, XX, 0));
-	start = rvm_codegen_addins(cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(FP)|BIT(SP)|BIT(LR)));
+	start = rvm_codegen_addlabelins(cg, name, namesize, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(FP)|BIT(SP)|BIT(LR)));
 	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, FP, SP, XX, 0));
 	rvm_codegen_addins(cg, rvm_asm(RVM_ADD, SP, SP, R0, 0));
-	rvm_codemap_addoffset(cg->codemap, rvm_codemap_lookup_s(cg->codemap, ".code"), name, namesize, start);
+//	rvm_codemap_addoffset(cg->codemap, name, namesize, rvm_codemap_lookup_s(cg->codemap, ".code"), start);
 	return start;
 }
 

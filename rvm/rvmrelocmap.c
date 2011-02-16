@@ -25,15 +25,14 @@ void rvm_relocmap_clear(rvm_relocmap_t *relocmap)
 }
 
 
-rvm_relocrecord_t *rvm_relocmap_add(rvm_relocmap_t *relocmap, rulong offset, rulong label)
+rlong rvm_relocmap_add(rvm_relocmap_t *relocmap, rvm_reloctype_t type, rulong offset, rulong label)
 {
 	rvm_relocrecord_t record;
-	rint index;
+	record.type = type;
 	record.offset = offset;
 	record.label = label;
 
-	index = r_array_add(relocmap->records, &record);
-	return (rvm_relocrecord_t *)r_array_slot(relocmap->records, index);
+	return r_array_add(relocmap->records, &record);
 }
 
 
@@ -51,18 +50,24 @@ rulong rvm_relocmap_length(rvm_relocmap_t *relocmap)
 }
 
 
-rlong rvm_relocmap_relocate(rvm_relocmap_t *relocmap, rvm_codemap_t *codemap, rvm_asmins_t *code)
+rint rvm_relocmap_relocate(rvm_relocmap_t *relocmap, rvm_codemap_t *codemap, rvm_asmins_t *code, rvm_codelabel_t **err)
 {
 	rlong index;
-	rvm_codelabel_t *label;
 	rvm_relocrecord_t *reloc;
+	rword value;
 
 	for (index = 0; index < r_array_length(relocmap->records); index++) {
 		reloc = rvm_relocmap_get(relocmap, index);
-		label = rvm_codemap_label(codemap, reloc->label);
-		if (label == NULL || label->type == RVM_CODELABEL_INVALID)
-			return index;
-		code[reloc->offset].data.v.u64 = (ruint64)(code + label->loc.index);
+		value = rvm_codemap_resolve(codemap, reloc->label, err);
+		if (value == (rword)-1)
+			return -1;
+		if (reloc->type == RVM_RELOC_BRANCH) {
+			code[reloc->offset].data.v.w = RVM_BYTE2CODE_OFFSET(value - (rword)&code[reloc->offset]);
+		} else if (reloc->type == RVM_RELOC_JUMP) {
+			code[reloc->offset].data.v.w = value - RVM_CODE2BYTE_OFFSET(1);
+		} else {
+			code[reloc->offset].data.v.w = value;
+		}
 	}
-	return -1;
+	return 0;
 }

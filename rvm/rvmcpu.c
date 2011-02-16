@@ -2126,7 +2126,7 @@ rvm_asmins_t rvm_asmx(rword opcode, rword op1, rword op2, rword op3, rpointer pR
 //	for (off = 0; off < size; off++, code++) {
 //		if (code->flags & RVM_ASMINS_RELOC) {
 //			label = (rvm_codelabel_t *)RVM_REG_GETP(&code->data);
-//			if (label->type == RVM_CODELABEL_INDEX) {
+//			if (label->type == RVM_CODELABEL_OFFSET) {
 //				relocindex = label->loc.index;
 //				RVM_REG_SETU(&code->data, relocindex - off);
 //				code->flags &= ~RVM_ASMINS_RELOC;
