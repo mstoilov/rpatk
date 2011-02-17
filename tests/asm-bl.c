@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 
 	rvm_codemap_addpointer_s(codemap, ".code", &vmcode[0]);
 	if (rvm_relocmap_relocate(relocmap, codemap, vmcode, &err) < 0) {
-		r_printf("Unresolved symbol: %s\n", err->name.str);
+		r_printf("Unresolved symbol: %s\n", err->name->str);
 		goto end;
 	}
 

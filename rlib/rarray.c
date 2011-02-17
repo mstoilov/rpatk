@@ -110,10 +110,17 @@ rint r_array_replace(rarray_t *array, ruint index, rconstpointer data)
 }
 
 
-void r_array_setlength(rarray_t *array, ruint len)
+rint r_array_setlength(rarray_t *array, ruint len)
 {
 	r_array_checkexpand(array, len);
-	array->len = len;
+	r_array_length(array) = len;
+	return r_array_length(array);
+}
+
+
+rint r_array_expand(rarray_t *array, ruint len)
+{
+	return r_array_setlength(array, r_array_length(array) + len);
 }
 
 

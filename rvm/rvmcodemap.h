@@ -20,13 +20,12 @@ typedef struct rvm_codelabel_s {
 	} type;
 	rulong base;
 	rword value;
-	rstr_t name;
+	rstr_t *name;
 	rulong size; // Optional, used for function declarations
 } rvm_codelabel_t;
 
 
 typedef struct rvm_codemap_s {
-	rarray_t *blocks;
 	rarray_t *labels;
 	rhash_t *hash;
 } rvm_codemap_t;
@@ -46,6 +45,7 @@ rlong rvm_codemap_lookup_s(rvm_codemap_t *codemap, const rchar *name);
 rlong rvm_codemap_lastlabel(rvm_codemap_t *codemap);
 rvm_codelabel_t *rvm_codemap_label(rvm_codemap_t *codemap, rlong index);
 rword rvm_codemap_resolve(rvm_codemap_t *codemap, rlong index, rvm_codelabel_t **err);
+void rvm_codemap_dump(rvm_codemap_t *codemap);
 
 #ifdef __cplusplus
 }

@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
 	rvm_codegen_funcend(cg);
 
 	if (rvm_codegen_relocate(cg, &err) < 0) {
-		r_printf("Unresolved symbol: %s\n", err->name.str);
+		r_printf("Unresolved symbol: %s\n", err->name->str);
 		goto end;
 	}
 

@@ -31,6 +31,7 @@ typedef unsigned long rulong;
 typedef unsigned int ruint;
 typedef unsigned short rushort;
 typedef unsigned char ruchar;
+typedef ruchar rbyte;
 typedef double rdouble;
 typedef float rfloat;
 typedef rint rboolean;
@@ -65,6 +66,7 @@ typedef struct {ruint32 p1; ruint32 p2;} rpair_t;
 
 #define R_DEBUG_BRAKE __asm__ ("int $3")
 #define ASSERT(__a__) do {if (!(__a__)) R_DEBUG_BRAKE; } while (0)
+#define R_SIZE_ALIGN(s, n) ((((s) + (n) - 1) / (n)) * (n))
 
 #ifndef NULL
 #ifdef __cplusplus

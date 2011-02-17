@@ -13,7 +13,7 @@ void codelabel_print_info(rvm_codemap_t *codemap, rchar* name)
 	if (!label)
 		fprintf(stdout, "%s (not found)\n", name);
 	else
-		fprintf(stdout, "%s, asmins: 0x%lx\n", label->name.str, (rulong)label->value);
+		fprintf(stdout, "%s, asmins: 0x%lx\n", label->name->str, (rulong)label->value);
 }
 
 

@@ -18,6 +18,7 @@ extern "C" {
 
 typedef struct rvm_codegen_s {
 	rarray_t *code;
+	rarray_t *data;
 	ruint codeoff;
 	rvm_codemap_t *codemap;
 	rvm_relocmap_t *relocmap;
@@ -34,6 +35,7 @@ void rvm_codegen_funcend(rvm_codegen_t *cg);
 ruint rvm_codegen_addins(rvm_codegen_t *cg, rvm_asmins_t ins);
 ruint rvm_codegen_addlabelins(rvm_codegen_t *cg, const rchar* name, ruint namesize, rvm_asmins_t ins);
 ruint rvm_codegen_addlabelins_s(rvm_codegen_t *cg, const rchar* name, rvm_asmins_t ins);
+ruint rvm_codegen_index_addrelocins(rvm_codegen_t *cg, rvm_reloctype_t type, rulong index, rvm_asmins_t ins);
 ruint rvm_codegen_addrelocins(rvm_codegen_t *cg, rvm_reloctype_t type, const rchar* name, ruint namesize, rvm_asmins_t ins);
 ruint rvm_codegen_addrelocins_s(rvm_codegen_t *cg, rvm_reloctype_t type, const rchar* name, rvm_asmins_t ins);
 ruint rvm_codegen_insertins(rvm_codegen_t *cg, ruint index, rvm_asmins_t ins);
@@ -45,6 +47,10 @@ void rvm_codegen_clear(rvm_codegen_t *cg);
 rint rvm_codegen_relocate(rvm_codegen_t *cg, rvm_codelabel_t **err);
 rlong rvm_codegen_addlabel(rvm_codegen_t *cg, const rchar* name, ruint namesize);
 rlong rvm_codegen_addlabel_s(rvm_codegen_t *cg, const rchar* name);
+rlong rvm_codegen_adddata(rvm_codegen_t *cg, const rchar *name, ruint namesize, rconstpointer data, rsize_t size);
+rlong rvm_codegen_adddata_s(rvm_codegen_t *cg, const rchar *name, rconstpointer data, rsize_t size);
+rlong rvm_codegen_addstring(rvm_codegen_t *cg, const rchar *name, ruint namesize, const rchar* data);
+rlong rvm_codegen_addstring_s(rvm_codegen_t *cg, const rchar *name, const rchar* data);
 
 #ifdef __cplusplus
 }

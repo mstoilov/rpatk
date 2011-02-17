@@ -31,6 +31,8 @@ static int compileonly = 0;
 #define RPA_SHIFT		 	RVM_OPSWI(RVM_SWI_ID(regextable, 6))
 #define RPA_EQSHIFT		 	RVM_OPSWI(RVM_SWI_ID(regextable, 7))
 #define RPA_NEQSHIFT	 	RVM_OPSWI(RVM_SWI_ID(regextable, 8))
+#define RPA_EMITSTART	 	RVM_OPSWI(RVM_SWI_ID(regextable, 9))
+#define RPA_EMITEND			RVM_OPSWI(RVM_SWI_ID(regextable, 10))
 
 
 typedef struct rpa_compiler_s {
@@ -42,8 +44,9 @@ typedef struct rpa_compiler_s {
 
 
 typedef struct rpainput_s {
-	ruint32 wc;
 	const rchar *input;
+	ruint32 wc;
+	ruchar eof;
 } rpainput_t;
 
 
@@ -83,6 +86,7 @@ void rpa_compiler_destroy(rpa_compiler_t *co)
 		rvm_codegen_destroy(co->cg);
 		rvm_scope_destroy(co->scope);
 	}
+	r_free(co);
 }
 
 rpastat_t *rpa_stat_create()
@@ -132,23 +136,27 @@ static void rpa_shift(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	rlong tp = RVM_CPUREG_GETL(cpu, TP);
+	rpainput_t * ptp = &stat->instack[tp];
 
-	if (stat->ip.input >= stat->end) {
-		RVM_STATUS_UPDATE(cpu, RVM_STATUS_V, 1);
+	if (ptp->eof)
 		return;
-	}
-
-	tp += 1;
+	ptp++;
+	tp++;
 	if (tp >= (rlong)stat->ip.serial) {
-		rint inc;
-		inc = r_utf8_mbtowc(&stat->instack[tp].wc, (const ruchar*)stat->ip.input, (const ruchar*)stat->end);
-		stat->instack[tp].input = stat->ip.input;
-		stat->ip.input += inc;
-		stat->ip.serial += 1;
+		rint inc = 0;
+		ptp->input = stat->ip.input;
+		if (ptp->input < stat->end) {
+			inc = r_utf8_mbtowc(&ptp->wc, (const ruchar*)stat->ip.input, (const ruchar*)stat->end);
+			stat->ip.input += inc;
+			stat->ip.serial += 1;
+			ptp->eof = 0;
+		} else {
+			ptp->wc = (ruint32)-1;
+			ptp->eof = 1;
+		}
 	}
 	RVM_CPUREG_SETL(cpu, IP, stat->instack[tp].wc);
 	RVM_CPUREG_SETL(cpu, TP, tp);
-	RVM_STATUS_UPDATE(cpu, RVM_STATUS_V, 0);
 }
 
 
@@ -173,26 +181,26 @@ static void rpa_matchchr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rword flags = RVM_CPUREG_GETU(cpu, ins->op2);
 
 	if (flags == RPA_MATCH_OPTIONAL) {
-		RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, (!(cpu->status & RVM_STATUS_V) && stat->instack[RVM_CPUREG_GETL(cpu, TP)].wc == wc) ? 1 : 0);
+		RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, (!stat->instack[RVM_CPUREG_GETL(cpu, TP)].eof && stat->instack[RVM_CPUREG_GETL(cpu, TP)].wc == wc) ? 1 : 0);
 		rpa_eqshift(cpu, ins);
 	} else if (flags == RPA_MATCH_MULTIPLE) {
-		RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, (!(cpu->status & RVM_STATUS_V) && stat->instack[RVM_CPUREG_GETL(cpu, TP)].wc == wc) ? 1 : 0);
+		RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, (!stat->instack[RVM_CPUREG_GETL(cpu, TP)].eof && stat->instack[RVM_CPUREG_GETL(cpu, TP)].wc == wc) ? 1 : 0);
 		if (cpu->status & RVM_STATUS_Z)
 			rpa_shift(cpu, ins);
-		while (!(cpu->status & RVM_STATUS_V) && stat->instack[RVM_CPUREG_GETL(cpu, TP)].wc == wc) {
+		while (!stat->instack[RVM_CPUREG_GETL(cpu, TP)].eof && stat->instack[RVM_CPUREG_GETL(cpu, TP)].wc == wc) {
 			rpa_shift(cpu, ins);
 		}
 //		if (!(cpu->status & RVM_STATUS_Z))
 //			RVM_CPUREG_SETIP(cpu, PC, RVM_CPUREG_GETIP(cpu, LR));
 	} else if (flags == RPA_MATCH_MULTIOPT) {
 		ruint matched = 0;
-		while (!(cpu->status & RVM_STATUS_V) && stat->instack[RVM_CPUREG_GETL(cpu, TP)].wc == wc) {
+		while (!stat->instack[RVM_CPUREG_GETL(cpu, TP)].eof && stat->instack[RVM_CPUREG_GETL(cpu, TP)].wc == wc) {
 			matched = 1;
 			rpa_shift(cpu, ins);
 		}
 		RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, matched);
 	} else {
-		RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, (!(cpu->status & RVM_STATUS_V) && stat->instack[RVM_CPUREG_GETL(cpu, TP)].wc == wc) ? 1 : 0);
+		RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, (!stat->instack[RVM_CPUREG_GETL(cpu, TP)].eof && stat->instack[RVM_CPUREG_GETL(cpu, TP)].wc == wc) ? 1 : 0);
 		rpa_eqshift(cpu, ins);
 //		if (!(cpu->status & RVM_STATUS_Z))
 //			RVM_CPUREG_SETIP(cpu, PC, RVM_CPUREG_GETIP(cpu, LR));
@@ -220,7 +228,7 @@ static void rpa_matchrng(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rlong tp = RVM_CPUREG_GETL(cpu, TP);
 	rpair_t op1 = RVM_CPUREG_GETPAIR(cpu, ins->op1);
 
-	RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, (!(cpu->status & RVM_STATUS_V) && stat->instack[tp].wc >= op1.p1 && stat->instack[tp].wc <= op1.p2) ? 1 : 0);
+	RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, (!stat->instack[RVM_CPUREG_GETL(cpu, TP)].eof && stat->instack[tp].wc >= op1.p1 && stat->instack[tp].wc <= op1.p2) ? 1 : 0);
 }
 
 
@@ -238,7 +246,30 @@ static void rpa_neqmatchrng(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static void rpa_emitstart(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+//	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
+	rword tp = RVM_CPUREG_GETU(cpu, ins->op2);
+	rstr_t name = {RVM_CPUREG_GETSTR(cpu, ins->op1), RVM_CPUREG_GETSIZE(cpu, ins->op1)};
 
+	r_printf("START: %s(%ld)\n", name.str, (rulong)tp);
+
+}
+
+
+static void rpa_emitend(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+//	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
+	rword tp = RVM_CPUREG_GETU(cpu, ins->op2);
+	rword tplen = RVM_CPUREG_GETU(cpu, ins->op3);
+	rstr_t name = {RVM_CPUREG_GETSTR(cpu, ins->op1), RVM_CPUREG_GETSIZE(cpu, ins->op1)};
+
+	if (tplen) {
+		r_printf("MATCHED: %s(%ld, %ld): %p\n", name.str, (rulong)tp, (rulong)tplen, name.str);
+	} else {
+		r_printf("MATCHED: %s(%ld, %ld)\n", name.str, (rulong)tp, (rulong)tplen);
+	}
+}
 
 static rvm_switable_t switable[] = {
 		{"RPA_MATCHCHR", rpa_matchchr},
@@ -250,6 +281,8 @@ static rvm_switable_t switable[] = {
 		{"RPA_SHIFT", rpa_shift},
 		{"RPA_EQSHIFT", rpa_eqshift},
 		{"RPA_NEQSHIFT", rpa_neqshift},
+		{"RPA_EMITSTART", rpa_emitstart},
+		{"RPA_EMITEND", rpa_emitend},
 		{NULL, NULL},
 };
 
@@ -287,10 +320,26 @@ void codegen_rpa_match_char(rpa_compiler_t *co, rword wc, rchar q)
 
 void codegen_rpa_match_abc(rpa_compiler_t *co)
 {
+	rulong rulename;
+
+	rvm_codegen_addstring_s(co->cg, NULL, "rpafdadf");
+	rvm_codegen_addstring_s(co->cg, "5", "rpad");
+	rvm_codegen_addstring_s(co->cg, NULL, "rpa_ma");
+	rulename = rvm_codegen_addstring_s(co->cg, "3", "rpa_match_ab");
+	rvm_codegen_addstring_s(co->cg, "4", "z");
+
+
 	rvm_codegen_addlabel_s(co->cg, "rpa_match_abc");
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, TP, R0, XX, 0));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_DEFAULT, rulename, rvm_asma(RPA_EMITSTART, DA, TP, XX, 0, -1));
 	codegen_rpa_match_char(co, 'a', ' ');
-	codegen_rpa_match_char(co, 'b', '?');
-	codegen_rpa_match_char(co, 'c', '+');
+	codegen_rpa_match_char(co, 'b', ' ');
+	codegen_rpa_match_char(co, 'c', '*');
+	codegen_rpa_match_char(co, 'd', '?');
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_SUB, R0, TP, R1, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_ELNOT, R2, R0, XX, 0));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_DEFAULT, rulename, rvm_asma(RPA_EMITEND, DA, R1, R0, 0, -1));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 }
 
@@ -346,9 +395,8 @@ int main(int argc, char *argv[])
 	codegen_rpa_match(co);
 	codegen_rpa_match_abc(co);
 
-
 	if (rvm_codegen_relocate(co->cg, &err) < 0) {
-		r_printf("Unresolved symbol: %s\n", err->name.str);
+		r_printf("Unresolved symbol: %s\n", err->name->str);
 		goto end;
 	}
 
@@ -366,12 +414,13 @@ int main(int argc, char *argv[])
 			rvm_cpu_exec(cpu, rvm_codegen_getcode(co->cg, 0), 0);
 	}
 
-	r_printf("Matched: %d\n", ((rpastat_t *)cpu->userdata1)->ip.input - ((rpastat_t *)cpu->userdata1)->input);
+	r_printf("Matched: %d\n", ((rpastat_t *)cpu->userdata1)->instack[RVM_CPUREG_GETL(cpu, TP)].input - ((rpastat_t *)cpu->userdata1)->input);
 end:
 	rpa_stat_destroy((rpastat_t *)cpu->userdata1);
 	rvm_cpu_destroy(cpu);
+	rpa_compiler_destroy(co);
 
-	if (debuginfo) {
+	if (1||debuginfo) {
 		r_printf("Max alloc mem: %ld\n", r_debug_get_maxmem());
 		r_printf("Leaked mem: %ld\n", r_debug_get_allocmem());
 	}

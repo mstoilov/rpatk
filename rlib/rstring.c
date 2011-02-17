@@ -30,7 +30,7 @@ rboolean r_stringncmp(const rchar *str, const rchar *s2, rsize_t n)
 
 rsize_t r_strlen(const rchar *s)
 {
-	return strlen(s);
+	return s ? strlen(s) : 0;
 }
 
 

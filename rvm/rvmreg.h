@@ -93,7 +93,6 @@ extern "C" {
 #define RVM_CPUREG_GETPAIR(__cpu__, __r__) RVM_CPUREG_PTR(__cpu__, __r__)->v.pair
 #define RVM_CPUREG_SETPAIR(__cpu__, __r__, __val1__, __val2__) RVM_REG_SETPAIR(RVM_CPUREG_PTR(__cpu__, __r__), __val1__, __val2__)
 
-#define RVM_REG_GETSTRSIZE(__r__) (__r__)->size
 #define RVM_REG_GETSTR(__r__) (__r__)->v.s
 #define RVM_REG_SETSTR(__r__, __str__, __size__) do { (__r__)->v.s = (__str__); if ((__size__) == (ruint)-1) (__r__)->size = r_strlen(__str__); else (__r__)->size = (__size__);} while (0)
 #define RVM_CPUREG_GETSTR(__cpu__, __r__) RVM_REG_GETSTR(RVM_CPUREG_PTR(__cpu__, __r__))
@@ -107,7 +106,9 @@ extern "C" {
 #define RVM_CPUREG_SETIP(__cpu__, __r__, __val__) RVM_REG_SETIP(RVM_CPUREG_PTR(__cpu__, __r__), __val__)
 #define RVM_CPUREG_INCIP(__cpu__, __r__, __val__) do {rvm_asmins_t *p = RVM_CPUREG_GETIP(__cpu__, __r__); (RVM_CPUREG_PTR(__cpu__, __r__))->v.p = (rpointer)(p + (__val__)); } while (0)
 
-#define RVM_REG_SIZE(__r__) (__r__)->size
+#define RVM_REG_GETSIZE(__r__) (__r__)->size
+#define RVM_CPUREG_GETSIZE(__cpu__, __r__) RVM_REG_GETSIZE(RVM_CPUREG_PTR(__cpu__, __r__))
+
 #define RVM_REG_CLEAR(__r__) do { (__r__)->v.w = 0UL; (__r__)->type = 0; (__r__)->flags = 0;  } while (0)
 #define RVM_CPUREG_CLEAR(__cpu__, __r__) RVM_REG_CLEAR(RVM_CPUREG_PTR(__cpu__, __r__))
 

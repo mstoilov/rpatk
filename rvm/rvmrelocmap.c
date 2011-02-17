@@ -16,6 +16,7 @@ rvm_relocmap_t *rvm_relocmap_create()
 void rvm_relocmap_destroy(rvm_relocmap_t *relocmap)
 {
 	r_object_destroy((robject_t*)relocmap->records);
+	r_free(relocmap);
 }
 
 

@@ -25,7 +25,7 @@ void rvm_codemap_destroy(rvm_codemap_t *codemap)
 
 	for (i = 0; i < len; i++) {
 		label = (rvm_codelabel_t*)r_array_slot(codemap->labels, i);
-		r_free(label->name.str);
+		r_free(label->name);
 	}
 	r_object_destroy((robject_t*)codemap->labels);
 	r_object_destroy((robject_t*)codemap->hash);
@@ -66,9 +66,8 @@ static rlong rvm_codemap_add(rvm_codemap_t *codemap, const rchar *name, ruint na
 		labelidx = r_array_add(codemap->labels, NULL);
 		label = rvm_codemap_label(codemap, labelidx);
 		if (name) {
-			label->name.str = r_strndup(name, namesize);
-			label->name.size = namesize;
-			r_hash_insert_indexval(codemap->hash, &label->name, labelidx);
+			label->name = r_rstrdup(name, namesize);
+			r_hash_insert_indexval(codemap->hash, label->name, labelidx);
 		}
 	}
 	return labelidx;
@@ -175,3 +174,15 @@ rword rvm_codemap_resolve(rvm_codemap_t *codemap, rlong index, rvm_codelabel_t *
 		*err = label;
 	return (rword)-1;
 }
+
+
+void rvm_codemap_dump(rvm_codemap_t *codemap)
+{
+	rint i = 0;
+
+	for (i = 0; i < r_array_length(codemap->labels); i++) {
+		rvm_codelabel_t *label = rvm_codemap_label(codemap, i);
+		r_printf("%d: %s(%d), type: %d, base: %ld, value: %ld\n", i, label->name->str, label->name->size, label->type, label->base, label->value);
+	}
+}
+

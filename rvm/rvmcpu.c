@@ -1963,12 +1963,30 @@ rint rvm_cpu_addswitable(rvmcpu_t *cpu, rvm_switable_t *switable)
 }
 
 
+rvm_asmins_t rvm_asma(rword opcode, rword op1, rword op2, rword op3, rchar *data, rulong size)
+{
+	rvm_asmins_t a;
+
+	r_memset(&a, 0, sizeof(a));
+	a.opcode = (ruint32) RVM_ASMINS_OPCODE(opcode);
+	a.swi = (ruint32) RVM_ASMINS_SWI(opcode);
+	a.op1 = (ruint8)op1;
+	a.op2 = (ruint8)op2;
+	a.op3 = (ruint8)op3;
+	rvm_reg_setstrptr(&a.data, data, size);
+	if ((ruint8)op1 == DA || (ruint8)op2 == DA || (ruint8)op3 == DA)
+		a.da = 1;
+	return a;
+}
+
+
 rvm_asmins_t rvm_asmp(rword opcode, rword op1, rword op2, rword op3, rpointer data)
 {
 	rvm_asmins_t a;
 
 	r_memset(&a, 0, sizeof(a));
-	a.opcode = (ruint8) opcode;
+	a.opcode = (ruint32) RVM_ASMINS_OPCODE(opcode);
+	a.swi = (ruint32) RVM_ASMINS_SWI(opcode);
 	a.op1 = (ruint8)op1;
 	a.op2 = (ruint8)op2;
 	a.op3 = (ruint8)op3;
@@ -1984,7 +2002,8 @@ rvm_asmins_t rvm_asms(rword opcode, rword op1, rword op2, rword op3, rword data)
 	rvm_asmins_t a;
 
 	r_memset(&a, 0, sizeof(a));
-	a.opcode = (ruint8) opcode;
+	a.opcode = (ruint32) RVM_ASMINS_OPCODE(opcode);
+	a.swi = (ruint32) RVM_ASMINS_SWI(opcode);
 	a.op1 = (ruint8)op1;
 	a.op2 = (ruint8)op2;
 	a.op3 = (ruint8)op3;
@@ -2001,7 +2020,8 @@ rvm_asmins_t rvm_asmf(rword opcode, rword op1, rword op2, rword op3, rword data)
 	rvm_asmins_t a;
 
 	r_memset(&a, 0, sizeof(a));
-	a.opcode = (ruint8) opcode;
+	a.opcode = (ruint32) RVM_ASMINS_OPCODE(opcode);
+	a.swi = (ruint32) RVM_ASMINS_SWI(opcode);
 	a.op1 = (ruint8)op1;
 	a.op2 = (ruint8)op2;
 	a.op3 = (ruint8)op3;
@@ -2114,33 +2134,6 @@ rvm_asmins_t rvm_asmx(rword opcode, rword op1, rword op2, rword op3, rpointer pR
 
 	return a;
 }
-
-
-//rvm_codelabel_t *rvm_relocate(rvm_asmins_t *code, rsize_t size)
-//{
-//	rvm_codelabel_t *label;
-//	rvm_asmins_t *reloc;
-//	rulong relocindex;
-//	rulong off;
-//
-//	for (off = 0; off < size; off++, code++) {
-//		if (code->flags & RVM_ASMINS_RELOC) {
-//			label = (rvm_codelabel_t *)RVM_REG_GETP(&code->data);
-//			if (label->type == RVM_CODELABEL_OFFSET) {
-//				relocindex = label->loc.index;
-//				RVM_REG_SETU(&code->data, relocindex - off);
-//				code->flags &= ~RVM_ASMINS_RELOC;
-//			} else if (label->type == RVM_CODELABEL_POINTER) {
-//				reloc = (rvm_asmins_t *)label->loc.ptr;
-//				RVM_REG_SETU(&code->data, reloc - code);
-//				code->flags &= ~RVM_ASMINS_RELOC;
-//			} else {
-//				return label;
-//			}
-//		}
-//	}
-//	return NULL;
-//}
 
 
 rvmreg_t *rvm_cpu_alloc_global(rvmcpu_t *cpu)
