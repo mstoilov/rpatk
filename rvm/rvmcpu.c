@@ -43,6 +43,7 @@ static const char *stropcalls[] = {
 	"RVM_SWIID",
 	"RVM_CALL",
 	"RVM_MOV",
+	"RVM_SWP",
 	"RVM_INC",
 	"RVM_DEC",
 	"RVM_ADD",
@@ -338,6 +339,14 @@ static void rvm_op_exit(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rvm_op_mov(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	RVM_CPUREG_SET(cpu, ins->op1, RVM_CPUREG_GET(cpu, ins->op2));
+}
+
+
+static void rvm_op_swp(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rvmreg_t tmp = RVM_CPUREG_GET(cpu, ins->op1);
+	RVM_CPUREG_SET(cpu, ins->op1, RVM_CPUREG_GET(cpu, ins->op2));
+	RVM_CPUREG_SET(cpu, ins->op2, tmp);
 }
 
 
@@ -1715,6 +1724,7 @@ static rvm_cpu_op ops[] = {
 	rvm_op_swiid,		// RVM_SWIID
 	rvm_op_call,		// RVM_CALL
 	rvm_op_mov,			// RVM_MOV
+	rvm_op_swp,			// RVM_SWP
 	rvm_op_inc,			// RVM_INC
 	rvm_op_dec,			// RVM_DEC
 	rvm_op_add,			// RVM_ADD

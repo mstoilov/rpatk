@@ -16,6 +16,7 @@ typedef enum {
 	RVM_RELOC_DEFAULT = 0,
 	RVM_RELOC_JUMP,
 	RVM_RELOC_BRANCH,
+	RVM_RELOC_STRING,
 } rvm_reloctype_t;
 
 

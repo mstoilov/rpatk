@@ -42,6 +42,7 @@ enum {
 	RVM_SWIID,
 	RVM_CALL,		/* if op1 is of type RVM_DTYPE_SWIID, then invoke RVM_SWIID, otherwise invoke RVM_BL */
 	RVM_MOV,
+	RVM_SWP,		/* op1 <--> op2 */
 	RVM_INC,		/* INC: op1 = op1 + 1 */
 	RVM_DEC,		/* DEC: op1 = op1 - 1 */
 	RVM_ADD,		/* Add: op1 = op2 + op3 */

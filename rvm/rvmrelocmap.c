@@ -66,6 +66,9 @@ rint rvm_relocmap_relocate(rvm_relocmap_t *relocmap, rvm_codemap_t *codemap, rvm
 			code[reloc->offset].data.v.w = RVM_BYTE2CODE_OFFSET(value - (rword)&code[reloc->offset]);
 		} else if (reloc->type == RVM_RELOC_JUMP) {
 			code[reloc->offset].data.v.w = value - RVM_CODE2BYTE_OFFSET(1);
+		} else if (reloc->type == RVM_RELOC_STRING) {
+			code[reloc->offset].data.v.w = value;
+			code[reloc->offset].data.size = r_strlen((rchar*)value);
 		} else {
 			code[reloc->offset].data.v.w = value;
 		}
