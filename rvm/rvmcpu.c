@@ -69,6 +69,10 @@ static const char *stropcalls[] = {
 	"RVM_BX",
 	"RVM_BXEQ",
 	"RVM_BXNEQ",
+	"RVM_BXLEQ",
+	"RVM_BXGEQ",
+	"RVM_BXLES",
+	"RVM_BXGRE",
 	"RVM_BXL",
 	"RVM_BL",
 	"RVM_B",
@@ -237,7 +241,7 @@ static void rvm_op_bgeq(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rword pc = 0;
 
-	if ((cpu->status & RVM_STATUS_N) == 0 || (cpu->status & RVM_STATUS_Z) == 1){
+	if ((cpu->status & RVM_STATUS_N) == 0 || (cpu->status & RVM_STATUS_Z) == 1) {
 //		if (ins->op1 != XX)
 //			pc += RVM_CPUREG_GETU(cpu, ins->op1);
 //		if (ins->op2 != XX)
@@ -288,6 +292,38 @@ static void rvm_op_bgre(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rvm_op_bx(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	RVM_CPUREG_SETIP(cpu, PC, RVM_CPUREG_GETIP(cpu, ins->op1));
+}
+
+
+static void rvm_op_bxleq(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	if ((cpu->status & RVM_STATUS_N) || (cpu->status & RVM_STATUS_Z)) {
+		RVM_CPUREG_SETIP(cpu, PC, RVM_CPUREG_GETIP(cpu, ins->op1));
+	}
+}
+
+
+static void rvm_op_bxgeq(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	if ((cpu->status & RVM_STATUS_N) == 0 || (cpu->status & RVM_STATUS_Z) == 1){
+		RVM_CPUREG_SETIP(cpu, PC, RVM_CPUREG_GETIP(cpu, ins->op1));
+	}
+}
+
+
+static void rvm_op_bxles(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	if ((cpu->status & RVM_STATUS_N)) {
+		RVM_CPUREG_SETIP(cpu, PC, RVM_CPUREG_GETIP(cpu, ins->op1));
+	}
+}
+
+
+static void rvm_op_bxgre(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	if ((cpu->status & RVM_STATUS_N) == 0 && (cpu->status & RVM_STATUS_Z) == 0) {
+		RVM_CPUREG_SETIP(cpu, PC, RVM_CPUREG_GETIP(cpu, ins->op1));
+	}
 }
 
 
@@ -566,9 +602,9 @@ static void rvm_op_ror(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_tst(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
+	rword res, op1 = RVM_CPUREG_GETU(cpu, ins->op1), op2 = RVM_CPUREG_GETU(cpu, ins->op2);
 	
-	res = op2 & op3;
+	res = op1 & op2;
 	RVM_STATUS_CLRALL(cpu);
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, !res);
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_N, res & RVM_SIGN_BIT);
@@ -1750,6 +1786,10 @@ static rvm_cpu_op ops[] = {
 	rvm_op_bx,			// RVM_BX
 	rvm_op_bxeq,		// RVM_BXEQ
 	rvm_op_bxneq,		// RVM_BXNEQ
+	rvm_op_bxleq,		// RVM_BXLEQ
+	rvm_op_bxgeq,		// RVM_BXGEQ
+	rvm_op_bxles,		// RVM_BXLES
+	rvm_op_bxgre,		// RVM_BXGRE
 	rvm_op_bxl,			// RVM_BXL
 	rvm_op_bl,			// RVM_BL
 	rvm_op_b,			// RVM_B

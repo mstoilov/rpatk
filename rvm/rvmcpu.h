@@ -68,6 +68,13 @@ enum {
 	RVM_BX,			/* Jump to op1 */
 	RVM_BXEQ,		/* Jump to op1, if equal */
 	RVM_BXNEQ,		/* Jump to op1, if not equal */
+
+	RVM_BXLEQ,		/* Branch if less or equal */
+	RVM_BXGEQ,		/* Branch if greater or equal */
+	RVM_BXLES,		/* Branch if less */
+	RVM_BXGRE,		/* Branch if greater */
+
+
 	RVM_BXL,		/* Jump to op1, link */
 	RVM_BL,			/* Branch Link */
 	RVM_B,			/* Branch */
