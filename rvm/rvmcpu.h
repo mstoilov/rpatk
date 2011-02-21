@@ -90,6 +90,7 @@ enum {
 	RVM_LDRH,		/* Load Half Word: op1 = u16_at_location(op2) */
 	RVM_LDRW,		/* Load Word: op1 = u32_at_location(op2) */
 	RVM_LDRR,		/* Load rvmreg_t: op1 = rvmreg_t_at_location(op2) */
+	RVM_CFLAG,		/* Clear flag */
 	RVM_CLR,		/* Clear op1 */
 	RVM_CLRR,		/* Clear: rvmreg_t at memory location op1 */
 	RVM_LSL,		/* Logical Shift Left: op1 = op2 << op3, update the status register */

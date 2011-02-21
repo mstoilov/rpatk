@@ -18,21 +18,26 @@ static int debuginfo = 0;
 static int parseinfo = 0;
 static int compileonly = 0;
 
+#define RPA_RECORD_NONE (0)
+#define RPA_RECORD_START (1 << 0)
+#define RPA_RECORD_END (1 << 1)
+#define RPA_RECORD_MATCH (1 << 2)
+
 #define RPA_MATCH_NONE 0
 #define RPA_MATCH_MULTIPLE (1 << 0)
 #define RPA_MATCH_OPTIONAL (1 << 1)
 #define RPA_MATCH_MULTIOPT (RPA_MATCH_MULTIPLE | RPA_MATCH_OPTIONAL)
-#define R_WHT R9
-#define R_FLG R8
-#define R_ARG R7
-#define R_TOP R6
+#define R_FLG R7
+#define R_ARG R8
+#define R_WHT FP
+#define R_TOP TP
 
 
 
-//#define R_NAN R4
-//#define R_MUL R5
-//#define R_OPT R6
-//#define R_MOP R7
+#define R_MNODE_NAN R4
+#define R_MNODE_MUL R5
+#define R_MNODE_OPT R6
+#define R_MNODE_MOP R7
 
 
 #define RPA_MATCHCHR_NAN	RVM_OPSWI(RVM_SWI_ID(regextable, 0))
@@ -46,6 +51,7 @@ static int compileonly = 0;
 #define RPA_EMITEND			RVM_OPSWI(RVM_SWI_ID(regextable, 8))
 #define RPA_MATCHANY_NAN	RVM_OPSWI(RVM_SWI_ID(regextable, 9))
 #define RPA_MATCHEOL_NAN	RVM_OPSWI(RVM_SWI_ID(regextable, 10))
+#define RPA_BXLWHT			RVM_OPSWI(RVM_SWI_ID(regextable, 11))
 
 
 typedef struct rpa_compiler_s {
@@ -54,6 +60,16 @@ typedef struct rpa_compiler_s {
 	rvm_scope_t *scope;
 	rulong fpoff;
 } rpa_compiler_t;
+
+
+typedef struct rparecord_s {
+	rlist_t head;
+	rlink_t lnk;
+	const char *rule;
+	rword top;
+	rword size;
+	rword type;
+} rparecord_t;
 
 
 typedef struct rpainput_s {
@@ -74,6 +90,7 @@ typedef struct rpastat_s {
 	const rchar *start;
 	const rchar *end;
 	ruint error;
+	rarray_t *records;
 	rpainput_t *instack;
 	rulong instacksize;
 	rulong cursize;
@@ -105,6 +122,7 @@ void rpa_compiler_destroy(rpa_compiler_t *co)
 rpastat_t *rpa_stat_create()
 {
 	rpastat_t *stat = (rpastat_t *) r_zmalloc(sizeof(*stat));
+	stat->records = r_array_create(sizeof(rparecord_t));
 	return stat;
 }
 
@@ -133,6 +151,7 @@ int rpa_stat_init(rpastat_t *stat, const rchar *input, const rchar *start, const
 	}
 	stat->ip.input = input;
 	stat->ip.serial = 0;
+	r_array_setlength(stat->records, 0);
 	return 0;
 }
 
@@ -141,6 +160,7 @@ void rpa_stat_destroy(rpastat_t *stat)
 {
 	if (stat->instack)
 		r_free(stat->instack);
+	r_object_destroy((robject_t*)stat->records);
 	r_free(stat);
 }
 
@@ -192,41 +212,29 @@ static void rpa_matchchr_do(rvmcpu_t *cpu, rvm_asmins_t *ins, rword flags)
 	rword wc = RVM_CPUREG_GETU(cpu, ins->op1);
 
 	if (flags == RPA_MATCH_OPTIONAL) {
-		RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, (!stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].eof && stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc == wc) ? 1 : 0);
-		rpa_eqshift(cpu, ins);
+		RVM_STATUS_UPDATE(cpu, RVM_STATUS_N, (!stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].eof && stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc == wc) ? 0 : 1);
+		if (!(cpu->status & RVM_STATUS_N))
+			rpa_shift(cpu, ins);
 	} else if (flags == RPA_MATCH_MULTIPLE) {
-		RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, (!stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].eof && stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc == wc) ? 1 : 0);
+		RVM_STATUS_UPDATE(cpu, RVM_STATUS_N, (!stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].eof && stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc == wc) ? 0 : 1);
 		if (cpu->status & RVM_STATUS_Z)
 			rpa_shift(cpu, ins);
 		while (!stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].eof && stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc == wc) {
 			rpa_shift(cpu, ins);
 		}
-//		if (!(cpu->status & RVM_STATUS_Z))
-//			RVM_CPUREG_SETIP(cpu, PC, RVM_CPUREG_GETIP(cpu, LR));
 	} else if (flags == RPA_MATCH_MULTIOPT) {
 		ruint matched = 0;
 		while (!stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].eof && stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc == wc) {
 			matched = 1;
 			rpa_shift(cpu, ins);
 		}
-		RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, matched);
+		RVM_STATUS_UPDATE(cpu, RVM_STATUS_N, 0);
 	} else {
-		RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, (!stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].eof && stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc == wc) ? 1 : 0);
-		rpa_eqshift(cpu, ins);
-//		if (!(cpu->status & RVM_STATUS_Z))
-//			RVM_CPUREG_SETIP(cpu, PC, RVM_CPUREG_GETIP(cpu, LR));
+		RVM_STATUS_UPDATE(cpu, RVM_STATUS_N, (!stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].eof && stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc == wc) ? 0 : 1);
+		if (!(cpu->status & RVM_STATUS_N))
+			rpa_shift(cpu, ins);
+
 	}
-}
-
-
-static void rpa_matchchr_nan(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
-	rword wc = RVM_CPUREG_GETU(cpu, ins->op1);
-
-	RVM_STATUS_UPDATE(cpu, RVM_STATUS_N, (!stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].eof && stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc == wc) ? 0 : 1);
-	if (!(cpu->status & RVM_STATUS_N))
-		rpa_shift(cpu, ins);
 }
 
 
@@ -247,6 +255,19 @@ static void rpa_matcheol_nan(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_N, (!stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].eof && r_strchr("\r\n", stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc)) ? 0 : 1);
 	if (!(cpu->status & RVM_STATUS_N))
 		rpa_shift(cpu, ins);
+}
+
+
+static void rpa_matchchr_nan(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+//	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
+//	rword wc = RVM_CPUREG_GETU(cpu, ins->op1);
+//
+//	RVM_STATUS_UPDATE(cpu, RVM_STATUS_N, (!stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].eof && stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc == wc) ? 0 : 1);
+//	if (!(cpu->status & RVM_STATUS_N))
+//		rpa_shift(cpu, ins);
+
+	rpa_matchchr_do(cpu, ins, RPA_MATCH_NONE);
 }
 
 
@@ -295,28 +316,57 @@ static void rpa_neqmatchrng(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rpa_emitstart(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-//	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
+	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
+	rparecord_t *rec;
+	rlong index;
 	rword tp = RVM_CPUREG_GETU(cpu, ins->op2);
 	rstr_t name = {RVM_CPUREG_GETSTR(cpu, ins->op1), RVM_CPUREG_GETSIZE(cpu, ins->op1)};
 
-	r_printf("START: %s(%ld)\n", name.str, (rulong)tp);
+	index = r_array_add(stat->records, NULL);
+	rec = (rparecord_t *)r_array_slot(stat->records, index);
+	rec->rule = name.str;
+	rec->top = tp;
+	rec->type = RPA_RECORD_START;
+//	r_printf("START: %s(%ld)\n", name.str, (rulong)tp);
 
 }
 
 
 static void rpa_emitend(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-//	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
+	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
+	rparecord_t *rec;
+	rlong index;
 	rword tp = RVM_CPUREG_GETU(cpu, ins->op2);
 	rword tplen = RVM_CPUREG_GETU(cpu, ins->op3);
 	rstr_t name = {RVM_CPUREG_GETSTR(cpu, ins->op1), RVM_CPUREG_GETSIZE(cpu, ins->op1)};
 
+	index = r_array_add(stat->records, NULL);
+	rec = (rparecord_t *)r_array_slot(stat->records, index);
+	rec->rule = name.str;
+	rec->top = tp;
+	rec->size = tplen;
+	rec->type = RPA_RECORD_START;
+
 	if (tplen) {
-		r_printf("MATCHED: %s(%ld, %ld): %p(%d)\n", name.str, (rulong)tp, (rulong)tplen, name.str, name.size);
+		rec->type = RPA_RECORD_END | RPA_RECORD_MATCH;
+//		r_printf("MATCHED: %s(%ld, %ld): %p(%d)\n", name.str, (rulong)tp, (rulong)tplen, name.str, name.size);
 	} else {
-		r_printf("MATCHED: %s(%ld, %ld)\n", name.str, (rulong)tp, (rulong)tplen);
+		rec->type = RPA_RECORD_END;
+//		r_printf("MATCHED: %s(%ld, %ld)\n", name.str, (rulong)tp, (rulong)tplen);
 	}
 }
+
+
+static void rpa_bxlwht(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rword wht = RVM_CPUREG_GETU(cpu, ins->op2);
+
+	RVM_CPUREG_SETU(cpu, R_WHT, wht);
+	RVM_CPUREG_SETIP(cpu, LR, RVM_CPUREG_GETIP(cpu, PC));
+	RVM_CPUREG_SETIP(cpu, PC, RVM_CPUREG_GETIP(cpu, ins->op1));
+}
+
 
 static rvm_switable_t switable[] = {
 		{"RPA_MATCHCHR_NAN", rpa_matchchr_nan},
@@ -330,6 +380,7 @@ static rvm_switable_t switable[] = {
 		{"RPA_EMITEND", rpa_emitend},
 		{"RPA_MATCHANY_NAN", rpa_matchany_nan},
 		{"RPA_MATCHEOL_NAN", rpa_matcheol_nan},
+		{"RPA_BXLWHT", rpa_bxlwht},
 		{NULL, NULL},
 };
 
@@ -445,9 +496,9 @@ void codegen_rpa_mnode_opt(rpa_compiler_t *co)
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, LR, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BXL, R_WHT, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, LR, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asml(RVM_CMP, R0, DA, XX, 0));
+//	rvm_codegen_addins(co->cg, rvm_asml(RVM_CMP, R0, DA, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BXGRE, LR, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_ADDS, R0, DA, DA, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_CFLAG, DA, XX, XX, RVM_STATUS_N));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 }
 
@@ -457,16 +508,16 @@ void codegen_rpa_mnode_mul(rpa_compiler_t *co)
 	rvm_codegen_addlabel_s(co->cg, "rpa_mnode_mul");
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, LR, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BXL, R_WHT, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asml(RVM_CMP, R0, DA, XX, 0));
+//	rvm_codegen_addins(co->cg, rvm_asml(RVM_CMP, R0, DA, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BGRE, DA, XX, XX, 2));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, PC, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_XOR, R1, R1, R1, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_CLR, R1, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_ADD, R0, R0, R1, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BXL, R_WHT, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asml(RVM_CMP, R0, DA, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_BGRE, DA, XX, XX, -5));
+//	rvm_codegen_addins(co->cg, rvm_asml(RVM_CMP, R0, DA, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_BGRE, DA, XX, XX, -4));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_ADDS, R0, R1, DA, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, PC, XX, XX, 0));
 }
@@ -474,20 +525,27 @@ void codegen_rpa_mnode_mul(rpa_compiler_t *co)
 
 void codegen_rpa_mnode_mop(rpa_compiler_t *co)
 {
+	rulong ruleidx;
+	const rchar *rule = "rpa_mnode_mop";
+
+	ruleidx = rvm_codegen_addstring_s(co->cg, NULL, rule);
+
 	rvm_codegen_addlabel_s(co->cg, "rpa_mnode_mop");
+//	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_STRING, ruleidx, rvm_asm(RPA_EMITSTART, DA, R_TOP, XX, 0));
+
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, LR, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BXL, R_WHT, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asml(RVM_CMP, R0, DA, XX, 0));
+//	rvm_codegen_addins(co->cg, rvm_asml(RVM_CMP, R0, DA, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BGRE, DA, XX, XX, 3));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_ADDS, R0, DA, DA, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_CFLAG, DA, XX, XX, RVM_STATUS_N));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, PC, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_XOR, R1, R1, R1, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_CLR, R1, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_ADD, R0, R0, R1, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BXL, R_WHT, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asml(RVM_CMP, R0, DA, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_BGRE, DA, XX, XX, -5));
+//	rvm_codegen_addins(co->cg, rvm_asml(RVM_CMP, R0, DA, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_BGRE, DA, XX, XX, -4));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_ADDS, R0, R1, DA, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, PC, XX, XX, 0));
 }
@@ -502,42 +560,32 @@ void codegen_rpa_match_xyz(rpa_compiler_t *co)
 
 	ruleidx = rvm_codegen_addstring_s(co->cg, NULL, rule);
 	rvm_codegen_addlabel_s(co->cg, rule);
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BITS(R_TOP,LR)));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, FP, SP, XX, 0));
 
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_squared", rvm_asm(RVM_MOV, R_WHT, DA, XX, 0));
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpa_mnode_mop", rvm_asm(RVM_BL, DA, XX, XX, 0));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_STRING, ruleidx, rvm_asm(RPA_EMITSTART, DA, R_TOP, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(R_TOP)|BIT(R_WHT)|BIT(LR)));
+
+//	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_squared", rvm_asm(RVM_MOV, R_WHT, DA, XX, 0));
+//	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpa_mnode_mop", rvm_asm(RVM_BL, DA, XX, XX, 0));
 //	rvm_codegen_addins(co->cg, rvm_asml(RVM_CMP, R0, DA, XX, 0));
+	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_squared", rvm_asm(RPA_BXLWHT, R_MNODE_MOP, DA, XX, 0));
 	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, ruleend, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
-	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, R_ARG, DA, XX, 'x'));
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_matchonly_char", rvm_asm(RVM_MOV, R_WHT, DA, XX, 0));
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpa_mnode_nan", rvm_asm(RVM_BL, DA, XX, XX, 0));
-//	rvm_codegen_addins(co->cg, rvm_asml(RVM_CMP, R0, DA, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, 'x'));
 	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, ruleend, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
-	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, R_ARG, DA, XX, 'y'));
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_matchonly_char", rvm_asm(RVM_MOV, R_WHT, DA, XX, 0));
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpa_mnode_mop", rvm_asm(RVM_BL, DA, XX, XX, 0));
-//	rvm_codegen_addins(co->cg, rvm_asml(RVM_CMP, R0, DA, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_MOP, DA, XX, XX, 'y'));
 	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, ruleend, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
-	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, R_ARG, DA, XX, 'z'));
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_matchonly_char", rvm_asm(RVM_MOV, R_WHT, DA, XX, 0));
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpa_mnode_nan", rvm_asm(RVM_BL, DA, XX, XX, 0));
-//	rvm_codegen_addins(co->cg, rvm_asml(RVM_CMP, R0, DA, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, 'z'));
 	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, ruleend, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
 
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R1, R_TOP, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, SP, FP, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BITS(R_TOP,LR)));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_SWP, R1, R_TOP, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BIT(R1)|BIT(R_WHT)|BIT(LR)));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_SUBS, R0, R_TOP, R1, 0));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_STRING, ruleidx, rvm_asm(RPA_EMITEND, DA, R1, R0, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 	rvm_codegen_addlabel_s(co->cg, ruleend);
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, SP, FP, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BITS(R_TOP,LR)));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BIT(R_TOP)|BIT(R_WHT)|BIT(LR)));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, DA, XX, -1));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 }
@@ -551,41 +599,34 @@ void codegen_rpa_match_squared(rpa_compiler_t *co)
 
 	ruleidx = rvm_codegen_addstring_s(co->cg, NULL, rule);
 	rvm_codegen_addlabel_s(co->cg, rule);
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BITS(R_TOP,LR)));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, FP, SP, XX, 0));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_STRING, ruleidx, rvm_asm(RPA_EMITSTART, DA, R_TOP, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(R_TOP)|BIT(R_WHT)|BIT(LR)));
 
-	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, R_ARG, DA, XX, '['));
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_matchonly_char", rvm_asm(RVM_MOV, R_WHT, DA, XX, 0));
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpa_mnode_nan", rvm_asm(RVM_BL, DA, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asml(RVM_CMP, R0, DA, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, '['));
 	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, ruleend, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_xyz", rvm_asm(RVM_MOV, R_WHT, DA, XX, 0));
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpa_mnode_mop", rvm_asm(RVM_BL, DA, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asml(RVM_CMP, R0, DA, XX, 0));
+//	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_xyz", rvm_asm(RVM_MOV, R_WHT, DA, XX, 0));
+//	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpa_mnode_mop", rvm_asm(RVM_BL, DA, XX, XX, 0));
+//	rvm_codegen_addins(co->cg, rvm_asml(RVM_CMP, R0, DA, XX, 0));
+
+	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_xyz", rvm_asm(RPA_BXLWHT, R_MNODE_MOP, DA, XX, 0));
 	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, ruleend, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
-	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, R_ARG, DA, XX, ']'));
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_matchonly_char", rvm_asm(RVM_MOV, R_WHT, DA, XX, 0));
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpa_mnode_nan", rvm_asm(RVM_BL, DA, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asml(RVM_CMP, R0, DA, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, ']'));
 	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, ruleend, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
 	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_matcheol_char", rvm_asm(RVM_MOV, R_WHT, DA, XX, 0));
 	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpa_mnode_mop", rvm_asm(RVM_BL, DA, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asml(RVM_CMP, R0, DA, XX, 0));
+//	rvm_codegen_addins(co->cg, rvm_asml(RVM_CMP, R0, DA, XX, 0));
 	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, ruleend, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
 
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R1, R_TOP, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, SP, FP, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BITS(R_TOP,LR)));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_SWP, R1, R_TOP, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BIT(R1)|BIT(R_WHT)|BIT(LR)));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_SUBS, R0, R_TOP, R1, 0));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_STRING, ruleidx, rvm_asm(RPA_EMITEND, DA, R1, R0, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 	rvm_codegen_addlabel_s(co->cg, ruleend);
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, SP, FP, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BITS(R_TOP,LR)));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BIT(R_TOP)|BIT(R_WHT)|BIT(LR)));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, DA, XX, -1));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 
@@ -710,11 +751,12 @@ int main(int argc, char *argv[])
 	rvmcpu_t *cpu;
 	rvm_codelabel_t *err;
 	rpa_compiler_t *co;
+	rpastat_t *stat;
 	rint i;
 
 	co = rpa_compiler_create();
 	cpu = rvm_cpu_create_default();
-	cpu->userdata1 = rpa_stat_create();
+	cpu->userdata1 = stat = rpa_stat_create();
 	regextable = rvm_cpu_addswitable(cpu, switable);
 
 	for (i = 1; i < argc; i++) {
@@ -757,12 +799,19 @@ exec:
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, FP, DA, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, SP, DA, XX, co->fpoff));
 
+	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_mnode_nan", rvm_asm(RVM_MOV, R_MNODE_NAN, DA, XX, 0));
+	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_mnode_mul", rvm_asm(RVM_MOV, R_MNODE_MUL, DA, XX, 0));
+	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_mnode_opt", rvm_asm(RVM_MOV, R_MNODE_OPT, DA, XX, 0));
+	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_mnode_mop", rvm_asm(RVM_MOV, R_MNODE_MOP, DA, XX, 0));
+
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_SHIFT, XX, XX, XX, 0));
 
 
 //	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, R_FLG, DA, XX, RPA_MATCH_NONE));
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_squared", rvm_asm(RVM_MOV, R_WHT, DA, XX, 0));
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpa_mnode_mul", rvm_asm(RVM_BL, DA, XX, XX, 0));
+//	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_squared", rvm_asm(RVM_MOV, R_WHT, DA, XX, 0));
+//	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpa_mnode_mul", rvm_asm(RVM_BL, DA, XX, XX, 0));
+
+	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_squared", rvm_asm(RPA_BXLWHT, R_MNODE_MUL, DA, XX, 0));
 
 
 //	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_xyz_p", rvm_asm(RVM_MOV, R_WHT, DA, XX, 0));
@@ -807,8 +856,16 @@ exec:
 			rvm_cpu_exec(cpu, rvm_codegen_getcode(co->cg, 0), 0);
 	}
 
-	r_printf("Matched: %d\n", ((rpastat_t *)cpu->userdata1)->instack[RVM_CPUREG_GETL(cpu, R_TOP)].input - ((rpastat_t *)cpu->userdata1)->input);
+	r_printf("Matched: %d\n", RVM_CPUREG_GETU(cpu, R0));
 end:
+
+	for (i = 0; 0 && i < r_array_length(stat->records); i++) {
+		rparecord_t *rec = (rparecord_t *)r_array_slot(stat->records, i);
+		if (rec->type & RPA_RECORD_MATCH) {
+			r_printf("%d: rule: %s(%d, %d)\n", i, rec->rule, (rint)rec->top, (rint)rec->size);
+		}
+	}
+
 	rpa_stat_destroy((rpastat_t *)cpu->userdata1);
 	rvm_cpu_destroy(cpu);
 	rpa_compiler_destroy(co);

@@ -88,6 +88,7 @@ static const char *stropcalls[] = {
 	"RVM_LDRH",
 	"RVM_LDRW",
 	"RVM_LDRR",
+	"RVM_CFLAG",
 	"RVM_CLR",
 	"RVM_CLRR",
 	"RVM_LSL",
@@ -427,6 +428,13 @@ static void rvm_op_clr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	RVM_REG_CLEAR(((rvmreg_t*)RVM_CPUREG_PTR(cpu, ins->op1)));
 	RVM_REG_SETTYPE(((rvmreg_t*)RVM_CPUREG_PTR(cpu, ins->op1)), RVM_DTYPE_UNDEF);
+}
+
+
+static void rvm_op_cflag(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rword op1 = RVM_CPUREG_GETU(cpu, ins->op1);
+	cpu->status ^= op1;
 }
 
 
@@ -1805,6 +1813,7 @@ static rvm_cpu_op ops[] = {
 	rvm_op_ldrh,		// RVM_LDRH
 	rvm_op_ldrw,		// RVM_LDRW
 	rvm_op_ldrr,		// RVM_LDRR
+	rvm_op_cflag,		// RVM_CFLAG
 	rvm_op_clr,			// RVM_CLR
 	rvm_op_clrr,		// RVM_CLRR
 	rvm_op_lsl,			// RVM_LSL
