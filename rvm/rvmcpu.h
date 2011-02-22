@@ -337,7 +337,7 @@ rint rvm_cpu_getswi(rvmcpu_t *cpu, const rchar *swiname, rsize_t size);
 rint rvm_cpu_getswi_s(rvmcpu_t *cpu, const rchar *swiname);
 rvmreg_t *rvm_cpu_alloc_global(rvmcpu_t *cpu);
 int rvm_cpu_setreg(rvmcpu_t *cpu, rword regnum, const rvmreg_t *src);
-rvmreg_t * rvm_cpu_getreg(rvmcpu_t *cpu, rword regnum);
+rvmreg_t *rvm_cpu_getreg(rvmcpu_t *cpu, rword regnum);
 rvm_asmins_t rvm_asm(rword opcode, rword op1, rword op2, rword op3, rword data);
 rvm_asmins_t rvm_asma(rword opcode, rword op1, rword op2, rword op3, rchar *data, rulong size);
 rvm_asmins_t rvm_asml(rword opcode, rword op1, rword op2, rword op3, rlong data);
