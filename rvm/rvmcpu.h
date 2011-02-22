@@ -173,10 +173,11 @@ enum {
 #define RVM_STATUS_C (1 << 2)
 #define RVM_STATUS_V (1 << 3)
 #define RVM_STATUS_E (1 << 4)
+#define RVM_STATUS_ALL (RVM_STATUS_Z | RVM_STATUS_N | RVM_STATUS_C | RVM_STATUS_V | RVM_STATUS_E)
 #define RVM_STATUS_GETBIT(cpu, bit) ((cpu)->status & (bit))
 #define RVM_STATUS_SETBIT(cpu, bit) do { (cpu)->status |= (bit); } while (0)
 #define RVM_STATUS_CLRBIT(cpu, bit) do { (cpu)->status &= ~(bit); } while (0)
-#define RVM_STATUS_CLRALL(cpu) RVM_STATUS_CLRBIT(cpu, (RVM_STATUS_Z | RVM_STATUS_N | RVM_STATUS_C | RVM_STATUS_V))
+#define RVM_STATUS_CLRALL(cpu) RVM_STATUS_CLRBIT(cpu, RVM_STATUS_ALL)
 
 #define RVM_STATUS_UPDATE(cpu, b, c) \
 do { \

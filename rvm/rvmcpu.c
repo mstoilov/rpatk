@@ -434,7 +434,7 @@ static void rvm_op_clr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rvm_op_cflag(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rword op1 = RVM_CPUREG_GETU(cpu, ins->op1);
-	cpu->status ^= op1;
+	RVM_STATUS_CLRBIT(cpu, op1);
 }
 
 
