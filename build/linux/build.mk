@@ -5,6 +5,7 @@ all:
 	+make -C $(SRCDIR)/rpa2/build/$(OS)/$(ARCHDIR) all
 	+make -C $(SRCDIR)/rvm/build/$(OS)/$(ARCHDIR) all
 	+make -C $(SRCDIR)/tests/build/$(OS)/$(ARCHDIR) all
+	+make -C $(SRCDIR)/testrpa2/build/$(OS)/$(ARCHDIR) all	
 	+make -C $(SRCDIR)/rgrep/unix all
 
 distclean: clean
@@ -14,6 +15,7 @@ distclean: clean
 	+make -C $(SRCDIR)/rpa2/build/$(OS)/$(ARCHDIR) distclean
 	+make -C $(SRCDIR)/rvm/build/$(OS)/$(ARCHDIR) distclean
 	+make -C $(SRCDIR)/tests/build/$(OS)/$(ARCHDIR) distclean
+	+make -C $(SRCDIR)/testrpa2/build/$(OS)/$(ARCHDIR) distclean	
 	+make -C $(SRCDIR)/rgrep/unix distclean
 
 clean:
@@ -23,4 +25,5 @@ clean:
 	+make -C $(SRCDIR)/rpa2/build/$(OS)/$(ARCHDIR) clean
 	+make -C $(SRCDIR)/rvm/build/$(OS)/$(ARCHDIR) clean
 	+make -C $(SRCDIR)/tests/build/$(OS)/$(ARCHDIR) clean
+	+make -C $(SRCDIR)/testrpa2/build/$(OS)/$(ARCHDIR) clean	
 	+make -C $(SRCDIR)/rgrep/unix clean
