@@ -296,17 +296,6 @@ static void rpa_matchchr_mop(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
-
-static void rpa_matchrng(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
-	rlong tp = RVM_CPUREG_GETL(cpu, R_TOP);
-	rpair_t op1 = RVM_CPUREG_GETPAIR(cpu, ins->op1);
-
-	RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, (!stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].eof && stat->instack[tp].wc >= op1.p1 && stat->instack[tp].wc <= op1.p2) ? 1 : 0);
-}
-
-
 static void rpa_emitstart(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;

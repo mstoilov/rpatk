@@ -84,6 +84,7 @@ void code_rpa_matchmnode(rpa_compiler_t *co, rpastat_t *stat)
 	VMTEST_REG(co->cg, 0, -1, "RPA_MNODE_NAN 'xyz'");
 	VMTEST_STATUS(co->cg, RVM_STATUS_N, "RPA_MNODE_NAN STATUS");
 
+/*
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R_TOP, DA, XX, 0));
 	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_matchabc", rvm_asm(RPA_BXLWHT, R_MNODE_OPT, DA, XX, 0));
 	VMTEST_REG(co->cg, 0, 3, "RPA_MNODE_OPT 'abc'");
@@ -113,7 +114,7 @@ void code_rpa_matchmnode(rpa_compiler_t *co, rpastat_t *stat)
 	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_matchxyz", rvm_asm(RPA_BXLWHT, R_MNODE_MOP, DA, XX, 0));
 	VMTEST_REG(co->cg, 0, 0, "RPA_MNODE_MOP 'xyz'");
 	VMTEST_STATUS(co->cg, RVM_STATUS_Z, "RPA_MNODE_MOP STATUS");
-
+*/
 
 }
 

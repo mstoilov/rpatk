@@ -12,10 +12,15 @@ LIBS += -lrpa2 -lrvm -lrlib -lpthread -lm --static
 
 
 TESTS	+= $(OUTDIR)/rpavm-matchchr
+TESTS	+= $(OUTDIR)/rpavm-matchrng
 TESTS	+= $(OUTDIR)/rpavm-mnode
 TESTS	+= $(OUTDIR)/rpacompiler-rule
 TESTS	+= $(OUTDIR)/rpacompiler-exp
+TESTS	+= $(OUTDIR)/rpacompiler-notexp
+TESTS	+= $(OUTDIR)/rpacompiler-class
 TESTS	+= $(OUTDIR)/rpacompiler-altexp
+TESTS	+= $(OUTDIR)/rpacompiler-minusexp
+
 
 all : $(OUTDIR) $(TESTS)
 

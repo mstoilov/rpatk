@@ -37,10 +37,17 @@ rint rpa_compiler_rule_end(rpa_compiler_t *co);
 rint rpa_compiler_exp_begin(rpa_compiler_t *co);
 rint rpa_compiler_exp_end(rpa_compiler_t *co, ruint qflag);
 
-rint rpa_compiler_altbranch_begin(rpa_compiler_t *co);
-rint rpa_compiler_altbranch_end(rpa_compiler_t *co, ruint qflag);
 rint rpa_compiler_altexp_begin(rpa_compiler_t *co);
 rint rpa_compiler_altexp_end(rpa_compiler_t *co, ruint qflag);
+
+rint rpa_compiler_branch_begin(rpa_compiler_t *co);
+rint rpa_compiler_branch_end(rpa_compiler_t *co, ruint qflag);
+
+rint rpa_compiler_class_begin(rpa_compiler_t *co);
+rint rpa_compiler_class_end(rpa_compiler_t *co, ruint qflag);
+
+rint rpa_compiler_notexp_begin(rpa_compiler_t *co);
+rint rpa_compiler_notexp_end(rpa_compiler_t *co, ruint qflag);
 
 
 #ifdef __cplusplus
