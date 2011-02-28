@@ -15,6 +15,7 @@ TESTS	+= $(OUTDIR)/rpavm-matchchr
 TESTS	+= $(OUTDIR)/rpavm-mnode
 TESTS	+= $(OUTDIR)/rpacompiler-rule
 TESTS	+= $(OUTDIR)/rpacompiler-exp
+TESTS	+= $(OUTDIR)/rpacompiler-altexp
 
 all : $(OUTDIR) $(TESTS)
 

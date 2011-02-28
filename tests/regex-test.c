@@ -307,20 +307,6 @@ static void rpa_matchrng(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
-static void rpa_eqmatchrng(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	if (cpu->status & RVM_STATUS_Z)
-		rpa_matchrng(cpu, ins);
-}
-
-
-static void rpa_neqmatchrng(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	if (!(cpu->status & RVM_STATUS_Z))
-		rpa_matchrng(cpu, ins);
-}
-
-
 static void rpa_emitstart(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;

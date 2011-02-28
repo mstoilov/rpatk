@@ -34,9 +34,13 @@ void rpa_compiler_destroy(rpa_compiler_t *co);
 rint rpa_compiler_rule_begin(rpa_compiler_t *co, const rchar *name, ruint namesize);
 rint rpa_compiler_rule_begin_s(rpa_compiler_t *co, const rchar *name);
 rint rpa_compiler_rule_end(rpa_compiler_t *co);
-
 rint rpa_compiler_exp_begin(rpa_compiler_t *co);
 rint rpa_compiler_exp_end(rpa_compiler_t *co, ruint qflag);
+
+rint rpa_compiler_altbranch_begin(rpa_compiler_t *co);
+rint rpa_compiler_altbranch_end(rpa_compiler_t *co, ruint qflag);
+rint rpa_compiler_altexp_begin(rpa_compiler_t *co);
+rint rpa_compiler_altexp_end(rpa_compiler_t *co, ruint qflag);
 
 
 #ifdef __cplusplus
