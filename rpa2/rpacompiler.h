@@ -10,15 +10,19 @@ extern "C" {
 #endif
 
 typedef struct rpa_ruledef_s {
+	rulong branch;
+	rulong start;
 	rlong labelidx;
 	rlong emitidx;
 	rlong endidx;
-	rchar end[64];
 } rpa_ruledef_t;
+
+
+#define RPA_COMPILER_CURRENTEXP(__co__) ((rpa_ruledef_t*)r_array_lastslot((__co__)->expressions))
 
 typedef struct rpa_compiler_s {
 	rvm_codegen_t *cg;
-	rpa_ruledef_t current;
+	rarray_t *expressions;
 	rboolean optimized;
 	rvm_scope_t *scope;
 	rulong fpoff;
@@ -30,6 +34,9 @@ void rpa_compiler_destroy(rpa_compiler_t *co);
 rint rpa_compiler_rule_begin(rpa_compiler_t *co, const rchar *name, ruint namesize);
 rint rpa_compiler_rule_begin_s(rpa_compiler_t *co, const rchar *name);
 rint rpa_compiler_rule_end(rpa_compiler_t *co);
+
+rint rpa_compiler_exp_begin(rpa_compiler_t *co);
+rint rpa_compiler_exp_end(rpa_compiler_t *co, ruint qflag);
 
 
 #ifdef __cplusplus

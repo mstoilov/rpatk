@@ -17,11 +17,11 @@ void code_rpa_matchabc(rpa_compiler_t *co, rpastat_t *stat)
 {
 	rpa_compiler_rule_begin_s(co, "rpa_matchabc");
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, 'a'));
-	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, co->current.endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, 'b'));
-	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, co->current.endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, 'c'));
-	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, co->current.endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_compiler_rule_end(co);
 }
 
@@ -30,11 +30,11 @@ void code_rpa_matchxyz(rpa_compiler_t *co, rpastat_t *stat)
 {
 	rpa_compiler_rule_begin_s(co, "rpa_matchxyz");
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, 'x'));
-	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, co->current.endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, 'y'));
-	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, co->current.endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, 'z'));
-	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, co->current.endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_compiler_rule_end(co);
 }
 

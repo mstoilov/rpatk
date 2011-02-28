@@ -11,10 +11,10 @@ LIBS += -L$(RPA2_SRCDIR)/build/$(OS)/$(ARCHDIR)/out
 LIBS += -lrpa2 -lrvm -lrlib -lpthread -lm --static
 
 
-TESTS	+= $(OUTDIR)/rpavm-test
 TESTS	+= $(OUTDIR)/rpavm-matchchr
 TESTS	+= $(OUTDIR)/rpavm-mnode
 TESTS	+= $(OUTDIR)/rpacompiler-rule
+TESTS	+= $(OUTDIR)/rpacompiler-exp
 
 all : $(OUTDIR) $(TESTS)
 

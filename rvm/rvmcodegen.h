@@ -45,6 +45,7 @@ rulong rvm_codegen_getcodesize(rvm_codegen_t *cg);
 void rvm_codegen_setcodesize(rvm_codegen_t *cg, ruint size);
 void rvm_codegen_clear(rvm_codegen_t *cg);
 rint rvm_codegen_relocate(rvm_codegen_t *cg, rvm_codelabel_t **err);
+rlong rvm_codegen_redefinelabel(rvm_codegen_t *cg, rlong index);
 rlong rvm_codegen_addlabel(rvm_codegen_t *cg, const rchar* name, ruint namesize);
 rlong rvm_codegen_addlabel_s(rvm_codegen_t *cg, const rchar* name);
 rlong rvm_codegen_adddata(rvm_codegen_t *cg, const rchar *name, ruint namesize, rconstpointer data, rsize_t size);
