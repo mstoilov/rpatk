@@ -17,13 +17,14 @@ extern "C" {
 #define RPA_MATCH_MULTIPLE (1 << 0)
 #define RPA_MATCH_OPTIONAL (1 << 1)
 #define RPA_MATCH_MULTIOPT (RPA_MATCH_MULTIPLE | RPA_MATCH_OPTIONAL)
-#define R_MNODE_NAN R4
-#define R_MNODE_MUL R5
-#define R_MNODE_OPT R6
-#define R_MNODE_MOP R7
-#define R_ARG R8
-#define R_WHT FP
+#define R_MNODE_NAN R3
+#define R_MNODE_MUL R4
+#define R_MNODE_OPT R5
+#define R_MNODE_MOP R6
+#define R_ARG R7
+#define R_REC R8
 #define R_TOP TP
+#define R_WHT FP
 #define RPAVM_SWI_TABLEID 0
 
 #define RPA_MATCHCHR_NAN	RVM_OPSWI(RVM_SWI_ID(RPAVM_SWI_TABLEID, 0))
@@ -45,6 +46,8 @@ extern "C" {
 #define RPA_EMITSTART		RVM_OPSWI(RVM_SWI_ID(RPAVM_SWI_TABLEID, 13))
 #define RPA_EMITEND			RVM_OPSWI(RVM_SWI_ID(RPAVM_SWI_TABLEID, 14))
 #define RPA_BXLWHT			RVM_OPSWI(RVM_SWI_ID(RPAVM_SWI_TABLEID, 15))
+#define RPA_GETRECLEN		RVM_OPSWI(RVM_SWI_ID(RPAVM_SWI_TABLEID, 16))
+#define RPA_SETRECLEN		RVM_OPSWI(RVM_SWI_ID(RPAVM_SWI_TABLEID, 17))
 
 
 typedef struct rparecord_s {
@@ -60,7 +63,6 @@ typedef struct rparecord_s {
 typedef struct rpainput_s {
 	const rchar *input;
 	ruint32 wc;
-	rint32 rp;
 	ruchar eof;
 } rpainput_t;
 

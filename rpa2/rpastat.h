@@ -18,7 +18,8 @@ typedef struct rpastat_s {
 	const rchar *end;
 	ruint error;
 	rarray_t *records;
-	rpainput_t *instack;
+	rpainput_t *instackbuffer;
+	rpainput_t *instack;			/* instack = &instackbuffer[1]; This allows R_TOP = -1, without any additional checks */
 	rulong instacksize;
 	rulong cursize;
 	rpainmap_t ip;

@@ -20,7 +20,7 @@ rpastat_t *rpa_stat_create(rulong stacksize)
 void rpa_stat_destroy(rpastat_t *stat)
 {
 	if (stat->instack)
-		r_free(stat->instack);
+		r_free(stat->instackbuffer);
 	r_object_destroy((robject_t*)stat->records);
 	rpavm_cpu_destroy(stat->cpu);
 	r_free(stat);
@@ -46,8 +46,10 @@ rint rpa_stat_init(rpastat_t *stat, const rchar *input, const rchar *start, cons
 	stat->error = 0;
 	stat->cursize = 0;
 	if (stat->instacksize < size) {
-		stat->instack = r_realloc(stat->instack, (size + 1) * sizeof(rpainput_t));
+		stat->instackbuffer = r_realloc(stat->instackbuffer, (size + 2) * sizeof(rpainput_t));
 		stat->instacksize = size + 1;
+		stat->instack = &stat->instackbuffer[1];
+		r_memset(stat->instackbuffer, 0, sizeof(rpainput_t) * 2);
 	}
 	stat->ip.input = input;
 	stat->ip.serial = 0;

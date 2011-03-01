@@ -9,7 +9,7 @@ static void rpavm_swi_shift(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rlong tp = RVM_CPUREG_GETL(cpu, R_TOP);
 	rpainput_t * ptp = &stat->instack[tp];
 
-	if (tp >= 0 && ptp->eof)
+	if (ptp->eof)
 		return;
 	ptp++;
 	tp++;
@@ -252,7 +252,6 @@ static void rpavm_swi_emitstart(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rec = (rparecord_t *)r_array_slot(stat->records, index);
 	rec->rule = name.str;
 	rec->top = tp;
-	stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].rp = (rint32)index;
 	rec->type = RPA_RECORD_START;
 //	r_printf("START: %s(%ld)\n", name.str, (rulong)tp);
 }
@@ -271,7 +270,6 @@ static void rpavm_swi_emitend(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rec = (rparecord_t *)r_array_slot(stat->records, index);
 	rec->rule = name.str;
 	rec->top = tp;
-	stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].rp = (rint32)index;
 	rec->size = tplen;
 	rec->type = RPA_RECORD_START;
 
@@ -295,6 +293,21 @@ static void rpavm_swi_bxlwht(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static void rpavm_swi_getreclen(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
+	RVM_CPUREG_SETU(cpu, ins->op1, r_array_length(stat->records));
+}
+
+
+static void rpavm_swi_setreclen(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
+
+	r_array_setlength(stat->records, (ruint)RVM_CPUREG_GETU(cpu, ins->op1));
+}
+
+
 static rvm_switable_t rpavm_swi_table[] = {
 		{"RPA_MATCHCHR_NAN", rpavm_swi_matchchr_nan},
 		{"RPA_MATCHCHR_OPT", rpavm_swi_matchchr_opt},
@@ -312,6 +325,8 @@ static rvm_switable_t rpavm_swi_table[] = {
 		{"RPA_EMITSTART", rpavm_swi_emitstart},
 		{"RPA_EMITEND", rpavm_swi_emitend},
 		{"RPA_BXLWHT", rpavm_swi_bxlwht},
+		{"RPA_GETRECLEN", rpavm_swi_getreclen},
+		{"RPA_SETRECLEN", rpavm_swi_setreclen},
 		{NULL, NULL},
 };
 
