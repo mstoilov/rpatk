@@ -308,6 +308,44 @@ static void rpavm_swi_setreclen(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static void rpavm_swi_setrecid(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
+	rparecord_t *rec;
+	rword ruleid = RVM_CPUREG_GETU(cpu, ins->op1);
+
+	rec = (rparecord_t *)r_array_lastslot(stat->records);
+	if (rec) {
+		rec->ruleid = ruleid;
+	}
+}
+
+
+static void rpavm_swi_loopdetect(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
+	rparecord_t *rec;
+	rlong len;
+	rword ruleid = RVM_CPUREG_GETU(cpu, ins->op1);
+	rword tp = RVM_CPUREG_GETU(cpu, ins->op2);
+
+	RVM_CPUREG_SETU(cpu, R0, 0);
+	for (len = r_array_length(stat->records); len > 0; len--) {
+		rec = (rparecord_t *)r_array_slot(stat->records, len - 1);
+		if (rec->ruleid == ruleid && rec->type == (RPA_RECORD_END | RPA_RECORD_MATCH)) {
+			RVM_CPUREG_SETU(cpu, R0, 0);
+			break;
+		} else if (rec->type == (RPA_RECORD_END | RPA_RECORD_MATCH)) {
+			RVM_CPUREG_SETU(cpu, R0, 0);
+			break;
+		} else if (rec->ruleid == ruleid && rec->top == tp) {
+			RVM_CPUREG_SETU(cpu, R0, -1);
+			break;
+		}
+	}
+}
+
+
 static rvm_switable_t rpavm_swi_table[] = {
 		{"RPA_MATCHCHR_NAN", rpavm_swi_matchchr_nan},
 		{"RPA_MATCHCHR_OPT", rpavm_swi_matchchr_opt},
@@ -327,6 +365,8 @@ static rvm_switable_t rpavm_swi_table[] = {
 		{"RPA_BXLWHT", rpavm_swi_bxlwht},
 		{"RPA_GETRECLEN", rpavm_swi_getreclen},
 		{"RPA_SETRECLEN", rpavm_swi_setreclen},
+		{"RPA_SETRECID", rpavm_swi_setrecid},
+		{"RPA_LOOPDETECT", rpavm_swi_loopdetect},
 		{NULL, NULL},
 };
 

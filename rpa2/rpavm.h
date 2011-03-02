@@ -48,12 +48,15 @@ extern "C" {
 #define RPA_BXLWHT			RVM_OPSWI(RVM_SWI_ID(RPAVM_SWI_TABLEID, 15))
 #define RPA_GETRECLEN		RVM_OPSWI(RVM_SWI_ID(RPAVM_SWI_TABLEID, 16))
 #define RPA_SETRECLEN		RVM_OPSWI(RVM_SWI_ID(RPAVM_SWI_TABLEID, 17))
+#define RPA_SETRECID		RVM_OPSWI(RVM_SWI_ID(RPAVM_SWI_TABLEID, 18))
+#define RPA_LOOPDETECT		RVM_OPSWI(RVM_SWI_ID(RPAVM_SWI_TABLEID, 19))
 
 
 typedef struct rparecord_s {
 	rlist_t head;
 	rlink_t lnk;
 	const char *rule;
+	rword ruleid;
 	rword top;
 	rword size;
 	rword type;
