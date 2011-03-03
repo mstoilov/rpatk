@@ -332,10 +332,7 @@ static void rpavm_swi_loopdetect(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	RVM_CPUREG_SETU(cpu, R0, 0);
 	for (len = r_array_length(stat->records); len > 0; len--) {
 		rec = (rparecord_t *)r_array_slot(stat->records, len - 1);
-		if (rec->ruleid == ruleid && rec->type == (RPA_RECORD_END | RPA_RECORD_MATCH)) {
-			RVM_CPUREG_SETU(cpu, R0, 0);
-			break;
-		} else if (rec->type == (RPA_RECORD_END | RPA_RECORD_MATCH)) {
+		if (rec->type == (RPA_RECORD_END | RPA_RECORD_MATCH)) {
 			RVM_CPUREG_SETU(cpu, R0, 0);
 			break;
 		} else if (rec->ruleid == ruleid && rec->top == tp) {

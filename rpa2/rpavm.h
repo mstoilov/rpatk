@@ -22,8 +22,8 @@ extern "C" {
 #define R_MNODE_OPT R5
 #define R_MNODE_MOP R6
 #define R_ARG R7
-#define R_REC R8
-#define R_TOP TP
+#define R_TOP R8
+#define R_LOO TP
 #define R_WHT FP
 #define RPAVM_SWI_TABLEID 0
 

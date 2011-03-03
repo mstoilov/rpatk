@@ -15,7 +15,7 @@
 
 void code_rpa_match_aloop(rpa_compiler_t *co, rpastat_t *stat)
 {
-	rpa_compiler_rule_begin_s(co, "rpa_match_aloop");
+	rpa_compiler_loop_begin_s(co, "rpa_match_aloop");
 	rpa_compiler_altexp_begin(co);
 	rpa_compiler_branch_begin(co);
 	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_aloop", rvm_asm(RPA_BXLWHT, R_MNODE_NAN, DA, XX, 0));
@@ -30,7 +30,7 @@ void code_rpa_match_aloop(rpa_compiler_t *co, rpastat_t *stat)
 	rpa_compiler_branch_end(co, RPA_MATCH_NONE);
 
 	rpa_compiler_altexp_end(co, RPA_MATCH_NONE);
-	rpa_compiler_rule_end(co);
+	rpa_compiler_loop_end(co);
 }
 
 
@@ -38,7 +38,7 @@ void code_rpa_matchmnode(rpa_compiler_t *co, rpastat_t *stat)
 {
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R_TOP, DA, XX, 0));
 	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_aloop", rvm_asm(RPA_BXLWHT, R_MNODE_MUL, DA, XX, 0));
-	VMTEST_REG(co->cg, 0, 12, "RPA_MNODE_MUL 'abcorxyz'");
+	VMTEST_REG(co->cg, 0, 12, "RPA_MNODE_MUL 'aloop'");
 	VMTEST_STATUS(co->cg, 0, "RPA_MNODE_MUL STATUS");
 }
 
