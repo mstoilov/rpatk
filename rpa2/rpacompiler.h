@@ -15,6 +15,7 @@ typedef struct rpa_ruledef_s {
 	rlong labelidx;
 	rlong emitidx;
 	rlong endidx;
+	rlong loopidx;
 } rpa_ruledef_t;
 
 

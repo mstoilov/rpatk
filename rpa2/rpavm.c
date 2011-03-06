@@ -329,14 +329,16 @@ static void rpavm_swi_loopdetect(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rword ruleid = RVM_CPUREG_GETU(cpu, ins->op1);
 	rword tp = RVM_CPUREG_GETU(cpu, ins->op2);
 
-	RVM_CPUREG_SETU(cpu, R0, 0);
+	RVM_CPUREG_SETU(cpu, R0, -1);
 	for (len = r_array_length(stat->records); len > 0; len--) {
 		rec = (rparecord_t *)r_array_slot(stat->records, len - 1);
 		if (rec->type == (RPA_RECORD_END | RPA_RECORD_MATCH)) {
-			RVM_CPUREG_SETU(cpu, R0, 0);
+			RVM_CPUREG_SETU(cpu, R0, -1);
 			break;
 		} else if (rec->ruleid == ruleid && rec->top == tp) {
-			RVM_CPUREG_SETU(cpu, R0, -1);
+			RVM_CPUREG_SETU(cpu, R0, RVM_CPUREG_GETU(cpu, R_LOO));
+			RVM_CPUREG_SETU(cpu, R_TOP, RVM_CPUREG_GETU(cpu, R_TOP) + RVM_CPUREG_GETU(cpu, R_LOO));
+
 			break;
 		}
 	}
