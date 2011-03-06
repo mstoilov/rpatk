@@ -27,6 +27,8 @@ static void rpavm_swi_shift(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		}
 	}
 	RVM_CPUREG_SETL(cpu, R_TOP, tp);
+	r_printf("shift (R_TOP = %d) instack.wc = %c(%d)\n", (rint)RVM_CPUREG_GETL(cpu, R_TOP), stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc, (rint)stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc);
+
 }
 
 
@@ -35,6 +37,8 @@ static void rpavm_matchchr_do(rvmcpu_t *cpu, rvm_asmins_t *ins, rword flags)
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	rword wc = RVM_CPUREG_GETU(cpu, ins->op1);
 	rword matched = 0;
+
+	r_printf("(R_TOP = %d) instack.wc = %c, wc = %c\n", (rint)RVM_CPUREG_GETL(cpu, R_TOP), stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc, wc );
 
 	if (flags == RPA_MATCH_OPTIONAL) {
 		if (!stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].eof && stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc == wc) {
