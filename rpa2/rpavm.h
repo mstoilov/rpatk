@@ -50,6 +50,13 @@ extern "C" {
 #define RPA_SETRECLEN		RVM_OPSWI(RVM_SWI_ID(RPAVM_SWI_TABLEID, 17))
 #define RPA_SETRECID		RVM_OPSWI(RVM_SWI_ID(RPAVM_SWI_TABLEID, 18))
 #define RPA_LOOPDETECT		RVM_OPSWI(RVM_SWI_ID(RPAVM_SWI_TABLEID, 19))
+#define RPA_SETCACHE		RVM_OPSWI(RVM_SWI_ID(RPAVM_SWI_TABLEID, 20))
+#define RPA_CHECKCACHE		RVM_OPSWI(RVM_SWI_ID(RPAVM_SWI_TABLEID, 21))
+
+
+typedef struct rpacache_s {
+	rword reclen;
+}rpacache_t;
 
 
 typedef struct rparecord_s {

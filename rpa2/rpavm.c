@@ -345,6 +345,42 @@ static void rpavm_swi_loopdetect(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static void rpavm_swi_setcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
+
+	if (!RVM_STATUS_GETBIT(cpu, RVM_STATUS_N) && !RVM_STATUS_GETBIT(cpu, RVM_STATUS_Z))
+		stat->cache.reclen = r_array_length(stat->records);
+}
+
+
+static void rpavm_swi_checkcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
+	rparecord_t *rec;
+	rword curlen = r_array_length(stat->records);
+	rword ruleid = RVM_CPUREG_GETU(cpu, ins->op1);
+	rword tp = RVM_CPUREG_GETU(cpu, ins->op2);
+	rword r0 = 0;
+	rlong len;
+
+	for (len = stat->cache.reclen; len > 0 && len >= curlen; len--) {
+		rec = (rparecord_t *)r_array_slot(stat->records, len - 1);
+		if (tp != rec->top)
+			break;
+		if (rec->type == (RPA_RECORD_END | RPA_RECORD_MATCH) && rec->ruleid == ruleid) {
+			r0 = rec->size;
+			RVM_CPUREG_SETU(cpu, R_TOP, RVM_CPUREG_GETU(cpu, R_TOP) + r0);
+			r_array_setlength(stat->records, (ruint)len);
+			break;
+		}
+	}
+
+	RVM_CPUREG_SETU(cpu, R0, r0);
+	RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, !r0);
+}
+
+
 static rvm_switable_t rpavm_swi_table[] = {
 		{"RPA_MATCHCHR_NAN", rpavm_swi_matchchr_nan},
 		{"RPA_MATCHCHR_OPT", rpavm_swi_matchchr_opt},
@@ -366,6 +402,8 @@ static rvm_switable_t rpavm_swi_table[] = {
 		{"RPA_SETRECLEN", rpavm_swi_setreclen},
 		{"RPA_SETRECID", rpavm_swi_setrecid},
 		{"RPA_LOOPDETECT", rpavm_swi_loopdetect},
+		{"RPA_SETCACHE", rpavm_swi_setcache},
+		{"RPA_CHECKCACHE", rpavm_swi_checkcache},
 		{NULL, NULL},
 };
 

@@ -12,6 +12,7 @@ extern "C" {
 #endif
 
 
+
 typedef struct rpastat_s {
 	const rchar *input;
 	const rchar *start;
@@ -22,6 +23,7 @@ typedef struct rpastat_s {
 	rpainput_t *instack;			/* instack = &instackbuffer[1]; This allows R_TOP = -1, without any additional checks */
 	rulong instacksize;
 	rulong cursize;
+	rpacache_t cache;
 	rpainmap_t ip;
 	rvmcpu_t *cpu;
 } rpastat_t;

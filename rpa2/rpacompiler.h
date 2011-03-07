@@ -48,9 +48,6 @@ rint rpa_compiler_altexp_end(rpa_compiler_t *co, ruint qflag);
 rint rpa_compiler_branch_begin(rpa_compiler_t *co);
 rint rpa_compiler_branch_end(rpa_compiler_t *co, ruint qflag);
 
-rint rpa_compiler_loopybranch_begin(rpa_compiler_t *co);
-rint rpa_compiler_loopybranch_end(rpa_compiler_t *co, ruint qflag);
-
 rint rpa_compiler_nonloopybranch_begin(rpa_compiler_t *co);
 rint rpa_compiler_nonloopybranch_end(rpa_compiler_t *co, ruint qflag);
 
