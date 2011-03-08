@@ -12,6 +12,10 @@ extern "C" {
 #endif
 
 
+typedef struct rpacache_s {
+	rword disabled;
+	rword reclen;
+}rpacache_t;
 
 typedef struct rpastat_s {
 	const rchar *input;
@@ -33,6 +37,7 @@ rpastat_t *rpa_stat_create(rulong stacksize);
 void rpa_stat_destroy(rpastat_t *stat);
 rint rpa_stat_init(rpastat_t *stat, const rchar *input, const rchar *start, const rchar *end);
 rint rpa_stat_parse(rpastat_t *stat, const rchar *input, const rchar *start, const rchar *end);
+void rpa_stat_cachedisable(rpastat_t *stat, ruint disable);
 
 #ifdef __cplusplus
 }

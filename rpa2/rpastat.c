@@ -27,6 +27,12 @@ void rpa_stat_destroy(rpastat_t *stat)
 }
 
 
+void rpa_stat_cachedisable(rpastat_t *stat, ruint disable)
+{
+	stat->cache.disabled = disable;
+}
+
+
 rint rpa_stat_init(rpastat_t *stat, const rchar *input, const rchar *start, const rchar *end)
 {
 	rulong size;
@@ -45,6 +51,7 @@ rint rpa_stat_init(rpastat_t *stat, const rchar *input, const rchar *start, cons
 	stat->input = input;
 	stat->error = 0;
 	stat->cursize = 0;
+	stat->cache.reclen = 0;
 	if (stat->instacksize < size) {
 		stat->instackbuffer = r_realloc(stat->instackbuffer, (size + 2) * sizeof(rpainput_t));
 		stat->instacksize = size + 1;

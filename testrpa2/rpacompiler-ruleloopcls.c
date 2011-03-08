@@ -226,7 +226,7 @@ int main(int argc, char *argv[])
 	ruint mainoff;
 	rint i;
 	char teststr[] = "1*v23*z457/89+233*2/33*23*457/89+233*2/33*23*457/89+233*2/33*23*457/89+233*2/33*23*457/89+233*2/33*23*457/89+233*2/33 ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
-//	char teststr[] = "1*23ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
+//	char teststr[] = "1/23+45##ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
 
 	co = rpa_compiler_create();
 	stat = rpa_stat_create(4096);
@@ -261,13 +261,13 @@ int main(int argc, char *argv[])
 		goto end;
 	}
 
-	for (i = 0; i < 1000; i++) {
-		stat->cache.reclen = 0;
-//		rpa_stat_init(stat, teststr, teststr, teststr+90);
-//		r_array_setlength(stat->records, 0);
+	for (i = 0; i < 1; i++) {
+		rpa_stat_init(stat, teststr, teststr, teststr+90);
+		rpa_stat_cachedisable(stat, 0);
+
 		rvm_cpu_exec(stat->cpu, rvm_codegen_getcode(co->cg, 0), mainoff);
 	}
-	for (i = 0; 0 && i < r_array_length(stat->records); i++) {
+	for (i = 0;  i < r_array_length(stat->records); i++) {
 		rparecord_t *rec = (rparecord_t *)r_array_slot(stat->records, i);
 		rpa_record_dump(stdout, i, rec, stat);
 	}

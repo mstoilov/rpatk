@@ -348,9 +348,13 @@ static void rpavm_swi_loopdetect(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rpavm_swi_setcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
+	rparecord_t *rec;
 
-	if (!RVM_STATUS_GETBIT(cpu, RVM_STATUS_N) && !RVM_STATUS_GETBIT(cpu, RVM_STATUS_Z))
+//	if (!RVM_STATUS_GETBIT(cpu, RVM_STATUS_N) && !RVM_STATUS_GETBIT(cpu, RVM_STATUS_Z)) {
 		stat->cache.reclen = r_array_length(stat->records);
+		rec = (rparecord_t *)r_array_slot(stat->records, stat->cache.reclen - 1);
+		r_printf("set the chache... cache.reclen = %d, ruleid = %d\n", stat->cache.reclen, rec->ruleid);
+//	}
 }
 
 
@@ -364,20 +368,28 @@ static void rpavm_swi_checkcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rword r0 = 0;
 	rlong len;
 
-	for (len = stat->cache.reclen; len > 0 && len >= curlen; len--) {
-		rec = (rparecord_t *)r_array_slot(stat->records, len - 1);
-		if (tp != rec->top)
-			break;
-		if (rec->type == (RPA_RECORD_END | RPA_RECORD_MATCH) && rec->ruleid == ruleid) {
-			r0 = rec->size;
-			RVM_CPUREG_SETU(cpu, R_TOP, RVM_CPUREG_GETU(cpu, R_TOP) + r0);
-			r_array_setlength(stat->records, (ruint)len);
-			break;
+	if (!stat->cache.disabled) {
+		r_printf("check the chache... ruleid = %d, tp = %d, cache.reclen = %d, curlen = %d\n", ruleid, tp, stat->cache.reclen, curlen);
+		for (len = stat->cache.reclen; len > 0 && len >= curlen; len--) {
+			rec = (rparecord_t *)r_array_slot(stat->records, len - 1);
+			r_printf("check the chache... (ruleid = %d, rec->ruleid = %d), (tp = %d, rec->top = %d)\n", ruleid, rec->ruleid, tp, rec->top);
+
+			if (tp != rec->top)
+				break;
+			if (rec->type == (RPA_RECORD_END | RPA_RECORD_MATCH) && rec->ruleid == ruleid) {
+				r0 = rec->size;
+				RVM_CPUREG_SETU(cpu, R_TOP, RVM_CPUREG_GETU(cpu, R_TOP) + r0);
+				r_array_setlength(stat->records, (ruint)len);
+				break;
+			}
 		}
 	}
 
 	RVM_CPUREG_SETU(cpu, R0, r0);
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, !r0);
+	if (r0) {
+		r_printf("hit the chache...\n");
+	}
 }
 
 

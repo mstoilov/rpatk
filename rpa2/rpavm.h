@@ -54,11 +54,6 @@ extern "C" {
 #define RPA_CHECKCACHE		RVM_OPSWI(RVM_SWI_ID(RPAVM_SWI_TABLEID, 21))
 
 
-typedef struct rpacache_s {
-	rword reclen;
-}rpacache_t;
-
-
 typedef struct rparecord_s {
 	rlist_t head;
 	rlink_t lnk;
