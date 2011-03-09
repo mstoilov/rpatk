@@ -52,6 +52,7 @@ rint rpa_stat_init(rpastat_t *stat, const rchar *input, const rchar *start, cons
 	stat->error = 0;
 	stat->cursize = 0;
 	stat->cache.reclen = 0;
+	stat->cache.hit = 0;
 	if (stat->instacksize < size) {
 		stat->instackbuffer = r_realloc(stat->instackbuffer, (size + 2) * sizeof(rpainput_t));
 		stat->instacksize = size + 1;
@@ -65,11 +66,52 @@ rint rpa_stat_init(rpastat_t *stat, const rchar *input, const rchar *start, cons
 }
 
 
+void rpa_stat_cacheinvalidate(rpastat_t *stat)
+{
+	stat->cache.reclen = 0;
+}
+
+
 rint rpa_stat_parse(rpastat_t *stat, const rchar *input, const rchar *start, const rchar *end)
 {
-	if (rpa_stat_parse(stat, input, start, end) < 0)
-		return -1;
-
 
 	return 0;
+}
+
+
+void rpa_record_dump(rint serial, rparecord_t *rec, rpastat_t *stat)
+{
+	rchar buf[240];
+	rint bufsize = sizeof(buf) - 1;
+	rint n = 0, size;
+
+	r_memset(buf, 0, bufsize);
+
+	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "%3d ( %7ld ): ", serial, rec->ruleid);
+	if (rec->type & RPA_RECORD_START)
+		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "START ");
+	if (rec->type & RPA_RECORD_MATCH)
+		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "MATCH ");
+	if (rec->type & RPA_RECORD_END)
+		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "END ");
+	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "%s(%d) ", rec->rule, rec->type);
+
+	r_memset(buf + n, ' ', bufsize - n);
+	n = 55;
+	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, " : %5d, %3d", rec->top, rec->size);
+
+
+	r_memset(buf + n, ' ', bufsize - n);
+	n = 75;
+	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, " : ");
+	size = rec->inputsiz;
+	if (size >= bufsize - n - 1)
+		size = bufsize - n - 1;
+	if (rec->type & RPA_RECORD_END) {
+		r_strncpy(buf + n, rec->input, rec->inputsiz);
+		n += size;
+		buf[n] = '\0';
+	}
+
+	r_printf("%s\n", buf);
 }

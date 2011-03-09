@@ -62,6 +62,8 @@ typedef struct rparecord_s {
 	rword top;
 	rword size;
 	rword type;
+	const char *input;
+	rsize_t inputsiz;
 } rparecord_t;
 
 
