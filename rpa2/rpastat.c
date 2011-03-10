@@ -19,11 +19,13 @@ rpastat_t *rpa_stat_create(rulong stacksize)
 
 void rpa_stat_destroy(rpastat_t *stat)
 {
-	if (stat->instack)
-		r_free(stat->instackbuffer);
-	r_object_destroy((robject_t*)stat->records);
-	rpavm_cpu_destroy(stat->cpu);
-	r_free(stat);
+	if (stat) {
+		if (stat->instack)
+			r_free(stat->instackbuffer);
+		r_object_destroy((robject_t*)stat->records);
+		rpavm_cpu_destroy(stat->cpu);
+		r_free(stat);
+	}
 }
 
 

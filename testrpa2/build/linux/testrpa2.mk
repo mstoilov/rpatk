@@ -24,6 +24,7 @@ TESTS	+= $(OUTDIR)/rpacompiler-notexp
 TESTS	+= $(OUTDIR)/rpacompiler-class
 TESTS	+= $(OUTDIR)/rpacompiler-altexp
 TESTS	+= $(OUTDIR)/rpacompiler-minusexp
+TESTS	+= $(OUTDIR)/rpaparser-test
 
 
 all : $(OUTDIR) $(TESTS)

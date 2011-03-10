@@ -8,6 +8,7 @@ RPA_OBJECTS =	\
 	$(OUTDIR)/rpastat.o \
 	$(OUTDIR)/rpavm.o \
 	$(OUTDIR)/rpacompiler.o \
+	$(OUTDIR)/rpaparser.o \
 
 
 ifeq ($(OS), linux)

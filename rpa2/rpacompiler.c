@@ -2,15 +2,21 @@
 #include "rpacompiler.h"
 #include "rstring.h"
 
+#define OPTIMIZE_MNODE_NAN 1
+
 
 void rpacompiler_mnode_nan(rpa_compiler_t *co)
 {
 	rvm_codegen_addlabel_s(co->cg, "rpacompiler_mnode_nan");
+#ifdef OPTIMIZE_MNODE_NAN
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, R_WHT, XX, XX, 0));
+#else
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, LR, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BXL, R_WHT, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, LR, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_CMP, R0, DA, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
+#endif
 }
 
 
@@ -74,7 +80,7 @@ rpa_compiler_t *rpa_compiler_create()
 {
 	rpa_compiler_t *co;
 
-	co = r_malloc(sizeof(*co));
+	co = (rpa_compiler_t *)r_malloc(sizeof(*co));
 	r_memset(co, 0, sizeof(*co));
 	co->cg = rvm_codegen_create();
 	co->scope = rvm_scope_create();
@@ -93,8 +99,8 @@ void rpa_compiler_destroy(rpa_compiler_t *co)
 		rvm_codegen_destroy(co->cg);
 		rvm_scope_destroy(co->scope);
 		r_object_destroy((robject_t*)co->expressions);
+		r_free(co);
 	}
-	r_free(co);
 }
 
 
