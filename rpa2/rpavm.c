@@ -367,33 +367,33 @@ static void rpavm_swi_setcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rpavm_swi_checkcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
-	rparecord_t *rec;
+	rparecord_t *recstart, *recend;
 	rword curlen = r_array_length(stat->records);
 	rword ruleid = RVM_CPUREG_GETU(cpu, ins->op1);
 	rword tp = RVM_CPUREG_GETU(cpu, ins->op2);
 	rword r0 = 0;
 	rlong len;
 
-	if (!stat->cache.disabled) {
-		for (len = stat->cache.reclen; len > 0 && len >= curlen; len--) {
-			rec = (rparecord_t *)r_array_slot(stat->records, len - 1);
-			if (tp != rec->top)
-				break;
-			if (rec->type == (RPA_RECORD_END | RPA_RECORD_MATCH) && rec->ruleid == ruleid) {
-				r0 = rec->size;
-				break;
-			}
+	len = stat->cache.reclen;
+	if (!stat->cache.disabled && len > 0 && len > curlen) {
+		recstart = (rparecord_t *)r_array_slot(stat->records, curlen);
+		recend = (rparecord_t *)r_array_slot(stat->records, len - 1);
+
+		if (recend->type == (RPA_RECORD_END | RPA_RECORD_MATCH) &&
+			recstart->type == RPA_RECORD_START &&
+			tp == recend->top &&
+			recstart->ruleid == ruleid &&
+			recend->ruleid == ruleid) {
+				r0 = recend->size;
+				RVM_CPUREG_SETU(cpu, R_TOP, RVM_CPUREG_GETU(cpu, R_TOP) + r0);
+				r_array_setlength(stat->records, (ruint)len);
+				stat->cache.hit += 1;
+//				r_printf("hit the chache... len = %d, curlen = %d\n", len, curlen);
 		}
 	}
 	RVM_STATUS_CLRALL(cpu);
 	RVM_CPUREG_SETU(cpu, R0, r0);
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, !r0);
-	if (r0) {
-		RVM_CPUREG_SETU(cpu, R_TOP, RVM_CPUREG_GETU(cpu, R_TOP) + r0);
-		r_array_setlength(stat->records, (ruint)len);
-		stat->cache.hit += 1;
-//		r_printf("hit the chache... %d\n", stat->cache.hit);
-	}
 }
 
 

@@ -44,6 +44,7 @@ int main(int argc, char *argv[])
 
 	rpa_parser_destroy(pa);
 	r_printf("Parsed Size = %d\n", ret);
+	r_printf("Cache hit = %d\n", pa->stat->cache.hit);
 	r_printf("Max alloc mem: %ld\n", r_debug_get_maxmem());
 	r_printf("Leaked mem: %ld\n", r_debug_get_allocmem());
 	return 0;
