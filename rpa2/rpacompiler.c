@@ -2,7 +2,7 @@
 #include "rpacompiler.h"
 #include "rstring.h"
 
-#define OPTIMIZE_MNODE_NAN 1
+//#define OPTIMIZE_MNODE_NAN 1
 
 
 void rpacompiler_mnode_nan(rpa_compiler_t *co)
@@ -274,6 +274,7 @@ rint rpa_compiler_rule_end(rpa_compiler_t *co)
 	rvm_codegen_addins(co->cg, rvm_asml(RPA_SETCACHE, XX, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_SETRECLEN, R1, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOVS, R0, DA, XX, -1));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 	rvm_codegen_redefinelabel(co->cg, exp.endidx);
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BIT(R0)|BIT(R_TOP)|BIT(R_WHT)|BIT(LR)));
