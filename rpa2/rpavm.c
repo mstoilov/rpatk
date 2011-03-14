@@ -300,6 +300,70 @@ static void rpavm_swi_bxlwht(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static void rpavm_swi_bxlnan(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rword wht = RVM_CPUREG_GETU(cpu, ins->op1);
+
+	RVM_CPUREG_SETU(cpu, R_WHT, wht);
+	RVM_CPUREG_SETIP(cpu, LR, RVM_CPUREG_GETIP(cpu, PC));
+	RVM_CPUREG_SETIP(cpu, PC, cpu->userdata4);
+}
+
+
+static void rpavm_swi_bxlopt(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rword wht = RVM_CPUREG_GETU(cpu, ins->op1);
+
+	RVM_CPUREG_SETU(cpu, R_WHT, wht);
+	RVM_CPUREG_SETIP(cpu, LR, RVM_CPUREG_GETIP(cpu, PC));
+	RVM_CPUREG_SETIP(cpu, PC, cpu->userdata5);
+}
+
+
+static void rpavm_swi_bxlmul(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rword wht = RVM_CPUREG_GETU(cpu, ins->op1);
+
+	RVM_CPUREG_SETU(cpu, R_WHT, wht);
+	RVM_CPUREG_SETIP(cpu, LR, RVM_CPUREG_GETIP(cpu, PC));
+	RVM_CPUREG_SETIP(cpu, PC, cpu->userdata6);
+}
+
+
+static void rpavm_swi_bxlmop(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rword wht = RVM_CPUREG_GETU(cpu, ins->op1);
+
+	RVM_CPUREG_SETU(cpu, R_WHT, wht);
+	RVM_CPUREG_SETIP(cpu, LR, RVM_CPUREG_GETIP(cpu, PC));
+	RVM_CPUREG_SETIP(cpu, PC, cpu->userdata7);
+}
+
+
+static void rpavm_swi_setbxlnan(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	cpu->userdata4 = (void*)RVM_CPUREG_GETIP(cpu, ins->op1);
+}
+
+
+static void rpavm_swi_setbxlopt(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	cpu->userdata5 = (void*)RVM_CPUREG_GETIP(cpu, ins->op1);
+}
+
+
+static void rpavm_swi_setbxlmul(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	cpu->userdata6 = (void*)RVM_CPUREG_GETIP(cpu, ins->op1);
+}
+
+
+static void rpavm_swi_setbxlmop(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	cpu->userdata7 = (void*)RVM_CPUREG_GETIP(cpu, ins->op1);
+}
+
+
 static void rpavm_swi_getreclen(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
@@ -420,6 +484,14 @@ static rvm_switable_t rpavm_swi_table[] = {
 		{"RPA_LOOPDETECT", rpavm_swi_loopdetect},
 		{"RPA_SETCACHE", rpavm_swi_setcache},
 		{"RPA_CHECKCACHE", rpavm_swi_checkcache},
+		{"RPA_BXLNAN", rpavm_swi_bxlnan},
+		{"RPA_BXLOPT", rpavm_swi_bxlopt},
+		{"RPA_BXLMUL", rpavm_swi_bxlmul},
+		{"RPA_BXLMOP", rpavm_swi_bxlmop},
+		{"RPA_SETBXLNAN", rpavm_swi_setbxlnan},
+		{"RPA_SETBXLOPT", rpavm_swi_setbxlopt},
+		{"RPA_SETBXLMUL", rpavm_swi_setbxlmul},
+		{"RPA_SETBXLMOP", rpavm_swi_setbxlmop},
 		{NULL, NULL},
 };
 
