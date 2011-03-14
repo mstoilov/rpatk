@@ -19,7 +19,6 @@ LIBS += -lrvm -lrast -lrlib -lpthread -lm --static
 
 
 TESTS	+= $(OUTDIR)/rpavm-test
-TESTS	+= $(OUTDIR)/regex-test
 TESTS	+= $(OUTDIR)/rast-test
 TESTS	+= $(OUTDIR)/rpagen-test
 TESTS	+= $(OUTDIR)/calc-test

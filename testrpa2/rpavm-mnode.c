@@ -75,43 +75,43 @@ void code_rpa_matchxyz(rpa_compiler_t *co, rpastat_t *stat)
 void code_rpa_matchmnode(rpa_compiler_t *co, rpastat_t *stat)
 {
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R_TOP, DA, XX, 0));
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_matchabc", rvm_asm(RPA_BXLWHT, R_MNODE_NAN, DA, XX, 0));
+	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_matchabc", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
 	VMTEST_REG(co->cg, 0, 3, "RPA_MNODE_NAN 'abc'");
 	VMTEST_STATUS(co->cg, 0, "RPA_MNODE_NAN STATUS");
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R_TOP, DA, XX, 0));
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_matchxyz", rvm_asm(RPA_BXLWHT, R_MNODE_NAN, DA, XX, 0));
+	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_matchxyz", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
 	VMTEST_REG(co->cg, 0, -1, "RPA_MNODE_NAN 'xyz'");
 	VMTEST_STATUS(co->cg, RVM_STATUS_N, "RPA_MNODE_NAN STATUS");
 
 /*
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R_TOP, DA, XX, 0));
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_matchabc", rvm_asm(RPA_BXLWHT, R_MNODE_OPT, DA, XX, 0));
+	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_matchabc", rvm_asm(RPA_BXLOPT, DA, XX, XX, 0));
 	VMTEST_REG(co->cg, 0, 3, "RPA_MNODE_OPT 'abc'");
 	VMTEST_STATUS(co->cg, 0, "RPA_MNODE_OPT STATUS");
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R_TOP, DA, XX, 0));
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_matchxyz", rvm_asm(RPA_BXLWHT, R_MNODE_OPT, DA, XX, 0));
+	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_matchxyz", rvm_asm(RPA_BXLOPT, DA, XX, XX, 0));
 	VMTEST_REG(co->cg, 0, 0, "RPA_MNODE_OPT 'xyz'");
 	VMTEST_STATUS(co->cg, RVM_STATUS_Z, "RPA_MNODE_OPT STATUS");
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R_TOP, DA, XX, 0));
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_matchabc", rvm_asm(RPA_BXLWHT, R_MNODE_MUL, DA, XX, 0));
+	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_matchabc", rvm_asm(RPA_BXLMUL, DA, XX, XX, 0));
 	VMTEST_REG(co->cg, 0, 12, "RPA_MNODE_MUL 'abc'");
 	VMTEST_STATUS(co->cg, 0, "RPA_MNODE_MUL STATUS");
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R_TOP, DA, XX, 0));
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_matchxyz", rvm_asm(RPA_BXLWHT, R_MNODE_MUL, DA, XX, 0));
+	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_matchxyz", rvm_asm(RPA_BXLMUL, DA, XX, XX, 0));
 	VMTEST_REG(co->cg, 0, -1, "RPA_MNODE_MUL 'xyz'");
 	VMTEST_STATUS(co->cg, RVM_STATUS_N, "RPA_MNODE_MUL STATUS");
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R_TOP, DA, XX, 0));
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_matchabc", rvm_asm(RPA_BXLWHT, R_MNODE_MOP, DA, XX, 0));
+	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_matchabc", rvm_asm(RPA_BXLMOP, DA, XX, XX, 0));
 	VMTEST_REG(co->cg, 0, 12, "RPA_MNODE_MOP 'abc'");
 	VMTEST_STATUS(co->cg, 0, "RPA_MNODE_MOP STATUS");
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R_TOP, DA, XX, 0));
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_matchxyz", rvm_asm(RPA_BXLWHT, R_MNODE_MOP, DA, XX, 0));
+	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_matchxyz", rvm_asm(RPA_BXLMOP, DA, XX, XX, 0));
 	VMTEST_REG(co->cg, 0, 0, "RPA_MNODE_MOP 'xyz'");
 	VMTEST_STATUS(co->cg, RVM_STATUS_Z, "RPA_MNODE_MOP STATUS");
 */
@@ -138,10 +138,10 @@ int main(int argc, char *argv[])
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, FP, DA, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, SP, DA, XX, 0));
 
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpacompiler_mnode_nan", rvm_asm(RVM_MOV, R_MNODE_NAN, DA, XX, 0));
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpacompiler_mnode_mul", rvm_asm(RVM_MOV, R_MNODE_MUL, DA, XX, 0));
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpacompiler_mnode_opt", rvm_asm(RVM_MOV, R_MNODE_OPT, DA, XX, 0));
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpacompiler_mnode_mop", rvm_asm(RVM_MOV, R_MNODE_MOP, DA, XX, 0));
+	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpacompiler_mnode_nan", rvm_asm(RPA_SETBXLNAN, DA, XX, XX, 0));
+	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpacompiler_mnode_mul", rvm_asm(RPA_SETBXLMUL, DA, XX, XX, 0));
+	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpacompiler_mnode_opt", rvm_asm(RPA_SETBXLOPT, DA, XX, XX, 0));
+	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpacompiler_mnode_mop", rvm_asm(RPA_SETBXLMOP, DA, XX, XX, 0));
 
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_SHIFT, XX, XX, XX, 0));
 	code_rpa_matchmnode(co, stat);

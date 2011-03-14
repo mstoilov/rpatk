@@ -17,10 +17,7 @@ extern "C" {
 #define RPA_MATCH_MULTIPLE (1 << 0)
 #define RPA_MATCH_OPTIONAL (1 << 1)
 #define RPA_MATCH_MULTIOPT (RPA_MATCH_MULTIPLE | RPA_MATCH_OPTIONAL)
-#define R_MNODE_NAN R3
-#define R_MNODE_MUL R4
-#define R_MNODE_OPT R5
-#define R_MNODE_MOP R6
+
 #define R_ARG R7
 #define R_TOP R8
 #define R_LOO TP
