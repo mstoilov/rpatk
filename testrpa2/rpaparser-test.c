@@ -22,6 +22,8 @@ int main(int argc, char *argv[])
 	rint ret = 0, i;
 	rpa_parser_t *pa = rpa_parser_create();
 
+	if (!pa)
+		goto error;
 	for (i = 1; i < argc; i++) {
 		if (r_strcmp(argv[i], "-e") == 0) {
 			if (++i < argc) {
