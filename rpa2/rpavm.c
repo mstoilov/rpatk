@@ -461,6 +461,19 @@ static void rpavm_swi_checkcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static void rpavm_swi_setrecuid(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
+	rparecord_t *rec;
+	rword userid = RVM_CPUREG_GETU(cpu, ins->op1);
+
+	rec = (rparecord_t *)r_array_lastslot(stat->records);
+	if (rec) {
+		rec->userid = (ruint32)userid;
+	}
+}
+
+
 static rvm_switable_t rpavm_swi_table[] = {
 		{"RPA_MATCHCHR_NAN", rpavm_swi_matchchr_nan},
 		{"RPA_MATCHCHR_OPT", rpavm_swi_matchchr_opt},
@@ -492,6 +505,7 @@ static rvm_switable_t rpavm_swi_table[] = {
 		{"RPA_SETBXLOPT", rpavm_swi_setbxlopt},
 		{"RPA_SETBXLMUL", rpavm_swi_setbxlmul},
 		{"RPA_SETBXLMOP", rpavm_swi_setbxlmop},
+		{"RPA_SETRECUID", rpavm_swi_setrecuid},
 		{NULL, NULL},
 };
 

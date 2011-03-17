@@ -89,7 +89,7 @@ void rpa_record_dump(rint serial, rparecord_t *rec, rpastat_t *stat)
 
 	r_memset(buf, 0, bufsize);
 
-	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "%3d ( %7ld ): ", serial, rec->ruleid);
+	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "%3d ( %7ld, %4d ): ", serial, rec->ruleid, (ruint32)rec->userid);
 	if (rec->type & RPA_RECORD_START)
 		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "START ");
 	if (rec->type & RPA_RECORD_MATCH)
@@ -99,12 +99,12 @@ void rpa_record_dump(rint serial, rparecord_t *rec, rpastat_t *stat)
 	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "%s(%d) ", rec->rule, rec->type);
 
 	r_memset(buf + n, ' ', bufsize - n);
-	n = 55;
+	n = 70;
 	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, " : %5d, %3d", rec->top, rec->size);
 
 
 	r_memset(buf + n, ' ', bufsize - n);
-	n = 75;
+	n = 90;
 	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, " : ");
 	size = rec->inputsiz;
 	if (size >= bufsize - n - 1)

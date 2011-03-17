@@ -16,6 +16,7 @@ typedef struct rpa_ruledef_s {
 	rlong emitidx;
 	rlong endidx;
 	rlong loopidx;
+	ruint32 recuid;
 } rpa_ruledef_t;
 
 
@@ -23,6 +24,7 @@ typedef struct rpa_ruledef_s {
 
 typedef struct rpa_compiler_s {
 	rvm_codegen_t *cg;
+	rharray_t *userids;
 	rarray_t *expressions;
 	rboolean optimized;
 	rvm_scope_t *scope;
@@ -56,6 +58,9 @@ rint rpa_compiler_class_end(rpa_compiler_t *co, ruint qflag);
 
 rint rpa_compiler_notexp_begin(rpa_compiler_t *co);
 rint rpa_compiler_notexp_end(rpa_compiler_t *co, ruint qflag);
+
+void rpa_compiler_add_ruleuid(rpa_compiler_t *co, const rchar *name, ruint namesize, ruint32 uid);
+void rpa_compiler_add_ruleuid_s(rpa_compiler_t *co, const rchar *name, ruint32 uid);
 
 
 #ifdef __cplusplus

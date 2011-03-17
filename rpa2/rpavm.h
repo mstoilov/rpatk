@@ -57,15 +57,20 @@ extern "C" {
 #define RPA_SETBXLOPT		RVM_OPSWI(RVM_SWI_ID(RPAVM_SWI_TABLEID, 27))
 #define RPA_SETBXLMUL		RVM_OPSWI(RVM_SWI_ID(RPAVM_SWI_TABLEID, 28))
 #define RPA_SETBXLMOP		RVM_OPSWI(RVM_SWI_ID(RPAVM_SWI_TABLEID, 29))
+#define RPA_SETRECUID		RVM_OPSWI(RVM_SWI_ID(RPAVM_SWI_TABLEID, 30))
+
+
+#define RPA_RECORD_INVALID_UID ((ruint32)-1)
 
 typedef struct rparecord_s {
 	rlist_t head;
 	rlink_t lnk;
 	const char *rule;
-	rword ruleid;
-	rword top;
-	rword size;
-	rword type;
+	ruint32 userid;
+	ruint32 ruleid;
+	ruint32 top;
+	ruint32 size;
+	ruint32 type;
 	const char *input;
 	rsize_t inputsiz;
 } rparecord_t;

@@ -40,7 +40,8 @@ int main(int argc, char *argv[])
 
 	for (i = 0; i < r_array_length(pa->stat->records); i++) {
 		rparecord_t *rec = (rparecord_t *)r_array_slot(pa->stat->records, i);
-		rpa_record_dump(i, rec, pa->stat);
+		if (rec->userid != RPA_RECORD_INVALID_UID)
+			rpa_record_dump(i, rec, pa->stat);
 	}
 
 
