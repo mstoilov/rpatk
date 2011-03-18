@@ -38,6 +38,7 @@ enum {
 	RPA_PRODUCTION_BRACKETEXP,
 };
 
+
 typedef struct rpa_parser_s {
 	rpa_compiler_t *co;
 	rpastat_t *stat;

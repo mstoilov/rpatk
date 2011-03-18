@@ -8,6 +8,8 @@
 #include <sys/mman.h>
 #include "rmem.h"
 #include "rpaparser.h"
+#include "rpaparseinfo.h"
+
 
 typedef struct rpa_buffer_s {
 	char *s;
@@ -38,10 +40,23 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	for (i = 0; i < r_array_length(pa->stat->records); i++) {
-		rparecord_t *rec = (rparecord_t *)r_array_slot(pa->stat->records, i);
-		if (rec->userid != RPA_RECORD_INVALID_UID)
-			rpa_record_dump(i, rec, pa->stat);
+	for (i = 1; i < argc; i++) {
+		if (r_strcmp(argv[i], "-r") == 0) {
+			for (i = 0; i < r_array_length(pa->stat->records); i++) {
+				rparecord_t *rec = (rparecord_t *)r_array_slot(pa->stat->records, i);
+				if (rec->userid != RPA_RECORD_INVALID_UID)
+					rpa_record_dump(i, rec, pa->stat);
+			}
+		}
+	}
+
+
+	for (i = 1; i < argc; i++) {
+		if (r_strcmp(argv[i], "-i") == 0) {
+			rpa_parseinfo_t *pi = rpa_parseinfo_create(pa->stat);
+			rpa_parseinfo_dump(pi);
+			rpa_parseinfo_destroy(pi);
+		}
 	}
 
 
