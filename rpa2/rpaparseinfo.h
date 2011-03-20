@@ -12,7 +12,10 @@ extern "C" {
 
 
 typedef struct rpa_ruleinfo_s {
-	rlong record;
+	rlong startrec;
+	rlong sizerecs;
+	rlong startref;
+	rlong sizerefs;
 } rpa_ruleinfo_t;
 
 
