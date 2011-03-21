@@ -41,9 +41,6 @@ rint rpa_stat_parse(rpastat_t *stat, const rchar *input, const rchar *start, con
 void rpa_stat_cachedisable(rpastat_t *stat, ruint disable);
 void rpa_stat_cacheinvalidate(rpastat_t *stat);
 
-
-void rpa_record_dump(rint serial, rparecord_t *rec, rpastat_t *stat);
-
 #ifdef __cplusplus
 }
 #endif

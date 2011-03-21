@@ -20,6 +20,7 @@ typedef struct rpa_ruleinfo_s {
 
 
 typedef struct rpa_parseinfo_s {
+	rarray_t *records;
 	rharray_t *rules;
 	rarray_t *refs;
 } rpa_parseinfo_t;
@@ -28,6 +29,7 @@ typedef struct rpa_parseinfo_s {
 rpa_parseinfo_t *rpa_parseinfo_create(rpastat_t *stat);
 void rpa_parseinfo_destroy(rpa_parseinfo_t *pi);
 void rpa_parseinfo_dump(rpa_parseinfo_t *pi);
+void rpa_parseinfo_dump_records(rpa_parseinfo_t *pi);
 
 #ifdef __cplusplus
 }

@@ -6,6 +6,7 @@ CFLAGS += -I$(RVM_SRCDIR)/config -I$(SRCDIR)/rlib -I$(SRCDIR)/rvm
 
 RPA_OBJECTS =	\
 	$(OUTDIR)/rpastat.o \
+	$(OUTDIR)/rparecord.o \
 	$(OUTDIR)/rpavm.o \
 	$(OUTDIR)/rpacompiler.o \
 	$(OUTDIR)/rpaparser.o \

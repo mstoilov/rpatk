@@ -2,16 +2,13 @@
 #define _RPAVM_H_
 
 #include "rvmcpu.h"
+#include "rparecord.h"
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-
-#define RPA_RECORD_NONE (0)
-#define RPA_RECORD_START (1 << 0)
-#define RPA_RECORD_END (1 << 1)
-#define RPA_RECORD_MATCH (1 << 2)
 
 #define RPA_MATCH_NONE 0
 #define RPA_MATCH_MULTIPLE (1 << 0)
@@ -59,21 +56,6 @@ extern "C" {
 #define RPA_SETBXLMOP		RVM_OPSWI(RVM_SWI_ID(RPAVM_SWI_TABLEID, 29))
 #define RPA_SETRECUID		RVM_OPSWI(RVM_SWI_ID(RPAVM_SWI_TABLEID, 30))
 
-
-#define RPA_RECORD_INVALID_UID ((ruint32)-1)
-
-typedef struct rparecord_s {
-	rlist_t head;
-	rlink_t lnk;
-	const char *rule;
-	ruint32 userid;
-	ruint32 ruleid;
-	ruint32 top;
-	ruint32 size;
-	ruint32 type;
-	const char *input;
-	rsize_t inputsiz;
-} rparecord_t;
 
 
 typedef struct rpainput_s {

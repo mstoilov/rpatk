@@ -3,25 +3,37 @@
 #include "rpaparseinfo.h"
 
 
+static int rpa_parseinfo_buildrefinfo_for_rule(rpa_parseinfo_t *pi, rpastat_t *stat, const char *name, ruint namesiz)
+{
+	ruint i;
+	rpa_ruleinfo_t *info, *refinfo;
+	rparecord_t *rec;
+
+	info = (rpa_ruleinfo_t *)r_harray_get(pi->rules, r_harray_lookup(pi->rules, name, namesiz));
+	if (!info)
+		return -1;
+	info->startref = r_array_length(pi->refs);
+	for (i = info->startrec; i < info->sizerecs; i++) {
+		rec = (rparecord_t *)r_array_slot(stat->records, i);
+		if ((rec->userid == RPA_PRODUCTION_AREF) && (rec->type & RPA_RECORD_END)) {
+			refinfo = (rpa_ruleinfo_t *)r_harray_get(pi->rules, r_harray_lookup(pi->rules, rec->input, rec->inputsiz));
+			r_array_add(pi->refs, &refinfo->startrec);
+		}
+	}
+	info->sizerefs = r_array_length(pi->refs) - info->startref;
+	return 0;
+}
+
+
 static void rpa_parseinfo_buildrefinfo(rpa_parseinfo_t *pi, rpastat_t *stat)
 {
-	ruint i, j;
-	rparecord_t *rec;
-	rpa_ruleinfo_t *info;
+	ruint i;
 	rharray_t *rules = pi->rules;
 
+	return;
 	for (i = 0; i < r_array_length(rules->names); i++) {
 		rstr_t *name = r_array_index(rules->names, i, rstr_t*);
-		info = (rpa_ruleinfo_t *)r_harray_get(rules, r_harray_lookup(rules, name->str, name->size));
-		if (info) {
-			info->startref = r_array_length(pi->refs);
-			for (j = info->startrec; j < info->sizerecs; j++) {
-				rec = (rparecord_t *)r_array_slot(stat->records, j);
-				if ((rec->userid == RPA_PRODUCTION_AREF) && (rec->type & RPA_RECORD_END)) {
-
-				}
-			}
-		}
+		rpa_parseinfo_buildrefinfo_for_rule(pi, stat, name->str, name->size);
 	}
 }
 
@@ -60,12 +72,20 @@ static void rpa_parseinfo_buildruleinfo(rpa_parseinfo_t *pi, rpastat_t *stat)
 
 rpa_parseinfo_t *rpa_parseinfo_create(rpastat_t *stat)
 {
+	rint i;
 	rpa_parseinfo_t *pi;
+	rparecord_t *prec;
 
 	if ((pi = (rpa_parseinfo_t *)r_zmalloc(sizeof(*pi))) == NULL)
 		return NULL;
+	pi->records = r_array_create(sizeof(rparecord_t));
 	pi->rules = r_harray_create(sizeof(rpa_ruleinfo_t));
-	pi->refs = r_array_create(sizeof(ruint32));
+	pi->refs = r_array_create(sizeof(rulong));
+	for (i = 0; i < r_array_length(stat->records); i++) {
+		prec = (rparecord_t *)r_array_slot(stat->records, i);
+		if (prec->userid != RPA_RECORD_INVALID_UID)
+			r_array_add(pi->records, prec);
+	}
 	rpa_parseinfo_buildruleinfo(pi, stat);
 	rpa_parseinfo_buildrefinfo(pi, stat);
 	return pi;
@@ -75,6 +95,7 @@ rpa_parseinfo_t *rpa_parseinfo_create(rpastat_t *stat)
 void rpa_parseinfo_destroy(rpa_parseinfo_t *pi)
 {
 	if (pi) {
+		r_object_destroy((robject_t *)pi->records);
 		r_object_destroy((robject_t *)pi->refs);
 		r_object_destroy((robject_t *)pi->rules);
 		r_free(pi);
@@ -93,5 +114,15 @@ void rpa_parseinfo_dump(rpa_parseinfo_t *pi)
 		rstr_t *name = r_array_index(rules->names, i, rstr_t*);
 		info = (rpa_ruleinfo_t *)r_harray_get(rules, r_harray_lookup(rules, name->str, name->size));
 		r_printf("(%7d, %4d), (%7d, %4d) : %s\n", info->startrec, info->sizerecs, info->startref, info->sizerefs, name->str);
+	}
+}
+
+
+void rpa_parseinfo_dump_records(rpa_parseinfo_t *pi)
+{
+	rint i;
+
+	for (i = 0; i < r_array_length(pi->records); i++) {
+		rpa_record_dump(pi->records, i);
 	}
 }
