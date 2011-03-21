@@ -25,46 +25,43 @@ static int rpa_parseinfo_buildrefinfo_for_rule(rpa_parseinfo_t *pi, rpastat_t *s
 }
 
 
-static void rpa_parseinfo_buildrefinfo(rpa_parseinfo_t *pi, rpastat_t *stat)
+static void rpa_parseinfo_buildrefinfo(rpa_parseinfo_t *pi)
 {
 	ruint i;
 	rharray_t *rules = pi->rules;
 
-	return;
-	for (i = 0; i < r_array_length(rules->names); i++) {
-		rstr_t *name = r_array_index(rules->names, i, rstr_t*);
-		rpa_parseinfo_buildrefinfo_for_rule(pi, stat, name->str, name->size);
-	}
 }
 
 
-static void rpa_parseinfo_buildruleinfo(rpa_parseinfo_t *pi, rpastat_t *stat)
+static void rpa_parseinfo_buildruleinfo(rpa_parseinfo_t *pi)
 {
 	rparecord_t *rec, *namerec;
 	rpa_ruleinfo_t info;
 	ruint nrecords;
-	ruint i, j;
+	rint i, nrec;
 	rharray_t *	rules = pi->rules;
 
-	for (i = 0, nrecords = r_array_length(stat->records); i < nrecords; i++) {
-		rec = (rparecord_t *)r_array_slot(stat->records, i);
+	for (i = 0, nrecords = r_array_length(pi->records); i < nrecords; i++) {
+		rec = (rparecord_t *)r_array_slot(pi->records, i);
 		if ((rec->userid == RPA_PRODUCTION_NAMEDRULE) && (rec->type & RPA_RECORD_START)) {
 			r_memset(&info, 0, sizeof(info));
 			info.startrec = i;
-			namerec = NULL;
-			for (j = i + 1; j < nrecords; j++) {
-				rec = (rparecord_t *)r_array_slot(stat->records, j);
-				if ((rec->userid == RPA_PRODUCTION_NAMEDRULE) && (rec->type & RPA_RECORD_END)) {
-					info.sizerecs = 1 + j - i;
-					break;
-				}
-				if ((rec->userid == RPA_PRODUCTION_RULENAME) && (rec->type & RPA_RECORD_END)) {
-					namerec = (rparecord_t *)r_array_slot(stat->records, j);
-					continue;
-				}
-			}
-			if (namerec)
+			info.sizerecs = rpa_recordtree_get(pi->records, i, RPA_RECORD_END);
+			if (info.sizerecs < 0)
+				continue;
+			info.sizerecs = info.sizerecs - i + 1;
+
+			/*
+			 * The name record must be the first child
+			 */
+			nrec = rpa_recordtree_firstchild(pi->records, i, RPA_RECORD_END);
+			if (nrec < 0)
+				continue;
+			namerec = (rparecord_t *)r_array_slot(pi->records, nrec);
+			if ((namerec->userid == RPA_PRODUCTION_RULENAME) && (namerec->type & RPA_RECORD_END)) {
 				r_harray_add(rules, namerec->input, namerec->inputsiz, &info);
+				i += info.sizerecs - 1;
+			}
 		}
 	}
 }
@@ -86,8 +83,8 @@ rpa_parseinfo_t *rpa_parseinfo_create(rpastat_t *stat)
 		if (prec->userid != RPA_RECORD_INVALID_UID)
 			r_array_add(pi->records, prec);
 	}
-	rpa_parseinfo_buildruleinfo(pi, stat);
-	rpa_parseinfo_buildrefinfo(pi, stat);
+	rpa_parseinfo_buildruleinfo(pi);
+	rpa_parseinfo_buildrefinfo(pi);
 	return pi;
 }
 
