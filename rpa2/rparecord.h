@@ -4,6 +4,7 @@
 #include "rtypes.h"
 #include "rarray.h"
 #include "rlist.h"
+#include "rpavm.h"
 
 
 #ifdef __cplusplus
@@ -21,13 +22,15 @@ typedef struct rparecord_s {
 	rlist_t head;
 	rlink_t lnk;
 	const char *rule;
-	ruint32 userid;
 	ruint32 ruleid;
 	ruint32 top;
 	ruint32 size;
 	ruint32 type;
 	const char *input;
 	rsize_t inputsiz;
+	ruint32 userid;
+	ruint32 usertype;
+	rword userdata;
 } rparecord_t;
 
 
@@ -36,8 +39,11 @@ rlong rpa_recordtree_firstchild(rarray_t *records, rlong rec, rulong type);
 rlong rpa_recordtree_lastchild(rarray_t *records, rlong rec, rulong type);
 rlong rpa_recordtree_next(rarray_t *records, rlong rec, rulong type);
 rlong rpa_recordtree_prev(rarray_t *records, rlong rec, rulong type);
+rlong rpa_recordtree_parent(rarray_t *records, rlong rec, rulong type);
 
 void rpa_record_dump(rarray_t *records, rlong rec);
+void rpa_record_setusertype(rarray_t *records, rlong rec, ruint32 usertype, rvalset_t op);
+rlong rpa_record_getusertype(rarray_t *records, rlong rec);
 
 #ifdef __cplusplus
 }

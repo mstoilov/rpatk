@@ -85,5 +85,13 @@ typedef struct {ruint32 p1; ruint32 p2;} rpair_t;
 #endif
 
 
+typedef enum {
+	RVALSET_NONE = 0,
+	RVALSET_OR,
+	RVALSET_XOR,
+	RVALSET_AND,
+} rvalset_t;
+
+
 #endif
 

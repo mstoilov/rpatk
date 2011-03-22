@@ -14,6 +14,10 @@ extern "C" {
 #define RPA_MATCH_MULTIPLE (1 << 0)
 #define RPA_MATCH_OPTIONAL (1 << 1)
 #define RPA_MATCH_MULTIOPT (RPA_MATCH_MULTIPLE | RPA_MATCH_OPTIONAL)
+#define RPA_MATCH_MASK ((1 << 2) - 1)
+#define RPA_LOOP_PATH (1<<3)
+#define RPA_NONLOOP_PATH (1<<4)
+#define RPA_LOOP_INDERECTION 1024
 
 #define R_ARG R7
 #define R_TOP R8
