@@ -178,15 +178,54 @@ rlong rpa_record_getusertype(rarray_t *records, rlong rec)
 }
 
 
+static rint rpa_record_optchar(rparecord_t *prec, rint defc)
+{
+	rint optc = defc;
+
+	if ((prec->usertype & RPA_MATCH_MASK) == RPA_MATCH_OPTIONAL)
+		optc = '?';
+	else if ((prec->usertype & RPA_MATCH_MASK) == RPA_MATCH_MULTIPLE)
+		optc = '+';
+	else if ((prec->usertype & RPA_MATCH_MASK) == RPA_MATCH_MULTIOPT)
+		optc = '*';
+	else
+		optc = defc;
+	return optc;
+}
+
+
+static rint rpa_record_loopchar(rparecord_t *prec, rint defc)
+{
+	rint loopc = defc;
+
+	if ((prec->usertype & RPA_LOOP_PATH) && (prec->usertype & RPA_NONLOOP_PATH)) {
+		/*
+		 * This is an error, should never happen
+		 */
+		loopc = 'R';
+	} else if ((prec->usertype & RPA_LOOP_PATH)) {
+		loopc = 'L';
+	} else if ((prec->usertype & RPA_NONLOOP_PATH)) {
+		loopc = 'N';
+	} else {
+		loopc = defc;
+	}
+	return loopc;
+}
+
+
 void rpa_record_dump(rarray_t *records, rlong rec)
 {
-	rparecord_t *prec = (rparecord_t *)r_array_slot(records, rec);
+	rparecord_t *prec;
 	rlong start, end, first, last, next, prev, parent;
 	rchar buf[240];
 	rint bufsize = sizeof(buf) - 1;
 	rint n = 0, size;
 	rchar optc = ' ';
 
+	if (rec < 0 || rec >= r_array_length(records))
+		return;
+	prec = (rparecord_t *)r_array_slot(records, rec);
 	if (prec->type & RPA_RECORD_END) {
 		if ((prec->usertype & RPA_MATCH_MASK) == RPA_MATCH_OPTIONAL)
 			optc = '?';
@@ -234,4 +273,32 @@ void rpa_record_dump(rarray_t *records, rlong rec)
 	}
 
 	r_printf("%s\n", buf);
+}
+
+
+void rpa_record_dumpindented(rarray_t *records, rlong rec, rint level)
+{
+	rchar buffer[160];
+	rparecord_t *prec;
+	rint i, size;
+
+	if (rec < 0 || rec >= r_array_length(records))
+		return;
+	r_memset(buffer, 0, sizeof(buffer));
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	for (i = 0; i < level; i++)
+		r_printf("   ");
+	r_printf("(");
+	r_printf("%s, %c, %c", prec->rule, rpa_record_optchar(prec, 'x'), rpa_record_loopchar(prec, 'x'));
+	r_printf(")");
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	size = R_MIN(prec->inputsiz, sizeof(buffer) - 1);
+	r_strncpy(buffer, prec->input, size);
+
+	if (size == (sizeof(buffer) - 1))
+		r_printf(" %s ..\n", buffer);
+	else
+		r_printf(" %s\n", buffer);
+	return;
 }

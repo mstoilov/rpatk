@@ -41,6 +41,7 @@ rlong rpa_recordtree_next(rarray_t *records, rlong rec, rulong type);
 rlong rpa_recordtree_prev(rarray_t *records, rlong rec, rulong type);
 rlong rpa_recordtree_parent(rarray_t *records, rlong rec, rulong type);
 
+void rpa_record_dumpindented(rarray_t *records, rlong rec, rint level);
 void rpa_record_dump(rarray_t *records, rlong rec);
 void rpa_record_setusertype(rarray_t *records, rlong rec, ruint32 usertype, rvalset_t op);
 rlong rpa_record_getusertype(rarray_t *records, rlong rec);

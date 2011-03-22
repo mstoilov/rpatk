@@ -31,6 +31,7 @@ rpa_parseinfo_t *rpa_parseinfo_create(rpastat_t *stat);
 void rpa_parseinfo_destroy(rpa_parseinfo_t *pi);
 void rpa_parseinfo_dump(rpa_parseinfo_t *pi);
 void rpa_parseinfo_dump_records(rpa_parseinfo_t *pi);
+rint rpa_parseinfo_dump_ruletree(rpa_parseinfo_t *pi, const char *rulename);
 
 #ifdef __cplusplus
 }

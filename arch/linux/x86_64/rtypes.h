@@ -67,6 +67,8 @@ typedef struct {ruint32 p1; ruint32 p2;} rpair_t;
 #define R_DEBUG_BRAKE __asm__ ("int $3")
 #define ASSERT(__a__) do {if (!(__a__)) R_DEBUG_BRAKE; } while (0)
 #define R_SIZE_ALIGN(s, n) ((((s) + (n) - 1) / (n)) * (n))
+#define R_MIN(a, b) ((a) < (b) ? (a): (b))
+#define R_MAX(a, b) ((a) > (b) ? (a): (b))
 
 #ifndef NULL
 #ifdef __cplusplus

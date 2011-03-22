@@ -58,6 +58,17 @@ int main(int argc, char *argv[])
 	}
 
 
+	for (i = 1; i < argc; i++) {
+		if (r_strcmp(argv[i], "-d") == 0) {
+			if (++i < argc) {
+				rpa_parseinfo_t *pi = rpa_parseinfo_create(pa->stat);
+				rpa_parseinfo_dump_ruletree(pi, argv[i]);
+				rpa_parseinfo_destroy(pi);
+			}
+		}
+	}
+
+
 	rpa_parser_destroy(pa);
 	r_printf("Parsed Size = %d\n", ret);
 	r_printf("Cache hit = %d\n", pa->stat->cache.hit);

@@ -107,7 +107,7 @@ static void rpa_parseinfo_buildruleinfo(rpa_parseinfo_t *pi)
 				continue;
 			namerec = (rparecord_t *)r_array_slot(pi->records, nrec);
 			if ((namerec->userid == RPA_PRODUCTION_RULENAME) && (namerec->type & RPA_RECORD_END)) {
-				r_harray_add(rules, namerec->input, namerec->inputsiz, &info);
+				r_harray_replace(rules, namerec->input, namerec->inputsiz, &info);
 				i += info.sizerecs - 1;
 			}
 		}
@@ -207,4 +207,32 @@ void rpa_parseinfo_dump_records(rpa_parseinfo_t *pi)
 	for (i = 0; i < r_array_length(pi->records); i++) {
 		rpa_record_dump(pi->records, i);
 	}
+}
+
+
+static void rpa_parseinfo_dumptree(rpa_parseinfo_t *pi, rlong rec, rint level)
+{
+	rparecord_t *prec = (rparecord_t *)r_array_slot(pi->records, rec);
+	if (prec && prec->userid == RPA_PRODUCTION_RULENAME)
+		return;
+	rpa_record_dumpindented(pi->records, rpa_recordtree_get(pi->records, rec, RPA_RECORD_END), level);
+	prec = (rparecord_t *)r_array_slot(pi->records, rec);
+	if (prec && (prec->userid == RPA_PRODUCTION_AREF || prec->userid == RPA_PRODUCTION_CREF))
+		return;
+	if (prec && (prec->userid == RPA_PRODUCTION_CHARRNG || prec->userid == RPA_PRODUCTION_NUMRNG))
+		return;
+	for (rec = rpa_recordtree_firstchild(pi->records, rec, RPA_RECORD_START); rec >= 0; rec = rpa_recordtree_next(pi->records, rec, RPA_RECORD_START)) {
+		rpa_parseinfo_dumptree(pi, rec, level + 1);
+	}
+}
+
+
+rint rpa_parseinfo_dump_ruletree(rpa_parseinfo_t *pi, const char *rulename)
+{
+	rpa_ruleinfo_t *info = (rpa_ruleinfo_t *)r_harray_get(pi->rules, r_harray_lookup_s(pi->rules, rulename));
+
+	if (!info)
+		return -1;
+	rpa_parseinfo_dumptree(pi, info->startrec, 0);
+	return 0;
 }
