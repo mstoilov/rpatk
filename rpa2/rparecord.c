@@ -253,7 +253,7 @@ void rpa_record_dump(rarray_t *records, rlong rec)
 		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "MATCH ");
 	if (prec->type & RPA_RECORD_END)
 		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "END ");
-	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "%s(%d) ", prec->rule, prec->type);
+	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "%s ", prec->rule);
 
 	r_memset(buf + n, ' ', bufsize - n);
 	n = 120;

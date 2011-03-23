@@ -35,16 +35,26 @@ void rpa_stat_cachedisable(rpastat_t *stat, ruint disable)
 }
 
 
+rint rpa_stat_resetrecords(rpastat_t *stat)
+{
+	if (!stat)
+		return -1;
+	r_array_setlength(stat->records, 0);
+	return 0;
+}
+
+
 rint rpa_stat_init(rpastat_t *stat, const rchar *input, const rchar *start, const rchar *end)
 {
 	rulong size;
 
+	if (!stat) {
+		return -1;
+	}
 	if (start > end) {
-
 		return -1;
 	}
 	if (input < start || input > end) {
-
 		return -1;
 	}
 	size = end - start;
@@ -63,7 +73,6 @@ rint rpa_stat_init(rpastat_t *stat, const rchar *input, const rchar *start, cons
 	}
 	stat->ip.input = input;
 	stat->ip.serial = 0;
-	r_array_setlength(stat->records, 0);
 	return 0;
 }
 
@@ -74,8 +83,28 @@ void rpa_stat_cacheinvalidate(rpastat_t *stat)
 }
 
 
-rint rpa_stat_parse(rpastat_t *stat, const rchar *input, const rchar *start, const rchar *end)
+rint rpa_stat_scan(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end, const rchar **where)
 {
 
+	return 0;
+}
+
+
+rint rpa_stat_match(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end)
+{
+
+	return 0;
+}
+
+
+rint rpa_stat_parse(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end)
+{
+
+	return 0;
+}
+
+
+rint rpa_stat_abort(rpastat_t *stat)
+{
 	return 0;
 }

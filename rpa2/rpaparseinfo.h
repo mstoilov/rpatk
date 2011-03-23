@@ -22,7 +22,6 @@ typedef struct rpa_ruleinfo_s {
 typedef struct rpa_parseinfo_s {
 	rarray_t *records;
 	rharray_t *rules;
-	rarray_t *refs;
 	rarray_t *recstack;
 } rpa_parseinfo_t;
 

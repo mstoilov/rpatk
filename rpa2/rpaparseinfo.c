@@ -164,7 +164,6 @@ rpa_parseinfo_t *rpa_parseinfo_create(rpastat_t *stat)
 		return NULL;
 	pi->records = r_array_create(sizeof(rparecord_t));
 	pi->rules = r_harray_create(sizeof(rpa_ruleinfo_t));
-	pi->refs = r_array_create(sizeof(rulong));
 	pi->recstack = r_array_create(sizeof(rulong));
 	rpa_parseinfo_copyrecords(pi, stat);
 	rpa_parseinfo_buildruleinfo(pi);
@@ -179,7 +178,6 @@ void rpa_parseinfo_destroy(rpa_parseinfo_t *pi)
 		r_object_destroy((robject_t *)pi->records);
 		r_object_destroy((robject_t *)pi->rules);
 		r_object_destroy((robject_t *)pi->recstack);
-		r_object_destroy((robject_t *)pi->refs);
 		r_free(pi);
 	}
 }

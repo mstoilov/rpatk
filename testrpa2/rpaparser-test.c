@@ -9,6 +9,7 @@
 #include "rmem.h"
 #include "rpaparser.h"
 #include "rpaparseinfo.h"
+#include "rpadbex.h"
 
 
 typedef struct rpa_buffer_s {
@@ -22,9 +23,11 @@ typedef struct rpa_buffer_s {
 int main(int argc, char *argv[])
 {
 	rint ret = 0, i;
-	rpa_parser_t *pa = rpa_parser_create();
+	rpadbex_t *dbex = rpa_dbex_create();
 
-	if (!pa)
+//	rpa_parser_t *pa = rpa_parser_create();
+
+	if (!dbex)
 		goto error;
 	for (i = 1; i < argc; i++) {
 		if (r_strcmp(argv[i], "-e") == 0) {
@@ -32,7 +35,9 @@ int main(int argc, char *argv[])
 				rpa_buffer_t pattern;
 				pattern.s = (char*)argv[i];
 				pattern.size = r_strlen(argv[i]) + 1;
-				ret = rpa_parser_load_s(pa, pattern.s);
+				rpa_dbex_open(dbex);
+				ret = rpa_dbex_load_s(dbex, pattern.s);
+				rpa_dbex_close(dbex);
 				if (ret < 0)
 					goto error;
 			}
@@ -40,38 +45,43 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	for (i = 1; i < argc; i++) {
-		if (r_strcmp(argv[i], "-r") == 0) {
-			rpa_parseinfo_t *pi = rpa_parseinfo_create(pa->stat);
-			rpa_parseinfo_dump_records(pi);
-			rpa_parseinfo_destroy(pi);
-		}
-	}
-
-
+//	for (i = 1; i < argc; i++) {
+//		if (r_strcmp(argv[i], "-r") == 0) {
+//			rpa_parseinfo_t *pi = rpa_parseinfo_create(pa->stat);
+//			rpa_parseinfo_dump_records(pi);
+//			rpa_parseinfo_destroy(pi);
+//		}
+//	}
+//
+//
 	for (i = 1; i < argc; i++) {
 		if (r_strcmp(argv[i], "-i") == 0) {
-			rpa_parseinfo_t *pi = rpa_parseinfo_create(pa->stat);
-			rpa_parseinfo_dump(pi);
-			rpa_parseinfo_destroy(pi);
+			rpa_dbex_dumprules(dbex);
 		}
 	}
+//
+//
+//	for (i = 1; i < argc; i++) {
+//		if (r_strcmp(argv[i], "-d") == 0) {
+//			if (++i < argc) {
+//				rpa_parseinfo_t *pi = rpa_parseinfo_create(pa->stat);
+//				rpa_parseinfo_dump_ruletree(pi, argv[i]);
+//				rpa_parseinfo_destroy(pi);
+//			}
+//		}
+//	}
 
 
 	for (i = 1; i < argc; i++) {
 		if (r_strcmp(argv[i], "-d") == 0) {
 			if (++i < argc) {
-				rpa_parseinfo_t *pi = rpa_parseinfo_create(pa->stat);
-				rpa_parseinfo_dump_ruletree(pi, argv[i]);
-				rpa_parseinfo_destroy(pi);
+				rpa_dbex_dumptree(dbex, argv[i]);
 			}
 		}
 	}
 
-
-	rpa_parser_destroy(pa);
+	rpa_dbex_destroy(dbex);
 	r_printf("Parsed Size = %d\n", ret);
-	r_printf("Cache hit = %d\n", pa->stat->cache.hit);
 	r_printf("Max alloc mem: %ld\n", r_debug_get_maxmem());
 	r_printf("Leaked mem: %ld\n", r_debug_get_allocmem());
 	return 0;
@@ -79,6 +89,6 @@ int main(int argc, char *argv[])
 error:
 	r_printf("ERROR: ret = %d\n", ret);
 
-	rpa_parser_destroy(pa);
+	rpa_dbex_destroy(dbex);
 	return 1;
 }

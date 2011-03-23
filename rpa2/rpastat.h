@@ -5,6 +5,15 @@
 #include "rarray.h"
 #include "rvmreg.h"
 #include "rpavm.h"
+#include "rpadbex.h"
+
+#define RPA_ENCODING_ICASE 1
+#define RPA_ENCODING_BYTE 0
+#define RPA_ENCODING_ICASE_BYTE (RPA_ENCODING_BYTE | RPA_ENCODING_ICASE)
+#define RPA_ENCODING_UTF8 2
+#define RPA_ENCODING_ICASE_UTF8 (RPA_ENCODING_UTF8 | RPA_ENCODING_ICASE)
+#define RPA_ENCODING_UTF16LE 4
+#define RPA_ENCODING_ICASE_UTF16LE (RPA_ENCODING_UTF16LE | RPA_ENCODING_ICASE)
 
 
 #ifdef __cplusplus
@@ -16,9 +25,10 @@ typedef struct rpacache_s {
 	rword disabled;
 	rword reclen;
 	rword hit;
-}rpacache_t;
+} rpacache_t;
 
-typedef struct rpastat_s {
+typedef struct rpastat_s rpastat_t;
+struct rpastat_s {
 	const rchar *input;
 	const rchar *start;
 	const rchar *end;
@@ -31,15 +41,21 @@ typedef struct rpastat_s {
 	rpacache_t cache;
 	rpainmap_t ip;
 	rvmcpu_t *cpu;
-} rpastat_t;
+};
 
 
 rpastat_t *rpa_stat_create(rulong stacksize);
 void rpa_stat_destroy(rpastat_t *stat);
+rint rpa_stat_resetrecords(rpastat_t *stat);
 rint rpa_stat_init(rpastat_t *stat, const rchar *input, const rchar *start, const rchar *end);
-rint rpa_stat_parse(rpastat_t *stat, const rchar *input, const rchar *start, const rchar *end);
 void rpa_stat_cachedisable(rpastat_t *stat, ruint disable);
 void rpa_stat_cacheinvalidate(rpastat_t *stat);
+
+rint rpa_stat_scan(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end, const rchar **where);
+rint rpa_stat_match(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end);
+rint rpa_stat_parse(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end);
+rint rpa_stat_abort(rpastat_t *stat);
+
 
 #ifdef __cplusplus
 }

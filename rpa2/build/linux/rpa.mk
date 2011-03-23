@@ -5,6 +5,7 @@ RPA_SO = $(OUTDIR)/librpa2.so.1.0
 CFLAGS += -I$(RVM_SRCDIR)/config -I$(SRCDIR)/rlib -I$(SRCDIR)/rvm
 
 RPA_OBJECTS =	\
+	$(OUTDIR)/rpadbex.o \
 	$(OUTDIR)/rpastat.o \
 	$(OUTDIR)/rparecord.o \
 	$(OUTDIR)/rpavm.o \
