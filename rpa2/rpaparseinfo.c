@@ -62,6 +62,12 @@ static void rpa_parseinfo_buildloopinfo(rpa_parseinfo_t *pi)
 		if (rpa_parseinfo_checkforloop(pi, info->startrec, info->startrec, info->startrec + info->sizerecs - 1, 0)) {
 			rpa_record_setusertype(pi->records, info->startrec, RPA_LOOP_PATH, RVALSET_OR);
 		}
+
+		/*
+		 * Redefined rules will not be marked as RPA_RULE_DEFINED, only the last definition will.
+		 * That is how we know, which rule will be used.
+		 */
+		rpa_record_setusertype(pi->records, info->startrec, RPA_RULE_USED, RVALSET_OR);
 	}
 
 	/*

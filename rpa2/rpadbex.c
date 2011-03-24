@@ -124,7 +124,7 @@ rlong rpa_dbex_rule_copy(rpadbex_t *dbex, rparule_t rid, rchar *buf, rsize_t buf
 	if (bufsize <= prec->inputsiz)
 		return -1;
 	r_memset(buf, 0, bufsize);
-	r_strncpy(buf, prec->input, bufsize - 1);
+	r_strncpy(buf, prec->input, prec->inputsiz);
 	return prec->inputsiz;
 }
 
@@ -140,23 +140,26 @@ rlong rpa_dbex_rule_size(rpadbex_t *dbex, rparule_t rid)
 	return prec->inputsiz;
 }
 
+
 rparule_t rpa_dbex_rule_first(rpadbex_t *dbex)
 {
 	rparecord_t *prec;
-	rparule_t rid;
+	rparule_t rid = 0;
 
 	if (!dbex || !dbex->pi)
 		return -1;
-	rid = rpa_recordtree_get(dbex->pi->records, 0, RPA_RECORD_END);
+again:
+	rid = rpa_recordtree_get(dbex->pi->records, rid, RPA_RECORD_END);
 	if (rid < 0)
 		return -1;
 	if ((prec = rpa_dbex_record(dbex, rid)) == NULL)
 		return -1;
-	if (prec->userid != RPA_PRODUCTION_NAMEDRULE)
-		return -1;
+	if (prec->userid != RPA_PRODUCTION_NAMEDRULE || !(rpa_record_getusertype(dbex->pi->records, rid) & RPA_RULE_USED)) {
+		rid = rpa_recordtree_next(dbex->pi->records, rid, RPA_RECORD_END);
+		goto again;
+	}
 	return rid;
 }
-
 
 
 rparule_t rpa_dbex_rule_next(rpadbex_t *dbex, rparule_t rid)
@@ -165,13 +168,14 @@ rparule_t rpa_dbex_rule_next(rpadbex_t *dbex, rparule_t rid)
 
 	if (!dbex || !dbex->pi)
 		return -1;
+again:
 	rid = rpa_recordtree_next(dbex->pi->records, rid, RPA_RECORD_END);
 	if (rid < 0)
 		return -1;
 	if ((prec = rpa_dbex_record(dbex, rid)) == NULL)
 		return -1;
-	if (prec->userid != RPA_PRODUCTION_NAMEDRULE)
-		return -1;
+	if (prec->userid != RPA_PRODUCTION_NAMEDRULE || !(rpa_record_getusertype(dbex->pi->records, rid) & RPA_RULE_USED))
+		goto again;
 	return rid;
 }
 
@@ -182,13 +186,14 @@ rparule_t rpa_dbex_rule_prev(rpadbex_t *dbex, rparule_t rid)
 
 	if (!dbex || !dbex->pi)
 		return -1;
+again:
 	rid = rpa_recordtree_prev(dbex->pi->records, rid, RPA_RECORD_END);
 	if (rid < 0)
 		return -1;
 	if ((prec = rpa_dbex_record(dbex, rid)) == NULL)
 		return -1;
-	if (prec->userid != RPA_PRODUCTION_NAMEDRULE)
-		return -1;
+	if (prec->userid != RPA_PRODUCTION_NAMEDRULE || !(rpa_record_getusertype(dbex->pi->records, rid) & RPA_RULE_USED))
+		goto again;
 	return rid;
 
 }

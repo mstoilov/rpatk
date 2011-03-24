@@ -9,6 +9,8 @@ rlong rpa_recordtree_get(rarray_t *records, rlong rec, rulong type)
 	ruint startrec = (type & RPA_RECORD_START) ? 1 : 0;
 	rparecord_t *prec;
 
+	if (rec < 0 || rec >= r_array_length(records))
+		return -1;
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	if ((prec->type & RPA_RECORD_START)) {
 		if (startrec)
@@ -46,6 +48,8 @@ rlong rpa_recordtree_firstchild(rarray_t *records, rlong rec, rulong type)
 {
 	rparecord_t *prec;
 
+	if (rec < 0 || rec >= r_array_length(records))
+		return -1;
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	if (prec->type & RPA_RECORD_END) {
 		if ((rec = rpa_recordtree_get(records, rec, RPA_RECORD_START)) < 0)
@@ -64,6 +68,8 @@ rlong rpa_recordtree_lastchild(rarray_t *records, rlong rec, rulong type)
 {
 	rparecord_t *prec;
 
+	if (rec < 0 || rec >= r_array_length(records))
+		return -1;
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	if (prec->type & RPA_RECORD_START) {
 		if ((rec = rpa_recordtree_get(records, rec, RPA_RECORD_END)) < 0)
@@ -82,6 +88,8 @@ rlong rpa_recordtree_next(rarray_t *records, rlong rec, rulong type)
 {
 	rparecord_t *prec;
 
+	if (rec < 0 || rec >= r_array_length(records))
+		return -1;
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	if (prec->type & RPA_RECORD_START) {
 		if ((rec = rpa_recordtree_get(records, rec, RPA_RECORD_END)) < 0)
@@ -100,6 +108,8 @@ rlong rpa_recordtree_prev(rarray_t *records, rlong rec, rulong type)
 {
 	rparecord_t *prec;
 
+	if (rec < 0 || rec >= r_array_length(records))
+		return -1;
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	if (prec->type & RPA_RECORD_END) {
 		if ((rec = rpa_recordtree_get(records, rec, RPA_RECORD_START)) < 0)
@@ -118,9 +128,8 @@ rlong rpa_recordtree_parent(rarray_t *records, rlong rec, rulong type)
 {
 	rlong last = -1, parent = -1;
 
-	if (rec < 0)
+	if (rec < 0 || rec >= r_array_length(records))
 		return -1;
-
 	for ( ;rec >= 0; rec = rpa_recordtree_next(records, last, RPA_RECORD_END)) {
 		last = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	}
@@ -288,6 +297,7 @@ void rpa_record_dumpindented(rarray_t *records, rlong rec, rint level)
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	for (i = 0; i < level; i++)
 		r_printf("   ");
+	r_printf("   ");
 	r_printf("(");
 	r_printf("%s, %c, %c", prec->rule, rpa_record_optchar(prec, 'x'), rpa_record_loopchar(prec, 'x'));
 	r_printf(")");
