@@ -260,17 +260,18 @@ void rpa_record_dump(rarray_t *records, rlong rec)
 		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "START ");
 	if (prec->type & RPA_RECORD_MATCH)
 		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "MATCH ");
-	if (prec->type & RPA_RECORD_END)
-		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "END ");
+	else if (prec->type & RPA_RECORD_END)
+		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "END   ");
 	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "%s ", prec->rule);
 
 	r_memset(buf + n, ' ', bufsize - n);
-	n = 120;
-	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, " : %5d, %3d", prec->top, prec->size);
+	n = 115;
+	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, " %5d, %3d", prec->top, prec->size);
 
 	r_memset(buf + n, ' ', bufsize - n);
-	n = 140;
-	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, " : %c %c %c", optc, (prec->usertype & RPA_LOOP_PATH) ? 'L' : ' ', (prec->usertype & RPA_NONLOOP_PATH) ? 'N' : ' ');
+	n = 130;
+	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, " %c %c %c", optc,
+			(prec->usertype & RPA_LOOP_PATH) ? 'L' : ' ', (prec->usertype & RPA_NONLOOP_PATH) ? 'N' : ' ');
 	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, " : ");
 	size = prec->inputsiz;
 	if (size >= bufsize - n - 1)

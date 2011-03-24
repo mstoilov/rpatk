@@ -46,8 +46,10 @@ void r_object_cleanup(robject_t *obj)
 
 void r_object_destroy(robject_t *obj)
 {
-	r_object_v_cleanup(obj);
-	r_free(obj);
+	if (obj) {
+		r_object_v_cleanup(obj);
+		r_free(obj);
+	}
 }
 
 

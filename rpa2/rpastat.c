@@ -35,12 +35,9 @@ void rpa_stat_cachedisable(rpastat_t *stat, ruint disable)
 }
 
 
-rint rpa_stat_resetrecords(rpastat_t *stat)
+static void rpa_stat_resetrecords(rpastat_t *stat)
 {
-	if (!stat)
-		return -1;
 	r_array_setlength(stat->records, 0);
-	return 0;
 }
 
 
@@ -73,6 +70,7 @@ rint rpa_stat_init(rpastat_t *stat, const rchar *input, const rchar *start, cons
 	}
 	stat->ip.input = input;
 	stat->ip.serial = 0;
+	rpa_stat_resetrecords(stat);
 	return 0;
 }
 

@@ -17,7 +17,6 @@ extern "C" {
 #define RPA_MATCH_MASK ((1 << 2) - 1)
 #define RPA_LOOP_PATH (1<<3)
 #define RPA_NONLOOP_PATH (1<<4)
-#define RPA_RULE_USED (1<<5)
 #define RPA_LOOP_INDERECTION 1024
 
 #define R_ARG R7

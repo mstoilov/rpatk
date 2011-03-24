@@ -41,36 +41,26 @@ int main(int argc, char *argv[])
 				if (ret < 0)
 					goto error;
 			}
-
 		}
 	}
 
-//	for (i = 1; i < argc; i++) {
-//		if (r_strcmp(argv[i], "-r") == 0) {
-//			rpa_parseinfo_t *pi = rpa_parseinfo_create(pa->stat);
-//			rpa_parseinfo_dump_records(pi);
-//			rpa_parseinfo_destroy(pi);
-//		}
-//	}
-//
-//
+	for (i = 1; i < argc; i++) {
+		if (r_strcmp(argv[i], "-r") == 0) {
+			rpa_dbex_dumprecords(dbex);
+		}
+	}
+
 	for (i = 1; i < argc; i++) {
 		if (r_strcmp(argv[i], "-i") == 0) {
 			rpa_dbex_dumprules(dbex);
 		}
 	}
-//
-//
-//	for (i = 1; i < argc; i++) {
-//		if (r_strcmp(argv[i], "-d") == 0) {
-//			if (++i < argc) {
-//				rpa_parseinfo_t *pi = rpa_parseinfo_create(pa->stat);
-//				rpa_parseinfo_dump_ruletree(pi, argv[i]);
-//				rpa_parseinfo_destroy(pi);
-//			}
-//		}
-//	}
 
+	for (i = 1; i < argc; i++) {
+		if (r_strcmp(argv[i], "-I") == 0) {
+			rpa_dbex_dumpruleinfo(dbex);
+		}
+	}
 
 	for (i = 1; i < argc; i++) {
 		if (r_strcmp(argv[i], "-d") == 0) {

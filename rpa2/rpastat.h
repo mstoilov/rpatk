@@ -46,7 +46,6 @@ struct rpastat_s {
 
 rpastat_t *rpa_stat_create(rulong stacksize);
 void rpa_stat_destroy(rpastat_t *stat);
-rint rpa_stat_resetrecords(rpastat_t *stat);
 rint rpa_stat_init(rpastat_t *stat, const rchar *input, const rchar *start, const rchar *end);
 void rpa_stat_cachedisable(rpastat_t *stat, ruint disable);
 void rpa_stat_cacheinvalidate(rpastat_t *stat);

@@ -50,9 +50,10 @@ rparule_t rpa_dbex_rule_last(rpadbex_t *dbex);
 rlong rpa_dbex_rule_copy(rpadbex_t *dbex, rparule_t rid, rchar *buf, rsize_t bufsize);
 rlong rpa_dbex_rule_size(rpadbex_t *dbex, rparule_t rid);
 
+rint rpa_dbex_dumprecords(rpadbex_t *dbex);
 rint rpa_dbex_dumptree(rpadbex_t *dbex, const rchar *name);
-rint rpa_dbex_dumpall(rpadbex_t *dbex);
 rint rpa_dbex_dumprules(rpadbex_t *dbex);
+rint rpa_dbex_dumpruleinfo(rpadbex_t *dbex);
 
 #ifdef __cplusplus
 }
