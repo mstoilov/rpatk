@@ -15,6 +15,7 @@
 #define RPA_ENCODING_UTF16LE 4
 #define RPA_ENCODING_ICASE_UTF16LE (RPA_ENCODING_UTF16LE | RPA_ENCODING_ICASE)
 
+#define RPA_DEFAULT_STACKSIZE (256 * 1024)
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,10 +30,12 @@ typedef struct rpacache_s {
 
 typedef struct rpastat_s rpastat_t;
 struct rpastat_s {
+	rpadbex_t *dbex;
 	const rchar *input;
 	const rchar *start;
 	const rchar *end;
 	ruint error;
+	ruint encoding;
 	rarray_t *records;
 	rpainput_t *instackbuffer;
 	rpainput_t *instack;			/* instack = &instackbuffer[1]; This allows R_TOP = -1, without any additional checks */
@@ -44,11 +47,12 @@ struct rpastat_s {
 };
 
 
-rpastat_t *rpa_stat_create(rulong stacksize);
+rpastat_t *rpa_stat_create(rpadbex_t *dbex, rulong stacksize);
 void rpa_stat_destroy(rpastat_t *stat);
 rint rpa_stat_init(rpastat_t *stat, const rchar *input, const rchar *start, const rchar *end);
 void rpa_stat_cachedisable(rpastat_t *stat, ruint disable);
 void rpa_stat_cacheinvalidate(rpastat_t *stat);
+rint rpa_stat_encodingset(rpastat_t *stat, ruint encoding);
 
 rint rpa_stat_scan(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end, const rchar **where);
 rint rpa_stat_match(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end);

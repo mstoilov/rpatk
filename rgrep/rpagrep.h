@@ -25,6 +25,8 @@
 #include <stdio.h>
 #include "rpaerror.h"
 #include "rpadbex.h"
+#include "rpastat.h"
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,8 +39,8 @@ typedef struct rpa_buffer_s rpa_buffer_t;
 typedef void (*RPA_BUFFER_DESTROY)(rpa_buffer_t *str);
 
 typedef struct rpa_grep_s {
-	rpa_dbex_handle hDbex;
-	rpa_pattern_handle hPattern;
+	rpadbex_t *hDbex;
+	rparule_t hPattern;
 	unsigned long scanmilisec;
 	unsigned long usedstack;
 	unsigned int icase;
@@ -63,7 +65,7 @@ int rpa_grep_parse(rpa_grep_t *pGrep, const char* buffer, unsigned long size);
 int rpa_grep_scan(rpa_grep_t *pGrep, const char* buffer, unsigned long size);
 int rpa_grep_scan_lines(rpa_grep_t *pGrep, const char* buffer, unsigned long size);
 void rpa_grep_scan_buffer(rpa_grep_t *pGrep, rpa_buffer_t *buf);
-int rpa_grep_list_patterns(rpa_grep_t *pGrep);
+void rpa_grep_list_patterns(rpa_grep_t *pGrep);
 void rpa_grep_print_filename(rpa_grep_t *pGrep);
 void rpa_grep_output_char(int c);
 void rpa_grep_output(rpa_grep_t *pGrep, const char *s, unsigned long size, unsigned int encoding);
@@ -72,7 +74,8 @@ void rpa_grep_output_utf16_string(rpa_grep_t *pGrep, const unsigned short *s);
 void rpa_grep_setup_callback(rpa_grep_t *pGrep, rpa_buffer_t *pattern);
 void rpa_grep_setup_matched_callback(rpa_grep_t *pGrep, rpa_buffer_t *pattern);
 void rpa_grep_dump_pattern_tree(rpa_grep_t *pGrep, rpa_buffer_t *pattern);
-
+void rpa_grep_dump_pattern_records(rpa_grep_t *pGrep);
+void rpa_grep_dump_pattern_info(rpa_grep_t *pGrep);
 
 void rpa_buffer_destroy(rpa_buffer_t *str);
 rpa_buffer_t * rpa_buffer_alloc(unsigned int size);

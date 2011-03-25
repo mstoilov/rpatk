@@ -29,15 +29,16 @@
 #include <stdlib.h>
 #include <wchar.h>
 #include <time.h>
+#include "rmem.h"
+#include "rarray.h"
 #include "rpadbex.h"
 #include "rpagrep.h"
 #include "rpagrepdep.h"
-#include "rpadebug.h"
 
 
 int usage(int argc, const char *argv[])
 {
-	    fprintf(stderr, "RPA Grep with RPA Engine: %s (%s)\n", rpa_dbex_version(), rpa_dbex_seversion());
+	    fprintf(stderr, "RPA Grep with RPA Engine: %s \n", rpa_dbex_version());
 		fprintf(stderr, "Copyright (C) 2010 Martin Stoilov\n\n");
 
 		fprintf(stderr, "Usage: \n %s [OPTIONS] <filename>\n", argv[0]);
@@ -54,9 +55,12 @@ int usage(int argc, const char *argv[])
 		fprintf(stderr, "\t-b                  force byte encoding.\n");
 		fprintf(stderr, "\t-d                  dump the pattern tree.\n");
 		fprintf(stderr, "\t-t                  display time elapsed.\n");
-		fprintf(stderr, "\t-L                  List all patterns.\n");
+		fprintf(stderr, "\t-L, --list-rules    List all patterns.\n");
 		fprintf(stderr, "\t-v                  Display version information.\n");
 		fprintf(stderr, "\t-h, --help          Display this help.\n");
+		fprintf(stderr, "\t    --dump-info     Display rules info.\n");
+		fprintf(stderr, "\t    --dump-records  Display rules parsing records.\n");
+
 		
 		return 0;
 }
@@ -67,11 +71,19 @@ int main(int argc, const char *argv[])
 	unsigned long sckb = 0;
 	int ret, scanned = 0, i;
 	rpa_grep_t *pGrep;
+	rarray_t *buffers;
 
+	buffers = r_array_create(sizeof(rpa_buffer_t *));
 	pGrep = rpa_grep_create();
 	if (argc <= 1) {
 		usage(argc, argv);
 		goto end;
+	}
+
+	for (i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "-t") == 0) {
+			pGrep->showtime = 1;
+		}
 	}
 
 	for (i = 1; i < argc; i++) {
@@ -83,7 +95,7 @@ int main(int argc, const char *argv[])
 
 	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-v") == 0) {
-			fprintf(stderr, "RPA Grep with RPA Engine: %s (%s)\n", rpa_dbex_version(), rpa_dbex_seversion());
+			fprintf(stderr, "RPA Grep with RPA Engine: %s\n", rpa_dbex_version());
 			goto end;
 		}
 	}
@@ -115,11 +127,12 @@ int main(int argc, const char *argv[])
 		if (strcmp(argv[i], "-f") == 0) {
 			if (++i < argc) {
 				rpa_buffer_t *pattern = rpa_buffer_map_file(argv[i]);
-				if (pattern)
+				if (pattern) {
 					ret = rpa_grep_load_pattern(pGrep, pattern);
-				else
-					ret = -1;	
-				rpa_buffer_destroy(pattern);
+					r_array_add(buffers, &pattern);
+				} else {
+					ret = -1;
+				}
 				if (ret < 0)
 					goto error;
 			}
@@ -141,7 +154,28 @@ int main(int argc, const char *argv[])
 	}
 
 	for (i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "-L") == 0) {
+		if (strcmp(argv[i], "--dump-info") == 0) {
+			rpa_grep_dump_pattern_info(pGrep);
+			goto end;
+		}
+	}
+
+
+	for (i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "--dump-records") == 0) {
+			rpa_grep_dump_pattern_records(pGrep);
+			goto end;
+		}
+	}
+
+	for (i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "--dump-records") == 0) {
+			rpa_grep_dump_pattern_records(pGrep);
+			goto end;
+		} else if (strcmp(argv[i], "--dump-info") == 0) {
+			rpa_grep_dump_pattern_info(pGrep);
+			goto end;
+		} else if (strcmp(argv[i], "-L") == 0 || strcmp(argv[i], "--list-rules") == 0) {
 			rpa_grep_list_patterns(pGrep);
 			goto end;
 		} else if (strcmp(argv[i], "-d") == 0) {
@@ -166,8 +200,6 @@ int main(int argc, const char *argv[])
 			pGrep->forceEncoding = RPA_GREP_FORCE_UTF16;
 		} else if (strcmp(argv[i], "-b") == 0) {
 			pGrep->forceEncoding = RPA_GREP_FORCE_BYTE;
-		} else if (strcmp(argv[i], "-t") == 0) {
-			pGrep->showtime = 1;
 		}
 		
 	}
@@ -192,6 +224,10 @@ int main(int argc, const char *argv[])
 	}
 
 end:
+	for (i = 0; i < r_array_length(buffers); i++) {
+		rpa_buffer_destroy(r_array_index(buffers, i, rpa_buffer_t*));
+	}
+	r_object_destroy((robject_t*)buffers);
 	rpa_grep_close(pGrep);
 	if (pGrep->showtime) {
 		sckb = (unsigned long)(pGrep->scsize/1024);
@@ -203,9 +239,8 @@ end:
 			milsec = 1;
 		minutes = milsec/60000;
 		sec = (milsec%60000)/1000.0;
-		fprintf(stdout, "\ntime: %0ldm%1.3fs, %ld KB (%ld KB/sec), stack: %ld KB, memory: %ld KB (leaked %ld Bytes), fp = %ld\n", 
-				minutes, sec, sckb, 1000*sckb/milsec, pGrep->usedstack / 1000, rpa_get_alloc_maxmem()/1000, rpa_get_alloc_mem(), 
-				(unsigned long)pGrep->ud0);
+		fprintf(stdout, "\ntime: %0ldm%1.3fs, %ld KB (%ld KB/sec), stack: %ld KB, memory: %ld KB (leaked %ld Bytes)\n",
+				minutes, sec, sckb, 1000*sckb/milsec, pGrep->usedstack / 1000, r_debug_get_maxmem()/1000, r_debug_get_allocmem());
 	}
 
 	rpa_grep_destroy(pGrep);

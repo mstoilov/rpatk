@@ -13,6 +13,7 @@ struct rpadbex_s {
 	rarray_t *records;
 	rharray_t *rules;
 	rarray_t *recstack;
+	ruint error;
 };
 
 
@@ -127,6 +128,15 @@ static void rpa_dbex_buildruleinfo(rpadbex_t *dbex)
 				r_harray_replace(dbex->rules, namerec->input, namerec->inputsiz, &info);
 				i += info.sizerecs - 1;
 			}
+		} else if ((rec->userid == RPA_PRODUCTION_ANONYMOUSRULE) && (rec->type & RPA_RECORD_START)) {
+			r_memset(&info, 0, sizeof(info));
+			info.startrec = i;
+			info.sizerecs = rpa_recordtree_get(dbex->records, i, RPA_RECORD_END);
+			if (info.sizerecs < 0)
+				continue;
+			info.sizerecs = info.sizerecs - i + 1;
+			r_harray_replace_s(dbex->rules, "$anonymous", &info);
+			i += info.sizerecs - 1;
 		}
 	}
 }
@@ -305,8 +315,14 @@ rint rpa_dbex_dumprules(rpadbex_t *dbex)
 	if (!dbex || !dbex->rules)
 		return -1;
 	for (rid = rpa_dbex_first(dbex); rid >= 0; rid = rpa_dbex_next(dbex, rid)) {
-		if (rpa_dbex_copy(dbex, rid, buffer, sizeof(buffer)) >= 0)
-			r_printf("   %s\n", buffer);
+		ret = rpa_dbex_copy(dbex, rid, buffer, sizeof(buffer));
+		if ( ret >= 0) {
+			if (ret == sizeof(buffer))
+				r_printf("   %s ...\n", buffer);
+			else
+				r_printf("   %s\n", buffer);
+		}
+
 	}
 	return ret;
 }
@@ -355,7 +371,7 @@ rsize_t rpa_dbex_copy(rpadbex_t *dbex, rparule_t rid, rchar *buf, rsize_t bufsiz
 		size = bufsize - 1;
 	r_memset(buf, 0, bufsize);
 	r_strncpy(buf, prec->input, size);
-	return size;
+	return size + 1;
 }
 
 
@@ -381,6 +397,12 @@ rparule_t rpa_dbex_last(rpadbex_t *dbex)
 }
 
 
+rparule_t rpa_dbex_default(rpadbex_t *dbex)
+{
+	return rpa_dbex_last(dbex);
+}
+
+
 rparule_t rpa_dbex_next(rpadbex_t *dbex, rparule_t rid)
 {
 	if (!dbex || !dbex->rules)
@@ -403,7 +425,23 @@ rparule_t rpa_dbex_prev(rpadbex_t *dbex, rparule_t rid)
 }
 
 
-ruint rpa_dbex_get_error(rpadbex_t *dbex);
-rint rpa_dbex_compile(rpadbex_t *dbex);
+ruint rpa_dbex_get_error(rpadbex_t *dbex)
+{
+	return dbex->error;
+}
 
-const rchar *rpa_dbex_version();
+
+const rchar *rpa_dbex_version()
+{
+	return "2.0";
+}
+
+
+rint rpa_dbex_compile(rpadbex_t *dbex)
+{
+	if (!dbex || !dbex->rules)
+		return -1;
+
+	return 0;
+}
+

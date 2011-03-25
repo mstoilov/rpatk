@@ -18,10 +18,10 @@ LIBS += -L$(RPA2_SRCDIR)/build/$(OS)/$(ARCHDIR)/out
 LIBS += -lrvm -lrast -lrlib -lpthread -lm --static
 
 
+;TESTS	+= $(OUTDIR)/calc-test
+;TESTS	+= $(OUTDIR)/rast-test
+;TESTS	+= $(OUTDIR)/rpagen-test
 TESTS	+= $(OUTDIR)/rpavm-test
-TESTS	+= $(OUTDIR)/rast-test
-TESTS	+= $(OUTDIR)/rpagen-test
-TESTS	+= $(OUTDIR)/calc-test
 TESTS	+= $(OUTDIR)/funcarg-test
 TESTS   += $(OUTDIR)/codegen-test
 TESTS   += $(OUTDIR)/codemap-test

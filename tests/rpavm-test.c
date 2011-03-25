@@ -240,7 +240,7 @@ int main(int argc, char *argv[])
 	rint i;
 
 	co = rpa_compiler_create();
-	stat = rpa_stat_create(4096);
+	stat = rpa_stat_create(NULL, 4096);
 
 	for (i = 1; i < argc; i++) {
 		if (r_strcmp(argv[i], "-L") == 0) {

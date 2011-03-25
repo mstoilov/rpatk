@@ -297,7 +297,7 @@ int main(int argc, char *argv[])
 //	char teststr[] = "1/23+45##ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
 
 	co = rpa_compiler_create();
-	stat = rpa_stat_create(4096);
+	stat = rpa_stat_create(NULL, 4096);
 	rvm_cpu_addswitable(stat->cpu, common_calltable);
 
 	mainoff = rvm_codegen_addins(co->cg, rvm_asml(RVM_NOP, XX, XX, XX, -1));

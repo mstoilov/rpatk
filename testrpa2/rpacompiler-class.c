@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
 	char teststr[] = "abcabcabcabc";
 
 	co = rpa_compiler_create();
-	stat = rpa_stat_create(4096);
+	stat = rpa_stat_create(NULL, 4096);
 	rvm_cpu_addswitable(stat->cpu, common_calltable);
 
 	rpa_stat_init(stat, teststr, teststr, teststr+12);

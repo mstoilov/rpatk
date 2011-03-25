@@ -288,7 +288,7 @@ void rpa_record_dump(rarray_t *records, rlong rec)
 
 void rpa_record_dumpindented(rarray_t *records, rlong rec, rint level)
 {
-	rchar buffer[160];
+	rchar buffer[1024];
 	rparecord_t *prec;
 	rint i, size;
 
@@ -308,7 +308,7 @@ void rpa_record_dumpindented(rarray_t *records, rlong rec, rint level)
 	r_strncpy(buffer, prec->input, size);
 
 	if (size == (sizeof(buffer) - 1))
-		r_printf(" %s ..\n", buffer);
+		r_printf(" %s ...\n", buffer);
 	else
 		r_printf(" %s\n", buffer);
 	return;

@@ -118,13 +118,13 @@ void rpa_grep_destroy(rpa_grep_t *pGrep)
 int rpa_grep_load_string_pattern(rpa_grep_t *pGrep, rpa_buffer_t *buf)
 {
 	rpa_dbex_open(pGrep->hDbex);
-	if (rpa_dbex_load_string(pGrep->hDbex, buf->s) < 0) {
+	if (rpa_dbex_load_s(pGrep->hDbex, buf->s) < 0) {
 		fprintf(stdout, "ERROR: %s\n", (rpa_dbex_get_error(pGrep->hDbex) == RPA_E_SYNTAX_ERROR) ? "Syntax Error." : "Pattern Loading failed.");
 		rpa_dbex_close(pGrep->hDbex);
 		return -1;
 	}
 	rpa_dbex_close(pGrep->hDbex);
-	pGrep->hPattern = rpa_dbex_default_pattern(pGrep->hDbex);
+	pGrep->hPattern = rpa_dbex_default(pGrep->hDbex);
 	return 0;
 }
 
@@ -154,7 +154,7 @@ int rpa_grep_load_pattern(rpa_grep_t *pGrep, rpa_buffer_t *buf)
 	}	
 	
 	rpa_dbex_close(pGrep->hDbex);
-	pGrep->hPattern = rpa_dbex_default_pattern(pGrep->hDbex);
+	pGrep->hPattern = rpa_dbex_default(pGrep->hDbex);
 	return 0;
 	
 error:
@@ -163,27 +163,21 @@ error:
 }
 
 
-int rpa_grep_list_patterns(rpa_grep_t *pGrep)
+void rpa_grep_list_patterns(rpa_grep_t *pGrep)
 {
-	rpa_pattern_handle hEnumPattern;
+	rpa_dbex_dumprules(pGrep->hDbex);
+}
 
-	for (hEnumPattern = rpa_dbex_first_pattern(pGrep->hDbex); hEnumPattern; hEnumPattern = rpa_dbex_next_pattern(pGrep->hDbex, hEnumPattern)) {
-		int seq;
-		const char *patternName = rpa_dbex_pattern_name(pGrep->hDbex, hEnumPattern);
-		const char *patternRegex = NULL;
-		for (seq = 0; (patternRegex = rpa_dbex_pattern_regex(pGrep->hDbex, hEnumPattern, seq)) != NULL || !seq; seq++) {
-			fprintf(stdout, "%35s",  patternName ? patternName : "(none)");
-			if (rpa_dbex_pattern_type(pGrep->hDbex, hEnumPattern) == RPA_PATTERN_OR)
-				fprintf(stdout, " ||= ");
-			else if (rpa_dbex_pattern_type(pGrep->hDbex, hEnumPattern) == RPA_PATTERN_BEST)
-				fprintf(stdout, " ++= ");
-			else
-				fprintf(stdout, " ::= ");
-			fprintf(stdout, "%s\n",	patternRegex ? patternRegex : "(none)");
-		}
-	}
-	
-	return 0;
+
+void rpa_grep_dump_pattern_records(rpa_grep_t *pGrep)
+{
+	rpa_dbex_dumprecords(pGrep->hDbex);
+}
+
+
+void rpa_grep_dump_pattern_info(rpa_grep_t *pGrep)
+{
+	rpa_dbex_dumpinfo(pGrep->hDbex);
 }
 
 
@@ -191,15 +185,13 @@ int rpa_grep_match(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 {
 	int ret = 0;
 	int displayed = 0;
-	rpa_stat_handle hStat;
+	rpastat_t *hStat;
 	const char *input = buffer, *start = buffer, *end = buffer + size;
 
-	hStat = rpa_stat_create(pGrep->hDbex);
+	hStat = rpa_stat_create(pGrep->hDbex, 0);
 	if (!hStat)
 		return -1;
-	rpa_stat_set_encoding(hStat, pGrep->encoding);
-	rpa_stat_reset_usedstack(hStat);
-	rpa_stat_set_maxstack(hStat, MAX_STACK);
+	rpa_stat_encodingset(hStat, pGrep->encoding);
 	if (pGrep->matchonly == 2)
 		ret = rpa_stat_parse(hStat, pGrep->hPattern, input, start, end);
 	else
@@ -212,7 +204,6 @@ int rpa_grep_match(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 		rpa_grep_output(pGrep, input, ret, pGrep->encoding);
 		rpa_grep_output_utf8_string(pGrep, "\n");
 	}
-	pGrep->usedstack = rpa_stat_get_usedstack(hStat);
 	rpa_stat_destroy(hStat);
 	return 0;
 }
@@ -221,18 +212,15 @@ int rpa_grep_match(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 int rpa_grep_scan(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 {
 	int ret = 0;
-	rpa_stat_handle hStat;
+	rpastat_t *hStat;
 	int displayed = 0;	
 	const char *matched;
 	const char *input = buffer, *start = buffer, *end = buffer + size;
 
-	hStat = rpa_stat_create(pGrep->hDbex);
+	hStat = rpa_stat_create(pGrep->hDbex, 0);
 	if (!hStat)
 		return -1;
-	rpa_stat_set_encoding(hStat, pGrep->encoding);
-	rpa_stat_reset_usedstack(hStat);
-	rpa_stat_set_maxstack(hStat, MAX_STACK);
-	
+	rpa_stat_encodingset(hStat, pGrep->encoding);
 	
 again:
 	ret = rpa_stat_scan(hStat, pGrep->hPattern, input, start, end, &matched);
@@ -248,9 +236,7 @@ again:
 		input = matched + ret;
 		goto again;
 	}
-	if (rpa_stat_get_usedstack(hStat) > (long)pGrep->usedstack)
-		pGrep->usedstack = rpa_stat_get_usedstack(hStat);
-	pGrep->ud0 = (unsigned long)rpa_stat_get_userdata(hStat, 0);
+
 	rpa_stat_destroy(hStat);
 	return 0;
 }
@@ -259,19 +245,16 @@ again:
 int rpa_grep_scan_lines(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 {
 	int ret = 0;
-	rpa_stat_handle hStat;
+	rpastat_t *hStat;
 	const char *matched;
 	int displayed = 0;
 	unsigned long lines = 0;
 	const char *end = buffer + size, *lstart = buffer, *lend;
 
-	hStat = rpa_stat_create(pGrep->hDbex);
+	hStat = rpa_stat_create(pGrep->hDbex, 0);
 	if (!hStat)
 		return -1;
-	rpa_stat_set_encoding(hStat, pGrep->encoding);
-	rpa_stat_reset_usedstack(hStat);
-	rpa_stat_set_maxstack(hStat, MAX_STACK);
-	
+	rpa_stat_encodingset(hStat, pGrep->encoding);
 	
 again:
 	if (pGrep->encoding == RPA_ENCODING_UTF16LE || pGrep->encoding == RPA_ENCODING_ICASE_UTF16LE) {
@@ -305,9 +288,6 @@ again:
 		lstart = lend;
 		goto again;
 	}
-	if (rpa_stat_get_usedstack(hStat) > (long)pGrep->usedstack)
-		pGrep->usedstack = rpa_stat_get_usedstack(hStat);
-	pGrep->ud0 = (unsigned long)rpa_stat_get_userdata(hStat, 0);
 	rpa_stat_destroy(hStat);
 	return 0;
 }
@@ -387,29 +367,14 @@ rpa_buffer_t *rpa_buffer_loadfile(FILE *pFile)
 }
 
 
-static int rpa_callback_output(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
+static int rpa_callback_output(rpastat_t * stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
-	rpa_grep_t *pGrep = (rpa_grep_t *)userdata;
-
-	if (reason & RPA_REASON_START)
-		rpa_grep_output_utf8_string(pGrep, "START ");
-	if (reason & RPA_REASON_MATCHED)
-		rpa_grep_output_utf8_string(pGrep, "MATCHED ");
-	if (reason & RPA_REASON_END)
-		rpa_grep_output_utf8_string(pGrep, "END ");
-	rpa_grep_output_utf8_string(pGrep, name);
-
-	if (reason & RPA_REASON_MATCHED) {
-		rpa_grep_output_utf8_string(pGrep, ": ");
-		rpa_grep_output(pGrep, input, size, pGrep->encoding);
-	}
-	rpa_grep_output_utf8_string(pGrep, "\n");
 
 	return size;
 }
 
 
-static int rpa_callback_matched_output(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
+static int rpa_callback_matched_output(rpastat_t * stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rpa_grep_t *pGrep = (rpa_grep_t *)userdata;
 
@@ -424,22 +389,19 @@ static int rpa_callback_matched_output(rpa_stat_handle stat, const char *name, v
 
 void rpa_grep_setup_callback(rpa_grep_t *pGrep, rpa_buffer_t *pattern)
 {
-	rpa_dbex_add_callback(pGrep->hDbex, pattern->s, RPA_REASON_ALL, rpa_callback_output, pGrep);
+
 }
 
 
 void rpa_grep_setup_matched_callback(rpa_grep_t *pGrep, rpa_buffer_t *pattern)
 {
-	rpa_dbex_add_callback(pGrep->hDbex, pattern->s, RPA_REASON_MATCHED, rpa_callback_matched_output, pGrep);
+
 }
 
 
 void rpa_grep_dump_pattern_tree(rpa_grep_t *pGrep, rpa_buffer_t *pattern)
 {
-	rpa_pattern_handle hPattern = rpa_dbex_get_pattern(pGrep->hDbex, pattern->s);
-
-	if (hPattern)
-		rpa_dbex_dump_pattern(pGrep->hDbex, hPattern);	
+	rpa_dbex_dumptree(pGrep->hDbex, pattern->s);
 }
 
 

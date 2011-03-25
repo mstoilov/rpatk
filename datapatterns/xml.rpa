@@ -65,7 +65,7 @@ content		::= <:CharData:>?((<:element:>|<:Reference:>|<:CDSect:>|<:PI:>|
 EmptyElemTag	::= '<' <:Name:> (<:S:><:Attribute:>)* <:S:>? '/>'				# [44]
 
 # Element
-element		::= <:EmptyElemTag:> | (<:STag:> <:content:>* (<:ETag:> | {fail}))		# [39]
+element		::= <:EmptyElemTag:> | (<:STag:> <:content:>* (<:ETag:>))			# [39]
 
 elementdecl	::= '<!ELEMENT'<:S:><:Name:><:S:><:contentspec:><:S:>? '>'			# [45]
 contentspec	::= 'EMPTY' | 'ANY' | <:Mixed:> | <:children:>					# [46]

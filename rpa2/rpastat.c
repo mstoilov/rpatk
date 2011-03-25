@@ -3,14 +3,17 @@
 #include "rpastat.h"
 
 
-rpastat_t *rpa_stat_create(rulong stacksize)
+rpastat_t *rpa_stat_create(rpadbex_t *dbex, rulong stacksize)
 {
 	rpastat_t *stat = (rpastat_t *) r_zmalloc(sizeof(*stat));
+	if (stacksize == 0)
+		stacksize = RPA_DEFAULT_STACKSIZE;
 	stat->cpu = rpavm_cpu_create(stacksize);
 	if (!stat->cpu) {
 		r_free(stat);
 		return NULL;
 	}
+	stat->dbex = dbex;
 	stat->records = r_array_create(sizeof(rparecord_t));
 	stat->cpu->userdata1 = stat;
 	return stat;
@@ -81,8 +84,22 @@ void rpa_stat_cacheinvalidate(rpastat_t *stat)
 }
 
 
+rint rpa_stat_encodingset(rpastat_t *stat, ruint encoding)
+{
+	if (!stat) {
+		return -1;
+	}
+
+	stat->encoding = encoding;
+	return 0;
+}
+
+
 rint rpa_stat_scan(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end, const rchar **where)
 {
+	if (!stat) {
+		return -1;
+	}
 
 	return 0;
 }
@@ -90,6 +107,9 @@ rint rpa_stat_scan(rpastat_t *stat, rparule_t rid, const rchar *input, const rch
 
 rint rpa_stat_match(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end)
 {
+	if (!stat) {
+		return -1;
+	}
 
 	return 0;
 }
@@ -97,6 +117,9 @@ rint rpa_stat_match(rpastat_t *stat, rparule_t rid, const rchar *input, const rc
 
 rint rpa_stat_parse(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end)
 {
+	if (!stat) {
+		return -1;
+	}
 
 	return 0;
 }
@@ -104,5 +127,9 @@ rint rpa_stat_parse(rpastat_t *stat, rparule_t rid, const rchar *input, const rc
 
 rint rpa_stat_abort(rpastat_t *stat)
 {
+	if (!stat) {
+		return -1;
+	}
+
 	return 0;
 }
