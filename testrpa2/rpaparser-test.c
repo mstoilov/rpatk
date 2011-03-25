@@ -8,7 +8,6 @@
 #include <sys/mman.h>
 #include "rmem.h"
 #include "rpaparser.h"
-#include "rpaparseinfo.h"
 #include "rpadbex.h"
 
 
@@ -58,7 +57,7 @@ int main(int argc, char *argv[])
 
 	for (i = 1; i < argc; i++) {
 		if (r_strcmp(argv[i], "-I") == 0) {
-			rpa_dbex_dumpruleinfo(dbex);
+			rpa_dbex_dumpinfo(dbex);
 		}
 	}
 

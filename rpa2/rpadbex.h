@@ -41,19 +41,18 @@ rlong rpa_dbex_load(rpadbex_t *dbex, const rchar *rules, rsize_t size);
 rlong rpa_dbex_load_s(rpadbex_t *dbex, const rchar *rules);
 const rchar *rpa_dbex_version();
 
-rparule_t rpa_dbex_rule_lookup(rpadbex_t *dbex, const rchar *name);
-rparule_t rpa_dbex_rule_default(rpadbex_t *dbex);
-rparule_t rpa_dbex_rule_next(rpadbex_t *dbex, rparule_t rid);
-rparule_t rpa_dbex_rule_prev(rpadbex_t *dbex, rparule_t rid);
-rparule_t rpa_dbex_rule_first(rpadbex_t *dbex);
-rparule_t rpa_dbex_rule_last(rpadbex_t *dbex);
-rlong rpa_dbex_rule_copy(rpadbex_t *dbex, rparule_t rid, rchar *buf, rsize_t bufsize);
-rlong rpa_dbex_rule_size(rpadbex_t *dbex, rparule_t rid);
+rparule_t rpa_dbex_lookup(rpadbex_t *dbex, const rchar *name);
+rparule_t rpa_dbex_default(rpadbex_t *dbex);
+rparule_t rpa_dbex_next(rpadbex_t *dbex, rparule_t rid);
+rparule_t rpa_dbex_prev(rpadbex_t *dbex, rparule_t rid);
+rparule_t rpa_dbex_first(rpadbex_t *dbex);
+rparule_t rpa_dbex_last(rpadbex_t *dbex);
+rsize_t rpa_dbex_copy(rpadbex_t *dbex, rparule_t rid, rchar *buf, rsize_t bufsize);
 
 rint rpa_dbex_dumprecords(rpadbex_t *dbex);
 rint rpa_dbex_dumptree(rpadbex_t *dbex, const rchar *name);
 rint rpa_dbex_dumprules(rpadbex_t *dbex);
-rint rpa_dbex_dumpruleinfo(rpadbex_t *dbex);
+rint rpa_dbex_dumpinfo(rpadbex_t *dbex);
 
 #ifdef __cplusplus
 }

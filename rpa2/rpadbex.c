@@ -1,7 +1,12 @@
 #include "rpadbex.h"
 #include "rpaparser.h"
-#include "rpaparseinfo.h"
 #include "rmem.h"
+
+typedef struct rpa_ruleinfo_s {
+	rlong startrec;
+	rlong sizerecs;
+} rpa_ruleinfo_t;
+
 
 struct rpadbex_s {
 	rpa_parser_t *pa;
@@ -299,8 +304,8 @@ rint rpa_dbex_dumprules(rpadbex_t *dbex)
 
 	if (!dbex || !dbex->rules)
 		return -1;
-	for (rid = rpa_dbex_rule_first(dbex); rid >= 0; rid = rpa_dbex_rule_next(dbex, rid)) {
-		if (rpa_dbex_rule_copy(dbex, rid, buffer, sizeof(buffer)) >= 0)
+	for (rid = rpa_dbex_first(dbex); rid >= 0; rid = rpa_dbex_next(dbex, rid)) {
+		if (rpa_dbex_copy(dbex, rid, buffer, sizeof(buffer)) >= 0)
 			r_printf("   %s\n", buffer);
 	}
 	return ret;
@@ -320,7 +325,7 @@ rint rpa_dbex_dumprecords(rpadbex_t *dbex)
 }
 
 
-rint rpa_dbex_dumpruleinfo(rpadbex_t *dbex)
+rint rpa_dbex_dumpinfo(rpadbex_t *dbex)
 {
 	ruint i;
 	rpa_ruleinfo_t *info;
@@ -336,35 +341,25 @@ rint rpa_dbex_dumpruleinfo(rpadbex_t *dbex)
 }
 
 
-rlong rpa_dbex_rule_copy(rpadbex_t *dbex, rparule_t rid, rchar *buf, rsize_t bufsize)
+rsize_t rpa_dbex_copy(rpadbex_t *dbex, rparule_t rid, rchar *buf, rsize_t bufsize)
 {
 	rparecord_t *prec;
+	rsize_t size;
 
 	if (!dbex)
 		return -1;
 	if ((prec = rpa_dbex_record(dbex, rid)) == NULL)
 		return -1;
-	if (bufsize <= prec->inputsiz)
-		return -1;
+	size = prec->inputsiz;
+	if (bufsize <= size)
+		size = bufsize - 1;
 	r_memset(buf, 0, bufsize);
-	r_strncpy(buf, prec->input, prec->inputsiz);
-	return prec->inputsiz;
+	r_strncpy(buf, prec->input, size);
+	return size;
 }
 
 
-rlong rpa_dbex_rule_size(rpadbex_t *dbex, rparule_t rid)
-{
-	rparecord_t *prec;
-
-	if (!dbex)
-		return -1;
-	if ((prec = rpa_dbex_record(dbex, rid)) == NULL)
-		return -1;
-	return prec->inputsiz;
-}
-
-
-rparule_t rpa_dbex_rule_first(rpadbex_t *dbex)
+rparule_t rpa_dbex_first(rpadbex_t *dbex)
 {
 	if (!dbex || !dbex->rules)
 		return -1;
@@ -375,7 +370,7 @@ rparule_t rpa_dbex_rule_first(rpadbex_t *dbex)
 }
 
 
-rparule_t rpa_dbex_rule_last(rpadbex_t *dbex)
+rparule_t rpa_dbex_last(rpadbex_t *dbex)
 {
 	if (!dbex || !dbex->rules)
 		return -1;
@@ -386,7 +381,7 @@ rparule_t rpa_dbex_rule_last(rpadbex_t *dbex)
 }
 
 
-rparule_t rpa_dbex_rule_next(rpadbex_t *dbex, rparule_t rid)
+rparule_t rpa_dbex_next(rpadbex_t *dbex, rparule_t rid)
 {
 	if (!dbex || !dbex->rules)
 		return -1;
@@ -397,7 +392,7 @@ rparule_t rpa_dbex_rule_next(rpadbex_t *dbex, rparule_t rid)
 }
 
 
-rparule_t rpa_dbex_rule_prev(rpadbex_t *dbex, rparule_t rid)
+rparule_t rpa_dbex_prev(rpadbex_t *dbex, rparule_t rid)
 {
 	if (!dbex || !dbex->rules)
 		return -1;
