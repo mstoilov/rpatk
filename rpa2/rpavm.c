@@ -1,6 +1,7 @@
 #include "rpavm.h"
 #include "rpastat.h"
 #include "rutf.h"
+#include "rmem.h"
 
 
 static void rpavm_swi_shift(rvmcpu_t *cpu, rvm_asmins_t *ins)
@@ -474,6 +475,33 @@ static void rpavm_swi_setrecuid(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static void rpavm_swi_pushtopwhtlr(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rword sp = RVM_CPUREG_GETU(cpu, SP);
+
+	if (!RVM_STACK_CHECKSIZE(cpu, cpu->stack, sp + 3))
+		RVM_ABORT(cpu, RVM_E_NOMEM);
+	RVM_STACK_WRITE(cpu->stack, sp + 1, &RVM_CPUREG_GET(cpu, R_TOP));
+	RVM_STACK_WRITE(cpu->stack, sp + 2, &RVM_CPUREG_GET(cpu, R_WHT));
+	RVM_STACK_WRITE(cpu->stack, sp + 3, &RVM_CPUREG_GET(cpu, LR));
+	RVM_CPUREG_SETU(cpu, SP, sp + 3);
+}
+
+
+static void rpavm_swi_pushr0topwhtlr(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rword sp = RVM_CPUREG_GETU(cpu, SP);
+
+	if (!RVM_STACK_CHECKSIZE(cpu, cpu->stack, sp + 4))
+		RVM_ABORT(cpu, RVM_E_NOMEM);
+	RVM_STACK_WRITE(cpu->stack, sp + 1, &RVM_CPUREG_GET(cpu, R0));
+	RVM_STACK_WRITE(cpu->stack, sp + 2, &RVM_CPUREG_GET(cpu, R_TOP));
+	RVM_STACK_WRITE(cpu->stack, sp + 3, &RVM_CPUREG_GET(cpu, R_WHT));
+	RVM_STACK_WRITE(cpu->stack, sp + 4, &RVM_CPUREG_GET(cpu, LR));
+	RVM_CPUREG_SETU(cpu, SP, sp + 4);
+}
+
+
 static rvm_switable_t rpavm_swi_table[] = {
 		{"RPA_MATCHCHR_NAN", rpavm_swi_matchchr_nan},
 		{"RPA_MATCHCHR_OPT", rpavm_swi_matchchr_opt},
@@ -506,6 +534,8 @@ static rvm_switable_t rpavm_swi_table[] = {
 		{"RPA_SETBXLMUL", rpavm_swi_setbxlmul},
 		{"RPA_SETBXLMOP", rpavm_swi_setbxlmop},
 		{"RPA_SETRECUID", rpavm_swi_setrecuid},
+		{"RPA_PUSHTOPWHTLR", rpavm_swi_pushtopwhtlr},
+		{"RPA_PUSHR0TOPWHTLR", rpavm_swi_pushr0topwhtlr},
 		{NULL, NULL},
 };
 
