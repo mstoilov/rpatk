@@ -42,7 +42,8 @@ rlong rpa_dbex_load(rpadbex_t *dbex, const rchar *rules, rsize_t size);
 rlong rpa_dbex_load_s(rpadbex_t *dbex, const rchar *rules);
 const rchar *rpa_dbex_version();
 rvm_asmins_t *rvm_dbex_getcode(rpadbex_t *dbex);
-rulong rvm_dbex_codeoffset(rpadbex_t *dbex, rparule_t rid);
+rlong rvm_dbex_codeoffset(rpadbex_t *dbex, rparule_t rid);
+rlong rvm_dbex_initoffset(rpadbex_t *dbex);
 
 
 rparule_t rpa_dbex_lookup(rpadbex_t *dbex, const rchar *name);

@@ -32,7 +32,9 @@ void rvm_codegen_destroy(rvm_codegen_t *cg)
 void rvm_codegen_clear(rvm_codegen_t *cg)
 {
 	r_array_setlength(cg->code, 0);
+	r_array_setlength(cg->data, 0);
 	rvm_codemap_clear(cg->codemap);
+	rvm_relocmap_clear(cg->relocmap);
 }
 
 

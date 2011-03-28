@@ -220,6 +220,16 @@ int main(int argc, const char *argv[])
 		goto end;
 	}
 
+	if (rpa_dbex_compile(pGrep->hDbex) < 0) {
+
+		goto end;
+	}
+
+	if (rpa_dbex_compile(pGrep->hDbex) < 0) {
+
+		goto end;
+	}
+
 	/* scan files */
 	for (i = 1; i < argc; i++) {
 		if (argv[i][0] != '-') {

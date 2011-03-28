@@ -129,6 +129,10 @@ rint rpa_stat_parse(rpastat_t *stat, rparule_t rid, const rchar *input, const rc
 	rpa_stat_init(stat, input, start, end);
 	rpa_stat_cachedisable(stat, 0);
 
+	if (rvm_cpu_exec(stat->cpu, rvm_dbex_getcode(stat->dbex), rvm_dbex_initoffset(stat->dbex)) < 0) {
+		return -1;
+	}
+
 	if (rvm_cpu_exec(stat->cpu, rvm_dbex_getcode(stat->dbex), rvm_dbex_codeoffset(stat->dbex, rid)) < 0) {
 		return -1;
 	}
