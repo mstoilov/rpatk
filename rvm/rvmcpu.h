@@ -311,7 +311,7 @@ struct rvmcpu_s {
 	rword status;
 	rword error;
 	rword abort;
-	rarray_t *switables;
+	rharray_t *switables;
 	rulong stacksize;
 	void *stack;
 	rcarray_t *data;
@@ -331,11 +331,11 @@ struct rvmcpu_s {
 rvmcpu_t *rvm_cpu_create_default();
 rvmcpu_t *rvm_cpu_create(rulong stacksize);
 void rvm_cpu_destroy(rvmcpu_t * vm);
-rint rvm_cpu_addswitable(rvmcpu_t * cpu, rvm_switable_t *switalbe);
 rint rvm_cpu_exec(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off);
 rint rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off);
-rint rvm_cpu_getswi(rvmcpu_t *cpu, const rchar *swiname, rsize_t size);
-rint rvm_cpu_getswi_s(rvmcpu_t *cpu, const rchar *swiname);
+rint rvm_cpu_swilookup(rvmcpu_t *cpu, const rchar *tabname, const rchar *swiname, rsize_t size);
+rint rvm_cpu_swilookup_s(rvmcpu_t *cpu, const rchar *tabname, const rchar *swiname);
+rint rvm_cpu_addswitable(rvmcpu_t * cpu, const rchar *tabname, rvm_switable_t *switalbe);
 rvmreg_t *rvm_cpu_alloc_global(rvmcpu_t *cpu);
 int rvm_cpu_setreg(rvmcpu_t *cpu, rword regnum, const rvmreg_t *src);
 rvmreg_t *rvm_cpu_getreg(rvmcpu_t *cpu, rword regnum);

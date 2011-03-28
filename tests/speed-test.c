@@ -39,8 +39,8 @@ int main(int argc, char *argv[])
 		iter = atol(argv[1]);
 	}
 
-	rvm_cpu_addswitable(vm, calltable);
-	rvm_cpu_addswitable(vm, common_calltable);
+	rvm_cpu_addswitable(vm, "calltable", calltable);
+	rvm_cpu_addswitable(vm, "common_table", common_calltable);
 
 	vmcode[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 0);
 	for (i = 0; i < 25; i++)

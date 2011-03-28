@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 	rvm_codemap_t *codemap = rvm_codemap_create();
 	rvm_relocmap_t *relocmap = rvm_relocmap_create();
 
-	rvm_cpu_addswitable(vm, common_calltable);
+	rvm_cpu_addswitable(vm, "common_table", common_calltable);
 
 	rvm_relocmap_add(relocmap, RVM_RELOC_BRANCH, off, rvm_codemap_lookup_s(codemap, "l_main"));
 	vmcode[off++]   = rvm_asm(RVM_B,   DA, XX, XX, 0);

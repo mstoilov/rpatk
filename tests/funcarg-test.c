@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 
 	cg = rvm_codegen_create();
 	cpu = rvm_cpu_create_default();
-	ntable = rvm_cpu_addswitable(cpu, switable);
+	ntable = rvm_cpu_addswitable(cpu, "switable", switable);
 
 	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, R0, DA, XX, 7));
 	rvm_codegen_addins(cg, rvm_asm(RVM_STS, R0, SP, DA, 1 + RVM_CODEGEN_FUNCINITOFFSET));
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
 	rvm_codegen_addins(cg, rvm_asm(RVM_STS, R0, SP, DA, 2 + RVM_CODEGEN_FUNCINITOFFSET));
 	rvm_codegen_addrelocins_s(cg, RVM_RELOC_BRANCH, "add2", rvm_asm(RVM_BL,  DA, XX, XX, 0));
 
-	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_getswi_s(cpu, "print")), R0, XX, XX, 0));
+	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_swilookup_s(cpu, "switable", "print")), R0, XX, XX, 0));
 
 	rvm_codegen_addins(cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
 

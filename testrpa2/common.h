@@ -8,13 +8,13 @@
 	do { rvm_codegen_addins(code, rvm_asm(RVM_MOV, R8, DA, XX, reg)); \
 		 rvm_codegen_addins(code, rvm_asm(RVM_MOV, R9, DA, XX, val)); \
 		 rvm_codegen_addins(code, rvm_asmp(RVM_MOV, R10, DA, XX, msg)); \
-		 rvm_codegen_addins(code, rvm_asm(RVM_OPSWI(rvm_cpu_getswi_s(stat->cpu, "rvm_vmtest_check_reg")), XX, XX, R0, 0)); \
+		 rvm_codegen_addins(code, rvm_asm(RVM_OPSWI(rvm_cpu_swilookup_s(stat->cpu, "common_table", "rvm_vmtest_check_reg")), XX, XX, R0, 0)); \
 		 rvm_codegen_addins(code, rvm_asm(RVM_NOP, XX, XX, XX, 0)); } while (0)
 
 #define VMTEST_STATUS(code, val, msg) \
 	do { rvm_codegen_addins(code, rvm_asm(RVM_MOV, R9, DA, XX, val)); \
 		 rvm_codegen_addins(code, rvm_asmp(RVM_MOV, R10, DA, XX, msg)); \
-		 rvm_codegen_addins(code, rvm_asm(RVM_OPSWI(rvm_cpu_getswi_s(stat->cpu, "rvm_vmtest_check_status")), XX, XX, R0, 0)); \
+		 rvm_codegen_addins(code, rvm_asm(RVM_OPSWI(rvm_cpu_swilookup_s(stat->cpu, "common_table", "rvm_vmtest_check_status")), XX, XX, R0, 0)); \
 		 rvm_codegen_addins(code, rvm_asm(RVM_NOP, XX, XX, XX, 0)); } while (0)
 
 

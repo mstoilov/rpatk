@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
 	rvm_asmins_t vmcode[256];
 	rvmcpu_t *vm = rvm_cpu_create_default();
 	
-	rvm_cpu_addswitable(vm, common_calltable);
+	rvm_cpu_addswitable(vm, "common_table", common_calltable);
 	vmcode[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_MOV, R1, DA, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_MOV, R2, DA, XX, 1);

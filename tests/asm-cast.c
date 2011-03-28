@@ -38,26 +38,26 @@ int main(int argc, char *argv[])
 	rvm_asmins_t vmcode[256];
 	rvmcpu_t *vm = rvm_cpu_create_default();
 	
-	rvm_cpu_addswitable(vm, common_calltable);
-	rvm_cpu_addswitable(vm, switable);
+	rvm_cpu_addswitable(vm, "common_table", common_calltable);
+	rvm_cpu_addswitable(vm, "switable", switable);
 	vmcode[off++] = rvm_asmp(RVM_LDRR, R0, DA, XX, &d1);
 	vmcode[off++] = rvm_asm(RVM_TYPE, R1, R0, XX, 0);
-	vmcode[off++] = rvm_asm(RVM_OPSWI(rvm_cpu_getswi_s(vm, "print")), R1, XX, XX, 0);
+	vmcode[off++] = rvm_asm(RVM_OPSWI(rvm_cpu_swilookup_s(vm, "switable", "print")), R1, XX, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_CAST, R0, R0, DA, RVM_DTYPE_UNSIGNED);
 	vmcode[off++] = rvm_asm(RVM_MOV, R1, DA, XX, 2);
 	vmcode[off++] = rvm_asm(RVM_ADD, R0, R1, R0, 0);
-	vmcode[off++] = rvm_asm(RVM_OPSWI(rvm_cpu_getswi_s(vm, "print")), R0, XX, XX, 0);
+	vmcode[off++] = rvm_asm(RVM_OPSWI(rvm_cpu_swilookup_s(vm, "switable", "print")), R0, XX, XX, 0);
 	VMTEST_REG(vmcode, off, 0, 3, "CAST");
 	VMTEST_STATUS(vmcode, off, 0, "CAST STATUS");
 
 	vmcode[off++] = rvm_asmp(RVM_LDRR, R0, DA, XX, &d2);
 	vmcode[off++] = rvm_asm(RVM_TYPE, R1, R0, XX, 0);
-	vmcode[off++] = rvm_asm(RVM_OPSWI(rvm_cpu_getswi_s(vm, "print")), R1, XX, XX, 0);
+	vmcode[off++] = rvm_asm(RVM_OPSWI(rvm_cpu_swilookup_s(vm, "switable", "print")), R1, XX, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_CAST, R0, R0, DA, RVM_DTYPE_LONG);
-	vmcode[off++] = rvm_asm(RVM_OPSWI(rvm_cpu_getswi_s(vm, "print")), R0, XX, XX, 0);
+	vmcode[off++] = rvm_asm(RVM_OPSWI(rvm_cpu_swilookup_s(vm, "switable", "print")), R0, XX, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_MOV, R1, DA, XX, 2);
 	vmcode[off++] = rvm_asm(RVM_ADD, R0, R1, R0, 0);
-	vmcode[off++] = rvm_asm(RVM_OPSWI(rvm_cpu_getswi_s(vm, "print")), R0, XX, XX, 0);
+	vmcode[off++] = rvm_asm(RVM_OPSWI(rvm_cpu_swilookup_s(vm, "switable", "print")), R0, XX, XX, 0);
 	VMTEST_REG(vmcode, off, 0, 1, "CAST");
 	VMTEST_STATUS(vmcode, off, 0, "CAST STATUS");
 

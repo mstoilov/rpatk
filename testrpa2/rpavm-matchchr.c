@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
 
 	co = rpa_compiler_create();
 	stat = rpa_stat_create(NULL, 4096);
-	rvm_cpu_addswitable(stat->cpu, common_calltable);
+	rvm_cpu_addswitable(stat->cpu, "common_table", common_calltable);
 
 	rpa_stat_init(stat, teststr, teststr, teststr+3);
 

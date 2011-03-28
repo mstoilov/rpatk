@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
 
 	r_memset(&rh_copy, 0, sizeof(rh_copy));
 	cpu = rvm_cpu_create_default();
-	rvm_cpu_addswitable(cpu, switable);
+	rvm_cpu_addswitable(cpu, "switable", switable);
 	cg = rvm_codegen_create();
 
 	ag = rvm_reg_create_double(4.55);
@@ -80,8 +80,8 @@ int main(int argc, char *argv[])
 	 */
 	rvm_codegen_addins(cg, rvm_asmp(RVM_LDRR, R1, DA, XX, r_harray_get(nc, r_harray_lookup_s(nc, "again"))));
 
-	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_getswi_s(cpu, "print")), R0, XX, XX, 0));	// print
-	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_getswi_s(cpu, "print")), R1, XX, XX, 0));	// print
+	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_swilookup_s(cpu, "switable", "print")), R0, XX, XX, 0));	// print
+	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_swilookup_s(cpu, "switable", "print")), R1, XX, XX, 0));	// print
 
 	/*
 	 * Lookup the array member "there" and load the content to R2
@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
 //	rvm_codegen_addins(cg, rvm_asm(RVM_KEYLOOKUPADD, R0, R1, R2, 0));
 	rvm_codegen_addins(cg, rvm_asm(RVM_LDA, R0, R1, R0, 0));
 
-	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_getswi_s(cpu, "print")), R0, XX, XX, 0));	// print
+	rvm_codegen_addins(cg, rvm_asm(RVM_OPSWI(rvm_cpu_swilookup_s(cpu, "switable", "print")), R0, XX, XX, 0));	// print
 	rvm_codegen_addins(cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
 
 	rvm_cpu_exec_debug(cpu, rvm_codegen_getcode(cg, 0), 0);

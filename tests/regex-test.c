@@ -800,7 +800,7 @@ int main(int argc, char *argv[])
 	co = rpa_compiler_create();
 	cpu = rvm_cpu_create_default();
 	cpu->userdata1 = stat = rpa_stat_create();
-	regextable = rvm_cpu_addswitable(cpu, switable);
+	regextable = rvm_cpu_addswitable(vm, "switable", switable);
 
 	for (i = 1; i < argc; i++) {
 		if (r_strcmp(argv[i], "-L") == 0) {

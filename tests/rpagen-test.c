@@ -339,7 +339,7 @@ int codegen_opcode_unary_callback(rpa_stat_handle stat, const char *name, void *
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 
 	if (r_stringncmp("-", input, size))
-		r_array_push(co->opcodes, RVM_OPSWI(rvm_cpu_getswi_s(co->cpu, "RVM_SWI_NEG")), ruint);
+		r_array_push(co->opcodes, RVM_OPSWI(rvm_cpu_swilookup_s(co->cpu, "RVM_SWI_NEG")), ruint);
 	else if (r_stringncmp("+", input, size))
 		r_array_push(co->opcodes, RVM_NOP, ruint);
 	else if (r_stringncmp("!", input, size))
@@ -826,7 +826,7 @@ int codegen_h_arrayelementvalue_callback(rpa_stat_handle stat, const char *name,
 int codegen_swiidexist_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rint swi = rvm_cpu_getswi(co->cpu, input, size);
+	rint swi = rvm_cpu_swilookup(co->cpu, input, size);
 
 	if (swi < 0)
 		return 0;
@@ -840,7 +840,7 @@ int codegen_swiid_callback(rpa_stat_handle stat, const char *name, void *userdat
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
-	rint swi = rvm_cpu_getswi(co->cpu, input, size);
+	rint swi = rvm_cpu_swilookup(co->cpu, input, size);
 
 	if (swi < 0)
 		return 0;
@@ -1836,7 +1836,7 @@ int main(int argc, char *argv[])
 	rvm_compiler_t *co = rvm_compiler_create(dbex);
 
 	cpu = rvm_cpu_create_default();
-	ntable = rvm_cpu_addswitable(cpu, switable);
+	ntable = rvm_cpu_addswitable(vm, "switable", switable);
 	rvm_cpu_addswitable(cpu, switable_js);
 	co->cpu = cpu;
 

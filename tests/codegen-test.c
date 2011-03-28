@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 
 	cg = rvm_codegen_create();
 	cpu = rvm_cpu_create_default();
-	ntable = rvm_cpu_addswitable(cpu, switable);
+	ntable = rvm_cpu_addswitable(cpu, "switable", switable);
 
 	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, R0, DA, XX, 7));
 	rvm_codegen_addins(cg, rvm_asm(RVM_STS, R0, SP, DA, 1 + RVM_CODEGEN_FUNCINITOFFSET));

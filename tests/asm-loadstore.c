@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
 	rvm_asmins_t vmcode[256];
 	rvmcpu_t *vm = rvm_cpu_create_default();
 
-	rvm_cpu_addswitable(vm, common_calltable);
+	rvm_cpu_addswitable(vm, "common_table", common_calltable);
 	vmcode[off++] = rvm_asmp(RVM_LDR, R0, DA, XX, &s);
 	VMTEST_REG(vmcode, off, 0, -2, "LDR");
 	vmcode[off++] = rvm_asmp(RVM_LDRB, R0, DA, XX, &s);

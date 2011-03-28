@@ -9,7 +9,7 @@
 		 code[index++] = rvm_asm(RVM_MOV, R9, DA, XX, val); \
 		 code[index++] = rvm_asm(RVM_PRN, reg, XX, XX, 0); \
 		 code[index++] = rvm_asmp(RVM_MOV, R10, DA, XX, msg); \
-		 code[index++] = rvm_asm(RVM_OPSWI(rvm_cpu_getswi_s(vm, "rvm_vmtest_check_reg")), XX, XX, R0, 0); \
+		 code[index++] = rvm_asm(RVM_OPSWI(rvm_cpu_swilookup_s(vm, "common_table", "rvm_vmtest_check_reg")), XX, XX, R0, 0); \
 		 code[index++] = rvm_asm(RVM_NOP, XX, XX, XX, 0); } while (0)
 
 #define VMTEST_REGL(code, index, reg, val, msg) \
@@ -17,7 +17,7 @@
 		 code[index++] = rvm_asml(RVM_MOV, R9, DA, XX, val); \
 		 code[index++] = rvm_asm(RVM_PRN, reg, XX, XX, 0); \
 		 code[index++] = rvm_asmp(RVM_MOV, R10, DA, XX, msg); \
-		 code[index++] = rvm_asm(RVM_OPSWI(rvm_cpu_getswi_s(vm, "rvm_vmtest_check_reg")), XX, XX, R0, 0); \
+		 code[index++] = rvm_asm(RVM_OPSWI(rvm_cpu_swilookup_s(vm, "common_table", "rvm_vmtest_check_reg")), XX, XX, R0, 0); \
 		 code[index++] = rvm_asm(RVM_NOP, XX, XX, XX, 0); } while (0)
 
 #define VMTEST_REGD(code, index, reg, val, msg) \
@@ -25,7 +25,7 @@
 		 code[index++] = rvm_asmd(RVM_MOV, R9, DA, XX, val); \
 		 code[index++] = rvm_asm(RVM_PRN, reg, XX, XX, 0); \
 		 code[index++] = rvm_asmp(RVM_MOV, R10, DA, XX, msg); \
-		 code[index++] = rvm_asm(RVM_OPSWI(rvm_cpu_getswi_s(vm, "rvm_vmtest_check_reg")), XX, XX, R0, 0); \
+		 code[index++] = rvm_asm(RVM_OPSWI(rvm_cpu_swilookup_s(vm, "common_table", "rvm_vmtest_check_reg")), XX, XX, R0, 0); \
 		 code[index++] = rvm_asm(RVM_NOP, XX, XX, XX, 0); } while (0)
 
 
@@ -34,14 +34,14 @@
 		 code[index++] = rvm_asmp(RVM_LDRR, R9, DA, XX, pval); \
 		 code[index++] = rvm_asm(RVM_PRN, R9, XX, XX, 0); \
 		 code[index++] = rvm_asmp(RVM_MOV, R10, DA, XX, msg); \
-		 code[index++] = rvm_asm(RVM_OPSWI(rvm_cpu_getswi_s(vm, "rvm_vmtest_check_reg")), XX, XX, R0, 0); \
+		 code[index++] = rvm_asm(RVM_OPSWI(rvm_cpu_swilookup_s(vm, "common_table", "rvm_vmtest_check_reg")), XX, XX, R0, 0); \
 		 code[index++] = rvm_asm(RVM_NOP, XX, XX, XX, 0); } while (0)
 
 
 #define VMTEST_STATUS(code, index, val, msg) \
 	do { code[index++] = rvm_asm(RVM_MOV, R9, DA, XX, val); \
 		 code[index++] = rvm_asmp(RVM_MOV, R10, DA, XX, msg); \
-		 code[index++] = rvm_asm(RVM_OPSWI(rvm_cpu_getswi_s(vm, "rvm_vmtest_check_status")), XX, XX, R0, 0); \
+		 code[index++] = rvm_asm(RVM_OPSWI(rvm_cpu_swilookup_s(vm, "common_table", "rvm_vmtest_check_status")), XX, XX, R0, 0); \
 		 code[index++] = rvm_asm(RVM_NOP, XX, XX, XX, 0); } while (0)
 
 

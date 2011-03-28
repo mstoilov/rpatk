@@ -39,8 +39,8 @@ int main(int argc, char *argv[])
 		iter = atol(argv[1]);
 	}
 
-	rvm_cpu_addswitable(vm, calltable);
-	rvm_cpu_addswitable(vm, common_calltable);
+	rvm_cpu_addswitable(vm, "calltable", calltable);
+	rvm_cpu_addswitable(vm, "common_table", common_calltable);
 
 	vmcode[off++] = rvm_asm(RVM_MOV, R4, DA, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_MOV, R5, DA, XX, iter);
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
 //	vmcode[off++] = rvm_asm(RVM_MOV, R1, DA, XX, 1);
 //	vmcode[off++] = rvm_asm(RVM_MOV, R2, DA, XX, 2);
 //	vmcode[off++] = rvm_asm(RVM_EADD, R0, R1, R2, 0);
-//	vmcode[off++] = rvm_asm(RVM_OPSWI(rvm_cpu_getswi(vm, "rvm_eadd")), R0, R1, R2, 0);
+//	vmcode[off++] = rvm_asm(RVM_OPSWI(rvm_cpu_swilookup(vm, "rvm_eadd")), R0, R1, R2, 0);
 //	vmcode[off++] = rvm_asm(RVM_PUSH, DA, XX, XX, 1);
 //	vmcode[off++] = rvm_asm(RVM_POP, R1, XX, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_PUSH, R4, XX, XX, 0);

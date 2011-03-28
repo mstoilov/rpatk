@@ -30,18 +30,18 @@ int main(int argc, char *argv[])
 	rvm_asmins_t vmcode[256];
 	rvmcpu_t *vm = rvm_cpu_create_default();
 
-	table1 = rvm_cpu_addswitable(vm, calltable);
-	table2 = rvm_cpu_addswitable(vm, calltable);
-	table3 = rvm_cpu_addswitable(vm, calltable);
-	if (table2 != -1 || table3 != -1) {
+	table1 = rvm_cpu_addswitable(vm, "calltable", calltable);
+	table2 = rvm_cpu_addswitable(vm, "calltable", calltable);
+	table3 = rvm_cpu_addswitable(vm, "calltable", calltable);
+	if (table2 != 0 || table3 != 0) {
 		fprintf(stdout, "rvm_cpu_addswitable: FAILED\n");
 	}
-	rvm_cpu_addswitable(vm, common_calltable);
+	rvm_cpu_addswitable(vm, "common_table", common_calltable);
 	vmcode[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 1);
 	vmcode[off++] = rvm_asm(RVM_MOV, R1, DA, XX, 2);
 	vmcode[off++] = rvm_asm(RVM_ADD, R0, R1, R0, 0);
-	vmcode[off++] = rvm_asm(RVM_OPSWI(rvm_cpu_getswi_s(vm, "rvm_callback_one")), XX, XX, XX, 0);
-	vmcode[off++] = rvm_asm(RVM_OPSWI(rvm_cpu_getswi_s(vm, "rvm_callback_two")), XX, XX, XX, 0);
+	vmcode[off++] = rvm_asm(RVM_OPSWI(rvm_cpu_swilookup_s(vm, "calltable", "rvm_callback_one")), XX, XX, XX, 0);
+	vmcode[off++] = rvm_asm(RVM_OPSWI(rvm_cpu_swilookup_s(vm, "calltable", "rvm_callback_two")), XX, XX, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_OPSWI(RVM_SWI_ID(table1, 0)), XX, XX, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_EXT, R0, XX, XX, 0);
 	fprintf(stdout, "sizeof rvm_asmins_t is: %d:\n", (unsigned int) sizeof(rvm_asmins_t));
