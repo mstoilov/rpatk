@@ -27,6 +27,7 @@ extern "C" {
 #endif
 
 #include "rtypes.h"
+#include "rvmcpu.h"
 
 typedef struct rpadbex_s rpadbex_t;
 typedef rlong rparule_t;
@@ -40,6 +41,9 @@ rint rpa_dbex_compile(rpadbex_t *dbex);
 rlong rpa_dbex_load(rpadbex_t *dbex, const rchar *rules, rsize_t size);
 rlong rpa_dbex_load_s(rpadbex_t *dbex, const rchar *rules);
 const rchar *rpa_dbex_version();
+rvm_asmins_t *rvm_dbex_getcode(rpadbex_t *dbex);
+rulong rvm_dbex_codeoffset(rpadbex_t *dbex, rparule_t rid);
+
 
 rparule_t rpa_dbex_lookup(rpadbex_t *dbex, const rchar *name);
 rparule_t rpa_dbex_default(rpadbex_t *dbex);
@@ -53,6 +57,7 @@ rint rpa_dbex_dumprecords(rpadbex_t *dbex);
 rint rpa_dbex_dumptree(rpadbex_t *dbex, const rchar *name);
 rint rpa_dbex_dumprules(rpadbex_t *dbex);
 rint rpa_dbex_dumpinfo(rpadbex_t *dbex);
+rint rpa_dbex_dumpcode(rpadbex_t* dbex);
 
 #ifdef __cplusplus
 }

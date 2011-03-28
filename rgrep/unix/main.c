@@ -154,6 +154,17 @@ int main(int argc, const char *argv[])
 	}
 
 	for (i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "--dump-code") == 0) {
+			if (rpa_dbex_compile(pGrep->hDbex) < 0) {
+
+			}
+			rpa_dbex_dumpcode(pGrep->hDbex);
+			goto end;
+		}
+	}
+
+
+	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "--dump-info") == 0) {
 			rpa_grep_dump_pattern_info(pGrep);
 			goto end;
@@ -202,6 +213,11 @@ int main(int argc, const char *argv[])
 			pGrep->forceEncoding = RPA_GREP_FORCE_BYTE;
 		}
 		
+	}
+
+	if (rpa_dbex_compile(pGrep->hDbex) < 0) {
+
+		goto end;
 	}
 
 	/* scan files */

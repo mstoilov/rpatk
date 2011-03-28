@@ -1,6 +1,10 @@
+#include "rpacompiler.h"
 #include "rpadbex.h"
 #include "rpaparser.h"
 #include "rmem.h"
+#include "rutf.h"
+
+typedef rint (*rpa_dbex_recordhandler)(rpadbex_t *dbex, rlong rec);
 
 typedef struct rpa_ruleinfo_s {
 	rlong startrec;
@@ -9,12 +13,126 @@ typedef struct rpa_ruleinfo_s {
 
 
 struct rpadbex_s {
+	rpa_compiler_t *co;
 	rpa_parser_t *pa;
 	rarray_t *records;
 	rharray_t *rules;
 	rarray_t *recstack;
+	rpa_dbex_recordhandler *handlers;
 	ruint error;
+	rvm_codelabel_t *labelerr;
+	rulong main;
 };
+
+static rparecord_t *rpa_dbex_rulerecord(rpadbex_t *dbex, rparule_t rid);
+static rparecord_t *rpa_dbex_record(rpadbex_t *dbex, rlong rec);
+static rint rpa_dbex_rulename(rpadbex_t *dbex, rlong rec, const rchar **name, rsize_t *namesize);
+
+
+static rint rpa_dbex_rh_namedrule(rpadbex_t *dbex, rlong rec)
+{
+	const rchar *name = NULL;
+	rsize_t namesize;
+	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
+
+	if (prec->type & RPA_RECORD_START) {
+		if (rpa_dbex_rulename(dbex, rec, &name, &namesize) < 0) {
+
+			return -1;
+		}
+		rvm_codegen_addlabel_s(dbex->co->cg, "$execrule");
+		rpa_compiler_rule_begin(dbex->co, name, namesize);
+
+	} else if (prec->type & RPA_RECORD_END) {
+		rpa_compiler_rule_end(dbex->co);
+
+	}
+	return 0;
+}
+
+
+static rint rpa_dbex_rh_anonymousrule(rpadbex_t *dbex, rlong rec)
+{
+	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
+
+	if (prec->type & RPA_RECORD_START) {
+		rvm_codegen_addlabel_s(dbex->co->cg, "$execrule");
+		rpa_compiler_rule_begin_s(dbex->co, "$anonymous");
+
+	} else if (prec->type & RPA_RECORD_END) {
+		rpa_compiler_rule_end(dbex->co);
+
+	}
+
+	return 0;
+}
+
+
+static rint rpa_dbex_rh_char(rpadbex_t *dbex, rlong rec)
+{
+	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
+
+	if (prec->type & RPA_RECORD_END) {
+		ruint32 wc = 0;
+		if (r_utf8_mbtowc(&wc, (const ruchar*) prec->input, (const ruchar*)prec->input + prec->inputsiz) < 0) {
+
+			return -1;
+		}
+		switch (prec->usertype & RPA_MATCH_MASK) {
+		case RPA_MATCH_NONE:
+			rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, wc));
+			break;
+		case RPA_MATCH_MULTIPLE:
+			rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_MATCHCHR_MUL, DA, XX, XX, wc));
+			break;
+		case RPA_MATCH_OPTIONAL:
+			rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_MATCHCHR_OPT, DA, XX, XX, wc));
+			break;
+		case RPA_MATCH_MULTIOPT:
+			rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_MATCHCHR_MOP, DA, XX, XX, wc));
+			break;
+		default:
+
+			return -1;
+		};
+		rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
+	}
+
+	return 0;
+}
+
+
+rpadbex_t *rpa_dbex_create(void)
+{
+	rpadbex_t *dbex = (rpadbex_t *) r_zmalloc(sizeof(*dbex));
+
+	dbex->co = rpa_compiler_create();
+	dbex->pa = rpa_parser_create();
+	dbex->records = r_array_create(sizeof(rparecord_t));
+	dbex->rules = r_harray_create(sizeof(rpa_ruleinfo_t));
+	dbex->recstack = r_array_create(sizeof(rulong));
+	dbex->handlers = r_zmalloc(sizeof(rpa_dbex_recordhandler) * RPA_PRODUCTION_COUNT);
+
+	dbex->handlers[RPA_PRODUCTION_NAMEDRULE] = rpa_dbex_rh_namedrule;
+	dbex->handlers[RPA_PRODUCTION_ANONYMOUSRULE] = rpa_dbex_rh_anonymousrule;
+	dbex->handlers[RPA_PRODUCTION_CHAR] = rpa_dbex_rh_char;
+
+	return dbex;
+}
+
+
+void rpa_dbex_destroy(rpadbex_t *dbex)
+{
+	if (dbex) {
+		rpa_compiler_destroy(dbex->co);
+		rpa_parser_destroy(dbex->pa);
+		r_object_destroy((robject_t *)dbex->records);
+		r_object_destroy((robject_t *)dbex->rules);
+		r_object_destroy((robject_t *)dbex->recstack);
+		r_free(dbex->handlers);
+		r_free(dbex);
+	}
+}
 
 
 static rint rpa_parseinfo_checkforloop(rpadbex_t *dbex, rlong rec, rlong loopstartrec, rlong loopendrec, rint inderction)
@@ -183,7 +301,21 @@ static void rpa_dbex_copyrecords(rpadbex_t *dbex, rarray_t *records)
 }
 
 
-static rparecord_t *rpa_dbex_record(rpadbex_t *dbex, rparule_t rid)
+static rparecord_t *rpa_dbex_record(rpadbex_t *dbex, rlong rec)
+{
+	rparecord_t *prec;
+
+	if (!dbex || !dbex->rules)
+		return NULL;
+	if (rec < 0 || rec >= r_array_length(dbex->records))
+		return NULL;
+	prec = (rparecord_t *)r_array_slot(dbex->records, rec);
+	return prec;
+
+}
+
+
+static rparecord_t *rpa_dbex_rulerecord(rpadbex_t *dbex, rparule_t rid)
 {
 	rparecord_t *prec;
 	rpa_ruleinfo_t *info;
@@ -202,28 +334,14 @@ static rparecord_t *rpa_dbex_record(rpadbex_t *dbex, rparule_t rid)
 }
 
 
-rpadbex_t *rpa_dbex_create(void)
+static rint rpa_dbex_rulename(rpadbex_t *dbex, rlong rec, const rchar **name, rsize_t *namesize)
 {
-	rpadbex_t *dbex = (rpadbex_t *) r_zmalloc(sizeof(*dbex));
-
-	dbex->pa = rpa_parser_create();
-	dbex->records = r_array_create(sizeof(rparecord_t));
-	dbex->rules = r_harray_create(sizeof(rpa_ruleinfo_t));
-	dbex->recstack = r_array_create(sizeof(rulong));
-
-	return dbex;
-}
-
-
-void rpa_dbex_destroy(rpadbex_t *dbex)
-{
-	if (dbex) {
-		rpa_parser_destroy(dbex->pa);
-		r_object_destroy((robject_t *)dbex->records);
-		r_object_destroy((robject_t *)dbex->rules);
-		r_object_destroy((robject_t *)dbex->recstack);
-		r_free(dbex);
-	}
+	rparecord_t *pnamerec = rpa_dbex_record(dbex, rpa_recordtree_firstchild(dbex->records, rec, RPA_RECORD_END));
+	if (!pnamerec || !(pnamerec->userid & RPA_PRODUCTION_RULENAME))
+		return -1;
+	*name = pnamerec->input;
+	*namesize = pnamerec->inputsiz;
+	return 0;
 }
 
 
@@ -330,7 +448,7 @@ rint rpa_dbex_dumprules(rpadbex_t *dbex)
 
 rint rpa_dbex_dumprecords(rpadbex_t *dbex)
 {
-	rint i;
+	rlong i;
 
 	if (!dbex)
 		return -1;
@@ -357,6 +475,15 @@ rint rpa_dbex_dumpinfo(rpadbex_t *dbex)
 }
 
 
+rint rpa_dbex_dumpcode(rpadbex_t* dbex)
+{
+	if (!dbex || !dbex->rules)
+		return -1;
+
+	rvm_asm_dump(rvm_codegen_getcode(dbex->co->cg, 0), rvm_codegen_getcodesize(dbex->co->cg));
+	return 0;
+}
+
 rsize_t rpa_dbex_copy(rpadbex_t *dbex, rparule_t rid, rchar *buf, rsize_t bufsize)
 {
 	rparecord_t *prec;
@@ -364,7 +491,7 @@ rsize_t rpa_dbex_copy(rpadbex_t *dbex, rparule_t rid, rchar *buf, rsize_t bufsiz
 
 	if (!dbex)
 		return -1;
-	if ((prec = rpa_dbex_record(dbex, rid)) == NULL)
+	if ((prec = rpa_dbex_rulerecord(dbex, rid)) == NULL)
 		return -1;
 	size = prec->inputsiz;
 	if (bufsize <= size)
@@ -439,9 +566,64 @@ const rchar *rpa_dbex_version()
 
 rint rpa_dbex_compile(rpadbex_t *dbex)
 {
+	rlong i;
+	rparecord_t *prec;
+	rpa_dbex_recordhandler handler;
+
 	if (!dbex || !dbex->rules)
 		return -1;
+
+	dbex->main = rvm_codegen_addins(dbex->co->cg, rvm_asml(RVM_NOP, XX, XX, XX, -1));
+	rvm_codegen_addins(dbex->co->cg, rvm_asml(RVM_MOV, SP, DA, XX, 0));
+	rvm_codegen_addins(dbex->co->cg, rvm_asml(RVM_MOV, R_LOO, DA, XX, 0));
+	rvm_codegen_addins(dbex->co->cg, rvm_asml(RVM_MOV, R_TOP, DA, XX, -1));
+	rvm_codegen_addins(dbex->co->cg, rvm_asml(RVM_MOV, R_WHT, DA, XX, 0));
+
+	rvm_codegen_addrelocins_s(dbex->co->cg, RVM_RELOC_JUMP, "rpacompiler_mnode_nan", rvm_asm(RPA_SETBXLNAN, DA, XX, XX, 0));
+	rvm_codegen_addrelocins_s(dbex->co->cg, RVM_RELOC_JUMP, "rpacompiler_mnode_mul", rvm_asm(RPA_SETBXLMUL, DA, XX, XX, 0));
+	rvm_codegen_addrelocins_s(dbex->co->cg, RVM_RELOC_JUMP, "rpacompiler_mnode_opt", rvm_asm(RPA_SETBXLOPT, DA, XX, XX, 0));
+	rvm_codegen_addrelocins_s(dbex->co->cg, RVM_RELOC_JUMP, "rpacompiler_mnode_mop", rvm_asm(RPA_SETBXLMOP, DA, XX, XX, 0));
+
+	rvm_codegen_addrelocins_s(dbex->co->cg, RVM_RELOC_JUMP, "rpacompiler_mnode_nan", rvm_asm(RPA_SETBXLNAN, DA, XX, XX, 0));
+	rvm_codegen_addrelocins_s(dbex->co->cg, RVM_RELOC_JUMP, "rpacompiler_mnode_opt", rvm_asm(RPA_SETBXLOPT, DA, XX, XX, 0));
+	rvm_codegen_addrelocins_s(dbex->co->cg, RVM_RELOC_JUMP, "rpacompiler_mnode_mul", rvm_asm(RPA_SETBXLMUL, DA, XX, XX, 0));
+	rvm_codegen_addrelocins_s(dbex->co->cg, RVM_RELOC_JUMP, "rpacompiler_mnode_mop", rvm_asm(RPA_SETBXLMOP, DA, XX, XX, 0));
+
+	rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_SHIFT, XX, XX, XX, 0));
+	rvm_codegen_addrelocins_s(dbex->co->cg, RVM_RELOC_JUMP, "$execrule", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_NOP, XX, XX, XX, -2));
+	rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
+
+
+	for (i = 0; i < r_array_length(dbex->records); i++) {
+		prec = (rparecord_t *) r_array_slot(dbex->records, i);
+		handler = dbex->handlers[prec->userid];
+		if (handler) {
+			if (handler(dbex, i) < 0)
+				return -1;
+		}
+	}
+
+	if (rvm_codegen_relocate(dbex->co->cg, &dbex->labelerr) < 0) {
+		r_printf("RPA_PARSER: Unresolved symbol: %s\n", dbex->labelerr->name->str);
+		return -1;
+	}
+
 
 	return 0;
 }
 
+
+rvm_asmins_t *rvm_dbex_getcode(rpadbex_t *dbex)
+{
+	if (!dbex || !dbex->rules)
+		return NULL;
+
+	return rvm_codegen_getcode(dbex->co->cg, 0);
+}
+
+
+rulong rvm_dbex_codeoffset(rpadbex_t *dbex, rparule_t rid)
+{
+	return dbex->main;
+}

@@ -1,6 +1,8 @@
 #include "rmem.h"
 #include "rarray.h"
 #include "rpastat.h"
+#include "rvmcodegen.h"
+#include "rvmcpu.h"
 
 
 rpastat_t *rpa_stat_create(rpadbex_t *dbex, rulong stacksize)
@@ -101,7 +103,7 @@ rint rpa_stat_scan(rpastat_t *stat, rparule_t rid, const rchar *input, const rch
 		return -1;
 	}
 
-	return 0;
+	return rpa_stat_parse(stat, rid, input, start, end);
 }
 
 
@@ -111,15 +113,30 @@ rint rpa_stat_match(rpastat_t *stat, rparule_t rid, const rchar *input, const rc
 		return -1;
 	}
 
-	return 0;
+
+	return rpa_stat_parse(stat, rid, input, start, end);
 }
 
 
 rint rpa_stat_parse(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end)
 {
+	rint ret = 0;
+
 	if (!stat) {
 		return -1;
 	}
+
+	rpa_stat_init(stat, input, start, end);
+	rpa_stat_cachedisable(stat, 0);
+
+	if (rvm_cpu_exec(stat->cpu, rvm_dbex_getcode(stat->dbex), rvm_dbex_codeoffset(stat->dbex, rid)) < 0) {
+		return -1;
+	}
+	ret = (rlong)RVM_CPUREG_GETL(stat->cpu, R0);
+	if (ret < 0)
+		return 0;
+	return ret;
+
 
 	return 0;
 }
