@@ -697,7 +697,7 @@ int rpa_mnode_p_callback_plain(rpa_mnode_t *mnode, rpa_stat_t *stat, const char 
 				 * If the callbacks are not disabled we can also set the cache for the cases when they are disabled.
 				 */
 				if (!stat->cbmod) {
-					ASSERT(&stat->mcache[RPA_MCACHEHASH(match, input, 1)] != mcache);
+					R_ASSERT(&stat->mcache[RPA_MCACHEHASH(match, input, 1)] != mcache);
 					RPA_MCACHE_SET(&stat->mcache[RPA_MCACHEHASH(match, input, 1)], match, input, ret, 1);
 				}
 			} else {

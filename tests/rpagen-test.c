@@ -1068,7 +1068,7 @@ int codegen_newexpressioncallop_callback(rpa_stat_handle stat, const char *name,
 		 * We should never get here
 		 */
 		r_array_removelast(co->funcall);
-		ASSERT(0);
+		R_ASSERT(0);
 	}
 
 
@@ -1124,7 +1124,7 @@ int codegen_funcallexpression_callback(rpa_stat_handle stat, const char *name, v
 		 * We should never get here
 		 */
 		r_array_removelast(co->funcall);
-		ASSERT(0);
+		R_ASSERT(0);
 	}
 	codegen_print_callback(stat, name, userdata, input, size, reason);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);

@@ -117,11 +117,17 @@ void r_harray_cleanup(robject_t *obj)
 rlong r_harray_add(rharray_t *harray, const rchar *name, ruint namesize, rconstpointer pval)
 {
 	rstr_t *membrName;
-	rlong index;
+	rlong index, nameindex;
 
 	membrName = r_rstrdup(name, namesize);
 	index = r_carray_add(harray->members, pval);
-	r_array_add(harray->names, &membrName);
+	nameindex = r_array_add(harray->names, &membrName);
+	/*
+	 * Lets try to keep the name index and the data index in sync,
+	 * if they are not, that might be a problem - we will have to
+	 * think of some sort reverse lookup mechanism.
+	 */
+	R_ASSERT(index == nameindex);
 	r_hash_insert_indexval(harray->hash, (rconstpointer)membrName, index);
 	return index;
 }

@@ -235,7 +235,7 @@ do { \
 
 
 #define RVM_STACK_CHUNK 256
-#define RVM_ABORT(__cpu__, __e__) do { __cpu__->error = (__e__); (__cpu__)->abort = 1; ASSERT(0); return; } while (0)
+#define RVM_ABORT(__cpu__, __e__) do { __cpu__->error = (__e__); (__cpu__)->abort = 1; R_ASSERT(0); return; } while (0)
 #define BIT(__shiftby__) (1 << (__shiftby__))
 #define BITR(__f__, __l__, __r__) (((__r__) >= (__f__) && (__r__) <= (__l__)) ? BIT(__r__) : 0)
 #define BITS(__f__, __l__)  (BITR(__f__, __l__, R0)) | (BITR(__f__, __l__, R1)) | (BITR(__f__, __l__, R2)) | (BITR(__f__, __l__, R3)) | \
