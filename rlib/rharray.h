@@ -13,6 +13,10 @@ extern "C" {
 #endif
 
 
+#define r_harray_index(__harray__, __index__, __type__) r_carray_index((__harray__)->members, __index__, __type__)
+#define r_harray_length(__harray__) r_carray_length((__harray__)->members)
+#define r_harray_index(__harray__, __index__, __type__) r_carray_index((__harray__)->members, __index__, __type__)
+#define r_harray_slot(__harray__, __index__) r_carray_slot((__harray__)->members, __index__)
 
 typedef struct rharray_s {
 	robject_t obj;
