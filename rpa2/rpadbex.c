@@ -43,10 +43,9 @@ static rint rpa_dbex_rh_namedrule(rpadbex_t *dbex, rlong rec)
 		}
 
 		rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_SHIFT, XX, XX, XX, 0));
-		rvm_codegen_addrelocins(dbex->co->cg, RVM_RELOC_JUMP, name, namesize, rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+		rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_BL, DA, XX, XX, 2));
 		rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
 
-		rvm_codegen_addlabel_s(dbex->co->cg, "$execrule");
 		rpa_compiler_rule_begin(dbex->co, name, namesize);
 
 	} else if (prec->type & RPA_RECORD_END) {
@@ -63,10 +62,9 @@ static rint rpa_dbex_rh_anonymousrule(rpadbex_t *dbex, rlong rec)
 
 	if (prec->type & RPA_RECORD_START) {
 		rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_SHIFT, XX, XX, XX, 0));
-		rvm_codegen_addrelocins_s(dbex->co->cg, RVM_RELOC_JUMP, "$anonymous", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+		rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_BL, DA, XX, XX, 2));
 		rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
 
-		rvm_codegen_addlabel_s(dbex->co->cg, "$execrule");
 		rpa_compiler_rule_begin_s(dbex->co, "$anonymous");
 
 	} else if (prec->type & RPA_RECORD_END) {
@@ -609,11 +607,6 @@ rint rpa_dbex_compile(rpadbex_t *dbex)
 	dbex->co = rpa_compiler_create();
 
 	dbex->init = rvm_codegen_addins(dbex->co->cg, rvm_asml(RVM_NOP, XX, XX, XX, -1));
-	rvm_codegen_addins(dbex->co->cg, rvm_asml(RVM_MOV, SP, DA, XX, 0));
-	rvm_codegen_addins(dbex->co->cg, rvm_asml(RVM_MOV, R_LOO, DA, XX, 0));
-	rvm_codegen_addins(dbex->co->cg, rvm_asml(RVM_MOV, R_TOP, DA, XX, -1));
-	rvm_codegen_addins(dbex->co->cg, rvm_asml(RVM_MOV, R_WHT, DA, XX, 0));
-
 	rvm_codegen_addrelocins_s(dbex->co->cg, RVM_RELOC_JUMP, "rpacompiler_mnode_nan", rvm_asm(RPA_SETBXLNAN, DA, XX, XX, 0));
 	rvm_codegen_addrelocins_s(dbex->co->cg, RVM_RELOC_JUMP, "rpacompiler_mnode_mul", rvm_asm(RPA_SETBXLMUL, DA, XX, XX, 0));
 	rvm_codegen_addrelocins_s(dbex->co->cg, RVM_RELOC_JUMP, "rpacompiler_mnode_opt", rvm_asm(RPA_SETBXLOPT, DA, XX, XX, 0));
@@ -624,13 +617,6 @@ rint rpa_dbex_compile(rpadbex_t *dbex)
 	rvm_codegen_addrelocins_s(dbex->co->cg, RVM_RELOC_JUMP, "rpacompiler_mnode_mul", rvm_asm(RPA_SETBXLMUL, DA, XX, XX, 0));
 	rvm_codegen_addrelocins_s(dbex->co->cg, RVM_RELOC_JUMP, "rpacompiler_mnode_mop", rvm_asm(RPA_SETBXLMOP, DA, XX, XX, 0));
 	rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
-
-
-	rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_SHIFT, XX, XX, XX, 0));
-	rvm_codegen_addrelocins_s(dbex->co->cg, RVM_RELOC_JUMP, "$execrule", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
-	rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_NOP, XX, XX, XX, -2));
-	rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
-
 
 	for (rid = rpa_dbex_first(dbex); rid >= 0; rid = rpa_dbex_next(dbex, rid)) {
 		if (rpa_dbex_compile_rule(dbex, rid) < 0) {

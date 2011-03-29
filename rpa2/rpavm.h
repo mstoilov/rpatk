@@ -66,6 +66,7 @@ extern "C" {
 typedef struct rpainput_s {
 	const rchar *input;
 	ruint32 wc;
+	ruint32 iwc;
 	ruchar eof;
 } rpainput_t;
 

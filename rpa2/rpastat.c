@@ -3,6 +3,8 @@
 #include "rpastat.h"
 #include "rvmcodegen.h"
 #include "rvmcpu.h"
+#include "rutf.h"
+#include "rcharconv.h"
 
 
 rpastat_t *rpa_stat_create(rpadbex_t *dbex, rulong stacksize)
@@ -18,6 +20,7 @@ rpastat_t *rpa_stat_create(rpadbex_t *dbex, rulong stacksize)
 	stat->dbex = dbex;
 	stat->records = r_array_create(sizeof(rparecord_t));
 	stat->cpu->userdata1 = stat;
+
 	return stat;
 }
 
@@ -76,6 +79,10 @@ rint rpa_stat_init(rpastat_t *stat, const rchar *input, const rchar *start, cons
 	stat->ip.input = input;
 	stat->ip.serial = 0;
 	rpa_stat_resetrecords(stat);
+	RVM_CPUREG_SETU(stat->cpu, SP, 0);
+	RVM_CPUREG_SETU(stat->cpu, R_LOO, 0);
+	RVM_CPUREG_SETU(stat->cpu, R_WHT, 0);
+	RVM_CPUREG_SETU(stat->cpu, R_TOP, -1);
 	return 0;
 }
 
@@ -97,52 +104,78 @@ rint rpa_stat_encodingset(rpastat_t *stat, ruint encoding)
 }
 
 
-rint rpa_stat_scan(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end, const rchar **where)
+static rlong rpa_stat_exec_noinit(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end)
 {
-	if (!stat) {
-		return -1;
-	}
-
-	return rpa_stat_parse(stat, rid, input, start, end);
-}
-
-
-rint rpa_stat_match(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end)
-{
-	if (!stat) {
-		return -1;
-	}
-
-
-	return rpa_stat_parse(stat, rid, input, start, end);
-}
-
-
-rint rpa_stat_parse(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end)
-{
-	rint ret = 0;
-
-	if (!stat) {
-		return -1;
-	}
+	rlong top = 0;
+	rpainput_t *ptp;
 
 	rpa_stat_init(stat, input, start, end);
 	rpa_stat_cachedisable(stat, 0);
 
-	if (rvm_cpu_exec(stat->cpu, rvm_dbex_getcode(stat->dbex), rvm_dbex_initoffset(stat->dbex)) < 0) {
-		return -1;
+	if (stat->debug) {
+		if (rvm_cpu_exec_debug(stat->cpu, rvm_dbex_getcode(stat->dbex), rvm_dbex_codeoffset(stat->dbex, rid)) < 0) {
+			return -1;
+		}
+	} else {
+		if (rvm_cpu_exec(stat->cpu, rvm_dbex_getcode(stat->dbex), rvm_dbex_codeoffset(stat->dbex, rid)) < 0) {
+			return -1;
+		}
 	}
-
-	if (rvm_cpu_exec(stat->cpu, rvm_dbex_getcode(stat->dbex), rvm_dbex_codeoffset(stat->dbex, rid)) < 0) {
-		return -1;
-	}
-	ret = (rlong)RVM_CPUREG_GETL(stat->cpu, R0);
-	if (ret < 0)
+	top = (rlong)RVM_CPUREG_GETL(stat->cpu, R0);
+	if (top < 0)
 		return 0;
+
+	ptp = &stat->instack[top];
+
+	return (ptp->input - input);
+}
+
+
+rlong rpa_stat_scan(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end, const rchar **where)
+{
+	rlong ret;
+
+	if (!stat) {
+		return -1;
+	}
+
+	if (rvm_cpu_exec(stat->cpu, rvm_dbex_getcode(stat->dbex), rvm_dbex_initoffset(stat->dbex)) < 0)
+		return -1;
+
+	while (input < end) {
+		if ((ret = rpa_stat_exec_noinit(stat, rid, input, start, end)) > 0) {
+			*where = input;
+			return ret;
+		}
+		input += 1;
+	}
 	return ret;
+}
 
 
-	return 0;
+rlong rpa_stat_match(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end)
+{
+	if (!stat) {
+		return -1;
+	}
+
+	if (rvm_cpu_exec(stat->cpu, rvm_dbex_getcode(stat->dbex), rvm_dbex_initoffset(stat->dbex)) < 0)
+		return -1;
+
+	return rpa_stat_exec_noinit(stat, rid, input, start, end);
+}
+
+
+rlong rpa_stat_parse(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end)
+{
+	if (!stat) {
+		return -1;
+	}
+
+	if (rvm_cpu_exec(stat->cpu, rvm_dbex_getcode(stat->dbex), rvm_dbex_initoffset(stat->dbex)) < 0)
+		return -1;
+
+	return rpa_stat_exec_noinit(stat, rid, input, start, end);
 }
 
 
@@ -153,4 +186,98 @@ rint rpa_stat_abort(rpastat_t *stat)
 	}
 
 	return 0;
+}
+
+
+rint rpa_stat_matchchr(rpastat_t *stat, rssize_t top, rulong wc)
+{
+	rint ret = 0;
+	rpainput_t *in = &stat->instack[top];
+
+	if (in->eof)
+		return 0;
+	if (stat->encoding & RPA_ENCODING_ICASE) {
+		ret = (in->wc == wc || in->iwc == wc) ? 1 : 0;
+	} else {
+		ret = (in->wc == wc) ? 1 : 0;
+	}
+	return ret;
+}
+
+
+rint rpa_stat_matchrng(rpastat_t *stat, rssize_t top, rulong wc1, rulong wc2)
+{
+	rint ret = 0;
+	rpainput_t *in = &stat->instack[top];
+
+	if (in->eof)
+		return 0;
+	if (stat->encoding & RPA_ENCODING_ICASE) {
+		ret = ((in->wc >= wc1 && in->wc <= wc2) || (in->iwc >= wc1 && in->iwc <= wc2)) ? 1 : 0;
+	} else {
+		ret = ((in->wc >= wc1 && in->wc <= wc2)) ? 1 : 0;
+	}
+	return ret;
+}
+
+
+static rint rpa_stat_utf8_getchar(ruint32 *pwc, rpastat_t *stat, const rchar *input)
+{
+	return r_utf8_mbtowc(pwc, (const ruchar*)input, (const ruchar*)stat->end);
+}
+
+
+static rint rpa_stat_byte_getchar(ruint32 *pwc, rpastat_t *stat, const rchar *input)
+{
+	if (input >= stat->end) {
+		*pwc = (unsigned int)0;
+		return 0;
+	}
+	*pwc = *((const ruchar*)input);
+	return 1;
+}
+
+
+static int rpa_stat_utf16_getchar(ruint32 *pwc, rpastat_t *stat, const rchar *input)
+{
+	return r_utf16_mbtowc(pwc, (const ruchar*)input, (const ruchar*)stat->end);
+}
+
+
+rlong rpa_stat_shift(rpastat_t *stat, rssize_t top)
+{
+	rpainput_t * ptp = &stat->instack[top];
+
+	if (ptp->eof)
+		return -1;
+	ptp++;
+	top++;
+	if (top >= (rlong)stat->ip.serial) {
+		rint inc = 0;
+		ptp->input = stat->ip.input;
+		if (ptp->input < stat->end) {
+			switch (stat->encoding & RPA_ENCODING_MASK) {
+			default:
+			case RPA_ENCODING_UTF8:
+				inc = rpa_stat_utf8_getchar(&ptp->wc, stat, (const rchar*)stat->ip.input);
+				break;
+			case RPA_ENCODING_UTF16LE:
+				inc = rpa_stat_utf16_getchar(&ptp->wc, stat, (const rchar*)stat->ip.input);
+				break;
+			case RPA_ENCODING_BYTE:
+				inc = rpa_stat_byte_getchar(&ptp->wc, stat, (const rchar*)stat->ip.input);
+				break;
+			};
+			if (stat->encoding & RPA_ENCODING_ICASE)
+				ptp->iwc = r_charicase(ptp->wc);
+			stat->ip.input += inc;
+			stat->ip.serial += 1;
+			ptp->eof = 0;
+		} else {
+			ptp->wc = (ruint32)-1;
+			ptp->eof = 1;
+		}
+	}
+
+	return top;
 }

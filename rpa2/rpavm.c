@@ -4,32 +4,40 @@
 #include "rmem.h"
 
 
+//static void rpavm_swi_shift(rvmcpu_t *cpu, rvm_asmins_t *ins)
+//{
+//	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
+//	rlong tp = RVM_CPUREG_GETL(cpu, R_TOP);
+//	rpainput_t * ptp = &stat->instack[tp];
+//
+//	if (ptp->eof)
+//		return;
+//	ptp++;
+//	tp++;
+//	if (tp >= (rlong)stat->ip.serial) {
+//		rint inc = 0;
+//		ptp->input = stat->ip.input;
+//		if (ptp->input < stat->end) {
+//			inc = r_utf8_mbtowc(&ptp->wc, (const ruchar*)stat->ip.input, (const ruchar*)stat->end);
+//			stat->ip.input += inc;
+//			stat->ip.serial += 1;
+//			ptp->eof = 0;
+//		} else {
+//			ptp->wc = (ruint32)-1;
+//			ptp->eof = 1;
+//		}
+//	}
+//	RVM_CPUREG_SETL(cpu, R_TOP, tp);
+//}
+
 static void rpavm_swi_shift(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
-	rlong tp = RVM_CPUREG_GETL(cpu, R_TOP);
-	rpainput_t * ptp = &stat->instack[tp];
+	rlong top = RVM_CPUREG_GETL(cpu, R_TOP);
 
-	if (ptp->eof)
-		return;
-	ptp++;
-	tp++;
-	if (tp >= (rlong)stat->ip.serial) {
-		rint inc = 0;
-		ptp->input = stat->ip.input;
-		if (ptp->input < stat->end) {
-			inc = r_utf8_mbtowc(&ptp->wc, (const ruchar*)stat->ip.input, (const ruchar*)stat->end);
-			stat->ip.input += inc;
-			stat->ip.serial += 1;
-			ptp->eof = 0;
-		} else {
-			ptp->wc = (ruint32)-1;
-			ptp->eof = 1;
-		}
-	}
-	RVM_CPUREG_SETL(cpu, R_TOP, tp);
+	if ((top = rpa_stat_shift(stat, top)) >= 0)
+		RVM_CPUREG_SETL(cpu, R_TOP, top);
 }
-
 
 static void rpavm_matchchr_do(rvmcpu_t *cpu, rvm_asmins_t *ins, rword flags)
 {
@@ -38,28 +46,28 @@ static void rpavm_matchchr_do(rvmcpu_t *cpu, rvm_asmins_t *ins, rword flags)
 	rword matched = 0;
 
 	if (flags == RPA_MATCH_OPTIONAL) {
-		if (!stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].eof && stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc == wc) {
+		if (rpa_stat_matchchr(stat, RVM_CPUREG_GETL(cpu, R_TOP), wc) > 0) {
 			rpavm_swi_shift(cpu, ins);
 			matched = 1;
 		}
 		cpu->status = matched ? 0 : RVM_STATUS_Z;
 		RVM_CPUREG_SETU(cpu, R0, matched);
 	} else if (flags == RPA_MATCH_MULTIPLE) {
-		while (!stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].eof && stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc == wc) {
+		while (rpa_stat_matchchr(stat, RVM_CPUREG_GETL(cpu, R_TOP), wc) > 0) {
 			rpavm_swi_shift(cpu, ins);
 			matched += 1;
 		}
 		cpu->status = matched ? 0 : RVM_STATUS_N;
 		RVM_CPUREG_SETU(cpu, R0, matched ? matched : (rword)-1);
 	} else if (flags == RPA_MATCH_MULTIOPT) {
-		while (!stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].eof && stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc == wc) {
+		while (rpa_stat_matchchr(stat, RVM_CPUREG_GETL(cpu, R_TOP), wc) > 0) {
 			rpavm_swi_shift(cpu, ins);
 			matched += 1;
 		}
 		cpu->status = matched ? 0 : RVM_STATUS_Z;
 		RVM_CPUREG_SETU(cpu, R0, matched );
 	} else {
-		if (!stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].eof && stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc == wc) {
+		if (rpa_stat_matchchr(stat, RVM_CPUREG_GETL(cpu, R_TOP), wc) > 0) {
 			rpavm_swi_shift(cpu, ins);
 			matched = 1;
 		}
@@ -93,28 +101,28 @@ static void rpavm_matchspchr_do(rvmcpu_t *cpu, rvm_asmins_t *ins, rword flags)
 	};
 
 	if (flags == RPA_MATCH_OPTIONAL) {
-		if (!stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].eof && (wc == (rword)-1 || stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc == wc)) {
+		if (wc == (rword)-1 || rpa_stat_matchchr(stat, RVM_CPUREG_GETL(cpu, R_TOP), wc) > 0) {
 			rpavm_swi_shift(cpu, ins);
 			matched = 1;
 		}
 		cpu->status = matched ? 0 : RVM_STATUS_Z;
 		RVM_CPUREG_SETU(cpu, R0, matched);
 	} else if (flags == RPA_MATCH_MULTIPLE) {
-		while (!stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].eof && (wc == (rword)-1 || stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc == wc)) {
+		while (wc == (rword)-1 || rpa_stat_matchchr(stat, RVM_CPUREG_GETL(cpu, R_TOP), wc) > 0) {
 			rpavm_swi_shift(cpu, ins);
 			matched += 1;
 		}
 		cpu->status = matched ? 0 : RVM_STATUS_N;
 		RVM_CPUREG_SETU(cpu, R0, matched ? matched : (rword)-1);
 	} else if (flags == RPA_MATCH_MULTIOPT) {
-		while (!stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].eof && (wc == (rword)-1 || stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc == wc)) {
+		while (wc == (rword)-1 || rpa_stat_matchchr(stat, RVM_CPUREG_GETL(cpu, R_TOP), wc) > 0) {
 			rpavm_swi_shift(cpu, ins);
 			matched += 1;
 		}
 		cpu->status = matched ? 0 : RVM_STATUS_Z;
 		RVM_CPUREG_SETU(cpu, R0, matched );
 	} else {
-		if (!stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].eof && (wc == (rword)-1 || stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc == wc)) {
+		if (wc == (rword)-1 || rpa_stat_matchchr(stat, RVM_CPUREG_GETL(cpu, R_TOP), wc) > 0) {
 			rpavm_swi_shift(cpu, ins);
 			matched = 1;
 		}
@@ -181,32 +189,28 @@ static void rpavm_matchrng_do(rvmcpu_t *cpu, rvm_asmins_t *ins, rword flags)
 	rword matched = 0;
 
 	if (flags == RPA_MATCH_OPTIONAL) {
-		if (!stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].eof &&
-			(stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc >= pr.p1 && stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc <= pr.p2)) {
+		if (rpa_stat_matchrng(stat, RVM_CPUREG_GETL(cpu, R_TOP), pr.p1, pr.p2) > 0) {
 			rpavm_swi_shift(cpu, ins);
 			matched = 1;
 		}
 		cpu->status = matched ? 0 : RVM_STATUS_Z;
 		RVM_CPUREG_SETU(cpu, R0, matched);
 	} else if (flags == RPA_MATCH_MULTIPLE) {
-		while (!stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].eof &&
-				(stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc >= pr.p1 && stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc <= pr.p2)) {
+		while (rpa_stat_matchrng(stat, RVM_CPUREG_GETL(cpu, R_TOP), pr.p1, pr.p2) > 0) {
 			rpavm_swi_shift(cpu, ins);
 			matched += 1;
 		}
 		cpu->status = matched ? 0 : RVM_STATUS_N;
 		RVM_CPUREG_SETU(cpu, R0, matched ? matched : (rword)-1);
 	} else if (flags == RPA_MATCH_MULTIOPT) {
-		while (!stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].eof &&
-				(stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc >= pr.p1 && stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc <= pr.p2)) {
+		while (rpa_stat_matchrng(stat, RVM_CPUREG_GETL(cpu, R_TOP), pr.p1, pr.p2) > 0) {
 			rpavm_swi_shift(cpu, ins);
 			matched += 1;
 		}
 		cpu->status = matched ? 0 : RVM_STATUS_Z;
 		RVM_CPUREG_SETU(cpu, R0, matched );
 	} else {
-		if (!stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].eof &&
-			(stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc >= pr.p1 && stat->instack[RVM_CPUREG_GETL(cpu, R_TOP)].wc <= pr.p2)) {
+		if (rpa_stat_matchrng(stat, RVM_CPUREG_GETL(cpu, R_TOP), pr.p1, pr.p2) > 0) {
 			rpavm_swi_shift(cpu, ins);
 			matched = 1;
 		}

@@ -4,6 +4,7 @@ RLIB_SO = $(OUTDIR)/librlib.so.1.0
 
 
 RLIB_OBJECTS +=	$(OUTDIR)/rref.o
+RLIB_OBJECTS +=	$(OUTDIR)/rcharconv.o
 RLIB_OBJECTS +=	$(OUTDIR)/robject.o
 RLIB_OBJECTS +=	$(OUTDIR)/rgc.o
 RLIB_OBJECTS +=	$(OUTDIR)/rmem.o
