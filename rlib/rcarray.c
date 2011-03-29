@@ -2,19 +2,19 @@
 #include "rmem.h"
 
 
-static rpointer r_carray_allocate_chunk(ruint elt_size)
+static rpointer r_carray_allocate_chunk(rsize_t elt_size)
 {
 	return r_zmalloc(R_CARRAY_CHUNKSIZE * elt_size);
 }
 
 
-static rpointer r_carray_get_chunk(const rcarray_t *carray, ruint nchunk)
+static rpointer r_carray_get_chunk(const rcarray_t *carray, rsize_t nchunk)
 {
 	return r_array_index(carray->array, nchunk, rpointer);
 }
 
 
-static void r_carray_add_chunks(rcarray_t *carray, ruint nchunks)
+static void r_carray_add_chunks(rcarray_t *carray, rsize_t nchunks)
 {
 	rpointer chunk;
 
@@ -40,7 +40,7 @@ void r_carray_cleanup(robject_t *obj)
 }
 
 
-robject_t *r_carray_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, ruint elt_size)
+robject_t *r_carray_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, rsize_t elt_size)
 {
 	rcarray_t *carray = (rcarray_t*)obj;
 
@@ -54,7 +54,7 @@ robject_t *r_carray_init(robject_t *obj, ruint32 type, r_object_cleanupfun clean
 }
 
 
-rcarray_t *r_carray_create(ruint elt_size)
+rcarray_t *r_carray_create(rsize_t elt_size)
 {
 	rcarray_t *carray;
 	carray = (rcarray_t*)r_object_create(sizeof(*carray));
@@ -65,7 +65,7 @@ rcarray_t *r_carray_create(ruint elt_size)
 
 robject_t *r_carray_copy(const robject_t *obj)
 {
-	ruint i;
+	rsize_t i;
 	rcarray_t *dst;
 	const rcarray_t *carray = (const rcarray_t *)obj;
 
@@ -86,7 +86,7 @@ robject_t *r_carray_copy(const robject_t *obj)
 }
 
 
-rint r_carray_replace(rcarray_t *carray, ruint index, rconstpointer data)
+rint r_carray_replace(rcarray_t *carray, rsize_t index, rconstpointer data)
 {
 	if (data)
 		r_memcpy(r_carray_slot_expand(carray, index), data, carray->elt_size);
@@ -98,13 +98,13 @@ rint r_carray_replace(rcarray_t *carray, ruint index, rconstpointer data)
 
 rint r_carray_add(rcarray_t *carray, rconstpointer data)
 {
-	ruint index = r_carray_length(carray);
+	rsize_t index = r_carray_length(carray);
 	r_carray_inclength(carray);
 	return r_carray_replace(carray, index, data);
 }
 
 
-void r_carray_setlength(rcarray_t *carray, ruint len)
+void r_carray_setlength(rcarray_t *carray, rsize_t len)
 {
 	r_carray_checkexpand(carray, len);
 	r_carray_length(carray) = len;
@@ -125,9 +125,9 @@ void r_carray_declength(rcarray_t *carray)
 }
 
 
-void r_carray_checkexpand(rcarray_t *carray, ruint size)
+void r_carray_checkexpand(rcarray_t *carray, rsize_t size)
 {
-	ruint chunks;
+	rsize_t chunks;
 
 	if (r_carray_size(carray) < size) {
 		chunks = (size - r_carray_size(carray) + R_CARRAY_CHUNKSIZE) / R_CARRAY_CHUNKSIZE;
@@ -136,16 +136,16 @@ void r_carray_checkexpand(rcarray_t *carray, ruint size)
 }
 
 
-rpointer r_carray_slot_expand(rcarray_t *carray, ruint index)
+rpointer r_carray_slot_expand(rcarray_t *carray, rsize_t index)
 {
 	r_carray_checkexpand(carray, index+1);
 	return (void*) r_carray_slot(carray, index);
 }
 
-rpointer r_carray_slot_notused(rcarray_t *carray, ruint index)
+rpointer r_carray_slot_notused(rcarray_t *carray, rsize_t index)
 {
-	ruint nchunk = index >> R_CARRAY_CHUNKBITS;
-	ruint offset = index & R_CARRAY_CHUNKMASK;
+	rsize_t nchunk = index >> R_CARRAY_CHUNKBITS;
+	rsize_t offset = index & R_CARRAY_CHUNKMASK;
 	rpointer chunk = r_array_index(carray->array, nchunk, rpointer);
 
 	rpointer v = (rpointer)(((rchar*)chunk) + (offset * carray->elt_size));

@@ -21,9 +21,9 @@ typedef void (*r_carray_callback)(rcarray_t *carray);
 struct rcarray_s {
 	robject_t obj;
 	rarray_t *array;
-	ruint alloc_size;
-	ruint len;
-	ruint elt_size;
+	rsize_t alloc_size;
+	rsize_t len;
+	rsize_t elt_size;
 	r_carray_callback oncleanup;
 	r_carray_callback oncopy;
 	rpointer *userdata;
@@ -35,15 +35,15 @@ struct rcarray_s {
 #define r_carray_slot(__carray__, __index__)(((rchar*)r_array_index((__carray__)->array, (__index__) >> R_CARRAY_CHUNKBITS, rpointer)) + ((__index__) & R_CARRAY_CHUNKMASK) * (__carray__)->elt_size)
 #define r_carray_index(__carray__, __index__, __type__) *((__type__*)r_carray_slot(__carray__, __index__))
 
-robject_t *r_carray_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, ruint elt_size);
-rcarray_t *r_carray_create(ruint elt_size);
-rint r_carray_replace(rcarray_t *carray, ruint index, rconstpointer data);
+robject_t *r_carray_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, rsize_t elt_size);
+rcarray_t *r_carray_create(rsize_t elt_size);
+rint r_carray_replace(rcarray_t *carray, rsize_t index, rconstpointer data);
 rint r_carray_add(rcarray_t *carray, rconstpointer data);
-void r_carray_setlength(rcarray_t *carray, ruint len);
+void r_carray_setlength(rcarray_t *carray, rsize_t len);
 void r_carray_inclength(rcarray_t *carray);
 void r_carray_inclength(rcarray_t *carray);
-void r_carray_checkexpand(rcarray_t *carray, ruint size);
-rpointer r_carray_slot_expand(rcarray_t *carray, ruint index);
+void r_carray_checkexpand(rcarray_t *carray, rsize_t size);
+rpointer r_carray_slot_expand(rcarray_t *carray, rsize_t index);
 
 /*
  * Virtual methods implementation

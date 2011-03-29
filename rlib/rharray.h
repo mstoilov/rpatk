@@ -28,19 +28,19 @@ typedef struct rharray_s {
 
 rharray_t *r_harray_create(ruint elt_size);
 robject_t *r_harray_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, ruint elt_size);
-rlong r_harray_add(rharray_t *harray, const rchar *name, ruint namesize, rconstpointer pval);
+rlong r_harray_add(rharray_t *harray, const rchar *name, rsize_t namesize, rconstpointer pval);
 rlong r_harray_add_s(rharray_t *harray, const rchar *name, rconstpointer pval);
-rlong r_harray_replace(rharray_t *harray, const rchar *name, ruint namesize, rconstpointer pval);
+rlong r_harray_replace(rharray_t *harray, const rchar *name, rsize_t namesize, rconstpointer pval);
 rlong r_harray_replace_s(rharray_t *harray, const rchar *name, rconstpointer pval);
-rlong r_harray_lookup(rharray_t *harray, const rchar *name, ruint namesize);
+rlong r_harray_lookup(rharray_t *harray, const rchar *name, rsize_t namesize);
 rlong r_harray_lookup_s(rharray_t *harray, const rchar *name);
-rlong r_harray_taillookup(rharray_t *harray, const rchar *name, ruint namesize);
+rlong r_harray_taillookup(rharray_t *harray, const rchar *name, rsize_t namesize);
 rlong r_harray_taillookup_s(rharray_t *harray, const rchar *name);
-rhash_node_t* r_harray_nodelookup(rharray_t *harray, rhash_node_t *cur, const rchar *name, ruint namesize);
+rhash_node_t* r_harray_nodelookup(rharray_t *harray, rhash_node_t *cur, const rchar *name, rsize_t namesize);
 rhash_node_t* r_harray_nodelookup_s(rharray_t *harray, rhash_node_t *cur, const rchar *name);
-rhash_node_t* r_harray_nodetaillookup(rharray_t *harray, rhash_node_t *cur, const rchar *name, ruint namesize);
+rhash_node_t* r_harray_nodetaillookup(rharray_t *harray, rhash_node_t *cur, const rchar *name, rsize_t namesize);
 rhash_node_t* r_harray_nodetaillookup_s(rharray_t *harray, rhash_node_t *cur, const rchar *name);
-rpointer r_harray_get(rharray_t *harray, rulong index);
+rpointer r_harray_get(rharray_t *harray, rsize_t index);
 rint r_harray_set(rharray_t *harray, rlong index, rconstpointer pval);
 
 robject_t *r_harray_copy(const robject_t *obj);

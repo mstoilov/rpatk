@@ -114,7 +114,7 @@ void r_harray_cleanup(robject_t *obj)
 }
 
 
-rlong r_harray_add(rharray_t *harray, const rchar *name, ruint namesize, rconstpointer pval)
+rlong r_harray_add(rharray_t *harray, const rchar *name, rsize_t namesize, rconstpointer pval)
 {
 	rstr_t *membrName;
 	rlong index, nameindex;
@@ -139,7 +139,7 @@ rlong r_harray_add_s(rharray_t *harray, const rchar *name, rconstpointer pval)
 }
 
 
-rlong r_harray_replace(rharray_t *harray, const rchar *name, ruint namesize, rconstpointer pval)
+rlong r_harray_replace(rharray_t *harray, const rchar *name, rsize_t namesize, rconstpointer pval)
 {
 	rlong index = r_harray_lookup(harray, name, namesize);
 
@@ -155,9 +155,9 @@ rlong r_harray_replace_s(rharray_t *harray, const rchar *name, rconstpointer pva
 }
 
 
-rlong r_harray_lookup(rharray_t *harray, const rchar *name, ruint namesize)
+rlong r_harray_lookup(rharray_t *harray, const rchar *name, rsize_t namesize)
 {
-	rulong found;
+	rsize_t found;
 
 	rstr_t lookupstr = {(char*)name, namesize};
 	found = r_hash_lookup_indexval(harray->hash, &lookupstr);
@@ -173,9 +173,9 @@ rlong r_harray_lookup_s(rharray_t *harray, const rchar *name)
 }
 
 
-rlong r_harray_taillookup(rharray_t *harray, const rchar *name, ruint namesize)
+rlong r_harray_taillookup(rharray_t *harray, const rchar *name, rsize_t namesize)
 {
-	rulong found;
+	rsize_t found;
 
 	rstr_t lookupstr = {(char*)name, namesize};
 	found = r_hash_taillookup_indexval(harray->hash, &lookupstr);
@@ -192,7 +192,7 @@ rlong r_harray_taillookup_s(rharray_t *harray, const rchar *name)
 
 
 
-rhash_node_t* r_harray_nodelookup(rharray_t *harray, rhash_node_t *cur, const rchar *name, ruint namesize)
+rhash_node_t* r_harray_nodelookup(rharray_t *harray, rhash_node_t *cur, const rchar *name, rsize_t namesize)
 {
 	rstr_t lookupstr = {(char*)name, namesize};
 	return r_hash_nodelookup(harray->hash, cur, &lookupstr);
@@ -205,7 +205,7 @@ rhash_node_t* r_harray_nodelookup_s(rharray_t *harray, rhash_node_t *cur, const 
 }
 
 
-rhash_node_t* r_harray_nodetaillookup(rharray_t *harray, rhash_node_t *cur, const rchar *name, ruint namesize)
+rhash_node_t* r_harray_nodetaillookup(rharray_t *harray, rhash_node_t *cur, const rchar *name, rsize_t namesize)
 {
 	rstr_t lookupstr = {(char*)name, namesize};
 	return r_hash_nodetaillookup(harray->hash, cur, &lookupstr);
@@ -227,7 +227,7 @@ rint r_harray_set(rharray_t *harray, rlong index, rconstpointer pval)
 }
 
 
-rpointer r_harray_get(rharray_t *harray, rulong index)
+rpointer r_harray_get(rharray_t *harray, rsize_t index)
 {
 	if (index >= r_carray_length(harray->members) || index < 0)
 		return NULL;

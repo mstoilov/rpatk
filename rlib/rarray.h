@@ -15,9 +15,9 @@ typedef void (*r_array_callback)(rarray_t *array);
 struct rarray_s {
 	robject_t obj;
 	rpointer *data;
-	ruint len;
-	ruint alloc_size;
-	ruint elt_size;
+	rsize_t len;
+	rsize_t alloc_size;
+	rsize_t elt_size;
 	r_array_callback oncleanup;
 	r_array_callback oncopy;
 	rpointer *user;
@@ -37,15 +37,15 @@ struct rarray_s {
 #define r_array_push(__array__, __val__, __type__) do {__type__ __v__ = (__type__)__val__; r_array_add(__array__, &__v__); } while(0)
 #define r_array_pop(__array__, __type__) (r_array_index(__array__, (__array__)->len ? --(__array__)->len : 0, __type__))
 
-robject_t *r_array_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, ruint elt_size);
-rarray_t *r_array_create(ruint elt_size);
+robject_t *r_array_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, rsize_t elt_size);
+rarray_t *r_array_create(rsize_t elt_size);
 rint r_array_add(rarray_t *array, rconstpointer data);
 rint r_array_removelast(rarray_t *array);
-rint r_array_insert(rarray_t *array, ruint index, rconstpointer data);
-rint r_array_replace(rarray_t *array, ruint index, rconstpointer data);
-rint r_array_setlength(rarray_t *array, ruint len);
-rint r_array_expand(rarray_t *array, ruint len);
-void *r_array_slot_expand(rarray_t *array, ruint index);
+rint r_array_insert(rarray_t *array, rsize_t index, rconstpointer data);
+rint r_array_replace(rarray_t *array, rsize_t index, rconstpointer data);
+rint r_array_setlength(rarray_t *array, rsize_t len);
+rint r_array_expand(rarray_t *array, rsize_t len);
+void *r_array_slot_expand(rarray_t *array, rsize_t index);
 
 /*
  * Virtual methods implementation

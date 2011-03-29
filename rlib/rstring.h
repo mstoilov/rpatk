@@ -16,7 +16,7 @@ extern "C" {
 
 typedef struct rstr_s {
 	rchar *str;
-	ruint size;
+	rsize_t size;
 } rstr_t;
 
 
