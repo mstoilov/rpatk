@@ -58,7 +58,7 @@ rint rpa_dbex_dumprecords(rpadbex_t *dbex);
 rint rpa_dbex_dumptree(rpadbex_t *dbex, const rchar *name);
 rint rpa_dbex_dumprules(rpadbex_t *dbex);
 rint rpa_dbex_dumpinfo(rpadbex_t *dbex);
-rint rpa_dbex_dumpcode(rpadbex_t* dbex);
+rint rpa_dbex_dumpcode(rpadbex_t* dbex, const rchar *rule);
 
 #ifdef __cplusplus
 }

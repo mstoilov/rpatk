@@ -109,9 +109,6 @@ static rlong rpa_stat_exec_noinit(rpastat_t *stat, rparule_t rid, const rchar *i
 	rlong top = 0;
 	rpainput_t *ptp;
 
-	rpa_stat_init(stat, input, start, end);
-	rpa_stat_cachedisable(stat, 0);
-
 	if (stat->debug) {
 		if (rvm_cpu_exec_debug(stat->cpu, rvm_dbex_getcode(stat->dbex), rvm_dbex_codeoffset(stat->dbex, rid)) < 0) {
 			return -1;
@@ -139,6 +136,8 @@ rlong rpa_stat_scan(rpastat_t *stat, rparule_t rid, const rchar *input, const rc
 		return -1;
 	}
 
+	rpa_stat_init(stat, input, start, end);
+
 	if (rvm_cpu_exec(stat->cpu, rvm_dbex_getcode(stat->dbex), rvm_dbex_initoffset(stat->dbex)) < 0)
 		return -1;
 
@@ -159,6 +158,7 @@ rlong rpa_stat_match(rpastat_t *stat, rparule_t rid, const rchar *input, const r
 		return -1;
 	}
 
+	rpa_stat_init(stat, input, start, end);
 	if (rvm_cpu_exec(stat->cpu, rvm_dbex_getcode(stat->dbex), rvm_dbex_initoffset(stat->dbex)) < 0)
 		return -1;
 
@@ -166,16 +166,25 @@ rlong rpa_stat_match(rpastat_t *stat, rparule_t rid, const rchar *input, const r
 }
 
 
-rlong rpa_stat_parse(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end)
+rarray_t *rpa_stat_parse(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end)
 {
+	rint res = 0;
+	rarray_t *records = NULL;
+
 	if (!stat) {
-		return -1;
+		return NULL;
 	}
 
+	rpa_stat_init(stat, input, start, end);
 	if (rvm_cpu_exec(stat->cpu, rvm_dbex_getcode(stat->dbex), rvm_dbex_initoffset(stat->dbex)) < 0)
-		return -1;
+		return NULL;
 
-	return rpa_stat_exec_noinit(stat, rid, input, start, end);
+	res = rpa_stat_exec_noinit(stat, rid, input, start, end);
+	if (res > 0 && !r_array_empty(stat->records)) {
+		records = stat->records;
+		stat->records = r_array_create(sizeof(rparecord_t));
+	}
+	return records;
 }
 
 

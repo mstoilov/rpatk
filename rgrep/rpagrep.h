@@ -38,6 +38,11 @@ extern "C" {
 typedef struct rpa_buffer_s rpa_buffer_t;
 typedef void (*RPA_BUFFER_DESTROY)(rpa_buffer_t *str);
 
+#define RPA_GREPTYPE_SCAN 0
+#define RPA_GREPTYPE_SCANLINES 1
+#define RPA_GREPTYPE_MATCH 2
+#define RPA_GREPTYPE_PARSE 3
+
 typedef struct rpa_grep_s {
 	rpadbex_t *hDbex;
 	rparule_t hPattern;
@@ -45,8 +50,7 @@ typedef struct rpa_grep_s {
 	unsigned long usedstack;
 	unsigned int icase;
 	unsigned int encoding;
-	unsigned int matchonly;
-	unsigned int linemode;
+	unsigned int greptype;
 	unsigned int showtime;
 	unsigned int forceEncoding;
 	unsigned long long scsize;

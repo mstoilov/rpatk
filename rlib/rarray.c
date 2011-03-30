@@ -38,6 +38,12 @@ rarray_t *r_array_create(rsize_t elt_size)
 }
 
 
+void r_array_destroy(rarray_t *array)
+{
+	r_object_destroy((robject_t*)array);
+}
+
+
 robject_t *r_array_copy(const robject_t *obj)
 {
 	rsize_t i;

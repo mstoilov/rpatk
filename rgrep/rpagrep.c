@@ -185,7 +185,6 @@ void rpa_grep_dump_pattern_info(rpa_grep_t *pGrep)
 int rpa_grep_match(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 {
 	int ret = 0;
-	int displayed = 0;
 	rpastat_t *hStat;
 	const char *input = buffer, *start = buffer, *end = buffer + size;
 
@@ -193,17 +192,41 @@ int rpa_grep_match(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 	if (!hStat)
 		return -1;
 	rpa_stat_encodingset(hStat, pGrep->encoding);
-	if (pGrep->matchonly == 2)
-		ret = rpa_stat_parse(hStat, pGrep->hPattern, input, start, end);
-	else
-		ret = rpa_stat_match(hStat, pGrep->hPattern, input, start, end);
+	ret = rpa_stat_match(hStat, pGrep->hPattern, input, start, end);
 	if (ret > 0) {
-		if (!displayed) {
-			displayed = 1;
-			rpa_grep_print_filename(pGrep);
-		}
+		rpa_grep_print_filename(pGrep);
 		rpa_grep_output(pGrep, input, ret, pGrep->encoding);
 		rpa_grep_output_utf8_string(pGrep, "\n");
+	}
+	rpa_stat_destroy(hStat);
+	return 0;
+}
+
+
+int rpa_grep_parse(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
+{
+	rlong i;
+	rpastat_t *hStat;
+	rarray_t *records;
+	rparecord_t *prec;
+	const char *input = buffer, *start = buffer, *end = buffer + size;
+
+	hStat = rpa_stat_create(pGrep->hDbex, 0);
+	if (!hStat)
+		return -1;
+	rpa_stat_encodingset(hStat, pGrep->encoding);
+	records = rpa_stat_parse(hStat, pGrep->hPattern, input, start, end);
+	if (records) {
+		for (i = 0; i < r_array_length(records); i++) {
+			prec = (rparecord_t *)r_array_slot(records, i);
+			if (prec->type & RPA_RECORD_END) {
+				rpa_grep_output_utf8_string(pGrep, prec->rule);
+				rpa_grep_output_utf8_string(pGrep, ": ");
+				rpa_grep_output(pGrep, prec->input, prec->inputsiz, pGrep->encoding);
+				rpa_grep_output_utf8_string(pGrep, "\n");
+			}
+		}
+		r_array_destroy(records);
 	}
 	rpa_stat_destroy(hStat);
 	return 0;
@@ -324,14 +347,25 @@ void rpa_grep_scan_buffer(rpa_grep_t *pGrep, rpa_buffer_t *buf)
 	}		
 
 	btime = clock();
-	if (pGrep->matchonly) {
+
+	switch (pGrep->greptype) {
+	case RPA_GREPTYPE_SCANLINES:
+		rpa_grep_scan_lines(pGrep, input, size);
+		break;
+	case RPA_GREPTYPE_MATCH:
 		rpa_grep_match(pGrep, input, size);
-	} else {
-		if (pGrep->linemode)
-			rpa_grep_scan_lines(pGrep, input, size);
-		else
-			rpa_grep_scan(pGrep, input, size);
-	}
+		break;
+	case RPA_GREPTYPE_PARSE:
+		rpa_grep_parse(pGrep, input, size);
+		break;
+	case RPA_GREPTYPE_SCAN:
+		rpa_grep_scan(pGrep, input, size);
+		break;
+	default:
+		rpa_grep_scan(pGrep, input, size);
+		break;
+	};
+
 	scanclocks = clock() - btime;
 	pGrep->scanmilisec += (unsigned long)(((unsigned long long)1000)*scanclocks/CLOCKS_PER_SEC);
 }

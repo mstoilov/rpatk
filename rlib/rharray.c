@@ -84,6 +84,12 @@ rharray_t *r_harray_create(ruint elt_size)
 }
 
 
+void r_harray_destroy(rharray_t *array)
+{
+	r_object_destroy((robject_t*)array);
+}
+
+
 robject_t *r_harray_copy(const robject_t *obj)
 {
 	rharray_t *harray;

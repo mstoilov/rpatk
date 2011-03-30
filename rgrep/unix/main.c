@@ -155,10 +155,12 @@ int main(int argc, const char *argv[])
 
 	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "--dump-code") == 0) {
-			if (rpa_dbex_compile(pGrep->hDbex) < 0) {
-
+			if (rpa_dbex_compile(pGrep->hDbex) == 0) {
+				if (++i < argc) {
+					rpa_dbex_dumpcode(pGrep->hDbex, argv[i]);
+				}
 			}
-			rpa_dbex_dumpcode(pGrep->hDbex);
+
 			goto end;
 		}
 	}
@@ -202,11 +204,11 @@ int main(int argc, const char *argv[])
 		} else if (strcmp(argv[i], "-i") == 0) {
 			pGrep->icase = 1;
 		} else if (strcmp(argv[i], "-l") == 0) {
-			pGrep->linemode = 1;
+			pGrep->greptype = RPA_GREPTYPE_SCANLINES;
 		} else if (strcmp(argv[i], "-m") == 0) {
-			pGrep->matchonly = 1;
+			pGrep->greptype = RPA_GREPTYPE_MATCH;
 		} else if (strcmp(argv[i], "-p") == 0) {
-			pGrep->matchonly = 2;
+			pGrep->greptype = RPA_GREPTYPE_PARSE;
 		} else if (strcmp(argv[i], "-16") == 0) {
 			pGrep->forceEncoding = RPA_GREP_FORCE_UTF16;
 		} else if (strcmp(argv[i], "-b") == 0) {

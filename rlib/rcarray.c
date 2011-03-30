@@ -63,6 +63,12 @@ rcarray_t *r_carray_create(rsize_t elt_size)
 }
 
 
+void r_carray_destroy(rcarray_t *array)
+{
+	r_object_destroy((robject_t*)array);
+}
+
+
 robject_t *r_carray_copy(const robject_t *obj)
 {
 	rsize_t i;
