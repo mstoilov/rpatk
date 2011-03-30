@@ -135,6 +135,41 @@ static rint rpa_dbex_rh_char(rpadbex_t *dbex, rlong rec)
 }
 
 
+static rint rpa_dbex_rh_cls(rpadbex_t *dbex, rlong rec)
+{
+	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
+
+	if (prec->type & RPA_RECORD_START) {
+		rpa_compiler_class_begin(dbex->co);
+
+	} else if (prec->type & RPA_RECORD_END) {
+		rpa_compiler_class_end(dbex->co, prec->usertype & RPA_MATCH_MASK);
+
+	}
+
+	return 0;
+}
+
+
+static rint rpa_dbex_rh_clschar(rpadbex_t *dbex, rlong rec)
+{
+	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
+
+	if (prec->type & RPA_RECORD_END) {
+		ruint32 wc = 0;
+		if (r_utf8_mbtowc(&wc, (const ruchar*) prec->input, (const ruchar*)prec->input + prec->inputsiz) < 0) {
+
+			return -1;
+		}
+		rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, wc));
+		rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BGRE, DA, XX, XX, 0));
+	}
+
+	return 0;
+}
+
+
+
 static rint rpa_dbex_rh_aref(rpadbex_t *dbex, rlong rec)
 {
 	const rchar *name = NULL;
@@ -170,7 +205,9 @@ rpadbex_t *rpa_dbex_create(void)
 
 	dbex->handlers[RPA_PRODUCTION_NAMEDRULE] = rpa_dbex_rh_namedrule;
 	dbex->handlers[RPA_PRODUCTION_ANONYMOUSRULE] = rpa_dbex_rh_anonymousrule;
+	dbex->handlers[RPA_PRODUCTION_CLS] = rpa_dbex_rh_cls;
 	dbex->handlers[RPA_PRODUCTION_CHAR] = rpa_dbex_rh_char;
+	dbex->handlers[RPA_PRODUCTION_CLSCHAR] = rpa_dbex_rh_clschar;
 	dbex->handlers[RPA_PRODUCTION_AREF] = rpa_dbex_rh_aref;
 	dbex->handlers[RPA_PRODUCTION_CREF] = rpa_dbex_rh_aref;
 

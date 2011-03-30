@@ -214,6 +214,39 @@ rint rpa_stat_matchchr(rpastat_t *stat, rssize_t top, rulong wc)
 }
 
 
+rint rpa_stat_matchspchr(rpastat_t *stat, rssize_t top, rulong wc)
+{
+	rint ret = 0;
+	rpainput_t *in = &stat->instack[top];
+
+	switch (wc) {
+		case 't':
+			wc = '\t';
+			break;
+		case 'r':
+			wc = '\r';
+			break;
+		case 'n':
+			wc = '\n';
+			break;
+		case '.':
+			wc = (rulong)-1;
+			break;
+		default:
+			break;
+	};
+
+	if (in->eof)
+		return 0;
+	if (stat->encoding & RPA_ENCODING_ICASE) {
+		ret = (wc == (rulong)-1 || in->wc == wc || in->iwc == wc) ? 1 : 0;
+	} else {
+		ret = (wc == (rulong)-1 || in->wc == wc) ? 1 : 0;
+	}
+	return ret;
+}
+
+
 rint rpa_stat_matchrng(rpastat_t *stat, rssize_t top, rulong wc1, rulong wc2)
 {
 	rint ret = 0;

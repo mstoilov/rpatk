@@ -301,15 +301,14 @@ rint rpa_compiler_exp_end(rpa_compiler_t *co, ruint qflag)
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOVS, R0, DA, XX, -1));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 	rvm_codegen_replaceins(co->cg, exp.branch, rvm_asm(RVM_B, DA, XX, XX, rvm_codegen_getcodesize(co->cg) - exp.branch));
-	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.labelidx, rvm_asm(RVM_MOV, R_WHT, DA, XX, 0));
 	if (qflag == RPA_MATCH_OPTIONAL) {
-		rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpacompiler_mnode_opt", rvm_asm(RVM_BL, DA, XX, XX, 0));
+		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.labelidx, rvm_asm(RPA_BXLOPT, DA, XX, XX, 0));
 	} else if (qflag == RPA_MATCH_MULTIPLE) {
-		rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpacompiler_mnode_mul", rvm_asm(RVM_BL, DA, XX, XX, 0));
+		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.labelidx, rvm_asm(RPA_BXLMUL, DA, XX, XX, 0));
 	} else if (qflag == RPA_MATCH_MULTIOPT) {
-		rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpacompiler_mnode_mop", rvm_asm(RVM_BL, DA, XX, XX, 0));
+		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.labelidx, rvm_asm(RPA_BXLMOP, DA, XX, XX, 0));
 	} else {
-		rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpacompiler_mnode_nan", rvm_asm(RVM_BL, DA, XX, XX, 0));
+		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.labelidx, rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
 	}
 	return 0;
 }
@@ -344,15 +343,14 @@ rint rpa_compiler_altexp_end(rpa_compiler_t *co, ruint qflag)
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 
 	rvm_codegen_replaceins(co->cg, exp.branch, rvm_asm(RVM_B, DA, XX, XX, rvm_codegen_getcodesize(co->cg) - exp.branch));
-	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.labelidx, rvm_asm(RVM_MOV, R_WHT, DA, XX, 0));
 	if (qflag == RPA_MATCH_OPTIONAL) {
-		rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpacompiler_mnode_opt", rvm_asm(RVM_BL, DA, XX, XX, 0));
+		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.labelidx, rvm_asm(RPA_BXLOPT, DA, XX, XX, 0));
 	} else if (qflag == RPA_MATCH_MULTIPLE) {
-		rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpacompiler_mnode_mul", rvm_asm(RVM_BL, DA, XX, XX, 0));
+		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.labelidx, rvm_asm(RPA_BXLMUL, DA, XX, XX, 0));
 	} else if (qflag == RPA_MATCH_MULTIOPT) {
-		rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpacompiler_mnode_mop", rvm_asm(RVM_BL, DA, XX, XX, 0));
+		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.labelidx, rvm_asm(RPA_BXLMOP, DA, XX, XX, 0));
 	} else {
-		rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpacompiler_mnode_nan", rvm_asm(RVM_BL, DA, XX, XX, 0));
+		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.labelidx, rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
 	}
 	return 0;
 }
@@ -389,15 +387,14 @@ rint rpa_compiler_branch_end(rpa_compiler_t *co, ruint qflag)
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOVS, R0, DA, XX, -1));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 	rvm_codegen_replaceins(co->cg, exp.branch, rvm_asm(RVM_B, DA, XX, XX, rvm_codegen_getcodesize(co->cg) - exp.branch));
-	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.labelidx, rvm_asm(RVM_MOV, R_WHT, DA, XX, 0));
 	if (qflag == RPA_MATCH_OPTIONAL) {
-		rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpacompiler_mnode_opt", rvm_asm(RVM_BL, DA, XX, XX, 0));
+		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.labelidx, rvm_asm(RPA_BXLOPT, DA, XX, XX, 0));
 	} else if (qflag == RPA_MATCH_MULTIPLE) {
-		rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpacompiler_mnode_mul", rvm_asm(RVM_BL, DA, XX, XX, 0));
+		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.labelidx, rvm_asm(RPA_BXLMUL, DA, XX, XX, 0));
 	} else if (qflag == RPA_MATCH_MULTIOPT) {
-		rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpacompiler_mnode_mop", rvm_asm(RVM_BL, DA, XX, XX, 0));
+		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.labelidx, rvm_asm(RPA_BXLMOP, DA, XX, XX, 0));
 	} else {
-		rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpacompiler_mnode_nan", rvm_asm(RVM_BL, DA, XX, XX, 0));
+		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.labelidx, rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
 	}
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BGRE, DA, XX, XX, 0));
 
@@ -460,15 +457,14 @@ rint rpa_compiler_class_end(rpa_compiler_t *co, ruint qflag)
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 
 	rvm_codegen_replaceins(co->cg, exp.branch, rvm_asm(RVM_B, DA, XX, XX, rvm_codegen_getcodesize(co->cg) - exp.branch));
-	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.labelidx, rvm_asm(RVM_MOV, R_WHT, DA, XX, 0));
 	if (qflag == RPA_MATCH_OPTIONAL) {
-		rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpacompiler_mnode_opt", rvm_asm(RVM_BL, DA, XX, XX, 0));
+		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.labelidx, rvm_asm(RPA_BXLOPT, DA, XX, XX, 0));
 	} else if (qflag == RPA_MATCH_MULTIPLE) {
-		rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpacompiler_mnode_mul", rvm_asm(RVM_BL, DA, XX, XX, 0));
+		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.labelidx, rvm_asm(RPA_BXLMUL, DA, XX, XX, 0));
 	} else if (qflag == RPA_MATCH_MULTIOPT) {
-		rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpacompiler_mnode_mop", rvm_asm(RVM_BL, DA, XX, XX, 0));
+		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.labelidx, rvm_asm(RPA_BXLMOP, DA, XX, XX, 0));
 	} else {
-		rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpacompiler_mnode_nan", rvm_asm(RVM_BL, DA, XX, XX, 0));
+		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.labelidx, rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
 	}
 	return 0;
 }
@@ -506,15 +502,14 @@ rint rpa_compiler_notexp_end(rpa_compiler_t *co, ruint qflag)
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 
 	rvm_codegen_replaceins(co->cg, exp.branch, rvm_asm(RVM_B, DA, XX, XX, rvm_codegen_getcodesize(co->cg) - exp.branch));
-	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.labelidx, rvm_asm(RVM_MOV, R_WHT, DA, XX, 0));
 	if (qflag == RPA_MATCH_OPTIONAL) {
-		rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpacompiler_mnode_opt", rvm_asm(RVM_BL, DA, XX, XX, 0));
+		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.labelidx, rvm_asm(RPA_BXLOPT, DA, XX, XX, 0));
 	} else if (qflag == RPA_MATCH_MULTIPLE) {
-		rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpacompiler_mnode_mul", rvm_asm(RVM_BL, DA, XX, XX, 0));
+		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.labelidx, rvm_asm(RPA_BXLMUL, DA, XX, XX, 0));
 	} else if (qflag == RPA_MATCH_MULTIOPT) {
-		rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpacompiler_mnode_mop", rvm_asm(RVM_BL, DA, XX, XX, 0));
+		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.labelidx, rvm_asm(RPA_BXLMOP, DA, XX, XX, 0));
 	} else {
-		rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_BRANCH, "rpacompiler_mnode_nan", rvm_asm(RVM_BL, DA, XX, XX, 0));
+		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.labelidx, rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
 	}
 	return 0;
 }

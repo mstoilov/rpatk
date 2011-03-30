@@ -364,7 +364,7 @@ static void rpa_production_clschar(rpa_parser_t *pa)
 {
 	rpa_compiler_t *co = pa->co;
 
-//	rpa_compiler_add_ruleuid_s(co, "clschar", RPA_PRODUCTION_CLSCHAR);
+	rpa_compiler_add_ruleuid_s(co, "clschar", RPA_PRODUCTION_CLSCHAR);
 	rpa_compiler_rule_begin_s(co, "clschar");
 
 	rpa_compiler_exp_begin(co);
@@ -393,7 +393,7 @@ static void rpa_production_clschar(rpa_parser_t *pa)
 	rpa_compiler_class_end(co, RPA_MATCH_NONE);
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_compiler_branch_end(co, RPA_MATCH_NONE);
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "char", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHSPCHR_NAN, DA, XX, XX, '.'));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_compiler_exp_end(co, RPA_MATCH_NONE);
 
@@ -1079,8 +1079,8 @@ static rint rpa_parser_init(rpa_parser_t *pa)
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
 
 	rpa_production_char(pa);
-	rpa_production_occurence(pa);
 	rpa_production_clschar(pa);
+	rpa_production_occurence(pa);
 	rpa_production_charrng(pa);
 	rpa_production_numrng(pa);
 	rpa_production_alphacls(pa);

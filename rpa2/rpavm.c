@@ -83,46 +83,29 @@ static void rpavm_matchspchr_do(rvmcpu_t *cpu, rvm_asmins_t *ins, rword flags)
 	rword wc = RVM_CPUREG_GETU(cpu, ins->op1);
 	rword matched = 0;
 
-	switch (wc) {
-		case 't':
-			wc = '\t';
-			break;
-		case 'r':
-			wc = '\r';
-			break;
-		case 'n':
-			wc = '\n';
-			break;
-		case '.':
-			wc = (rword)-1;
-			break;
-		default:
-			break;
-	};
-
 	if (flags == RPA_MATCH_OPTIONAL) {
-		if (wc == (rword)-1 || rpa_stat_matchchr(stat, RVM_CPUREG_GETL(cpu, R_TOP), wc) > 0) {
+		if (rpa_stat_matchspchr(stat, RVM_CPUREG_GETL(cpu, R_TOP), wc) > 0) {
 			rpavm_swi_shift(cpu, ins);
 			matched = 1;
 		}
 		cpu->status = matched ? 0 : RVM_STATUS_Z;
 		RVM_CPUREG_SETU(cpu, R0, matched);
 	} else if (flags == RPA_MATCH_MULTIPLE) {
-		while (wc == (rword)-1 || rpa_stat_matchchr(stat, RVM_CPUREG_GETL(cpu, R_TOP), wc) > 0) {
+		while (rpa_stat_matchspchr(stat, RVM_CPUREG_GETL(cpu, R_TOP), wc) > 0) {
 			rpavm_swi_shift(cpu, ins);
 			matched += 1;
 		}
 		cpu->status = matched ? 0 : RVM_STATUS_N;
 		RVM_CPUREG_SETU(cpu, R0, matched ? matched : (rword)-1);
 	} else if (flags == RPA_MATCH_MULTIOPT) {
-		while (wc == (rword)-1 || rpa_stat_matchchr(stat, RVM_CPUREG_GETL(cpu, R_TOP), wc) > 0) {
+		while (rpa_stat_matchspchr(stat, RVM_CPUREG_GETL(cpu, R_TOP), wc) > 0) {
 			rpavm_swi_shift(cpu, ins);
 			matched += 1;
 		}
 		cpu->status = matched ? 0 : RVM_STATUS_Z;
 		RVM_CPUREG_SETU(cpu, R0, matched );
 	} else {
-		if (wc == (rword)-1 || rpa_stat_matchchr(stat, RVM_CPUREG_GETL(cpu, R_TOP), wc) > 0) {
+		if (rpa_stat_matchspchr(stat, RVM_CPUREG_GETL(cpu, R_TOP), wc) > 0) {
 			rpavm_swi_shift(cpu, ins);
 			matched = 1;
 		}

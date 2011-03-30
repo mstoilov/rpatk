@@ -62,6 +62,7 @@ rarray_t *rpa_stat_parse(rpastat_t *stat, rparule_t rid, const rchar *input, con
 rint rpa_stat_abort(rpastat_t *stat);
 
 rint rpa_stat_matchchr(rpastat_t *stat, rssize_t top, rulong wc);
+rint rpa_stat_matchspchr(rpastat_t *stat, rssize_t top, rulong wc);
 rint rpa_stat_matchrng(rpastat_t *stat, rssize_t top, rulong wc1, rulong wc2);
 rlong rpa_stat_shift(rpastat_t *stat, rssize_t top);
 
