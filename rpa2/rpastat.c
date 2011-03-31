@@ -106,8 +106,10 @@ rint rpa_stat_encodingset(rpastat_t *stat, ruint encoding)
 
 static rlong rpa_stat_exec_noinit(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end)
 {
-	rlong top = 0;
+	rlong topsiz = 0;
 	rpainput_t *ptp;
+
+	rpa_stat_init(stat, input, start, end);
 
 	if (stat->debug) {
 		if (rvm_cpu_exec_debug(stat->cpu, rvm_dbex_getcode(stat->dbex), rvm_dbex_codeoffset(stat->dbex, rid)) < 0) {
@@ -118,11 +120,11 @@ static rlong rpa_stat_exec_noinit(rpastat_t *stat, rparule_t rid, const rchar *i
 			return -1;
 		}
 	}
-	top = (rlong)RVM_CPUREG_GETL(stat->cpu, R0);
-	if (top < 0)
+	topsiz = (rlong)RVM_CPUREG_GETL(stat->cpu, R0);
+	if (topsiz <= 0)
 		return 0;
 
-	ptp = &stat->instack[top];
+	ptp = &stat->instack[topsiz];
 
 	return (ptp->input - input);
 }
@@ -135,8 +137,6 @@ rlong rpa_stat_scan(rpastat_t *stat, rparule_t rid, const rchar *input, const rc
 	if (!stat) {
 		return -1;
 	}
-
-	rpa_stat_init(stat, input, start, end);
 
 	if (rvm_cpu_exec(stat->cpu, rvm_dbex_getcode(stat->dbex), rvm_dbex_initoffset(stat->dbex)) < 0)
 		return -1;
@@ -158,7 +158,6 @@ rlong rpa_stat_match(rpastat_t *stat, rparule_t rid, const rchar *input, const r
 		return -1;
 	}
 
-	rpa_stat_init(stat, input, start, end);
 	if (rvm_cpu_exec(stat->cpu, rvm_dbex_getcode(stat->dbex), rvm_dbex_initoffset(stat->dbex)) < 0)
 		return -1;
 
@@ -175,7 +174,6 @@ rarray_t *rpa_stat_parse(rpastat_t *stat, rparule_t rid, const rchar *input, con
 		return NULL;
 	}
 
-	rpa_stat_init(stat, input, start, end);
 	if (rvm_cpu_exec(stat->cpu, rvm_dbex_getcode(stat->dbex), rvm_dbex_initoffset(stat->dbex)) < 0)
 		return NULL;
 

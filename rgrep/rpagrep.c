@@ -192,6 +192,7 @@ int rpa_grep_match(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 	if (!hStat)
 		return -1;
 	rpa_stat_encodingset(hStat, pGrep->encoding);
+	hStat->debug = pGrep->execdebug;
 	ret = rpa_stat_match(hStat, pGrep->hPattern, input, start, end);
 	if (ret > 0) {
 		rpa_grep_print_filename(pGrep);
@@ -215,6 +216,7 @@ int rpa_grep_parse(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 	if (!hStat)
 		return -1;
 	rpa_stat_encodingset(hStat, pGrep->encoding);
+	hStat->debug = pGrep->execdebug;
 	records = rpa_stat_parse(hStat, pGrep->hPattern, input, start, end);
 	if (records) {
 		for (i = 0; i < r_array_length(records); i++) {
@@ -245,7 +247,8 @@ int rpa_grep_scan(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 	if (!hStat)
 		return -1;
 	rpa_stat_encodingset(hStat, pGrep->encoding);
-	
+	hStat->debug = pGrep->execdebug;
+
 again:
 	ret = rpa_stat_scan(hStat, pGrep->hPattern, input, start, end, &matched);
 	if (ret > 0) {
@@ -279,6 +282,7 @@ int rpa_grep_scan_lines(rpa_grep_t *pGrep, const char* buffer, unsigned long siz
 	if (!hStat)
 		return -1;
 	rpa_stat_encodingset(hStat, pGrep->encoding);
+	hStat->debug = pGrep->execdebug;
 	
 again:
 	if (pGrep->encoding == RPA_ENCODING_UTF16LE || pGrep->encoding == RPA_ENCODING_ICASE_UTF16LE) {

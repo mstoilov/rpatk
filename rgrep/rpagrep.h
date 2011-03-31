@@ -53,6 +53,7 @@ typedef struct rpa_grep_s {
 	unsigned int greptype;
 	unsigned int showtime;
 	unsigned int forceEncoding;
+	unsigned int execdebug;
 	unsigned long long scsize;
 	unsigned long ud0;
 	void *filename;

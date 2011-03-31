@@ -360,16 +360,10 @@ static void rpa_production_specialchar(rpa_parser_t *pa)
 /*
  * None of the " #\\-[]\t\n\r\0"
  */
-static void rpa_production_clschar(rpa_parser_t *pa)
+static void rpa_production_clschars(rpa_parser_t *pa)
 {
 	rpa_compiler_t *co = pa->co;
 
-	rpa_compiler_add_ruleuid_s(co, "clschar", RPA_PRODUCTION_CLSCHAR);
-	rpa_compiler_rule_begin_s(co, "clschar");
-
-	rpa_compiler_exp_begin(co);
-	rpa_compiler_branch_begin(co);
-	rpa_compiler_class_begin(co);
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, ' '));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BGRE, DA, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, '#'));
@@ -390,6 +384,64 @@ static void rpa_production_clschar(rpa_parser_t *pa)
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BGRE, DA, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, '\0'));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BGRE, DA, XX, XX, 0));
+}
+
+
+static void rpa_production_clschar(rpa_parser_t *pa)
+{
+	rpa_compiler_t *co = pa->co;
+
+	rpa_compiler_add_ruleuid_s(co, "clschar", RPA_PRODUCTION_CLSCHAR);
+	rpa_compiler_rule_begin_s(co, "clschar");
+
+	rpa_compiler_exp_begin(co);
+	rpa_compiler_branch_begin(co);
+	rpa_compiler_class_begin(co);
+	rpa_production_clschars(pa);
+	rpa_compiler_class_end(co, RPA_MATCH_NONE);
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
+	rpa_compiler_branch_end(co, RPA_MATCH_NONE);
+	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHSPCHR_NAN, DA, XX, XX, '.'));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
+	rpa_compiler_exp_end(co, RPA_MATCH_NONE);
+
+	rpa_compiler_rule_end(co);
+}
+
+
+static void rpa_production_beginchar(rpa_parser_t *pa)
+{
+	rpa_compiler_t *co = pa->co;
+
+	rpa_compiler_add_ruleuid_s(co, "beginchar", RPA_PRODUCTION_BEGINCHAR);
+	rpa_compiler_rule_begin_s(co, "beginchar");
+
+	rpa_compiler_exp_begin(co);
+	rpa_compiler_branch_begin(co);
+	rpa_compiler_class_begin(co);
+	rpa_production_clschars(pa);
+	rpa_compiler_class_end(co, RPA_MATCH_NONE);
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
+	rpa_compiler_branch_end(co, RPA_MATCH_NONE);
+	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHSPCHR_NAN, DA, XX, XX, '.'));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
+	rpa_compiler_exp_end(co, RPA_MATCH_NONE);
+
+	rpa_compiler_rule_end(co);
+}
+
+
+static void rpa_production_endchar(rpa_parser_t *pa)
+{
+	rpa_compiler_t *co = pa->co;
+
+	rpa_compiler_add_ruleuid_s(co, "endchar", RPA_PRODUCTION_ENDCHAR);
+	rpa_compiler_rule_begin_s(co, "endchar");
+
+	rpa_compiler_exp_begin(co);
+	rpa_compiler_branch_begin(co);
+	rpa_compiler_class_begin(co);
+	rpa_production_clschars(pa);
 	rpa_compiler_class_end(co, RPA_MATCH_NONE);
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_compiler_branch_end(co, RPA_MATCH_NONE);
@@ -428,11 +480,11 @@ static void rpa_production_charrng(rpa_parser_t *pa)
 
 	rpa_compiler_add_ruleuid_s(co, "charrng", RPA_PRODUCTION_CHARRNG);
 	rpa_compiler_rule_begin_s(co, "charrng");
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "char", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "beginchar", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, '-'));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "char", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "endchar", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_compiler_rule_end(co);
 }
@@ -1086,6 +1138,8 @@ static rint rpa_parser_init(rpa_parser_t *pa)
 	rpa_production_alphacls(pa);
 	rpa_production_numcls(pa);
 	rpa_production_cls(pa);
+	rpa_production_beginchar(pa);
+	rpa_production_endchar(pa);
 
 	rpa_production_escapedchar(pa);
 	rpa_production_specialchar(pa);

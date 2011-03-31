@@ -29,6 +29,7 @@ typedef struct rpa_compiler_s {
 	rboolean optimized;
 	rvm_scope_t *scope;
 	rulong fpoff;
+	rpair_t currange;
 } rpa_compiler_t;
 
 

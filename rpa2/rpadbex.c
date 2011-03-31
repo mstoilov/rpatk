@@ -89,10 +89,18 @@ static rint rpa_dbex_rh_namedrule(rpadbex_t *dbex, rlong rec)
 		rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_BL, DA, XX, XX, 2));
 		rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
 
-		rpa_compiler_rule_begin(dbex->co, name, namesize);
+		if (prec->usertype & RPA_LOOP_PATH) {
+			rpa_compiler_loop_begin(dbex->co, name, namesize);
+		} else {
+			rpa_compiler_rule_begin(dbex->co, name, namesize);
+		}
 
 	} else if (prec->type & RPA_RECORD_END) {
-		rpa_compiler_rule_end(dbex->co);
+		if (prec->usertype & RPA_LOOP_PATH) {
+			rpa_compiler_loop_end(dbex->co);
+		} else {
+			rpa_compiler_rule_end(dbex->co);
+		}
 
 	}
 	return 0;
@@ -144,7 +152,7 @@ static rint rpa_dbex_rh_cls(rpadbex_t *dbex, rlong rec)
 
 	} else if (prec->type & RPA_RECORD_END) {
 		rpa_compiler_class_end(dbex->co, prec->usertype & RPA_MATCH_MASK);
-
+		rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	}
 
 	return 0;
@@ -168,6 +176,115 @@ static rint rpa_dbex_rh_clschar(rpadbex_t *dbex, rlong rec)
 	return 0;
 }
 
+
+static rint rpa_dbex_rh_exp(rpadbex_t *dbex, rlong rec)
+{
+	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
+
+	if (prec->type & RPA_RECORD_START) {
+		rpa_compiler_exp_begin(dbex->co);
+
+	} else if (prec->type & RPA_RECORD_END) {
+		rpa_compiler_exp_end(dbex->co, prec->usertype & RPA_MATCH_MASK);
+//		rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
+	}
+
+	return 0;
+}
+
+
+static rint rpa_dbex_rh_orop(rpadbex_t *dbex, rlong rec)
+{
+	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
+
+	if (prec->type & RPA_RECORD_START) {
+		rpa_compiler_altexp_begin(dbex->co);
+
+	} else if (prec->type & RPA_RECORD_END) {
+		rpa_compiler_altexp_end(dbex->co, prec->usertype & RPA_MATCH_MASK);
+		rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
+	}
+
+	return 0;
+}
+
+
+static rint rpa_dbex_rh_range(rpadbex_t *dbex, rlong rec)
+{
+	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
+
+	if (prec->type & RPA_RECORD_START) {
+		dbex->co->currange.p1 = 0;
+		dbex->co->currange.p2 = 0;
+	} else if (prec->type & RPA_RECORD_END) {
+		rvm_codegen_addins(dbex->co->cg, rvm_asm2(RPA_MATCHRNG_NAN, DA, XX, XX, dbex->co->currange.p1, dbex->co->currange.p2));
+		rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BGRE, DA, XX, XX, 0));
+	}
+
+	return 0;
+}
+
+
+static rint rpa_dbex_rh_beginchar(rpadbex_t *dbex, rlong rec)
+{
+	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
+
+	if (prec->type & RPA_RECORD_START) {
+
+	} else if (prec->type & RPA_RECORD_END) {
+		ruint32 wc = 0;
+		if (r_utf8_mbtowc(&wc, (const ruchar*) prec->input, (const ruchar*)prec->input + prec->inputsiz) < 0) {
+
+			return -1;
+		}
+		dbex->co->currange.p1 = wc;
+	}
+
+	return 0;
+}
+
+
+static rint rpa_dbex_rh_endchar(rpadbex_t *dbex, rlong rec)
+{
+	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
+
+	if (prec->type & RPA_RECORD_START) {
+
+	} else if (prec->type & RPA_RECORD_END) {
+		ruint32 wc = 0;
+		if (r_utf8_mbtowc(&wc, (const ruchar*) prec->input, (const ruchar*)prec->input + prec->inputsiz) < 0) {
+
+			return -1;
+		}
+		dbex->co->currange.p2 = wc;
+	}
+
+	return 0;
+}
+
+
+static rint rpa_dbex_rh_branch(rpadbex_t *dbex, rlong rec)
+{
+	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
+
+	if (prec->type & RPA_RECORD_START) {
+		if (prec->usertype & RPA_NONLOOP_PATH) {
+			rpa_compiler_nonloopybranch_begin(dbex->co);
+		} else {
+			rpa_compiler_branch_begin(dbex->co);
+		}
+	} else if (prec->type & RPA_RECORD_END) {
+
+		if (prec->usertype & RPA_NONLOOP_PATH) {
+			rpa_compiler_nonloopybranch_end(dbex->co, prec->usertype & RPA_MATCH_MASK);
+		} else {
+			rpa_compiler_branch_end(dbex->co, prec->usertype & RPA_MATCH_MASK);
+		}
+
+	}
+
+	return 0;
+}
 
 
 static rint rpa_dbex_rh_aref(rpadbex_t *dbex, rlong rec)
@@ -210,6 +327,12 @@ rpadbex_t *rpa_dbex_create(void)
 	dbex->handlers[RPA_PRODUCTION_CLSCHAR] = rpa_dbex_rh_clschar;
 	dbex->handlers[RPA_PRODUCTION_AREF] = rpa_dbex_rh_aref;
 	dbex->handlers[RPA_PRODUCTION_CREF] = rpa_dbex_rh_aref;
+	dbex->handlers[RPA_PRODUCTION_BRACKETEXP] = rpa_dbex_rh_exp;
+	dbex->handlers[RPA_PRODUCTION_OROP] = rpa_dbex_rh_orop;
+	dbex->handlers[RPA_PRODUCTION_ALTBRANCH] = rpa_dbex_rh_branch;
+	dbex->handlers[RPA_PRODUCTION_CHARRNG] = rpa_dbex_rh_range;
+	dbex->handlers[RPA_PRODUCTION_BEGINCHAR] = rpa_dbex_rh_beginchar;
+	dbex->handlers[RPA_PRODUCTION_ENDCHAR] = rpa_dbex_rh_endchar;
 
 	return dbex;
 }

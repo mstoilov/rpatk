@@ -182,6 +182,13 @@ int main(int argc, const char *argv[])
 	}
 
 	for (i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "--exec-debug") == 0) {
+			pGrep->execdebug = 1;
+		}
+	}
+
+
+	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "--dump-records") == 0) {
 			rpa_grep_dump_pattern_records(pGrep);
 			goto end;
