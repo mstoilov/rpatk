@@ -186,7 +186,7 @@ static rint rpa_dbex_rh_exp(rpadbex_t *dbex, rlong rec)
 
 	} else if (prec->type & RPA_RECORD_END) {
 		rpa_compiler_exp_end(dbex->co, prec->usertype & RPA_MATCH_MASK);
-//		rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
+		rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	}
 
 	return 0;
