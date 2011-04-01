@@ -158,3 +158,30 @@ void *r_array_slot_expand(rarray_t *array, rsize_t index)
 	r_array_checkexpand(array, index+1);
 	return (void*) r_array_slot(array, index);
 }
+
+
+rint r_array_move(rarray_t *array, rlong dest, rlong src, rlong size)
+{
+	rlong i;
+	if (src == dest)
+		return 0;
+	if (r_array_length(array) <= src || size <= 0)
+		return -1;
+	r_array_checkexpand(array, dest + size);
+	if (dest < src) {
+		for (i = 0; i < size; i++) {
+			r_array_replace(array, dest, r_array_slot(array, src));
+			++src;
+			++dest;
+		}
+	} else {
+		src = src + size - 1;
+		dest = dest + size - 1;
+		for (i = 0; i < size; i++) {
+			r_array_replace(array, dest, r_array_slot(array, src));
+			--src;
+			--dest;
+		}
+	}
+	return 0;
+}

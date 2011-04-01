@@ -40,6 +40,8 @@ rlong rpa_recordtree_lastchild(rarray_t *records, rlong rec, rulong type);
 rlong rpa_recordtree_next(rarray_t *records, rlong rec, rulong type);
 rlong rpa_recordtree_prev(rarray_t *records, rlong rec, rulong type);
 rlong rpa_recordtree_parent(rarray_t *records, rlong rec, rulong type);
+rlong rpa_recordtree_rotatedown(rarray_t *records, rlong parent);			/* Rotate children down, the last child becomes the first */
+rlong rpa_recordtree_size(rarray_t *records, rlong parent);					/* Size of the tree */
 
 void rpa_record_dumpindented(rarray_t *records, rlong rec, rint level);
 void rpa_record_dump(rarray_t *records, rlong rec);

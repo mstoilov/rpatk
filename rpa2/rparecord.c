@@ -140,6 +140,60 @@ rlong rpa_recordtree_parent(rarray_t *records, rlong rec, rulong type)
 }
 
 
+rlong rpa_recordtree_size(rarray_t *records, rlong parent)
+{
+	rlong first = rpa_recordtree_get(records, parent, RPA_RECORD_START);
+	rlong last = rpa_recordtree_get(records, parent, RPA_RECORD_END);
+	if (first < 0 || last < 0)
+		return -1;
+	return (last - first + 1);
+}
+
+
+rlong rpa_recordtree_rotatedown(rarray_t *records, rlong parent)
+{
+	rlong nlastchild;
+	rlong nallrecs = r_array_length(records);
+	rlong firstchild = rpa_recordtree_firstchild(records, parent, RPA_RECORD_START);
+	rlong lastchild = rpa_recordtree_lastchild(records, parent, RPA_RECORD_START);
+	rlong copysiz;
+
+	if (firstchild < 0 || lastchild == firstchild)
+		return -1;
+	/*
+	 * Copy the last child at the end
+	 */
+	nlastchild = rpa_recordtree_size(records, lastchild);
+	r_array_move(records, nallrecs, lastchild, nlastchild);
+
+	/*
+	 * Push down all children, but the last one (overwriting the last one)
+	 */
+	copysiz = lastchild - firstchild;
+	r_array_move(records, firstchild + nlastchild, firstchild, copysiz);
+
+	/*
+	 * Copy the last child to become the first one
+	 */
+	r_array_move(records, firstchild, nallrecs, nlastchild);
+
+	/*
+	 * Restore the original size
+	 */
+	r_array_setlength(records, nallrecs);
+	return 0;
+}
+
+
+rlong rpa_recordtree_rotateup(rarray_t *records, rlong parent)
+{
+	/*
+	 * Not implemented
+	 */
+	return -1;
+}
+
+
 static void rpa_recordptr_setusertype(rparecord_t *prec, ruint32 usertype, rvalset_t op)
 {
 	switch (op) {
