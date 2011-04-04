@@ -5,7 +5,8 @@ term	 ::= [0-9]+ | '(' <:exp:> ')'
 expop	 ::= <:exp:> '+' <:term:> |
 	     <:exp:> '-' <:term:> |
 	     <:exp:> '*' <:term:> |
-	     <:exp:> '/' <:term:>
+	     <:exp:> '/' <:term:> |
+	     (<:exp:> - (<:exp:> -^ [a-z])) '&' <:term:>
 exp	 ::= <:expop:> | <:term:>
 
 

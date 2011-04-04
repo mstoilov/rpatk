@@ -482,6 +482,7 @@ rpadbex_t *rpa_dbex_create(void)
 	dbex->handlers[RPA_PRODUCTION_BEGINCHAR] = rpa_dbex_rh_beginchar;
 	dbex->handlers[RPA_PRODUCTION_ENDCHAR] = rpa_dbex_rh_endchar;
 	dbex->handlers[RPA_PRODUCTION_NOROP] = rpa_dbex_rh_norop;
+	dbex->handlers[RPA_PRODUCTION_REQOP] = rpa_dbex_rh_exp;
 	dbex->handlers[RPA_PRODUCTION_MINOP] = rpa_dbex_rh_exp;
 
 
@@ -570,7 +571,7 @@ static rint rpa_parseinfo_checkforloop(rpadbex_t *dbex, rlong parent, rlong loop
 
 	for (i = rpa_recordtree_firstchild(dbex->records, parent, RPA_RECORD_START); i >= 0; i = rpa_recordtree_next(dbex->records, i, RPA_RECORD_START)) {
 		rparecord_t *prec = (rparecord_t *)r_array_slot(dbex->records, i);
-		if (prec->userid == RPA_PRODUCTION_CLS || prec->userid == RPA_PRODUCTION_RULENAME)
+		if (prec->userid == RPA_PRODUCTION_RULENAME)
 			continue;
 		if (prec->userid == RPA_PRODUCTION_AREF || prec->userid == RPA_PRODUCTION_CREF) {
 			rpa_ruleinfo_t *info;
@@ -587,8 +588,15 @@ static rint rpa_parseinfo_checkforloop(rpadbex_t *dbex, rlong parent, rlong loop
 				ret |= lret;
 			}
 		}
-		if ((prec->usertype & RPA_MATCH_OPTIONAL) == 0 && prec->userid != RPA_PRODUCTION_OROP && prec->userid != RPA_PRODUCTION_ALTBRANCH)
+//		if ((prec->usertype & RPA_MATCH_OPTIONAL) == 0 && prec->userid != RPA_PRODUCTION_OROP && prec->userid != RPA_PRODUCTION_ALTBRANCH &&
+//				prec->userid != RPA_PRODUCTION_MINOP && prec->userid != RPA_PRODUCTION_NOROP && prec->userid != RPA_PRODUCTION_NEGBRANCH)
+//			break;
+
+		if ((prec->usertype & RPA_MATCH_OPTIONAL) == 0 && (prec->userid == RPA_PRODUCTION_CREF || prec->userid == RPA_PRODUCTION_AREF ||
+				prec->userid == RPA_PRODUCTION_CHAR || prec->userid == RPA_PRODUCTION_CLS || prec->userid == RPA_PRODUCTION_SPECIALCHAR ||
+				prec->userid == RPA_PRODUCTION_BRACKETEXP))
 			break;
+
 	}
 
 	r_array_removelast(dbex->recstack);
