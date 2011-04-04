@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
 		goto end;
 	}
 
-	rvm_cpu_exec_debug(stat->cpu, rvm_codegen_getcode(co->cg, 0), mainoff);
+	rvm_cpu_exec(stat->cpu, rvm_codegen_getcode(co->cg, 0), mainoff);
 
 end:
 	rpa_stat_destroy(stat);

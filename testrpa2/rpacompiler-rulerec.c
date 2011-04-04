@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
 		goto end;
 	}
 
-	rvm_cpu_exec_debug(stat->cpu, rvm_codegen_getcode(co->cg, 0), mainoff);
+	rvm_cpu_exec(stat->cpu, rvm_codegen_getcode(co->cg, 0), mainoff);
 
 	for (i = 0; i < r_array_length(stat->records); i++) {
 		rparecord_t *rec = (rparecord_t *)r_array_slot(stat->records, i);

@@ -46,6 +46,7 @@ Misc		::= <:Comment:> | <:PI:> | <:S:>						# [27]
 doctypedecl	::= '<!DOCTYPE'<S><:Name:>(<S><:ExternalID:>)?<S>?('['<:intSubset:>']'<S>?)?'>'	# [28]
 DeclSep		::= <:PEReference:> | <:S:>							# [28a]
 intSubset	::= ( <:markupdecl:> | <:DeclSep:> )*						# [28b]
+
 markupdecl	::= <:elementdecl:> | <:AttlistDecl:> | 
 		    <:EntityDecl:> | <:NotationDecl:> | <:PI:> | <:Comment:>			# [29]
 prolog		::= (<:XMLDecl:> | <:doctypedecl:>)<:Misc:>* (<:doctypedecl:> <:Misc:>*)?	# [22]
@@ -107,6 +108,8 @@ NDataDecl	::= <:S:> 'NDATA' <:S:> <:Name:>      						# [76]
 TextDecl	::= '<?xml' <:VersionInfo:>? <:EncodingDecl:>  <:S:>? '?>'			# [77]
 extParsedEnt	::= <:TextDecl:>? <:content:>		       	      				# [78]
 EncName	   	::= [A-Za-z] ([A-Za-z0-9._] | '-')*	     	       		       		# [81]
+NotationDecl	::= '<!NOTATION' <:S:> <:Name:> <:S:> (<:ExternalID:> | <:PublicID:>)<:S:>? '>' # [82]
+PublicID	::= 'PUBLIC' <:S:> <:PubidLiteral:>						# [83]
 EncodingDecl	::= <:S:> 'encoding' <:Eq:> ('"' <:EncName:> '"' | "'" <:EncName:> "'" ) 	# [80]
 
 document	::= <:prolog:>? <:element:> <:Misc:>* 						# [1]
