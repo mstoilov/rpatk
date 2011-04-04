@@ -199,6 +199,7 @@ int rpa_grep_match(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 		rpa_grep_output(pGrep, input, ret, pGrep->encoding);
 		rpa_grep_output_utf8_string(pGrep, "\n");
 	}
+	pGrep->cachehit = hStat->cache.hit;
 	rpa_stat_destroy(hStat);
 	return 0;
 }
@@ -230,6 +231,7 @@ int rpa_grep_parse(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 		}
 		r_array_destroy(records);
 	}
+	pGrep->cachehit = hStat->cache.hit;
 	rpa_stat_destroy(hStat);
 	return 0;
 }
@@ -248,9 +250,11 @@ int rpa_grep_scan(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 		return -1;
 	rpa_stat_encodingset(hStat, pGrep->encoding);
 	hStat->debug = pGrep->execdebug;
+	pGrep->cachehit = hStat->cache.hit;
 
 again:
 	ret = rpa_stat_scan(hStat, pGrep->hPattern, input, start, end, &matched);
+	pGrep->cachehit += hStat->cache.hit;
 	if (ret > 0) {
 		if (!displayed) {
 			displayed = 1;

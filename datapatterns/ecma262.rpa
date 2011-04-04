@@ -34,18 +34,13 @@ Identifier		::= <:IdentifierName:> - <:ReservedWord:> - <:ReservedWord:> <:Ident
 IdentifierName		::= <:IdentifierStart:> <:IdentifierPart:>*
 IdentifierStart		::= <:UnicodeLetter:> | '$' | '_' | '\' <:UnicodeEscapeSequence:>
 UnicodeLetter		::= <Lu> |
-			<Ll> |
-			<Lt> |
-			<Lm> |
-			<Lo> |
-			<Nl>
+			<Ll>
+
 
 Lu			::= [#0x0041-#0x005A] | [#0x00C0-#0x00DE] | [#0x0100-#0x0232]  	# TBD
 Ll			::= [#0x0061-#0x007A] | [#0x00C0-#0x00DE] 			# TBD
 IdentifierPart		::= <:IdentifierStart:> | 
-			<:UnicodeCombiningMark:> |
-			<:UnicodeDigit:> | 
-			<:UnicodeConnectorPunctuation:>					# TBD
+			<:UnicodeDigit:> 
 
 UnicodeDigit		::= [0-9] | [#0x0660-#0x0669]					# TBD
 ReservedWord		::= <:Keyword:>

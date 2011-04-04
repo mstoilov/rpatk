@@ -503,7 +503,7 @@ void rpa_dbex_destroy(rpadbex_t *dbex)
 }
 
 
-static rint rpa_parseinfo_checkforloop(rpadbex_t *dbex, rlong rec, rlong loopstartrec, rlong loopendrec, rint inderction)
+static rint rpa_parseinfo_checkforloop_old(rpadbex_t *dbex, rlong rec, rlong loopstartrec, rlong loopendrec, rint inderction)
 {
 	rlong nrec, i;
 	rint lret, ret = 0;
@@ -520,14 +520,14 @@ static rint rpa_parseinfo_checkforloop(rpadbex_t *dbex, rlong rec, rlong loopsta
 
 	for (i = rpa_recordtree_firstchild(dbex->records, rec, RPA_RECORD_START); i >= 0; i = rpa_recordtree_next(dbex->records, i, RPA_RECORD_START)) {
 		rparecord_t *prec = (rparecord_t *)r_array_slot(dbex->records, i);
-		if (prec->userid == RPA_PRODUCTION_AREF || prec->userid == RPA_PRODUCTION_AREF) {
+		if (prec->userid == RPA_PRODUCTION_AREF || prec->userid == RPA_PRODUCTION_CREF) {
 			nrec = rpa_recordtree_firstchild(dbex->records, i, RPA_RECORD_END);
 			if (nrec > 0) {
 				rpa_ruleinfo_t *info;
 				prec = (rparecord_t *)r_array_slot(dbex->records, nrec);
 				info = (rpa_ruleinfo_t *)r_harray_get(dbex->rules, r_harray_lookup(dbex->rules, prec->input, prec->inputsiz));
 				if (info) {
-					lret = rpa_parseinfo_checkforloop(dbex, info->startrec, loopstartrec, loopendrec, inderction + 1);
+					lret = rpa_parseinfo_checkforloop_old(dbex, info->startrec, loopstartrec, loopendrec, inderction + 1);
 					if (i >= loopstartrec && i <= loopendrec && lret) {
 						rpa_record_setusertype(dbex->records, i, RPA_LOOP_PATH, RVALSET_OR);
 						rpa_record_setusertype(dbex->records, nrec, RPA_LOOP_PATH, RVALSET_OR);
@@ -536,13 +536,59 @@ static rint rpa_parseinfo_checkforloop(rpadbex_t *dbex, rlong rec, rlong loopsta
 				}
 			}
 		} else {
-			lret = rpa_parseinfo_checkforloop(dbex, i, loopstartrec, loopendrec, inderction + 1);
+			lret = rpa_parseinfo_checkforloop_old(dbex, i, loopstartrec, loopendrec, inderction + 1);
 			if (i >= loopstartrec && i <= loopendrec && lret) {
 				rpa_record_setusertype(dbex->records, i, RPA_LOOP_PATH, RVALSET_OR);
 				ret |= lret;
 			}
 
 		}
+	}
+
+	r_array_removelast(dbex->recstack);
+	return ret;
+}
+
+
+static rint rpa_parseinfo_checkforloop(rpadbex_t *dbex, rlong parent, rlong loopto, rint inderction)
+{
+	rsize_t namesiz;
+	const rchar *name;
+	rlong i;
+	rint lret, ret = 0;
+	rlong parent_end = rpa_recordtree_get(dbex->records, parent, RPA_RECORD_END);
+
+	if (parent == loopto && inderction > 0)
+		return 1;
+
+	for (i = 0; i < r_array_length(dbex->recstack); i++) {
+		if (parent == r_array_index(dbex->recstack, i, rlong))
+			return 0;
+	}
+
+	r_array_add(dbex->recstack, &parent);
+
+	for (i = rpa_recordtree_firstchild(dbex->records, parent, RPA_RECORD_START); i >= 0; i = rpa_recordtree_next(dbex->records, i, RPA_RECORD_START)) {
+		rparecord_t *prec = (rparecord_t *)r_array_slot(dbex->records, i);
+		if (prec->userid == RPA_PRODUCTION_CLS || prec->userid == RPA_PRODUCTION_RULENAME)
+			continue;
+		if (prec->userid == RPA_PRODUCTION_AREF || prec->userid == RPA_PRODUCTION_CREF) {
+			rpa_ruleinfo_t *info;
+			if (rpa_dbex_rulename(dbex, i, &name, &namesiz) < 0)
+				R_ASSERT(0);
+			info = (rpa_ruleinfo_t *) r_harray_get(dbex->rules, r_harray_lookup(dbex->rules, name, namesiz));
+			if (!info)
+				R_ASSERT(0);
+			ret |= rpa_parseinfo_checkforloop(dbex, info->startrec, loopto, inderction + 1);
+		} else {
+			lret = rpa_parseinfo_checkforloop(dbex, i, loopto, inderction + 1);
+			if (i >= parent && i <= parent_end && lret) {
+				rpa_record_setusertype(dbex->records, i, RPA_LOOP_PATH, RVALSET_OR);
+				ret |= lret;
+			}
+		}
+		if ((prec->usertype & RPA_MATCH_OPTIONAL) == 0 && prec->userid != RPA_PRODUCTION_OROP && prec->userid != RPA_PRODUCTION_ALTBRANCH)
+			break;
 	}
 
 	r_array_removelast(dbex->recstack);
@@ -558,7 +604,7 @@ static void rpa_dbex_buildloopinfo(rpadbex_t *dbex)
 
 	for (i = 0; i < r_array_length(rules->members); i++) {
 		info = (rpa_ruleinfo_t *)r_harray_get(rules, i);
-		if (rpa_parseinfo_checkforloop(dbex, info->startrec, info->startrec, info->startrec + info->sizerecs - 1, 0)) {
+		if (rpa_parseinfo_checkforloop(dbex, info->startrec, info->startrec, 0)) {
 			rpa_record_setusertype(dbex->records, info->startrec, RPA_LOOP_PATH, RVALSET_OR);
 		}
 	}

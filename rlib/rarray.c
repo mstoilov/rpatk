@@ -84,7 +84,7 @@ rint r_array_add(rarray_t *array, rconstpointer data)
 }
 
 
-rint r_array_removelast(rarray_t *array)
+rlong r_array_removelast(rarray_t *array)
 {
 	if (!r_array_empty(array))
 		r_array_setlength(array, r_array_length(array) - 1);

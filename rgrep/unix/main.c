@@ -239,6 +239,18 @@ int main(int argc, const char *argv[])
 		goto end;
 	}
 
+	for (i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "-s") == 0) {
+			if (++i < argc) {
+				rpa_buffer_t buf;
+				buf.s = (char*)argv[i];
+				buf.size = r_strlen(argv[i]);
+				rpa_grep_scan_buffer(pGrep, &buf);
+				++scanned;
+			}
+		}
+	}
+
 	/* scan files */
 	for (i = 1; i < argc; i++) {
 		if (argv[i][0] != '-') {
@@ -274,8 +286,8 @@ end:
 			milsec = 1;
 		minutes = milsec/60000;
 		sec = (milsec%60000)/1000.0;
-		fprintf(stdout, "\ntime: %0ldm%1.3fs, %ld KB (%ld KB/sec), stack: %ld KB, memory: %ld KB (leaked %ld Bytes)\n",
-				minutes, sec, sckb, 1000*sckb/milsec, pGrep->usedstack / 1000, (rlong)r_debug_get_maxmem()/1000, (rlong)r_debug_get_allocmem());
+		fprintf(stdout, "\ntime: %0ldm%1.3fs, %ld KB (%ld KB/sec), stack: %ld KB, memory: %ld KB (leaked %ld Bytes), cachehit: %ld\n",
+				minutes, sec, sckb, 1000*sckb/milsec, pGrep->usedstack / 1000, (rlong)r_debug_get_maxmem()/1000, (rlong)r_debug_get_allocmem(), pGrep->cachehit);
 	}
 
 	rpa_grep_destroy(pGrep);

@@ -48,6 +48,7 @@ typedef struct rpa_grep_s {
 	rparule_t hPattern;
 	unsigned long scanmilisec;
 	unsigned long usedstack;
+	unsigned long cachehit;
 	unsigned int icase;
 	unsigned int encoding;
 	unsigned int greptype;

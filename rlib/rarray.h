@@ -42,7 +42,7 @@ rarray_t *r_array_create(rsize_t elt_size);
 void r_array_destroy(rarray_t *array);
 rint r_array_add(rarray_t *array, rconstpointer data);
 rint r_array_move(rarray_t *array, rlong dest, rlong src, rlong size);
-rint r_array_removelast(rarray_t *array);
+rlong r_array_removelast(rarray_t *array);
 rint r_array_insert(rarray_t *array, rsize_t index, rconstpointer data);
 rint r_array_replace(rarray_t *array, rsize_t index, rconstpointer data);
 rint r_array_setlength(rarray_t *array, rsize_t len);
