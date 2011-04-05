@@ -139,8 +139,9 @@ rint rpa_compiler_loop_begin(rpa_compiler_t *co, const rchar *name, ruint namesi
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_CHECKCACHE, DA, R_TOP, XX, exp.start));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BXGRE, LR, XX, XX, 0));
 
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, FP, SP, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_GETRECLEN, R0, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(R0)|BIT(R_TOP)|BIT(R_LOO)|BIT(R_WHT)|BIT(LR)));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(R0)|BIT(R_TOP)|BIT(R_LOO)|BIT(R_WHT)|BIT(FP)|BIT(LR)));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_CLR, R_LOO, XX, XX, 0));
 
 	r_snprintf(endlabel, sizeof(endlabel) - 1, "__loop:%ld", exp.start);
@@ -173,7 +174,7 @@ rint rpa_compiler_loop_end(rpa_compiler_t *co)
 	 * Load R_TOP from the stack and check if we have made a progress
 	 * Load the old R_TOP, without popping it from the stack.
 	 */
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDS, R2, SP, DA, -3));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDS, R2, SP, DA, -4));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_SUBS, R0, R_TOP, R2, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BGRE, DA, XX, XX, 4));
 
@@ -195,20 +196,20 @@ rint rpa_compiler_loop_end(rpa_compiler_t *co)
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R_TOP, R2, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_GETRECLEN, R1, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_STS, R1, SP, DA, -4));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_STS, R1, SP, DA, -5)); /* Store the record lenngth directly on the stack */
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, exp.loopidx, rvm_asm(RVM_B, DA, XX, XX, 0));
 
 	/*
 	 * End the loop successfully R0 > 0
 	 */
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOVS, R0, R_LOO, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BIT(R1)|BIT(R_TOP)|BIT(R_LOO)|BIT(R_WHT)|BIT(LR)));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BIT(R1)|BIT(R_TOP)|BIT(R_LOO)|BIT(R_WHT)|BIT(FP)|BIT(LR)));
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_SETRECLEN, R1, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_NOP, DA, R0, R1, exp.start)); // TBD: RPA_SETCACHE
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_ADD, R_TOP, R_TOP, R0, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 //	rvm_codegen_redefinelabel(co->cg, exp.endidx);
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BIT(R0)|BIT(R_TOP)|BIT(R_LOO)|BIT(R_WHT)|BIT(LR)));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BIT(R0)|BIT(R_TOP)|BIT(R_LOO)|BIT(R_WHT)|BIT(FP)|BIT(LR)));
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_SETRECLEN, R0, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOVS, R0, DA, XX, -1));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
