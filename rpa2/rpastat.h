@@ -25,6 +25,7 @@ extern "C" {
 
 typedef struct rpacache_s {
 	rword disabled;
+	rword startrec;
 	rword reclen;
 	rword hit;
 } rpacache_t;

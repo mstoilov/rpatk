@@ -244,7 +244,8 @@ static void rpavm_swi_emitstart(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rec->input = stat->instack[tp].input;
 	rec->inputsiz = 0;
 
-	rpa_stat_cacheinvalidate(stat);
+	if (index >= stat->cache.startrec && index < stat->cache.reclen)
+		rpa_stat_cacheinvalidate(stat);
 //	r_printf("START: %s(%ld)\n", name.str, (rulong)tp);
 }
 
@@ -411,6 +412,7 @@ static void rpavm_swi_setcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 	if (!RVM_STATUS_GETBIT(cpu, RVM_STATUS_N) && !RVM_STATUS_GETBIT(cpu, RVM_STATUS_Z)) {
 		stat->cache.reclen = r_array_length(stat->records);
+		stat->cache.startrec = stat->cache.reclen - 1;
 		rec = (rparecord_t *)r_array_slot(stat->records, stat->cache.reclen - 1);
 	}
 }
