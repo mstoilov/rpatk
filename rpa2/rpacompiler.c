@@ -171,6 +171,7 @@ rint rpa_compiler_loop_end(rpa_compiler_t *co)
 
 	/*
 	 * Load R_TOP from the stack and check if we have made a progress
+	 * Load the old R_TOP, without popping it from the stack.
 	 */
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDS, R2, SP, DA, -3));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_SUBS, R0, R_TOP, R2, 0));
