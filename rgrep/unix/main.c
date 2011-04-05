@@ -187,6 +187,11 @@ int main(int argc, const char *argv[])
 		}
 	}
 
+	if (rpa_dbex_compile(pGrep->hDbex) < 0) {
+
+		goto end;
+	}
+
 
 	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "--dump-records") == 0) {
@@ -224,20 +229,6 @@ int main(int argc, const char *argv[])
 		
 	}
 
-	if (rpa_dbex_compile(pGrep->hDbex) < 0) {
-
-		goto end;
-	}
-
-	if (rpa_dbex_compile(pGrep->hDbex) < 0) {
-
-		goto end;
-	}
-
-	if (rpa_dbex_compile(pGrep->hDbex) < 0) {
-
-		goto end;
-	}
 
 	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-s") == 0) {

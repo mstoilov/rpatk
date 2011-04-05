@@ -13,6 +13,7 @@ rpastat_t *rpa_stat_create(rpadbex_t *dbex, rulong stacksize)
 	if (stacksize == 0)
 		stacksize = RPA_DEFAULT_STACKSIZE;
 	stat->cpu = rpavm_cpu_create(stacksize);
+	stat->cache = rpa_cache_create();
 	if (!stat->cpu) {
 		r_free(stat);
 		return NULL;
@@ -32,6 +33,7 @@ void rpa_stat_destroy(rpastat_t *stat)
 			r_free(stat->instackbuffer);
 		r_object_destroy((robject_t*)stat->records);
 		rpavm_cpu_destroy(stat->cpu);
+		rpa_cache_destroy(stat->cache);
 		r_free(stat);
 	}
 }
@@ -39,7 +41,7 @@ void rpa_stat_destroy(rpastat_t *stat)
 
 void rpa_stat_cachedisable(rpastat_t *stat, ruint disable)
 {
-	stat->cache.disabled = disable;
+	rpa_cache_disable(stat->cache, disable);
 }
 
 
@@ -68,8 +70,7 @@ rint rpa_stat_init(rpastat_t *stat, const rchar *input, const rchar *start, cons
 	stat->input = input;
 	stat->error = 0;
 	stat->cursize = 0;
-	stat->cache.reclen = 0;
-	stat->cache.hit = 0;
+	stat->cache->hit = 0;
 	if (stat->instacksize < size) {
 		stat->instackbuffer = r_realloc(stat->instackbuffer, (size + 2) * sizeof(rpainput_t));
 		stat->instacksize = size + 1;
@@ -79,6 +80,7 @@ rint rpa_stat_init(rpastat_t *stat, const rchar *input, const rchar *start, cons
 	stat->ip.input = input;
 	stat->ip.serial = 0;
 	rpa_stat_resetrecords(stat);
+	rpa_stat_cacheinvalidate(stat);
 	RVM_CPUREG_SETU(stat->cpu, SP, 0);
 	RVM_CPUREG_SETU(stat->cpu, R_LOO, 0);
 	RVM_CPUREG_SETU(stat->cpu, R_WHT, 0);
@@ -89,7 +91,7 @@ rint rpa_stat_init(rpastat_t *stat, const rchar *input, const rchar *start, cons
 
 void rpa_stat_cacheinvalidate(rpastat_t *stat)
 {
-	stat->cache.reclen = 0;
+	rpa_cache_invalidate(stat->cache);
 }
 
 

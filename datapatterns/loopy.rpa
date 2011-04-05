@@ -1,12 +1,12 @@
 abra	::= [0-9]+
 #cadabra ::= <:abra:>abc
 
-term	 ::= [0-9]+ | '(' <:exp:> ')'
+term	 ::= [0-9]+ 
 expop	 ::= <:exp:> '+' <:term:> |
 	     <:exp:> '-' <:term:> |
 	     <:exp:> '*' <:term:> |
 	     <:exp:> '/' <:term:> |
-	     (<:exp:> - (<:exp:> -^ [a-z])) '&' <:term:>
+	     <:term:>
 exp	 ::= <:expop:> | <:term:>
 
 

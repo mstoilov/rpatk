@@ -1977,6 +1977,7 @@ rint rvm_cpu_exec(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off)
 
 rint rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off)
 {
+	rlong line = 0;
 	rvm_asmins_t *pi;
 	rvmreg_t *regda = RVM_CPUREG_PTR(cpu, DA);
 	rvmreg_t *regpc = RVM_CPUREG_PTR(cpu, PC);
@@ -1990,6 +1991,7 @@ rint rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off)
 			*regda = pi->data;
 		}
 		ops[pi->opcode](cpu, pi);
+		r_printf("%7ld :", ++line);
 		rvm_cpu_dumpregs(pi, cpu);
 		RVM_REG_INCIP(regpc, 1);
 	} while (!cpu->abort);

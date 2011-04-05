@@ -579,7 +579,7 @@ static rint rpa_parseinfo_checkforloop(rpadbex_t *dbex, rlong parent, rlong loop
 				R_ASSERT(0);
 			info = (rpa_ruleinfo_t *) r_harray_get(dbex->rules, r_harray_lookup(dbex->rules, name, namesiz));
 			if (!info)
-				R_ASSERT(0);
+				continue;
 			ret |= rpa_parseinfo_checkforloop(dbex, info->startrec, loopto, inderction + 1);
 		} else {
 			lret = rpa_parseinfo_checkforloop(dbex, i, loopto, inderction + 1);
@@ -588,9 +588,6 @@ static rint rpa_parseinfo_checkforloop(rpadbex_t *dbex, rlong parent, rlong loop
 				ret |= lret;
 			}
 		}
-//		if ((prec->usertype & RPA_MATCH_OPTIONAL) == 0 && prec->userid != RPA_PRODUCTION_OROP && prec->userid != RPA_PRODUCTION_ALTBRANCH &&
-//				prec->userid != RPA_PRODUCTION_MINOP && prec->userid != RPA_PRODUCTION_NOROP && prec->userid != RPA_PRODUCTION_NEGBRANCH)
-//			break;
 
 		if ((prec->usertype & RPA_MATCH_OPTIONAL) == 0 && (prec->userid == RPA_PRODUCTION_CREF || prec->userid == RPA_PRODUCTION_AREF ||
 				prec->userid == RPA_PRODUCTION_CHAR || prec->userid == RPA_PRODUCTION_CLS || prec->userid == RPA_PRODUCTION_SPECIALCHAR ||
@@ -622,7 +619,9 @@ static void rpa_dbex_buildloopinfo(rpadbex_t *dbex)
 	 */
 	for (i = 0; i < r_array_length(dbex->records); i++) {
 		rparecord_t *prec = (rparecord_t *)r_array_slot(dbex->records, i);
-		if (prec->type == RPA_RECORD_START && prec->userid == RPA_PRODUCTION_ALTBRANCH && (prec->usertype & RPA_LOOP_PATH) == 0) {
+		if (prec->type == RPA_RECORD_START &&
+			(prec->userid == RPA_PRODUCTION_ALTBRANCH) &&
+			(prec->usertype & RPA_LOOP_PATH) == 0) {
 			p = rpa_recordtree_parent(dbex->records, i, RPA_RECORD_START);
 			if (p >= 0) {
 				prec = (rparecord_t *)r_array_slot(dbex->records, p);

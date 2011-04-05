@@ -6,6 +6,7 @@
 #include "rvmreg.h"
 #include "rpavm.h"
 #include "rpadbex.h"
+#include "rpacache.h"
 
 #define RPA_ENCODING_UTF8 0
 #define RPA_ENCODING_BYTE 1
@@ -23,12 +24,6 @@ extern "C" {
 #endif
 
 
-typedef struct rpacache_s {
-	rword disabled;
-	rword startrec;
-	rword reclen;
-	rword hit;
-} rpacache_t;
 
 typedef struct rpastat_s rpastat_t;
 struct rpastat_s {
@@ -44,7 +39,7 @@ struct rpastat_s {
 	rpainput_t *instack;			/* instack = &instackbuffer[1]; This allows R_TOP = -1, without any additional checks */
 	rulong instacksize;
 	rulong cursize;
-	rpacache_t cache;
+	rpacache_t *cache;
 	rpainmap_t ip;
 	rvmcpu_t *cpu;
 };
