@@ -243,6 +243,7 @@ static void rpavm_swi_emitstart(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rec->type = RPA_RECORD_START;
 	rec->input = stat->instack[tp].input;
 	rec->inputsiz = 0;
+	RVM_CPUREG_SETU(cpu, R_REC, r_array_length(stat->records));
 
 //	r_printf("START: %s(%ld)\n", name.str, (rulong)tp);
 }
@@ -273,7 +274,7 @@ static void rpavm_swi_emitend(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		rec->type = RPA_RECORD_END;
 //		r_printf("MATCHED: %s(%ld, %ld)\n", name.str, (rulong)tp, (rulong)tplen);
 	}
-	rpa_stat_cacheinvalidate(stat);
+	RVM_CPUREG_SETU(cpu, R_REC, r_array_length(stat->records));
 }
 
 
@@ -289,6 +290,11 @@ static void rpavm_swi_setreclen(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 
 	r_array_setlength(stat->records, (ruint)RVM_CPUREG_GETU(cpu, ins->op1));
+
+
+//	if (RVM_CPUREG_GETU(cpu, ins->op1) != RVM_CPUREG_GETU(cpu, R_REC)) {
+//		r_printf("setreclen = %ld, R_REC = %ld\n", RVM_CPUREG_GETU(cpu, ins->op1), RVM_CPUREG_GETU(cpu, R_REC));
+//	}
 }
 
 
@@ -355,6 +361,12 @@ static void rpavm_swi_setcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rlong r0 = RVM_CPUREG_GETL(cpu, ins->op2);
 	rlong rec = RVM_CPUREG_GETL(cpu, ins->op3);
 	rlong nrecords = r_array_length(stat->records) - rec;
+
+	/*
+	 * If the record set is too big, don't use the cache
+	 */
+	if (nrecords > 100)
+		return;
 
 	if (!RVM_STATUS_GETBIT(cpu, RVM_STATUS_N) && !RVM_STATUS_GETBIT(cpu, RVM_STATUS_Z)) {
 		prec = (rparecord_t *)r_array_slot(stat->records, rec);
