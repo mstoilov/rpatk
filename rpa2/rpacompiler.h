@@ -12,10 +12,13 @@ extern "C" {
 typedef struct rpa_ruledef_s {
 	rulong branch;
 	rulong start;
-	rlong labelidx;
+	rlong startidx;
 	rlong emitidx;
 	rlong endidx;
 	rlong loopidx;
+	rlong successidx;
+	rlong failidx;
+	rlong againidx;
 	ruint32 recuid;
 } rpa_ruledef_t;
 

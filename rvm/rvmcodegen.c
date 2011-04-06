@@ -83,6 +83,18 @@ rlong rvm_codegen_addlabel_s(rvm_codegen_t *cg, const rchar* name)
 }
 
 
+rlong rvm_codegen_invalid_addlabel(rvm_codegen_t *cg, const rchar* name, ruint namesize)
+{
+	return rvm_codemap_invalid_add(cg->codemap, name, namesize);
+}
+
+
+rlong rvm_codegen_invalid_addlabel_s(rvm_codegen_t *cg, const rchar* name)
+{
+	return rvm_codegen_invalid_addlabel(cg, name, r_strlen(name));
+}
+
+
 ruint rvm_codegen_addlabelins(rvm_codegen_t *cg, const rchar* name, ruint namesize, rvm_asmins_t ins)
 {
 	rvm_codemap_addoffset(cg->codemap, name, namesize, rvm_codemap_lookup_s(cg->codemap, ".code"), RVM_CODE2BYTE_OFFSET(rvm_codegen_getcodesize(cg)));

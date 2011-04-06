@@ -48,6 +48,8 @@ rint rvm_codegen_relocate(rvm_codegen_t *cg, rvm_codelabel_t **err);
 rlong rvm_codegen_redefinelabel(rvm_codegen_t *cg, rlong index);
 rlong rvm_codegen_addlabel(rvm_codegen_t *cg, const rchar* name, ruint namesize);
 rlong rvm_codegen_addlabel_s(rvm_codegen_t *cg, const rchar* name);
+rlong rvm_codegen_invalid_addlabel(rvm_codegen_t *cg, const rchar* name, ruint namesize);
+rlong rvm_codegen_invalid_addlabel_s(rvm_codegen_t *cg, const rchar* name);
 rlong rvm_codegen_adddata(rvm_codegen_t *cg, const rchar *name, ruint namesize, rconstpointer data, rsize_t size);
 rlong rvm_codegen_adddata_s(rvm_codegen_t *cg, const rchar *name, rconstpointer data, rsize_t size);
 rlong rvm_codegen_addstring(rvm_codegen_t *cg, const rchar *name, ruint namesize, const rchar* data);

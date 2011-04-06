@@ -396,26 +396,28 @@ static void rpavm_swi_loopdetect(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		loo = RVM_STACK_READ(cpu->stack, fp - 4);
 		rid = RVM_STACK_READ(cpu->stack, fp - 5);
 
-		if (rid.v.l == ruleid && top.v.l == tp)
+		if (rid.v.l == ruleid && top.v.l == tp) {
+			RVM_CPUREG_SETU(cpu, R0, loo.v.l);
 			break;
+		}
 		RVM_REG_CLEAR(&loo);
 		pfp = RVM_STACK_READ(cpu->stack, fp - 1);
 		fp = pfp.v.l;
 	}
 
-	for (len = r_array_length(stat->records); len > 0; len--) {
-		rec = (rparecord_t *)r_array_slot(stat->records, len - 1);
-		if (rec->type == (RPA_RECORD_END | RPA_RECORD_MATCH)) {
-			RVM_CPUREG_SETU(cpu, R0, -1);
-			break;
-		} else if (rec->ruleid == ruleid && rec->top == tp) {
-			RVM_CPUREG_SETU(cpu, R0, RVM_CPUREG_GETU(cpu, R_LOO));
+//	for (len = r_array_length(stat->records); len > 0; len--) {
+//		rec = (rparecord_t *)r_array_slot(stat->records, len - 1);
+//		if (rec->type == (RPA_RECORD_END | RPA_RECORD_MATCH)) {
+//			RVM_CPUREG_SETU(cpu, R0, -1);
+//			break;
+//		} else if (rec->ruleid == ruleid && rec->top == tp) {
+//			RVM_CPUREG_SETU(cpu, R0, RVM_CPUREG_GETU(cpu, R_LOO));
 //			RVM_CPUREG_SETU(cpu, R_TOP, RVM_CPUREG_GETU(cpu, R_TOP) + RVM_CPUREG_GETU(cpu, R_LOO));
-			r_printf("LOO = %ld, loo = %ld\n", RVM_CPUREG_GETU(cpu, R0), loo.v.l);
-			RVM_CPUREG_SETU(cpu, R0, loo.v.l);
-			break;
-		}
-	}
+//			r_printf("LOO = %ld, loo = %ld\n", RVM_CPUREG_GETU(cpu, R0), loo.v.l);
+//			RVM_CPUREG_SETU(cpu, R0, loo.v.l);
+//			break;
+//		}
+//	}
 }
 
 
