@@ -57,12 +57,12 @@ void code_rpa_match_term(rpa_compiler_t *co, rpastat_t *stat)
 	rpa_compiler_altexp_begin(co);
 
 	rpa_compiler_branch_begin(co);
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_num", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "rpa_match_num");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_compiler_branch_end(co, RPA_MATCH_NONE);
 
 	rpa_compiler_branch_begin(co);
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_var", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "rpa_match_var");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_compiler_branch_end(co, RPA_MATCH_NONE);
 
@@ -70,7 +70,7 @@ void code_rpa_match_term(rpa_compiler_t *co, rpastat_t *stat)
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, '('));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_xorexp", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "rpa_match_xorexp");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, ')'));
@@ -89,7 +89,7 @@ void code_rpa_match_mulop(rpa_compiler_t *co, rpastat_t *stat)
 {
 	rpa_compiler_rule_begin_s(co, "rpa_match_mulop");
 
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_mulexp", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "rpa_match_mulexp");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
 	rpa_compiler_class_begin(co);
@@ -98,7 +98,7 @@ void code_rpa_match_mulop(rpa_compiler_t *co, rpastat_t *stat)
 	rpa_compiler_class_end(co, RPA_MATCH_NONE);
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_term", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "rpa_match_term");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
 	rpa_compiler_rule_end(co);
@@ -109,7 +109,7 @@ void code_rpa_match_divop(rpa_compiler_t *co, rpastat_t *stat)
 {
 	rpa_compiler_rule_begin_s(co, "rpa_match_divop");
 
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_mulexp", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "rpa_match_mulexp");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
 	rpa_compiler_class_begin(co);
@@ -118,7 +118,7 @@ void code_rpa_match_divop(rpa_compiler_t *co, rpastat_t *stat)
 	rpa_compiler_class_end(co, RPA_MATCH_NONE);
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_term", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "rpa_match_term");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
 	rpa_compiler_rule_end(co);
@@ -132,18 +132,18 @@ void code_rpa_match_mulexp(rpa_compiler_t *co, rpastat_t *stat)
 	rpa_compiler_altexp_begin(co);
 
 	rpa_compiler_branch_begin(co);
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_mulop", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "rpa_match_mulop");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_compiler_branch_end(co, RPA_MATCH_NONE);
 
 	rpa_compiler_branch_begin(co);
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_divop", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "rpa_match_divop");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_compiler_branch_end(co, RPA_MATCH_NONE);
 
 
 	rpa_compiler_nonloopybranch_begin(co);
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_term", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "rpa_match_term");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_compiler_nonloopybranch_end(co, RPA_MATCH_NONE);
 
@@ -158,31 +158,31 @@ void code_rpa_match_addexp(rpa_compiler_t *co, rpastat_t *stat)
 	rpa_compiler_altexp_begin(co);
 
 	rpa_compiler_branch_begin(co);
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_addexp", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "rpa_match_addexp");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, '-'));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_mulexp", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "rpa_match_mulexp");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_compiler_branch_end(co, RPA_MATCH_NONE);
 
 
 	rpa_compiler_branch_begin(co);
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_addexp", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "rpa_match_addexp");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, '+'));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_mulexp", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "rpa_match_mulexp");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_compiler_branch_end(co, RPA_MATCH_NONE);
 
 
 	rpa_compiler_nonloopybranch_begin(co);
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_mulexp", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "rpa_match_mulexp");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_compiler_nonloopybranch_end(co, RPA_MATCH_NONE);
 
@@ -197,18 +197,18 @@ void code_rpa_match_orexp(rpa_compiler_t *co, rpastat_t *stat)
 	rpa_compiler_altexp_begin(co);
 
 	rpa_compiler_branch_begin(co);
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_orexp", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "rpa_match_orexp");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, '|'));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_addexp", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "rpa_match_addexp");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_compiler_branch_end(co, RPA_MATCH_NONE);
 
 	rpa_compiler_nonloopybranch_begin(co);
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_addexp", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "rpa_match_addexp");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_compiler_nonloopybranch_end(co, RPA_MATCH_NONE);
 
@@ -223,18 +223,18 @@ void code_rpa_match_andexp(rpa_compiler_t *co, rpastat_t *stat)
 	rpa_compiler_altexp_begin(co);
 
 	rpa_compiler_branch_begin(co);
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_andexp", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "rpa_match_andexp");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, '&'));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_orexp", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "rpa_match_orexp");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_compiler_branch_end(co, RPA_MATCH_NONE);
 
 	rpa_compiler_nonloopybranch_begin(co);
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_orexp", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "rpa_match_orexp");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_compiler_nonloopybranch_end(co, RPA_MATCH_NONE);
 
@@ -249,18 +249,18 @@ void code_rpa_match_xorexp(rpa_compiler_t *co, rpastat_t *stat)
 	rpa_compiler_altexp_begin(co);
 
 	rpa_compiler_branch_begin(co);
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_xorexp", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "rpa_match_xorexp");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, '^'));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_andexp", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "rpa_match_andexp");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_compiler_branch_end(co, RPA_MATCH_NONE);
 
 	rpa_compiler_nonloopybranch_begin(co);
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_andexp", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "rpa_match_andexp");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_compiler_nonloopybranch_end(co, RPA_MATCH_NONE);
 
@@ -275,7 +275,7 @@ void code_rpa_matchmnode(rpa_compiler_t *co, rpastat_t *stat)
 
 	rpa_compiler_exp_begin(co);
 
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpa_match_xorexp", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "rpa_match_xorexp");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
 	rpa_compiler_exp_end(co, RPA_MATCH_NONE);
@@ -305,11 +305,6 @@ int main(int argc, char *argv[])
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, R_TOP, DA, XX, -1));
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, FP, DA, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, SP, DA, XX, 0));
-
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpacompiler_mnode_nan", rvm_asm(RPA_SETBXLNAN, DA, XX, XX, 0));
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpacompiler_mnode_mul", rvm_asm(RPA_SETBXLMUL, DA, XX, XX, 0));
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpacompiler_mnode_opt", rvm_asm(RPA_SETBXLOPT, DA, XX, XX, 0));
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "rpacompiler_mnode_mop", rvm_asm(RPA_SETBXLMOP, DA, XX, XX, 0));
 
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_SHIFT, XX, XX, XX, 0));
 	code_rpa_matchmnode(co, stat);
