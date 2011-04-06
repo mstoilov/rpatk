@@ -631,6 +631,6 @@ rint rpa_compiler_negexp_end(rpa_compiler_t *co)
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHSPCHR_NAN, DA, XX, XX, '.'));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 	rvm_codegen_replaceins(co->cg, exp.branch, rvm_asm(RVM_B, DA, XX, XX, rvm_codegen_getcodesize(co->cg) - exp.branch));
-	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.startidx, rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rpa_compiler_index_reference_nan(co, exp.startidx);
 	return 0;
 }

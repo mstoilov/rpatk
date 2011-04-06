@@ -1044,10 +1044,6 @@ rint rpa_dbex_compile(rpadbex_t *dbex)
 	dbex->co = rpa_compiler_create();
 
 	dbex->init = rvm_codegen_addins(dbex->co->cg, rvm_asml(RVM_NOP, XX, XX, XX, -1));
-	rvm_codegen_addrelocins_s(dbex->co->cg, RVM_RELOC_JUMP, "rpacompiler_mnode_nan", rvm_asm(RPA_SETBXLNAN, DA, XX, XX, 0));
-	rvm_codegen_addrelocins_s(dbex->co->cg, RVM_RELOC_JUMP, "rpacompiler_mnode_opt", rvm_asm(RPA_SETBXLOPT, DA, XX, XX, 0));
-	rvm_codegen_addrelocins_s(dbex->co->cg, RVM_RELOC_JUMP, "rpacompiler_mnode_mul", rvm_asm(RPA_SETBXLMUL, DA, XX, XX, 0));
-	rvm_codegen_addrelocins_s(dbex->co->cg, RVM_RELOC_JUMP, "rpacompiler_mnode_mop", rvm_asm(RPA_SETBXLMOP, DA, XX, XX, 0));
 	rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
 
 	for (rid = rpa_dbex_first(dbex); rid >= 0; rid = rpa_dbex_next(dbex, rid)) {
