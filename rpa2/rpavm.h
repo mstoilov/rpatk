@@ -19,9 +19,9 @@ extern "C" {
 #define RPA_NONLOOP_PATH (1<<4)
 #define RPA_LOOP_INDERECTION 1024
 
-#define R_ARG R4
-#define R_TOP R5
-#define R_LOO R6
+#define R_RID R4
+#define R_LOO R5
+#define R_TOP R6
 #define R_WHT R7
 #define RPAVM_SWI_TABLEID 0
 

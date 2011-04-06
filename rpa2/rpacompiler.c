@@ -128,7 +128,8 @@ rint rpa_compiler_loop_begin(rpa_compiler_t *co, const rchar *name, ruint namesi
 	exp.labelidx = rvm_codegen_addlabel(co->cg, name, namesize);
 
 	exp.start = rvm_codegen_getcodesize(co->cg);
-	rvm_codegen_addins(co->cg, rvm_asm(RPA_LOOPDETECT, DA, R_TOP, XX, exp.start));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R_RID, DA, XX, exp.start));
+	rvm_codegen_addins(co->cg, rvm_asm(RPA_LOOPDETECT, R_RID, R_TOP, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_CMP, R0, DA, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BLES, DA, XX, XX, 5));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BGRE, DA, XX, XX, 2));
@@ -139,10 +140,10 @@ rint rpa_compiler_loop_begin(rpa_compiler_t *co, const rchar *name, ruint namesi
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_CHECKCACHE, DA, R_TOP, XX, exp.start));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BXGRE, LR, XX, XX, 0));
 
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, FP, SP, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_GETRECLEN, R0, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(R0)|BIT(R_TOP)|BIT(R_LOO)|BIT(R_WHT)|BIT(FP)|BIT(LR)));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_CLR, R_LOO, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(R0)|BIT(R_RID)|BIT(R_LOO)|BIT(R_TOP)|BIT(R_WHT)|BIT(FP)|BIT(LR)));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, FP, SP, XX, 0));
 
 	r_snprintf(endlabel, sizeof(endlabel) - 1, "__loop:%ld", exp.start);
 	exp.loopidx = rvm_codegen_addlabel_s(co->cg, endlabel);
@@ -174,21 +175,23 @@ rint rpa_compiler_loop_end(rpa_compiler_t *co)
 	 * Load R_TOP from the stack and check if we have made a progress
 	 * Load the old R_TOP, without popping it from the stack.
 	 */
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDS, R2, SP, DA, -4));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDS, R2, SP, DA, -3));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_SUBS, R0, R_TOP, R2, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_BGRE, DA, XX, XX, 4));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_BGRE, DA, XX, XX, 5));
 
 	/*
 	 * If R_LOO is 0, nothing matched - goto end
 	 */
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDS, R_LOO, SP, DA, -4));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_CMP, R_LOO, DA, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_BGRE, DA, XX, XX, 10));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, 15));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_BGRE, DA, XX, XX, 11));		// END SUCCESS
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, 16)); 		// END FAILED
 
 	/*
 	 * Loop again
 	 */
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R_LOO, R0, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_STS, R_LOO, SP, DA, -4));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_STRING, exp.emitidx, rvm_asm(RPA_EMITEND, DA, R2, R0, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_SETRECID, DA, XX, XX, exp.start));
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_SETRECUID, DA, XX, XX, exp.recuid));
@@ -196,20 +199,22 @@ rint rpa_compiler_loop_end(rpa_compiler_t *co)
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R_TOP, R2, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_GETRECLEN, R1, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_STS, R1, SP, DA, -5)); /* Store the record lenngth directly on the stack */
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_STS, R1, SP, DA, -6)); /* Store the record lenngth directly on the stack */
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, exp.loopidx, rvm_asm(RVM_B, DA, XX, XX, 0));
 
 	/*
 	 * End the loop successfully R0 > 0
+	 * END SUCCESS
 	 */
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOVS, R0, R_LOO, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BIT(R1)|BIT(R_TOP)|BIT(R_LOO)|BIT(R_WHT)|BIT(FP)|BIT(LR)));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BIT(R1)|BIT(R_RID)|BIT(R_LOO)|BIT(R_TOP)|BIT(R_WHT)|BIT(FP)|BIT(LR)));
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_SETRECLEN, R1, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_NOP, DA, R0, R1, exp.start)); // TBD: RPA_SETCACHE
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_ADD, R_TOP, R_TOP, R0, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 //	rvm_codegen_redefinelabel(co->cg, exp.endidx);
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BIT(R0)|BIT(R_TOP)|BIT(R_LOO)|BIT(R_WHT)|BIT(FP)|BIT(LR)));
+// END FAILED:
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BIT(R0)|BIT(R_RID)|BIT(R_LOO)|BIT(R_TOP)|BIT(R_WHT)|BIT(FP)|BIT(LR)));
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_SETRECLEN, R0, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOVS, R0, DA, XX, -1));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
