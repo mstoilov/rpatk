@@ -31,27 +31,6 @@ static rparecord_t *rpa_dbex_record(rpadbex_t *dbex, rlong rec);
 static rint rpa_dbex_rulename(rpadbex_t *dbex, rlong rec, const rchar **name, rsize_t *namesize);
 
 
-static rlong rpa_dbex_getbxl(rulong matchtype)
-{
-	switch (matchtype & RPA_MATCH_MASK) {
-	default:
-	case RPA_MATCH_NONE:
-		return RPA_BXLNAN;
-		break;
-	case RPA_MATCH_MULTIPLE:
-		return RPA_BXLMUL;
-		break;
-	case RPA_MATCH_OPTIONAL:
-		return RPA_BXLOPT;
-		break;
-	case RPA_MATCH_MULTIOPT:
-		return RPA_BXLMOP;
-		break;
-	};
-	return RPA_BXLNAN;
-}
-
-
 static rlong rpa_dbex_getmatchchr(rulong matchtype)
 {
 	switch (matchtype & RPA_MATCH_MASK) {
@@ -442,7 +421,7 @@ static rint rpa_dbex_rh_aref(rpadbex_t *dbex, rlong rec)
 			return -1;
 		}
 
-		rvm_codegen_addrelocins(dbex->co->cg, RVM_RELOC_JUMP, name, namesize, rvm_asm(rpa_dbex_getbxl(prec->usertype & RPA_MATCH_MASK), DA, XX, XX, 0));
+		rpa_compiler_reference(dbex->co, name, namesize, (prec->usertype & RPA_MATCH_MASK));
 		rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
 	} else if (prec->type & RPA_RECORD_END) {
