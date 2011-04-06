@@ -277,16 +277,6 @@ static void rpavm_swi_emitend(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
-static void rpavm_swi_bxlwht(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rword wht = RVM_CPUREG_GETU(cpu, ins->op2);
-
-	RVM_CPUREG_SETU(cpu, R_WHT, wht);
-	RVM_CPUREG_SETIP(cpu, LR, RVM_CPUREG_GETIP(cpu, PC));
-	RVM_CPUREG_SETIP(cpu, PC, RVM_CPUREG_GETIP(cpu, ins->op1));
-}
-
-
 static void rpavm_swi_getreclen(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
@@ -426,7 +416,6 @@ static rvm_switable_t rpavm_swi_table[] = {
 		{"RPA_SHIFT", rpavm_swi_shift},
 		{"RPA_EMITSTART", rpavm_swi_emitstart},
 		{"RPA_EMITEND", rpavm_swi_emitend},
-		{"RPA_BXLWHT", rpavm_swi_bxlwht},
 		{"RPA_GETRECLEN", rpavm_swi_getreclen},
 		{"RPA_SETRECLEN", rpavm_swi_setreclen},
 		{"RPA_SETRECID", rpavm_swi_setrecid},

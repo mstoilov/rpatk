@@ -21,7 +21,6 @@ LIBS += -lrvm -lrast -lrlib -lpthread -lm --static
 ;TESTS	+= $(OUTDIR)/calc-test
 ;TESTS	+= $(OUTDIR)/rast-test
 ;TESTS	+= $(OUTDIR)/rpagen-test
-TESTS	+= $(OUTDIR)/rpavm-test
 TESTS	+= $(OUTDIR)/funcarg-test
 TESTS   += $(OUTDIR)/codegen-test
 TESTS   += $(OUTDIR)/codemap-test
