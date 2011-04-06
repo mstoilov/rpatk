@@ -83,7 +83,7 @@ rint rpa_stat_init(rpastat_t *stat, const rchar *input, const rchar *start, cons
 	rpa_stat_cacheinvalidate(stat);
 	RVM_CPUREG_SETU(stat->cpu, SP, 0);
 	RVM_CPUREG_SETU(stat->cpu, R_LOO, 0);
-	RVM_CPUREG_SETU(stat->cpu, R_WHT, 0);
+	RVM_CPUREG_SETU(stat->cpu, R_REC, 0);
 	RVM_CPUREG_SETU(stat->cpu, R_TOP, -1);
 	return 0;
 }

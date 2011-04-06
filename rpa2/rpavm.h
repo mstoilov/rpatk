@@ -22,7 +22,7 @@ extern "C" {
 #define R_RID R4
 #define R_LOO R5
 #define R_TOP R6
-#define R_WHT R7
+#define R_REC R7
 #define RPAVM_SWI_TABLEID 0
 
 #define RPA_MATCHCHR_NAN	RVM_OPSWI(RVM_SWI_ID(RPAVM_SWI_TABLEID, 0))

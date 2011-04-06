@@ -1187,7 +1187,7 @@ static rint rpa_parser_init(rpa_parser_t *pa)
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, SP, DA, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, R_LOO, DA, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, R_TOP, DA, XX, -1));
-	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, R_WHT, DA, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, R_REC, DA, XX, 0));
 
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_SHIFT, XX, XX, XX, 0));
 	rpa_compiler_reference_nan_s(co, "bnf");
