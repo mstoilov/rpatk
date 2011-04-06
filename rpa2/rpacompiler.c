@@ -24,6 +24,122 @@ static rlong rpa_codegen_invalid_add_numlabel_s(rvm_codegen_t *cg, const rchar *
 }
 
 
+void rpa_compiler_index_reference_nan(rpa_compiler_t *co, rulong index)
+{
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, index, rvm_asm(RVM_BL, DA, XX, XX, 0));
+}
+
+
+void rpa_compiler_reference_nan(rpa_compiler_t *co, const rchar *name, rsize_t namesize)
+{
+	rpa_compiler_index_reference_nan(co, rvm_codemap_lookup(co->cg->codemap, name, namesize));
+}
+
+
+void rpa_compiler_reference_nan_s(rpa_compiler_t *co, const rchar *name)
+{
+	rpa_compiler_reference_nan(co, name, r_strlen(name));
+}
+
+
+void rpa_compiler_index_reference_opt(rpa_compiler_t *co, rulong index)
+{
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, index, rvm_asm(RVM_BL, DA, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOVS, R0, R0, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_BGRE, DA, XX, XX, 2));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOVS, R0, DA, XX, 0));
+}
+
+
+void rpa_compiler_reference_opt(rpa_compiler_t *co, const rchar *name, rsize_t namesize)
+{
+	rpa_compiler_index_reference_opt(co, rvm_codemap_lookup(co->cg->codemap, name, namesize));
+}
+
+
+void rpa_compiler_reference_opt_s(rpa_compiler_t *co, const rchar *name)
+{
+	rpa_compiler_reference_opt(co, name, r_strlen(name));
+}
+
+
+void rpa_compiler_index_reference_mul(rpa_compiler_t *co, rulong index)
+{
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R_TOP, XX, XX, 0));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, index, rvm_asm(RVM_BL, DA, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOVS, R0, R0, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_BGRE, DA, XX, XX, -2));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R0, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_SUBS, R0, R_TOP, R0, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_BGRE, DA, XX, XX, 2));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOVS, R0, DA, XX, -1));
+}
+
+
+void rpa_compiler_reference_mul(rpa_compiler_t *co, const rchar *name, rsize_t namesize)
+{
+	rpa_compiler_index_reference_mul(co, rvm_codemap_lookup(co->cg->codemap, name, namesize));
+
+}
+
+
+void rpa_compiler_reference_mul_s(rpa_compiler_t *co, const rchar *name)
+{
+	rpa_compiler_reference_mul(co, name, r_strlen(name));
+}
+
+
+void rpa_compiler_index_reference_mop(rpa_compiler_t *co, rulong index)
+{
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R_TOP, XX, XX, 0));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, index, rvm_asm(RVM_BL, DA, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOVS, R0, R0, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_BGRE, DA, XX, XX, -2));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R0, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_SUBS, R0, R_TOP, R0, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_BGRE, DA, XX, XX, 2));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOVS, R0, DA, XX, 0));
+}
+
+
+void rpa_compiler_reference_mop(rpa_compiler_t *co, const rchar *name, rsize_t namesize)
+{
+	rpa_compiler_index_reference_mop(co, rvm_codemap_lookup(co->cg->codemap, name, namesize));
+}
+
+
+void rpa_compiler_reference_mop_s(rpa_compiler_t *co, const rchar *name)
+{
+	rpa_compiler_reference_mop(co, name, r_strlen(name));
+}
+
+
+void rpa_compiler_index_reference(rpa_compiler_t *co, rulong index, ruint qflag)
+{
+	if (qflag == RPA_MATCH_OPTIONAL) {
+		rpa_compiler_index_reference_opt(co, index);
+	} else if (qflag == RPA_MATCH_MULTIPLE) {
+		rpa_compiler_index_reference_mul(co, index);
+	} else if (qflag == RPA_MATCH_MULTIOPT) {
+		rpa_compiler_index_reference_mop(co, index);
+	} else {
+		rpa_compiler_index_reference_nan(co, index);
+	}
+}
+
+
+void rpa_compiler_reference(rpa_compiler_t *co, const rchar *name, rsize_t namesize, ruint qflag)
+{
+	rpa_compiler_index_reference(co, rvm_codemap_lookup(co->cg->codemap, name, namesize), qflag);
+}
+
+
+void rpa_compiler_reference_s(rpa_compiler_t *co, const rchar *name, ruint qflag)
+{
+	rpa_compiler_reference(co, name, r_strlen(name), qflag);
+}
+
+
 void rpacompiler_mnode_nan(rpa_compiler_t *co)
 {
 	rvm_codegen_addlabel_s(co->cg, "rpacompiler_mnode_nan");
@@ -322,15 +438,7 @@ rint rpa_compiler_exp_end(rpa_compiler_t *co, ruint qflag)
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOVS, R0, DA, XX, -1));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 	rvm_codegen_replaceins(co->cg, exp.branch, rvm_asm(RVM_B, DA, XX, XX, rvm_codegen_getcodesize(co->cg) - exp.branch));
-	if (qflag == RPA_MATCH_OPTIONAL) {
-		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.startidx, rvm_asm(RPA_BXLOPT, DA, XX, XX, 0));
-	} else if (qflag == RPA_MATCH_MULTIPLE) {
-		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.startidx, rvm_asm(RPA_BXLMUL, DA, XX, XX, 0));
-	} else if (qflag == RPA_MATCH_MULTIOPT) {
-		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.startidx, rvm_asm(RPA_BXLMOP, DA, XX, XX, 0));
-	} else {
-		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.startidx, rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
-	}
+	rpa_compiler_index_reference(co, exp.startidx, qflag);
 	return 0;
 }
 
@@ -362,15 +470,7 @@ rint rpa_compiler_altexp_end(rpa_compiler_t *co, ruint qflag)
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 
 	rvm_codegen_replaceins(co->cg, exp.branch, rvm_asm(RVM_B, DA, XX, XX, rvm_codegen_getcodesize(co->cg) - exp.branch));
-	if (qflag == RPA_MATCH_OPTIONAL) {
-		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.startidx, rvm_asm(RPA_BXLOPT, DA, XX, XX, 0));
-	} else if (qflag == RPA_MATCH_MULTIPLE) {
-		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.startidx, rvm_asm(RPA_BXLMUL, DA, XX, XX, 0));
-	} else if (qflag == RPA_MATCH_MULTIOPT) {
-		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.startidx, rvm_asm(RPA_BXLMOP, DA, XX, XX, 0));
-	} else {
-		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.startidx, rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
-	}
+	rpa_compiler_index_reference(co, exp.startidx, qflag);
 	return 0;
 }
 
@@ -403,15 +503,7 @@ rint rpa_compiler_branch_end(rpa_compiler_t *co, ruint qflag)
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOVS, R0, DA, XX, -1));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 	rvm_codegen_replaceins(co->cg, exp.branch, rvm_asm(RVM_B, DA, XX, XX, rvm_codegen_getcodesize(co->cg) - exp.branch));
-	if (qflag == RPA_MATCH_OPTIONAL) {
-		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.startidx, rvm_asm(RPA_BXLOPT, DA, XX, XX, 0));
-	} else if (qflag == RPA_MATCH_MULTIPLE) {
-		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.startidx, rvm_asm(RPA_BXLMUL, DA, XX, XX, 0));
-	} else if (qflag == RPA_MATCH_MULTIOPT) {
-		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.startidx, rvm_asm(RPA_BXLMOP, DA, XX, XX, 0));
-	} else {
-		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.startidx, rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
-	}
+	rpa_compiler_index_reference(co, exp.startidx, qflag);
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BGRE, DA, XX, XX, 0));
 
 	return 0;
@@ -469,15 +561,7 @@ rint rpa_compiler_class_end(rpa_compiler_t *co, ruint qflag)
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 
 	rvm_codegen_replaceins(co->cg, exp.branch, rvm_asm(RVM_B, DA, XX, XX, rvm_codegen_getcodesize(co->cg) - exp.branch));
-	if (qflag == RPA_MATCH_OPTIONAL) {
-		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.startidx, rvm_asm(RPA_BXLOPT, DA, XX, XX, 0));
-	} else if (qflag == RPA_MATCH_MULTIPLE) {
-		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.startidx, rvm_asm(RPA_BXLMUL, DA, XX, XX, 0));
-	} else if (qflag == RPA_MATCH_MULTIOPT) {
-		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.startidx, rvm_asm(RPA_BXLMOP, DA, XX, XX, 0));
-	} else {
-		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.startidx, rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
-	}
+	rpa_compiler_index_reference(co, exp.startidx, qflag);
 	return 0;
 }
 
@@ -512,15 +596,7 @@ rint rpa_compiler_notexp_end(rpa_compiler_t *co, ruint qflag)
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 
 	rvm_codegen_replaceins(co->cg, exp.branch, rvm_asm(RVM_B, DA, XX, XX, rvm_codegen_getcodesize(co->cg) - exp.branch));
-	if (qflag == RPA_MATCH_OPTIONAL) {
-		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.startidx, rvm_asm(RPA_BXLOPT, DA, XX, XX, 0));
-	} else if (qflag == RPA_MATCH_MULTIPLE) {
-		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.startidx, rvm_asm(RPA_BXLMUL, DA, XX, XX, 0));
-	} else if (qflag == RPA_MATCH_MULTIOPT) {
-		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.startidx, rvm_asm(RPA_BXLMOP, DA, XX, XX, 0));
-	} else {
-		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, exp.startidx, rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
-	}
+	rpa_compiler_index_reference(co, exp.startidx, qflag);
 	return 0;
 }
 

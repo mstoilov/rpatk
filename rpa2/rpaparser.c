@@ -66,12 +66,14 @@ static void rpa_production_bnf(rpa_parser_t *pa)
 	rpa_compiler_altexp_begin(co);
 
 	rpa_compiler_branch_begin(co);
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "space", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+//	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "space", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "space");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_compiler_branch_end(co, RPA_MATCH_NONE);
 
 	rpa_compiler_branch_begin(co);
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "comment", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+//	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "comment", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "comment");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_compiler_branch_end(co, RPA_MATCH_NONE);
 
@@ -88,12 +90,14 @@ static void rpa_production_bnf(rpa_parser_t *pa)
 	rpa_compiler_branch_end(co, RPA_MATCH_NONE);
 
 	rpa_compiler_branch_begin(co);
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "namedrule", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+//	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "namedrule", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "namedrule");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_compiler_branch_end(co, RPA_MATCH_NONE);
 
 	rpa_compiler_branch_begin(co);
-	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "anonymousrule", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+//	rvm_codegen_addrelocins_s(co->cg, RVM_RELOC_JUMP, "anonymousrule", rvm_asm(RPA_BXLNAN, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "anonymousrule");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_compiler_branch_end(co, RPA_MATCH_NONE);
 

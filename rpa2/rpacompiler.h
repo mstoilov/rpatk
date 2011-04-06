@@ -66,6 +66,22 @@ rint rpa_compiler_notexp_end(rpa_compiler_t *co, ruint qflag);
 void rpa_compiler_add_ruleuid(rpa_compiler_t *co, const rchar *name, ruint namesize, ruint32 uid);
 void rpa_compiler_add_ruleuid_s(rpa_compiler_t *co, const rchar *name, ruint32 uid);
 
+void rpa_compiler_index_reference(rpa_compiler_t *co, rulong index, ruint qflag);
+void rpa_compiler_index_reference_nan(rpa_compiler_t *co, rulong index);
+void rpa_compiler_index_reference_opt(rpa_compiler_t *co, rulong index);
+void rpa_compiler_index_reference_mul(rpa_compiler_t *co, rulong index);
+void rpa_compiler_index_reference_mop(rpa_compiler_t *co, rulong index);
+void rpa_compiler_reference(rpa_compiler_t *co, const rchar *name, rsize_t namesize, ruint qflag);
+void rpa_compiler_reference_nan(rpa_compiler_t *co, const rchar *name, rsize_t namesize);
+void rpa_compiler_reference_opt(rpa_compiler_t *co, const rchar *name, rsize_t namesize);
+void rpa_compiler_reference_mul(rpa_compiler_t *co, const rchar *name, rsize_t namesize);
+void rpa_compiler_reference_mop(rpa_compiler_t *co, const rchar *name, rsize_t namesize);
+void rpa_compiler_reference_s(rpa_compiler_t *co, const rchar *name, ruint qflag);
+void rpa_compiler_reference_nan_s(rpa_compiler_t *co, const rchar *name);
+void rpa_compiler_reference_opt_s(rpa_compiler_t *co, const rchar *name);
+void rpa_compiler_reference_mul_s(rpa_compiler_t *co, const rchar *name);
+void rpa_compiler_reference_mop_s(rpa_compiler_t *co, const rchar *name);
+
 
 #ifdef __cplusplus
 }
