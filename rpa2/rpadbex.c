@@ -115,10 +115,10 @@ static rint rpa_dbex_rh_anonymousrule(rpadbex_t *dbex, rlong rec)
 		rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_SHIFT, XX, XX, XX, 0));
 		rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_BL, DA, XX, XX, 2));
 		rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
-		rpa_compiler_exp_begin(dbex->co);
+		rpa_compiler_exp_begin(dbex->co, RPA_MATCH_NONE);
 
 	} else if (prec->type & RPA_RECORD_END) {
-		rpa_compiler_exp_end(dbex->co, RPA_MATCH_NONE);
+		rpa_compiler_exp_end(dbex->co);
 	}
 
 	return 0;
@@ -166,10 +166,10 @@ static rint rpa_dbex_rh_cls(rpadbex_t *dbex, rlong rec)
 	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
 
 	if (prec->type & RPA_RECORD_START) {
-		rpa_compiler_class_begin(dbex->co);
+		rpa_compiler_class_begin(dbex->co, prec->usertype & RPA_MATCH_MASK);
 
 	} else if (prec->type & RPA_RECORD_END) {
-		rpa_compiler_class_end(dbex->co, prec->usertype & RPA_MATCH_MASK);
+		rpa_compiler_class_end(dbex->co);
 		rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	}
 
@@ -200,10 +200,10 @@ static rint rpa_dbex_rh_exp(rpadbex_t *dbex, rlong rec)
 	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
 
 	if (prec->type & RPA_RECORD_START) {
-		rpa_compiler_exp_begin(dbex->co);
+		rpa_compiler_exp_begin(dbex->co, prec->usertype & RPA_MATCH_MASK);
 
 	} else if (prec->type & RPA_RECORD_END) {
-		rpa_compiler_exp_end(dbex->co, prec->usertype & RPA_MATCH_MASK);
+		rpa_compiler_exp_end(dbex->co);
 		rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	}
 
@@ -216,10 +216,10 @@ static rint rpa_dbex_rh_orop(rpadbex_t *dbex, rlong rec)
 	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
 
 	if (prec->type & RPA_RECORD_START) {
-		rpa_compiler_altexp_begin(dbex->co);
+		rpa_compiler_altexp_begin(dbex->co, prec->usertype & RPA_MATCH_MASK);
 
 	} else if (prec->type & RPA_RECORD_END) {
-		rpa_compiler_altexp_end(dbex->co, prec->usertype & RPA_MATCH_MASK);
+		rpa_compiler_altexp_end(dbex->co);
 		rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	}
 
@@ -232,10 +232,10 @@ static rint rpa_dbex_rh_norop(rpadbex_t *dbex, rlong rec)
 	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
 
 	if (prec->type & RPA_RECORD_START) {
-		rpa_compiler_altexp_begin(dbex->co);
+		rpa_compiler_altexp_begin(dbex->co, prec->usertype & RPA_MATCH_MASK);
 
 	} else if (prec->type & RPA_RECORD_END) {
-		rpa_compiler_altexp_end(dbex->co, prec->usertype & RPA_MATCH_MASK);
+		rpa_compiler_altexp_end(dbex->co);
 		rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BGRE, DA, XX, XX, 0));
 	}
 
@@ -248,10 +248,10 @@ static rint rpa_dbex_rh_notop(rpadbex_t *dbex, rlong rec)
 	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
 
 	if (prec->type & RPA_RECORD_START) {
-		rpa_compiler_notexp_begin(dbex->co);
+		rpa_compiler_notexp_begin(dbex->co, prec->usertype & RPA_MATCH_MASK);
 
 	} else if (prec->type & RPA_RECORD_END) {
-		rpa_compiler_notexp_end(dbex->co, prec->usertype & RPA_MATCH_MASK);
+		rpa_compiler_notexp_end(dbex->co);
 		rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	}
 
@@ -391,16 +391,16 @@ static rint rpa_dbex_rh_branch(rpadbex_t *dbex, rlong rec)
 
 	if (prec->type & RPA_RECORD_START) {
 		if (prec->usertype & RPA_NONLOOP_PATH) {
-			rpa_compiler_nonloopybranch_begin(dbex->co);
+			rpa_compiler_nonloopybranch_begin(dbex->co, prec->usertype & RPA_MATCH_MASK);
 		} else {
-			rpa_compiler_branch_begin(dbex->co);
+			rpa_compiler_branch_begin(dbex->co, prec->usertype & RPA_MATCH_MASK);
 		}
 	} else if (prec->type & RPA_RECORD_END) {
 
 		if (prec->usertype & RPA_NONLOOP_PATH) {
-			rpa_compiler_nonloopybranch_end(dbex->co, prec->usertype & RPA_MATCH_MASK);
+			rpa_compiler_nonloopybranch_end(dbex->co);
 		} else {
-			rpa_compiler_branch_end(dbex->co, prec->usertype & RPA_MATCH_MASK);
+			rpa_compiler_branch_end(dbex->co);
 		}
 
 	}

@@ -337,10 +337,11 @@ rint rpa_compiler_rule_end(rpa_compiler_t *co)
 }
 
 
-rint rpa_compiler_exp_begin(rpa_compiler_t *co)
+rint rpa_compiler_exp_begin(rpa_compiler_t *co, ruint flags)
 {
 	rpa_ruledef_t exp;
 
+	exp.flags = flags;
 	exp.branch = rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, 0));
 	exp.start = rvm_codegen_getcodesize(co->cg);
 	exp.startidx = rpa_codegen_add_numlabel_s(co->cg, "__begin", exp.start);
@@ -352,7 +353,7 @@ rint rpa_compiler_exp_begin(rpa_compiler_t *co)
 }
 
 
-rint rpa_compiler_exp_end(rpa_compiler_t *co, ruint qflag)
+rint rpa_compiler_exp_end(rpa_compiler_t *co)
 {
 	rpa_ruledef_t exp = r_array_pop(co->expressions, rpa_ruledef_t);
 
@@ -365,15 +366,16 @@ rint rpa_compiler_exp_end(rpa_compiler_t *co, ruint qflag)
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOVS, R0, DA, XX, -1));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 	rvm_codegen_replaceins(co->cg, exp.branch, rvm_asm(RVM_B, DA, XX, XX, rvm_codegen_getcodesize(co->cg) - exp.branch));
-	rpa_compiler_index_reference(co, exp.startidx, qflag);
+	rpa_compiler_index_reference(co, exp.startidx, (exp.flags & RPA_MATCH_MASK));
 	return 0;
 }
 
 
-rint rpa_compiler_altexp_begin(rpa_compiler_t *co)
+rint rpa_compiler_altexp_begin(rpa_compiler_t *co, ruint flags)
 {
 	rpa_ruledef_t exp;
 
+	exp.flags = flags;
 	exp.branch = rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, 0));
 	exp.start = rvm_codegen_getcodesize(co->cg);
 	exp.startidx = rpa_codegen_add_numlabel_s(co->cg, "__begin", exp.start);
@@ -384,7 +386,7 @@ rint rpa_compiler_altexp_begin(rpa_compiler_t *co)
 }
 
 
-rint rpa_compiler_altexp_end(rpa_compiler_t *co, ruint qflag)
+rint rpa_compiler_altexp_end(rpa_compiler_t *co)
 {
 	rpa_ruledef_t exp = r_array_pop(co->expressions, rpa_ruledef_t);
 
@@ -397,15 +399,16 @@ rint rpa_compiler_altexp_end(rpa_compiler_t *co, ruint qflag)
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 
 	rvm_codegen_replaceins(co->cg, exp.branch, rvm_asm(RVM_B, DA, XX, XX, rvm_codegen_getcodesize(co->cg) - exp.branch));
-	rpa_compiler_index_reference(co, exp.startidx, qflag);
+	rpa_compiler_index_reference(co, exp.startidx, (exp.flags & RPA_MATCH_MASK));
 	return 0;
 }
 
 
-rint rpa_compiler_branch_begin(rpa_compiler_t *co)
+rint rpa_compiler_branch_begin(rpa_compiler_t *co, ruint flags)
 {
 	rpa_ruledef_t exp;
 
+	exp.flags = flags;
 	exp.branch = rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, 0));
 	exp.start = rvm_codegen_getcodesize(co->cg);
 	exp.startidx = rpa_codegen_add_numlabel_s(co->cg, "__begin", exp.start);
@@ -417,7 +420,7 @@ rint rpa_compiler_branch_begin(rpa_compiler_t *co)
 }
 
 
-rint rpa_compiler_branch_end(rpa_compiler_t *co, ruint qflag)
+rint rpa_compiler_branch_end(rpa_compiler_t *co)
 {
 	rpa_ruledef_t exp = r_array_pop(co->expressions, rpa_ruledef_t);
 
@@ -430,17 +433,18 @@ rint rpa_compiler_branch_end(rpa_compiler_t *co, ruint qflag)
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOVS, R0, DA, XX, -1));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 	rvm_codegen_replaceins(co->cg, exp.branch, rvm_asm(RVM_B, DA, XX, XX, rvm_codegen_getcodesize(co->cg) - exp.branch));
-	rpa_compiler_index_reference(co, exp.startidx, qflag);
+	rpa_compiler_index_reference(co, exp.startidx, (exp.flags & RPA_MATCH_MASK));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BGRE, DA, XX, XX, 0));
 
 	return 0;
 }
 
 
-rint rpa_compiler_nonloopybranch_begin(rpa_compiler_t *co)
+rint rpa_compiler_nonloopybranch_begin(rpa_compiler_t *co, ruint flags)
 {
 	rpa_ruledef_t exp;
 
+	exp.flags = flags;
 	exp.branch = rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, 0));
 	exp.start = rvm_codegen_getcodesize(co->cg);
 	exp.startidx = rpa_codegen_add_numlabel_s(co->cg, "__begin", exp.start);
@@ -455,16 +459,17 @@ rint rpa_compiler_nonloopybranch_begin(rpa_compiler_t *co)
 }
 
 
-rint rpa_compiler_nonloopybranch_end(rpa_compiler_t *co, ruint qflag)
+rint rpa_compiler_nonloopybranch_end(rpa_compiler_t *co)
 {
-	return rpa_compiler_branch_end(co, qflag);
+	return rpa_compiler_branch_end(co);
 }
 
 
-rint rpa_compiler_class_begin(rpa_compiler_t *co)
+rint rpa_compiler_class_begin(rpa_compiler_t *co, ruint flags)
 {
 	rpa_ruledef_t exp;
 
+	exp.flags = flags;
 	exp.branch = rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, 0));
 	exp.start = rvm_codegen_getcodesize(co->cg);
 	exp.startidx = rpa_codegen_add_numlabel_s(co->cg, "__begin", exp.start);
@@ -475,7 +480,7 @@ rint rpa_compiler_class_begin(rpa_compiler_t *co)
 }
 
 
-rint rpa_compiler_class_end(rpa_compiler_t *co, ruint qflag)
+rint rpa_compiler_class_end(rpa_compiler_t *co)
 {
 	rpa_ruledef_t exp = r_array_pop(co->expressions, rpa_ruledef_t);
 
@@ -488,15 +493,16 @@ rint rpa_compiler_class_end(rpa_compiler_t *co, ruint qflag)
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 
 	rvm_codegen_replaceins(co->cg, exp.branch, rvm_asm(RVM_B, DA, XX, XX, rvm_codegen_getcodesize(co->cg) - exp.branch));
-	rpa_compiler_index_reference(co, exp.startidx, qflag);
+	rpa_compiler_index_reference(co, exp.startidx, (exp.flags & RPA_MATCH_MASK));
 	return 0;
 }
 
 
-rint rpa_compiler_notexp_begin(rpa_compiler_t *co)
+rint rpa_compiler_notexp_begin(rpa_compiler_t *co, ruint flags)
 {
 	rpa_ruledef_t exp;
 
+	exp.flags = flags;
 	exp.branch = rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, 0));
 	exp.start = rvm_codegen_getcodesize(co->cg);
 	exp.startidx = rpa_codegen_add_numlabel_s(co->cg, "__begin", exp.start);
@@ -508,7 +514,7 @@ rint rpa_compiler_notexp_begin(rpa_compiler_t *co)
 }
 
 
-rint rpa_compiler_notexp_end(rpa_compiler_t *co, ruint qflag)
+rint rpa_compiler_notexp_end(rpa_compiler_t *co)
 {
 	rpa_ruledef_t exp = r_array_pop(co->expressions, rpa_ruledef_t);
 
@@ -523,15 +529,16 @@ rint rpa_compiler_notexp_end(rpa_compiler_t *co, ruint qflag)
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 
 	rvm_codegen_replaceins(co->cg, exp.branch, rvm_asm(RVM_B, DA, XX, XX, rvm_codegen_getcodesize(co->cg) - exp.branch));
-	rpa_compiler_index_reference(co, exp.startidx, qflag);
+	rpa_compiler_index_reference(co, exp.startidx, (exp.flags & RPA_MATCH_MASK));
 	return 0;
 }
 
 
-rint rpa_compiler_negexp_begin(rpa_compiler_t *co)
+rint rpa_compiler_negexp_begin(rpa_compiler_t *co, ruint flags)
 {
 	rpa_ruledef_t exp;
 
+	exp.flags = flags;
 	exp.branch = rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, 0));
 	exp.start = rvm_codegen_getcodesize(co->cg);
 	exp.startidx = rpa_codegen_add_numlabel_s(co->cg, "__begin", exp.start);
@@ -558,6 +565,6 @@ rint rpa_compiler_negexp_end(rpa_compiler_t *co)
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHSPCHR_NAN, DA, XX, XX, '.'));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 	rvm_codegen_replaceins(co->cg, exp.branch, rvm_asm(RVM_B, DA, XX, XX, rvm_codegen_getcodesize(co->cg) - exp.branch));
-	rpa_compiler_index_reference_nan(co, exp.startidx);
+	rpa_compiler_index_reference(co, exp.startidx, (exp.flags & RPA_MATCH_MASK));
 	return 0;
 }

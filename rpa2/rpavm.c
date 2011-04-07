@@ -365,8 +365,8 @@ static void rpavm_swi_setcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	/*
 	 * If the record set is too big, don't use the cache
 	 */
-	if (nrecords > 100)
-		return;
+//	if (nrecords > 100)
+//		return;
 
 	if (!RVM_STATUS_GETBIT(cpu, RVM_STATUS_N) && !RVM_STATUS_GETBIT(cpu, RVM_STATUS_Z)) {
 		prec = (rparecord_t *)r_array_slot(stat->records, rec);

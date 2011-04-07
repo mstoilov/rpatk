@@ -42,18 +42,18 @@ void code_rpa_matchxyz(rpa_compiler_t *co, rpastat_t *stat)
 void code_rpa_match_abcorxyz(rpa_compiler_t *co, rpastat_t *stat)
 {
 	rpa_compiler_rule_begin_s(co, "rpa_match_abcorxyz");
-	rpa_compiler_altexp_begin(co);
-	rpa_compiler_branch_begin(co);
+	rpa_compiler_altexp_begin(co, RPA_MATCH_NONE);
+	rpa_compiler_branch_begin(co, RPA_MATCH_NONE);
 	rpa_compiler_reference_nan_s(co, "rpa_matchxyz");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
-	rpa_compiler_branch_end(co, RPA_MATCH_NONE);
+	rpa_compiler_branch_end(co);
 
-	rpa_compiler_branch_begin(co);
+	rpa_compiler_branch_begin(co, RPA_MATCH_NONE);
 	rpa_compiler_reference_nan_s(co, "rpa_matchabc");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
-	rpa_compiler_branch_end(co, RPA_MATCH_NONE);
+	rpa_compiler_branch_end(co);
 
-	rpa_compiler_altexp_end(co, RPA_MATCH_NONE);
+	rpa_compiler_altexp_end(co);
 	rpa_compiler_rule_end(co);
 }
 

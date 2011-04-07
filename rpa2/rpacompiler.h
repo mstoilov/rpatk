@@ -19,7 +19,8 @@ typedef struct rpa_ruledef_s {
 	rlong successidx;
 	rlong failidx;
 	rlong againidx;
-	ruint32 recuid;
+	ruint recuid;
+	ruint flags;
 } rpa_ruledef_t;
 
 
@@ -45,23 +46,24 @@ rint rpa_compiler_loop_end(rpa_compiler_t *co);
 rint rpa_compiler_rule_begin(rpa_compiler_t *co, const rchar *name, ruint namesize);
 rint rpa_compiler_rule_begin_s(rpa_compiler_t *co, const rchar *name);
 rint rpa_compiler_rule_end(rpa_compiler_t *co);
-rint rpa_compiler_exp_begin(rpa_compiler_t *co);
-rint rpa_compiler_exp_end(rpa_compiler_t *co, ruint qflag);
 
-rint rpa_compiler_altexp_begin(rpa_compiler_t *co);
-rint rpa_compiler_altexp_end(rpa_compiler_t *co, ruint qflag);
+rint rpa_compiler_exp_begin(rpa_compiler_t *co, ruint flags);
+rint rpa_compiler_exp_end(rpa_compiler_t *co);
 
-rint rpa_compiler_branch_begin(rpa_compiler_t *co);
-rint rpa_compiler_branch_end(rpa_compiler_t *co, ruint qflag);
+rint rpa_compiler_altexp_begin(rpa_compiler_t *co, ruint flags);
+rint rpa_compiler_altexp_end(rpa_compiler_t *co);
 
-rint rpa_compiler_nonloopybranch_begin(rpa_compiler_t *co);
-rint rpa_compiler_nonloopybranch_end(rpa_compiler_t *co, ruint qflag);
+rint rpa_compiler_branch_begin(rpa_compiler_t *co, ruint flags);
+rint rpa_compiler_branch_end(rpa_compiler_t *co);
 
-rint rpa_compiler_class_begin(rpa_compiler_t *co);
-rint rpa_compiler_class_end(rpa_compiler_t *co, ruint qflag);
+rint rpa_compiler_nonloopybranch_begin(rpa_compiler_t *co, ruint flags);
+rint rpa_compiler_nonloopybranch_end(rpa_compiler_t *co);
 
-rint rpa_compiler_notexp_begin(rpa_compiler_t *co);
-rint rpa_compiler_notexp_end(rpa_compiler_t *co, ruint qflag);
+rint rpa_compiler_class_begin(rpa_compiler_t *co, ruint flags);
+rint rpa_compiler_class_end(rpa_compiler_t *co);
+
+rint rpa_compiler_notexp_begin(rpa_compiler_t *co, ruint flags);
+rint rpa_compiler_notexp_end(rpa_compiler_t *co);
 
 void rpa_compiler_add_ruleuid(rpa_compiler_t *co, const rchar *name, ruint namesize, ruint32 uid);
 void rpa_compiler_add_ruleuid_s(rpa_compiler_t *co, const rchar *name, ruint32 uid);
