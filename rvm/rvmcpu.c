@@ -1756,20 +1756,6 @@ static void rvm_op_abort(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	RVM_ABORT(cpu, RVM_CPUREG_GETU(cpu, ins->op1));
 }
 
-#if 0
-static void rvm_op_elds(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	ruint index = RVM_CPUREG_GETU(cpu, ins->op2) + RVM_CPUREG_GETU(cpu, ins->op3);
-	RVM_CPUREG_SET(cpu, ins->op1, *RVM_STACK_ADDR(cpu, index));
-}
-
-
-static void rvm_op_ests(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	ruint index = RVM_CPUREG_GETU(cpu, ins->op2) + RVM_CPUREG_GETU(cpu, ins->op3);
-	*RVM_STACK_ADDR(cpu, index) = RVM_CPUREG_GET(cpu, ins->op1);
-}
-#endif
 
 static rvm_cpu_op ops[] = {
 	rvm_op_exit,		// RVM_EXT
@@ -1966,7 +1952,38 @@ rint rvm_cpu_exec(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off)
 		if (pi->da) {
 			*regda = pi->data;
 		}
+		if (pi->cond) {
+			switch (pi->cond) {
+			case RVM_CEXEC_GRE:
+				if (!((cpu->status & RVM_STATUS_N) == 0 && (cpu->status & RVM_STATUS_Z) == 0))
+					goto skipexec;
+				break;
+			case RVM_CEXEC_GEQ:
+				if (!((cpu->status & RVM_STATUS_N) == 0 || (cpu->status & RVM_STATUS_Z) == 1))
+					goto skipexec;
+				break;
+			case RVM_CEXEC_EQ:
+				if (!((cpu->status & RVM_STATUS_Z)))
+					goto skipexec;
+				break;
+			case RVM_CEXEC_NEQ:
+				if (!((cpu->status & RVM_STATUS_Z) == 0))
+					goto skipexec;
+				break;
+			case RVM_CEXEC_LEQ:
+				if (!((cpu->status & RVM_STATUS_N) || (cpu->status & RVM_STATUS_Z)))
+					goto skipexec;
+				break;
+			case RVM_CEXEC_LES:
+				if (!((cpu->status & RVM_STATUS_N)))
+					goto skipexec;
+				break;
+			default:
+				goto skipexec;
+			};
+		}
 		ops[pi->opcode](cpu, pi);
+skipexec:
 		RVM_REG_INCIP(regpc, 1);
 	} while (!cpu->abort);
 	if (cpu->error)
@@ -1990,9 +2007,40 @@ rint rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off)
 		if (pi->da) {
 			*regda = pi->data;
 		}
+		if (pi->cond) {
+			switch (pi->cond) {
+			case RVM_CEXEC_GRE:
+				if (!((cpu->status & RVM_STATUS_N) == 0 && (cpu->status & RVM_STATUS_Z) == 0))
+					goto skipexec;
+				break;
+			case RVM_CEXEC_GEQ:
+				if (!((cpu->status & RVM_STATUS_N) == 0 || (cpu->status & RVM_STATUS_Z) == 1))
+					goto skipexec;
+				break;
+			case RVM_CEXEC_EQ:
+				if (!((cpu->status & RVM_STATUS_Z)))
+					goto skipexec;
+				break;
+			case RVM_CEXEC_NEQ:
+				if (!((cpu->status & RVM_STATUS_Z) == 0))
+					goto skipexec;
+				break;
+			case RVM_CEXEC_LEQ:
+				if (!((cpu->status & RVM_STATUS_N) || (cpu->status & RVM_STATUS_Z)))
+					goto skipexec;
+				break;
+			case RVM_CEXEC_LES:
+				if (!((cpu->status & RVM_STATUS_N)))
+					goto skipexec;
+				break;
+			default:
+				goto skipexec;
+			};
+		}
 		ops[pi->opcode](cpu, pi);
 		r_printf("%7ld :", ++line);
 		rvm_cpu_dumpregs(pi, cpu);
+skipexec:
 		RVM_REG_INCIP(regpc, 1);
 	} while (!cpu->abort);
 	if (cpu->error)
@@ -2183,24 +2231,6 @@ rvm_asmins_t rvm_asm2(rword opcode, rword op1, rword op2, rword op3, ruint32 p1,
 	rvm_reg_setpair(&a.data, p1, p2);
 	if ((ruint8)op1 == DA || (ruint8)op2 == DA || (ruint8)op3 == DA)
 		a.da = 1;
-	return a;
-}
-
-
-rvm_asmins_t rvm_asmx(rword opcode, rword op1, rword op2, rword op3, rpointer pReloc)
-{
-	rvm_asmins_t a;
-
-	r_memset(&a, 0, sizeof(a));
-	a.opcode = (ruint32) RVM_ASMINS_OPCODE(opcode);
-	a.swi = (ruint32) RVM_ASMINS_SWI(opcode);
-	a.op1 = (ruint8)op1;
-	a.op2 = (ruint8)op2;
-	a.op3 = (ruint8)op3;
-	RVM_REG_SETP(&a.data, pReloc);
-	a.flags = RVM_ASMINS_RELOC;
-	a.da = 1;
-
 	return a;
 }
 

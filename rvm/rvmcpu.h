@@ -289,8 +289,13 @@ typedef struct rvm_switable_s {
 	rvmcpu_swi op;
 } rvm_switable_t;
 
-
-#define RVM_ASMINS_RELOC (1 << 0)
+#define RVM_CEXEC_NAN 0
+#define RVM_CEXEC_GRE 1
+#define RVM_CEXEC_GEQ 2
+#define RVM_CEXEC_EQ  3
+#define RVM_CEXEC_NEQ 4
+#define RVM_CEXEC_LEQ 5
+#define RVM_CEXEC_LES 6
 
 struct rvm_asmins_s {
 	rvmreg_t data;
@@ -299,7 +304,7 @@ struct rvm_asmins_s {
 	ruint16 op3:RVM_OPERAND_BITS;
 	ruint16 da:1;
 	ruint16 swi;
-	ruint8 flags;
+	ruint8 cond;
 	ruint8 opcode;
 };
 
@@ -348,8 +353,6 @@ rvm_asmins_t rvm_asmp(rword opcode, rword op1, rword op2, rword op3, rpointer da
 rvm_asmins_t rvm_asms(rword opcode, rword op1, rword op2, rword op3, rword data);
 rvm_asmins_t rvm_asmf(rword opcode, rword op1, rword op2, rword op3, rword data);
 rvm_asmins_t rvm_asm2(rword opcode, rword op1, rword op2, rword op3, ruint32 p1, ruint32 p2);
-rvm_asmins_t rvm_asmr(rword opcode, rword op1, rword op2, rword op3, rpointer pReloc);
-rvm_asmins_t rvm_asmx(rword opcode, rword op1, rword op2, rword op3, rpointer pReloc);
 void rvm_asm_dump(rvm_asmins_t *pi, ruint count);
 
 

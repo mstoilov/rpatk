@@ -365,11 +365,12 @@ static void rpavm_swi_setcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	/*
 	 * If the record set is too big, don't use the cache
 	 */
-//	if (nrecords > 100)
-//		return;
+	if (nrecords > 50)
+		return;
 
 	if (!RVM_STATUS_GETBIT(cpu, RVM_STATUS_N) && !RVM_STATUS_GETBIT(cpu, RVM_STATUS_Z)) {
 		prec = (rparecord_t *)r_array_slot(stat->records, rec);
+//		r_printf("Set the cache for: %s (%ld)\n", prec->rule, nrecords);
 		R_ASSERT(nrecords);
 		rpa_cache_set(stat->cache, prec->top, ruleid, r0, prec, nrecords);
 	}
@@ -386,6 +387,8 @@ static void rpavm_swi_checkcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rlong r0 = 0;
 	entry = rpa_cache_lookup(stat->cache, top, ruleid);
 	if (entry) {
+//		rparecord_t *prec = (rparecord_t *)r_array_slot(entry->records, 0);
+//		r_printf("Hit the cache for: %s (%ld), r0 = %ld\n", prec->rule, r_array_length(entry->records), entry->ret);
 		for (i = 0; i < r_array_length(entry->records); i++) {
 			r_array_add(stat->records, r_array_slot(entry->records, i));
 		}
