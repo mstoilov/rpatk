@@ -353,6 +353,18 @@ rvm_asmins_t rvm_asmp(rword opcode, rword op1, rword op2, rword op3, rpointer da
 rvm_asmins_t rvm_asms(rword opcode, rword op1, rword op2, rword op3, rword data);
 rvm_asmins_t rvm_asmf(rword opcode, rword op1, rword op2, rword op3, rword data);
 rvm_asmins_t rvm_asm2(rword opcode, rword op1, rword op2, rword op3, ruint32 p1, ruint32 p2);
+
+rvm_asmins_t rvm_cond_asm(rword cond, rword opcode, rword op1, rword op2, rword op3, rword data);
+rvm_asmins_t rvm_cond_asma(rword cond, rword opcode, rword op1, rword op2, rword op3, rchar *data, rulong size);
+rvm_asmins_t rvm_cond_asml(rword cond, rword opcode, rword op1, rword op2, rword op3, rlong data);
+rvm_asmins_t rvm_cond_asmb(rword cond, rword opcode, rword op1, rword op2, rword op3, ruint data);
+rvm_asmins_t rvm_cond_asmp(rword cond, rword opcode, rword op1, rword op2, rword op3, rpointer data);
+rvm_asmins_t rvm_cond_asms(rword cond, rword opcode, rword op1, rword op2, rword op3, rword data);
+rvm_asmins_t rvm_cond_asmd(rword cond, rword opcode, rword op1, rword op2, rword op3, rdouble data);
+rvm_asmins_t rvm_cond_asmf(rword cond, rword opcode, rword op1, rword op2, rword op3, rword data);
+rvm_asmins_t rvm_cond_asm2(rword cond, rword opcode, rword op1, rword op2, rword op3, ruint32 p1, ruint32 p2);
+
+
 void rvm_asm_dump(rvm_asmins_t *pi, ruint count);
 
 

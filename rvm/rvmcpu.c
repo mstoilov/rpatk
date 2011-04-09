@@ -2080,7 +2080,7 @@ rint rvm_cpu_addswitable(rvmcpu_t *cpu, const rchar *tabname, rvm_switable_t *sw
 }
 
 
-rvm_asmins_t rvm_asma(rword opcode, rword op1, rword op2, rword op3, rchar *data, rulong size)
+rvm_asmins_t rvm_cond_asma(rword cond, rword opcode, rword op1, rword op2, rword op3, rchar *data, rulong size)
 {
 	rvm_asmins_t a;
 
@@ -2090,7 +2090,32 @@ rvm_asmins_t rvm_asma(rword opcode, rword op1, rword op2, rword op3, rchar *data
 	a.op1 = (ruint8)op1;
 	a.op2 = (ruint8)op2;
 	a.op3 = (ruint8)op3;
+	a.cond = cond;
 	rvm_reg_setstrptr(&a.data, data, size);
+	if ((ruint8)op1 == DA || (ruint8)op2 == DA || (ruint8)op3 == DA)
+		a.da = 1;
+	return a;
+}
+
+
+rvm_asmins_t rvm_asma(rword opcode, rword op1, rword op2, rword op3, rchar *data, rulong size)
+{
+	return rvm_cond_asma(0, opcode, op1, op2, op3, data, size);
+}
+
+
+rvm_asmins_t rvm_cond_asmp(rword cond, rword opcode, rword op1, rword op2, rword op3, rpointer data)
+{
+	rvm_asmins_t a;
+
+	r_memset(&a, 0, sizeof(a));
+	a.opcode = (ruint32) RVM_ASMINS_OPCODE(opcode);
+	a.swi = (ruint32) RVM_ASMINS_SWI(opcode);
+	a.op1 = (ruint8)op1;
+	a.op2 = (ruint8)op2;
+	a.op3 = (ruint8)op3;
+	a.cond = cond;
+	rvm_reg_setpointer(&a.data, data);
 	if ((ruint8)op1 == DA || (ruint8)op2 == DA || (ruint8)op3 == DA)
 		a.da = 1;
 	return a;
@@ -2099,22 +2124,11 @@ rvm_asmins_t rvm_asma(rword opcode, rword op1, rword op2, rword op3, rchar *data
 
 rvm_asmins_t rvm_asmp(rword opcode, rword op1, rword op2, rword op3, rpointer data)
 {
-	rvm_asmins_t a;
-
-	r_memset(&a, 0, sizeof(a));
-	a.opcode = (ruint32) RVM_ASMINS_OPCODE(opcode);
-	a.swi = (ruint32) RVM_ASMINS_SWI(opcode);
-	a.op1 = (ruint8)op1;
-	a.op2 = (ruint8)op2;
-	a.op3 = (ruint8)op3;
-	rvm_reg_setpointer(&a.data, data);
-	if ((ruint8)op1 == DA || (ruint8)op2 == DA || (ruint8)op3 == DA)
-		a.da = 1;
-	return a;
+	return rvm_cond_asmp(0, opcode, op1, op2, op3, data);
 }
 
 
-rvm_asmins_t rvm_asms(rword opcode, rword op1, rword op2, rword op3, rword data)
+rvm_asmins_t rvm_cond_asms(rword cond, rword opcode, rword op1, rword op2, rword op3, rword data)
 {
 	rvm_asmins_t a;
 
@@ -2124,6 +2138,7 @@ rvm_asmins_t rvm_asms(rword opcode, rword op1, rword op2, rword op3, rword data)
 	a.op1 = (ruint8)op1;
 	a.op2 = (ruint8)op2;
 	a.op3 = (ruint8)op3;
+	a.cond = cond;
 	rvm_reg_setunsigned(&a.data, data);
 	RVM_REG_SETTYPE(&a.data, RVM_DTYPE_SWIID)
 	if ((ruint8)op1 == DA || (ruint8)op2 == DA || (ruint8)op3 == DA)
@@ -2132,7 +2147,13 @@ rvm_asmins_t rvm_asms(rword opcode, rword op1, rword op2, rword op3, rword data)
 }
 
 
-rvm_asmins_t rvm_asmf(rword opcode, rword op1, rword op2, rword op3, rword data)
+rvm_asmins_t rvm_asms(rword opcode, rword op1, rword op2, rword op3, rword data)
+{
+	return rvm_cond_asms(0, opcode, op1, op2, op3, data);
+}
+
+
+rvm_asmins_t rvm_cond_asmf(rword cond, rword opcode, rword op1, rword op2, rword op3, rword data)
 {
 	rvm_asmins_t a;
 
@@ -2142,8 +2163,32 @@ rvm_asmins_t rvm_asmf(rword opcode, rword op1, rword op2, rword op3, rword data)
 	a.op1 = (ruint8)op1;
 	a.op2 = (ruint8)op2;
 	a.op3 = (ruint8)op3;
+	a.cond = cond;
 	rvm_reg_setunsigned(&a.data, data);
 	RVM_REG_SETTYPE(&a.data, RVM_DTYPE_FUNCTION)
+	if ((ruint8)op1 == DA || (ruint8)op2 == DA || (ruint8)op3 == DA)
+		a.da = 1;
+	return a;
+}
+
+rvm_asmins_t rvm_asmf(rword opcode, rword op1, rword op2, rword op3, rword data)
+{
+	return rvm_cond_asmf(0, opcode, op1, op2, op3, data);
+}
+
+
+rvm_asmins_t rvm_cond_asm(rword cond, rword opcode, rword op1, rword op2, rword op3, rword data)
+{
+	rvm_asmins_t a;
+
+	r_memset(&a, 0, sizeof(a));
+	a.opcode = (ruint32) RVM_ASMINS_OPCODE(opcode);
+	a.swi = (ruint32) RVM_ASMINS_SWI(opcode);
+	a.op1 = (ruint8)op1;
+	a.op2 = (ruint8)op2;
+	a.op3 = (ruint8)op3;
+	a.cond = cond;
+	rvm_reg_setunsigned(&a.data, data);
 	if ((ruint8)op1 == DA || (ruint8)op2 == DA || (ruint8)op3 == DA)
 		a.da = 1;
 	return a;
@@ -2152,6 +2197,13 @@ rvm_asmins_t rvm_asmf(rword opcode, rword op1, rword op2, rword op3, rword data)
 
 rvm_asmins_t rvm_asm(rword opcode, rword op1, rword op2, rword op3, rword data)
 {
+	return rvm_cond_asm(0, opcode, op1, op2, op3, data);
+}
+
+
+
+rvm_asmins_t rvm_cond_asml(rword cond, rword opcode, rword op1, rword op2, rword op3, rlong data)
+{
 	rvm_asmins_t a;
 
 	r_memset(&a, 0, sizeof(a));
@@ -2160,7 +2212,8 @@ rvm_asmins_t rvm_asm(rword opcode, rword op1, rword op2, rword op3, rword data)
 	a.op1 = (ruint8)op1;
 	a.op2 = (ruint8)op2;
 	a.op3 = (ruint8)op3;
-	rvm_reg_setunsigned(&a.data, data);
+	a.cond = cond;
+	rvm_reg_setlong(&a.data, data);
 	if ((ruint8)op1 == DA || (ruint8)op2 == DA || (ruint8)op3 == DA)
 		a.da = 1;
 	return a;
@@ -2169,6 +2222,12 @@ rvm_asmins_t rvm_asm(rword opcode, rword op1, rword op2, rword op3, rword data)
 
 rvm_asmins_t rvm_asml(rword opcode, rword op1, rword op2, rword op3, rlong data)
 {
+	return rvm_cond_asml(0, opcode, op1, op2, op3, data);
+}
+
+
+rvm_asmins_t rvm_cond_asmb(rword cond, rword opcode, rword op1, rword op2, rword op3, ruint data)
+{
 	rvm_asmins_t a;
 
 	r_memset(&a, 0, sizeof(a));
@@ -2177,7 +2236,8 @@ rvm_asmins_t rvm_asml(rword opcode, rword op1, rword op2, rword op3, rlong data)
 	a.op1 = (ruint8)op1;
 	a.op2 = (ruint8)op2;
 	a.op3 = (ruint8)op3;
-	rvm_reg_setlong(&a.data, data);
+	a.cond = cond;
+	rvm_reg_setboolean(&a.data, data);
 	if ((ruint8)op1 == DA || (ruint8)op2 == DA || (ruint8)op3 == DA)
 		a.da = 1;
 	return a;
@@ -2186,22 +2246,11 @@ rvm_asmins_t rvm_asml(rword opcode, rword op1, rword op2, rword op3, rlong data)
 
 rvm_asmins_t rvm_asmb(rword opcode, rword op1, rword op2, rword op3, ruint data)
 {
-	rvm_asmins_t a;
-
-	r_memset(&a, 0, sizeof(a));
-	a.opcode = (ruint32) RVM_ASMINS_OPCODE(opcode);
-	a.swi = (ruint32) RVM_ASMINS_SWI(opcode);
-	a.op1 = (ruint8)op1;
-	a.op2 = (ruint8)op2;
-	a.op3 = (ruint8)op3;
-	rvm_reg_setboolean(&a.data, data);
-	if ((ruint8)op1 == DA || (ruint8)op2 == DA || (ruint8)op3 == DA)
-		a.da = 1;
-	return a;
+	return rvm_cond_asmb(0, opcode, op1, op2, op3, data);
 }
 
 
-rvm_asmins_t rvm_asmd(rword opcode, rword op1, rword op2, rword op3, rdouble data)
+rvm_asmins_t rvm_cond_asmd(rword cond, rword opcode, rword op1, rword op2, rword op3, rdouble data)
 {
 	rvm_asmins_t a;
 
@@ -2211,7 +2260,31 @@ rvm_asmins_t rvm_asmd(rword opcode, rword op1, rword op2, rword op3, rdouble dat
 	a.op1 = (ruint8)op1;
 	a.op2 = (ruint8)op2;
 	a.op3 = (ruint8)op3;
+	a.cond = cond;
 	rvm_reg_setdouble(&a.data, data);
+	if ((ruint8)op1 == DA || (ruint8)op2 == DA || (ruint8)op3 == DA)
+		a.da = 1;
+	return a;
+}
+
+rvm_asmins_t rvm_asmd(rword opcode, rword op1, rword op2, rword op3, rdouble data)
+{
+	return rvm_cond_asmd(0, opcode, op1, op2, op3, data);
+}
+
+
+rvm_asmins_t rvm_cond_asm2(rword cond, rword opcode, rword op1, rword op2, rword op3, ruint32 p1, ruint32 p2)
+{
+	rvm_asmins_t a;
+
+	r_memset(&a, 0, sizeof(a));
+	a.opcode = (ruint32) RVM_ASMINS_OPCODE(opcode);
+	a.swi = (ruint32) RVM_ASMINS_SWI(opcode);
+	a.op1 = (ruint8)op1;
+	a.op2 = (ruint8)op2;
+	a.op3 = (ruint8)op3;
+	a.cond = cond;
+	rvm_reg_setpair(&a.data, p1, p2);
 	if ((ruint8)op1 == DA || (ruint8)op2 == DA || (ruint8)op3 == DA)
 		a.da = 1;
 	return a;
@@ -2220,20 +2293,8 @@ rvm_asmins_t rvm_asmd(rword opcode, rword op1, rword op2, rword op3, rdouble dat
 
 rvm_asmins_t rvm_asm2(rword opcode, rword op1, rword op2, rword op3, ruint32 p1, ruint32 p2)
 {
-	rvm_asmins_t a;
-
-	r_memset(&a, 0, sizeof(a));
-	a.opcode = (ruint32) RVM_ASMINS_OPCODE(opcode);
-	a.swi = (ruint32) RVM_ASMINS_SWI(opcode);
-	a.op1 = (ruint8)op1;
-	a.op2 = (ruint8)op2;
-	a.op3 = (ruint8)op3;
-	rvm_reg_setpair(&a.data, p1, p2);
-	if ((ruint8)op1 == DA || (ruint8)op2 == DA || (ruint8)op3 == DA)
-		a.da = 1;
-	return a;
+	return rvm_cond_asm2(0, opcode, op1, op2, op3, p1, p2);
 }
-
 
 rvmreg_t *rvm_cpu_alloc_global(rvmcpu_t *cpu)
 {
