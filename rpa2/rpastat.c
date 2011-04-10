@@ -48,6 +48,7 @@ void rpa_stat_cachedisable(rpastat_t *stat, ruint disable)
 static void rpa_stat_resetrecords(rpastat_t *stat)
 {
 	r_array_setlength(stat->records, 0);
+	RVM_CPUREG_SETL(stat->cpu, R_REC, -1);
 }
 
 

@@ -233,12 +233,13 @@ static void rpavm_swi_emitstart(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rpa_ruledata_t *ruledata = RVM_CPUREG_GETP(cpu, ins->op1);
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	rparecord_t *rec;
-	rlong index;
+	rlong index = RVM_CPUREG_GETL(cpu, R_REC);
 	rword tp = RVM_CPUREG_GETU(cpu, ins->op2);
-//	rstr_t name = {RVM_CPUREG_GETSTR(cpu, ins->op1), RVM_CPUREG_GETSIZE(cpu, ins->op1)};
 	rstr_t name = {(rchar*)ruledata + ruledata->name, ruledata->namesize};
 
-	index = r_array_add(stat->records, NULL);
+//	index = r_array_add(stat->records, NULL);
+	index = r_array_replace(stat->records, index + 1, NULL);
+	RVM_CPUREG_SETL(cpu, R_REC, index);
 	rec = (rparecord_t *)r_array_slot(stat->records, index);
 	rec->rule = name.str;
 	rec->top = tp;
@@ -247,7 +248,7 @@ static void rpavm_swi_emitstart(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rec->type = RPA_RECORD_START;
 	rec->input = stat->instack[tp].input;
 	rec->inputsiz = 0;
-//	RVM_CPUREG_SETU(cpu, R_REC, r_array_length(stat->records));
+//	RVM_CPUREG_SETL(cpu, R_REC, r_array_length(stat->records));
 
 //	r_printf("START: %s(%ld)\n", name.str, (rulong)tp);
 }
@@ -258,13 +259,14 @@ static void rpavm_swi_emitend(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rpa_ruledata_t *ruledata = RVM_CPUREG_GETP(cpu, ins->op1);
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	rparecord_t *rec;
-	rlong index;
+	rlong index = RVM_CPUREG_GETL(cpu, R_REC);
 	rword tp = RVM_CPUREG_GETU(cpu, ins->op2);
 	rword tplen = RVM_CPUREG_GETU(cpu, ins->op3);
-//	rstr_t name = {RVM_CPUREG_GETSTR(cpu, ins->op1), RVM_CPUREG_GETSIZE(cpu, ins->op1)};
 	rstr_t name = {(rchar*)ruledata + ruledata->name, ruledata->namesize};
 
-	index = r_array_add(stat->records, NULL);
+//	index = r_array_add(stat->records, NULL);
+	index = r_array_replace(stat->records, index + 1, NULL);
+	RVM_CPUREG_SETL(cpu, R_REC, index);
 	rec = (rparecord_t *)r_array_slot(stat->records, index);
 	rec->rule = name.str;
 	rec->top = tp;
@@ -279,7 +281,8 @@ static void rpavm_swi_emitend(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		rec->type |= RPA_RECORD_MATCH;
 //		r_printf("MATCHED: %s(%ld, %ld): %p(%d)\n", name.str, (rulong)tp, (rulong)tplen, name.str, name.size);
 	}
-//	RVM_CPUREG_SETU(cpu, R_REC, r_array_length(stat->records));
+
+//	RVM_CPUREG_SETL(cpu, R_REC, r_array_length(stat->records));
 }
 
 
@@ -287,6 +290,10 @@ static void rpavm_swi_getreclen(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	RVM_CPUREG_SETU(cpu, ins->op1, r_array_length(stat->records));
+
+	if (RVM_CPUREG_GETU(cpu, ins->op1) != RVM_CPUREG_GETL(cpu, R_REC) + 1) {
+		r_printf("getreclen = %ld, R_REC = %ld\n", RVM_CPUREG_GETU(cpu, ins->op1), RVM_CPUREG_GETL(cpu, R_REC));
+	}
 }
 
 
@@ -295,12 +302,37 @@ static void rpavm_swi_setreclen(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 
 	r_array_setlength(stat->records, (ruint)RVM_CPUREG_GETU(cpu, ins->op1));
+	RVM_CPUREG_SETL(cpu, R_REC, RVM_CPUREG_GETU(cpu, ins->op1) - 1);
+
+	if (RVM_CPUREG_GETU(cpu, ins->op1) != RVM_CPUREG_GETL(cpu, R_REC) + 1) {
+		r_printf("setreclen = %ld, R_REC = %ld\n", RVM_CPUREG_GETU(cpu, ins->op1), RVM_CPUREG_GETL(cpu, R_REC));
+	}
+}
 
 
-//	if (RVM_CPUREG_GETU(cpu, ins->op1) != RVM_CPUREG_GETU(cpu, R_REC)) {
-//		r_printf("setreclen = %ld, R_REC = %ld\n", RVM_CPUREG_GETU(cpu, ins->op1), RVM_CPUREG_GETU(cpu, R_REC));
+static void rpavm_swi_getcurrec(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
+	RVM_CPUREG_SETL(cpu, ins->op1, RVM_CPUREG_GETL(cpu, R_REC));
+
+	if (r_array_length(stat->records) != (RVM_CPUREG_GETL(cpu, R_REC) + 1)) {
+		r_printf("reclen = %ld, R_REC = %ld\n", r_array_length(stat->records), RVM_CPUREG_GETL(cpu, R_REC));
+	}
+
+}
+
+
+static void rpavm_swi_setcurrec(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
+	RVM_CPUREG_SETL(cpu, R_REC, RVM_CPUREG_GETU(cpu, ins->op1));
+	r_array_setlength(stat->records, RVM_CPUREG_GETL(cpu, ins->op1) + 1);
+
+//	if (RVM_CPUREG_GETU(cpu, ins->op1) != RVM_CPUREG_GETL(cpu, R_REC)) {
+//		r_printf("setreclen = %ld, R_REC = %ld\n", RVM_CPUREG_GETU(cpu, ins->op1), RVM_CPUREG_GETL(cpu, R_REC));
 //	}
 }
+
 
 
 static void rpavm_swi_loopdetect(rvmcpu_t *cpu, rvm_asmins_t *ins)
@@ -336,7 +368,7 @@ static void rpavm_swi_setcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rlong ruleid = RVM_CPUREG_GETL(cpu, ins->op1);
 	rlong r0 = RVM_CPUREG_GETL(cpu, ins->op2);
 	rlong rec = RVM_CPUREG_GETL(cpu, ins->op3);
-	rlong nrecords = r_array_length(stat->records) - rec;
+	rlong nrecords = RVM_CPUREG_GETL(cpu, R_REC) - rec + 1;
 
 	/*
 	 * If the record set is too big, don't use the cache
@@ -347,7 +379,6 @@ static void rpavm_swi_setcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	if (!RVM_STATUS_GETBIT(cpu, RVM_STATUS_N) && !RVM_STATUS_GETBIT(cpu, RVM_STATUS_Z)) {
 		prec = (rparecord_t *)r_array_slot(stat->records, rec);
 //		r_printf("Set the cache for: %s (%ld)\n", prec->rule, nrecords);
-		R_ASSERT(nrecords);
 		rpa_cache_set(stat->cache, prec->top, ruleid, r0, prec, nrecords);
 	}
 }
@@ -368,6 +399,7 @@ static void rpavm_swi_checkcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		for (i = 0; i < r_array_length(entry->records); i++) {
 			r_array_add(stat->records, r_array_slot(entry->records, i));
 		}
+		RVM_CPUREG_SETL(cpu, R_REC,  r_array_length(stat->records) - 1);
 		r0 = entry->ret;
 		top += r0;
 		RVM_CPUREG_SETU(cpu, R_TOP, top);
@@ -393,13 +425,16 @@ static rvm_switable_t rpavm_swi_table[] = {
 		{"RPA_MATCHSPCHR_MUL", rpavm_swi_matchspchr_mul},
 		{"RPA_MATCHSPCHR_MOP", rpavm_swi_matchspchr_mop},
 		{"RPA_SHIFT", rpavm_swi_shift},
+		{"RPA_LOOPDETECT", rpavm_swi_loopdetect},
+		{"RPA_SETCACHE", rpavm_swi_setcache},
+		{"RPA_CHECKCACHE", rpavm_swi_checkcache},
 		{"RPA_EMITSTART", rpavm_swi_emitstart},
 		{"RPA_EMITEND", rpavm_swi_emitend},
 		{"RPA_GETRECLEN", rpavm_swi_getreclen},
 		{"RPA_SETRECLEN", rpavm_swi_setreclen},
-		{"RPA_LOOPDETECT", rpavm_swi_loopdetect},
-		{"RPA_SETCACHE", rpavm_swi_setcache},
-		{"RPA_CHECKCACHE", rpavm_swi_checkcache},
+		{"RPA_GETCURREC", rpavm_swi_getcurrec},
+		{"RPA_SETCURREC", rpavm_swi_setcurrec},
+
 		{NULL, NULL},
 };
 
