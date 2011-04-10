@@ -83,7 +83,6 @@ rint rpa_stat_init(rpastat_t *stat, const rchar *input, const rchar *start, cons
 	rpa_stat_cacheinvalidate(stat);
 	RVM_CPUREG_SETU(stat->cpu, SP, 0);
 	RVM_CPUREG_SETU(stat->cpu, R_LOO, 0);
-	RVM_CPUREG_SETU(stat->cpu, R_REC, 0);
 	RVM_CPUREG_SETU(stat->cpu, R_TOP, -1);
 	return 0;
 }
@@ -140,9 +139,6 @@ rlong rpa_stat_scan(rpastat_t *stat, rparule_t rid, const rchar *input, const rc
 		return -1;
 	}
 
-	if (rvm_cpu_exec(stat->cpu, rvm_dbex_getcode(stat->dbex), rvm_dbex_initoffset(stat->dbex)) < 0)
-		return -1;
-
 	while (input < end) {
 		if ((ret = rpa_stat_exec_noinit(stat, rid, input, start, end)) > 0) {
 			*where = input;
@@ -160,9 +156,6 @@ rlong rpa_stat_match(rpastat_t *stat, rparule_t rid, const rchar *input, const r
 		return -1;
 	}
 
-	if (rvm_cpu_exec(stat->cpu, rvm_dbex_getcode(stat->dbex), rvm_dbex_initoffset(stat->dbex)) < 0)
-		return -1;
-
 	return rpa_stat_exec_noinit(stat, rid, input, start, end);
 }
 
@@ -175,9 +168,6 @@ rarray_t *rpa_stat_parse(rpastat_t *stat, rparule_t rid, const rchar *input, con
 	if (!stat) {
 		return NULL;
 	}
-
-	if (rvm_cpu_exec(stat->cpu, rvm_dbex_getcode(stat->dbex), rvm_dbex_initoffset(stat->dbex)) < 0)
-		return NULL;
 
 	res = rpa_stat_exec_noinit(stat, rid, input, start, end);
 	if (res > 0 && !r_array_empty(stat->records)) {

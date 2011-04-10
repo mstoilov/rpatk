@@ -23,7 +23,6 @@ struct rpadbex_s {
 	rpa_dbex_recordhandler *handlers;
 	ruint error;
 	rvm_codelabel_t *labelerr;
-	rulong init;
 };
 
 static rparecord_t *rpa_dbex_rulerecord(rpadbex_t *dbex, rparule_t rid);
@@ -1043,9 +1042,6 @@ rint rpa_dbex_compile(rpadbex_t *dbex)
 		rpa_compiler_destroy(dbex->co);
 	dbex->co = rpa_compiler_create();
 
-	dbex->init = rvm_codegen_addins(dbex->co->cg, rvm_asml(RVM_NOP, XX, XX, XX, -1));
-	rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
-
 	for (rid = rpa_dbex_first(dbex); rid >= 0; rid = rpa_dbex_next(dbex, rid)) {
 		if (rpa_dbex_compile_rule(dbex, rid) < 0) {
 			return -1;
@@ -1084,12 +1080,4 @@ rlong rvm_dbex_codeoffset(rpadbex_t *dbex, rparule_t rid)
 		return -1;
 
 	return info->codeoff;
-}
-
-
-rlong rvm_dbex_initoffset(rpadbex_t *dbex)
-{
-	if (!dbex)
-		return -1;
-	return dbex->init;
 }

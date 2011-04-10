@@ -69,6 +69,8 @@ rint rvm_relocmap_relocate(rvm_relocmap_t *relocmap, rvm_codemap_t *codemap, rvm
 		} else if (reloc->type == RVM_RELOC_STRING) {
 			code[reloc->offset].data.v.w = value;
 			code[reloc->offset].data.size = r_strlen((rchar*)value);
+		} else if (reloc->type == RVM_RELOC_BLOB) {
+			code[reloc->offset].data.v.w = value;
 		} else {
 			code[reloc->offset].data.v.w = value;
 		}

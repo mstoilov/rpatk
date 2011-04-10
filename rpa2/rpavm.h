@@ -19,10 +19,9 @@ extern "C" {
 #define RPA_NONLOOP_PATH (1<<4)
 #define RPA_LOOP_INDERECTION 1024
 
-#define R_RID R4
-#define R_LOO R5
-#define R_TOP R6
-#define R_REC R7
+#define R_RID (TP - 2)
+#define R_LOO (TP - 1)
+#define R_TOP TP
 #define RPAVM_SWI_TABLEID 0
 
 #define RPA_MATCHCHR_NAN	RVM_OPSWI(RVM_SWI_ID(RPAVM_SWI_TABLEID, 0))
@@ -64,6 +63,16 @@ typedef struct rpainmap_s {
 	const rchar *input;
 	rulong serial;
 } rpainmap_t;
+
+
+typedef struct rpa_ruledata_s {
+	rlong size;
+	rlong ruleid;
+	rlong ruleuid;
+	rulong flags;
+	rulong namesize;
+	rulong name;
+} rpa_ruledata_t;
 
 
 rvmcpu_t *rpavm_cpu_create(rulong stacksize);

@@ -230,20 +230,24 @@ static void rpavm_swi_matchrng_mop(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rpavm_swi_emitstart(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
+	rpa_ruledata_t *ruledata = RVM_CPUREG_GETP(cpu, ins->op1);
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	rparecord_t *rec;
 	rlong index;
 	rword tp = RVM_CPUREG_GETU(cpu, ins->op2);
-	rstr_t name = {RVM_CPUREG_GETSTR(cpu, ins->op1), RVM_CPUREG_GETSIZE(cpu, ins->op1)};
+//	rstr_t name = {RVM_CPUREG_GETSTR(cpu, ins->op1), RVM_CPUREG_GETSIZE(cpu, ins->op1)};
+	rstr_t name = {(rchar*)ruledata + ruledata->name, ruledata->namesize};
 
 	index = r_array_add(stat->records, NULL);
 	rec = (rparecord_t *)r_array_slot(stat->records, index);
 	rec->rule = name.str;
 	rec->top = tp;
+	rec->ruleid = ruledata->ruleid;
+	rec->userid = ruledata->ruleuid;
 	rec->type = RPA_RECORD_START;
 	rec->input = stat->instack[tp].input;
 	rec->inputsiz = 0;
-	RVM_CPUREG_SETU(cpu, R_REC, r_array_length(stat->records));
+//	RVM_CPUREG_SETU(cpu, R_REC, r_array_length(stat->records));
 
 //	r_printf("START: %s(%ld)\n", name.str, (rulong)tp);
 }
@@ -251,30 +255,31 @@ static void rpavm_swi_emitstart(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rpavm_swi_emitend(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
+	rpa_ruledata_t *ruledata = RVM_CPUREG_GETP(cpu, ins->op1);
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	rparecord_t *rec;
 	rlong index;
 	rword tp = RVM_CPUREG_GETU(cpu, ins->op2);
 	rword tplen = RVM_CPUREG_GETU(cpu, ins->op3);
-	rstr_t name = {RVM_CPUREG_GETSTR(cpu, ins->op1), RVM_CPUREG_GETSIZE(cpu, ins->op1)};
+//	rstr_t name = {RVM_CPUREG_GETSTR(cpu, ins->op1), RVM_CPUREG_GETSIZE(cpu, ins->op1)};
+	rstr_t name = {(rchar*)ruledata + ruledata->name, ruledata->namesize};
 
 	index = r_array_add(stat->records, NULL);
 	rec = (rparecord_t *)r_array_slot(stat->records, index);
 	rec->rule = name.str;
 	rec->top = tp;
 	rec->size = tplen;
-	rec->type = RPA_RECORD_START;
+	rec->type = RPA_RECORD_END;
+	rec->ruleid = ruledata->ruleid;
+	rec->userid = ruledata->ruleuid;
 	rec->input = stat->instack[tp].input;
 	rec->inputsiz = stat->instack[tp + tplen].input - stat->instack[tp].input;
 
 	if (tplen) {
-		rec->type = RPA_RECORD_END | RPA_RECORD_MATCH;
+		rec->type |= RPA_RECORD_MATCH;
 //		r_printf("MATCHED: %s(%ld, %ld): %p(%d)\n", name.str, (rulong)tp, (rulong)tplen, name.str, name.size);
-	} else {
-		rec->type = RPA_RECORD_END;
-//		r_printf("MATCHED: %s(%ld, %ld)\n", name.str, (rulong)tp, (rulong)tplen);
 	}
-	RVM_CPUREG_SETU(cpu, R_REC, r_array_length(stat->records));
+//	RVM_CPUREG_SETU(cpu, R_REC, r_array_length(stat->records));
 }
 
 
@@ -313,9 +318,7 @@ static void rpavm_swi_setrecid(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rpavm_swi_loopdetect(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
-	rparecord_t *rec;
-	rlong len;
+//	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	rword ruleid = RVM_CPUREG_GETU(cpu, ins->op1);
 	rword tp = RVM_CPUREG_GETU(cpu, ins->op2);
 	rword fp = RVM_CPUREG_GETU(cpu, FP);
@@ -324,9 +327,9 @@ static void rpavm_swi_loopdetect(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	RVM_CPUREG_SETU(cpu, R0, -1);
 
 	while (fp > 5) {
-		top = RVM_STACK_READ(cpu->stack, fp - 3);
-		loo = RVM_STACK_READ(cpu->stack, fp - 4);
-		rid = RVM_STACK_READ(cpu->stack, fp - 5);
+		top = RVM_STACK_READ(cpu->stack, fp - 2);
+		loo = RVM_STACK_READ(cpu->stack, fp - 3);
+		rid = RVM_STACK_READ(cpu->stack, fp - 4);
 
 		if (rid.v.l == ruleid && top.v.l == tp) {
 			RVM_CPUREG_SETU(cpu, R0, loo.v.l);
@@ -336,20 +339,6 @@ static void rpavm_swi_loopdetect(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		pfp = RVM_STACK_READ(cpu->stack, fp - 1);
 		fp = pfp.v.l;
 	}
-
-//	for (len = r_array_length(stat->records); len > 0; len--) {
-//		rec = (rparecord_t *)r_array_slot(stat->records, len - 1);
-//		if (rec->type == (RPA_RECORD_END | RPA_RECORD_MATCH)) {
-//			RVM_CPUREG_SETU(cpu, R0, -1);
-//			break;
-//		} else if (rec->ruleid == ruleid && rec->top == tp) {
-//			RVM_CPUREG_SETU(cpu, R0, RVM_CPUREG_GETU(cpu, R_LOO));
-//			RVM_CPUREG_SETU(cpu, R_TOP, RVM_CPUREG_GETU(cpu, R_TOP) + RVM_CPUREG_GETU(cpu, R_LOO));
-//			r_printf("LOO = %ld, loo = %ld\n", RVM_CPUREG_GETU(cpu, R0), loo.v.l);
-//			RVM_CPUREG_SETU(cpu, R0, loo.v.l);
-//			break;
-//		}
-//	}
 }
 
 
@@ -365,7 +354,7 @@ static void rpavm_swi_setcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	/*
 	 * If the record set is too big, don't use the cache
 	 */
-	if (nrecords > 50)
+	if (nrecords > 100)
 		return;
 
 	if (!RVM_STATUS_GETBIT(cpu, RVM_STATUS_N) && !RVM_STATUS_GETBIT(cpu, RVM_STATUS_Z)) {

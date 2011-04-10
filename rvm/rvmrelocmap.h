@@ -17,6 +17,7 @@ typedef enum {
 	RVM_RELOC_JUMP,
 	RVM_RELOC_BRANCH,
 	RVM_RELOC_STRING,
+	RVM_RELOC_BLOB,
 } rvm_reloctype_t;
 
 
