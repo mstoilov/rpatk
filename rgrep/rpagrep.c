@@ -410,14 +410,14 @@ rpa_buffer_t *rpa_buffer_loadfile(FILE *pFile)
 }
 
 
-static int rpa_callback_output(rpastat_t * stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
+int rpa_callback_output(rpastat_t * stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 
 	return size;
 }
 
 
-static int rpa_callback_matched_output(rpastat_t * stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
+int rpa_callback_matched_output(rpastat_t * stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rpa_grep_t *pGrep = (rpa_grep_t *)userdata;
 

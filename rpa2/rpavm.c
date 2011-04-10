@@ -286,14 +286,18 @@ static void rpavm_swi_emitend(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static void rpavm_swi_getnextrec(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rlong rec = RVM_CPUREG_GETL(cpu, ins->op2);
+
+	RVM_CPUREG_SETL(cpu, ins->op1, rec + 1);
+}
+
+
 static void rpavm_swi_getreclen(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	RVM_CPUREG_SETU(cpu, ins->op1, r_array_length(stat->records));
-
-	if (RVM_CPUREG_GETU(cpu, ins->op1) != RVM_CPUREG_GETL(cpu, R_REC) + 1) {
-		r_printf("getreclen = %ld, R_REC = %ld\n", RVM_CPUREG_GETU(cpu, ins->op1), RVM_CPUREG_GETL(cpu, R_REC));
-	}
 }
 
 
@@ -303,36 +307,19 @@ static void rpavm_swi_setreclen(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 	r_array_setlength(stat->records, (ruint)RVM_CPUREG_GETU(cpu, ins->op1));
 	RVM_CPUREG_SETL(cpu, R_REC, RVM_CPUREG_GETU(cpu, ins->op1) - 1);
-
-	if (RVM_CPUREG_GETU(cpu, ins->op1) != RVM_CPUREG_GETL(cpu, R_REC) + 1) {
-		r_printf("setreclen = %ld, R_REC = %ld\n", RVM_CPUREG_GETU(cpu, ins->op1), RVM_CPUREG_GETL(cpu, R_REC));
-	}
 }
 
 
 static void rpavm_swi_getcurrec(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	RVM_CPUREG_SETL(cpu, ins->op1, RVM_CPUREG_GETL(cpu, R_REC));
-
-	if (r_array_length(stat->records) != (RVM_CPUREG_GETL(cpu, R_REC) + 1)) {
-		r_printf("reclen = %ld, R_REC = %ld\n", r_array_length(stat->records), RVM_CPUREG_GETL(cpu, R_REC));
-	}
-
 }
 
 
 static void rpavm_swi_setcurrec(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	RVM_CPUREG_SETL(cpu, R_REC, RVM_CPUREG_GETU(cpu, ins->op1));
-	r_array_setlength(stat->records, RVM_CPUREG_GETL(cpu, ins->op1) + 1);
-
-//	if (RVM_CPUREG_GETU(cpu, ins->op1) != RVM_CPUREG_GETL(cpu, R_REC)) {
-//		r_printf("setreclen = %ld, R_REC = %ld\n", RVM_CPUREG_GETU(cpu, ins->op1), RVM_CPUREG_GETL(cpu, R_REC));
-//	}
 }
-
 
 
 static void rpavm_swi_loopdetect(rvmcpu_t *cpu, rvm_asmins_t *ins)
@@ -396,6 +383,7 @@ static void rpavm_swi_checkcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	if (entry) {
 //		rparecord_t *prec = (rparecord_t *)r_array_slot(entry->records, 0);
 //		r_printf("Hit the cache for: %s (%ld), r0 = %ld\n", prec->rule, r_array_length(entry->records), entry->ret);
+		r_array_setlength(stat->records, RVM_CPUREG_GETL(cpu, R_REC) + 1);
 		for (i = 0; i < r_array_length(entry->records); i++) {
 			r_array_add(stat->records, r_array_slot(entry->records, i));
 		}
@@ -430,11 +418,11 @@ static rvm_switable_t rpavm_swi_table[] = {
 		{"RPA_CHECKCACHE", rpavm_swi_checkcache},
 		{"RPA_EMITSTART", rpavm_swi_emitstart},
 		{"RPA_EMITEND", rpavm_swi_emitend},
+		{"RPA_GETNEXTREC", rpavm_swi_getnextrec},
 		{"RPA_GETRECLEN", rpavm_swi_getreclen},
 		{"RPA_SETRECLEN", rpavm_swi_setreclen},
 		{"RPA_GETCURREC", rpavm_swi_getcurrec},
 		{"RPA_SETCURREC", rpavm_swi_setcurrec},
-
 		{NULL, NULL},
 };
 
