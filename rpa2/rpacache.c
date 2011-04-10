@@ -74,7 +74,7 @@ rpacachedentry_t *rpa_cache_lookup(rpacache_t *cache, rlong top, rlong ruleid)
 	rpacachedentry_t *entry = &cache->entry[bucket];
 
 	if (entry->serial == cache->serial && entry->ruleid == ruleid && entry->top == top) {
-		rparecord_t *prec = (rparecord_t *)r_array_slot(entry->records, 0);
+//		rparecord_t *prec = (rparecord_t *)r_array_slot(entry->records, 0);
 //		r_printf("HIT the cache @ %ld,  top = %ld, ret = %ld, rulename = %s\n", bucket, entry->top, entry->ret, prec->rule);
 		++cache->hit;
 		return entry;

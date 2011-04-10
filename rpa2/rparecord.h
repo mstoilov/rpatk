@@ -29,7 +29,7 @@ typedef struct rparecord_s {
 	ruint32 type;
 	const char *input;
 	rsize_t inputsiz;
-	ruint32 userid;
+	ruint32 ruleuid;
 	ruint32 usertype;
 	rword userdata;
 } rparecord_t;

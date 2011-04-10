@@ -21,7 +21,7 @@ typedef struct rpa_ruledef_s {
 	rlong successidx;
 	rlong failidx;
 	rlong againidx;
-	ruint recuid;
+	ruint ruleuid;
 	ruint flags;
 } rpa_ruledef_t;
 
@@ -30,7 +30,7 @@ typedef struct rpa_ruledef_s {
 
 typedef struct rpa_compiler_s {
 	rvm_codegen_t *cg;
-	rharray_t *userids;
+	rharray_t *ruleuids;
 	rarray_t *expressions;
 	rboolean optimized;
 	rvm_scope_t *scope;

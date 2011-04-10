@@ -243,7 +243,7 @@ static void rpavm_swi_emitstart(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rec->rule = name.str;
 	rec->top = tp;
 	rec->ruleid = ruledata->ruleid;
-	rec->userid = ruledata->ruleuid;
+	rec->ruleuid = ruledata->ruleuid;
 	rec->type = RPA_RECORD_START;
 	rec->input = stat->instack[tp].input;
 	rec->inputsiz = 0;
@@ -271,7 +271,7 @@ static void rpavm_swi_emitend(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rec->size = tplen;
 	rec->type = RPA_RECORD_END;
 	rec->ruleid = ruledata->ruleid;
-	rec->userid = ruledata->ruleuid;
+	rec->ruleuid = ruledata->ruleuid;
 	rec->input = stat->instack[tp].input;
 	rec->inputsiz = stat->instack[tp + tplen].input - stat->instack[tp].input;
 
@@ -300,19 +300,6 @@ static void rpavm_swi_setreclen(rvmcpu_t *cpu, rvm_asmins_t *ins)
 //	if (RVM_CPUREG_GETU(cpu, ins->op1) != RVM_CPUREG_GETU(cpu, R_REC)) {
 //		r_printf("setreclen = %ld, R_REC = %ld\n", RVM_CPUREG_GETU(cpu, ins->op1), RVM_CPUREG_GETU(cpu, R_REC));
 //	}
-}
-
-
-static void rpavm_swi_setrecid(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
-	rparecord_t *rec;
-	rword ruleid = RVM_CPUREG_GETU(cpu, ins->op1);
-
-	rec = (rparecord_t *)r_array_lastslot(stat->records);
-	if (rec) {
-		rec->ruleid = ruleid;
-	}
 }
 
 
@@ -392,18 +379,6 @@ static void rpavm_swi_checkcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
-static void rpavm_swi_setrecuid(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
-	rparecord_t *rec;
-	rword userid = RVM_CPUREG_GETU(cpu, ins->op1);
-
-	rec = (rparecord_t *)r_array_lastslot(stat->records);
-	if (rec) {
-		rec->userid = (ruint32)userid;
-	}
-}
-
 static rvm_switable_t rpavm_swi_table[] = {
 		{"RPA_MATCHCHR_NAN", rpavm_swi_matchchr_nan},
 		{"RPA_MATCHCHR_OPT", rpavm_swi_matchchr_opt},
@@ -422,11 +397,9 @@ static rvm_switable_t rpavm_swi_table[] = {
 		{"RPA_EMITEND", rpavm_swi_emitend},
 		{"RPA_GETRECLEN", rpavm_swi_getreclen},
 		{"RPA_SETRECLEN", rpavm_swi_setreclen},
-		{"RPA_SETRECID", rpavm_swi_setrecid},
 		{"RPA_LOOPDETECT", rpavm_swi_loopdetect},
 		{"RPA_SETCACHE", rpavm_swi_setcache},
 		{"RPA_CHECKCACHE", rpavm_swi_checkcache},
-		{"RPA_SETRECUID", rpavm_swi_setrecuid},
 		{NULL, NULL},
 };
 

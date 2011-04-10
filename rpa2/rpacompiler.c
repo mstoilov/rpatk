@@ -149,7 +149,7 @@ rpa_compiler_t *rpa_compiler_create()
 	co->cg = rvm_codegen_create();
 	co->scope = rvm_scope_create();
 	co->expressions = r_array_create(sizeof(rpa_ruledef_t));
-	co->userids = r_harray_create(sizeof(ruint32));
+	co->ruleuids = r_harray_create(sizeof(ruint32));
 	return co;
 }
 
@@ -159,7 +159,7 @@ void rpa_compiler_destroy(rpa_compiler_t *co)
 	if (co) {
 		rvm_codegen_destroy(co->cg);
 		rvm_scope_destroy(co->scope);
-		r_object_destroy((robject_t*)co->userids);
+		r_object_destroy((robject_t*)co->ruleuids);
 		r_object_destroy((robject_t*)co->expressions);
 		r_free(co);
 	}
@@ -168,7 +168,7 @@ void rpa_compiler_destroy(rpa_compiler_t *co)
 
 void rpa_compiler_add_ruleuid(rpa_compiler_t *co, const rchar *name, ruint namesize, ruint32 uid)
 {
-	r_harray_replace(co->userids, name, namesize, &uid);
+	r_harray_replace(co->ruleuids, name, namesize, &uid);
 }
 
 
@@ -210,17 +210,17 @@ rlong rpa_compiler_addblob_s(rpa_compiler_t *co, rlong ruleid, rlong ruleuid, ru
 rint rpa_compiler_loop_begin(rpa_compiler_t *co, const rchar *name, ruint namesize)
 {
 	rpa_ruledef_t exp;
-	ruint32 *puid = (ruint32*)r_harray_get(co->userids, r_harray_lookup(co->userids, name, namesize));
+	ruint32 *puid = (ruint32*)r_harray_get(co->ruleuids, r_harray_lookup(co->ruleuids, name, namesize));
 
 	r_memset(&exp, 0, sizeof(exp));
 	exp.start = rvm_codegen_getcodesize(co->cg);
-	exp.recuid = puid ? *puid : RPA_RECORD_INVALID_UID;
+	exp.ruleuid = puid ? *puid : RPA_RECORD_INVALID_UID;
 	exp.startidx = rvm_codegen_addlabel(co->cg, name, namesize);
 	exp.endidx = rpa_codegen_invalid_add_numlabel_s(co->cg, "__end", exp.start);
 	exp.successidx = rpa_codegen_invalid_add_numlabel_s(co->cg, "__success", exp.start);
 	exp.failidx = rpa_codegen_invalid_add_numlabel_s(co->cg, "__fail", exp.start);
 	exp.againidx = rpa_codegen_invalid_add_numlabel_s(co->cg, "__again", exp.start);
-	exp.dataidx = rpa_compiler_addblob(co, exp.start, exp.recuid, 0, name, namesize);
+	exp.dataidx = rpa_compiler_addblob(co, exp.start, exp.ruleuid, 0, name, namesize);
 	exp.dataidx = rvm_codegen_adddata_s(co->cg, NULL, name, namesize);
 
 
@@ -310,14 +310,14 @@ rint rpa_compiler_loop_end(rpa_compiler_t *co)
 rint rpa_compiler_rule_begin(rpa_compiler_t *co, const rchar *name, ruint namesize)
 {
 	rpa_ruledef_t exp;
-	ruint32 *puid = (ruint32*)r_harray_get(co->userids, r_harray_lookup(co->userids, name, namesize));
+	ruint32 *puid = (ruint32*)r_harray_get(co->ruleuids, r_harray_lookup(co->ruleuids, name, namesize));
 
 	r_memset(&exp, 0, sizeof(exp));
 	exp.start = rvm_codegen_getcodesize(co->cg);
-	exp.recuid = puid ? *puid : RPA_RECORD_INVALID_UID;
+	exp.ruleuid = puid ? *puid : RPA_RECORD_INVALID_UID;
 	exp.startidx = rvm_codegen_addlabel(co->cg, name, namesize);
 	exp.endidx = rpa_codegen_invalid_add_numlabel_s(co->cg, "__end", exp.start);
-	exp.dataidx = rpa_compiler_addblob(co, exp.start, exp.recuid, 0, name, namesize);
+	exp.dataidx = rpa_compiler_addblob(co, exp.start, exp.ruleuid, 0, name, namesize);
 
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_CHECKCACHE, DA, R_TOP, XX, exp.start));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BXGRE, LR, XX, XX, 0));
