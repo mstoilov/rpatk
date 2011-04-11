@@ -84,8 +84,10 @@ static rint rpa_dbex_rh_namedrule(rpadbex_t *dbex, rlong rec)
 			return -1;
 		}
 
+		rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_EMITHEAD, XX, XX, XX, 0));
 		rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_SHIFT, XX, XX, XX, 0));
-		rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_BL, DA, XX, XX, 2));
+		rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_BL, DA, XX, XX, 3));
+		rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_EMITTAIL, XX, XX, XX, 0));
 		rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
 
 		if (prec->usertype & RPA_LOOP_PATH) {

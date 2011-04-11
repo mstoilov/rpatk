@@ -45,13 +45,6 @@ void rpa_stat_cachedisable(rpastat_t *stat, ruint disable)
 }
 
 
-static void rpa_stat_resetrecords(rpastat_t *stat)
-{
-	r_array_setlength(stat->records, 0);
-	RVM_CPUREG_SETL(stat->cpu, R_REC, -1);
-}
-
-
 rint rpa_stat_init(rpastat_t *stat, const rchar *input, const rchar *start, const rchar *end)
 {
 	rulong size;
@@ -80,11 +73,6 @@ rint rpa_stat_init(rpastat_t *stat, const rchar *input, const rchar *start, cons
 	}
 	stat->ip.input = input;
 	stat->ip.serial = 0;
-	rpa_stat_resetrecords(stat);
-	rpa_stat_cacheinvalidate(stat);
-	RVM_CPUREG_SETU(stat->cpu, SP, 0);
-	RVM_CPUREG_SETU(stat->cpu, R_LOO, 0);
-	RVM_CPUREG_SETU(stat->cpu, R_TOP, -1);
 	return 0;
 }
 
@@ -106,28 +94,89 @@ rint rpa_stat_encodingset(rpastat_t *stat, ruint encoding)
 }
 
 
+static rparecord_t *rpa_stat_nextrecord(rpastat_t *stat, rparecord_t *cur)
+{
+	if (r_array_empty(stat->records))
+		return NULL;
+	if (cur == NULL) {
+		return (rparecord_t *)r_array_slot(stat->records, 0);
+	}
+	if (cur >= (rparecord_t *)r_array_lastslot(stat->records) || cur < (rparecord_t *)r_array_slot(stat->records, 0))
+		return NULL;
+	++cur;
+	if (cur->type == RPA_RECORD_TAIL)
+		return NULL;
+	return cur;
+}
+
+
+static void rpa_stat_fixrecords(rpastat_t *stat)
+{
+	rarray_t *records;
+	rparecord_t *cur = (rparecord_t *)r_array_slot(stat->records, 0);
+
+	cur = rpa_stat_nextrecord(stat, cur);
+	if (!cur)
+		return;
+	records = (rarray_t *)r_array_create(sizeof(rparecord_t));
+	while (cur) {
+		r_array_add(records, cur);
+		cur = rpa_stat_nextrecord(stat, cur);
+	}
+	r_array_destroy(stat->records);
+	stat->records = records;
+}
+
+
+
+rlong rpa_stat_exec(rpastat_t *stat, rvm_asmins_t *prog, rword off)
+{
+	rlong ret;
+
+	if (!stat) {
+		return -1;
+	}
+	rpa_stat_cacheinvalidate(stat);
+	r_array_setlength(stat->records, 0);
+	RVM_CPUREG_SETU(stat->cpu, SP, 0);
+	RVM_CPUREG_SETU(stat->cpu, FP, 0);
+	RVM_CPUREG_SETL(stat->cpu, R_REC, -1);
+	RVM_CPUREG_SETU(stat->cpu, R_LOO, 0);
+	RVM_CPUREG_SETU(stat->cpu, R_TOP, -1);
+	if (stat->debug) {
+		ret = rvm_cpu_exec_debug(stat->cpu, prog, off);
+	} else {
+		ret = rvm_cpu_exec(stat->cpu, prog, off);
+	}
+	if (ret < 0) {
+		/*
+		 * TBD: Set the error
+		 */
+		r_array_setlength(stat->records, 0);
+		return -1;
+	}
+	rpa_stat_fixrecords(stat);
+	ret = (rlong)RVM_CPUREG_GETL(stat->cpu, R0);
+	if (ret < 0) {
+		r_array_setlength(stat->records, 0);
+		return 0;
+	}
+	return ret;
+}
+
+
 static rlong rpa_stat_exec_noinit(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end)
 {
 	rlong topsiz = 0;
 	rpainput_t *ptp;
 
 	rpa_stat_init(stat, input, start, end);
-
-	if (stat->debug) {
-		if (rvm_cpu_exec_debug(stat->cpu, rvm_dbex_getcode(stat->dbex), rvm_dbex_codeoffset(stat->dbex, rid)) < 0) {
-			return -1;
-		}
-	} else {
-		if (rvm_cpu_exec(stat->cpu, rvm_dbex_getcode(stat->dbex), rvm_dbex_codeoffset(stat->dbex, rid)) < 0) {
-			return -1;
-		}
+	if ((topsiz = rpa_stat_exec(stat, rvm_dbex_getcode(stat->dbex), rvm_dbex_codeoffset(stat->dbex, rid))) < 0) {
+		return -1;
 	}
-	topsiz = (rlong)RVM_CPUREG_GETL(stat->cpu, R0);
 	if (topsiz <= 0)
 		return 0;
-
 	ptp = &stat->instack[topsiz];
-
 	return (ptp->input - input);
 }
 

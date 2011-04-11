@@ -52,6 +52,7 @@ void rpa_stat_cachedisable(rpastat_t *stat, ruint disable);
 void rpa_stat_cacheinvalidate(rpastat_t *stat);
 rint rpa_stat_encodingset(rpastat_t *stat, ruint encoding);
 
+rlong rpa_stat_exec(rpastat_t *stat, rvm_asmins_t *prog, rword off);
 rlong rpa_stat_scan(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end, const rchar **where);
 rlong rpa_stat_match(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end);
 rarray_t *rpa_stat_parse(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end);

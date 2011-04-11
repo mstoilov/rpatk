@@ -41,7 +41,7 @@ rlong rpa_parser_load(rpa_parser_t *pa, const rchar *prods, rsize_t size)
 	rpa_stat_init(stat, prods, prods, prods + size);
 	rpa_stat_cachedisable(stat, 0);
 
-	if (rvm_cpu_exec(stat->cpu, rvm_codegen_getcode(co->cg, 0), pa->main) < 0)
+	if (rpa_stat_exec(stat, rvm_codegen_getcode(co->cg, 0), pa->main) < 0)
 		return -1;
 	ret = (rlong)RVM_CPUREG_GETL(stat->cpu, R0);
 	if (ret < 0)
@@ -1188,8 +1188,10 @@ static rint rpa_parser_init(rpa_parser_t *pa)
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, R_LOO, DA, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, R_TOP, DA, XX, -1));
 
+	rvm_codegen_addins(co->cg, rvm_asm(RPA_EMITHEAD, XX, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_SHIFT, XX, XX, XX, 0));
 	rpa_compiler_reference_nan_s(co, "bnf");
+	rvm_codegen_addins(co->cg, rvm_asm(RPA_EMITTAIL, XX, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_NOP, XX, XX, XX, -2));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
 

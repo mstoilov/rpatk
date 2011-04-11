@@ -15,6 +15,8 @@ extern "C" {
 #define RPA_RECORD_START (1 << 0)
 #define RPA_RECORD_END (1 << 1)
 #define RPA_RECORD_MATCH (1 << 2)
+#define RPA_RECORD_HEAD (1 << 3)
+#define RPA_RECORD_TAIL (1 << 4)
 
 #define RPA_RECORD_INVALID_UID ((ruint32)-1)
 
