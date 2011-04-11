@@ -23,6 +23,7 @@ extern "C" {
 typedef struct rparecord_s {
 	rlist_t head;
 	rlink_t lnk;
+	rlong next;
 	rword loo;
 	const char *rule;
 	ruint32 ruleid;

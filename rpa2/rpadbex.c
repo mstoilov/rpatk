@@ -23,6 +23,7 @@ struct rpadbex_s {
 	rpa_dbex_recordhandler *handlers;
 	ruint error;
 	rvm_codelabel_t *labelerr;
+	rulong defaultemit;
 };
 
 static rparecord_t *rpa_dbex_rulerecord(rpadbex_t *dbex, rparule_t rid);
@@ -69,6 +70,72 @@ static rlong rpa_dbex_getmatchspecialchr(rulong matchtype)
 		break;
 	};
 	return RPA_MATCHSPCHR_NAN;
+}
+
+
+static rint rpa_dbex_rh_emit(rpadbex_t *dbex, rlong rec)
+{
+	const rchar *name = NULL;
+	rsize_t namesize;
+	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
+
+	if (prec->type & RPA_RECORD_START) {
+		if (rpa_dbex_rulename(dbex, rec, &name, &namesize) < 0) {
+			return -1;
+		}
+		rpa_compiler_rulepref_set_flag(dbex->co, name, namesize, RPA_RFLAG_EMITRECORD);
+
+	} else if (prec->type & RPA_RECORD_END) {
+
+
+	}
+	return 0;
+}
+
+
+static rint rpa_dbex_rh_noemit(rpadbex_t *dbex, rlong rec)
+{
+	const rchar *name = NULL;
+	rsize_t namesize;
+	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
+
+	if (prec->type & RPA_RECORD_START) {
+		if (rpa_dbex_rulename(dbex, rec, &name, &namesize) < 0) {
+			return -1;
+		}
+		rpa_compiler_rulepref_clear_flag(dbex->co, name, namesize, RPA_RFLAG_EMITRECORD);
+
+	} else if (prec->type & RPA_RECORD_END) {
+
+
+	}
+	return 0;
+}
+
+
+static rint rpa_dbex_rh_emitall(rpadbex_t *dbex, rlong rec)
+{
+	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
+
+	if (prec->type & RPA_RECORD_START) {
+
+	} else if (prec->type & RPA_RECORD_END) {
+		dbex->defaultemit = 1;
+	}
+	return 0;
+}
+
+
+static rint rpa_dbex_rh_emitnone(rpadbex_t *dbex, rlong rec)
+{
+	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
+
+	if (prec->type & RPA_RECORD_START) {
+
+	} else if (prec->type & RPA_RECORD_END) {
+		dbex->defaultemit = 0;
+	}
+	return 0;
 }
 
 
@@ -464,7 +531,10 @@ rpadbex_t *rpa_dbex_create(void)
 	dbex->handlers[RPA_PRODUCTION_NOROP] = rpa_dbex_rh_norop;
 	dbex->handlers[RPA_PRODUCTION_REQOP] = rpa_dbex_rh_exp;
 	dbex->handlers[RPA_PRODUCTION_MINOP] = rpa_dbex_rh_exp;
-
+	dbex->handlers[RPA_PRODUCTION_DIRECTIVEEMIT] = rpa_dbex_rh_emit;
+	dbex->handlers[RPA_PRODUCTION_DIRECTIVENOEMIT] = rpa_dbex_rh_noemit;
+	dbex->handlers[RPA_PRODUCTION_DIRECTIVEEMITALL] = rpa_dbex_rh_emitall;
+	dbex->handlers[RPA_PRODUCTION_DIRECTIVEEMITNONE] = rpa_dbex_rh_emitnone;
 
 	return dbex;
 }

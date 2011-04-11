@@ -18,6 +18,7 @@ extern "C" {
 #define RPA_LOOP_PATH (1<<3)
 #define RPA_NONLOOP_PATH (1<<4)
 #define RPA_LOOP_INDERECTION 1024
+#define RPA_RFLAG_EMITRECORD (1 << 0)
 
 #define R_REC (TP - 3)
 #define R_RID (TP - 2)
