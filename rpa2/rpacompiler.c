@@ -307,8 +307,6 @@ rint rpa_compiler_loop_begin(rpa_compiler_t *co, const rchar *name, ruint namesi
 	exp.failidx = rpa_codegen_invalid_add_numlabel_s(co->cg, "__fail", exp.start);
 	exp.againidx = rpa_codegen_invalid_add_numlabel_s(co->cg, "__again", exp.start);
 	exp.dataidx = rpa_compiler_addblob(co, exp.start, ruleuid, flags, name, namesize);
-	exp.dataidx = rvm_codegen_adddata_s(co->cg, NULL, name, namesize);
-
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R_RID, DA, XX, exp.start));
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_LOOPDETECT, R_RID, R_TOP, XX, 0));
