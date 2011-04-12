@@ -6,11 +6,18 @@
 
 typedef rint (*rpa_dbex_recordhandler)(rpadbex_t *dbex, rlong rec);
 
+#define RPA_RULEINFO_NONE 0
+#define RPA_RULEINFO_NAMEDRULE 1
+#define RPA_RULEINFO_ANONYMOUSRULE 2
+#define RPA_RULEINFO_DIRECTIVE 3
+
+
 typedef struct rpa_ruleinfo_s {
 	rlong startrec;
 	rlong sizerecs;
 	rlong codeoff;
 	rlong codesiz;
+	rulong type;
 } rpa_ruleinfo_t;
 
 
@@ -83,9 +90,7 @@ static rint rpa_dbex_rh_emit(rpadbex_t *dbex, rlong rec)
 			return -1;
 		}
 		rpa_compiler_rulepref_set_flag(dbex->co, name, namesize, RPA_RFLAG_EMITRECORD);
-
 	} else if (prec->type & RPA_RECORD_END) {
-
 
 	}
 	return 0;
@@ -103,9 +108,7 @@ static rint rpa_dbex_rh_noemit(rpadbex_t *dbex, rlong rec)
 			return -1;
 		}
 		rpa_compiler_rulepref_clear_flag(dbex->co, name, namesize, RPA_RFLAG_EMITRECORD);
-
 	} else if (prec->type & RPA_RECORD_END) {
-
 
 	}
 	return 0;
@@ -115,13 +118,19 @@ static rint rpa_dbex_rh_noemit(rpadbex_t *dbex, rlong rec)
 static rint rpa_dbex_rh_emitall(rpadbex_t *dbex, rlong rec)
 {
 	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
+	rlong i;
+	rpa_ruleinfo_t *info;
 
 	if (prec->type & RPA_RECORD_START) {
-
+		for (i = 0; i < r_array_length(dbex->rules->names); i++) {
+			rstr_t *name = r_array_index(dbex->rules->names, i, rstr_t*);
+			info = (rpa_ruleinfo_t *)r_harray_get(dbex->rules, i);
+			if (info->type == RPA_RULEINFO_NAMEDRULE) {
+				rpa_compiler_rulepref_set_flag(dbex->co, name->str, name->size, RPA_RFLAG_EMITRECORD);
+			}
+		}
 	} else if (prec->type & RPA_RECORD_END) {
-		/*
-		 * TBD
-		 */
+
 	}
 	return 0;
 }
@@ -130,13 +139,19 @@ static rint rpa_dbex_rh_emitall(rpadbex_t *dbex, rlong rec)
 static rint rpa_dbex_rh_emitnone(rpadbex_t *dbex, rlong rec)
 {
 	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
+	rlong i;
+	rpa_ruleinfo_t *info;
 
 	if (prec->type & RPA_RECORD_START) {
-
+		for (i = 0; i < r_array_length(dbex->rules->names); i++) {
+			rstr_t *name = r_array_index(dbex->rules->names, i, rstr_t*);
+			info = (rpa_ruleinfo_t *)r_harray_get(dbex->rules, i);
+			if (info->type == RPA_RULEINFO_NAMEDRULE) {
+				rpa_compiler_rulepref_clear_flag(dbex->co, name->str, name->size, RPA_RFLAG_EMITRECORD);
+			}
+		}
 	} else if (prec->type & RPA_RECORD_END) {
-		/*
-		 * TBD
-		 */
+
 	}
 	return 0;
 }
@@ -183,8 +198,10 @@ static rint rpa_dbex_rh_anonymousrule(rpadbex_t *dbex, rlong rec)
 	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
 
 	if (prec->type & RPA_RECORD_START) {
+		rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_EMITHEAD, XX, XX, XX, 0));
 		rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_SHIFT, XX, XX, XX, 0));
-		rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_BL, DA, XX, XX, 2));
+		rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_BL, DA, XX, XX, 3));
+		rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_EMITTAIL, XX, XX, XX, 0));
 		rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
 		rpa_compiler_exp_begin(dbex->co, RPA_MATCH_NONE);
 
@@ -655,14 +672,15 @@ static void rpa_dbex_buildruleinfo(rpadbex_t *dbex)
 	dbex->rules = r_harray_create(sizeof(rpa_ruleinfo_t));
 
 	for (i = 0, nrecords = r_array_length(dbex->records); i < nrecords; i++) {
-		rec = (rparecord_t *)r_array_slot(dbex->records, i);
+		if (!(rec = rpa_dbex_record(dbex, i)))
+			continue;
 		if ((rec->ruleuid == RPA_PRODUCTION_NAMEDRULE) && (rec->type & RPA_RECORD_START)) {
 			r_memset(&info, 0, sizeof(info));
+			info.type = RPA_RULEINFO_NAMEDRULE;
 			info.startrec = i;
-			info.sizerecs = rpa_recordtree_get(dbex->records, i, RPA_RECORD_END);
+			info.sizerecs = rpa_recordtree_size(dbex->records, i);
 			if (info.sizerecs < 0)
 				continue;
-			info.sizerecs = info.sizerecs - i + 1;
 			if (rpa_dbex_rulename(dbex, i, &name, &namesize) < 0) {
 				continue;
 			}
@@ -670,21 +688,23 @@ static void rpa_dbex_buildruleinfo(rpadbex_t *dbex)
 			i += info.sizerecs - 1;
 		} else if ((rec->ruleuid == RPA_PRODUCTION_ANONYMOUSRULE) && (rec->type & RPA_RECORD_START)) {
 			r_memset(&info, 0, sizeof(info));
+			info.type = RPA_RULEINFO_ANONYMOUSRULE;
 			info.startrec = i;
-			info.sizerecs = rpa_recordtree_get(dbex->records, i, RPA_RECORD_END);
+			info.sizerecs = rpa_recordtree_size(dbex->records, i);
 			if (info.sizerecs < 0)
 				continue;
-			info.sizerecs = info.sizerecs - i + 1;
-			r_harray_add_s(dbex->rules, "$anonymous", &info);
+			if ((rec = rpa_dbex_record(dbex, rpa_recordtree_get(dbex->records, i, RPA_RECORD_END))))
+				r_harray_add(dbex->rules, rec->input, rec->inputsiz, &info);
 			i += info.sizerecs - 1;
 		} else if ((rec->type & RPA_RECORD_START) && (rec->ruleuid >= RPA_PRODUCTION_DIRECTIVEEMIT) && (rec->ruleuid <= RPA_PRODUCTION_DIRECTIVEEMITALL)) {
 			r_memset(&info, 0, sizeof(info));
+			info.type = RPA_RULEINFO_DIRECTIVE;
 			info.startrec = i;
-			info.sizerecs = rpa_recordtree_get(dbex->records, i, RPA_RECORD_END);
+			info.sizerecs = rpa_recordtree_size(dbex->records, i);
 			if (info.sizerecs < 0)
 				continue;
-			info.sizerecs = info.sizerecs - i + 1;
-			r_harray_add_s(dbex->rules, "$directive", &info);
+			if ((rec = rpa_dbex_record(dbex, rpa_recordtree_get(dbex->records, i, RPA_RECORD_END))))
+				r_harray_add(dbex->rules, rec->input, rec->inputsiz, &info);
 			i += info.sizerecs - 1;
 		}
 
@@ -895,15 +915,28 @@ rint rpa_dbex_dumprecords(rpadbex_t *dbex)
 
 rint rpa_dbex_dumpinfo(rpadbex_t *dbex)
 {
-	ruint i;
+	rlong i;
 	rpa_ruleinfo_t *info;
 
 	if (!dbex || !dbex->rules)
 		return -1;
 	for (i = 0; i < r_array_length(dbex->rules->names); i++) {
 		rstr_t *name = r_array_index(dbex->rules->names, i, rstr_t*);
-//		info = (rpa_ruleinfo_t *)r_harray_get(dbex->rules, r_harray_lookup(dbex->rules, name->str, name->size));
 		info = (rpa_ruleinfo_t *)r_harray_get(dbex->rules, i);
+		switch (info->type) {
+		case RPA_RULEINFO_NAMEDRULE:
+			r_printf("N ");
+			break;
+		case RPA_RULEINFO_ANONYMOUSRULE:
+			r_printf("A ");
+			break;
+		case RPA_RULEINFO_DIRECTIVE:
+			r_printf("D ");
+			break;
+		default:
+			r_printf("  ");
+			break;
+		};
 		r_printf("(%7d, %4d, code: %7ld, %5ld) : %s\n", info->startrec, info->sizerecs, info->codeoff, info->codesiz, name->str);
 	}
 	return 0;

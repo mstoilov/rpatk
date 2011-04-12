@@ -1,7 +1,5 @@
 #!emit term
-#!emit exp
-#!noemit exp
-#!emit exp
+#!emitall
 
 term	 ::= [0-9]+ | '(' <:exp:> ')'
 exp	 ::= <:exp:> '+' <:term:> |

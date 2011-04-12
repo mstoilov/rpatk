@@ -140,10 +140,10 @@ rlong rpa_recordtree_parent(rarray_t *records, rlong rec, rulong type)
 }
 
 
-rlong rpa_recordtree_size(rarray_t *records, rlong parent)
+rlong rpa_recordtree_size(rarray_t *records, rlong rec)
 {
-	rlong first = rpa_recordtree_get(records, parent, RPA_RECORD_START);
-	rlong last = rpa_recordtree_get(records, parent, RPA_RECORD_END);
+	rlong first = rpa_recordtree_get(records, rec, RPA_RECORD_START);
+	rlong last = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	if (first < 0 || last < 0)
 		return -1;
 	return (last - first + 1);

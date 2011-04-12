@@ -1,4 +1,4 @@
-
+#!emitall
 # BNF productsions from the XML spcification.
 
 Char		::= [#x9] | [#xA] | [#xD] | [#x20-#xD7FF] | 
