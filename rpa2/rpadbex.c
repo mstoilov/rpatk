@@ -175,14 +175,14 @@ static rint rpa_dbex_rh_namedrule(rpadbex_t *dbex, rlong rec)
 		rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_EMITTAIL, XX, XX, XX, 0));
 		rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
 
-		if (prec->usertype & RPA_LOOP_PATH) {
+		if (1 || (prec->usertype & RPA_LOOP_PATH)) {
 			rpa_compiler_loop_begin(dbex->co, name, namesize);
 		} else {
 			rpa_compiler_rule_begin(dbex->co, name, namesize);
 		}
 
 	} else if (prec->type & RPA_RECORD_END) {
-		if (prec->usertype & RPA_LOOP_PATH) {
+		if (1 || (prec->usertype & RPA_LOOP_PATH)) {
 			rpa_compiler_loop_end(dbex->co);
 		} else {
 			rpa_compiler_rule_end(dbex->co);

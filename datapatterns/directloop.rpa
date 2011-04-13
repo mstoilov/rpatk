@@ -1,8 +1,8 @@
 #!emit term
 #!emitall
-
+lb	::= '('
+rb	::= ')'
 term	 ::= [0-9]+ | '(' <:exp:> ')'
 exp	 ::= <:exp:> '+' <:term:> |
-	     <:exp:> '-' <:term:> |
 	     <:term:>
 

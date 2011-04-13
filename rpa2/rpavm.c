@@ -327,6 +327,17 @@ static void rpavm_swi_emitend(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static void rpavm_swi_prninfo(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rpa_ruledata_t *ruledata = RVM_CPUREG_GETP(cpu, ins->op1);
+	rstr_t name = {(rchar*)ruledata + ruledata->name, ruledata->namesize};
+
+	if (!(ruledata->flags & RPA_RFLAG_EMITRECORD))
+		return;
+	r_printf("%s: R_TOP = %ld, R0 = %ld, R_LOO = %ld, R_LPP = %ld\n", name.str, RVM_CPUREG_GETL(cpu, R_TOP), RVM_CPUREG_GETL(cpu, R0), RVM_CPUREG_GETL(cpu, R_LOO), RVM_CPUREG_GETL(cpu, R_LPP));
+}
+
+
 static void rpavm_swi_getnextrec(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rlong rec = RVM_CPUREG_GETL(cpu, ins->op2);
@@ -362,7 +373,11 @@ static void rpavm_swi_setcurrec(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	RVM_CPUREG_SETL(cpu, R_REC, RVM_CPUREG_GETU(cpu, ins->op1));
 }
 
-
+/*
+ * return -1, if no loop
+ * return 0, if there is loop, but the current size of the loop is 0
+ * return >0, if the there is loop and the current size is more than 0
+ */
 static void rpavm_swi_loopdetect(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 //	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
@@ -370,6 +385,10 @@ static void rpavm_swi_loopdetect(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rword tp = RVM_CPUREG_GETU(cpu, ins->op2);
 	rword fp = RVM_CPUREG_GETU(cpu, FP);
 	rvmreg_t lpp, loo, rid, top, pfp;
+
+	rvm_reg_setunsigned(&lpp, 0);
+	rvm_reg_setunsigned(&loo, 0);
+	rvm_reg_setunsigned(&rid, 0);
 
 	RVM_CPUREG_SETU(cpu, R0, -1);
 
@@ -389,35 +408,31 @@ static void rpavm_swi_loopdetect(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		pfp = RVM_STACK_READ(cpu->stack, fp - 1);
 		fp = pfp.v.l;
 	}
-//	if (RVM_CPUREG_GETU(cpu, FP) > 5)
-//		r_printf("%ld: %s: %ld, top = %ld, loo = %ld\n", RVM_CPUREG_GETU(cpu, FP),  __FUNCTION__, RVM_STACK_READ(cpu->stack, RVM_CPUREG_GETU(cpu, FP) - 5), top, loo.v.l);
+	if (RVM_CPUREG_GETU(cpu, FP) > 5)
+		rid = RVM_STACK_READ(cpu->stack, RVM_CPUREG_GETU(cpu, FP) - 5);
+
+//	r_printf("%ld: %s: %ld, tp = %ld, loo = %ld, R0 = %ld\n", RVM_CPUREG_GETU(cpu, FP),  __FUNCTION__, rid.v.l, tp, loo.v.l, RVM_CPUREG_GETU(cpu, R0));
 
 }
 
 
-static void rpavm_swi_ldloo(rvmcpu_t *cpu, rvm_asmins_t *ins)
+static void rpavm_swi_curloop(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 //	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
-	rword ruleid = RVM_CPUREG_GETU(cpu, ins->op1);
-	rword tp = RVM_CPUREG_GETU(cpu, ins->op2);
 	rword fp = RVM_CPUREG_GETU(cpu, FP);
-	rvmreg_t loo, rid, top, pfp;
+	rvmreg_t loo, lpp, pfp;
 
-	RVM_CPUREG_SETU(cpu, R0, -1);
-
+	rvm_reg_setunsigned(&loo, 0);
 	while (fp > 5) {
-		top = RVM_STACK_READ(cpu->stack, fp - 2);
-		loo = RVM_STACK_READ(cpu->stack, fp - 3);
-		rid = RVM_STACK_READ(cpu->stack, fp - 4);
-
-		if (rid.v.l == ruleid && top.v.l == tp) {
-			RVM_CPUREG_SETU(cpu, R0, loo.v.l);
+		lpp = RVM_STACK_READ(cpu->stack, fp - 4);
+		if (RVM_REG_GETL(&lpp) > 0) {
+			loo = RVM_STACK_READ(cpu->stack,RVM_REG_GETL(&lpp));
 			break;
 		}
-		RVM_REG_CLEAR(&loo);
 		pfp = RVM_STACK_READ(cpu->stack, fp - 1);
-		fp = pfp.v.l;
+		fp = RVM_REG_GETL(&pfp);
 	}
+	RVM_CPUREG_SETU(cpu, ins->op1, RVM_REG_GETU(&loo));
 }
 
 
@@ -495,6 +510,8 @@ static rvm_switable_t rpavm_swi_table[] = {
 		{"RPA_EMITHEAD", rpavm_swi_emithead},
 		{"RPA_EMITTAIL", rpavm_swi_emittail},
 		{"RPA_GETNEXTREC", rpavm_swi_getnextrec},
+		{"RPA_CURLOOP", rpavm_swi_curloop},
+		{"RPA_PRNINFO", rpavm_swi_prninfo},
 		{"RPA_GETRECLEN", rpavm_swi_getreclen},
 		{"RPA_SETRECLEN", rpavm_swi_setreclen},
 		{"RPA_GETCURREC", rpavm_swi_getcurrec},

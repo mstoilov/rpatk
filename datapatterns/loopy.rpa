@@ -1,3 +1,4 @@
+#!emitall
 n	::= [0-9]+ | '(' <:land:> ')'
 plus	::= <:plus:> '+' <:n:> | <:n:>
 mul	::= <:mul:> '*' <:plus:> | <:plus:>

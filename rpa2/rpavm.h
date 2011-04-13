@@ -20,10 +20,11 @@ extern "C" {
 #define RPA_LOOP_INDERECTION 1024
 #define RPA_RFLAG_EMITRECORD (1 << 0)
 
-#define R_REC (TP - 4)
-#define R_RID (TP - 3)
-#define R_LPP (TP - 2)
-#define R_LOO (TP - 1)
+#define R_REC (TP - 5)
+#define R_RID (TP - 4)
+#define R_LPP (TP - 3)
+#define R_LOO (TP - 2)
+#define R_OTP (TP - 1)
 #define R_TOP TP
 #define RPAVM_SWI_TABLEID 0
 
@@ -52,6 +53,8 @@ extern "C" {
 #define RPA_EMITHEAD		RVM_OPSWI(RVM_SWI_ID(RPAVM_SWI_TABLEID, 18))
 #define RPA_EMITTAIL		RVM_OPSWI(RVM_SWI_ID(RPAVM_SWI_TABLEID, 19))
 #define RPA_GETNEXTREC		RVM_OPSWI(RVM_SWI_ID(RPAVM_SWI_TABLEID, 20))
+#define RPA_CURLOOP			RVM_OPSWI(RVM_SWI_ID(RPAVM_SWI_TABLEID, 21))
+#define RPA_PRNINFO			RVM_OPSWI(RVM_SWI_ID(RPAVM_SWI_TABLEID, 22))
 
 
 
