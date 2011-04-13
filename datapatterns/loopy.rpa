@@ -1,26 +1,13 @@
-abra	::= [0-9]+
-#cadabra ::= <:abra:>abc
-
-term	 ::= [0-9]+ 
-expop	 ::= <:exp:> '+' <:term:> |
-	     <:exp:> '-' <:term:> |
-	     <:exp:> '*' <:term:> |
-	     <:exp:> '/' <:term:> |
-	     <:term:>
-exp	 ::= <:expop:> | <:term:>
-
-
 n	::= [0-9]+ | '(' <:land:> ')'
-
-plus	::= <:plus:> '+' <:n:> | <:plus:> '-' <:n:> | <:n:>
+plus	::= <:plus:> '+' <:n:> | <:n:>
 mul	::= <:mul:> '*' <:plus:> | <:plus:>
 div	::= <:div:> '/' <:mul:> | <:mul:>
 or	::= <:or:> '|' <:div:> | <:div:>
 xor	::= <:xor:> '^' <:or:> | <:or:>
-at	::= <:and:> '@' <:and:> | <:and:>
+and	::= <:and:> '&' <:xor:> | <:xor:>
+at	::= <:at:> '@' <:and:> | <:and:>
 mod	::= <:mod:> '%' <:at:> | <:at:>
 land	::= <:land:> '&&' <:mod:> | <:mod:>
-and	::= <:and:> '&' <:xor:> | <:xor:>
 all	::= <:land:>
 
 

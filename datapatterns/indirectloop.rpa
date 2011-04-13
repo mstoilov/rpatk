@@ -1,6 +1,5 @@
-term	 ::= [0-9]+ 
-expop	 ::= <:exp:> '+' <:term:> |
-	     <:exp:> '-' <:term:> |
-	     <:exp:> '*' <:term:> |
-	     <:exp:> '/' <:term:>
-exp	 ::= <:expop:> | <:term:>
+#!emitall
+sign	::= '+'
+term	::= [0-9]+ 
+expop	::= (<:exp:> <:sign:> <:term:>)
+exp	::= <:expop:> | <:term:>

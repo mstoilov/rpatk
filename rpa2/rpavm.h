@@ -20,8 +20,9 @@ extern "C" {
 #define RPA_LOOP_INDERECTION 1024
 #define RPA_RFLAG_EMITRECORD (1 << 0)
 
-#define R_REC (TP - 3)
-#define R_RID (TP - 2)
+#define R_REC (TP - 4)
+#define R_RID (TP - 3)
+#define R_LPP (TP - 2)
 #define R_LOO (TP - 1)
 #define R_TOP TP
 #define RPAVM_SWI_TABLEID 0
