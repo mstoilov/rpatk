@@ -581,6 +581,7 @@ static rint rpa_parseinfo_checkforloop(rpadbex_t *dbex, rlong parent, rlong loop
 	rlong i;
 	rint lret, ret = 0;
 	rlong parent_end = rpa_recordtree_get(dbex->records, parent, RPA_RECORD_END);
+	rlong loopto_end = rpa_recordtree_get(dbex->records, loopto, RPA_RECORD_END);
 
 	if (parent == loopto && inderction > 0)
 		return 1;
@@ -598,29 +599,48 @@ static rint rpa_parseinfo_checkforloop(rpadbex_t *dbex, rlong parent, rlong loop
 			continue;
 		if (prec->ruleuid == RPA_PRODUCTION_AREF || prec->ruleuid == RPA_PRODUCTION_CREF) {
 			rpa_ruleinfo_t *info;
+			rstr_t *refname;
 			if (rpa_dbex_rulename(dbex, i, &name, &namesiz) < 0)
 				R_ASSERT(0);
 			info = (rpa_ruleinfo_t *) r_harray_get(dbex->rules, rpa_dbex_lookup(dbex, name, namesiz));
 			if (!info)
 				continue;
-			ret |= rpa_parseinfo_checkforloop(dbex, info->startrec, loopto, inderction + 1);
+			refname = r_array_index(dbex->rules->names, rpa_dbex_lookup(dbex, name, namesiz), rstr_t*);
+
+			lret = rpa_parseinfo_checkforloop(dbex, info->startrec, loopto, inderction + 1);
+//			r_printf("		%s : lret = %ld, rec = %ld (%ld, %ld), refname = %s, loopto: %ld, startrec = %ld\n", __FUNCTION__, lret, i, loopto, loopto_end, refname->str, loopto, info->startrec);
+
+			if (i >= loopto && i <= loopto_end && lret) {
+				rpa_record_setusertype(dbex->records, i, RPA_LOOP_PATH, RVALSET_OR);
+			}
+			ret |= lret;
 		} else {
 			lret = rpa_parseinfo_checkforloop(dbex, i, loopto, inderction + 1);
-			if (i >= parent && i <= parent_end && lret) {
+			if (i >= loopto && i <= loopto_end && lret) {
 				rpa_record_setusertype(dbex->records, i, RPA_LOOP_PATH, RVALSET_OR);
-				ret |= lret;
 			}
+			ret |= lret;
+
 		}
 
 		if ((prec->usertype & RPA_MATCH_OPTIONAL) == 0 && (prec->ruleuid == RPA_PRODUCTION_CREF || prec->ruleuid == RPA_PRODUCTION_AREF ||
-				prec->ruleuid == RPA_PRODUCTION_CHAR || prec->ruleuid == RPA_PRODUCTION_CLS || prec->ruleuid == RPA_PRODUCTION_SPECIALCHAR ||
-				prec->ruleuid == RPA_PRODUCTION_BRACKETEXP))
+				prec->ruleuid == RPA_PRODUCTION_CHAR || prec->ruleuid == RPA_PRODUCTION_CLS || prec->ruleuid == RPA_PRODUCTION_SPECIALCHAR))
 			break;
 
 	}
 
 	r_array_removelast(dbex->recstack);
 	return ret;
+}
+
+
+static rint rpa_parseinfo_rule_checkforloop(rpadbex_t *dbex, const char *name, rsize_t namesize, rlong loopto)
+{
+	rpa_ruleinfo_t *info = info = (rpa_ruleinfo_t *)r_harray_get(dbex->rules, rpa_dbex_lookup(dbex, name, namesize));
+
+	if (!info)
+		return 0;
+	return rpa_parseinfo_checkforloop(dbex, info->startrec, loopto, 0);
 }
 
 
@@ -632,6 +652,9 @@ static void rpa_dbex_buildloopinfo(rpadbex_t *dbex)
 
 	for (i = 0; i < r_array_length(rules->members); i++) {
 		info = (rpa_ruleinfo_t *)r_harray_get(rules, i);
+		rstr_t *name = r_array_index(dbex->rules->names, i, rstr_t*);
+		r_printf("%s : name = %s, startrec: %ld, endrec = %ld\n", __FUNCTION__, name->str, info->startrec, info->startrec + info->sizerecs - 1);
+
 		if (rpa_parseinfo_checkforloop(dbex, info->startrec, info->startrec, 0)) {
 			rpa_record_setusertype(dbex->records, info->startrec, RPA_LOOP_PATH, RVALSET_OR);
 		}
@@ -844,21 +867,35 @@ rlong rpa_dbex_load_s(rpadbex_t *dbex, const rchar *rules)
 
 
 
-static void rpa_dbex_dumptree_do(rpadbex_t *dbex, rlong rec, rint level)
+static void rpa_dbex_dumptree_do(rpadbex_t *dbex, rlong startrec, rlong rec, rint level)
 {
 	rparecord_t *prec = (rparecord_t *)r_array_slot(dbex->records, rec);
 	if (prec && prec->ruleuid == RPA_PRODUCTION_RULENAME)
 		return;
 	rpa_record_dumpindented(dbex->records, rpa_recordtree_get(dbex->records, rec, RPA_RECORD_END), level);
 	prec = (rparecord_t *)r_array_slot(dbex->records, rec);
-	if (prec && (prec->ruleuid == RPA_PRODUCTION_AREF || prec->ruleuid == RPA_PRODUCTION_CREF))
-		return;
+	if (prec && (prec->ruleuid == RPA_PRODUCTION_AREF || prec->ruleuid == RPA_PRODUCTION_CREF)) {
+		const rchar *name = NULL;
+		rsize_t namesize = 0;
+		rint loop = 0;
+		rpa_ruleinfo_t *info;
+
+		if (rpa_dbex_rulename(dbex, rec, &name, &namesize) >= 0)
+			loop = rpa_parseinfo_rule_checkforloop(dbex, name, namesize, startrec);
+//		r_printf("%s, rec = %ld, startrec = %ld, loop = %d\n", __FUNCTION__, rec, startrec, loop);
+		if (!loop)
+			return;
+		info = (rpa_ruleinfo_t *)r_harray_get(dbex->rules, rpa_dbex_lookup(dbex, name, namesize));
+		if (!info || info->startrec == startrec)
+			return;
+		rpa_dbex_dumptree_do(dbex, startrec, info->startrec, level + 1);
+	}
 	if (prec && (prec->ruleuid == RPA_PRODUCTION_CHARRNG || prec->ruleuid == RPA_PRODUCTION_NUMRNG))
 		return;
 	if (prec && (prec->ruleuid == RPA_PRODUCTION_CLSNUM))
 		return;
 	for (rec = rpa_recordtree_firstchild(dbex->records, rec, RPA_RECORD_START); rec >= 0; rec = rpa_recordtree_next(dbex->records, rec, RPA_RECORD_START)) {
-		rpa_dbex_dumptree_do(dbex, rec, level + 1);
+		rpa_dbex_dumptree_do(dbex, startrec, rec, level + 1);
 	}
 }
 
@@ -873,7 +910,8 @@ rint rpa_dbex_dumptree(rpadbex_t *dbex, const rchar *rulename)
 	info = (rpa_ruleinfo_t *)r_harray_get(dbex->rules, rpa_dbex_lookup_s(dbex, rulename));
 	if (!info)
 		return -1;
-	rpa_dbex_dumptree_do(dbex, info->startrec, 0);
+//	r_printf("%s: %s, %ld\n", __FUNCTION__, rulename, info->startrec);
+	rpa_dbex_dumptree_do(dbex, info->startrec, info->startrec, 0);
 	return 0;
 }
 
