@@ -1222,7 +1222,7 @@ void rvm_asm_dump(rvm_asmins_t *pi, ruint count)
 }
 
 
-static void rvm_cpu_dumpregs(rvm_asmins_t *pi, rvmcpu_t *vm)
+void rvm_cpu_dumpregs(rvmcpu_t *vm, rvm_asmins_t *pi)
 {
     int ret;
 	char buffer[1024];
@@ -2039,7 +2039,7 @@ rint rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off)
 		}
 		ops[pi->opcode](cpu, pi);
 		r_printf("%7ld :", ++line);
-		rvm_cpu_dumpregs(pi, cpu);
+		rvm_cpu_dumpregs(cpu, pi);
 skipexec:
 		RVM_REG_INCIP(regpc, 1);
 	} while (!cpu->abort);

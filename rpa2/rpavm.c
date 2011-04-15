@@ -334,7 +334,8 @@ static void rpavm_swi_prninfo(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 	if (!(ruledata->flags & RPA_RFLAG_EMITRECORD))
 		return;
-	r_printf("%s: R_TOP = %ld, R0 = %ld, R_LOO = %ld, R_LPP = %ld\n", name.str, RVM_CPUREG_GETL(cpu, R_TOP), RVM_CPUREG_GETL(cpu, R0), RVM_CPUREG_GETL(cpu, R_LOO), RVM_CPUREG_GETL(cpu, R_LPP));
+	r_printf("%s: ", name.str);
+	rvm_cpu_dumpregs(cpu, ins);
 }
 
 

@@ -3,5 +3,5 @@
 lb	::= '('
 rb	::= ')'
 term	 ::= [0-9]+ | '(' <:exp:> ')'
-exp	 ::= <:exp:> '+' <:term:> | <:term:>
+exp	 ::= <:exp:> '+' <:term:> | <:exp:> '-' <:term:> | <:exp:> '*' <:term:> | <:exp:> '/' <:term:> | <:term:>
 

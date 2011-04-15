@@ -64,6 +64,10 @@ rint rpa_compiler_rule_begin(rpa_compiler_t *co, const rchar *name, ruint namesi
 rint rpa_compiler_rule_begin_s(rpa_compiler_t *co, const rchar *name);
 rint rpa_compiler_rule_end(rpa_compiler_t *co);
 
+rint rpa_compiler_inlinerule_begin(rpa_compiler_t *co, const rchar *name, ruint namesize, ruint flags);
+rint rpa_compiler_inlinerule_begin_s(rpa_compiler_t *co, const rchar *name, ruint flags);
+rint rpa_compiler_inlinerule_end(rpa_compiler_t *co);
+
 rint rpa_compiler_exp_begin(rpa_compiler_t *co, ruint flags);
 rint rpa_compiler_exp_end(rpa_compiler_t *co);
 

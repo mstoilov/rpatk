@@ -1266,10 +1266,10 @@ static void rpa_production_minexp(rpa_parser_t *pa)
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_compiler_branch_end(co);
 
-	rpa_compiler_nonloopybranch_begin(co, RPA_MATCH_NONE);
+	rpa_compiler_branch_begin(co, RPA_MATCH_NONE);
 	rpa_compiler_reference_nan_s(co, "exp");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
-	rpa_compiler_nonloopybranch_end(co);
+	rpa_compiler_branch_end(co);
 	rpa_compiler_altexp_end(co);
 
 	rpa_compiler_rule_end(co);
@@ -1333,10 +1333,10 @@ static void rpa_production_orexp(rpa_parser_t *pa)
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_compiler_branch_end(co);
 
-	rpa_compiler_nonloopybranch_begin(co, RPA_MATCH_NONE);
+	rpa_compiler_branch_begin(co, RPA_MATCH_NONE);
 	rpa_compiler_reference_nan_s(co, "minexp");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
-	rpa_compiler_nonloopybranch_end(co);
+	rpa_compiler_branch_end(co);
 	rpa_compiler_altexp_end(co);
 
 	rpa_compiler_rule_end(co);

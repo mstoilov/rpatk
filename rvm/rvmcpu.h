@@ -344,6 +344,7 @@ rint rvm_cpu_addswitable(rvmcpu_t * cpu, const rchar *tabname, rvm_switable_t *s
 rvmreg_t *rvm_cpu_alloc_global(rvmcpu_t *cpu);
 int rvm_cpu_setreg(rvmcpu_t *cpu, rword regnum, const rvmreg_t *src);
 rvmreg_t *rvm_cpu_getreg(rvmcpu_t *cpu, rword regnum);
+void rvm_cpu_dumpregs( rvmcpu_t *cpu, rvm_asmins_t *pi);
 rvm_asmins_t rvm_asm(rword opcode, rword op1, rword op2, rword op3, rword data);
 rvm_asmins_t rvm_asma(rword opcode, rword op1, rword op2, rword op3, rchar *data, rulong size);
 rvm_asmins_t rvm_asml(rword opcode, rword op1, rword op2, rword op3, rlong data);
