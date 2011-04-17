@@ -54,7 +54,8 @@ rparule_t rpa_dbex_last(rpadbex_t *dbex);
 rsize_t rpa_dbex_copy(rpadbex_t *dbex, rparule_t rid, rchar *buf, rsize_t bufsize);
 
 rint rpa_dbex_dumprecords(rpadbex_t *dbex);
-rint rpa_dbex_dumptree(rpadbex_t *dbex, const rchar *name);
+rint rpa_dbex_dumptree_s(rpadbex_t *dbex, const rchar *name, rint level);
+rint rpa_dbex_dumptree(rpadbex_t *dbex, const rchar *rulename, rsize_t namesize, rint level);
 rint rpa_dbex_dumprules(rpadbex_t *dbex);
 rint rpa_dbex_dumpinfo(rpadbex_t *dbex);
 rint rpa_dbex_dumpcode(rpadbex_t* dbex, const rchar *rule);

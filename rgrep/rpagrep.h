@@ -42,6 +42,7 @@ typedef void (*RPA_BUFFER_DESTROY)(rpa_buffer_t *str);
 #define RPA_GREPTYPE_SCANLINES 1
 #define RPA_GREPTYPE_MATCH 2
 #define RPA_GREPTYPE_PARSE 3
+#define RPA_GREPTYPE_PARSEAST 4
 
 typedef struct rpa_grep_s {
 	rpadbex_t *hDbex;

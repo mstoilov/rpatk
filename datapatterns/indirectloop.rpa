@@ -1,8 +1,7 @@
 #!emitall
 sign	::= '+'
 term	::= [0-9]+ | '(' <:exp:> ')'
-opdiv	::= <:exp:> '/' <:term:>
 expop	::= (<:exp:> <:sign:> <:term:>) | (<:exp:> '*' <:term:>) | <:exp:> '-' <:term:> | <:opdiv:>
-exp	::= ((<:expop:>)) | <term>
-
+exp	::= <:expop:> | <term>
+opdiv	::= <:exp:> '/' <:term:> | <:expop:> '/' <:term:>
 

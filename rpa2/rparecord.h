@@ -51,7 +51,8 @@ void rpa_record_dumpindented(rarray_t *records, rlong rec, rint level);
 void rpa_record_dump(rarray_t *records, rlong rec);
 void rpa_record_setusertype(rarray_t *records, rlong rec, ruint32 usertype, rvalset_t op);
 rlong rpa_record_getusertype(rarray_t *records, rlong rec);
-
+rint rpa_record_optchar(rparecord_t *prec, rint defc);
+rint rpa_record_loopchar(rparecord_t *prec, rint defc);
 #ifdef __cplusplus
 }
 #endif

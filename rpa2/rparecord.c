@@ -241,7 +241,7 @@ rlong rpa_record_getusertype(rarray_t *records, rlong rec)
 }
 
 
-static rint rpa_record_optchar(rparecord_t *prec, rint defc)
+rint rpa_record_optchar(rparecord_t *prec, rint defc)
 {
 	rint optc = defc;
 
@@ -257,7 +257,7 @@ static rint rpa_record_optchar(rparecord_t *prec, rint defc)
 }
 
 
-static rint rpa_record_loopchar(rparecord_t *prec, rint defc)
+rint rpa_record_loopchar(rparecord_t *prec, rint defc)
 {
 	rint loopc = defc;
 

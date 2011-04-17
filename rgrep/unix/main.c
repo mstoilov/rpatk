@@ -221,6 +221,8 @@ int main(int argc, const char *argv[])
 			pGrep->greptype = RPA_GREPTYPE_MATCH;
 		} else if (strcmp(argv[i], "-p") == 0) {
 			pGrep->greptype = RPA_GREPTYPE_PARSE;
+		} else if (strcmp(argv[i], "-a") == 0) {
+			pGrep->greptype = RPA_GREPTYPE_PARSEAST;
 		} else if (strcmp(argv[i], "-16") == 0) {
 			pGrep->forceEncoding = RPA_GREP_FORCE_UTF16;
 		} else if (strcmp(argv[i], "-b") == 0) {
