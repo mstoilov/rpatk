@@ -2,6 +2,5 @@
 sign	::= '+'
 term	::= [0-9]+ | '(' <:exp:> ')'
 expop	::= (<:exp:> <:sign:> <:term:>) | (<:exp:> '*' <:term:>) | <:exp:> '-' <:term:> | <:opdiv:>
-exp	::= <:expop:> | <term>
 opdiv	::= <:exp:> '/' <:term:> | <:expop:> '/' <:term:>
-
+exp	::= <:expop:> | <term>
