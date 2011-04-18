@@ -116,8 +116,13 @@ static void rpa_stat_fixrecords(rpastat_t *stat)
 	rparecord_t *cur = (rparecord_t *)r_array_slot(stat->records, 0);
 
 	cur = rpa_stat_nextrecord(stat, cur);
-	if (!cur)
+	if (!cur) {
+		/*
+		 * There are no records
+		 */
+		r_array_setlength(stat->records, 0);
 		return;
+	}
 	records = (rarray_t *)r_array_create(sizeof(rparecord_t));
 	while (cur) {
 		r_array_add(records, cur);

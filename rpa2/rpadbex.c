@@ -567,6 +567,7 @@ static rint rpa_dbex_rh_aref(rpadbex_t *dbex, rlong rec)
 					 */
 					rpa_compiler_exp_begin(dbex->co, RPA_MATCH_OPTIONAL);
 					rpa_dbex_play_recordhandlers(dbex, info->startrec, info->sizerecs);
+					rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 					rpa_compiler_exp_end(dbex->co);
 				} else {
 					rpa_dbex_play_recordhandlers(dbex, info->startrec, info->sizerecs);
@@ -1016,14 +1017,29 @@ static void rpa_dbex_dumptree_do(rpadbex_t *dbex, rlong rec, rint level)
 		rsize_t namesize = 0;
 		rint loop = 0;
 		rpa_ruleinfo_t *info;
-		rlong startrec = rpa_dbex_firstinlined(dbex);
 
-		if (startrec > 0 && rpa_dbex_rulename(dbex, rec, &name, &namesize) >= 0) {
-			loop = rpa_parseinfo_rule_checkforloop(dbex, name, namesize, startrec);
+		if (rpa_dbex_rulename(dbex, rec, &name, &namesize) >= 0) {
+			loop = rpa_parseinfo_rule_checkforloop(dbex, name, namesize, rpa_dbex_firstinlined(dbex));
 			info = (rpa_ruleinfo_t *)r_harray_get(dbex->rules, rpa_dbex_lookup(dbex, name, namesize));
 			if (loop && info){
 				if (!rpa_dbex_findinlined(dbex, info->startrec)) {
-					rpa_dbex_dumptree(dbex, name, namesize, level);
+					/*
+					 * Temporary set the quantitative flags for the inlined rule to the parent
+					 * reference, so they are printed correctly. After the printing is done
+					 * restore the original flags.
+					 */
+					rparecord_t *prulestart = rpa_dbex_record(dbex, rpa_recordtree_get(dbex->records, info->startrec, RPA_RECORD_START));
+					rparecord_t *pruleend = rpa_dbex_record(dbex, rpa_recordtree_get(dbex->records, info->startrec, RPA_RECORD_END));
+					rulong optional = (prulestart->usertype & RPA_MATCH_OPTIONAL);
+					prulestart->usertype |= (prec->usertype & RPA_MATCH_OPTIONAL);
+					pruleend->usertype |= (prec->usertype & RPA_MATCH_OPTIONAL);
+					r_array_add(dbex->inlinestack, &info->startrec);
+					rpa_dbex_dumptree_do(dbex, info->startrec, level);
+					r_array_removelast(dbex->inlinestack);
+					if (!optional) {
+						prulestart->usertype &= ~RPA_MATCH_OPTIONAL;
+						pruleend->usertype &= ~RPA_MATCH_OPTIONAL;
+					}
 				} else {
 					rpa_dbex_dumpindented(dbex, rpa_recordtree_get(dbex->records, rec, RPA_RECORD_END), level, "loopref");
 				}
@@ -1305,10 +1321,10 @@ rint rpa_dbex_compile(rpadbex_t *dbex)
 	/*
 	 * By default all production rules emit
 	 */
-	rpa_dbex_setemit(dbex, TRUE);
 	if (dbex->co)
 		rpa_compiler_destroy(dbex->co);
 	dbex->co = rpa_compiler_create();
+	rpa_dbex_setemit(dbex, TRUE);
 
 	for (rid = rpa_dbex_first(dbex); rid >= 0; rid = rpa_dbex_next(dbex, rid)) {
 		if (rpa_dbex_compile_rule(dbex, rid) < 0) {

@@ -312,6 +312,10 @@ void rpa_record_dump(rarray_t *records, rlong rec)
 	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "%5ld, n:%5ld (s: %3ld, e: %3ld, pp: %3ld, f: %3ld, l: %3ld, n: %3ld, p: %3ld) ( %4d, 0x%03x ) : ", rec, prec->next, start, end, parent, first, last, next, prev, prec->ruleuid, prec->usertype);
 	if (prec->type & RPA_RECORD_START)
 		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "START ");
+	if (prec->type & RPA_RECORD_HEAD)
+		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "HEAD ");
+	if (prec->type & RPA_RECORD_TAIL)
+		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "TAIL ");
 	if (prec->type & RPA_RECORD_MATCH)
 		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "MATCH ");
 	else if (prec->type & RPA_RECORD_END)
