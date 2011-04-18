@@ -1,4 +1,6 @@
+#!emitnone
 #!emitall
+
 sign	::= '+'
 term	::= [0-9]+ | '(' <:exp:> ')'
 expop	::= (<:exp:> <:sign:> <:term:>) | (<:exp:> '*' <:term:>) | <:exp:> '-' <:term:> | <:opdiv:>

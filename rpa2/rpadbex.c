@@ -122,20 +122,32 @@ static rint rpa_dbex_rh_noemit(rpadbex_t *dbex, rlong rec)
 }
 
 
-static rint rpa_dbex_rh_emitall(rpadbex_t *dbex, rlong rec)
+static rint rpa_dbex_setemit(rpadbex_t *dbex, rboolean emit)
 {
-	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
 	rlong i;
 	rpa_ruleinfo_t *info;
 
-	if (prec->type & RPA_RECORD_START) {
-		for (i = 0; i < r_array_length(dbex->rules->names); i++) {
-			rstr_t *name = r_array_index(dbex->rules->names, i, rstr_t*);
-			info = (rpa_ruleinfo_t *)r_harray_get(dbex->rules, i);
-			if (info->type == RPA_RULEINFO_NAMEDRULE) {
+	for (i = 0; i < r_array_length(dbex->rules->names); i++) {
+		rstr_t *name = r_array_index(dbex->rules->names, i, rstr_t*);
+		info = (rpa_ruleinfo_t *)r_harray_get(dbex->rules, i);
+		if (info->type == RPA_RULEINFO_NAMEDRULE) {
+			if (emit) {
 				rpa_compiler_rulepref_set_flag(dbex->co, name->str, name->size, RPA_RFLAG_EMITRECORD);
+			} else {
+				rpa_compiler_rulepref_clear_flag(dbex->co, name->str, name->size, RPA_RFLAG_EMITRECORD);
 			}
 		}
+	}
+	return 0;
+}
+
+
+static rint rpa_dbex_rh_emitall(rpadbex_t *dbex, rlong rec)
+{
+	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
+
+	if (prec->type & RPA_RECORD_START) {
+		rpa_dbex_setemit(dbex, TRUE);
 	} else if (prec->type & RPA_RECORD_END) {
 
 	}
@@ -146,17 +158,9 @@ static rint rpa_dbex_rh_emitall(rpadbex_t *dbex, rlong rec)
 static rint rpa_dbex_rh_emitnone(rpadbex_t *dbex, rlong rec)
 {
 	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
-	rlong i;
-	rpa_ruleinfo_t *info;
 
 	if (prec->type & RPA_RECORD_START) {
-		for (i = 0; i < r_array_length(dbex->rules->names); i++) {
-			rstr_t *name = r_array_index(dbex->rules->names, i, rstr_t*);
-			info = (rpa_ruleinfo_t *)r_harray_get(dbex->rules, i);
-			if (info->type == RPA_RULEINFO_NAMEDRULE) {
-				rpa_compiler_rulepref_clear_flag(dbex->co, name->str, name->size, RPA_RFLAG_EMITRECORD);
-			}
-		}
+		rpa_dbex_setemit(dbex, FALSE);
 	} else if (prec->type & RPA_RECORD_END) {
 
 	}
@@ -517,7 +521,11 @@ static rint rpa_dbex_rh_branch(rpadbex_t *dbex, rlong rec)
 
 static void rpa_dbex_rh_loopref(rpadbex_t *dbex, rparecord_t *prec)
 {
-	rpa_compiler_exp_begin(dbex->co, (prec->usertype & RPA_MATCH_MASK));
+	/*
+	 * We ignore, it doesn't make sense for loops:
+	 * RPA_MATCH_MULTIPLE
+	 */
+	rpa_compiler_exp_begin(dbex->co, (prec->usertype & RPA_MATCH_OPTIONAL));
 	rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_CMP, R_LOO, DA, XX, 0));
 	rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_BGRE, DA, XX, XX, 3));
 	rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_MOVS, R0, DA, XX, -1));
@@ -542,13 +550,27 @@ static rint rpa_dbex_rh_aref(rpadbex_t *dbex, rlong rec)
 			return -1;
 		}
 
-		if (rpa_parseinfo_loopdetect(dbex, rec, rpa_dbex_firstinlined(dbex))) {
+		if ((prec->usertype & RPA_LOOP_PATH) && rpa_parseinfo_loopdetect(dbex, rec, rpa_dbex_firstinlined(dbex))) {
 			info = (rpa_ruleinfo_t *) r_harray_get(dbex->rules, rpa_dbex_lookup(dbex, name, namesize));
 			if (rpa_dbex_findinlined(dbex, info->startrec)) {
 				rpa_dbex_rh_loopref(dbex, prec);
 			} else {
-//				r_printf("%s: currule: %ld, inlining: %ld, %ld\n", __FUNCTION__, rpa_dbex_firstinlined(dbex), info->startrec, info->sizerecs);
-				rpa_dbex_play_recordhandlers(dbex, info->startrec, info->sizerecs);
+				if (prec->usertype & RPA_MATCH_OPTIONAL) {
+					/*
+					 * Most probably this is useless case - loop refs shouldn't have quantitative modifiers
+					 * but in case they do we wrap the inlined production rule in quantitative expression.
+					 * The inlined named rule can take the quantitative argument, but I just don't have
+					 * a clean way to pass it from here - so, lets play the records inside an expression that
+					 * has the right quantitative argument.
+					 * We ignore, it doesn't make sense for loops:
+					 * RPA_MATCH_MULTIPLE
+					 */
+					rpa_compiler_exp_begin(dbex->co, RPA_MATCH_OPTIONAL);
+					rpa_dbex_play_recordhandlers(dbex, info->startrec, info->sizerecs);
+					rpa_compiler_exp_end(dbex->co);
+				} else {
+					rpa_dbex_play_recordhandlers(dbex, info->startrec, info->sizerecs);
+				}
 			}
 		} else {
 			rpa_compiler_reference(dbex->co, name, namesize, (prec->usertype & RPA_MATCH_MASK));
@@ -556,12 +578,7 @@ static rint rpa_dbex_rh_aref(rpadbex_t *dbex, rlong rec)
 		rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
 	} else if (prec->type & RPA_RECORD_END) {
-		if (rpa_parseinfo_loopdetect(dbex, rpa_recordtree_get(dbex->records, rec, RPA_RECORD_START), dbex->crule)) {
-			if (rpa_dbex_rulename(dbex, rec, &name, &namesize) < 0) {
 
-				return -1;
-			}
-		}
 	}
 	return 0;
 }
@@ -1285,6 +1302,10 @@ rint rpa_dbex_compile(rpadbex_t *dbex)
 	if (!dbex || !dbex->rules)
 		return -1;
 
+	/*
+	 * By default all production rules emit
+	 */
+	rpa_dbex_setemit(dbex, TRUE);
 	if (dbex->co)
 		rpa_compiler_destroy(dbex->co);
 	dbex->co = rpa_compiler_create();
@@ -1294,7 +1315,6 @@ rint rpa_dbex_compile(rpadbex_t *dbex)
 			return -1;
 		}
 	}
-
 
 	if (rvm_codegen_relocate(dbex->co->cg, &dbex->labelerr) < 0) {
 		r_printf("RPA_DBEX: Unresolved symbol: %s\n", dbex->labelerr->name->str);
