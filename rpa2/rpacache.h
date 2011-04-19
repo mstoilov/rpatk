@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-#define RPA_MCACHE_BITS 8
+#define RPA_MCACHE_BITS 10
 #define RPA_MCACHE_SIZE (1 << RPA_MCACHE_BITS)
 #define RPA_MCACHE_MASK (RPA_MCACHE_SIZE - 1)
 
