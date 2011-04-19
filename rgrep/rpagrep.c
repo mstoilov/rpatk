@@ -208,6 +208,7 @@ int rpa_grep_match(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 int rpa_grep_parse(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 {
 	rlong i;
+	rchar location[128];
 	rpastat_t *hStat;
 	rarray_t *records;
 	rparecord_t *prec;
@@ -225,6 +226,8 @@ int rpa_grep_parse(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 				prec = (rparecord_t *)r_array_slot(records, i);
 				if (prec->type & RPA_RECORD_END) {
 					rpa_grep_output_utf8_string(pGrep, prec->rule);
+					r_snprintf(location, sizeof(location), " (%ld, %ld)", (rlong)(prec->input - input), (rlong)prec->inputsiz);
+					rpa_grep_output_utf8_string(pGrep, location);
 					rpa_grep_output_utf8_string(pGrep, ": ");
 					rpa_grep_output(pGrep, prec->input, prec->inputsiz, pGrep->encoding);
 					rpa_grep_output_utf8_string(pGrep, "\n");

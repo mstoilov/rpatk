@@ -1,3 +1,5 @@
+#!emitall
+
 # 6 Source Text
 SourceCharacter		::= .
 
