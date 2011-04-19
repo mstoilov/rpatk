@@ -18,8 +18,10 @@ typedef struct rpacachedentry_s {
 	rlong ruleid;
 	rlong top;
 	rlong ret;
+	rlong startrec;
+	rlong endrec;
 	rulong serial;
-	rarray_t *records;
+//	rarray_t *records;
 } rpacachedentry_t;
 
 typedef struct rpacache_s {
@@ -34,7 +36,7 @@ rpacache_t *rpa_cache_create();
 void rpa_cache_destroy(rpacache_t *cache);
 void rpa_cache_disable(rpacache_t *cache, rlong disable);
 void rpa_cache_invalidate(rpacache_t *cache);
-void rpa_cache_set(rpacache_t *cache, rlong top, rlong ruleid, rlong ret, rparecord_t* records, rsize_t nrecords);
+void rpa_cache_set(rpacache_t *cache, rlong top, rlong ruleid, rlong ret, rlong startrec, rlong endrec);
 rpacachedentry_t *rpa_cache_lookup(rpacache_t *cache, rlong top, rlong ruleid);
 #ifdef __cplusplus
 }

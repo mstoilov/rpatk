@@ -103,7 +103,7 @@ static rparecord_t *rpa_stat_nextrecord(rpastat_t *stat, rparecord_t *cur)
 	}
 	if (cur >= (rparecord_t *)r_array_lastslot(stat->records) || cur < (rparecord_t *)r_array_slot(stat->records, 0))
 		return NULL;
-	++cur;
+	cur = (rparecord_t *)r_array_slot(stat->records, cur->next);
 	if (cur->type == RPA_RECORD_TAIL)
 		return NULL;
 	return cur;

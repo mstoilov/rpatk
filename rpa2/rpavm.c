@@ -234,7 +234,7 @@ static void rpavm_swi_emithead(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	rlong index = RVM_CPUREG_GETL(cpu, R_REC);
 
-	index = r_array_replace(stat->records, index + 1, NULL);
+	index = r_array_add(stat->records, NULL);
 	RVM_CPUREG_SETL(cpu, R_REC, index);
 	rec = (rparecord_t *)r_array_slot(stat->records, index);
 	rec->type = RPA_RECORD_HEAD;
@@ -247,7 +247,7 @@ static void rpavm_swi_emittail(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	rlong index = RVM_CPUREG_GETL(cpu, R_REC);
 
-	index = r_array_replace(stat->records, index + 1, NULL);
+	index = r_array_add(stat->records, NULL);
 	crec = (rparecord_t *)r_array_slot(stat->records, RVM_CPUREG_GETL(cpu, R_REC));
 	RVM_CPUREG_SETL(cpu, R_REC, index);
 	rec = (rparecord_t *)r_array_slot(stat->records, index);
@@ -269,7 +269,9 @@ static void rpavm_swi_emitstart(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		return;
 //	r_printf("%ld: %s, %s, tp = %ld\n", RVM_CPUREG_GETU(cpu, FP), "START", name.str, tp);
 	R_ASSERT(RVM_CPUREG_GETL(cpu, R_REC) >= 0);
-	index = r_array_replace(stat->records, index + 1, NULL);
+//	index = r_array_replace(stat->records, index + 1, NULL);
+	index = r_array_add(stat->records, NULL);
+
 	/*
 	 * Important: get the pointer to crec after modifying the array, because if
 	 * it gets reallocated the pointer will be invalid.
@@ -303,7 +305,9 @@ static void rpavm_swi_emitend(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		return;
 //	r_printf("%ld: %s, %s, tp = %ld, tplen = %ld\n", RVM_CPUREG_GETU(cpu, FP), "END ", name.str, tp, tplen);
 	R_ASSERT(RVM_CPUREG_GETL(cpu, R_REC) >= 0);
-	index = r_array_replace(stat->records, index + 1, NULL);
+//	index = r_array_replace(stat->records, index + 1, NULL);
+	index = r_array_add(stat->records, NULL);
+
 	/*
 	 * Important: get the pointer to crec after modifying the array, because if
 	 * it gets reallocated the pointer will be invalid.
@@ -341,9 +345,13 @@ static void rpavm_swi_prninfo(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rpavm_swi_getnextrec(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
+	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	rlong rec = RVM_CPUREG_GETL(cpu, ins->op2);
 
-	RVM_CPUREG_SETL(cpu, ins->op1, rec + 1);
+	rparecord_t *prec = (rparecord_t *)r_array_slot(stat->records, rec);
+
+//	r_printf("%s, rec = %ld, next = %ld\n", __FUNCTION__, rec, prec->next);
+	RVM_CPUREG_SETL(cpu, ins->op1, prec->next);
 }
 
 
@@ -379,46 +387,43 @@ static void rpavm_swi_setcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rparecord_t *prec;
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
+	rlong r0 = RVM_CPUREG_GETL(cpu, R0);
 	rlong ruleid = RVM_CPUREG_GETL(cpu, ins->op1);
-	rlong r0 = RVM_CPUREG_GETL(cpu, ins->op2);
-	rlong rec = RVM_CPUREG_GETL(cpu, ins->op3);
-	rlong nrecords = RVM_CPUREG_GETL(cpu, R_REC) - rec + 1;
+	rlong startrec = RVM_CPUREG_GETL(cpu, ins->op2);
+	rlong endrec = RVM_CPUREG_GETL(cpu, ins->op3);
 
-	/*
-	 * If the record set is too big, don't use the cache
-	 */
-	return;
-	if (nrecords > 100)
+
+	if (stat->cache->disalbled)
 		return;
 
-	if (!RVM_STATUS_GETBIT(cpu, RVM_STATUS_N) && !RVM_STATUS_GETBIT(cpu, RVM_STATUS_Z)) {
-		prec = (rparecord_t *)r_array_slot(stat->records, rec);
-//		r_printf("Set the cache for: %s (%ld)\n", prec->rule, nrecords);
-		rpa_cache_set(stat->cache, prec->top, ruleid, r0, prec, nrecords);
+	if (!RVM_STATUS_GETBIT(cpu, RVM_STATUS_N) && !RVM_STATUS_GETBIT(cpu, RVM_STATUS_Z) && r0 && startrec && endrec > startrec) {
+		prec = (rparecord_t *)r_array_slot(stat->records, startrec);
+//		r_printf("Set the cache for: %s (%ld, %ld), top = %ld, ret = %ld, ruleid=%ld\n", prec->rule, startrec, endrec, prec->top, r0, ruleid);
+		rpa_cache_set(stat->cache, prec->top, ruleid, r0, startrec, endrec);
 	}
 }
 
 
 static void rpavm_swi_checkcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rlong i;
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	rpacachedentry_t *entry;
 	rlong ruleid = RVM_CPUREG_GETL(cpu, ins->op1);
 	rlong top = RVM_CPUREG_GETL(cpu, ins->op2);
 	rlong r0 = 0;
 	entry = rpa_cache_lookup(stat->cache, top, ruleid);
-	if (0 && entry) {
-//		rparecord_t *prec = (rparecord_t *)r_array_slot(entry->records, 0);
-//		r_printf("Hit the cache for: %s (%ld), r0 = %ld\n", prec->rule, r_array_length(entry->records), entry->ret);
-		r_array_setlength(stat->records, RVM_CPUREG_GETL(cpu, R_REC) + 1);
-		for (i = 0; i < r_array_length(entry->records); i++) {
-			r_array_add(stat->records, r_array_slot(entry->records, i));
+	if (entry) {
+		rparecord_t *prec = (rparecord_t *)r_array_slot(stat->records, entry->startrec);
+//		r_printf("Hit the cache for: %s (%ld, %ld), r0 = %ld\n", prec->rule, entry->startrec, entry->endrec, entry->ret);
+		rparecord_t *crec = (rparecord_t *)r_array_slot(stat->records, RVM_CPUREG_GETL(cpu, R_REC));
+
+		if (1) {
+			crec->next = entry->startrec;
+			RVM_CPUREG_SETL(cpu, R_REC, entry->endrec);
+			r0 = entry->ret;
+			top += r0;
+			RVM_CPUREG_SETU(cpu, R_TOP, top);
 		}
-		RVM_CPUREG_SETL(cpu, R_REC,  r_array_length(stat->records) - 1);
-		r0 = entry->ret;
-		top += r0;
-		RVM_CPUREG_SETU(cpu, R_TOP, top);
 	}
 
 	RVM_STATUS_CLRALL(cpu);

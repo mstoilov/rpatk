@@ -384,6 +384,7 @@ rint rpa_compiler_rule_begin(rpa_compiler_t *co, const rchar *name, ruint namesi
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BXGRE, LR, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(R_REC)|BIT(R_TOP)|BIT(LR)));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BLOB, exp.dataidx, rvm_asm(RPA_EMITSTART, DA, R_TOP, XX, 0));
+
 	r_array_add(co->expressions, &exp);
 	return 0;
 }
@@ -404,7 +405,7 @@ rint rpa_compiler_rule_end(rpa_compiler_t *co)
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BEQ, DA, XX, XX, 5));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BLOB, exp.dataidx, rvm_asm(RPA_EMITEND, DA, R2, R0, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_GETNEXTREC, R2, R1, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asml(RPA_SETCACHE, DA, R0, R2, exp.start));
+	rvm_codegen_addins(co->cg, rvm_asml(RPA_SETCACHE, DA, R2, R_REC, exp.start));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R_REC, R1, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOVS, R0, DA, XX, -1));

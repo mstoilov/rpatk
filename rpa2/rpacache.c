@@ -7,34 +7,18 @@
 
 rpacache_t *rpa_cache_create()
 {
-	rint i;
 	rpacache_t *cache = (rpacache_t*) r_zmalloc(sizeof(*cache));
 
 	if (!cache)
 		return NULL;
-	for (i = 0; i < RPA_MCACHE_SIZE; i++) {
-		cache->entry[i].records = r_array_create(sizeof(rparecord_t));
-		if (!cache->entry[i].records) {
-			rpa_cache_destroy(cache);
-			return NULL;
-		}
-	}
-
 	return cache;
 }
 
 
 void rpa_cache_destroy(rpacache_t *cache)
 {
-	rint i;
-
 	if (!cache)
 		return;
-	for (i = 0; i < RPA_MCACHE_SIZE; i++) {
-		if (cache->entry[i].records) {
-			r_array_destroy(cache->entry[i].records);
-		}
-	}
 	r_free(cache);
 }
 
@@ -50,21 +34,19 @@ void rpa_cache_disable(rpacache_t *cache, rlong disable)
 }
 
 
-void rpa_cache_set(rpacache_t *cache, rlong top, rlong ruleid, rlong ret, rparecord_t* records, rsize_t nrecords)
+void rpa_cache_set(rpacache_t *cache, rlong top, rlong ruleid, rlong ret, rlong startrec, rlong endrec)
 {
-	rlong i;
 	rulong bucket = RPA_MCACHE_BUCKET(top, ruleid);
 
 	if (ret <= 0 || cache->disalbled)
 		return;
-//	r_printf("Set the cache @ %ld for: top = %ld, ret = %d, nrecors = %ld, rulename = %s\n", bucket, top, ret, nrecords, records->rule);
 	cache->entry[bucket].ruleid = ruleid;
 	cache->entry[bucket].top = top;
 	cache->entry[bucket].ret = ret;
+	cache->entry[bucket].startrec = startrec;
+	cache->entry[bucket].endrec = endrec;
 	cache->entry[bucket].serial = cache->serial;
-	r_array_setlength(cache->entry[bucket].records, 0);
-	for (i = 0; i < nrecords; i++)
-		r_array_add(cache->entry[bucket].records, &records[i]);
+
 }
 
 
