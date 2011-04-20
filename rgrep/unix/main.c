@@ -144,7 +144,7 @@ int main(int argc, const char *argv[])
 			if (++i < argc) {
 				rpa_buffer_t pattern;
 				pattern.s = (char*)argv[i];
-				pattern.size = strlen(argv[i]) + 1;
+				pattern.size = strlen(argv[i]);
 				ret = rpa_grep_load_string_pattern(pGrep, &pattern);
 				if (ret < 0)
 					goto error;
@@ -188,7 +188,13 @@ int main(int argc, const char *argv[])
 	}
 
 	if (rpa_dbex_compile(pGrep->hDbex) < 0) {
-
+		rpa_errinfo_t errinfo;
+		rpa_dbex_getlasterrinfo(pGrep->hDbex, &errinfo);
+		if (errinfo.code == RPA_E_UNRESOLVED_SYMBOL) {
+			fprintf(stdout, "ERROR: Unresolved Symbol: %s\n", errinfo.name);
+		} else {
+			fprintf(stdout, "ERROR %ld: Compilation failed.\n", errinfo.code);
+		}
 		goto end;
 	}
 

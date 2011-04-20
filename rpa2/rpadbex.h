@@ -34,15 +34,15 @@ typedef rlong rparule_t;
 
 rpadbex_t *rpa_dbex_create(void);
 void rpa_dbex_destroy(rpadbex_t *dbex);
-ruint rpa_dbex_get_error(rpadbex_t *dbex);
+rlong rpa_dbex_getlasterror(rpadbex_t *dbex);
 rint rpa_dbex_open(rpadbex_t *dbex);
 void rpa_dbex_close(rpadbex_t *dbex);
 rint rpa_dbex_compile(rpadbex_t *dbex);
 rlong rpa_dbex_load(rpadbex_t *dbex, const rchar *rules, rsize_t size);
 rlong rpa_dbex_load_s(rpadbex_t *dbex, const rchar *rules);
 const rchar *rpa_dbex_version();
-rvm_asmins_t *rvm_dbex_getcode(rpadbex_t *dbex);
-rlong rvm_dbex_codeoffset(rpadbex_t *dbex, rparule_t rid);
+rvm_asmins_t *rvm_dbex_getexecutable(rpadbex_t *dbex);
+rlong rvm_dbex_executableoffset(rpadbex_t *dbex, rparule_t rid);
 
 rparule_t rpa_dbex_lookup(rpadbex_t *dbex, const rchar *name, rsize_t namesize);
 rparule_t rpa_dbex_lookup_s(rpadbex_t *dbex, const rchar *name);

@@ -419,7 +419,7 @@ static void rpavm_swi_checkcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rlong r0 = 0;
 	entry = rpa_cache_lookup(stat->cache, top, ruleid);
 	if (entry) {
-		rparecord_t *prec = (rparecord_t *)r_array_slot(stat->records, entry->startrec);
+//		rparecord_t *prec = (rparecord_t *)r_array_slot(stat->records, entry->startrec);
 //		r_printf("Hit the cache for: %s (%ld, %ld), r0 = %ld\n", prec->rule, entry->startrec, entry->endrec, entry->ret);
 		rparecord_t *crec = (rparecord_t *)r_array_slot(stat->records, RVM_CPUREG_GETL(cpu, R_REC));
 

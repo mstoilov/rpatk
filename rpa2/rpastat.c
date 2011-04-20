@@ -176,7 +176,7 @@ static rlong rpa_stat_exec_noinit(rpastat_t *stat, rparule_t rid, const rchar *i
 	rpainput_t *ptp;
 
 	rpa_stat_init(stat, input, start, end);
-	if ((topsiz = rpa_stat_exec(stat, rvm_dbex_getcode(stat->dbex), rvm_dbex_codeoffset(stat->dbex, rid))) < 0) {
+	if ((topsiz = rpa_stat_exec(stat, rvm_dbex_getexecutable(stat->dbex), rvm_dbex_executableoffset(stat->dbex, rid))) < 0) {
 		return -1;
 	}
 	if (topsiz <= 0)

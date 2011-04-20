@@ -117,15 +117,7 @@ void rpa_grep_destroy(rpa_grep_t *pGrep)
 
 int rpa_grep_load_string_pattern(rpa_grep_t *pGrep, rpa_buffer_t *buf)
 {
-	rpa_dbex_open(pGrep->hDbex);
-	if (rpa_dbex_load_s(pGrep->hDbex, buf->s) < 0) {
-		fprintf(stdout, "ERROR: %s\n", (rpa_dbex_get_error(pGrep->hDbex) == RPA_E_SYNTAX_ERROR) ? "Syntax Error." : "Pattern Loading failed.");
-		rpa_dbex_close(pGrep->hDbex);
-		return -1;
-	}
-	rpa_dbex_close(pGrep->hDbex);
-	pGrep->hPattern = rpa_dbex_default(pGrep->hDbex);
-	return 0;
+	return rpa_grep_load_pattern(pGrep, buf);
 }
 
 
@@ -136,7 +128,7 @@ int rpa_grep_load_pattern(rpa_grep_t *pGrep, rpa_buffer_t *buf)
 	const char *pattern = buf->s;
 
 	if (rpa_dbex_open(pGrep->hDbex) < 0) {
-		fprintf(stdout, "Failed to open expression database.\n");
+		fprintf(stdout, "Failed to open rules database.\n");
 		goto error;
 	}
 
@@ -145,11 +137,18 @@ int rpa_grep_load_pattern(rpa_grep_t *pGrep, rpa_buffer_t *buf)
 		pattern += ret;
 	}
 	if (ret < 0) {
-		for (line = 1; pattern >= buf->s; --pattern) {
-			if (*pattern == '\n')
-				line += 1;
+		rpa_errinfo_t errinfo;
+		rpa_dbex_getlasterrinfo(pGrep->hDbex, &errinfo);
+		if (errinfo.code == RPA_E_SYNTAX_ERROR) {
+			pattern += errinfo.offset;
+			for (line = 1; pattern >= buf->s; --pattern) {
+				if (*pattern == '\n')
+					line += 1;
+			}
+			fprintf(stdout, "Line: %d, ERROR: Syntax Error.\n", line);
+		} else {
+			fprintf(stdout, "ERROR: Pattern Loading failed.\n");
 		}
-		fprintf(stdout, "Line: %d, ERROR: %s\n", line, (rpa_dbex_get_error(pGrep->hDbex) == RPA_E_SYNTAX_ERROR) ? "Syntax Error." : "Pattern Loading failed.");
 		goto error;
 	}	
 	

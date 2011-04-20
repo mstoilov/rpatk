@@ -21,15 +21,35 @@
 #ifndef _RPAERROR_H_
 #define _RPAERROR_H_
 
-#define RPA_E_NONE 0
+#include "rtypes.h"
+#include "rpadbex.h"
 
-#define RPA_E_INVALID_PARAM 1001
-#define RPA_E_INVALID_PATTERN 1002
-#define RPA_E_OUTOFMEM 1003
-#define RPA_E_INVALID_INPUT 1004
-#define RPA_E_INVALID_BRACKETS 1005
-#define RPA_E_INVALID_SQUAREBRACKETS 1006
-#define RPA_E_NOTOPEN 1007
-#define RPA_E_SYNTAX_ERROR 1008
+#define RPA_E_NONE 0
+#define RPA_E_OUTOFMEM 1001
+#define RPA_E_INVALID_INPUT 1002
+#define RPA_E_NOTOPEN 1003
+#define RPA_E_NOTCLOSED 1004
+#define RPA_E_NOTFOUND 1005
+#define RPA_E_SYNTAX_ERROR 1006
+#define RPA_E_UNRESOLVED_SYMBOL 1007
+
+#define RPA_ERRINFO_NONE 0
+#define RPA_ERRINFO_CODE (1<<0)
+#define RPA_ERRINFO_OFFSET (1<<1)
+#define RPA_ERRINFO_RULEID (1<<2)
+#define RPA_ERRINFO_NAME (1<<3)
+
+
+typedef struct rpa_errinfo_s rpa_errinfo_t;
+struct rpa_errinfo_s {
+	rulong mask;
+	rlong code;
+	rlong offset;
+	rlong ruleid;
+	rchar name[128];
+};
+
+rlong rpa_dbex_getlasterrinfo(rpadbex_t *dbex, rpa_errinfo_t *errinfo);
+
 
 #endif
