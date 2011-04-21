@@ -2,7 +2,7 @@
 #include "rmem.h"
 #include "rparecord.h"
 
-#define RPA_MCACHE_BUCKET(_top_, _ruleid_) ( ( (((rulong)(_top_))>>0) ^ ((((rulong)(_ruleid_))>>2)<<4) ) & RPA_MCACHE_MASK)
+#define RPA_MCACHE_BUCKET(_top_, _ruleid_) ( ( (((rulong)(_top_))<<7) ^ ((((rulong)(_ruleid_))>>4)) ) & RPA_MCACHE_MASK)
 
 
 rpacache_t *rpa_cache_create()
