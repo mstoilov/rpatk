@@ -1952,6 +1952,7 @@ rint rvm_cpu_exec(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off)
 		if (pi->da) {
 			*regda = pi->data;
 		}
+#if RVM_CONDITIONAL_INSTRUCTIONS
 		if (pi->cond) {
 			switch (pi->cond) {
 			case RVM_CEXEC_GRE:
@@ -1982,8 +1983,11 @@ rint rvm_cpu_exec(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off)
 				goto skipexec;
 			};
 		}
+#endif
 		ops[pi->opcode](cpu, pi);
+#if RVM_CONDITIONAL_INSTRUCTIONS
 skipexec:
+#endif
 		RVM_REG_INCIP(regpc, 1);
 	} while (!cpu->abort);
 	if (cpu->error)
@@ -2007,6 +2011,7 @@ rint rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off)
 		if (pi->da) {
 			*regda = pi->data;
 		}
+#if RVM_CONDITIONAL_INSTRUCTIONS
 		if (pi->cond) {
 			switch (pi->cond) {
 			case RVM_CEXEC_GRE:
@@ -2037,10 +2042,13 @@ rint rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off)
 				goto skipexec;
 			};
 		}
+#endif
 		ops[pi->opcode](cpu, pi);
 		r_printf("%7ld :", ++line);
 		rvm_cpu_dumpregs(cpu, pi);
+#if RVM_CONDITIONAL_INSTRUCTIONS
 skipexec:
+#endif
 		RVM_REG_INCIP(regpc, 1);
 	} while (!cpu->abort);
 	if (cpu->error)

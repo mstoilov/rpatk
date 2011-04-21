@@ -38,7 +38,7 @@ void rpa_cache_set(rpacache_t *cache, rlong top, rlong ruleid, rlong ret, rlong 
 {
 	rulong bucket = RPA_MCACHE_BUCKET(top, ruleid);
 
-	if (ret <= 0 || cache->disalbled)
+	if (cache->disalbled)
 		return;
 	cache->entry[bucket].ruleid = ruleid;
 	cache->entry[bucket].top = top;

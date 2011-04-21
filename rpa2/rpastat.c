@@ -268,6 +268,9 @@ rint rpa_stat_matchspchr(rpastat_t *stat, rssize_t top, rulong wc)
 		return 0;
 
 	switch (wc) {
+		case '.':
+			return 1;
+			break;
 		case 't':
 			wc = '\t';
 			break;
@@ -276,9 +279,6 @@ rint rpa_stat_matchspchr(rpastat_t *stat, rssize_t top, rulong wc)
 			break;
 		case 'n':
 			wc = '\n';
-			break;
-		case '.':
-			return 1;
 			break;
 		default:
 			break;
