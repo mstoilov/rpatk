@@ -438,6 +438,28 @@ static void rpavm_swi_checkcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static void rpavm_swi_matchchrinstr_nan(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
+	rchar *str = RVM_CPUREG_GETSTR(cpu, ins->op1);
+	rword matched = 0;
+	rword wc;
+
+	while (*str) {
+		wc = *str++;
+		if (rpa_stat_matchchr(stat, RVM_CPUREG_GETL(cpu, R_TOP), wc) > 0) {
+			rpavm_swi_shift(cpu, ins);
+			matched = 1;
+			break;
+		}
+	}
+	cpu->status = matched ? 0 : RVM_STATUS_N;
+	RVM_CPUREG_SETU(cpu, R0, matched ? matched : (rword)-1);
+}
+
+
+
+
 static rvm_switable_t rpavm_swi_table[] = {
 		{"RPA_MATCHCHR_NAN", rpavm_swi_matchchr_nan},
 		{"RPA_MATCHCHR_OPT", rpavm_swi_matchchr_opt},
@@ -460,6 +482,7 @@ static rvm_switable_t rpavm_swi_table[] = {
 		{"RPA_EMITTAIL", rpavm_swi_emittail},
 		{"RPA_GETNEXTREC", rpavm_swi_getnextrec},
 		{"RPA_PRNINFO", rpavm_swi_prninfo},
+		{"RPA_MATCHCHRINSTR_NAN", rpavm_swi_matchchrinstr_nan},
 
 		{"RPA_GETRECLEN", rpavm_swi_getreclen},
 		{"RPA_SETRECLEN", rpavm_swi_setreclen},

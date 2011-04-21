@@ -164,8 +164,7 @@ int main(int argc, char *argv[])
 		rpa_record_dump(stat->records, i);
 	}
 
-	r_printf("(%s) Matched size: %s\n", argv[0], RVM_CPUREG_GETU(stat->cpu, R0) == 8 ? "PASSED" : "FAILED");
-	r_printf("(%s) Records size: %s(cache hits: %d)\n", argv[0], r_array_length(stat->records) == 6 ? "PASSED" : "FAILED", stat->cache->hit);
+	r_printf("(%s) Matched size: %s(cache hits: %d)\n", argv[0], RVM_CPUREG_GETU(stat->cpu, R0) == 8 ? "PASSED" : "FAILED", stat->cache->hit);
 
 end:
 	rpa_stat_destroy(stat);
