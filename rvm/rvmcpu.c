@@ -2088,6 +2088,16 @@ rint rvm_cpu_addswitable(rvmcpu_t *cpu, const rchar *tabname, rvm_switable_t *sw
 }
 
 
+rint rvm_cpu_abort(rvmcpu_t *cpu)
+{
+	if (!cpu)
+		return -1;
+	cpu->error = RVM_E_USERABORT;
+	cpu->abort = 1;
+	return 0;
+}
+
+
 rvm_asmins_t rvm_cond_asma(rword cond, rword opcode, rword op1, rword op2, rword op3, rchar *data, rulong size)
 {
 	rvm_asmins_t a;

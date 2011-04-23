@@ -24,6 +24,13 @@
 #include "rtypes.h"
 #include "rpadbex.h"
 
+#define RPA_ERRINFO_NONE 0
+#define RPA_ERRINFO_CODE (1<<0)
+#define RPA_ERRINFO_OFFSET (1<<1)
+#define RPA_ERRINFO_RULEID (1<<2)
+#define RPA_ERRINFO_NAME (1<<3)
+
+
 #define RPA_E_NONE 0
 #define RPA_E_OUTOFMEM 1001
 #define RPA_E_INVALID_INPUT 1002
@@ -33,11 +40,7 @@
 #define RPA_E_SYNTAX_ERROR 1006
 #define RPA_E_UNRESOLVED_SYMBOL 1007
 
-#define RPA_ERRINFO_NONE 0
-#define RPA_ERRINFO_CODE (1<<0)
-#define RPA_ERRINFO_OFFSET (1<<1)
-#define RPA_ERRINFO_RULEID (1<<2)
-#define RPA_ERRINFO_NAME (1<<3)
+#define RPA_E_USERABORT 2001
 
 
 typedef struct rpa_errinfo_s rpa_errinfo_t;

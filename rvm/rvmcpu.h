@@ -278,6 +278,7 @@ do { \
 #define RVM_E_NOMEM			(7)
 #define RVM_E_NOTFUNCTION	(8)
 #define RVM_E_NOTOBJECT		(9)
+#define RVM_E_USERABORT		(10)
 
 typedef struct rvm_asmins_s rvm_asmins_t;
 typedef struct rvmcpu_s rvmcpu_t;
@@ -336,6 +337,7 @@ struct rvmcpu_s {
 rvmcpu_t *rvm_cpu_create_default();
 rvmcpu_t *rvm_cpu_create(rulong stacksize);
 void rvm_cpu_destroy(rvmcpu_t * vm);
+rint rvm_cpu_abort(rvmcpu_t *cpu);
 rint rvm_cpu_exec(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off);
 rint rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off);
 rint rvm_cpu_swilookup(rvmcpu_t *cpu, const rchar *tabname, const rchar *swiname, rsize_t size);

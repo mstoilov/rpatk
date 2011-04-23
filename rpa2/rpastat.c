@@ -1,10 +1,14 @@
 #include "rmem.h"
 #include "rarray.h"
 #include "rpastat.h"
+#include "rpaerror.h"
 #include "rvmcodegen.h"
 #include "rvmcpu.h"
 #include "rutf.h"
 #include "rcharconv.h"
+
+
+#define RPA_STAT_SETERROR_CODE(__s__, __e__) do { (__s__)->error = __e__; } while (0)
 
 
 rpastat_t *rpa_stat_create(rpadbex_t *dbex, rulong stacksize)
@@ -154,9 +158,10 @@ rlong rpa_stat_exec(rpastat_t *stat, rvm_asmins_t *prog, rword off)
 		ret = rvm_cpu_exec(stat->cpu, prog, off);
 	}
 	if (ret < 0) {
-		/*
-		 * TBD: Set the error
-		 */
+		if (stat->cpu->error == RVM_E_USERABORT)
+			RPA_STAT_SETERROR_CODE(stat, RPA_E_USERABORT);
+		else
+			RPA_STAT_SETERROR_CODE(stat, stat->cpu->error);
 		r_array_setlength(stat->records, 0);
 		return -1;
 	}
@@ -193,9 +198,11 @@ rlong rpa_stat_scan(rpastat_t *stat, rparule_t rid, const rchar *input, const rc
 	if (!stat) {
 		return -1;
 	}
-
 	while (input < end) {
-		if ((ret = rpa_stat_exec_noinit(stat, rid, input, start, end)) > 0) {
+		ret = rpa_stat_exec_noinit(stat, rid, input, start, end);
+		if (ret < 0)
+			return -1;
+		if (ret > 0) {
 			*where = input;
 			return ret;
 		}
@@ -239,6 +246,7 @@ rint rpa_stat_abort(rpastat_t *stat)
 		return -1;
 	}
 
+	rvm_cpu_abort(stat->cpu);
 	return 0;
 }
 
