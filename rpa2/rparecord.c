@@ -2,6 +2,19 @@
 #include "rstring.h"
 #include "rparecord.h"
 
+static rparecord_t *rpa_record_get(rarray_t *records, rlong rec)
+{
+	rparecord_t *prec;
+
+	if (!records)
+		return NULL;
+	if (rec < 0 || rec >= r_array_length(records))
+		return NULL;
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	return prec;
+
+}
+
 
 rlong rpa_recordtree_get(rarray_t *records, rlong rec, rulong type)
 {
@@ -191,6 +204,31 @@ rlong rpa_recordtree_rotateup(rarray_t *records, rlong parent)
 	 * Not implemented
 	 */
 	return -1;
+}
+
+
+rlong rpa_recordtree_copy(rarray_t *dst, rarray_t *src, rlong rec)
+{
+	rparecord_t *prec;
+	rlong size, i;
+	rec = rpa_recordtree_get(src, rec, RPA_RECORD_START);
+	size = rpa_recordtree_size(src, rec);
+
+	for (i = 0; i < size; i++) {
+		prec = rpa_record_get(src, i);
+		r_array_add(dst, prec);
+	}
+	return size;
+}
+
+
+rlong rpa_recordtree_walk(rarray_t *src, rlong rec, rpa_recordtree_callback callaback, rpointer userdata)
+{
+	rlong size;
+	rec = rpa_recordtree_get(src, rec, RPA_RECORD_START);
+	size = rpa_recordtree_size(src, rec);
+
+	return size;
 }
 
 

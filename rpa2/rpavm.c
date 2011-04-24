@@ -385,8 +385,23 @@ static void rpavm_swi_setcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		prec = (rparecord_t *)r_array_slot(stat->records, startrec);
 //		r_printf("Set the cache for: %s (%ld, %ld), top = %ld, ret = %ld, ruleid=%ld\n", prec->rule, startrec, endrec, prec->top, r0, ruleid);
 		rpa_cache_set(stat->cache, top, ruleid, r0, startrec, endrec);
+
+		/*
+		 * The next optimization is supposed to reduce the size of
+		 * garbage records.
+		 */
+		if (stat->cursize < endrec + 1)
+			stat->cursize = endrec + 1;
 	} else {
 		rpa_cache_set(stat->cache, top, ruleid, r0, 0, 0);
+		/*
+		 * The next optimization is supposed to reduce the size of
+		 * garbage records.
+		 */
+		if (stat->cursize < endrec + 1) {
+			r_array_setlength(stat->records, endrec + 1);
+			stat->cursize = endrec + 1;
+		}
 	}
 }
 

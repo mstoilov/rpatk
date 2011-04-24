@@ -1,4 +1,71 @@
 #!emitall
+#!emitnone
+#!emit BitwiseANDOp
+#!emit BitwiseXOROp
+#!emit BitwiseOROp
+#!emit AdditiveExpressionOp
+
+#!emit MultiplicativeExpressionOp
+#!emit ShiftExpressionOp
+#!emit EqualityExpressionOp
+#!emit RelationalExpressionOp
+#!emit LogicalOROp
+#!emit LogicalANDOp
+
+#!emit AssignmentOperator
+#!emit EqualityOperator
+#!emit RelationalOperator
+#!emit AdditiveOperator
+#!emit MultiplicativeOperator
+#!emit ShiftOperator
+#!emit BitwiseANDOperator
+#!emit BitwiseXOROperator
+#!emit BitwiseOROperator
+#!emit LogicalANDOperator
+#!emit LogicalOROperator
+#!emit LogicalNotOperator
+#!emit BitwiseNotOperator
+#!emit UnaryOperatorOpcode
+#!emit PrintOp
+
+
+#!emit PostfixOperator
+#!emit PostfixExpressionOp
+#!emit PrefixExpressionOp
+
+
+#!emit UnaryExpressionOp
+#!emit LogicalNotExpressionOp
+#!emit BitwiseNotExpressionOp
+
+#!emit DecimalIntegerLiteral
+#!emit DecimalNonIntegerLiteral
+#!emit BlockBegin
+#!emit BlockEnd
+
+#!emit DoKeyword
+#!emit IterationDo
+
+#!emit sqstring
+#!emit dqstring
+#!emit DoubleStringCharacters
+#!emit SingleStringCharacters
+#!emit Program
+#!emit Initialiser
+#!emit AssignmentExpressionOp
+
+#!emit VariableAllocate
+#!emit VariableAllocateAndInit
+
+#!emit ReturnOp
+
+#!emit SwiId
+#!emit SwiIdExist
+
+#!emit PostfixExpressionValOp
+#!emit LeftHandSideExpressionPush
+
+
 
 # 6 Source Text
 SourceCharacter		::= .
