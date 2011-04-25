@@ -106,6 +106,12 @@ void rpa_grep_close(rpa_grep_t *pGrep)
 }
 
 
+void rpa_grep_optimizations(rpa_grep_t *pGrep, rulong allow)
+{
+	rpa_dbex_cfgset(pGrep->hDbex, RPA_DBEXCFG_OPTIMIZATIONS, allow);
+}
+
+
 void rpa_grep_destroy(rpa_grep_t *pGrep)
 {
 	if (!pGrep)

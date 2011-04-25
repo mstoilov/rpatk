@@ -83,6 +83,7 @@ void rpa_grep_setup_matched_callback(rpa_grep_t *pGrep, rpa_buffer_t *pattern);
 void rpa_grep_dump_pattern_tree(rpa_grep_t *pGrep, rpa_buffer_t *pattern);
 void rpa_grep_dump_pattern_records(rpa_grep_t *pGrep);
 void rpa_grep_dump_pattern_info(rpa_grep_t *pGrep);
+void rpa_grep_optimizations(rpa_grep_t *pGrep, rulong allow);
 
 void rpa_buffer_destroy(rpa_buffer_t *str);
 rpa_buffer_t * rpa_buffer_alloc(unsigned int size);

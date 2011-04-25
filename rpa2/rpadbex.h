@@ -32,6 +32,10 @@ extern "C" {
 typedef struct rpadbex_s rpadbex_t;
 typedef rlong rparule_t;
 
+#define RPA_DBEXCFG_OPTIMIZATIONS 1
+
+rlong rpa_dbex_cfgset(rpadbex_t *dbex, rulong cfg, rulong val);
+rlong rpa_dbex_cfgget(rpadbex_t *dbex, rulong cfg);
 rpadbex_t *rpa_dbex_create(void);
 void rpa_dbex_destroy(rpadbex_t *dbex);
 rlong rpa_dbex_getlasterror(rpadbex_t *dbex);
@@ -59,6 +63,10 @@ rint rpa_dbex_dumptree(rpadbex_t *dbex, const rchar *rulename, rsize_t namesize,
 rint rpa_dbex_dumprules(rpadbex_t *dbex);
 rint rpa_dbex_dumpinfo(rpadbex_t *dbex);
 rint rpa_dbex_dumpcode(rpadbex_t* dbex, const rchar *rule);
+
+#define RPA_DBEXCFG_OPTIMIZATIONS 1
+rlong rpa_dbex_cfgset(rpadbex_t *dbex, rulong cfg, rulong val);
+rlong rpa_dbex_cfgget(rpadbex_t *dbex, rulong cfg);
 
 #ifdef __cplusplus
 }

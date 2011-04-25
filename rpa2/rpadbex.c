@@ -40,8 +40,7 @@ struct rpadbex_s {
 	rarray_t *inlinestack;
 	rpa_dbex_recordhandler *handlers;
 	rpa_errinfo_t err;
-	rvm_codelabel_t *labelerr;
-	rlong crule;
+	rulong optimizations:1;
 };
 
 static rparecord_t *rpa_dbex_rulerecord(rpadbex_t *dbex, rparule_t rid);
@@ -189,7 +188,6 @@ static rint rpa_dbex_rh_namedrule(rpadbex_t *dbex, rlong rec)
 
 			return -1;
 		}
-		dbex->crule = rec;
 
 		if (!r_array_empty(dbex->inlinestack)) {
 			rpa_compiler_inlinerule_begin(dbex->co, name, namesize, 0);
@@ -219,7 +217,6 @@ static rint rpa_dbex_rh_namedrule(rpadbex_t *dbex, rlong rec)
 				rpa_compiler_rule_end(dbex->co);
 			}
 		}
-		dbex->crule = -1;
 	}
 	return 0;
 }
@@ -606,6 +603,7 @@ rpadbex_t *rpa_dbex_create(void)
 	dbex->recstack = r_array_create(sizeof(rulong));
 	dbex->inlinestack = r_array_create(sizeof(rulong));
 	dbex->handlers = r_zmalloc(sizeof(rpa_dbex_recordhandler) * RPA_PRODUCTION_COUNT);
+	rpa_dbex_cfgset(dbex, RPA_DBEXCFG_OPTIMIZATIONS, 1);
 
 	dbex->handlers[RPA_PRODUCTION_NAMEDRULE] = rpa_dbex_rh_namedrule;
 	dbex->handlers[RPA_PRODUCTION_ANONYMOUSRULE] = rpa_dbex_rh_anonymousrule;
@@ -868,12 +866,15 @@ static rlong rpa_dbex_copy_handler(rarray_t *records, rlong rec, rpointer userda
 	} else if (prec->ruleuid != RPA_RECORD_INVALID_UID) {
 		index = r_array_add(dbex->records, prec);
 		/*
-		 * Optimizations
+		 * Optimizations. Lets apply the optimizations while we copy the records.
+		 * This is probably not the most clean way to apply optimizations, in the future
+		 * we should probably think of optimization pass right before compiling.
 		 */
-		if (prec->ruleuid == RPA_PRODUCTION_OROP && (prec->type & RPA_RECORD_END)) {
-			rpa_optimiztion_orop(dbex->records, rpa_recordtree_get(dbex->records, index, RPA_RECORD_START));
+		if (dbex->optimizations) {
+			if (prec->ruleuid == RPA_PRODUCTION_OROP && (prec->type & RPA_RECORD_END)) {
+				rpa_optimiztion_orop(dbex->records, rpa_recordtree_get(dbex->records, index, RPA_RECORD_START));
+			}
 		}
-
 	}
 
 	return 0;
@@ -883,45 +884,8 @@ static rlong rpa_dbex_copy_handler(rarray_t *records, rlong rec, rpointer userda
 static void rpa_dbex_copyrecords(rpadbex_t *dbex, rarray_t *records)
 {
 	rint i;
-	rparecord_t *prec;
-
 	for (i = rpa_recordtree_get(records, 0, RPA_RECORD_START); i >= 0; i = rpa_recordtree_next(records, i, RPA_RECORD_START))
 		rpa_recordtree_walk(records, i, 0, rpa_dbex_copy_handler, dbex);
-	return;
-
-	for (i = 0; i < r_array_length(records); i++) {
-		prec = (rparecord_t *)r_array_slot(records, i);
-		if (prec->ruleuid == RPA_PRODUCTION_OCCURENCE && (prec->type & RPA_RECORD_START)) {
-			/*
-			 * Ignore it
-			 */
-		} else if (prec->ruleuid == RPA_PRODUCTION_OCCURENCE && (prec->type & (RPA_RECORD_MATCH | RPA_RECORD_END))) {
-			ruint32 usertype = RPA_MATCH_NONE;
-			rlong lastrec = 0;
-			/*
-			 * Don't copy it but set the usertype of the previous record accordingly.
-			 */
-			switch (*prec->input) {
-			case '?':
-				usertype = RPA_MATCH_OPTIONAL;
-				break;
-			case '+':
-				usertype = RPA_MATCH_MULTIPLE;
-				break;
-			case '*':
-				usertype = RPA_MATCH_MULTIOPT;
-				break;
-			default:
-				usertype = RPA_MATCH_NONE;
-			};
-			lastrec = r_array_length(dbex->records) - 1;
-			if (lastrec >= 0)
-				rpa_record_setusertype(dbex->records, lastrec, usertype, RVALSET_OR);
-		} else if (prec->ruleuid != RPA_RECORD_INVALID_UID) {
-			r_array_add(dbex->records, prec);
-		}
-	}
-
 }
 
 
@@ -1468,3 +1432,27 @@ rlong rvm_dbex_executableoffset(rpadbex_t *dbex, rparule_t rid)
 	}
 	return info->codeoff;
 }
+
+
+rlong rpa_dbex_cfgset(rpadbex_t *dbex, rulong cfg, rulong val)
+{
+	if (!dbex)
+		return -1;
+	if (cfg == RPA_DBEXCFG_OPTIMIZATIONS) {
+		dbex->optimizations = val;
+		return 0;
+	}
+	return -1;
+}
+
+
+rlong rpa_dbex_cfgget(rpadbex_t *dbex, rulong cfg)
+{
+	if (!dbex)
+		return -1;
+	if (cfg == RPA_DBEXCFG_OPTIMIZATIONS) {
+		return dbex->optimizations;
+	}
+	return -1;
+}
+

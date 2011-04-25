@@ -43,23 +43,22 @@ int usage(int argc, const char *argv[])
 
 		fprintf(stderr, "Usage: \n %s [OPTIONS] <filename>\n", argv[0]);
 		fprintf(stderr, " OPTIONS:\n");
-		fprintf(stderr, "\t-e patterns         execute pattern\n");
-		fprintf(stderr, "\t-f patternfile      read the patterns from a file, the last pattern will be executed\n");
-		fprintf(stderr, "\t-c printpatterns    print these patterns when there is a match.\n");
-		fprintf(stderr, "\t-C printpatterns    print these patterns at START MATCH END.\n");
-		fprintf(stderr, "\t-i                  ignore case.\n");		
-		fprintf(stderr, "\t-m                  match from the beginning.\n");		
-		fprintf(stderr, "\t-p                  parse the stream.\n");		
-		fprintf(stderr, "\t-l                  line mode.\n");
-		fprintf(stderr, "\t-16                 force UTF16 encoding.\n");
-		fprintf(stderr, "\t-b                  force byte encoding.\n");
-		fprintf(stderr, "\t-d                  dump the pattern tree.\n");
-		fprintf(stderr, "\t-t                  display time elapsed.\n");
-		fprintf(stderr, "\t-L, --list-rules    List all patterns.\n");
-		fprintf(stderr, "\t-v                  Display version information.\n");
-		fprintf(stderr, "\t-h, --help          Display this help.\n");
-		fprintf(stderr, "\t    --dump-info     Display rules info.\n");
-		fprintf(stderr, "\t    --dump-records  Display rules parsing records.\n");
+		fprintf(stderr, "\t-e patterns              BNF Expression.\n");
+		fprintf(stderr, "\t-f patternfile           Read the BNF rules from a file, the last pattern will be executed.\n");
+		fprintf(stderr, "\t-i                       Ignore case.\n");
+		fprintf(stderr, "\t-m                       Match.\n");
+		fprintf(stderr, "\t-p                       Parse.\n");
+		fprintf(stderr, "\t-l                       Line mode.\n");
+		fprintf(stderr, "\t-16                      Force UTF16 encoding.\n");
+		fprintf(stderr, "\t-b                       Force byte encoding.\n");
+		fprintf(stderr, "\t-d                       Dump the pattern tree.\n");
+		fprintf(stderr, "\t-t                       Display time elapsed.\n");
+		fprintf(stderr, "\t-L, --list-rules         List all patterns.\n");
+		fprintf(stderr, "\t-v                       Display version information.\n");
+		fprintf(stderr, "\t-h, --help               Display this help.\n");
+		fprintf(stderr, "\t    --dump-info          Display rules info.\n");
+		fprintf(stderr, "\t    --dump-records       Display rules parsing records.\n");
+		fprintf(stderr, "\t    --no-optimizations   Disable optimizations.\n");
 
 		
 		return 0;
@@ -101,27 +100,10 @@ int main(int argc, const char *argv[])
 	}
 
 	for (i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "-c") == 0) {
-			if (++i < argc) {
-				rpa_buffer_t pattern;
-				pattern.s = (char*)argv[i];
-				pattern.size = strlen(argv[i]);			
-				rpa_grep_setup_matched_callback(pGrep, &pattern);
-			}
+		if (strcmp(argv[i], "--no-optimizations") == 0) {
+			rpa_grep_optimizations(pGrep, 0);
 		}
 	}
-
-	for (i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "-C") == 0) {
-			if (++i < argc) {
-				rpa_buffer_t pattern;
-				pattern.s = (char*)argv[i];
-				pattern.size = strlen(argv[i]);
-				rpa_grep_setup_callback(pGrep, &pattern);
-			}
-		}
-	}
-
 
 	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-f") == 0) {
