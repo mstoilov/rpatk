@@ -74,7 +74,7 @@ SourceCharacter		::= .
 WhiteSpace				::= [#0x0009] | [#0x000B] | [#0x000C] | [#0x0020] | [#0x00A0] | [#0xFEFF]
 
 # 7.3 Line Terminators
-LineTerminator			::= [#0x000D] [#0x000A] | [#0x000A] | [#0x000D] | [#0x2028] | [#0x2029]
+LineTerminator			::= [#0x000D] [#0x000A] | ([#0x000A] | [#0x000D] | [#0x2028] | [#0x2029])
 LineTerminatorSequence	::= [#0x000D] [#0x000A] | [#0x000A] | [#0x000D] | [#0x2028] | [#0x2029]
 S						::= ( <WhiteSpace> | <LineTerminator> )+
 SC						::= <S>? ';' <S>?
@@ -98,8 +98,7 @@ Token					::= <:IdentifierName:> |
 Identifier				::= <IdentifierName> - <ReservedWord> - <ReservedWord> <IdentifierPart>
 IdentifierName			::= <IdentifierStart> <IdentifierPart>*
 IdentifierStart		::= <UnicodeLetter> | '$' | '_' | '\' <:UnicodeLetter:>
-UnicodeLetter			::= <Lu> |
-			<Ll>
+UnicodeLetter			::= [#0x0041-#0x005A] | [#0x00C0-#0x00DE] | [#0x0100-#0x0232] | [#0x0061-#0x007A] | [#0x00C0-#0x00DE]	    # <Lu> | <Ll>
 
 Lu						::= [#0x0041-#0x005A] | [#0x00C0-#0x00DE] | [#0x0100-#0x0232]  	# TBD
 Ll						::= [#0x0061-#0x007A] | [#0x00C0-#0x00DE] 						# TBD

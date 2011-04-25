@@ -40,7 +40,7 @@ typedef struct rparecord_s {
 
 typedef rlong (*rpa_recordtree_callback)(rarray_t *records, rlong rec, rpointer userdata);
 
-rlong rpa_recordtree_walk(rarray_t *src, rlong rec, rpa_recordtree_callback callaback, rpointer userdata);
+rlong rpa_recordtree_walk(rarray_t *src, rlong rec, rlong level, rpa_recordtree_callback callaback, rpointer userdata);
 rlong rpa_recordtree_get(rarray_t *records, rlong rec, rulong type);
 rlong rpa_recordtree_firstchild(rarray_t *records, rlong rec, rulong type);
 rlong rpa_recordtree_lastchild(rarray_t *records, rlong rec, rulong type);
@@ -50,6 +50,7 @@ rlong rpa_recordtree_parent(rarray_t *records, rlong rec, rulong type);
 rlong rpa_recordtree_rotatedown(rarray_t *records, rlong parent);			/* Rotate children down, the last child becomes the first */
 rlong rpa_recordtree_size(rarray_t *records, rlong rec);					/* Size of the tree */
 rlong rpa_recordtree_copy(rarray_t *dst, rarray_t *src, rlong rec);
+rparecord_t *rpa_record_get(rarray_t *records, rlong rec);
 
 void rpa_record_dumpindented(rarray_t *records, rlong rec, rint level);
 void rpa_record_dump(rarray_t *records, rlong rec);

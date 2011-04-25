@@ -12,6 +12,7 @@ RPA_OBJECTS =	\
 	$(OUTDIR)/rpavm.o \
 	$(OUTDIR)/rpacompiler.o \
 	$(OUTDIR)/rpaparser.o \
+	$(OUTDIR)/rpaoptimization.o \
 
 
 ifeq ($(OS), linux)

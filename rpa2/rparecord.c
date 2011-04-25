@@ -1,8 +1,10 @@
 #include "rmem.h"
 #include "rstring.h"
+#include "rpaparser.h"
 #include "rparecord.h"
 
-static rparecord_t *rpa_record_get(rarray_t *records, rlong rec)
+
+rparecord_t *rpa_record_get(rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 
@@ -222,13 +224,23 @@ rlong rpa_recordtree_copy(rarray_t *dst, rarray_t *src, rlong rec)
 }
 
 
-rlong rpa_recordtree_walk(rarray_t *src, rlong rec, rpa_recordtree_callback callaback, rpointer userdata)
+rlong rpa_recordtree_walk(rarray_t *records, rlong rec, rlong level, rpa_recordtree_callback callback, rpointer userdata)
 {
-	rlong size;
-	rec = rpa_recordtree_get(src, rec, RPA_RECORD_START);
-	size = rpa_recordtree_size(src, rec);
+	rlong child;
 
-	return size;
+	if (level > 128)
+		return -1;
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_START);
+	if (callback && callback(records, rec, userdata) < 0)
+		return -1;
+	for (child = rpa_recordtree_firstchild(records, rec, RPA_RECORD_START); child >= 0; child = rpa_recordtree_next(records, child, RPA_RECORD_START)) {
+		if (rpa_recordtree_walk(records, child, level + 1, callback, userdata) < 0)
+			return -1;
+	}
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	if (callback && callback(records, rec, userdata) < 0)
+		return -1;
+	return 0;
 }
 
 
@@ -358,7 +370,7 @@ void rpa_record_dump(rarray_t *records, rlong rec)
 		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "MATCH ");
 	else if (prec->type & RPA_RECORD_END)
 		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "END   ");
-	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "%s ", prec->rule);
+	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "%s ", rpa_parser_prodname(prec->ruleuid));
 
 	r_memset(buf + n, ' ', bufsize - n);
 	n = 115;
@@ -396,7 +408,7 @@ void rpa_record_dumpindented(rarray_t *records, rlong rec, rint level)
 		r_printf("   ");
 	r_printf("   ");
 	r_printf("(");
-	r_printf("%s, %c, %c", prec->rule, rpa_record_optchar(prec, 'x'), rpa_record_loopchar(prec, 'x'));
+	r_printf("%s, %c, %c", rpa_parser_prodname(prec->ruleuid), rpa_record_optchar(prec, 'x'), rpa_record_loopchar(prec, 'x'));
 	r_printf(")");
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);

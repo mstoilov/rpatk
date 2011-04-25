@@ -66,7 +66,7 @@ rpa_parser_t *rpa_parser_create();
 void rpa_parser_destroy(rpa_parser_t *pa);
 rlong rpa_parser_load(rpa_parser_t *pa, const rchar *prods, rsize_t size);
 rlong rpa_parser_load_s(rpa_parser_t *pa, const rchar *prods);
-
+const rchar *rpa_parser_prodname(rlong prod);
 
 #ifdef __cplusplus
 }

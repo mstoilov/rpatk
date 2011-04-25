@@ -2,6 +2,7 @@
 #include "rpadbex.h"
 #include "rpaerror.h"
 #include "rpaparser.h"
+#include "rpaoptimization.h"
 #include "rmem.h"
 #include "rutf.h"
 
@@ -832,10 +833,61 @@ static void rpa_dbex_buildruleinfo(rpadbex_t *dbex)
 }
 
 
+static rlong rpa_dbex_copy_handler(rarray_t *records, rlong rec, rpointer userdata)
+{
+	rpadbex_t *dbex = (rpadbex_t *)userdata;
+	rlong index;
+
+	rparecord_t *prec = (rparecord_t *)r_array_slot(records, rec);
+	if (prec->ruleuid == RPA_PRODUCTION_OCCURENCE && (prec->type & RPA_RECORD_START)) {
+		/*
+		 * Ignore it
+		 */
+	} else if (prec->ruleuid == RPA_PRODUCTION_OCCURENCE && (prec->type & (RPA_RECORD_MATCH | RPA_RECORD_END))) {
+		ruint32 usertype = RPA_MATCH_NONE;
+		rlong lastrec = 0;
+		/*
+		 * Don't copy it but set the usertype of the previous record accordingly.
+		 */
+		switch (*prec->input) {
+		case '?':
+			usertype = RPA_MATCH_OPTIONAL;
+			break;
+		case '+':
+			usertype = RPA_MATCH_MULTIPLE;
+			break;
+		case '*':
+			usertype = RPA_MATCH_MULTIOPT;
+			break;
+		default:
+			usertype = RPA_MATCH_NONE;
+		};
+		lastrec = r_array_length(dbex->records) - 1;
+		if (lastrec >= 0)
+			rpa_record_setusertype(dbex->records, lastrec, usertype, RVALSET_OR);
+	} else if (prec->ruleuid != RPA_RECORD_INVALID_UID) {
+		index = r_array_add(dbex->records, prec);
+		/*
+		 * Optimizations
+		 */
+		if (prec->ruleuid == RPA_PRODUCTION_OROP && (prec->type & RPA_RECORD_END)) {
+			rpa_optimiztion_orop(dbex->records, rpa_recordtree_get(dbex->records, index, RPA_RECORD_START));
+		}
+
+	}
+
+	return 0;
+}
+
+
 static void rpa_dbex_copyrecords(rpadbex_t *dbex, rarray_t *records)
 {
 	rint i;
 	rparecord_t *prec;
+
+	for (i = rpa_recordtree_get(records, 0, RPA_RECORD_START); i >= 0; i = rpa_recordtree_next(records, i, RPA_RECORD_START))
+		rpa_recordtree_walk(records, i, 0, rpa_dbex_copy_handler, dbex);
+	return;
 
 	for (i = 0; i < r_array_length(records); i++) {
 		prec = (rparecord_t *)r_array_slot(records, i);
@@ -1054,7 +1106,7 @@ static void rpa_dbex_dumptree_do(rpadbex_t *dbex, rlong rec, rint level)
 			}
 		}
 	}
-	rpa_dbex_dumpindented(dbex, rpa_recordtree_get(dbex->records, rec, RPA_RECORD_END), level, prec->rule);
+	rpa_dbex_dumpindented(dbex, rpa_recordtree_get(dbex->records, rec, RPA_RECORD_END), level, rpa_parser_prodname(prec->ruleuid));
 	for (rec = rpa_recordtree_firstchild(dbex->records, rec, RPA_RECORD_START); rec >= 0; rec = rpa_recordtree_next(dbex->records, rec, RPA_RECORD_START)) {
 		rpa_dbex_dumptree_do(dbex, rec, level + 1);
 	}
