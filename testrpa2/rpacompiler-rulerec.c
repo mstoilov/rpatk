@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
 
 	for (i = 0; i < r_array_length(stat->records); i++) {
 		rparecord_t *rec = (rparecord_t *)r_array_slot(stat->records, i);
-		r_printf("%3d ( %7ld ): ", i, rec->ruleid);
+		r_printf("%3d : ", i);
 		if (rec->type & RPA_RECORD_START)
 			r_printf("START ");
 		if (rec->type & RPA_RECORD_MATCH)

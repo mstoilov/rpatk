@@ -222,21 +222,20 @@ rlong rpa_stat_match(rpastat_t *stat, rparule_t rid, const rchar *input, const r
 }
 
 
-rarray_t *rpa_stat_parse(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end)
+rlong rpa_stat_parse(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end, rarray_t **records)
 {
 	rint res = 0;
-	rarray_t *records = NULL;
 
 	if (!stat) {
-		return NULL;
+		return -1;
 	}
 
 	res = rpa_stat_exec_noinit(stat, rid, input, start, end);
-	if (res > 0 && !r_array_empty(stat->records)) {
-		records = stat->records;
+	if (res > 0 && !r_array_empty(stat->records) && records) {
+		*records = stat->records;
 		stat->records = r_array_create(sizeof(rparecord_t));
 	}
-	return records;
+	return res;
 }
 
 

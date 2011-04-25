@@ -1,0 +1,466 @@
+#!emitall
+#!emitnone
+#!emit BitwiseANDOp
+#!emit BitwiseXOROp
+#!emit BitwiseOROp
+#!emit AdditiveExpressionOp
+
+#!emit MultiplicativeExpressionOp
+#!emit ShiftExpressionOp
+#!emit EqualityExpressionOp
+#!emit RelationalExpressionOp
+#!emit LogicalOROp
+#!emit LogicalANDOp
+
+#!emit AssignmentOperator
+#!emit EqualityOperator
+#!emit RelationalOperator
+#!emit AdditiveOperator
+#!emit MultiplicativeOperator
+#!emit ShiftOperator
+#!emit BitwiseANDOperator
+#!emit BitwiseXOROperator
+#!emit BitwiseOROperator
+#!emit LogicalANDOperator
+#!emit LogicalOROperator
+#!emit LogicalNotOperator
+#!emit BitwiseNotOperator
+#!emit UnaryOperatorOpcode
+#!emit PrintOp
+
+
+#!emit PostfixOperator
+#!emit PostfixExpressionOp
+#!emit PrefixExpressionOp
+
+
+#!emit UnaryExpressionOp
+#!emit LogicalNotExpressionOp
+#!emit BitwiseNotExpressionOp
+
+#!emit DecimalIntegerLiteral
+#!emit DecimalNonIntegerLiteral
+#!emit BlockBegin
+#!emit BlockEnd
+
+#!emit DoKeyword
+#!emit IterationDo
+
+#!emit sqstring
+#!emit dqstring
+#!emit DoubleStringCharacters
+#!emit SingleStringCharacters
+#!emit Program
+#!emit Initialiser
+#!emit AssignmentExpressionOp
+
+#!emit VariableAllocate
+#!emit VariableAllocateAndInit
+
+#!emit ReturnOp
+
+#!emit SwiId
+#!emit SwiIdExist
+
+#!emit PostfixExpressionValOp
+#!emit LeftHandSideExpressionPush
+
+
+
+# 6 Source Text
+SourceCharacter			::= .
+
+# 7.2 White space
+WhiteSpace				::= [#0x0009] | [#0x000B] | [#0x000C] | [#0x0020] | [#0x00A0] | [#0xFEFF]
+
+# 7.3 Line Terminators
+LineTerminator			::= [#0x000D] [#0x000A] | ([#0x000A] | [#0x000D] | [#0x2028] | [#0x2029])
+LineTerminatorSequence	::= [#0x000D] [#0x000A] | [#0x000A] | [#0x000D] | [#0x2028] | [#0x2029]
+S						::= ( <WhiteSpace> | <LineTerminator> )+
+SC						::= <S>? ';' <S>?
+COMMA					::= <S>? ',' <S>?
+EQ						::= <S>? '=' <S>?
+
+# 7.4 Comments
+Comment					::= <:MultiLineComment:> | <:SingleLineComment:>
+MultiLineComment		::= '/*' <:MultiLineCommentChar:>* '*/'
+MultiLineCommentChar	::= . - '*/'
+SingleLineComment		::= '#' <:SingleLineCommentChar:>*
+SingleLineCommentChar	::= <SourceCharacter> - <LineTerminator>
+
+# 7.5 Tokens
+Token					::= <:IdentifierName:> |
+			    			<:NumericLiteral:> |
+			    			<:StringLiteral:>
+
+# 7.6 Identifier Names and Identifiers
+
+Identifier				::= <IdentifierName> - <ReservedWord> - <ReservedWord> <IdentifierPart>
+IdentifierName			::= <IdentifierStart> <IdentifierPart>*
+IdentifierStart		::= <UnicodeLetter> | '$' | '_' | '\' <:UnicodeLetter:>
+UnicodeLetter			::= [#0x0041-#0x005A] | [#0x00C0-#0x00DE] | [#0x0100-#0x0232] | [#0x0061-#0x007A] | [#0x00C0-#0x00DE]	    # <Lu> | <Ll>
+
+Lu						::= [#0x0041-#0x005A] | [#0x00C0-#0x00DE] | [#0x0100-#0x0232]  	# TBD
+Ll						::= [#0x0061-#0x007A] | [#0x00C0-#0x00DE] 						# TBD
+IdentifierPart			::= <IdentifierStart> | 
+				    		<:UnicodeDigit:> 
+UnicodeDigit			::= [0-9] | [#0x0660-#0x0669]					# TBD
+
+ReservedWord			::= <:Keyword:>
+							<:FutureReservedWord:> |
+							<:NullLiteral:> |
+							<:BooleanLiteral:>
+
+Keyword					::= 'instanceof' | 'typeof'	| 'break' |
+			    			'do' | 'new' | 'var' |
+			    			'case' | 'else' | 'return' | 'void' | 
+			    			'catch' | 'finally' | 'continue' | 'for' | 
+			    			'switch' | 'while' | 'this' | 'with' | 
+			    			'debugger' | 'function' | 'throw' | 'default' |  
+			    			'if' | 'try' | 'delete' | 'in'
+
+FutureReservedWord			::= 'class' | 'enum' | 'extends' | 'import' | 'const' | 'export' |
+			    				'implements' | 'let' | 'private' | 'public' |
+                            	'static' | 'interface' | 'package' | 'protected'
+
+NullLiteral					::= 'null'
+BooleanLiteral 				::= 'true' | 'false'
+Literal 					::= <:NullLiteral:> |
+			    				<:BooleanLiteral:> |
+			    				<:NumericLiteral:> |
+			    				<:StringLiteral:>
+			    				
+LiteralOp					::= <:Literal:>
+
+# 7.8.3 Numeric Literals
+
+NumericLiteral					::= <:HexIntegerLiteral:> | <:DecimalNonIntegerLiteral:> | <:DecimalIntegerLiteral:>
+DecimalNonIntegerLiteral		::= ('0' | <:NonZeroDigit:> <DecimalDigits>?) '.' <DecimalDigits>? <:ExponentPart:>? |
+			    					'.' <:DecimalDigits:> <:ExponentPart:>? 
+DecimalIntegerLiteral			::= '0' | <:NonZeroDigit:> <:DecimalDigits:>? <:ExponentPart:>?
+DecimalDigits					::= <:DecimalDigit:>+
+DecimalDigit					::= [0-9]
+NonZeroDigit					::= [1-9]
+ExponentPart					::= <:ExponentIndicator:> <:SignedInteger:>
+ExponentIndicator 				::= [eE]
+SignedInteger 					::= '-' <:DecimalDigits:> |
+			    					'+' <:DecimalDigits:> |
+			    					<:DecimalDigits:>
+HexIntegerLiteral 				::= '0' [xX] <:HexDigit:>+
+HexDigit 						::= [0-9a-fA-F]
+
+# 7.8.4 String Literals
+StringLiteral					::= '"' <:DoubleStringCharacters:>? '"' |
+			    					"'" <:SingleStringCharacters:>? "'"
+
+DoubleStringCharacters			::= <DoubleStringCharacter>+
+SingleStringCharacters			::= <SingleStringCharacter>+
+
+DoubleStringCharacter			::= <:SourceCharacter:> - ('"' | '\\' | <:LineTerminator:>)
+
+SingleStringCharacter			::= <:SourceCharacter:> - ("'" | '\\' | <:LineTerminator:>)
+
+BracketExpressionOp				::= '(' <S>? <:Expression:> <S>? ')'
+ThisOp							::= 'this'
+
+PrimaryExpression				::= <:ThisOp:> | 
+			    					'(' <S>? <:Expression:> <S>? ')' |
+			    					<:LiteralOp:> |
+			    					(<:SwiId:>) |
+			    					<:IdentifierOp:>
+
+# The next line is mine
+IdentifierOp					::= <:Identifier:> 
+SwiId							::= <:Identifier:> 
+SwiIdExist						::= <SwiId> 
+
+
+ArrayLiteral 					::= '[' <S>? <:Elision:>? <S>? ']' |
+			    					'[' <S>? <:ElementList:> <S>? ']' |
+			    					'[' <S>? <:ElementList:> <S>? ',' <S>? <:Elision:> <S>? ']'
+ElementList						::= <:Elision:>? <S>? <:AssignmentExpression:> (<S>? ',' <S>? <:Elision:>? <S>? <:AssignmentExpression:> )*
+Elision							::= ',' <S>? <:Elision:> | <S>? ','
+
+
+# 11.2 Left-Hand-Side Expressions
+NewKeyword						::= 'new' - 'new' <IdentifierPart>
+LSB								::= <S>? '[' <S>?
+RSB								::= <S>? ']' <S>?
+dot								::= '.'
+MemberIdentifierNameOp			::= <:Identifier:>
+MemberIdentifierNameLookupOp	::= <:Identifier:>
+MemberExpressionBaseOp			::= <:MemberExpression:>
+MemberExpressionIndexOp			::= <:MemberExpressionBaseOp:>  <:LSB:> <:Expression:> <:RSB:>
+MemberExpressionNameOp			::= <:MemberExpressionBaseOp:> <:dot:> <:MemberIdentifierNameOp:>
+MemberExpressionNewOp			::= <:NewKeyword:> <S>? <:CallExpression:>
+
+MemberExpression 				::= <:MemberExpressionIndexOp:>  |
+									<:MemberExpressionNameOp:> |
+									<:FunctionExpression:> |
+									<:PrimaryExpression:>
+
+NewExpressionCallName			::= <:MemberExpression:>
+NewExpressionCallOp				::= <:NewKeyword:> <S>? <:NewExpressionCallName:> <S>? <:ArgumentsOp:>?
+NewArrayExpressionOp			::= <S>? 'new' <S> ( 'Array' | 'Object') <S>? <ArgumentsOp>?
+
+NewExpression 					::= <:NewArrayExpressionOp:> |
+									<:NewExpressionCallOp:> |
+									<:MemberExpression:>
+
+FunctionCallName				::= <:CallExpression:> | <:MemberExpression:>
+CallExpressionOp				::= <:FunctionCallName:> <S>? <:ArgumentsOp:>
+CallExpressionBaseOp			::= <:CallExpression:>
+CallExpressionIndexOp			::= <:CallExpressionBaseOp:> <S>? '[' <S>? <:Expression:> <S>? ']'
+CallExpressionNameOp			::= <:CallExpressionBaseOp:> '.' <:MemberIdentifierNameOp:>
+
+CallExpression					::= <:CallExpressionIndexOp:> |
+									<:CallExpressionNameOp:> |
+									<:CallExpressionOp:>
+
+ArgumentsOp						::= '(' <S>? ')' |
+			    					'(' <S>? <:ArgumentList:> <S>? ')'
+ArgumentList					::= <:ArgumentList:> <S>? ',' <S>? <:AssignmentExpression:> |
+									<:AssignmentExpression:>
+
+ArgumentList					::= <:ArgumentList:> <S>? ',' <S>? <:FunctionCallParameter:> |
+									<:FunctionCallParameter:>
+FunctionCallParameter			::= <:AssignmentExpression:>
+									
+ValLeftHandSideExpression		::= <:CallExpression:> | <:NewExpression:>
+AddressLeftHandSideExpression	::= <:ValLeftHandSideExpression:>
+LeftHandSideExpression			::= <:AddressLeftHandSideExpression:>
+
+
+# 11.3 Postfix Expressions
+# RULE: LeftHandSideExpression always ends up in R0 (Let see if this would work)
+PostfixOperator 				::= '++' | '--'
+PostfixExpressionOp 			::= <:LeftHandSideExpression:> <:PostfixOperator:>
+PostfixExpressionValOp			::= <:ValLeftHandSideExpression:>
+PostfixExpression 				::= <:PostfixExpressionOp:> |
+									<:PostfixExpressionValOp:> 
+
+PrefixOperator 					::= <:PostfixOperator:>
+PrefixExpressionOp 				::= <:PrefixOperator:> <:LeftHandSideExpression:>
+PrefixExpression 				::= <:PrefixExpressionOp:>
+
+# 11.4 Unary Operators
+UnaryOperatorOpcode				::= '~' | '!' | ('+' - '++') | ('-' - '--') | 'delete' | 'void' | 'typeof'
+UnaryOperator		    		::= <:UnaryOperatorOpcode:>
+UnaryExpressionOp	    		::=	<S>? <:UnaryOperator:> <S>? <:UnaryExpression:>
+UnaryExpression		    		::=	<:UnaryExpressionOp:> | <:PrefixExpression:> | <:PostfixExpression:>
+
+
+# 11.5 Multiplicative Operators
+MultiplicativeOperator 			::= '*' | '/' | '%'
+MultiplicativeExpressionOp		::= <:MultiplicativeExpression:> <S>? <:MultiplicativeOperator:> <S>? <:UnaryExpression:>
+MultiplicativeExpression		::= <:MultiplicativeExpressionOp:> | 
+									<:UnaryExpression:>
+
+# 11.6 Additive Operators
+AdditiveOperator 				::= '+' | '-'
+AdditiveExpressionOp			::= <:AdditiveExpression:> <S>? <:AdditiveOperator:> <S>? <:MultiplicativeExpression:>
+AdditiveExpression				::= <:AdditiveExpressionOp:> | 
+									<:MultiplicativeExpression:>
+
+
+11.7 Bitwise Shift Operators
+ShiftOperator					::= '>>>' | '<<' | '>>'
+ShiftExpressionOp				::= <:ShiftExpression:> <S>? <:ShiftOperator:> <S>? <:AdditiveExpression:>
+ShiftExpression					::= <:ShiftExpressionOp:> |
+			    					<:AdditiveExpression:> 
+
+
+# 11.8 Relational Operators
+RelationalOperator		 		::= '<=' | '>=' | '<' | '>' | 'instanceof'
+RelationalExpressionOp			::= <:RelationalExpression:> <S>? <:RelationalOperator:> <S>? <:ShiftExpression:>
+RelationalExpression 			::= <:RelationalExpressionOp:> |
+			    					<:ShiftExpression:>
+
+# 11.9 Equality Operators
+EqualityOperator 				::= '===' | '==' | '!==' | '!='
+EqualityExpressionOp 			::= <:EqualityExpression:> <S>? <:EqualityOperator:> <S>? <:RelationalExpression:> 
+EqualityExpression 				::= <:EqualityExpressionOp:> |
+			    					<:RelationalExpression:>
+
+BitwiseANDOperator 				::= '&' - '&&'
+BitwiseANDOp		 			::= <:BitwiseANDExpression:> <S>? <:BitwiseANDOperator:> <S>? <:EqualityExpression:>
+BitwiseANDExpression 			::= <:BitwiseANDOp:> |
+			    					<:EqualityExpression:>
+
+BitwiseXOROperator 				::= '^'
+BitwiseXOROp		 			::= <:BitwiseXORExpression:> <S>? <:BitwiseXOROperator:> <S>? <:BitwiseANDExpression:>
+BitwiseXORExpression 			::= <:BitwiseXOROp:> |
+			    					<:BitwiseANDExpression:>
+
+BitwiseOROperator 				::= '|' - '||'
+BitwiseOROp		 				::= <:BitwiseORExpression:> <S>? <:BitwiseOROperator:> <S>? <:BitwiseXORExpression:>
+BitwiseORExpression 			::= <:BitwiseOROp:> |
+			    					<:BitwiseXORExpression:>
+
+# 11.11 Binary Logical Operators
+LogicalANDOperator 				::= '&&'
+LogicalANDOp		 			::= <:LogicalANDExpression:> <S>? <:LogicalANDOperator:>  <S>? <:BitwiseORExpression:>
+LogicalANDExpression 			::= <:LogicalANDOp:> |
+			    					<:BitwiseORExpression:>
+
+LogicalOROperator 				::= '||'
+LogicalOROp			 			::= <:LogicalORExpression:> <S>? <:LogicalOROperator:> <S>? <:LogicalANDExpression:>
+LogicalORExpression 			::= <:LogicalOROp:> |
+			    					<:LogicalANDExpression:>
+
+
+# 11.12 Conditional Operator ( ? : )
+AssignmentExpressionIfTrueOp		::= <:AssignmentExpression:>
+AssignmentExpressionIfFalseOp		::= <:AssignmentExpression:>
+QuestionMarkOp						::= '?'
+ConditionalExpression 				::= <:LogicalORExpression:> (<S>? <:QuestionMarkOp:> <S>? <:AssignmentExpressionIfTrueOp:> <S>? ':' <S>? <:AssignmentExpressionIfFalseOp:>)?
+
+# 11.13 Assignment Operators
+LeftHandSideExpressionPush		::= <:LeftHandSideExpression:>
+IdentifierAddressPush			::= <:Identifier:>
+AssignmentExpressionOp 			::= <:LeftHandSideExpressionPush:> <S>? <:AssignmentOperator:> <S>? <:AssignmentExpression:>
+AssignmentExpression 			::= <:AssignmentExpressionOp:> | 
+									<:ConditionalExpression:>
+
+AssignmentExpressionNoIn		::= <:LeftHandSideExpression:> <S>? <:AssignmentOperator:> <S>? <:AssignmentExpressionNoIn:>
+AssignmentOperator				::= '=' | '*=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>=' | '>>>=' | '&=' | '^=' | '|='
+
+
+# 11.14 Comma Operator 	( , )
+Expression    					::= <:AssignmentExpression:> ( <S>? ',' <S>? <:AssignmentExpression:> )*
+ExpressionNoIn					::= <:AssignmentExpressionNoIn:> ( <S>? ',' <S>? <:AssignmentExpressionNoIn:> )*
+
+
+# 12 Statements
+Statement						::= <:FunctionDefinitionStatement:> |
+									<:BreakStatement:> |
+									<:ContinueStatement:> |
+									<:Block:> |
+			    					<:Comment:> |
+			    					<:VariableStatement:> |
+			    					<:EmptyStatement:> |
+			    					<:ExpressionStatement:> |
+			    					<:IfStatement:> |
+			    					<:IterationStatement:> |
+			    					<:ContinueStatement:> |
+			    					<:BreakStatement:> |
+			    					<:ReturnStatement:> |
+			    					<:WithStatement:> |
+			    					<:SwitchStatementOp:>
+
+# 12.1 Block
+BlockBegin							::= <S>? '{' <S>?
+BlockEnd							::= <S>? '}' <S>?
+Block								::= <:BlockBegin:> <:StatementList:>? <:BlockEnd:>
+StatementList						::= (<S>? <:Statement:>)+
+
+# 12.2 Variable Statement
+VariableStatement 					::= 'var' <S>? <:VariableDeclarationList:> <:SC:>
+VariableDeclarationList 			::= <:VariableDeclaration:> (<:COMMA:> <:VariableDeclaration:> )*
+VariableAllocate					::= <:Identifier:>
+VariableAllocateAndInit				::= <:Identifier:>
+VariableDeclaration					::= <:VariableAllocateAndInit:> <:Initialiser:> | <:VariableAllocate:>
+Initialiser							::= <:EQ:> <:AssignmentExpression:>
+
+
+# 12.3 Empty Statement
+EmptyStatement						::= <:SC:>
+
+# 12.4 Expression Statement
+ExpressionStatement 				::= (<:Expression:> - ('function' | '{')) <:SC:>
+
+
+# 12.5 The if Statement
+
+ElseOp								::= 'else'
+IfConditionOp						::= 'if' <S>? '(' <S>? <:Expression:> <S>? ')'
+IfOp								::= <:IfConditionOp:> <S>? <:Statement:>
+IfElseOp							::= <:IfConditionOp:> <S>? <:Statement:> <S>? <:ElseOp:> <S>? <:Statement:>
+
+IfStatement							::= <:IfElseOp:> |
+										<:IfOp:>
+
+# 12.6 Iteration Statements
+# 12.6a Iteration do ... while() 
+WhileKeyword						::= 'while'
+WhileExpression						::= <:WhileKeyword:> <S>? '(' <S>? <:Expression:> <S>? ')'
+DoKeyword							::= 'do'
+IterationDo							::= <:DoKeyword:> <S>? <:Statement:> <S>? <:WhileExpression:> (<S>? ';')
+
+# 12.6b Iteration while()
+WhileConditionOp					::= 'while' <S>? '(' <S>? <:Expression:> <S>? ')'
+IterationWhileOp					::= <:WhileConditionOp:> <S>? <:Statement:>
+
+# 12.6c Iteration for ( ; ; )
+ForKeyword							::= 'for'
+ExpressionNoIn						::= <:Expression:>
+ForExpressionInitOp					::= ('var' <S>? <:VariableDeclarationList:>) | <:ExpressionNoIn:>
+ForExpressionCompareOp				::= <:Expression:>
+ForExpressionIncrementOp			::= <:Expression:>
+
+# The following & expression is done in order to swap the places of the code generated for the comparison and increment.
+# This is done by selectively turning on/off callbacks in both statement so that the final result appears as if the
+# <:ForExpressionCompareOp:> <:ForExpressionIncrementOp:> appear in the opposite order.
+ForIterationStatementOp				::= <:ForKeyword:> <S>? '(' <S>? <:ForExpressionInitOp:>? <S>? ';' <S>? <ForExpressionCompareOp>? <S>? ';' <S>? <:ForExpressionIncrementOp:>? <S>? ')'
+IterationForOp						::= <:ForIterationStatementOp:> <S>? <:Statement:>
+
+
+IterationStatement 					::= <:IterationWhileOp:> |
+										<:IterationForOp:> |
+	    								<:IterationDo:>
+
+# 12.9 The return Statement
+ReturnOp							::= ('return' - 'return' <:IdentifierPart:>) <WhiteSpace>* <:AssignmentExpression:>? (<S>? ';')
+ReturnStatement						::= <:ReturnOp:>
+
+# The Break Statement
+BreakOp								::= 'break' - 'break' <:IdentifierPart:>
+BreakStatement						::= <S>? <:BreakOp:> <:SC:>
+
+# The Continue Statement
+ContinueOp							::= 'continue' - 'continue' <:IdentifierPart:>
+ContinueStatement					::= <S>? <:ContinueOp:> <:SC:>
+
+
+
+# 12.10 The with Statement
+WithStatement						::= 'with' <S>? '(' <S>? <:Expression:> <S>? ')' <S>? <:Statement:>
+
+
+# 12.11 The switch Statement
+SwitchExpressionOp					::= ('switch' - 'switch' <IdentifierPart>) <S>? '(' <S>? <:Expression:> <S>? ')'
+SwitchStatementOp					::= <:SwitchExpressionOp:> <S>? <:CaseBlock:>
+
+CaseBlock							::= '{' <S>? <:CaseClauses:>? <S>? <:DefaultClauseOp:>? <S>? <:CaseClauses:>? <S>? '}' |
+				    					'{' <S>? <:CaseClauses:>? <S>? '}'
+
+
+
+CaseClauses 						::= (<S>? <:CaseClauseOp:>)+
+CaseExpressionOp					::= ('case' - 'case' <IdentifierPart>) <S>? <:Expression:> <S>? ':'
+CaseClauseOp						::= <:CaseExpressionOp:> <S>? <:StatementList:>?
+DefaultKeywordOp					::= 'default' - 'default' <IdentifierPart>
+DefaultClauseOp						::= <:DefaultKeywordOp:> <S>? ':' <S>? <:StatementList:>?
+
+
+# 13 Function Definition
+FunctionName						::= <:Identifier:>
+FunctionNameLookupAlloc				::= <:Identifier:>
+FunctionDefinition					::= ('function' - 'function' <IdentifierPart>)<S>?<:FunctionName:><S>?'('<S>?<:FormalParameterList:>?<S>?')'
+FunctionDeclaration					::= <:FunctionDefinition:><S>?'{'<S>?<:FunctionBody:>?<S>?'}'
+FunctionExpression					::= ('function' - 'function'<IdentifierPart>)<S>?<:FunctionName:>?<S>?'('<S>?<:FormalParameterList:>?<S>?')'<S>?'{'<S>?<:FunctionBody:>?<S>?'}'
+FunctionParameter 					::= <:Identifier:>
+FormalParameterList 				::= <:FunctionParameter:> ( <S>? ',' <S>? <:FunctionParameter:> )*
+FunctionDefinitionStatement			::= ('function' - 'function' <IdentifierPart>)<S>?<:FunctionNameLookupAlloc:><S>?'('<S>?<FormalParameterList>?<S>?')' <:SC:>
+FunctionBody						::= <:SourceElements:>
+
+
+# 14 Program
+SourceElements 					::= (<S>? <:SourceElement:>)+
+SourceElement 						::= <:FunctionDeclaration:> |
+			    						<:Statement:>
+Program							::= <:SourceElements:>
+# The root rule, it is anonymous
+<:Program:>
+	
+

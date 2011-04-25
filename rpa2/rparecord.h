@@ -21,17 +21,13 @@ extern "C" {
 #define RPA_RECORD_INVALID_UID ((ruint32)-1)
 
 typedef struct rparecord_s {
-	rlist_t head;
-	rlink_t lnk;
 	rlong next;
-	rword loo;
-	const char *rule;
-	ruint32 ruleid;
+	const rchar *rule;
+	const rchar *input;
+	rsize_t inputsiz;
+	ruint32 type;
 	ruint32 top;
 	ruint32 size;
-	ruint32 type;
-	const char *input;
-	rsize_t inputsiz;
 	ruint32 ruleuid;
 	ruint32 usertype;
 	rword userdata;

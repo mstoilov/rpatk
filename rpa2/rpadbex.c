@@ -17,7 +17,7 @@ typedef rint (*rpa_dbex_recordhandler)(rpadbex_t *dbex, rlong rec);
 #define RPA_DBEX_SETERRINFO_OFFSET(__d__, __o__) do { (__d__)->err.offset = __o__; (__d__)->err.mask |= RPA_ERRINFO_OFFSET; } while (0)
 #define RPA_DBEX_SETERRINFO_RULEID(__d__, __r__) do { (__d__)->err.ruleid = __r__; (__d__)->err.mask |= RPA_ERRINFO_RULEID; } while (0)
 #define RPA_DBEX_SETERRINFO_NAME(__d__, __n__, __s__) do { \
-	(__d__)->err.mask |= RPA_ERRINFO_RULEID; \
+	(__d__)->err.mask |= RPA_ERRINFO_NAME; \
 	r_memset((__d__)->err.name, 0, sizeof((__d__)->err.name)); \
 	r_strncpy((__d__)->err.name, __n__, R_MIN(__s__, (sizeof((__d__)->err.name) - 1)));  } while (0)
 

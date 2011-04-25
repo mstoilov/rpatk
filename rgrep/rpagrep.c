@@ -215,7 +215,7 @@ int rpa_grep_parse(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 	rlong i;
 	rchar location[128];
 	rpastat_t *hStat;
-	rarray_t *records;
+	rarray_t *records = NULL;
 	rparecord_t *prec;
 	const char *input = buffer, *start = buffer, *end = buffer + size;
 
@@ -224,7 +224,7 @@ int rpa_grep_parse(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 		return -1;
 	rpa_stat_encodingset(hStat, pGrep->encoding);
 	hStat->debug = pGrep->execdebug;
-	records = rpa_stat_parse(hStat, pGrep->hPattern, input, start, end);
+	rpa_stat_parse(hStat, pGrep->hPattern, input, start, end, &records);
 	if (records) {
 		if (pGrep->greptype == RPA_GREPTYPE_PARSE) {
 			for (i = 0; i < r_array_length(records); i++) {
