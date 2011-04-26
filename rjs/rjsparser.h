@@ -9,9 +9,7 @@ extern "C" {
 #include "rtypes.h"
 #include "rarray.h"
 #include "rvmcpu.h"
-#include "rpadbex.h"
-#include "rpastat.h"
-#include "rpaerror.h"
+#include "rpa.h"
 
 
 typedef struct rjs_parser_s {
