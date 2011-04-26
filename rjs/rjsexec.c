@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
 
 	if (!parser)
 		return 1;
-	r_printf("JRS Version: %s\n", rjs_version());
+	r_printf("RJS Version: %s\n", rjs_version());
 
 	for (i = 1; i < argc; i++) {
 		if (r_strcmp(argv[i], "-e") == 0) {

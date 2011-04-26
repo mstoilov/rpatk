@@ -4,58 +4,6 @@
 #include "rpaparser.h"
 
 static rint rpa_parser_init(rpa_parser_t *pa);
-static void rpa_production_(rpa_parser_t *pa);
-
-
-static rchar *prodnames[] = {
-		"none",
-		"bnf",
-		"namedrule",
-		"anonymousrule",
-		"rulename",
-		"regexchar",
-		"char",
-		"escapedchar",
-		"specialchar",
-		"occurence",
-		"charrng",
-		"numrng",
-		"cls",
-		"clschar",
-		"clsnum",
-		"beginchar",
-		"endchar",
-		"dec",
-		"hex",
-		"aref",
-		"cref",
-		"exp",
-		"anchorop",
-		"reqop",
-		"notop",
-		"minop",
-		"orop",
-		"altbranch",
-		"norop",
-		"negbranch",
-		"bracketexp",
-		"directiveemit",
-		"directivenoemit",
-		"directiveemitnone",
-		"unknown",
-		"unknown",
-		"unknown",
-		"unknown",
-		"unknown",
-};
-
-
-const rchar *rpa_parser_prodname(rlong prod)
-{
-	if (prod < 0 || prod >= RPA_PRODUCTION_COUNT)
-		return NULL;
-	return prodnames[prod];
-}
 
 
 rpa_parser_t *rpa_parser_create()
@@ -1426,9 +1374,6 @@ static rint rpa_parser_init(rpa_parser_t *pa)
 	rpa_production_comment(pa);
 	rpa_production_bnf(pa);
 
-
-	rpa_production_(pa);
-
 	if (rvm_codegen_relocate(co->cg, &err) < 0) {
 		r_printf("RPA_PARSER: Unresolved symbol: %s\n", err->name->str);
 		return -1;
@@ -1438,7 +1383,7 @@ static rint rpa_parser_init(rpa_parser_t *pa)
 }
 
 
-static void rpa_production_(rpa_parser_t *pa)
+void rpa_production_(rpa_parser_t *pa)
 {
 	rpa_compiler_t *co = pa->co;
 

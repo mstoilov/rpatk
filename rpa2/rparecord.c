@@ -359,18 +359,16 @@ void rpa_record_dump(rarray_t *records, rlong rec)
 	parent = rpa_recordtree_parent(records, rec, RPA_RECORD_START);
 
 //	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "%5d  ( %7ld, %4d ) : ", rec, prec->ruleid, (ruint32)prec->ruleuid);
-	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "%5ld, n:%5ld (s: %3ld, e: %3ld, pp: %3ld, f: %3ld, l: %3ld, n: %3ld, p: %3ld) ( %4d, 0x%03x ) : ", rec, prec->next, start, end, parent, first, last, next, prev, prec->ruleuid, prec->usertype);
+	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "%5ld, n:%5ld (s: %5ld, e: %5ld, p: %5ld) ( %4d, 0x%03x ) : ", rec, prec->next, start, end, parent, prec->ruleuid, prec->usertype);
 	if (prec->type & RPA_RECORD_START)
 		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "START ");
+	if (prec->type & RPA_RECORD_END)
+		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "END   ");
 	if (prec->type & RPA_RECORD_HEAD)
 		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "HEAD ");
 	if (prec->type & RPA_RECORD_TAIL)
 		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "TAIL ");
-	if (prec->type & RPA_RECORD_MATCH)
-		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "MATCH ");
-	else if (prec->type & RPA_RECORD_END)
-		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "END   ");
-	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "%s ", rpa_parser_prodname(prec->ruleuid));
+	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "%s ", prec->rule);
 
 	r_memset(buf + n, ' ', bufsize - n);
 	n = 115;
@@ -408,7 +406,7 @@ void rpa_record_dumpindented(rarray_t *records, rlong rec, rint level)
 		r_printf("   ");
 	r_printf("   ");
 	r_printf("(");
-	r_printf("%s, %c, %c", rpa_parser_prodname(prec->ruleuid), rpa_record_optchar(prec, 'x'), rpa_record_loopchar(prec, 'x'));
+	r_printf("%s, %c, %c", prec->rule, rpa_record_optchar(prec, 'x'), rpa_record_loopchar(prec, 'x'));
 	r_printf(")");
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);

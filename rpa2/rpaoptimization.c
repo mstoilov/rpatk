@@ -18,6 +18,7 @@ static rlong rpa_copy_singletonorop_handler(rarray_t *records, rlong rec, rpoint
 
 	if (prec->ruleuid == RPA_PRODUCTION_OROP) {
 		prec->ruleuid = RPA_PRODUCTION_CLS;
+		prec->rule = "cls";
 	} else if (prec->ruleuid == RPA_PRODUCTION_CHAR) {
 		prec->ruleuid = RPA_PRODUCTION_CLSCHAR;
 	} else if (prec->ruleuid == RPA_PRODUCTION_ALTBRANCH || prec->ruleuid == RPA_PRODUCTION_CLS) {

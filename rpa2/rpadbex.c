@@ -1070,7 +1070,7 @@ static void rpa_dbex_dumptree_do(rpadbex_t *dbex, rlong rec, rint level)
 			}
 		}
 	}
-	rpa_dbex_dumpindented(dbex, rpa_recordtree_get(dbex->records, rec, RPA_RECORD_END), level, rpa_parser_prodname(prec->ruleuid));
+	rpa_dbex_dumpindented(dbex, rpa_recordtree_get(dbex->records, rec, RPA_RECORD_END), level, prec->rule);
 	for (rec = rpa_recordtree_firstchild(dbex->records, rec, RPA_RECORD_START); rec >= 0; rec = rpa_recordtree_next(dbex->records, rec, RPA_RECORD_START)) {
 		rpa_dbex_dumptree_do(dbex, rec, level + 1);
 	}
