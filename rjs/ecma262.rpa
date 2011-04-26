@@ -66,6 +66,9 @@
 #!emit LeftHandSideExpressionPush
 
 
+#!uid Program 1
+#!uid PostfixExpressionValOp 2
+
 
 # 6 Source Text
 SourceCharacter			::= .
@@ -97,7 +100,7 @@ Token					::= <:IdentifierName:> |
 
 Identifier				::= <IdentifierName> - <ReservedWord> - <ReservedWord> <IdentifierPart>
 IdentifierName			::= <IdentifierStart> <IdentifierPart>*
-IdentifierStart		::= <UnicodeLetter> | '$' | '_' | '\' <:UnicodeLetter:>
+IdentifierStart			::= <UnicodeLetter> | '$' | '_' | '\' <:UnicodeLetter:>
 UnicodeLetter			::= [#0x0041-#0x005A] | [#0x00C0-#0x00DE] | [#0x0100-#0x0232] | [#0x0061-#0x007A] | [#0x00C0-#0x00DE]	    # <Lu> | <Ll>
 
 Lu						::= [#0x0041-#0x005A] | [#0x00C0-#0x00DE] | [#0x0100-#0x0232]  	# TBD
