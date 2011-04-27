@@ -44,7 +44,6 @@ typedef struct rpa_compiler_s {
 	rvm_codegen_t *cg;
 	rharray_t *ruleprefs;
 	rarray_t *expressions;
-	rboolean optimized;
 	rvm_scope_t *scope;
 	rulong fpoff;
 	rpair_t currange;

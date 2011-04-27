@@ -95,6 +95,51 @@ static rlong rpa_dbex_getmatchspecialchr(rulong matchtype)
 }
 
 
+static rint rpa_record2long(rparecord_t *prec, ruint32 *num)
+{
+	rchar *endptr = NULL;
+	rchar buffer[64];
+
+	if (prec->inputsiz == 0 || prec->inputsiz >= sizeof(buffer))
+		return -1;
+	r_memset(buffer, 0, sizeof(buffer));
+	r_memcpy(buffer, prec->input, prec->inputsiz);
+	if (prec->ruleuid == RPA_PRODUCTION_HEX) {
+		*num = (ruint32)r_strtoul(prec->input, &endptr, 16);
+	} else if (prec->ruleuid == RPA_PRODUCTION_DEC) {
+		*num = (ruint32)r_strtoul(prec->input, &endptr, 10);
+	} else {
+		return -1;
+	}
+	return 0;
+}
+
+
+static rint rpa_dbex_rh_uid(rpadbex_t *dbex, rlong rec)
+{
+	const rchar *name = NULL;
+	rsize_t namesize;
+	ruint32 uid = 0;
+	rparecord_t *pnumrec;
+	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
+
+	if (prec->type & RPA_RECORD_START) {
+		if (rpa_dbex_rulename(dbex, rec, &name, &namesize) < 0) {
+			return -1;
+		}
+		pnumrec = rpa_dbex_record(dbex, rpa_recordtree_lastchild(dbex->records, rec, RPA_RECORD_END));
+		if (!pnumrec)
+			return -1;
+		if (rpa_record2long(pnumrec, &uid) < 0)
+			return -1;
+		rpa_compiler_rulepref_set_ruleuid(dbex->co, name, namesize, uid);
+	} else if (prec->type & RPA_RECORD_END) {
+
+	}
+	return 0;
+}
+
+
 static rint rpa_dbex_rh_emit(rpadbex_t *dbex, rlong rec)
 {
 	const rchar *name = NULL;
@@ -188,7 +233,6 @@ static rint rpa_dbex_rh_namedrule(rpadbex_t *dbex, rlong rec)
 
 			return -1;
 		}
-
 		if (!r_array_empty(dbex->inlinestack)) {
 			rpa_compiler_inlinerule_begin(dbex->co, name, namesize, 0);
 		} else {
@@ -395,26 +439,6 @@ static rint rpa_dbex_rh_range(rpadbex_t *dbex, rlong rec)
 }
 
 
-static rint rpa_record2long(rparecord_t *prec, ruint32 *num)
-{
-	rchar *endptr = NULL;
-	rchar buffer[64];
-
-	if (prec->inputsiz == 0 || prec->inputsiz >= sizeof(buffer))
-		return -1;
-	r_memset(buffer, 0, sizeof(buffer));
-	r_memcpy(buffer, prec->input, prec->inputsiz);
-	if (prec->ruleuid == RPA_PRODUCTION_HEX) {
-		*num = (ruint32)r_strtoul(prec->input, &endptr, 16);
-	} else if (prec->ruleuid == RPA_PRODUCTION_DEC) {
-		*num = (ruint32)r_strtoul(prec->input, &endptr, 10);
-	} else {
-		return -1;
-	}
-	return 0;
-}
-
-
 static rint rpa_dbex_rh_numrange(rpadbex_t *dbex, rlong rec)
 {
 	rparecord_t *prec = (rparecord_t *) rpa_dbex_record(dbex, rec);
@@ -541,6 +565,8 @@ static void rpa_dbex_rh_loopref(rpadbex_t *dbex, rparecord_t *prec)
 	rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_MOVS, R0, R_LOO, XX, 0));
 	rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_compiler_exp_end(dbex->co);
+//	rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
+
 }
 
 
@@ -559,6 +585,11 @@ static rint rpa_dbex_rh_aref(rpadbex_t *dbex, rlong rec)
 
 		if ((prec->usertype & RPA_LOOP_PATH) && rpa_parseinfo_loopdetect(dbex, rec, rpa_dbex_firstinlined(dbex))) {
 			info = (rpa_ruleinfo_t *) r_harray_get(dbex->rules, rpa_dbex_lookup(dbex, name, namesize));
+			if (!info) {
+				RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_UNRESOLVED_SYMBOL);
+				RPA_DBEX_SETERRINFO_NAME(dbex, name, namesize);
+				return -1;
+			}
 			if (rpa_dbex_findinlined(dbex, info->startrec)) {
 				rpa_dbex_rh_loopref(dbex, prec);
 			} else {
@@ -630,6 +661,7 @@ rpadbex_t *rpa_dbex_create(void)
 	dbex->handlers[RPA_PRODUCTION_DIRECTIVENOEMIT] = rpa_dbex_rh_noemit;
 	dbex->handlers[RPA_PRODUCTION_DIRECTIVEEMITALL] = rpa_dbex_rh_emitall;
 	dbex->handlers[RPA_PRODUCTION_DIRECTIVEEMITNONE] = rpa_dbex_rh_emitnone;
+	dbex->handlers[RPA_PRODUCTION_DIRECTIVEUID] = rpa_dbex_rh_uid;
 
 	return dbex;
 }
@@ -815,7 +847,7 @@ static void rpa_dbex_buildruleinfo(rpadbex_t *dbex)
 			if ((rec = rpa_dbex_record(dbex, rpa_recordtree_get(dbex->records, i, RPA_RECORD_END))))
 				r_harray_add(dbex->rules, rec->input, rec->inputsiz, &info);
 			i += info.sizerecs - 1;
-		} else if ((rec->type & RPA_RECORD_START) && (rec->ruleuid >= RPA_PRODUCTION_DIRECTIVEEMIT) && (rec->ruleuid <= RPA_PRODUCTION_DIRECTIVEEMITALL)) {
+		} else if ((rec->type & RPA_RECORD_START) && (rec->ruleuid >= RPA_PRODUCTION_DIRECTIVEEMIT) && (rec->ruleuid <= RPA_PRODUCTION_DIRECTIVEUID)) {
 			r_memset(&info, 0, sizeof(info));
 			info.type = RPA_RULEINFO_DIRECTIVE;
 			info.startrec = i;

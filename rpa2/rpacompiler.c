@@ -2,7 +2,6 @@
 #include "rpacompiler.h"
 #include "rstring.h"
 
-#define OPTIMIZE_MNODE_NAN 1
 
 static rlong rpa_codegen_add_numlabel_s(rvm_codegen_t *cg, const rchar *alphaname, rlong numname)
 {
@@ -440,7 +439,7 @@ rint rpa_compiler_inlinerule_begin(rpa_compiler_t *co, const rchar *name, ruint 
 	r_memset(&exp, 0, sizeof(exp));
 	exp.branch = rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, 0));
 	exp.start = rvm_codegen_getcodesize(co->cg);
-	exp.startidx = rvm_codegen_addlabel(co->cg, name, namesize);
+	exp.startidx = rpa_codegen_add_numlabel_s(co->cg, "__inlined", exp.start);
 	exp.endidx = rpa_codegen_invalid_add_numlabel_s(co->cg, "__end", exp.start);
 	exp.dataidx = rpa_compiler_addblob(co, exp.start, ruleuid, ruleflags, name, namesize);
 

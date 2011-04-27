@@ -247,9 +247,10 @@ static void rpavm_swi_emitstart(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rword tp = RVM_CPUREG_GETU(cpu, ins->op2);
 	rstr_t name = {(rchar*)ruledata + ruledata->name, ruledata->namesize};
 
+	if (stat->debug)
+		r_printf("%ld: %s, %s, tp = %ld\n", RVM_CPUREG_GETU(cpu, FP), "START", name.str, tp);
 	if (!(ruledata->flags & RPA_RFLAG_EMITRECORD))
 		return;
-//	r_printf("%ld: %s, %s, tp = %ld\n", RVM_CPUREG_GETU(cpu, FP), "START", name.str, tp);
 	R_ASSERT(RVM_CPUREG_GETL(cpu, R_REC) >= 0);
 //	index = r_array_replace(stat->records, index + 1, NULL);
 	index = r_array_add(stat->records, NULL);
@@ -282,9 +283,11 @@ static void rpavm_swi_emitend(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rword tplen = RVM_CPUREG_GETU(cpu, ins->op3);
 	rstr_t name = {(rchar*)ruledata + ruledata->name, ruledata->namesize};
 
+	if (stat->debug)
+		r_printf("%ld: %s, %s, tp = %ld, tplen = %ld\n", RVM_CPUREG_GETU(cpu, FP), "END ", name.str, tp, tplen);
 	if (!(ruledata->flags & RPA_RFLAG_EMITRECORD))
 		return;
-//	r_printf("%ld: %s, %s, tp = %ld, tplen = %ld\n", RVM_CPUREG_GETU(cpu, FP), "END ", name.str, tp, tplen);
+
 	R_ASSERT(RVM_CPUREG_GETL(cpu, R_REC) >= 0);
 //	index = r_array_replace(stat->records, index + 1, NULL);
 	index = r_array_add(stat->records, NULL);
@@ -313,11 +316,16 @@ static void rpavm_swi_emitend(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rpavm_swi_prninfo(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
+	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	rpa_ruledata_t *ruledata = RVM_CPUREG_GETP(cpu, ins->op1);
-	rstr_t name = {(rchar*)ruledata + ruledata->name, ruledata->namesize};
-
-	if (!(ruledata->flags & RPA_RFLAG_EMITRECORD))
+	rstr_t name = {"unknown", 7};
+	if (!stat->debug)
 		return;
+	if (ruledata) {
+		name.str = (rchar*)ruledata + ruledata->name;
+		name.size = ruledata->namesize;
+	}
+
 	r_printf("%s: ", name.str);
 	rvm_cpu_dumpregs(cpu, ins);
 }

@@ -17,6 +17,7 @@ LIBS += -lrjs -lrpa2 -lrvm -lrlib -lpthread -lm --static
 RJS_OBJECTS =	\
 	$(OUTDIR)/rjs.o \
 	$(OUTDIR)/rjsparser.o \
+	$(OUTDIR)/rjscompiler.o \
 	$(OUTDIR)/rjsrules.o \
 	$(OUTDIR)/ecma262.o \
 
