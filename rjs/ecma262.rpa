@@ -56,7 +56,6 @@
 #!emit MemberExpressionDotOp
 #!emit MemberExpressionBase
 #!emit IdentifierName
-#!emit Identifier
 #!emit CallExpression
 
 #!uid Program 1
