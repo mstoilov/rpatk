@@ -252,8 +252,14 @@ static void rpavm_swi_emitstart(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	if (!(ruledata->flags & RPA_RFLAG_EMITRECORD))
 		return;
 	R_ASSERT(RVM_CPUREG_GETL(cpu, R_REC) >= 0);
-//	index = r_array_replace(stat->records, index + 1, NULL);
-	index = r_array_add(stat->records, NULL);
+	if (r_array_length(stat->orphans) > 0) {
+		/*
+		 * First let see if there is an orphan record that we can adopt.
+		 */
+		index = r_array_pop(stat->orphans, rlong);
+	} else {
+		index = r_array_add(stat->records, NULL);
+	}
 
 	/*
 	 * Important: get the pointer to crec after modifying the array, because if
@@ -268,6 +274,7 @@ static void rpavm_swi_emitstart(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rec->type = RPA_RECORD_START;
 	rec->input = stat->instack[tp].input;
 	rec->inputsiz = 0;
+	rec->next = 0;
 	crec->next = index;
 }
 
@@ -289,9 +296,15 @@ static void rpavm_swi_emitend(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		return;
 
 	R_ASSERT(RVM_CPUREG_GETL(cpu, R_REC) >= 0);
-//	index = r_array_replace(stat->records, index + 1, NULL);
-	index = r_array_add(stat->records, NULL);
 
+	if (r_array_length(stat->orphans) > 0) {
+		/*
+		 * First let see if there is an orphan record that we can adopt.
+		 */
+		index = r_array_pop(stat->orphans, rlong);
+	} else {
+		index = r_array_add(stat->records, NULL);
+	}
 	/*
 	 * Important: get the pointer to crec after modifying the array, because if
 	 * it gets reallocated the pointer will be invalid.
@@ -306,11 +319,47 @@ static void rpavm_swi_emitend(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rec->ruleuid = ruledata->ruleuid;
 	rec->input = stat->instack[tp].input;
 	rec->inputsiz = stat->instack[tp + tplen].input - stat->instack[tp].input;
+	rec->next = 0;
 	crec->next = index;
 
 	if (tplen) {
 		rec->type |= RPA_RECORD_MATCH;
 	}
+}
+
+
+static void rpavm_swi_pushstart(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
+	rpa_ruledata_t *ruledata = RVM_CPUREG_GETP(cpu, ins->op1);
+	rlong index = RVM_CPUREG_GETL(cpu, R_REC);
+	if (!(ruledata->flags & RPA_RFLAG_EMITRECORD))
+		return;
+
+	r_array_add(stat->emitstack, &index);
+}
+
+
+static void rpavm_swi_popstart(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rlong index;
+	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
+	rpa_ruledata_t *ruledata = RVM_CPUREG_GETP(cpu, ins->op1);
+	if (!(ruledata->flags & RPA_RFLAG_EMITRECORD))
+		return;
+	index = r_array_pop(stat->emitstack, rlong);
+}
+
+
+static void rpavm_swi_poporphan(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rlong index;
+	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
+	rpa_ruledata_t *ruledata = RVM_CPUREG_GETP(cpu, ins->op1);
+	if (!(ruledata->flags & RPA_RFLAG_EMITRECORD))
+		return;
+	index = r_array_pop(stat->emitstack, rlong);
+	r_array_add(stat->orphans, &index);
 }
 
 
@@ -343,34 +392,6 @@ static void rpavm_swi_getnextrec(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
-static void rpavm_swi_getreclen(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
-	RVM_CPUREG_SETU(cpu, ins->op1, r_array_length(stat->records));
-}
-
-
-static void rpavm_swi_setreclen(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
-
-	r_array_setlength(stat->records, (ruint)RVM_CPUREG_GETU(cpu, ins->op1));
-	RVM_CPUREG_SETL(cpu, R_REC, RVM_CPUREG_GETU(cpu, ins->op1) - 1);
-}
-
-
-static void rpavm_swi_getcurrec(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	RVM_CPUREG_SETL(cpu, ins->op1, RVM_CPUREG_GETL(cpu, R_REC));
-}
-
-
-static void rpavm_swi_setcurrec(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	RVM_CPUREG_SETL(cpu, R_REC, RVM_CPUREG_GETU(cpu, ins->op1));
-}
-
-
 static void rpavm_swi_setcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
@@ -391,23 +412,8 @@ static void rpavm_swi_setcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		prec = (rparecord_t *)r_array_slot(stat->records, startrec);
 //		r_printf("Set the cache for: %s (%ld, %ld), top = %ld, ret = %ld, ruleid=%ld\n", prec->rule, startrec, endrec, prec->top, r0, ruleid);
 		rpa_cache_set(stat->cache, top, ruleid, r0, startrec, endrec);
-
-		/*
-		 * The next optimization is supposed to reduce the size of
-		 * garbage records.
-		 */
-		if (stat->cursize < endrec + 1)
-			stat->cursize = endrec + 1;
 	} else {
 		rpa_cache_set(stat->cache, top, ruleid, r0, 0, 0);
-		/*
-		 * The next optimization is supposed to reduce the size of
-		 * garbage records.
-		 */
-		if (stat->cursize < endrec + 1) {
-			r_array_setlength(stat->records, endrec + 1);
-			stat->cursize = endrec + 1;
-		}
 	}
 }
 
@@ -446,28 +452,6 @@ static void rpavm_swi_checkcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
-static void rpavm_swi_matchchrinstr_nan(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
-	rchar *str = RVM_CPUREG_GETSTR(cpu, ins->op1);
-	rword matched = 0;
-	rword wc;
-
-	while (*str) {
-		wc = *str++;
-		if (rpa_stat_matchchr(stat, RVM_CPUREG_GETL(cpu, R_TOP), wc) > 0) {
-			rpavm_swi_shift(cpu, ins);
-			matched = 1;
-			break;
-		}
-	}
-	cpu->status = matched ? 0 : RVM_STATUS_N;
-	RVM_CPUREG_SETU(cpu, R0, matched ? matched : (rword)-1);
-}
-
-
-
-
 static rvm_switable_t rpavm_swi_table[] = {
 		{"RPA_MATCHCHR_NAN", rpavm_swi_matchchr_nan},
 		{"RPA_MATCHCHR_OPT", rpavm_swi_matchchr_opt},
@@ -491,12 +475,9 @@ static rvm_switable_t rpavm_swi_table[] = {
 		{"RPA_EMITTAIL", rpavm_swi_emittail},
 		{"RPA_GETNEXTREC", rpavm_swi_getnextrec},
 		{"RPA_PRNINFO", rpavm_swi_prninfo},
-		{"RPA_MATCHCHRINSTR_NAN", rpavm_swi_matchchrinstr_nan},
-
-		{"RPA_GETRECLEN", rpavm_swi_getreclen},
-		{"RPA_SETRECLEN", rpavm_swi_setreclen},
-		{"RPA_GETCURREC", rpavm_swi_getcurrec},
-		{"RPA_SETCURREC", rpavm_swi_setcurrec},
+		{"RPA_PUSHSTARTREC", rpavm_swi_pushstart},
+		{"RPA_POPSTARTREC", rpavm_swi_popstart},
+		{"RPA_POPORPHANREC", rpavm_swi_poporphan},
 		{NULL, NULL},
 };
 

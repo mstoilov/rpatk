@@ -35,10 +35,11 @@ struct rpastat_s {
 	ruint encoding;
 	ruint debug;
 	rarray_t *records;
+	rarray_t *emitstack;
+	rarray_t *orphans;
 	rpainput_t *instackbuffer;
 	rpainput_t *instack;			/* instack = &instackbuffer[1]; This allows R_TOP = -1, without any additional checks */
 	rulong instacksize;
-	rulong cursize;
 	rpacache_t *cache;
 	rpainmap_t ip;
 	rvmcpu_t *cpu;

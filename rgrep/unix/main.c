@@ -274,8 +274,10 @@ end:
 			milsec = 1;
 		minutes = milsec/60000;
 		sec = (milsec%60000)/1000.0;
-		fprintf(stdout, "\ntime: %0ldm%1.3fs, %ld KB (%ld KB/sec), stack: %ld KB, memory: %ld KB (leaked %ld Bytes), cachehit: %ld\n",
-				minutes, sec, sckb, 1000*sckb/milsec, pGrep->usedstack / 1000, (rlong)r_debug_get_maxmem()/1000, (rlong)r_debug_get_allocmem(), pGrep->cachehit);
+		fprintf(stdout, "\ntime: %0ldm%1.3fs, %ld KB (%ld KB/sec), stack: %ld KB, memory: %ld KB (leaked %ld Bytes), cachehit: %ld, "
+				"orphan records: %ld, emitstacksize: %ld\n",
+				minutes, sec, sckb, 1000*sckb/milsec, pGrep->usedstack / 1000, (rlong)r_debug_get_maxmem()/1000, (rlong)r_debug_get_allocmem(),
+				pGrep->cachehit, pGrep->orphrecords, pGrep->emitstacksize);
 	}
 
 	rpa_grep_destroy(pGrep);

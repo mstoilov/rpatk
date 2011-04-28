@@ -11,6 +11,19 @@ extern "C" {
 
 #define RPA_RULENAME_MAXSIZE 256
 
+
+#define RPA_COMPILER_CURRENTEXP(__co__) ((rpa_ruledef_t*)r_array_lastslot((__co__)->expressions))
+
+/*
+ * The rpa_rulepref_t user preferences are compiled into
+ * rpa_ruledata_t and access in runtime.
+ */
+typedef struct rpa_rulepref_s {
+	rlong ruleuid;
+	rulong flags;
+} rpa_rulepref_t;
+
+
 /*
  * This should be renamed to rpa_expdef_s
  */
@@ -26,19 +39,9 @@ typedef struct rpa_ruledef_s {
 	rlong againidx;
 	ruint ruleuid;
 	ruint flags;
+	rpa_rulepref_t *rulepref;
 } rpa_ruledef_t;
 
-
-#define RPA_COMPILER_CURRENTEXP(__co__) ((rpa_ruledef_t*)r_array_lastslot((__co__)->expressions))
-
-/*
- * The rpa_rulepref_t user preferences are compiled into
- * rpa_ruledata_t and access in runtime.
- */
-typedef struct rpa_rulepref_s {
-	rlong ruleuid;
-	rulong flags;
-} rpa_rulepref_t;
 
 typedef struct rpa_compiler_s {
 	rvm_codegen_t *cg;

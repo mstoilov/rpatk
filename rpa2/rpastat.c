@@ -24,6 +24,8 @@ rpastat_t *rpa_stat_create(rpadbex_t *dbex, rulong stacksize)
 	}
 	stat->dbex = dbex;
 	stat->records = r_array_create(sizeof(rparecord_t));
+	stat->emitstack = r_array_create(sizeof(rlong));
+	stat->orphans = r_array_create(sizeof(rlong));
 	stat->cpu->userdata1 = stat;
 
 	return stat;
@@ -35,7 +37,9 @@ void rpa_stat_destroy(rpastat_t *stat)
 	if (stat) {
 		if (stat->instack)
 			r_free(stat->instackbuffer);
-		r_object_destroy((robject_t*)stat->records);
+		r_array_destroy(stat->records);
+		r_array_destroy(stat->emitstack);
+		r_array_destroy(stat->orphans);
 		rpavm_cpu_destroy(stat->cpu);
 		rpa_cache_destroy(stat->cache);
 		r_free(stat);
@@ -67,7 +71,8 @@ rint rpa_stat_init(rpastat_t *stat, const rchar *input, const rchar *start, cons
 	stat->end = end;
 	stat->input = input;
 	stat->error = 0;
-	stat->cursize = 0;
+	r_array_setlength(stat->orphans, 0);
+	r_array_setlength(stat->emitstack, 0);
 	stat->cache->hit = 0;
 	if (stat->instacksize < size) {
 		stat->instackbuffer = r_realloc(stat->instackbuffer, (size + 2) * sizeof(rpainput_t));
