@@ -116,12 +116,14 @@ exec:
 		goto end;
 	if (parseinfo) {
 		rjs_engine_dumpast(jse, script->str, script->size);
-	}
-
-	if (debugcompileonly) {
+	} else if (debugcompileonly) {
 		jse->debugcompile = 1;
 		rjs_engine_compile(jse, script->str, script->size);
 		jse->debugcompile = 0;
+	} else if (compileonly) {
+		rjs_engine_compile(jse, script->str, script->size);
+	} else {
+		rjs_engine_compile(jse, script->str, script->size);
 	}
 
 end:
