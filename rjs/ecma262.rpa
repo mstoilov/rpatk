@@ -54,12 +54,14 @@
 #!emit Expression
 #!emit MemberExpressionIndexOp
 #!emit MemberExpressionDotOp
-#!emit MemberExpressionBase
 #!emit IdentifierName
 #!emit CallExpression
+#!emit AssignmentExpressionOp
 
-#!uid Program 1
-#!uid PostfixExpressionValOp 2
+#!uid Program 						RJS_PROGRAM 						1
+#!uid PostfixExpressionValOp 		RJS_POSTFIXEXPRESSIONVALOP 			2
+#!uid Expression					RJS_EXPRESSION						3
+#!uid LeftHandSideExpression		RJS_LEFTHANDSIDEEXPRESSION			4 
 
 
 # 6 Source Text
@@ -101,7 +103,7 @@ IdentifierPart			::= <IdentifierStart> |
 				    		<UnicodeDigit> 
 UnicodeDigit			::= [0-9] | [#0x0660-#0x0669]					# TBD
 
-ReservedWord			::= <Keyword>
+ReservedWord			::= <Keyword> |
 							<FutureReservedWord> |
 							<NullLiteral> |
 							<BooleanLiteral>
@@ -279,7 +281,8 @@ LogicalORExpression 			::= <LogicalOROp> |
 ConditionalExpression 			::= <LogicalORExpression> ( <S>? '?' <S>? <AssignmentExpression> <S>? ':' <S>? <AssignmentExpression> )?
 
 # 11.13 Assignment Operators
-AssignmentExpression 			::= <LeftHandSideExpression> <S>? <AssignmentOperator> <S>? <AssignmentExpression> | <ConditionalExpression>
+AssignmentExpressionOp 			::= <LeftHandSideExpression> <S>? <AssignmentOperator> <S>? <AssignmentExpression>
+AssignmentExpression 			::= <AssignmentExpressionOp> | <ConditionalExpression>
 AssignmentOperator 				::= '=' | '*=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>=' | '>>>=' | '&=' | '^=' | '|='
 
 
@@ -417,6 +420,6 @@ SourceElement 						::= <FunctionDeclaration> |
 			    						<Statement>
 Program							::= <SourceElements>
 # The root rule, it is anonymous
-<Expression>
+<Program>
 	
 

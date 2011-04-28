@@ -187,6 +187,13 @@ void rpa_grep_dump_pattern_info(rpa_grep_t *pGrep)
 }
 
 
+void rpa_grep_dump_alias_info(rpa_grep_t *pGrep)
+{
+	rpa_dbex_compile(pGrep->hDbex);
+	rpa_dbex_dumpalias(pGrep->hDbex);
+}
+
+
 int rpa_grep_match(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 {
 	int ret = 0;

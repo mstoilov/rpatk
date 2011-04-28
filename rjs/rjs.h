@@ -7,7 +7,17 @@ extern "C" {
 #endif
 
 #include "rtypes.h"
+#include "rvmcpu.h"
 #include "rjsparser.h"
+#include "rjscompiler.h"
+
+typedef struct rjs_engine_s {
+	rjs_parser_t *pa;
+	rjs_compiler_t *co;
+	rvmcpu_t *cpu;
+	rlong debugcompile:1;
+} rjs_engine_t;
+
 
 #define RJS_VERSION_MAJOR 0
 #define RJS_VERSION_MINOR 51
@@ -15,6 +25,15 @@ extern "C" {
 #define RJS_VERSION_STRING "0.51.1"
 
 const rchar *rjs_version();
+
+rjs_engine_t *rjs_engine_create();
+void rjs_engine_destroy(rjs_engine_t *jse);
+rint rjs_engine_open(rjs_engine_t *jse);
+rint rjs_engine_compile(rjs_engine_t *jse, const rchar *script, rsize_t size);
+rint rjs_engine_compile_s(rjs_engine_t *jse, const rchar *script);
+rint rjs_engine_close(rjs_engine_t *jse);
+rint rjs_engine_run(rjs_engine_t *jse);
+rint rjs_engine_dumpast(rjs_engine_t *jse, const rchar *script, rsize_t size);
 
 
 #ifdef __cplusplus

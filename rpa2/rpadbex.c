@@ -100,7 +100,7 @@ static rint rpa_record2long(rparecord_t *prec, ruint32 *num)
 	rchar *endptr = NULL;
 	rchar buffer[64];
 
-	if (prec->inputsiz == 0 || prec->inputsiz >= sizeof(buffer))
+	if (!prec || !num || prec->inputsiz == 0 || prec->inputsiz >= sizeof(buffer))
 		return -1;
 	r_memset(buffer, 0, sizeof(buffer));
 	r_memcpy(buffer, prec->input, prec->inputsiz);
@@ -125,13 +125,18 @@ static rint rpa_dbex_rh_uid(rpadbex_t *dbex, rlong rec)
 
 	if (prec->type & RPA_RECORD_START) {
 		if (rpa_dbex_rulename(dbex, rec, &name, &namesize) < 0) {
+			RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_SYNTAX_ERROR);
 			return -1;
 		}
 		pnumrec = rpa_dbex_record(dbex, rpa_recordtree_lastchild(dbex->records, rec, RPA_RECORD_END));
-		if (!pnumrec)
+		if (!pnumrec) {
+			RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_SYNTAX_ERROR);
 			return -1;
-		if (rpa_record2long(pnumrec, &uid) < 0)
+		}
+		if (rpa_record2long(pnumrec, &uid) < 0) {
+			RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_SYNTAX_ERROR);
 			return -1;
+		}
 		rpa_compiler_rulepref_set_ruleuid(dbex->co, name, namesize, uid);
 	} else if (prec->type & RPA_RECORD_END) {
 
@@ -1208,6 +1213,47 @@ rint rpa_dbex_dumpinfo(rpadbex_t *dbex)
 		};
 		r_printf("(%7d, %4d, code: %7ld, %5ld) : %s\n", info->startrec, info->sizerecs, info->codeoff, info->codesiz, name->str);
 	}
+	return 0;
+}
+
+
+rint rpa_dbex_dumpalias(rpadbex_t *dbex)
+{
+	rlong i;
+	rlong rec;
+	rpa_ruleinfo_t *info;
+	rchar *buffer = r_zmalloc(32 * sizeof(rchar));
+
+	if (!dbex)
+		return -1;
+	if (!dbex->rules) {
+		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_NOTCLOSED);
+		return -1;
+	}
+	for (i = 0; i < r_array_length(dbex->rules->names); i++) {
+		info = (rpa_ruleinfo_t *)r_harray_get(dbex->rules, i);
+		if (info->type == RPA_RULEINFO_DIRECTIVE) {
+			rparecord_t *prec = rpa_dbex_record(dbex, rpa_recordtree_get(dbex->records, info->startrec, RPA_RECORD_END));
+			if (prec->ruleuid == RPA_PRODUCTION_DIRECTIVEUID && prec->inputsiz) {
+				rec = rpa_recordtree_firstchild(dbex->records, info->startrec, RPA_RECORD_START);
+				while (rec >= 0) {
+					prec = rpa_dbex_record(dbex, rpa_recordtree_get(dbex->records, rec, RPA_RECORD_END));
+					if (prec->ruleuid == RPA_PRODUCTION_ALIASNAME) {
+						ruint32 dec;
+						if (rpa_record2long(rpa_dbex_record(dbex, rpa_recordtree_next(dbex->records, rec, RPA_RECORD_END)), &dec) < 0)
+							break;
+						buffer = r_realloc(buffer, prec->inputsiz + 1);
+						r_memset(buffer, 0, prec->inputsiz + 1);
+						r_memcpy(buffer, prec->input, prec->inputsiz);
+						r_printf("#define %s %d\n", buffer, dec);
+						break;
+					}
+					rec = rpa_recordtree_next(dbex->records, rec, RPA_RECORD_START);
+				}
+			}
+		}
+	}
+	r_free(buffer);
 	return 0;
 }
 

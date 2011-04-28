@@ -13,6 +13,11 @@
 #include "rparecord.h"
 
 
+static int debuginfo = 0;
+static int parseinfo = 0;
+static int compileonly = 0;
+static int debugcompileonly = 0;
+
 
 void rjs_unmap_file(rstr_t *buf)
 {
@@ -62,20 +67,33 @@ error:
 int main(int argc, char *argv[])
 {
 	rint i;
-	rlong res;
 	rstr_t *script = NULL, *unmapscript = NULL;
-	rjs_parser_t *parser = rjs_parser_create();
-	rarray_t *records = 0;
+	rstr_t line;
+	rjs_engine_t *jse = rjs_engine_create();
 
-	if (!parser)
-		return 1;
-	r_printf("RJS Version: %s\n", rjs_version());
+	for (i = 1; i < argc; i++) {
+		if (r_strcmp(argv[i], "-L") == 0) {
+
+		} else if (r_strcmp(argv[i], "-d") == 0) {
+			debuginfo = 1;
+		} else if (r_strcmp(argv[i], "-p") == 0) {
+			parseinfo = 1;
+		} else if (r_strcmp(argv[i], "-C") == 0) {
+			debugcompileonly = 1;
+		} else if (r_strcmp(argv[i], "-c") == 0) {
+			compileonly = 1;
+		} else if (r_strcmp(argv[i], "-m") == 0) {
+
+		}
+	}
+
 
 	for (i = 1; i < argc; i++) {
 		if (r_strcmp(argv[i], "-e") == 0) {
 			if (++i < argc) {
-				rstr_t script = { argv[i], r_strlen(argv[i]) };
-				res = rjs_parser_exec(parser, script.str, script.size, &records);
+				line.str = argv[i];
+				line.size = r_strlen(argv[i]);
+				script = &line;
 			}
 			goto exec;
 		}
@@ -86,7 +104,6 @@ int main(int argc, char *argv[])
 			if (++i < argc) {
 				script = rjs_map_file(argv[i]);
 				if (script) {
-					res = rjs_parser_exec(parser, script->str, script->size, &records);;
 					unmapscript = script;
 				}
 			}
@@ -95,13 +112,23 @@ int main(int argc, char *argv[])
 	}
 
 exec:
-	if (records) {
-		rlong i;
-		for (i = 0; i < r_array_length(records); i++)
-			rpa_record_dump(records, i);
+	if (!script)
+		goto end;
+	if (parseinfo) {
+		rjs_engine_dumpast(jse, script->str, script->size);
 	}
-	rjs_parser_destroy(parser);
+
+	if (debugcompileonly) {
+		jse->debugcompile = 1;
+		rjs_engine_compile(jse, script->str, script->size);
+		jse->debugcompile = 0;
+	}
+
+end:
+	rjs_engine_destroy(jse);
 	if (unmapscript)
 		rjs_unmap_file(unmapscript);
+	if (debuginfo)
+		fprintf(stdout, "\nRJS Version: %s, memory: %ld KB (leaked %ld Bytes)\n", rjs_version(), (rlong)r_debug_get_maxmem()/1000, (rlong)r_debug_get_allocmem());
 	return 0;
 }

@@ -57,6 +57,7 @@ int usage(int argc, const char *argv[])
 		fprintf(stderr, "\t-v                       Display version information.\n");
 		fprintf(stderr, "\t-h, --help               Display this help.\n");
 		fprintf(stderr, "\t    --dump-info          Display rules info.\n");
+		fprintf(stderr, "\t    --dump-alias         Display alias info.\n");
 		fprintf(stderr, "\t    --dump-records       Display rules parsing records.\n");
 		fprintf(stderr, "\t    --no-optimizations   Disable optimizations.\n");
 
@@ -155,6 +156,12 @@ int main(int argc, const char *argv[])
 		}
 	}
 
+	for (i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "--dump-alias") == 0) {
+			rpa_grep_dump_alias_info(pGrep);
+			goto end;
+		}
+	}
 
 	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "--dump-records") == 0) {
