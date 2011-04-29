@@ -58,10 +58,22 @@
 #!emit CallExpression
 #!emit AssignmentExpressionOp
 
-#!uid Program 				RJS_PROGRAM 					1
-#!uid PostfixExpressionValOp 		RJS_POSTFIXEXPRESSIONVALOP 			2
-#!uid Expression			RJS_EXPRESSION					3
-#!uid LeftHandSideExpression		RJS_LEFTHANDSIDEEXPRESSION			4 
+#!uid Program 						UID_PROGRAM 						1
+#!uid PostfixExpressionValOp 		UID_POSTFIXEXPRESSIONVALOP 			2
+#!uid Expression					UID_EXPRESSION						3
+#!uid LeftHandSideExpression		UID_LEFTHANDSIDEEXPRESSION			4 
+#!uid DecimalIntegerLiteral			UID_DECIMALINTEGERLITERAL			5
+#!uid DecimalNonIntegerLiteral		UID_DECIMALNONINTEGERLITERAL		6
+#!uid AdditiveExpressionOp			UID_ADDITIVEEXPRESSIONOP			7
+#!uid MultiplicativeExpressionOp	UID_MULTIPLICATIVEEXPRESSIONOP		8
+#!uid BitwiseANDOp					UID_BITWISEANDOP					9
+#!uid BitwiseXOROp					UID_BITWISEXOROP					10
+#!uid BitwiseOROp					UID_BITWISEOROP						11
+#!uid ShiftExpressionOp				UID_SHIFTEXPRESSIONOP				12
+#!uid EqualityExpressionOp			UID_EQUALITYEXPRESSIONOP			13
+#!uid RelationalExpressionOp		UID_RELATIONALEXPRESSIONOP			14
+#!uid LogicalOROp					UID_LOGICALOROP						15
+#!uid LogicalANDOp					UID_LOGICALANDOP					16
 
 
 # 6 Source Text

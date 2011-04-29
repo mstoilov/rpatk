@@ -28,6 +28,7 @@ struct rjs_compiler_s {
 	rvm_codegen_t *cg;
 	rarray_t *coexp;
 	rlong headoff;
+	rlong opcode;
 	rulong debug:1;
 	RJS_COMPILER_RH handlers[RJS_COMPILER_NHANDLERS];
 };
