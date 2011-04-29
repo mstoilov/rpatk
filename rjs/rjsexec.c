@@ -124,6 +124,9 @@ exec:
 		rjs_engine_compile(jse, script->str, script->size);
 	} else {
 		rjs_engine_compile(jse, script->str, script->size);
+		if (debuginfo)
+			jse->debugexec = 1;
+		rjs_engine_run(jse);
 	}
 
 end:

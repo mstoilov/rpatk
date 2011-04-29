@@ -58,10 +58,10 @@
 #!emit CallExpression
 #!emit AssignmentExpressionOp
 
-#uid Program 						RJS_PROGRAM 						1
-#uid PostfixExpressionValOp 		RJS_POSTFIXEXPRESSIONVALOP 			2
-#uid Expression					RJS_EXPRESSION						3
-#uid LeftHandSideExpression		RJS_LEFTHANDSIDEEXPRESSION			4 
+#!uid Program 				RJS_PROGRAM 					1
+#!uid PostfixExpressionValOp 		RJS_POSTFIXEXPRESSIONVALOP 			2
+#!uid Expression			RJS_EXPRESSION					3
+#!uid LeftHandSideExpression		RJS_LEFTHANDSIDEEXPRESSION			4 
 
 
 # 6 Source Text
@@ -421,5 +421,5 @@ SourceElement 						::= <FunctionDeclaration> |
 Program							::= <SourceElements>
 # The root rule, it is anonymous
 <Program>
-	
+
 

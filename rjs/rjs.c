@@ -105,6 +105,16 @@ rint rjs_engine_close(rjs_engine_t *jse)
 
 rint rjs_engine_run(rjs_engine_t *jse)
 {
+	rint res = 0;
 
-	return 0;
+	if (!jse->co) {
+
+		return -1;
+	}
+	if (jse->debugexec) {
+		res = rvm_cpu_exec_debug(jse->cpu, rvm_codegen_getcode(jse->co->cg, 0), 0);
+	} else {
+		res = rvm_cpu_exec(jse->cpu, rvm_codegen_getcode(jse->co->cg, 0), 0);
+	}
+	return res;
 }

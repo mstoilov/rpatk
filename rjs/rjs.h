@@ -16,6 +16,7 @@ typedef struct rjs_engine_s {
 	rjs_compiler_t *co;
 	rvmcpu_t *cpu;
 	rlong debugcompile:1;
+	rlong debugexec:1;
 } rjs_engine_t;
 
 

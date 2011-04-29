@@ -21,12 +21,13 @@ typedef struct rjs_coexp_s {
 
 
 typedef struct rjs_compiler_s rjs_compiler_t;
-typedef rint (*RJS_COMPILER_RH)(rjs_compiler_t *co, rarray_t *records, rlong rec, rparecord_t *prec);
+typedef rint (*RJS_COMPILER_RH)(rjs_compiler_t *co, rarray_t *records, rlong rec);
 
 struct rjs_compiler_s {
 	rvmcpu_t *cpu;
 	rvm_codegen_t *cg;
 	rarray_t *coexp;
+	rlong headoff;
 	rulong debug:1;
 	RJS_COMPILER_RH handlers[RJS_COMPILER_NHANDLERS];
 };
