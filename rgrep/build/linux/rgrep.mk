@@ -37,4 +37,7 @@ clean:
 	@rm -f $(TESTS)
 	@rm -f *~
 	@rm -f $(SRCDIR)/*~
+	@rm -f $(OBJECTS)
+	@rm -f $(OUTDIR)/$(RPAGREP)
+
 

@@ -92,7 +92,7 @@ Token					::= <IdentifierName> |
 
 # 7.6 Identifier Names and Identifiers
 
-Identifier				::= <IdentifierName>  - (<ReservedWord> - <ReservedWord> <IdentifierPart>)
+Identifier				::= <IdentifierName> - (<ReservedWord> - <ReservedWord> <IdentifierPart>)
 IdentifierName			::= <IdentifierStart> <IdentifierPart>*
 IdentifierStart			::= <UnicodeLetter> | '$' | '_' | '\' <UnicodeLetter>
 UnicodeLetter			::= [#0x0041-#0x005A] | [#0x00C0-#0x00DE] | [#0x0100-#0x0232] | [#0x0061-#0x007A] | [#0x00C0-#0x00DE]	    # <Lu> | <Ll>
@@ -103,10 +103,10 @@ IdentifierPart			::= <IdentifierStart> |
 				    		<UnicodeDigit> 
 UnicodeDigit			::= [0-9] | [#0x0660-#0x0669]					# TBD
 
-ReservedWord			::= <Keyword> |
-							<FutureReservedWord> |
-							<NullLiteral> |
-							<BooleanLiteral>
+ReservedWord			::= <NullLiteral> |
+							<BooleanLiteral> |
+							<Keyword> |
+							<FutureReservedWord>
 
 Keyword					::= 'instanceof' | 'typeof'	| 'break' |
 			    			'do' | 'new' | 'var' |
@@ -292,13 +292,12 @@ Expression    					::= <AssignmentExpression> ( <S>? ',' <S>? <AssignmentExpress
 
 # 12 Statements
 Statement						::= <FunctionDefinitionStatement> |
-									<BreakStatement> |
+			    					<ExpressionStatement> |
 									<ContinueStatement> |
 									<Block> |
 			    					<Comment> |
 			    					<VariableStatement> |
 			    					<EmptyStatement> |
-			    					<ExpressionStatement> |
 			    					<IfStatement> |
 			    					<IterationStatement> |
 			    					<ContinueStatement> |
