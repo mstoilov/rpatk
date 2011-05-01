@@ -9,6 +9,7 @@ extern "C" {
 #include "rtypes.h"
 #include "rarray.h"
 #include "rvmcodegen.h"
+#include "rvmscope.h"
 #include "rvmcpu.h"
 #include "rjsuids.h"
 #include "rparecord.h"
@@ -43,7 +44,9 @@ typedef rint (*RJS_COMPILER_RH)(rjs_compiler_t *co, rarray_t *records, rlong rec
 struct rjs_compiler_s {
 	rvmcpu_t *cpu;
 	rvm_codegen_t *cg;
+	rvm_scope_t *scope;
 	rarray_t *coctx;
+	rchar *temp;
 	rlong headoff;
 	rlong opcode;
 	rulong debug:1;

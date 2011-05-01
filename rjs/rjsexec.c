@@ -123,7 +123,8 @@ exec:
 	} else if (compileonly) {
 		rjs_engine_compile(jse, script->str, script->size);
 	} else {
-		rjs_engine_compile(jse, script->str, script->size);
+		if (rjs_engine_compile(jse, script->str, script->size) < 0)
+			goto end;
 		if (debuginfo)
 			jse->debugexec = 1;
 		rjs_engine_run(jse);
