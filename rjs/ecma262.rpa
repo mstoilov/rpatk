@@ -57,6 +57,9 @@
 #!emit IdentifierName
 #!emit CallExpression
 #!emit AssignmentExpressionOp
+#!emit VariableAllocate;
+#!emit VariableAllocateAndInit;
+
 
 #!uid Program 						UID_PROGRAM 						1
 #!uid PostfixExpressionValOp 		UID_POSTFIXEXPRESSIONVALOP 			2
@@ -74,6 +77,8 @@
 #!uid RelationalExpressionOp		UID_RELATIONALEXPRESSIONOP			14
 #!uid LogicalOROp					UID_LOGICALOROP						15
 #!uid LogicalANDOp					UID_LOGICALANDOP					16
+#!uid VariableAllocate				UID_VARIABLEALLOCATE				17
+#!uid VariableAllocateAndInit		UID_VARIABLEALLOCATEANDINIT			18;
 
 
 # 6 Source Text

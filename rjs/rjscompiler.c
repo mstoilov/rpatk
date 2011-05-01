@@ -1,7 +1,7 @@
 #include "rmem.h"
 #include "rjscompiler.h"
 
-static rint rjs_compiler_playreversechildrecords(rjs_compiler_t *co, rarray_t *records, rlong rec);
+rint rjs_compiler_playreversechildrecords(rjs_compiler_t *co, rarray_t *records, rlong rec);
 static rint rjs_compiler_playrecord(rjs_compiler_t *co, rarray_t *records, rlong rec);
 static rint rjs_compiler_playchildrecords(rjs_compiler_t *co, rarray_t *records, rlong rec);
 
@@ -109,14 +109,20 @@ rlong rjs_compiler_record2opcode(rparecord_t *prec)
 
 rint rjs_compiler_rh_program(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
+	rjs_coctx_global_t ctx;
 	rparecord_t *prec;
+
+	r_memset(&ctx, 0, sizeof(ctx));
+	ctx.base.type = RJS_COCTX_GLOBAL;
+	r_array_push(co->coctx, &ctx, rjs_coctx_t*);
+
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_NOP, XX, XX, XX, 0));
 	rjs_compiler_debugtail(co, records, rec);
 
 	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
-		return -1;
+		goto end;
 
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);
@@ -124,7 +130,12 @@ rint rjs_compiler_rh_program(rjs_compiler_t *co, rarray_t *records, rlong rec)
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PRN, R0, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
 	rjs_compiler_debugtail(co, records, rec);
+	r_array_removelast(co->coctx);
 	return 0;
+
+end:
+	r_array_removelast(co->coctx);
+	return -1;
 }
 
 
@@ -254,7 +265,7 @@ rjs_compiler_t *rjs_compiler_create(rvmcpu_t *cpu)
 	rjs_compiler_t *co = (rjs_compiler_t *) r_zmalloc(sizeof(*co));
 
 	co->cg = rvm_codegen_create();
-	co->coexp = r_array_create(sizeof(rjs_coexp_t));
+	co->coctx = r_array_create(sizeof(rjs_coctx_t *));
 	co->cpu = cpu;
 	r_memset(co->handlers, 0, sizeof(co->handlers));
 
@@ -284,7 +295,7 @@ void rjs_compiler_destroy(rjs_compiler_t *co)
 {
 	if (co) {
 		rvm_codegen_destroy(co->cg);
-		r_array_destroy(co->coexp);
+		r_array_destroy(co->coctx);
 		co->cpu = NULL;
 		r_free(co);
 	}
@@ -324,7 +335,7 @@ static rint rjs_compiler_playchildrecords(rjs_compiler_t *co, rarray_t *records,
 }
 
 
-static rint rjs_compiler_playreversechildrecords(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rint rjs_compiler_playreversechildrecords(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rlong child;
 

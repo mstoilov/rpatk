@@ -15,9 +15,26 @@ extern "C" {
 
 #define RJS_COMPILER_NHANDLERS 128
 
-typedef struct rjs_coexp_s {
-	rlong codeoff;
-} rjs_coexp_t;
+#define RJS_COCTX_NONE 0
+#define RJS_COCTX_GLOBAL 1
+#define RJS_COCTX_FUNCTION 2
+
+
+typedef struct rjs_coctx_s {
+	rulong type;
+} rjs_coctx_t;
+
+
+typedef struct rjs_coctx_global_s {
+	rjs_coctx_t base;
+	rsize_t allocs;
+} rjs_coctx_global_t;
+
+
+typedef struct rjs_coctx_function_s {
+	rjs_coctx_t base;
+	rsize_t allocs;
+} rjs_coctx_function_t;
 
 
 typedef struct rjs_compiler_s rjs_compiler_t;
@@ -26,7 +43,7 @@ typedef rint (*RJS_COMPILER_RH)(rjs_compiler_t *co, rarray_t *records, rlong rec
 struct rjs_compiler_s {
 	rvmcpu_t *cpu;
 	rvm_codegen_t *cg;
-	rarray_t *coexp;
+	rarray_t *coctx;
 	rlong headoff;
 	rlong opcode;
 	rulong debug:1;
