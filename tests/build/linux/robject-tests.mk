@@ -1,7 +1,7 @@
 ROBJECT_SRCDIR = $(SRCDIR)/robject
 RLIB_SRCDIR = $(SRCDIR)/rlib
 RVM_SRCDIR = $(SRCDIR)/rvm
-RPA_SRCDIR = $(SRCDIR)/rpa
+RPA_SRCDIR = $(SRCDIR)/rpa1
 RPA2_SRCDIR = $(SRCDIR)/rpa2
 RAST_SRCDIR = $(SRCDIR)/rast
 TESTS_SRCDIR = $(SRCDIR)/tests
@@ -20,7 +20,7 @@ LIBS += -lrvm -lrast -lrlib -lpthread -lm --static
 
 ;TESTS	+= $(OUTDIR)/calc-test
 ;TESTS	+= $(OUTDIR)/rast-test
-;TESTS	+= $(OUTDIR)/rpagen-test
+TESTS	+= $(OUTDIR)/rpagen-test
 TESTS	+= $(OUTDIR)/funcarg-test
 TESTS   += $(OUTDIR)/codegen-test
 TESTS   += $(OUTDIR)/codemap-test

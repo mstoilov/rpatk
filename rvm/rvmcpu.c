@@ -2057,7 +2057,26 @@ skipexec:
 }
 
 
-rint rvm_cpu_swilookup(rvmcpu_t *cpu, const rchar *tabname, const rchar *swiname, rsize_t size)
+rint rvm_cpu_global_swilookup(rvmcpu_t *cpu, const rchar *swiname, rsize_t size)
+{
+	rint nswi;
+	rvm_switable_t *swientry;
+	rlong ntable;
+
+	for (ntable = 0; ntable < r_harray_length(cpu->switables); ntable++) {
+		swientry = r_harray_index(cpu->switables, ntable, rvm_switable_t*);
+		if (!swientry)
+			return -1;
+		for (nswi = 0; swientry[nswi].name; nswi++) {
+			if (r_strncmp(swientry[nswi].name, swiname, size) == 0 && r_strlen(swientry[nswi].name) == size)
+				return (rint)RVM_SWI_ID(ntable, nswi);
+		}
+	}
+	return -1;
+}
+
+
+rint rvm_cpu_table_swilookup(rvmcpu_t *cpu, const rchar *tabname, const rchar *swiname, rsize_t size)
 {
 	rint nswi;
 	rvm_switable_t *swientry;
@@ -2073,6 +2092,12 @@ rint rvm_cpu_swilookup(rvmcpu_t *cpu, const rchar *tabname, const rchar *swiname
 			return (rint)RVM_SWI_ID(ntable, nswi);
 	}
 	return -1;
+}
+
+
+rint rvm_cpu_swilookup(rvmcpu_t *cpu, const rchar *tabname, const rchar *swiname, rsize_t size)
+{
+	return tabname ? rvm_cpu_table_swilookup(cpu, tabname, swiname, size) : rvm_cpu_global_swilookup(cpu, swiname, size);
 }
 
 
