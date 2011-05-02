@@ -60,7 +60,8 @@ int usage(int argc, const char *argv[])
 		fprintf(stderr, "\t    --dump-alias         Display alias info.\n");
 		fprintf(stderr, "\t    --dump-records       Display rules parsing records.\n");
 		fprintf(stderr, "\t    --no-optimizations   Disable optimizations.\n");
-
+		fprintf(stderr, "\t    --exec-debug         Execute in debug mode.\n");
+		fprintf(stderr, "\t    --dissable-cache     Dissable execution cache.\n");
 		
 		return 0;
 }
@@ -175,6 +176,13 @@ int main(int argc, const char *argv[])
 			pGrep->execdebug = 1;
 		}
 	}
+
+	for (i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "--dissable-cache") == 0) {
+			pGrep->disablecache = 1;
+		}
+	}
+
 
 	if (rpa_dbex_compile(pGrep->hDbex) < 0) {
 		rpa_errinfo_t errinfo;

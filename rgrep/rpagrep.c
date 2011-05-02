@@ -203,6 +203,7 @@ int rpa_grep_match(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 	hStat = rpa_stat_create(pGrep->hDbex, 0);
 	if (!hStat)
 		return -1;
+	rpa_stat_cachedisable(hStat, pGrep->disablecache);
 	rpa_stat_encodingset(hStat, pGrep->encoding);
 	hStat->debug = pGrep->execdebug;
 	ret = rpa_stat_match(hStat, pGrep->hPattern, input, start, end);
@@ -232,6 +233,7 @@ int rpa_grep_parse(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 	hStat = rpa_stat_create(pGrep->hDbex, 0);
 	if (!hStat)
 		return -1;
+	rpa_stat_cachedisable(hStat, pGrep->disablecache);
 	rpa_stat_encodingset(hStat, pGrep->encoding);
 	hStat->debug = pGrep->execdebug;
 	rpa_stat_parse(hStat, pGrep->hPattern, input, start, end, &records);
@@ -277,6 +279,7 @@ int rpa_grep_scan(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 	if (!hStat)
 		return -1;
 	rpa_stat_encodingset(hStat, pGrep->encoding);
+	rpa_stat_cachedisable(hStat, pGrep->disablecache);
 	hStat->debug = pGrep->execdebug;
 	pGrep->cachehit = hStat->cache->hit;
 	pGrep->orphrecords = r_array_length(hStat->orphans);

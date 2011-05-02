@@ -252,7 +252,7 @@ static void rpavm_swi_emitstart(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	if (!(ruledata->flags & RPA_RFLAG_EMITRECORD))
 		return;
 	R_ASSERT(RVM_CPUREG_GETL(cpu, R_REC) >= 0);
-	if (r_array_length(stat->orphans) > 0) {
+	if (1 && (r_array_length(stat->orphans) > 0)) {
 		/*
 		 * First let see if there is an orphan record that we can adopt.
 		 */
@@ -297,7 +297,7 @@ static void rpavm_swi_emitend(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 	R_ASSERT(RVM_CPUREG_GETL(cpu, R_REC) >= 0);
 
-	if (r_array_length(stat->orphans) > 0) {
+	if (1 && (r_array_length(stat->orphans) > 0)) {
 		/*
 		 * First let see if there is an orphan record that we can adopt.
 		 */
@@ -333,9 +333,12 @@ static void rpavm_swi_pushstart(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	rpa_ruledata_t *ruledata = RVM_CPUREG_GETP(cpu, ins->op1);
 	rlong index = RVM_CPUREG_GETL(cpu, R_REC);
+	rstr_t name = {(rchar*)ruledata + ruledata->name, ruledata->namesize};
+
 	if (!(ruledata->flags & RPA_RFLAG_EMITRECORD))
 		return;
-
+	if (stat->debug)
+		r_printf("%s, %s\n", "PUSHSTART ", name.str);
 	r_array_add(stat->emitstack, &index);
 }
 
@@ -345,8 +348,12 @@ static void rpavm_swi_popstart(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rlong index;
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	rpa_ruledata_t *ruledata = RVM_CPUREG_GETP(cpu, ins->op1);
+	rstr_t name = {(rchar*)ruledata + ruledata->name, ruledata->namesize};
+
 	if (!(ruledata->flags & RPA_RFLAG_EMITRECORD))
 		return;
+	if (stat->debug)
+		r_printf("%s, %s\n", "POPSTART ", name.str);
 	index = r_array_pop(stat->emitstack, rlong);
 }
 
@@ -356,8 +363,12 @@ static void rpavm_swi_poporphan(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rlong index;
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	rpa_ruledata_t *ruledata = RVM_CPUREG_GETP(cpu, ins->op1);
+	rstr_t name = {(rchar*)ruledata + ruledata->name, ruledata->namesize};
+
 	if (!(ruledata->flags & RPA_RFLAG_EMITRECORD))
 		return;
+	if (stat->debug)
+		r_printf("%s, %s\n", "POPORPHAN ", name.str);
 	index = r_array_pop(stat->emitstack, rlong);
 	r_array_add(stat->orphans, &index);
 }
@@ -402,18 +413,28 @@ static void rpavm_swi_setcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rlong top = RVM_CPUREG_GETL(cpu, R_OTP);
 	rlong startrec = 0;
 	rparecord_t *prec = NULL;
+	rlong i;
 
 	if (stat->cache->disalbled)
 		return;
 
-	if (r0 > 0 && prevrec != endrec) {
-		prec = (rparecord_t *)r_array_slot(stat->records, prevrec);
-		startrec = prec->next;
-		prec = (rparecord_t *)r_array_slot(stat->records, startrec);
-//		r_printf("Set the cache for: %s (%ld, %ld), top = %ld, ret = %ld, ruleid=%ld\n", prec->rule, startrec, endrec, prec->top, r0, ruleid);
-		rpa_cache_set(stat->cache, top, ruleid, r0, startrec, endrec);
+	if (r0 > 0) {
+		if (prevrec != endrec) {
+			prec = (rparecord_t *)r_array_slot(stat->records, prevrec);
+			startrec = prec->next;
+			prec = (rparecord_t *)r_array_slot(stat->records, startrec);
+			r_printf("Set the cache for: %s (%ld, %ld), top = %ld, ret = %ld, ruleid=%ld\n", prec->rule, startrec, endrec, prec->top, r0, ruleid);
+			for (i = startrec; i <= endrec; i++) {
+				rparecord_t *dumprec = NULL;
+				dumprec = (rparecord_t *)r_array_slot(stat->records, i);
+				rpa_record_dump(stat->records, i);
+//				i = dumprec->next;
+			}
+			r_printf("\n");
+			rpa_cache_set(stat->cache, top, ruleid, r0, startrec, endrec);
+		}
 	} else {
-		rpa_cache_set(stat->cache, top, ruleid, r0, 0, 0);
+//		rpa_cache_set(stat->cache, top, ruleid, r0, 0, 0);
 	}
 }
 
@@ -427,8 +448,8 @@ static void rpavm_swi_checkcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rlong r0 = 0;
 	entry = rpa_cache_lookup(stat->cache, top, ruleid);
 	if (entry) {
-//		rparecord_t *prec = (rparecord_t *)r_array_slot(stat->records, entry->startrec);
-//		r_printf("Hit the cache for: %s (%ld, %ld), r0 = %ld\n", prec->rule, entry->startrec, entry->endrec, entry->ret);
+		rparecord_t *prec = (rparecord_t *)r_array_slot(stat->records, entry->startrec);
+		r_printf("Hit the cache for: %s (%ld, %ld), r0 = %ld, ruleid: %ld\n", prec->rule, entry->startrec, entry->endrec, entry->ret, ruleid);
 
 		r0 = entry->ret;
 		if (entry->startrec != entry->endrec) {

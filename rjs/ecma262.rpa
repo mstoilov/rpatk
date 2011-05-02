@@ -55,12 +55,15 @@
 #!emit LeftHandSideExpressionAddr
 #!emit Expression
 #!emit MemberExpressionIndexOp
+#emit MemberExpression
+#emit NewExpression
 #!emit MemberExpressionDotOp
 #!emit IdentifierName
 #!emit Identifier
 #!emit CallExpression
-#!emit VariableAllocate;
-#!emit VariableAllocateAndInit;
+#!emit VariableAllocate
+#!emit VariableAllocateAndInit
+#!emit NewArrayExpression
 
 
 #!uid Program 						UID_PROGRAM 						1
@@ -86,6 +89,9 @@
 #!uid Identifier					UID_IDENTIFIER						21
 #!uid Initialiser					UID_INITIALISER						22
 #!uid AssignmentExpressionOp		UID_ASSIGNMENTEXPRESSIONOP			23
+#!uid NewArrayExpression			UID_NEWARRAYEXPRESSION				24
+#!uid MemberExpressionDotOp			UID_MEMBEREXPRESSIONDOTOP			25
+#!uid MemberExpressionIndexOp		UID_MEMBEREXPRESSIONINDEXOP			26
 
 
 # 6 Source Text
@@ -213,7 +219,9 @@ MemberExpression 				::= <MemberExpressionIndexOp>  |
 									
 									
 NewKeyword						::= 'new' - 'new' <IdentifierPart>
-NewExpression 					::= <NewKeyword> <S>? <NewExpression> |
+NewArrayExpression				::= <S>? 'new' <S> ( 'Array' | 'Object') <S>? <Arguments>?
+NewExpression 					::= <NewArrayExpression> |
+									<NewKeyword> <S>? <NewExpression> |
 									<MemberExpression>
 
 

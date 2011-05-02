@@ -26,13 +26,13 @@ RJSEXEC_OBJECTS =	\
 	$(OUTDIR)/rjsexec.o \
 
 ifeq ($(OS), linux)
-all: $(OUTDIR) $(RJS_LIB) $(RJS_EXEC) $(RJS_SO)
+all: $(OUTDIR) $(RJS_LIB) $(RJS_SO) $(RJS_EXEC)
 else
 all: $(OUTDIR) $(RJS_LIB)
 endif
 
-$(RJS_EXEC) : $(RJSEXEC_OBJECTS)
-	$(CC) $(ARCH) -o $@ $^ $(LIBS)
+$(RJS_EXEC) : $(RJSEXEC_OBJECTS) $(RJS_LIB) $(RJS_OBJECTS)
+	$(CC) $(ARCH) -o $@ $< $(LIBS)
 
 $(OUTDIR)/%.o: $(RJS_SRCDIR)/%.c
 	$(CC) $(CFLAGS) -o $(OUTDIR)/$*.o -c $(RJS_SRCDIR)/$*.c
