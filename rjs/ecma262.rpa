@@ -50,6 +50,7 @@
 #!emit Program
 #!emit Initialiser
 #!emit AssignmentExpressionOp
+#!emit AssignmentExpression
 #!emit LeftHandSideExpression
 #!emit LeftHandSideExpressionAddr
 #!emit Expression
@@ -58,7 +59,6 @@
 #!emit IdentifierName
 #!emit Identifier
 #!emit CallExpression
-#!emit AssignmentExpressionOp
 #!emit VariableAllocate;
 #!emit VariableAllocateAndInit;
 
@@ -85,6 +85,8 @@
 #!uid IdentifierName				UID_IDENTIFIERNAME					20
 #!uid Identifier					UID_IDENTIFIER						21
 #!uid Initialiser					UID_INITIALISER						22
+#!uid AssignmentExpressionOp		UID_ASSIGNMENTEXPRESSIONOP			23
+
 
 # 6 Source Text
 SourceCharacter			::= .

@@ -338,9 +338,9 @@ rint rjs_compiler_rh_identifier(rjs_compiler_t *co, rarray_t *records, rlong rec
 		 * If this is the last child of UID_LEFTHANDSIDEEXPRESSIONADDR
 		 */
 		if (v->datatype == VARMAP_DATATYPE_OFFSET) {
-			rvm_codegen_addins(co->cg, rvm_asm(RVM_ADDRS, R0, FP, DA, v->data.offset));
+			rvm_codegen_addins(co->cg, rvm_asm(RVM_ADDRS, R1, FP, DA, v->data.offset));
 		} else {
-			rvm_codegen_addins(co->cg, rvm_asmp(RVM_MOV, R0, DA, XX, v->data.ptr));
+			rvm_codegen_addins(co->cg, rvm_asmp(RVM_MOV, R1, DA, XX, v->data.ptr));
 		}
 	} else {
 		if (v->datatype == VARMAP_DATATYPE_OFFSET) {
@@ -386,6 +386,25 @@ rint rjs_compiler_rh_lefthandsideexpression(rjs_compiler_t *co, rarray_t *record
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
+	rjs_compiler_debugtail(co, records, rec);
+	return 0;
+}
+
+
+rint rjs_compiler_rh_lefthandsideexpressionaddr(rjs_compiler_t *co, rarray_t *records, rlong rec)
+{
+	rparecord_t *prec;
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rjs_compiler_debugtail(co, records, rec);
+
+	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
+		return -1;
+
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+//	rvm_codegen_addins(co->cg, rvm_asmp(RVM_PUSH, R1, XX, XX, 0));
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;
 }
@@ -458,6 +477,37 @@ rint rjs_compiler_rh_expressionop(rjs_compiler_t *co, rarray_t *records, rlong r
 }
 
 
+rint rjs_compiler_rh_assignmentexpressionop(rjs_compiler_t *co, rarray_t *records, rlong rec)
+{
+	rparecord_t *prec;
+	rlong opcode = 0;
+	rlong opcoderec = -1;
+
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rjs_compiler_debugtail(co, records, rec);
+
+	if ((opcoderec = rpa_recordtree_next(records, rpa_recordtree_firstchild(records, rec, RPA_RECORD_END), RPA_RECORD_END)) < 0)
+		return -1;
+	opcode = rjs_compiler_record2opcode((rparecord_t *)r_array_slot(records, opcoderec));
+
+	if (rjs_compiler_playreversechildrecords(co, records, rec) < 0)
+		return -1;
+
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+//	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0));
+	if (opcode != RVM_NOP) {
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_LDRR, R2, R1, XX, 0));
+		rvm_codegen_addins(co->cg, rvm_asm(opcode, R0, R2, R0, 0));
+	}
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_STRR, R0, R1, XX, 0));
+	rjs_compiler_debugtail(co, records, rec);
+	return 0;
+}
+
+
 rint rjs_compiler_rh_(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
@@ -489,6 +539,7 @@ rjs_compiler_t *rjs_compiler_create(rvmcpu_t *cpu)
 	co->handlers[UID_PROGRAM] = rjs_compiler_rh_program;
 	co->handlers[UID_EXPRESSION] = rjs_compiler_rh_expression;
 	co->handlers[UID_LEFTHANDSIDEEXPRESSION] = rjs_compiler_rh_lefthandsideexpression;
+	co->handlers[UID_LEFTHANDSIDEEXPRESSIONADDR] = rjs_compiler_rh_lefthandsideexpressionaddr;
 	co->handlers[UID_DECIMALINTEGERLITERAL] = rjs_compiler_rh_decimalintegerliteral;
 	co->handlers[UID_DECIMALNONINTEGERLITERAL] = rjs_compiler_rh_decimalnonintegerliteral;
 	co->handlers[UID_ADDITIVEEXPRESSIONOP] = rjs_compiler_rh_expressionop;
@@ -505,6 +556,7 @@ rjs_compiler_t *rjs_compiler_create(rvmcpu_t *cpu)
 	co->handlers[UID_VARIABLEALLOCATE] = rjs_compiler_rh_varalloc;
 	co->handlers[UID_IDENTIFIER] = rjs_compiler_rh_identifier;
 	co->handlers[UID_INITIALISER] = rjs_compiler_rh_initializer;
+	co->handlers[UID_ASSIGNMENTEXPRESSIONOP] = rjs_compiler_rh_assignmentexpressionop;
 
 	return co;
 }
