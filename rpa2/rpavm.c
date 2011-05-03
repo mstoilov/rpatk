@@ -414,27 +414,26 @@ static void rpavm_swi_setcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rlong startrec = 0;
 	rparecord_t *prec = NULL;
 	rlong i;
+	rparecord_t *dumprec = NULL;
 
 	if (stat->cache->disalbled)
 		return;
 
-	if (r0 > 0) {
-		if (prevrec != endrec) {
-			prec = (rparecord_t *)r_array_slot(stat->records, prevrec);
-			startrec = prec->next;
-			prec = (rparecord_t *)r_array_slot(stat->records, startrec);
-			r_printf("Set the cache for: %s (%ld, %ld), top = %ld, ret = %ld, ruleid=%ld\n", prec->rule, startrec, endrec, prec->top, r0, ruleid);
-			for (i = startrec; i <= endrec; i++) {
-				rparecord_t *dumprec = NULL;
-				dumprec = (rparecord_t *)r_array_slot(stat->records, i);
-				rpa_record_dump(stat->records, i);
-//				i = dumprec->next;
-			}
-			r_printf("\n");
-			rpa_cache_set(stat->cache, top, ruleid, r0, startrec, endrec);
-		}
+	if (r0 > 0 && prevrec != endrec) {
+		prec = (rparecord_t *)r_array_slot(stat->records, prevrec);
+		startrec = prec->next;
+		rpa_cache_set(stat->cache, top, ruleid, r0, startrec, endrec);
+//		prec = (rparecord_t *)r_array_slot(stat->records, startrec);
+//		r_printf("Set the cache for: %s (%ld, %ld), top = %ld, ret = %ld, ruleid=%ld\n", prec->rule, startrec, endrec, prec->top, r0, ruleid);
+//		for (i = startrec; i != endrec; i = dumprec->next) {
+//			dumprec = (rparecord_t *)r_array_slot(stat->records, i);
+//			rpa_record_dump(stat->records, i);
+//		}
+//		dumprec = (rparecord_t *)r_array_slot(stat->records, i);
+//		rpa_record_dump(stat->records, i);
+//		r_printf("\n");
 	} else {
-//		rpa_cache_set(stat->cache, top, ruleid, r0, 0, 0);
+		rpa_cache_set(stat->cache, top, ruleid, r0, 0, 0);
 	}
 }
 
@@ -446,16 +445,24 @@ static void rpavm_swi_checkcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rlong ruleid = RVM_CPUREG_GETL(cpu, ins->op1);
 	rlong top = RVM_CPUREG_GETL(cpu, ins->op2);
 	rlong r0 = 0;
+	rlong i;
+	rpacache_t *cache = stat->cache;
+	rlong startrec;
 	entry = rpa_cache_lookup(stat->cache, top, ruleid);
 	if (entry) {
-		rparecord_t *prec = (rparecord_t *)r_array_slot(stat->records, entry->startrec);
-		r_printf("Hit the cache for: %s (%ld, %ld), r0 = %ld, ruleid: %ld\n", prec->rule, entry->startrec, entry->endrec, entry->ret, ruleid);
+//		rparecord_t *prec = (rparecord_t *)r_array_slot(stat->records, entry->startrec);
+//		r_printf("Hit the cache for: %s (%ld, %ld), r0 = %ld, ruleid: %ld\n", prec->rule, entry->startrec, entry->endrec, entry->ret, ruleid);
 
 		r0 = entry->ret;
 		if (entry->startrec != entry->endrec) {
 			rparecord_t *crec = (rparecord_t *)r_array_slot(stat->records, RVM_CPUREG_GETL(cpu, R_REC));
 			crec->next = entry->startrec;
 			RVM_CPUREG_SETL(cpu, R_REC, entry->endrec);
+			startrec = entry->startrec;
+			for (i = 0; i < RPA_MCACHE_SIZE; i++) {
+				if (cache->entry[i].startrec == startrec)
+					cache->entry[i].serial = cache->serial - 1;
+			}
 		}
 		if (r0 > 0) {
 			top += r0;

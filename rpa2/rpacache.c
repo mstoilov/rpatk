@@ -40,6 +40,7 @@ void rpa_cache_set(rpacache_t *cache, rlong top, rlong ruleid, rlong ret, rlong 
 
 	if (cache->disalbled)
 		return;
+
 	cache->entry[bucket].ruleid = ruleid;
 	cache->entry[bucket].top = top;
 	cache->entry[bucket].ret = ret;
