@@ -262,10 +262,26 @@ static void rpa_recordptr_setusertype(rparecord_t *prec, ruint32 usertype, rvals
 }
 
 
+rlong rpa_record_getruleuid(rarray_t *records, rlong rec)
+{
+	rparecord_t *prec;
+
+	if (rec < 0)
+		return -1;
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_START);
+	if (rec >= r_array_length(records))
+		return -1;
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	return prec->ruleuid;
+}
+
+
 void rpa_record_setusertype(rarray_t *records, rlong rec, ruint32 usertype, rvalset_t op)
 {
 	rparecord_t *prec;
 
+	if (rec < 0)
+		return;
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_START);
 	if (rec >= r_array_length(records))
 		return;
@@ -283,6 +299,8 @@ rlong rpa_record_getusertype(rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 
+	if (rec < 0)
+		return -1;
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_START);
 	if (rec >= r_array_length(records))
 		return -1;

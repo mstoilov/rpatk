@@ -1126,6 +1126,8 @@ static void rvm_op_prn(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		rvm_printf("(STRING) R%d = %s\n", ins->op1, ((rstring_t*) RVM_REG_GETP(r))->s.str);
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_ARRAY)
 		rvm_printf("(ARRAY) R%d = %p\n", ins->op1, RVM_REG_GETP(r));
+	else if (rvm_reg_gettype(r) == RVM_DTYPE_JSOBJECT)
+		rvm_printf("(Object) R%d = %p\n", ins->op1, RVM_REG_GETP(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_SWIID)
 		rvm_printf("(SWI) R%d = %p\n", ins->op1, RVM_REG_GETP(r));
 	else
