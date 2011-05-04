@@ -125,6 +125,7 @@ static void rpa_stat_fixrecords(rpastat_t *stat)
 	rarray_t *records;
 	rparecord_t *cur = (rparecord_t *)r_array_slot(stat->records, 0);
 
+	return;
 	cur = rpa_stat_nextrecord(stat, cur);
 	if (!cur) {
 		/*

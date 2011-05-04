@@ -241,7 +241,6 @@ static rint rpa_dbex_rh_namedrule(rpadbex_t *dbex, rlong rec)
 		if (!r_array_empty(dbex->inlinestack)) {
 			rpa_compiler_inlinerule_begin(dbex->co, name, namesize, 0);
 		} else {
-			rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_EMITHEAD, XX, XX, XX, 0));
 			rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_SHIFT, XX, XX, XX, 0));
 			rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_BL, DA, XX, XX, 3));
 			rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_EMITTAIL, XX, XX, XX, 0));
@@ -276,7 +275,6 @@ static rint rpa_dbex_rh_anonymousrule(rpadbex_t *dbex, rlong rec)
 	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
 
 	if (prec->type & RPA_RECORD_START) {
-		rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_EMITHEAD, XX, XX, XX, 0));
 		rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_SHIFT, XX, XX, XX, 0));
 		rpa_compiler_exp_begin(dbex->co, RPA_MATCH_NONE);
 
