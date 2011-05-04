@@ -542,15 +542,18 @@ rint rjs_compiler_rh_memberexpressiondotop(rjs_compiler_t *co, rarray_t *records
 	rjs_compiler_debughead(co, records, rec);
 	if (rpa_record_getruleuid(records, rpa_recordtree_parent(records, rec, RPA_RECORD_START)) == UID_LEFTHANDSIDEEXPRESSIONADDR &&
 		rpa_recordtree_next(records, rec, RPA_RECORD_START) == -1) {
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0)); 	// Supposedly Array Address
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R1, R0, XX, 0)); 	// Supposedly Array Address
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, DA, XX, prec->inputsiz));
 		rvm_codegen_addins(co->cg, rvm_asmp(RVM_MOV, R2, DA, XX, (void*)prec->input));
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_OBJLKUPADD, R0, R1, R2, 0));	// Get the address of the element at offset R0
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_OBJLKUPADD, R0, R1, R2, 0));	// Get the offset of the element at offset R0
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_ADDROBJH, R0, R1, R0, 0));	// Get the address of the element at offset R0
+
 	} else {
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0)); 	// Supposedly Array Address
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R1, R0, XX, 0)); 	// Supposedly Array Address
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, DA, XX, prec->inputsiz));
 		rvm_codegen_addins(co->cg, rvm_asmp(RVM_MOV, R2, DA, XX, (void*)prec->input));
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_OBJLKUP, R0, R1, R2, 0));	// Get the address of the element at offset R0
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_OBJLKUP, R0, R1, R2, 0));	// Get the offset of the element at offset R0
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_LDOBJH, R0, R1, R0, 0));	// Get the value of the element at offset R0
 	}
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;
