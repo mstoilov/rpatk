@@ -71,6 +71,16 @@ rlong rvm_codegen_redefinelabel(rvm_codegen_t *cg, rlong index)
 }
 
 
+rlong rvm_codegen_redefinepointer(rvm_codegen_t *cg, rlong index, rpointer data)
+{
+	rvm_codelabel_t *label = rvm_codemap_label(cg->codemap, index);
+
+	if (!label)
+		return -1;
+	return rvm_codemap_addpointer(cg->codemap, label->name->str, label->name->size, data);
+}
+
+
 rlong rvm_codegen_addlabel(rvm_codegen_t *cg, const rchar* name, ruint namesize)
 {
 	return rvm_codemap_addoffset(cg->codemap, name, namesize, rvm_codemap_lookup_s(cg->codemap, ".code"), RVM_CODE2BYTE_OFFSET(rvm_codegen_getcodesize(cg)));
@@ -220,3 +230,24 @@ rlong rvm_codegen_addstring_s(rvm_codegen_t *cg, const rchar *name, const rchar*
 {
 	return rvm_codegen_addstring(cg, name, r_strlen(name), data);
 }
+
+
+rlong rvm_codegen_add_numlabel_s(rvm_codegen_t *cg, const rchar *alphaname, rlong numname)
+{
+	rchar label[128];
+
+	r_memset(label, 0, sizeof(label));
+	r_snprintf(label, sizeof(label) - 1, "L%07ld__%s:", numname, alphaname);
+	return rvm_codegen_addlabel_s(cg, label);
+}
+
+
+rlong rvm_codegen_invalid_add_numlabel_s(rvm_codegen_t *cg, const rchar *alphaname, rlong numname)
+{
+	rchar label[128];
+
+	r_memset(label, 0, sizeof(label));
+	r_snprintf(label, sizeof(label) - 1, "L%07ld__%s:", numname, alphaname);
+	return rvm_codegen_invalid_addlabel_s(cg, label);
+}
+

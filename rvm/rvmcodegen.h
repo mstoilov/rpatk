@@ -46,6 +46,7 @@ void rvm_codegen_setcodesize(rvm_codegen_t *cg, ruint size);
 void rvm_codegen_clear(rvm_codegen_t *cg);
 rint rvm_codegen_relocate(rvm_codegen_t *cg, rvm_codelabel_t **err);
 rlong rvm_codegen_redefinelabel(rvm_codegen_t *cg, rlong index);
+rlong rvm_codegen_redefinepointer(rvm_codegen_t *cg, rlong index, rpointer data);
 rlong rvm_codegen_addlabel(rvm_codegen_t *cg, const rchar* name, ruint namesize);
 rlong rvm_codegen_addlabel_s(rvm_codegen_t *cg, const rchar* name);
 rlong rvm_codegen_invalid_addlabel(rvm_codegen_t *cg, const rchar* name, ruint namesize);
@@ -54,6 +55,8 @@ rlong rvm_codegen_adddata(rvm_codegen_t *cg, const rchar *name, ruint namesize, 
 rlong rvm_codegen_adddata_s(rvm_codegen_t *cg, const rchar *name, rconstpointer data, rsize_t size);
 rlong rvm_codegen_addstring(rvm_codegen_t *cg, const rchar *name, ruint namesize, const rchar* data);
 rlong rvm_codegen_addstring_s(rvm_codegen_t *cg, const rchar *name, const rchar* data);
+rlong rvm_codegen_add_numlabel_s(rvm_codegen_t *cg, const rchar *alphaname, rlong numname);
+rlong rvm_codegen_invalid_add_numlabel_s(rvm_codegen_t *cg, const rchar *alphaname, rlong numname);
 
 #ifdef __cplusplus
 }

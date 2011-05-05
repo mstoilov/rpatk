@@ -64,6 +64,10 @@
 #!emit VariableAllocate
 #!emit VariableAllocateAndInit
 #!emit NewArrayExpression
+#!emit FunctionName
+#!emit FunctionDeclaration
+#!emit FunctionParameter
+#!emit FormalParameterList
 
 
 #!uid Program 						UID_PROGRAM 						1
@@ -92,6 +96,10 @@
 #!uid NewArrayExpression			UID_NEWARRAYEXPRESSION				24
 #!uid MemberExpressionDotOp			UID_MEMBEREXPRESSIONDOTOP			25
 #!uid MemberExpressionIndexOp		UID_MEMBEREXPRESSIONINDEXOP			26
+#!uid FunctionName					UID_FUNCTIONNAME					27
+#!uid FunctionDeclaration			UID_FUNCTIONDECLARATION				28
+#!uid FunctionParameter				UID_FUNCTIONPARAMETER				29
+#!uid FormalParameterList			UID_FORMALPARAMETERLIST				30
 
 
 # 6 Source Text
@@ -326,7 +334,7 @@ Expression    					::= <AssignmentExpression> ( <S>? ',' <S>? <AssignmentExpress
 
 
 # 12 Statements
-Statement						::= <FunctionDefinitionStatement> |
+Statement						::= <FunctionDeclarationStatement> |
 			    					<ExpressionStatement> |
 									<ContinueStatement> |
 									<Block> |
@@ -437,15 +445,23 @@ DefaultClauseOp						::= <DefaultKeywordOp> <S>? ':' <S>? <StatementList>?
 
 
 # 13 Function Definition
-FunctionName						::= <Identifier>
-FunctionNameLookupAlloc				::= <Identifier>
-FunctionDefinition					::= ('function' - 'function' <IdentifierPart>)<S>?<FunctionName><S>?'('<S>?<FormalParameterList>?<S>?')'
-FunctionDeclaration					::= <FunctionDefinition><S>?'{'<S>?<FunctionBody>?<S>?'}'
-FunctionExpression					::= ('function' - 'function'<IdentifierPart>)<S>?<FunctionName>?<S>?'('<S>?<FormalParameterList>?<S>?')'<S>?'{'<S>?<FunctionBody>?<S>?'}'
-FunctionParameter 					::= <Identifier>
+FunctionName						::= <IdentifierNoEmit>
+FunctionDeclaration					::= ('function'-'function'<IdentifierPart>)<S>?<FunctionName><S>?'('<S>?<FormalParameterList>?<S>?')'<S>?'{'<S>?<FunctionBody>?<S>?'}'
+FunctionExpression					::= ('function'-'function'<IdentifierPart>)<S>?<FunctionName>?<S>?'('<S>?<FormalParameterList>?<S>?')'<S>?'{'<S>?<FunctionBody>?<S>?'}'
 FormalParameterList 				::= <FunctionParameter> ( <S>? ',' <S>? <FunctionParameter> )*
-FunctionDefinitionStatement			::= ('function' - 'function' <IdentifierPart>)<S>?<FunctionNameLookupAlloc><S>?'('<S>?<FormalParameterList>?<S>?')' <SC>
+FunctionParameter 					::= <IdentifierNoEmit>
 FunctionBody						::= <SourceElements>
+FunctionDeclarationStatement		::= ('function' - 'function' <IdentifierPart>)<S>?<FunctionName><S>?'('<S>?<FormalParameterList>?<S>?')' <SC>
+
+# FunctionName						::= <IdentifierNoEmit>
+# FunctionNameLookupAlloc			::= <IdentifierNoEmit>
+# FunctionDefinition				::= ('function' - 'function' <IdentifierPart>)<S>?<FunctionName><S>?'('<S>?<FormalParameterList>?<S>?')'
+# FunctionDeclaration				::= <FunctionDefinition><S>?'{'<S>?<FunctionBody>?<S>?'}'
+# FunctionExpression				::= ('function' - 'function'<IdentifierPart>)<S>?<FunctionName>?<S>?'('<S>?<FormalParameterList>?<S>?')'<S>?'{'<S>?<FunctionBody>?<S>?'}'
+# FunctionParameter 				::= <Identifier>
+# FormalParameterList 				::= <FunctionParameter> ( <S>? ',' <S>? <FunctionParameter> )*
+# FunctionDefinitionStatement		::= ('function' - 'function' <IdentifierPart>)<S>?<FunctionNameLookupAlloc><S>?'('<S>?<FormalParameterList>?<S>?')' <SC>
+# FunctionBody						::= <SourceElements>
 
 
 # 14 Program
