@@ -42,7 +42,6 @@ static const rchar *rjs_compiler_record2str(rjs_compiler_t *co, rarray_t *record
 
 static rlong rjs_compiler_record2identifer(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
-	rlong i;
 	rvm_varmap_t *v = NULL;
 	rjs_coctx_t *ctx = NULL;
 	rparecord_t *prec = (rparecord_t *)r_array_slot(records, rec);
@@ -51,11 +50,7 @@ static rlong rjs_compiler_record2identifer(rjs_compiler_t *co, rarray_t *records
 	 * First lets find out if we are within a function definition or
 	 * this is a global variable.
 	 */
-	for (i = r_array_length(co->coctx) - 1; i >= 0; i--) {
-		ctx = r_array_index(co->coctx, i, rjs_coctx_t*);
-		if (ctx->type == RJS_COCTX_FUNCTION || ctx->type == RJS_COCTX_GLOBAL)
-			break;
-	}
+	ctx = rjs_compiler_getctx(co, RJS_COCTX_FUNCTION | RJS_COCTX_GLOBAL);
 	R_ASSERT(ctx);
 
 	v = rvm_scope_tiplookup(co->scope, prec->input, prec->inputsiz);
@@ -86,6 +81,20 @@ static rlong rjs_compiler_record2identifer(rjs_compiler_t *co, rarray_t *records
 	}
 
 	return 0;
+}
+
+
+rjs_coctx_t *rjs_compiler_getctx(rjs_compiler_t *co, rulong type)
+{
+	rlong i;
+	rjs_coctx_t *ctx;
+
+	for (i = r_array_length(co->coctx) - 1; i >= 0; i--) {
+		ctx = r_array_index(co->coctx, i, rjs_coctx_t*);
+		if (ctx->type & type)
+			return ctx;
+	}
+	return NULL;
 }
 
 
@@ -208,131 +217,41 @@ error:
 rint rjs_compiler_rh_varalloc(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
-	rjs_coctx_t *ctx = NULL;
-	rvm_varmap_t *v = NULL;
-	rlong i;
-
-	R_ASSERT(r_array_length(co->coctx));
-
-	/*
-	 * First lets find out if we are within a function definition or
-	 * this is a global variable.
-	 */
-	for (i = r_array_length(co->coctx) - 1; i >= 0; i--) {
-		ctx = r_array_index(co->coctx, i, rjs_coctx_t*);
-		if (ctx->type == RJS_COCTX_FUNCTION || ctx->type == RJS_COCTX_GLOBAL)
-			break;
-	}
-	R_ASSERT(ctx);
-
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	rjs_compiler_debugtail(co, records, rec);
 
 	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
-		goto error;
+		return -1;
 
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
-	v = rvm_scope_tiplookup(co->scope, prec->input, prec->inputsiz);
-
-	/*
-	 * TBD: Temporary here
-	 */
-	if (v) {
-		r_printf("ERROR: variable already defined: %s\n", rjs_compiler_record2str(co, records, rec));
-		goto error;
-	}
-
-	if (ctx->type == RJS_COCTX_FUNCTION) {
-		rjs_coctx_function_t *functx = (rjs_coctx_function_t *)ctx;
-		functx->allocs += 1;
-		rvm_scope_addoffset(co->scope, prec->input, prec->inputsiz, functx->allocs);
-	} else {
-		rjs_coctx_global_t *functx = (rjs_coctx_global_t *)ctx;
-		functx->allocs += 1;
-		r_carray_setlength(co->cpu->data, functx->allocs + 1);
-		rvm_scope_addpointer(co->scope, prec->input, prec->inputsiz, r_carray_slot(co->cpu->data, functx->allocs));
-	}
-	v = rvm_scope_tiplookup(co->scope, prec->input, prec->inputsiz);
-	if (v->datatype == VARMAP_DATATYPE_OFFSET) {
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_ADDRS, R1, FP, DA, v->data.offset));
-	} else {
-		rvm_codegen_addins(co->cg, rvm_asmp(RVM_MOV, R1, DA, XX, v->data.ptr));
-	}
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_CLRR, R1, XX, XX, 0));
-
+	if (rjs_compiler_record2identifer(co, records, rec) < 0)
+		return -1;
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;
-
-error:
-	return -1;
 }
 
 
 rint rjs_compiler_rh_varallocinit(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
-	rjs_coctx_t *ctx = NULL;
-	rvm_varmap_t *v = NULL;
-	rlong i;
-
-	R_ASSERT(r_array_length(co->coctx));
-
-	/*
-	 * First lets find out if we are within a function definition or
-	 * this is a global variable.
-	 */
-	for (i = r_array_length(co->coctx) - 1; i >= 0; i--) {
-		ctx = r_array_index(co->coctx, i, rjs_coctx_t*);
-		if (ctx->type == RJS_COCTX_FUNCTION || ctx->type == RJS_COCTX_GLOBAL)
-			break;
-	}
-	R_ASSERT(ctx);
-
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	rjs_compiler_debugtail(co, records, rec);
 
 	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
-		goto error;
+		return -1;
 
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
-	v = rvm_scope_tiplookup(co->scope, prec->input, prec->inputsiz);
-
-	/*
-	 * TBD: Temporary here
-	 */
-	if (v) {
-		r_printf("ERROR: variable already defined: %s\n", rjs_compiler_record2str(co, records, rec));
-		goto error;
-	}
-
-	if (ctx->type == RJS_COCTX_FUNCTION) {
-		rjs_coctx_function_t *functx = (rjs_coctx_function_t *)ctx;
-		functx->allocs += 1;
-		rvm_scope_addoffset(co->scope, prec->input, prec->inputsiz, functx->allocs);
-	} else {
-		rjs_coctx_global_t *functx = (rjs_coctx_global_t *)ctx;
-		functx->allocs += 1;
-		r_carray_setlength(co->cpu->data, functx->allocs + 1);
-		rvm_scope_addpointer(co->scope, prec->input, prec->inputsiz, r_carray_slot(co->cpu->data, functx->allocs));
-	}
-	v = rvm_scope_tiplookup(co->scope, prec->input, prec->inputsiz);
-	if (v->datatype == VARMAP_DATATYPE_OFFSET) {
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_ADDRS, R0, FP, DA, v->data.offset));
-	} else {
-		rvm_codegen_addins(co->cg, rvm_asmp(RVM_MOV, R0, DA, XX, v->data.ptr));
-	}
+	if (rjs_compiler_record2identifer(co, records, rec) < 0)
+		return -1;
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;
-
-error:
-	return -1;
 }
 
 
@@ -676,7 +595,7 @@ rint rjs_compiler_rh_functiondeclaration(rjs_compiler_t *co, rarray_t *records, 
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
-
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 	rvm_codegen_redefinelabel(co->cg, endidx);
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_NOP, XX, XX, XX, 0xffffffff));
 	rvm_codegen_redefinepointer(co->cg, allocsidx, (rpointer)ctx.allocs);
@@ -698,18 +617,13 @@ rint rjs_compiler_rh_functionparameter(rjs_compiler_t *co, rarray_t *records, rl
 	rjs_coctx_t *ctx = NULL;
 	rjs_coctx_function_t *functx = NULL;
 	rparecord_t *prec;
-	rlong i;
 	rvm_varmap_t *v;
 
 	/*
 	 * First lets find out if we are within a function definition or
 	 * this is a global variable.
 	 */
-	for (i = r_array_length(co->coctx) - 1; i >= 0; i--) {
-		ctx = r_array_index(co->coctx, i, rjs_coctx_t*);
-		if (ctx->type == RJS_COCTX_FUNCTION)
-			break;
-	}
+	ctx = rjs_compiler_getctx(co, RJS_COCTX_FUNCTION);
 	R_ASSERT(ctx);
 	functx = (rjs_coctx_function_t *)ctx;
 
@@ -736,6 +650,90 @@ rint rjs_compiler_rh_functionparameter(rjs_compiler_t *co, rarray_t *records, rl
 	functx->allocs += 1;
 	rvm_scope_addoffset(co->scope, prec->input, prec->inputsiz, functx->allocs);
 
+	rjs_compiler_debugtail(co, records, rec);
+	return 0;
+}
+
+
+rint rjs_compiler_rh_functioncall(rjs_compiler_t *co, rarray_t *records, rlong rec)
+{
+	rparecord_t *prec;
+	rjs_coctx_functioncall_t ctx;
+
+	r_memset(&ctx, 0, sizeof(ctx));
+	ctx.base.type = RJS_COCTX_FUNCTIONCALL;
+	r_array_push(co->coctx, &ctx, rjs_coctx_t*);
+
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(TP)|BIT(FP)|BIT(SP)|BIT(LR)));
+	rjs_compiler_debugtail(co, records, rec);
+
+	/*
+	 * Important: Function call has two children FunctionCallName, Arguments
+	 * We evaluate them in reverse order, first we evaluate the Arguments and push them on the
+	 * stack, than we evaluate the FunctionCallName -> R0. When we make the call we assume the
+	 * result of the FunctionCallName will be in R0.
+	 */
+	if (rjs_compiler_playreversechildrecords(co, records, rec) < 0)
+		goto error;
+
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_SUB, FP, SP, DA, ctx.arguments));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_BXL, R0, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, SP, FP, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BITS(TP,LR)));
+	rjs_compiler_debugtail(co, records, rec);
+	r_array_removelast(co->coctx);
+	return 0;
+
+error:
+	r_array_removelast(co->coctx);
+	return -1;
+}
+
+
+rint rjs_compiler_rh_argument(rjs_compiler_t *co, rarray_t *records, rlong rec)
+{
+	rparecord_t *prec;
+	rjs_coctx_functioncall_t *ctx = (rjs_coctx_functioncall_t *)rjs_compiler_getctx(co, RJS_COCTX_FUNCTIONCALL);
+
+	R_ASSERT(ctx);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rjs_compiler_debugtail(co, records, rec);
+
+	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
+		return -1;
+
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
+	ctx->arguments += 1;
+	rjs_compiler_debugtail(co, records, rec);
+	return 0;
+}
+
+
+rint rjs_compiler_rh_arguments(rjs_compiler_t *co, rarray_t *records, rlong rec)
+{
+	rparecord_t *prec;
+	rjs_coctx_functioncall_t *ctx = (rjs_coctx_functioncall_t *)rjs_compiler_getctx(co, RJS_COCTX_FUNCTIONCALL);
+
+	R_ASSERT(ctx);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rjs_compiler_debugtail(co, records, rec);
+
+	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
+		return -1;
+
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;
 }
@@ -795,6 +793,9 @@ rjs_compiler_t *rjs_compiler_create(rvmcpu_t *cpu)
 	co->handlers[UID_MEMBEREXPRESSIONINDEXOP] = rjs_compiler_rh_memberexpressionindexop;
 	co->handlers[UID_FUNCTIONDECLARATION] = rjs_compiler_rh_functiondeclaration;
 	co->handlers[UID_FUNCTIONPARAMETER] = rjs_compiler_rh_functionparameter;
+	co->handlers[UID_FUNCTIONCALL] = rjs_compiler_rh_functioncall;
+	co->handlers[UID_ARGUMENT] = rjs_compiler_rh_argument;
+	co->handlers[UID_ARGUMENTS] = rjs_compiler_rh_arguments;
 
 	return co;
 }

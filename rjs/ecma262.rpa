@@ -68,7 +68,10 @@
 #!emit FunctionDeclaration
 #!emit FunctionParameter
 #!emit FormalParameterList
-
+#!emit Argument
+#!emit Arguments
+#!emit FunctionCall
+#!emit FunctionCallName
 
 #!uid Program 						UID_PROGRAM 						1
 #!uid PostfixExpressionValOp 		UID_POSTFIXEXPRESSIONVALOP 			2
@@ -100,7 +103,10 @@
 #!uid FunctionDeclaration			UID_FUNCTIONDECLARATION				28
 #!uid FunctionParameter				UID_FUNCTIONPARAMETER				29
 #!uid FormalParameterList			UID_FORMALPARAMETERLIST				30
-
+#!uid CallExpression				UID_CALLEXPRESSION					31
+#!uid FunctionCall					UID_FUNCTIONCALL					32
+#!uid Argument						UID_ARGUMENT						33
+#!uid Arguments						UID_ARGUMENTS						34
 
 # 6 Source Text
 SourceCharacter			::= .
@@ -232,16 +238,18 @@ NewExpression 					::= <NewArrayExpression> |
 									<NewKeyword> <S>? <NewExpression> |
 									<MemberExpression>
 
-
-CallExpression					::= <CallExpression> <Arguments> |
-									<CallExpression> <S>? '[' <S>? Expression <S>? ']' |
+FunctionCallName				::= <CallExpression> | <MemberExpression>
+FunctionCall					::= <FunctionCallName> <S>? <Arguments>
+									
+CallExpression					::= <CallExpression> <S>? '[' <S>? Expression <S>? ']' |
 									<CallExpression> '.' <IdentifierName> |
-									<MemberExpression> <S>? <Arguments>
+									<FunctionCall>
 
 Arguments						::= '(' <S>? ')' |
 			    					'(' <S>? <ArgumentList> <S>? ')'
-ArgumentList					::= <ArgumentList> <S>? ',' <S>? <AssignmentExpression> |
-									<AssignmentExpression>
+Argument						::= <AssignmentExpression>
+ArgumentList					::= <ArgumentList> <S>? ',' <S>? <Argument> |
+									<Argument>
 LeftHandSideExpression			::= <CallExpression> | <NewExpression>
 LeftHandSideExpressionAddr		::= <CallExpression> | <NewExpression>
 

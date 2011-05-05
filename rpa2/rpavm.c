@@ -259,7 +259,8 @@ static void rpavm_swi_emitend(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpa_ruledata_t *ruledata = RVM_CPUREG_GETP(cpu, ins->op1);
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
-	rparecord_t *rec;
+	rparecord_t *rec, *startrec;
+	rlong startindex = RVM_CPUREG_GETL(cpu, R1) + 1;
 	rlong index = RVM_CPUREG_GETL(cpu, R_REC);
 	rword tp = RVM_CPUREG_GETU(cpu, ins->op2);
 	rword tplen = RVM_CPUREG_GETU(cpu, ins->op3);
@@ -273,6 +274,7 @@ static void rpavm_swi_emitend(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	index = r_array_replace(stat->records, index + 1, NULL);
 	RVM_CPUREG_SETL(cpu, R_REC, index);
 	rec = (rparecord_t *)r_array_slot(stat->records, index);
+	startrec = (rparecord_t *)r_array_slot(stat->records, startindex);
 	rec->rule = name.str;
 	rec->top = tp;
 	rec->size = tplen;
@@ -281,6 +283,8 @@ static void rpavm_swi_emitend(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rec->input = stat->instack[tp].input;
 	rec->inputsiz = stat->instack[tp + tplen].input - stat->instack[tp].input;
 	rec->next = 0;
+	startrec->size = tplen;
+	startrec->inputsiz = rec->inputsiz;
 
 	if (tplen) {
 		rec->type |= RPA_RECORD_MATCH;

@@ -17,9 +17,9 @@ extern "C" {
 #define RJS_COMPILER_NHANDLERS 128
 
 #define RJS_COCTX_NONE 0
-#define RJS_COCTX_GLOBAL 1
-#define RJS_COCTX_FUNCTION 2
-
+#define RJS_COCTX_GLOBAL (1 << 1)
+#define RJS_COCTX_FUNCTION (1 << 2)
+#define RJS_COCTX_FUNCTIONCALL (1 << 3)
 
 typedef struct rjs_coctx_s {
 	rulong type;
@@ -36,6 +36,12 @@ typedef struct rjs_coctx_function_s {
 	rjs_coctx_t base;
 	rsize_t allocs;
 } rjs_coctx_function_t;
+
+
+typedef struct rjs_coctx_functioncall_s {
+	rjs_coctx_t base;
+	rsize_t arguments;
+} rjs_coctx_functioncall_t;
 
 
 typedef struct rjs_compiler_s rjs_compiler_t;
@@ -57,7 +63,7 @@ struct rjs_compiler_s {
 rjs_compiler_t *rjs_compiler_create(rvmcpu_t *cpu);
 void rjs_compiler_destroy(rjs_compiler_t *co);
 rint rjs_compiler_compile(rjs_compiler_t *co, rarray_t *records);
-
+rjs_coctx_t *rjs_compiler_getctx(rjs_compiler_t *co, rulong type);
 
 #ifdef __cplusplus
 }

@@ -1130,6 +1130,8 @@ static void rvm_op_prn(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		rvm_printf("(Object) R%d = %p\n", ins->op1, RVM_REG_GETP(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_SWIID)
 		rvm_printf("(SWI) R%d = %p\n", ins->op1, RVM_REG_GETP(r));
+	else if (rvm_reg_gettype(r) == RVM_DTYPE_FUNCTION)
+		rvm_printf("(FUNCTION) R%d = %p\n", ins->op1, RVM_REG_GETP(r));
 	else
 		rvm_printf("(UNKNOWN) R%d = ?\n", ins->op1);
 }
