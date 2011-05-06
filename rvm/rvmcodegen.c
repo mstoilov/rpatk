@@ -71,6 +71,12 @@ rlong rvm_codegen_redefinelabel(rvm_codegen_t *cg, rlong index)
 }
 
 
+rlong rvm_codegen_validlabel(rvm_codegen_t *cg, rlong index)
+{
+	return rvm_codemap_validindex(cg->codemap, index);
+}
+
+
 rlong rvm_codegen_redefinepointer(rvm_codegen_t *cg, rlong index, rpointer data)
 {
 	rvm_codelabel_t *label = rvm_codemap_label(cg->codemap, index);

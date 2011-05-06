@@ -37,8 +37,7 @@
 
 #!emit DecimalIntegerLiteral
 #!emit DecimalNonIntegerLiteral
-#!emit BlockBegin
-#!emit BlockEnd
+#!emit Block
 
 #!emit DoKeyword
 #!emit IterationDo
@@ -72,6 +71,12 @@
 #!emit Arguments
 #!emit FunctionCall
 #!emit FunctionCallName
+#!emit ReturnStatement
+#!emit IfStatement
+#!emit IfConditionOp
+#!emit IfTrueStatement
+#!emit IfFalseStatement
+
 
 #!uid Program 						UID_PROGRAM 						1
 #!uid PostfixExpressionValOp 		UID_POSTFIXEXPRESSIONVALOP 			2
@@ -107,6 +112,14 @@
 #!uid FunctionCall					UID_FUNCTIONCALL					32
 #!uid Argument						UID_ARGUMENT						33
 #!uid Arguments						UID_ARGUMENTS						34
+#!uid ReturnStatement				UID_RETURNSTATEMENT					35
+#!uid DoubleStringCharacters		UID_STRINGCHARACTERS				36
+#!uid SingleStringCharacters		UID_STRINGCHARACTERS				36
+#!uid IfStatement					UID_IFSTATEMENT						37
+#!uid IfConditionOp					UID_IFCONDITIONOP					38
+#!uid IfTrueStatement				UID_IFTRUESTATEMENT					39
+#!uid IfFalseStatement				UID_IFFALSESTATEMENT				40
+#!uid Block							UID_BLOCK							41
 
 # 6 Source Text
 SourceCharacter			::= .
@@ -358,9 +371,7 @@ Statement						::= <FunctionDeclarationStatement> |
 			    					<SwitchStatementOp>
 
 # 12.1 Block
-BlockBegin							::= <S>? '{' <S>?
-BlockEnd							::= <S>? '}' <S>?
-Block								::= <BlockBegin> <StatementList>? <BlockEnd>
+Block								::= <S>? '{' <S>? <StatementList>? <S>? '}' <S>?
 StatementList						::= (<S>? <Statement>)+
 
 # 12.2 Variable Statement
@@ -380,14 +391,11 @@ ExpressionStatement 				::= (<Expression> - ('function' | '{')) <SC>
 
 
 # 12.5 The if Statement
-
-ElseOp								::= 'else'
 IfConditionOp						::= 'if' <S>? '(' <S>? <Expression> <S>? ')'
-IfOp								::= <IfConditionOp> <S>? <Statement>
-IfElseOp							::= <IfConditionOp> <S>? <Statement> <S>? <ElseOp> <S>? <Statement>
-
-IfStatement							::= <IfElseOp> |
-										<IfOp>
+IfTrueStatement						::= <Statement>
+IfFalseStatement					::= <Statement>
+IfStatement							::= <IfConditionOp> <S>? <IfTrueStatement> <S>? 'else' <S>? <IfFalseStatement> |
+			    						<IfConditionOp> <S>? <IfTrueStatement> 
 
 # 12.6 Iteration Statements
 # 12.6a Iteration do ... while() 
@@ -420,7 +428,7 @@ IterationStatement 					::= <IterationWhileOp> |
 
 # 12.9 The return Statement
 ReturnOp							::= ('return' - 'return' <IdentifierPart>) <WhiteSpace>* <AssignmentExpression>? (<S>? ';')
-ReturnStatement						::= <ReturnOp>
+ReturnStatement						::= ('return' - 'return' <IdentifierPart>) <WhiteSpace>* <AssignmentExpression>? (<S>? ';')
 
 # The Break Statement
 BreakOp								::= 'break' - 'break' <IdentifierPart>

@@ -42,7 +42,7 @@ void rvm_codemap_clear(rvm_codemap_t *codemap)
 
 rvm_codelabel_t *rvm_codemap_label(rvm_codemap_t *codemap, rlong index)
 {
-	if (index < 0)
+	if (index < 0 || index >= r_array_length(codemap->labels))
 		return NULL;
 	return (rvm_codelabel_t*)r_array_slot(codemap->labels, index);
 }
@@ -123,6 +123,16 @@ rlong rvm_codemap_invalid_add(rvm_codemap_t *codemap, const rchar *name, ruint n
 		label->type = RVM_CODELABEL_INVALID;
 	}
 	return labelidx;
+}
+
+
+rlong rvm_codemap_validindex(rvm_codemap_t *codemap, rlong labelidx)
+{
+	rvm_codelabel_t *label = rvm_codemap_label(codemap, labelidx);
+
+	if (label && label->type != RVM_CODELABEL_INVALID)
+		return 1;
+	return 0;
 }
 
 

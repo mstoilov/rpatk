@@ -186,6 +186,8 @@ rint rjs_compiler_rh_program(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rjs_coctx_global_t ctx;
 	rparecord_t *prec;
+	rlong mainidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__main", 0);
+	rlong start;
 
 	r_memset(&ctx, 0, sizeof(ctx));
 	ctx.base.type = RJS_COCTX_GLOBAL;
@@ -193,7 +195,8 @@ rint rjs_compiler_rh_program(rjs_compiler_t *co, rarray_t *records, rlong rec)
 
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_NOP, XX, XX, XX, 0));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, mainidx, rvm_asm(RVM_B, DA, XX, XX, 0));
+	start = rvm_codegen_addins(co->cg, rvm_asm(RVM_NOP, XX, XX, XX, 0));
 	rjs_compiler_debugtail(co, records, rec);
 
 	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
@@ -202,6 +205,9 @@ rint rjs_compiler_rh_program(rjs_compiler_t *co, rarray_t *records, rlong rec)
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
+	rvm_codegen_redefinelabel(co->cg, mainidx);
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_BL, DA, XX, XX, start - rvm_codegen_getcodesize(co->cg)));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PRN, R0, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
 	rjs_compiler_debugtail(co, records, rec);
@@ -412,6 +418,27 @@ rint rjs_compiler_rh_decimalnonintegerliteral(rjs_compiler_t *co, rarray_t *reco
 	rjs_compiler_debughead(co, records, rec);
 	rvm_codegen_addins(co->cg, rvm_asmd(RVM_MOV, R0, DA, XX, r_strtod(prec->input, NULL)));
 
+	rjs_compiler_debugtail(co, records, rec);
+	return 0;
+}
+
+
+rint rjs_compiler_rh_stringcharacters(rjs_compiler_t *co, rarray_t *records, rlong rec)
+{
+	rparecord_t *prec;
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rvm_codegen_addins(co->cg, rvm_asmp(RVM_MOV, R1, DA, XX, (void*)prec->input));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R2, DA, XX, prec->inputsiz));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCSTR, R0, R1, R2, 0));
+	rjs_compiler_debugtail(co, records, rec);
+
+	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
+		return -1;
+
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;
 }
@@ -739,6 +766,126 @@ rint rjs_compiler_rh_arguments(rjs_compiler_t *co, rarray_t *records, rlong rec)
 }
 
 
+rint rjs_compiler_rh_returnstatement(rjs_compiler_t *co, rarray_t *records, rlong rec)
+{
+	rparecord_t *prec;
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rjs_compiler_debugtail(co, records, rec);
+
+	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
+		return -1;
+
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
+	rjs_compiler_debugtail(co, records, rec);
+	return 0;
+}
+
+
+rint rjs_compiler_rh_ifstatement(rjs_compiler_t *co, rarray_t *records, rlong rec)
+{
+	rparecord_t *prec;
+	rjs_coctx_ifstatement_t ctx;
+
+	r_memset(&ctx, 0, sizeof(ctx));
+	ctx.base.type = RJS_COCTX_IFSTATEMENT;
+	ctx.start = rvm_codegen_getcodesize(co->cg);
+	ctx.trueidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__iftrue", ctx.start);
+	ctx.falseidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__iffalse", ctx.start);
+	ctx.endidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__ifend", ctx.start);
+
+	r_array_push(co->coctx, &ctx, rjs_coctx_t*);
+
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rjs_compiler_debugtail(co, records, rec);
+
+	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
+		goto error;
+
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rvm_codegen_redefinelabel(co->cg, ctx.endidx);
+	if (!rvm_codegen_validlabel(co->cg, ctx.falseidx))
+		rvm_codegen_redefinelabel(co->cg, ctx.falseidx);
+	rjs_compiler_debugtail(co, records, rec);
+
+	r_array_removelast(co->coctx);
+	return 0;
+
+error:
+	r_array_removelast(co->coctx);
+	return -1;
+}
+
+
+rint rjs_compiler_rh_ifconditionop(rjs_compiler_t *co, rarray_t *records, rlong rec)
+{
+	rparecord_t *prec;
+	rjs_coctx_ifstatement_t *ctx = (rjs_coctx_ifstatement_t *)rjs_compiler_getctx(co, RJS_COCTX_IFSTATEMENT);
+
+	R_ASSERT(ctx);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rjs_compiler_debugtail(co, records, rec);
+	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
+		return -1;
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, ctx->falseidx, rvm_asm(RVM_BEQ, DA, XX, XX, 0));
+	rjs_compiler_debugtail(co, records, rec);
+	return 0;
+}
+
+
+rint rjs_compiler_rh_iftruestatement(rjs_compiler_t *co, rarray_t *records, rlong rec)
+{
+	rparecord_t *prec;
+	rjs_coctx_ifstatement_t *ctx = (rjs_coctx_ifstatement_t *)rjs_compiler_getctx(co, RJS_COCTX_IFSTATEMENT);
+
+	R_ASSERT(ctx);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rjs_compiler_debugtail(co, records, rec);
+
+	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
+		return -1;
+
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, ctx->endidx, rvm_asm(RVM_B, DA, XX, XX, 0));
+	rjs_compiler_debugtail(co, records, rec);
+	return 0;
+}
+
+
+rint rjs_compiler_rh_iffalsestatement(rjs_compiler_t *co, rarray_t *records, rlong rec)
+{
+	rparecord_t *prec;
+	rjs_coctx_ifstatement_t *ctx = (rjs_coctx_ifstatement_t *)rjs_compiler_getctx(co, RJS_COCTX_IFSTATEMENT);
+
+	R_ASSERT(ctx);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rvm_codegen_redefinelabel(co->cg, ctx->falseidx);
+	rjs_compiler_debugtail(co, records, rec);
+
+	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
+		return -1;
+
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rjs_compiler_debugtail(co, records, rec);
+	return 0;
+}
+
 rint rjs_compiler_rh_(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
@@ -773,6 +920,7 @@ rjs_compiler_t *rjs_compiler_create(rvmcpu_t *cpu)
 	co->handlers[UID_LEFTHANDSIDEEXPRESSIONADDR] = rjs_compiler_rh_lefthandsideexpressionaddr;
 	co->handlers[UID_DECIMALINTEGERLITERAL] = rjs_compiler_rh_decimalintegerliteral;
 	co->handlers[UID_DECIMALNONINTEGERLITERAL] = rjs_compiler_rh_decimalnonintegerliteral;
+	co->handlers[UID_STRINGCHARACTERS] = rjs_compiler_rh_stringcharacters;
 	co->handlers[UID_ADDITIVEEXPRESSIONOP] = rjs_compiler_rh_expressionop;
 	co->handlers[UID_MULTIPLICATIVEEXPRESSIONOP] = rjs_compiler_rh_expressionop;
 	co->handlers[UID_BITWISEANDOP] = rjs_compiler_rh_expressionop;
@@ -796,6 +944,12 @@ rjs_compiler_t *rjs_compiler_create(rvmcpu_t *cpu)
 	co->handlers[UID_FUNCTIONCALL] = rjs_compiler_rh_functioncall;
 	co->handlers[UID_ARGUMENT] = rjs_compiler_rh_argument;
 	co->handlers[UID_ARGUMENTS] = rjs_compiler_rh_arguments;
+	co->handlers[UID_RETURNSTATEMENT] = rjs_compiler_rh_returnstatement;
+	co->handlers[UID_STRINGCHARACTERS] = rjs_compiler_rh_stringcharacters;
+	co->handlers[UID_IFSTATEMENT] = rjs_compiler_rh_ifstatement;
+	co->handlers[UID_IFCONDITIONOP] = rjs_compiler_rh_ifconditionop;
+	co->handlers[UID_IFTRUESTATEMENT] = rjs_compiler_rh_iftruestatement;
+	co->handlers[UID_IFFALSESTATEMENT] = rjs_compiler_rh_iffalsestatement;
 
 	return co;
 }

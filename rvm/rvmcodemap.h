@@ -44,6 +44,7 @@ rlong rvm_codemap_lookup(rvm_codemap_t *codemap, const rchar *name, ruint namesi
 rlong rvm_codemap_lookup_s(rvm_codemap_t *codemap, const rchar *name);
 rlong rvm_codemap_lastlabel(rvm_codemap_t *codemap);
 rvm_codelabel_t *rvm_codemap_label(rvm_codemap_t *codemap, rlong index);
+rlong rvm_codemap_validindex(rvm_codemap_t *codemap, rlong labelidx);
 rword rvm_codemap_resolve(rvm_codemap_t *codemap, rlong index, rvm_codelabel_t **err);
 void rvm_codemap_dump(rvm_codemap_t *codemap);
 

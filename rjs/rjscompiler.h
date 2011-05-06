@@ -20,6 +20,7 @@ extern "C" {
 #define RJS_COCTX_GLOBAL (1 << 1)
 #define RJS_COCTX_FUNCTION (1 << 2)
 #define RJS_COCTX_FUNCTIONCALL (1 << 3)
+#define RJS_COCTX_IFSTATEMENT (1 << 4)
 
 typedef struct rjs_coctx_s {
 	rulong type;
@@ -42,6 +43,15 @@ typedef struct rjs_coctx_functioncall_s {
 	rjs_coctx_t base;
 	rsize_t arguments;
 } rjs_coctx_functioncall_t;
+
+
+typedef struct rjs_coctx_ifstatement_s {
+	rjs_coctx_t base;
+	rlong start;
+	rlong trueidx;
+	rlong falseidx;
+	rlong endidx;
+} rjs_coctx_ifstatement_t;
 
 
 typedef struct rjs_compiler_s rjs_compiler_t;
