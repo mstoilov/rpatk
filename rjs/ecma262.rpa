@@ -76,6 +76,11 @@
 #!emit IfConditionOp
 #!emit IfTrueStatement
 #!emit IfFalseStatement
+#!emit IterationFor
+#!emit ForExpressionInit
+#!emit ForExpressionCompare
+#!emit ForExpressionIncrement
+#!emit ForIterationStatement
 
 
 #!uid Program 						UID_PROGRAM 						1
@@ -120,6 +125,12 @@
 #!uid IfTrueStatement				UID_IFTRUESTATEMENT					39
 #!uid IfFalseStatement				UID_IFFALSESTATEMENT				40
 #!uid Block							UID_BLOCK							41
+#!uid IterationFor					UID_ITERATIONFOR					42
+#!uid ForExpressionInit				UID_FOREXPRESSIONINIT				43
+#!uid ForExpressionCompare			UID_FOREXPRESSIONCOMPARE			44
+#!uid ForExpressionIncrement		UID_FOREXPRESSIONINCREMENT			45
+#!uid ForIterationStatement			UID_FORITERATIONSTATEMENT			46
+
 
 # 6 Source Text
 SourceCharacter			::= .
@@ -409,21 +420,16 @@ WhileConditionOp					::= 'while' <S>? '(' <S>? <Expression> <S>? ')'
 IterationWhileOp					::= <WhileConditionOp> <S>? <Statement>
 
 # 12.6c Iteration for ( ; ; )
-ForKeyword							::= 'for'
 ExpressionNoIn						::= <Expression>
-ForExpressionInitOp					::= ('var' <S>? <VariableDeclarationList>) | <ExpressionNoIn>
-ForExpressionCompareOp				::= <Expression>
-ForExpressionIncrementOp			::= <Expression>
-
-# The following & expression is done in order to swap the places of the code generated for the comparison and increment.
-# This is done by selectively turning on/off callbacks in both statement so that the final result appears as if the
-# <ForExpressionCompareOp> <ForExpressionIncrementOp> appear in the opposite order.
-ForIterationStatementOp				::= <ForKeyword> <S>? '(' <S>? <ForExpressionInitOp>? <S>? ';' <S>? <ForExpressionCompareOp>? <S>? ';' <S>? <ForExpressionIncrementOp>? <S>? ')'
-IterationForOp						::= <ForIterationStatementOp> <S>? <Statement>
+ForExpressionInit					::= ('var' <S>? <VariableDeclarationList>) | <ExpressionNoIn>
+ForExpressionCompare				::= <Expression>
+ForExpressionIncrement				::= <Expression>
+ForIterationStatement				::= <Statement>
+IterationFor						::= 'for' <S>? '(' <S>? <ForExpressionInit>? <S>? ';' <S>? <ForExpressionCompare>? <S>? ';' <S>? <ForExpressionIncrement>? <S>? ')' <S>? <ForIterationStatement>
 
 
 IterationStatement 					::= <IterationWhileOp> |
-										<IterationForOp> |
+										<IterationFor> |
 	    								<IterationDo>
 
 # 12.9 The return Statement

@@ -21,6 +21,7 @@ extern "C" {
 #define RJS_COCTX_FUNCTION (1 << 2)
 #define RJS_COCTX_FUNCTIONCALL (1 << 3)
 #define RJS_COCTX_IFSTATEMENT (1 << 4)
+#define RJS_COCTX_ITERATION (1 << 5)
 
 typedef struct rjs_coctx_s {
 	rulong type;
@@ -52,6 +53,14 @@ typedef struct rjs_coctx_ifstatement_s {
 	rlong falseidx;
 	rlong endidx;
 } rjs_coctx_ifstatement_t;
+
+
+typedef struct rjs_coctx_iteration_s {
+	rjs_coctx_t base;
+	rlong start;
+	rlong iterationidx;
+	rlong endidx;
+} rjs_coctx_iteration_t;
 
 
 typedef struct rjs_compiler_s rjs_compiler_t;

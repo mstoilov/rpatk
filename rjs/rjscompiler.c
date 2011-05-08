@@ -796,9 +796,7 @@ rint rjs_compiler_rh_ifstatement(rjs_compiler_t *co, rarray_t *records, rlong re
 	ctx.trueidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__iftrue", ctx.start);
 	ctx.falseidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__iffalse", ctx.start);
 	ctx.endidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__ifend", ctx.start);
-
 	r_array_push(co->coctx, &ctx, rjs_coctx_t*);
-
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	rjs_compiler_debugtail(co, records, rec);
@@ -886,6 +884,79 @@ rint rjs_compiler_rh_iffalsestatement(rjs_compiler_t *co, rarray_t *records, rlo
 	return 0;
 }
 
+
+rint rjs_compiler_rh_iterationfor(rjs_compiler_t *co, rarray_t *records, rlong rec)
+{
+	rlong childrec;
+	rparecord_t *prec;
+	rjs_coctx_iteration_t ctx;
+
+	r_memset(&ctx, 0, sizeof(ctx));
+	ctx.base.type = RJS_COCTX_ITERATION;
+	ctx.start = rvm_codegen_getcodesize(co->cg);
+	ctx.iterationidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__iteration", ctx.start);
+	ctx.endidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__end", ctx.start);
+	r_array_push(co->coctx, &ctx, rjs_coctx_t*);
+	rvm_scope_push(co->scope);
+
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rjs_compiler_debugtail(co, records, rec);
+
+	for (childrec = rpa_recordtree_firstchild(records, rec, RPA_RECORD_START); childrec >= 0; childrec = rpa_recordtree_next(records, childrec, RPA_RECORD_START)) {
+		if (rpa_record_getruleuid(records, childrec) == UID_FOREXPRESSIONINIT) {
+			if (rjs_compiler_playrecord(co, records, childrec) < 0)
+				goto error;
+			break;
+		}
+	}
+
+	rvm_codegen_redefinelabel(co->cg, ctx.iterationidx);
+	for (childrec = rpa_recordtree_firstchild(records, rec, RPA_RECORD_START); childrec >= 0; childrec = rpa_recordtree_next(records, childrec, RPA_RECORD_START)) {
+		if (rpa_record_getruleuid(records, childrec) == UID_FOREXPRESSIONCOMPARE) {
+			if (rjs_compiler_playrecord(co, records, childrec) < 0)
+				goto error;
+			rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, ctx.endidx, rvm_asm(RVM_BEQ, DA, XX, XX, 0));
+			break;
+		}
+	}
+
+	for (childrec = rpa_recordtree_firstchild(records, rec, RPA_RECORD_START); childrec >= 0; childrec = rpa_recordtree_next(records, childrec, RPA_RECORD_START)) {
+		if (rpa_record_getruleuid(records, childrec) == UID_FORITERATIONSTATEMENT) {
+			if (rjs_compiler_playrecord(co, records, childrec) < 0)
+				goto error;
+			break;
+		}
+	}
+
+	rvm_codegen_redefinelabel(co->cg, ctx.iterationidx);
+	for (childrec = rpa_recordtree_firstchild(records, rec, RPA_RECORD_START); childrec >= 0; childrec = rpa_recordtree_next(records, childrec, RPA_RECORD_START)) {
+		if (rpa_record_getruleuid(records, childrec) == UID_FOREXPRESSIONINCREMENT) {
+			if (rjs_compiler_playrecord(co, records, childrec) < 0)
+				goto error;
+			break;
+		}
+	}
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, ctx.iterationidx, rvm_asm(RVM_B, DA, XX, XX, 0));
+
+
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rvm_codegen_redefinelabel(co->cg, ctx.endidx);
+	rjs_compiler_debugtail(co, records, rec);
+
+	rvm_scope_pop(co->scope);
+	r_array_removelast(co->coctx);
+	return 0;
+
+error:
+	rvm_scope_pop(co->scope);
+	r_array_removelast(co->coctx);
+	return -1;
+}
+
+
 rint rjs_compiler_rh_(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
@@ -950,7 +1021,11 @@ rjs_compiler_t *rjs_compiler_create(rvmcpu_t *cpu)
 	co->handlers[UID_IFCONDITIONOP] = rjs_compiler_rh_ifconditionop;
 	co->handlers[UID_IFTRUESTATEMENT] = rjs_compiler_rh_iftruestatement;
 	co->handlers[UID_IFFALSESTATEMENT] = rjs_compiler_rh_iffalsestatement;
-
+	co->handlers[UID_ITERATIONFOR] = rjs_compiler_rh_iterationfor;
+//	co->handlers[UID_FOREXPRESSIONINIT] = rjs_compiler_rh_forexpressioninit;
+//	co->handlers[UID_FOREXPRESSIONCOMPARE] = rjs_compiler_rh_forexpressioncompare;
+//	co->handlers[UID_FOREXPRESSIONINCREMENT] = rjs_compiler_rh_forexpressionincrement;
+//	co->handlers[UID_FORITERATIONSTATEMENT] = rjs_compiler_rh_foriterationstatement;
 	return co;
 }
 
