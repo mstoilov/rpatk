@@ -208,7 +208,6 @@ rint rjs_compiler_rh_program(rjs_compiler_t *co, rarray_t *records, rlong rec)
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 	rvm_codegen_redefinelabel(co->cg, mainidx);
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BL, DA, XX, XX, start - rvm_codegen_getcodesize(co->cg)));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_PRN, R0, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
 	rjs_compiler_debugtail(co, records, rec);
 	r_array_removelast(co->coctx);
@@ -286,6 +285,7 @@ rint rjs_compiler_rh_identifier(rjs_compiler_t *co, rarray_t *records, rlong rec
 	rvm_varmap_t *v;
 	rlong parrec;
 	rparecord_t *prec, *pparrec;
+	rlong swiid = -1;
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	rjs_compiler_debugtail(co, records, rec);
@@ -298,6 +298,15 @@ rint rjs_compiler_rh_identifier(rjs_compiler_t *co, rarray_t *records, rlong rec
 	rjs_compiler_debughead(co, records, rec);
 	v = rvm_scope_lookup(co->scope, prec->input, prec->inputsiz);
 	if (!v) {
+		/*
+		 * Let see if this is a swiid
+		 */
+		if ((swiid = rvm_cpu_swilookup(co->cpu, NULL, prec->input, prec->inputsiz)) >= 0) {
+			rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, DA, XX, swiid));
+			rvm_codegen_addins(co->cg, rvm_asm(RVM_SETTYPE, R0, DA, XX, RVM_DTYPE_SWIID));
+			goto end;
+		}
+
 		r_printf("ERROR: Undefined identifier: %s\n", rjs_compiler_record2str(co, records, rec));
 		return -1;
 	}
@@ -323,7 +332,7 @@ rint rjs_compiler_rh_identifier(rjs_compiler_t *co, rarray_t *records, rlong rec
 			rvm_codegen_addins(co->cg, rvm_asmp(RVM_LDRR, R0, DA, XX, v->data.ptr));
 		}
 	}
-
+end:
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;
 }
@@ -709,7 +718,7 @@ rint rjs_compiler_rh_functioncall(rjs_compiler_t *co, rarray_t *records, rlong r
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_SUB, FP, SP, DA, ctx.arguments));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_BXL, R0, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_CALL, R0, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, SP, FP, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BITS(TP,LR)));
 	rjs_compiler_debugtail(co, records, rec);
