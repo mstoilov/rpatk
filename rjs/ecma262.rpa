@@ -81,6 +81,10 @@
 #!emit ForExpressionCompare
 #!emit ForExpressionIncrement
 #!emit ForIterationStatement
+#!emit PrefixOperator
+#!emit PostfixOperator
+#!emit PostfixExpressionOp
+#!emit PrefixExpressionOp
 
 
 #!uid Program 						UID_PROGRAM 						1
@@ -130,6 +134,9 @@
 #!uid ForExpressionCompare			UID_FOREXPRESSIONCOMPARE			44
 #!uid ForExpressionIncrement		UID_FOREXPRESSIONINCREMENT			45
 #!uid ForIterationStatement			UID_FORITERATIONSTATEMENT			46
+#!uid PostfixExpressionOp			UID_POSTFIXEXPRESSIONOP				47
+#!uid PrefixExpressionOp			UID_PREFIXEXPRESSIONOP				48
+
 
 
 # 6 Source Text
@@ -281,16 +288,17 @@ LeftHandSideExpressionAddr		::= <CallExpression> | <NewExpression>
 # 11.3 Postfix Expressions
 # RULE: LeftHandSideExpression always ends up in R0 (Let see if this would work)
 PostfixOperator 				::= '++' | '--'
-PostfixExpressionOp 			::= <LeftHandSideExpression> <PostfixOperator>
+PostfixExpressionOp 			::= <LeftHandSideExpressionAddr> <PostfixOperator>
 PostfixExpression 				::= <PostfixExpressionOp> | <LeftHandSideExpression> 
 
 PrefixOperator 					::= '++' | '--'
-PrefixExpression 				::= <PrefixOperator> <LeftHandSideExpression>
+PrefixExpressionOp 				::= <PrefixOperator> <LeftHandSideExpressionAddr>
+PrefixExpression 				::= <PrefixExpressionOp> | <PostfixExpression>
 
 # 11.4 Unary Operators
 UnaryOperator					::= '~' | '!' | ('+' - '++') | ('-' - '--') | 'delete' | 'void' | 'typeof'
 UnaryExpressionOp	    		::=	<S>? <UnaryOperator> <S>? <UnaryExpression>
-UnaryExpression		    		::=	<UnaryExpressionOp> | <PrefixExpression> | <PostfixExpression>
+UnaryExpression		    		::=	<UnaryExpressionOp> | <PrefixExpression>
 
 
 # 11.5 Multiplicative Operators

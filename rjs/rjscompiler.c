@@ -916,7 +916,6 @@ rint rjs_compiler_rh_iterationfor(rjs_compiler_t *co, rarray_t *records, rlong r
 		if (rpa_record_getruleuid(records, childrec) == UID_FOREXPRESSIONCOMPARE) {
 			if (rjs_compiler_playrecord(co, records, childrec) < 0)
 				goto error;
-			rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, ctx.endidx, rvm_asm(RVM_BEQ, DA, XX, XX, 0));
 			break;
 		}
 	}
@@ -929,7 +928,6 @@ rint rjs_compiler_rh_iterationfor(rjs_compiler_t *co, rarray_t *records, rlong r
 		}
 	}
 
-	rvm_codegen_redefinelabel(co->cg, ctx.iterationidx);
 	for (childrec = rpa_recordtree_firstchild(records, rec, RPA_RECORD_START); childrec >= 0; childrec = rpa_recordtree_next(records, childrec, RPA_RECORD_START)) {
 		if (rpa_record_getruleuid(records, childrec) == UID_FOREXPRESSIONINCREMENT) {
 			if (rjs_compiler_playrecord(co, records, childrec) < 0)
@@ -937,8 +935,6 @@ rint rjs_compiler_rh_iterationfor(rjs_compiler_t *co, rarray_t *records, rlong r
 			break;
 		}
 	}
-	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, ctx.iterationidx, rvm_asm(RVM_B, DA, XX, XX, 0));
-
 
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);
@@ -954,6 +950,109 @@ error:
 	rvm_scope_pop(co->scope);
 	r_array_removelast(co->coctx);
 	return -1;
+}
+
+
+rint rjs_compiler_rh_forexpressioncompare(rjs_compiler_t *co, rarray_t *records, rlong rec)
+{
+	rparecord_t *prec;
+	rjs_coctx_iteration_t *ctx = (rjs_coctx_iteration_t *)rjs_compiler_getctx(co, RJS_COCTX_ITERATION);
+
+	R_ASSERT(ctx);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rjs_compiler_debugtail(co, records, rec);
+
+	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
+		return -1;
+
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, ctx->endidx, rvm_asm(RVM_BEQ, DA, XX, XX, 0));
+	rjs_compiler_debugtail(co, records, rec);
+	return 0;
+}
+
+
+rint rjs_compiler_rh_forexpressionincrement(rjs_compiler_t *co, rarray_t *records, rlong rec)
+{
+	rparecord_t *prec;
+	rjs_coctx_iteration_t *ctx = (rjs_coctx_iteration_t *)rjs_compiler_getctx(co, RJS_COCTX_ITERATION);
+
+	R_ASSERT(ctx);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rjs_compiler_debugtail(co, records, rec);
+
+	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
+		return -1;
+
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, ctx->iterationidx, rvm_asm(RVM_B, DA, XX, XX, 0));
+	rjs_compiler_debugtail(co, records, rec);
+	return 0;
+}
+
+
+rint rjs_compiler_rh_postfixexpressionop(rjs_compiler_t *co, rarray_t *records, rlong rec)
+{
+	rparecord_t *prec;
+	rlong opcode;
+	rlong opcoderec;
+
+	if ((opcoderec = rpa_recordtree_lastchild(records, rec, RPA_RECORD_END)) < 0)
+		return -1;
+	opcode = rjs_compiler_record2opcode((rparecord_t *)r_array_slot(records, opcoderec));
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rjs_compiler_debugtail(co, records, rec);
+
+	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
+		return -1;
+
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDRR, R0, R1, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(opcode, R2, R0, DA, 1));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_STRR, R2, R1, XX, 0));
+
+	rjs_compiler_debugtail(co, records, rec);
+	return 0;
+}
+
+
+rint rjs_compiler_rh_prefixexpressionop(rjs_compiler_t *co, rarray_t *records, rlong rec)
+{
+	rparecord_t *prec;
+	rlong opcode;
+	rlong opcoderec;
+
+	if ((opcoderec = rpa_recordtree_firstchild(records, rec, RPA_RECORD_END)) < 0)
+		return -1;
+	opcode = rjs_compiler_record2opcode((rparecord_t *)r_array_slot(records, opcoderec));
+
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rjs_compiler_debugtail(co, records, rec);
+
+	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
+		return -1;
+
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDRR, R0, R0, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(opcode, R0, R0, DA, 1));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_STRR, R0, R1, XX, 0));
+
+	rjs_compiler_debugtail(co, records, rec);
+	return 0;
 }
 
 
@@ -1022,10 +1121,11 @@ rjs_compiler_t *rjs_compiler_create(rvmcpu_t *cpu)
 	co->handlers[UID_IFTRUESTATEMENT] = rjs_compiler_rh_iftruestatement;
 	co->handlers[UID_IFFALSESTATEMENT] = rjs_compiler_rh_iffalsestatement;
 	co->handlers[UID_ITERATIONFOR] = rjs_compiler_rh_iterationfor;
-//	co->handlers[UID_FOREXPRESSIONINIT] = rjs_compiler_rh_forexpressioninit;
-//	co->handlers[UID_FOREXPRESSIONCOMPARE] = rjs_compiler_rh_forexpressioncompare;
-//	co->handlers[UID_FOREXPRESSIONINCREMENT] = rjs_compiler_rh_forexpressionincrement;
-//	co->handlers[UID_FORITERATIONSTATEMENT] = rjs_compiler_rh_foriterationstatement;
+	co->handlers[UID_FOREXPRESSIONCOMPARE] = rjs_compiler_rh_forexpressioncompare;
+	co->handlers[UID_FOREXPRESSIONINCREMENT] = rjs_compiler_rh_forexpressionincrement;
+	co->handlers[UID_POSTFIXEXPRESSIONOP] = rjs_compiler_rh_postfixexpressionop;
+	co->handlers[UID_PREFIXEXPRESSIONOP] = rjs_compiler_rh_prefixexpressionop;
+
 	return co;
 }
 
