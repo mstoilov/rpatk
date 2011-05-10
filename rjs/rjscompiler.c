@@ -534,7 +534,7 @@ rint rjs_compiler_rh_newarrayexpression(rjs_compiler_t *co, rarray_t *records, r
 
 rint rjs_compiler_rh_memberexpressiondotop(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
-	rparecord_t *prec;
+	rparecord_t *prec, *pidentnamerec;
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	rjs_compiler_debugtail(co, records, rec);
@@ -545,18 +545,22 @@ rint rjs_compiler_rh_memberexpressiondotop(rjs_compiler_t *co, rarray_t *records
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
+	if (rpa_record_getruleuid(records, rpa_recordtree_firstchild(records, rec, RPA_RECORD_START)) != UID_IDENTIFIERNAME)
+		return -1;
+	pidentnamerec = (rparecord_t *)r_array_slot(records, rpa_recordtree_firstchild(records, rec, RPA_RECORD_START));
+
 	if (rpa_record_getruleuid(records, rpa_recordtree_parent(records, rec, RPA_RECORD_START)) == UID_LEFTHANDSIDEEXPRESSIONADDR &&
 		rpa_recordtree_next(records, rec, RPA_RECORD_START) == -1) {
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R1, R0, XX, 0)); 	// Supposedly an Array
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, DA, XX, prec->inputsiz));
-		rvm_codegen_addins(co->cg, rvm_asmp(RVM_MOV, R2, DA, XX, (void*)prec->input));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, DA, XX, pidentnamerec->inputsiz));
+		rvm_codegen_addins(co->cg, rvm_asmp(RVM_MOV, R2, DA, XX, (void*)pidentnamerec->input));
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_OBJLKUPADD, R0, R1, R2, 0));	// Get the offset of the element at offset R0
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_ADDROBJH, R0, R1, R0, 0));	// Get the address of the element at offset R0
 
 	} else {
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R1, R0, XX, 0)); 	// Supposedly an Array
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, DA, XX, prec->inputsiz));
-		rvm_codegen_addins(co->cg, rvm_asmp(RVM_MOV, R2, DA, XX, (void*)prec->input));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, DA, XX, pidentnamerec->inputsiz));
+		rvm_codegen_addins(co->cg, rvm_asmp(RVM_MOV, R2, DA, XX, (void*)pidentnamerec->input));
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_OBJLKUP, R0, R1, R2, 0));	// Get the offset of the element at offset R0
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_LDOBJH, R0, R1, R0, 0));	// Get the value of the element at offset R0
 	}
