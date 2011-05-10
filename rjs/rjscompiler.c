@@ -207,6 +207,7 @@ rint rjs_compiler_rh_program(rjs_compiler_t *co, rarray_t *records, rlong rec)
 	rjs_compiler_debughead(co, records, rec);
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 	rvm_codegen_redefinelabel(co->cg, mainidx);
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCOBJ, TP, DA, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BL, DA, XX, XX, start - rvm_codegen_getcodesize(co->cg)));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
 	rjs_compiler_debugtail(co, records, rec);
@@ -1065,6 +1066,67 @@ rint rjs_compiler_rh_prefixexpressionop(rjs_compiler_t *co, rarray_t *records, r
 }
 
 
+rint rjs_compiler_rh_newexpressioncall(rjs_compiler_t *co, rarray_t *records, rlong rec)
+{
+	rparecord_t *prec;
+	rjs_coctx_functioncall_t ctx;
+
+	r_memset(&ctx, 0, sizeof(ctx));
+	ctx.base.type = RJS_COCTX_FUNCTIONCALL;
+	r_array_push(co->coctx, &ctx, rjs_coctx_t*);
+
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(TP)|BIT(FP)|BIT(SP)|BIT(LR)));
+	rjs_compiler_debugtail(co, records, rec);
+
+	/*
+	 * Important: Function call has two children FunctionCallName, Arguments
+	 * We evaluate them in reverse order, first we evaluate the Arguments and push them on the
+	 * stack, than we evaluate the FunctionCallName -> R0. When we make the call we assume the
+	 * result of the FunctionCallName will be in R0.
+	 */
+	if (rjs_compiler_playreversechildrecords(co, records, rec) < 0)
+		goto error;
+
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCOBJ, TP, DA, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_SUB, FP, SP, DA, ctx.arguments));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_CALL, R0, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, SP, FP, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, TP, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BITS(TP,LR)));
+	rjs_compiler_debugtail(co, records, rec);
+	r_array_removelast(co->coctx);
+	return 0;
+
+error:
+	r_array_removelast(co->coctx);
+	return -1;
+}
+
+
+rint rjs_compiler_rh_this(rjs_compiler_t *co, rarray_t *records, rlong rec)
+{
+	rparecord_t *prec;
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rjs_compiler_debugtail(co, records, rec);
+
+	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
+		return -1;
+
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, TP, XX, 0));
+	rjs_compiler_debugtail(co, records, rec);
+	return 0;
+}
+
+
 rint rjs_compiler_rh_(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
@@ -1134,6 +1196,8 @@ rjs_compiler_t *rjs_compiler_create(rvmcpu_t *cpu)
 	co->handlers[UID_FOREXPRESSIONINCREMENT] = rjs_compiler_rh_forexpressionincrement;
 	co->handlers[UID_POSTFIXEXPRESSIONOP] = rjs_compiler_rh_postfixexpressionop;
 	co->handlers[UID_PREFIXEXPRESSIONOP] = rjs_compiler_rh_prefixexpressionop;
+	co->handlers[UID_THIS] = rjs_compiler_rh_this;
+	co->handlers[UID_NEWEXPRESSIONCALL] = rjs_compiler_rh_newexpressioncall;
 
 	return co;
 }

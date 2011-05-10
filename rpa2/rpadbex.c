@@ -138,6 +138,7 @@ static rint rpa_dbex_rh_uid(rpadbex_t *dbex, rlong rec)
 			return -1;
 		}
 		rpa_compiler_rulepref_set_ruleuid(dbex->co, name, namesize, uid);
+		rpa_compiler_rulepref_set_flag(dbex->co, name, namesize, RPA_RFLAG_EMITRECORD);
 	} else if (prec->type & RPA_RECORD_END) {
 
 	}
@@ -663,7 +664,7 @@ rpadbex_t *rpa_dbex_create(void)
 	dbex->handlers[RPA_PRODUCTION_DIRECTIVENOEMIT] = rpa_dbex_rh_noemit;
 	dbex->handlers[RPA_PRODUCTION_DIRECTIVEEMITALL] = rpa_dbex_rh_emitall;
 	dbex->handlers[RPA_PRODUCTION_DIRECTIVEEMITNONE] = rpa_dbex_rh_emitnone;
-	dbex->handlers[RPA_PRODUCTION_DIRECTIVEUID] = rpa_dbex_rh_uid;
+	dbex->handlers[RPA_PRODUCTION_DIRECTIVEEMITID] = rpa_dbex_rh_uid;
 
 	return dbex;
 }
@@ -849,7 +850,7 @@ static void rpa_dbex_buildruleinfo(rpadbex_t *dbex)
 			if ((rec = rpa_dbex_record(dbex, rpa_recordtree_get(dbex->records, i, RPA_RECORD_END))))
 				r_harray_add(dbex->rules, rec->input, rec->inputsiz, &info);
 			i += info.sizerecs - 1;
-		} else if ((rec->type & RPA_RECORD_START) && (rec->ruleuid >= RPA_PRODUCTION_DIRECTIVEEMIT) && (rec->ruleuid <= RPA_PRODUCTION_DIRECTIVEUID)) {
+		} else if ((rec->type & RPA_RECORD_START) && (rec->ruleuid >= RPA_PRODUCTION_DIRECTIVEEMIT) && (rec->ruleuid <= RPA_PRODUCTION_DIRECTIVEEMITID)) {
 			r_memset(&info, 0, sizeof(info));
 			info.type = RPA_RULEINFO_DIRECTIVE;
 			info.startrec = i;
@@ -1232,7 +1233,7 @@ rint rpa_dbex_dumpalias(rpadbex_t *dbex)
 		info = (rpa_ruleinfo_t *)r_harray_get(dbex->rules, i);
 		if (info->type == RPA_RULEINFO_DIRECTIVE) {
 			rparecord_t *prec = rpa_dbex_record(dbex, rpa_recordtree_get(dbex->records, info->startrec, RPA_RECORD_END));
-			if (prec->ruleuid == RPA_PRODUCTION_DIRECTIVEUID && prec->inputsiz) {
+			if (prec->ruleuid == RPA_PRODUCTION_DIRECTIVEEMITID && prec->inputsiz) {
 				rec = rpa_recordtree_firstchild(dbex->records, info->startrec, RPA_RECORD_START);
 				while (rec >= 0) {
 					prec = rpa_dbex_record(dbex, rpa_recordtree_get(dbex->records, rec, RPA_RECORD_END));

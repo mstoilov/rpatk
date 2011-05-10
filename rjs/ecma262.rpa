@@ -1,141 +1,86 @@
 #!emitall
 #!emitnone
-#!emit BitwiseANDOp
-#!emit BitwiseXOROp
-#!emit BitwiseOROp
-#!emit AdditiveExpressionOp
-#!emit MultiplicativeExpressionOp
-#!emit ShiftExpressionOp
-#!emit EqualityExpressionOp
-#!emit RelationalExpressionOp
-#!emit LogicalOROp
-#!emit LogicalANDOp
 
-#!emit AssignmentOperator
-#!emit EqualityOperator
-#!emit RelationalOperator
 #!emit AdditiveOperator
-#!emit MultiplicativeOperator
-#!emit ShiftOperator
-#!emit BitwiseANDOperator
-#!emit BitwiseXOROperator
-#!emit BitwiseOROperator
-#!emit LogicalANDOperator
-#!emit LogicalOROperator
-#!emit LogicalNotOperator
-#!emit BitwiseNotOperator
-#!emit UnaryOperator
-
-#!emit PrefixOperator
-#!emit PostfixOperator
-#!emit PostfixExpressionOp
-#!emit PrefixExpressionOp
-
-#!emit UnaryExpressionOp
-#!emit LogicalNotExpressionOp
-#!emit BitwiseNotExpressionOp
-
-#!emit DecimalIntegerLiteral
-#!emit DecimalNonIntegerLiteral
-#!emit Block
-
-#!emit DoKeyword
-#!emit IterationDo
-
-#!emit sqstring
-#!emit dqstring
-#!emit DoubleStringCharacters
-#!emit SingleStringCharacters
-#!emit Program
-#!emit Initialiser
-#!emit AssignmentExpressionOp
 #!emit AssignmentExpression
-#!emit LeftHandSideExpression
-#!emit LeftHandSideExpressionAddr
-#!emit Expression
-#!emit MemberExpressionIndexOp
-#emit MemberExpression
-#emit NewExpression
-#!emit MemberExpressionDotOp
-#!emit IdentifierName
-#!emit Identifier
-#!emit CallExpression
-#!emit VariableAllocate
-#!emit VariableAllocateAndInit
-#!emit NewArrayExpression
-#!emit FunctionName
-#!emit FunctionDeclaration
-#!emit FunctionParameter
-#!emit FormalParameterList
-#!emit Argument
-#!emit Arguments
-#!emit FunctionCall
+#!emit AssignmentOperator
+#!emit BitwiseANDOperator
+#!emit BitwiseNotExpressionOp
+#!emit BitwiseNotOperator
+#!emit BitwiseOROperator
+#!emit BitwiseXOROperator
+#!emit DoKeyword
+#!emit EqualityOperator
 #!emit FunctionCallName
-#!emit ReturnStatement
-#!emit IfStatement
-#!emit IfConditionOp
-#!emit IfTrueStatement
-#!emit IfFalseStatement
-#!emit IterationFor
-#!emit ForExpressionInit
-#!emit ForExpressionCompare
-#!emit ForExpressionIncrement
-#!emit ForIterationStatement
-#!emit PrefixOperator
-#!emit PostfixOperator
+#!emit IterationDo
+#!emit LogicalANDOperator
+#!emit LogicalNotExpressionOp
+#!emit LogicalNotOperator
+#!emit LogicalOROperator
+#!emit MultiplicativeOperator
 #!emit PostfixExpressionOp
+#!emit PostfixOperator
+#!emit PostfixOperator
 #!emit PrefixExpressionOp
+#!emit PrefixOperator
+#!emit PrefixOperator
+#!emit RelationalOperator
+#!emit ShiftOperator
+#!emit UnaryExpressionOp
+#!emit UnaryOperator
+#!emit dqstring
+#!emit sqstring
 
-
-#!uid Program 						UID_PROGRAM 						1
-#!uid PostfixExpressionValOp 		UID_POSTFIXEXPRESSIONVALOP 			2
-#!uid Expression					UID_EXPRESSION						3
-#!uid LeftHandSideExpression		UID_LEFTHANDSIDEEXPRESSION			4
-#!uid LeftHandSideExpressionAddr	UID_LEFTHANDSIDEEXPRESSIONADDR		5
-#!uid DecimalIntegerLiteral			UID_DECIMALINTEGERLITERAL			6
-#!uid DecimalNonIntegerLiteral		UID_DECIMALNONINTEGERLITERAL		7
-#!uid AdditiveExpressionOp			UID_ADDITIVEEXPRESSIONOP			8
-#!uid MultiplicativeExpressionOp	UID_MULTIPLICATIVEEXPRESSIONOP		9
-#!uid BitwiseANDOp					UID_BITWISEANDOP					10
-#!uid BitwiseXOROp					UID_BITWISEXOROP					11
-#!uid BitwiseOROp					UID_BITWISEOROP						12
-#!uid ShiftExpressionOp				UID_SHIFTEXPRESSIONOP				13
-#!uid EqualityExpressionOp			UID_EQUALITYEXPRESSIONOP			14
-#!uid RelationalExpressionOp		UID_RELATIONALEXPRESSIONOP			15
-#!uid LogicalOROp					UID_LOGICALOROP						16
-#!uid LogicalANDOp					UID_LOGICALANDOP					17
-#!uid VariableAllocate				UID_VARIABLEALLOCATE				18
-#!uid VariableAllocateAndInit		UID_VARIABLEALLOCATEANDINIT			19
-#!uid IdentifierName				UID_IDENTIFIERNAME					20
-#!uid Identifier					UID_IDENTIFIER						21
-#!uid Initialiser					UID_INITIALISER						22
-#!uid AssignmentExpressionOp		UID_ASSIGNMENTEXPRESSIONOP			23
-#!uid NewArrayExpression			UID_NEWARRAYEXPRESSION				24
-#!uid MemberExpressionDotOp			UID_MEMBEREXPRESSIONDOTOP			25
-#!uid MemberExpressionIndexOp		UID_MEMBEREXPRESSIONINDEXOP			26
-#!uid FunctionName					UID_FUNCTIONNAME					27
-#!uid FunctionDeclaration			UID_FUNCTIONDECLARATION				28
-#!uid FunctionParameter				UID_FUNCTIONPARAMETER				29
-#!uid FormalParameterList			UID_FORMALPARAMETERLIST				30
-#!uid CallExpression				UID_CALLEXPRESSION					31
-#!uid FunctionCall					UID_FUNCTIONCALL					32
-#!uid Argument						UID_ARGUMENT						33
-#!uid Arguments						UID_ARGUMENTS						34
-#!uid ReturnStatement				UID_RETURNSTATEMENT					35
-#!uid DoubleStringCharacters		UID_STRINGCHARACTERS				36
-#!uid SingleStringCharacters		UID_STRINGCHARACTERS				36
-#!uid IfStatement					UID_IFSTATEMENT						37
-#!uid IfConditionOp					UID_IFCONDITIONOP					38
-#!uid IfTrueStatement				UID_IFTRUESTATEMENT					39
-#!uid IfFalseStatement				UID_IFFALSESTATEMENT				40
-#!uid Block							UID_BLOCK							41
-#!uid IterationFor					UID_ITERATIONFOR					42
-#!uid ForExpressionInit				UID_FOREXPRESSIONINIT				43
-#!uid ForExpressionCompare			UID_FOREXPRESSIONCOMPARE			44
-#!uid ForExpressionIncrement		UID_FOREXPRESSIONINCREMENT			45
-#!uid ForIterationStatement			UID_FORITERATIONSTATEMENT			46
-#!uid PostfixExpressionOp			UID_POSTFIXEXPRESSIONOP				47
-#!uid PrefixExpressionOp			UID_PREFIXEXPRESSIONOP				48
+#!emitid Program 						UID_PROGRAM 						1
+#!emitid This					 		UID_THIS				 			2
+#!emitid Expression						UID_EXPRESSION						3
+#!emitid LeftHandSideExpression			UID_LEFTHANDSIDEEXPRESSION			4
+#!emitid LeftHandSideExpressionAddr		UID_LEFTHANDSIDEEXPRESSIONADDR		5
+#!emitid DecimalIntegerLiteral			UID_DECIMALINTEGERLITERAL			6
+#!emitid DecimalNonIntegerLiteral		UID_DECIMALNONINTEGERLITERAL		7
+#!emitid AdditiveExpressionOp			UID_ADDITIVEEXPRESSIONOP			8
+#!emitid MultiplicativeExpressionOp		UID_MULTIPLICATIVEEXPRESSIONOP		9
+#!emitid BitwiseANDOp					UID_BITWISEANDOP					10
+#!emitid BitwiseXOROp					UID_BITWISEXOROP					11
+#!emitid BitwiseOROp					UID_BITWISEOROP						12
+#!emitid ShiftExpressionOp				UID_SHIFTEXPRESSIONOP				13
+#!emitid EqualityExpressionOp			UID_EQUALITYEXPRESSIONOP			14
+#!emitid RelationalExpressionOp			UID_RELATIONALEXPRESSIONOP			15
+#!emitid LogicalOROp					UID_LOGICALOROP						16
+#!emitid LogicalANDOp					UID_LOGICALANDOP					17
+#!emitid VariableAllocate				UID_VARIABLEALLOCATE				18
+#!emitid VariableAllocateAndInit		UID_VARIABLEALLOCATEANDINIT			19
+#!emitid IdentifierName					UID_IDENTIFIERNAME					20
+#!emitid Identifier						UID_IDENTIFIER						21
+#!emitid Initialiser					UID_INITIALISER						22
+#!emitid AssignmentExpressionOp			UID_ASSIGNMENTEXPRESSIONOP			23
+#!emitid NewArrayExpression				UID_NEWARRAYEXPRESSION				24
+#!emitid MemberExpressionDotOp			UID_MEMBEREXPRESSIONDOTOP			25
+#!emitid MemberExpressionIndexOp		UID_MEMBEREXPRESSIONINDEXOP			26
+#!emitid FunctionName					UID_FUNCTIONNAME					27
+#!emitid FunctionDeclaration			UID_FUNCTIONDECLARATION				28
+#!emitid FunctionParameter				UID_FUNCTIONPARAMETER				29
+#!emitid FormalParameterList			UID_FORMALPARAMETERLIST				30
+#!emitid CallExpression					UID_CALLEXPRESSION					31
+#!emitid FunctionCall					UID_FUNCTIONCALL					32
+#!emitid Argument						UID_ARGUMENT						33
+#!emitid Arguments						UID_ARGUMENTS						34
+#!emitid ReturnStatement				UID_RETURNSTATEMENT					35
+#!emitid DoubleStringCharacters			UID_STRINGCHARACTERS				36
+#!emitid SingleStringCharacters			UID_STRINGCHARACTERS				36
+#!emitid IfStatement					UID_IFSTATEMENT						37
+#!emitid IfConditionOp					UID_IFCONDITIONOP					38
+#!emitid IfTrueStatement				UID_IFTRUESTATEMENT					39
+#!emitid IfFalseStatement				UID_IFFALSESTATEMENT				40
+#!emitid Block							UID_BLOCK							41
+#!emitid IterationFor					UID_ITERATIONFOR					42
+#!emitid ForExpressionInit				UID_FOREXPRESSIONINIT				43
+#!emitid ForExpressionCompare			UID_FOREXPRESSIONCOMPARE			44
+#!emitid ForExpressionIncrement			UID_FOREXPRESSIONINCREMENT			45
+#!emitid ForIterationStatement			UID_FORITERATIONSTATEMENT			46
+#!emitid PostfixExpressionOp			UID_POSTFIXEXPRESSIONOP				47
+#!emitid PrefixExpressionOp				UID_PREFIXEXPRESSIONOP				48
+#!emitid NewExpressionCall				UID_NEWEXPRESSIONCALL				49
 
 
 
@@ -265,13 +210,20 @@ MemberExpression 				::= <MemberExpressionIndexOp>  |
 									
 NewKeyword						::= 'new' - 'new' <IdentifierPart>
 NewArrayExpression				::= <S>? 'new' <S> ( 'Array' | 'Object') <S>? <Arguments>?
+NewExpressionCall				::= 'new' <S>? <MemberExpression> <S>? <Arguments>
+
+
+
 NewExpression 					::= <NewArrayExpression> |
-									<NewKeyword> <S>? <NewExpression> |
+									<NewExpressionCall> |
 									<MemberExpression>
+
+# NewExpression 					::= <NewKeyword> <S>? <NewExpression> |
+#									<MemberExpression>
+
 
 FunctionCallName				::= <CallExpression> | <MemberExpression>
 FunctionCall					::= <FunctionCallName> <S>? <Arguments>
-									
 CallExpression					::= <CallExpression> <S>? '[' <S>? Expression <S>? ']' |
 									<CallExpression> '.' <IdentifierName> |
 									<FunctionCall>
