@@ -43,6 +43,7 @@ typedef struct rjs_coctx_function_s {
 typedef struct rjs_coctx_functioncall_s {
 	rjs_coctx_t base;
 	rsize_t arguments;
+	ruchar setthis;
 } rjs_coctx_functioncall_t;
 
 

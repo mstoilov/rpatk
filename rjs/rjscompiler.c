@@ -98,6 +98,16 @@ rjs_coctx_t *rjs_compiler_getctx(rjs_compiler_t *co, rulong type)
 }
 
 
+rjs_coctx_t *rjs_compiler_gettopctx(rjs_compiler_t *co)
+{
+	rlong len = r_array_length(co->coctx);
+
+	if (len)
+		return r_array_index(co->coctx, len - 1, rjs_coctx_t*);
+	return NULL;
+}
+
+
 rlong rjs_compiler_record2opcode(rparecord_t *prec)
 {
 	const rchar *input = prec->input;
@@ -534,6 +544,7 @@ rint rjs_compiler_rh_newarrayexpression(rjs_compiler_t *co, rarray_t *records, r
 
 rint rjs_compiler_rh_memberexpressiondotop(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
+	rjs_coctx_t *ctx = rjs_compiler_gettopctx(co);
 	rparecord_t *prec, *pidentnamerec;
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
@@ -541,6 +552,9 @@ rint rjs_compiler_rh_memberexpressiondotop(rjs_compiler_t *co, rarray_t *records
 
 	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
 		return -1;
+	if (ctx && ctx->type == RJS_COCTX_FUNCTIONCALL) {
+		((rjs_coctx_functioncall_t *)ctx)->setthis = 1;
+	}
 
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);
@@ -613,15 +627,16 @@ rint rjs_compiler_rh_functiondeclaration(rjs_compiler_t *co, rarray_t *records, 
 	execidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__funexec", start);
 	allocsidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__allocs", start);
 
-	if (rpa_record_getruleuid(records, rpa_recordtree_firstchild(records, rec, RPA_RECORD_START)) != UID_FUNCTIONNAME)
-		goto error;
-	if (rjs_compiler_record2identifer(co, records, rpa_recordtree_firstchild(records, rec, RPA_RECORD_START)) < 0)
-		goto error;
-
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R1, R0, XX, 0));
+	if (rpa_record_getruleuid(records, rpa_recordtree_firstchild(records, rec, RPA_RECORD_START)) == UID_FUNCTIONNAME) {
+		if (rjs_compiler_record2identifer(co, records, rpa_recordtree_firstchild(records, rec, RPA_RECORD_START)) < 0)
+			goto error;
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R1, R0, XX, 0));
+	}
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_JUMP, execidx, rvm_asm(RVM_MOV, R0, DA, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_SETTYPE, R0, DA, XX, RVM_DTYPE_FUNCTION));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_STRR, R0, R1, XX, 0));
+	if (rpa_record_getruleuid(records, rpa_recordtree_firstchild(records, rec, RPA_RECORD_START)) == UID_FUNCTIONNAME) {
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_STRR, R0, R1, XX, 0));
+	}
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, endidx, rvm_asm(RVM_B, DA, XX, XX, 0));
 	rvm_codegen_redefinelabel(co->cg, execidx);
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_DEFAULT, allocsidx, rvm_asm(RVM_ADD, SP, FP, DA, 0));
@@ -630,9 +645,10 @@ rint rjs_compiler_rh_functiondeclaration(rjs_compiler_t *co, rarray_t *records, 
 
 	r_array_push(co->coctx, &ctx, rjs_coctx_t*);
 	rvm_scope_push(co->scope);
-	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
+	if (rjs_compiler_playchildrecords(co, records, rec) < 0) {
+		rvm_scope_pop(co->scope);
 		goto error;
-
+	}
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
@@ -647,7 +663,6 @@ rint rjs_compiler_rh_functiondeclaration(rjs_compiler_t *co, rarray_t *records, 
 	return 0;
 
 error:
-	rvm_scope_pop(co->scope);
 	r_array_removelast(co->coctx);
 	return -1;
 }
@@ -722,6 +737,8 @@ rint rjs_compiler_rh_functioncall(rjs_compiler_t *co, rarray_t *records, rlong r
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
+	if (ctx.setthis)
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, TP, R1, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_SUB, FP, SP, DA, ctx.arguments));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_CALL, R0, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, SP, FP, XX, 0));
@@ -1185,6 +1202,7 @@ rjs_compiler_t *rjs_compiler_create(rvmcpu_t *cpu)
 	co->handlers[UID_MEMBEREXPRESSIONDOTOP] = rjs_compiler_rh_memberexpressiondotop;
 	co->handlers[UID_MEMBEREXPRESSIONINDEXOP] = rjs_compiler_rh_memberexpressionindexop;
 	co->handlers[UID_FUNCTIONDECLARATION] = rjs_compiler_rh_functiondeclaration;
+	co->handlers[UID_FUNCTIONEXPRESSION] = rjs_compiler_rh_functiondeclaration;
 	co->handlers[UID_FUNCTIONPARAMETER] = rjs_compiler_rh_functionparameter;
 	co->handlers[UID_FUNCTIONCALL] = rjs_compiler_rh_functioncall;
 	co->handlers[UID_ARGUMENT] = rjs_compiler_rh_argument;

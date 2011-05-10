@@ -31,8 +31,9 @@ struct rarray_s {
 #define r_array_inclast(__array__, __type__) (*((__type__*)(r_array_lastslot(__array__))) += 1)
 #define r_array_declast(__array__, __type__) (*((__type__*)(r_array_lastslot(__array__))) -= 1)
 
-#define r_array_index(__array__, __index__, __type__) (((__type__*)(void*)(__array__)->data)[__index__])
+/* #define r_array_index(__array__, __index__, __type__) (((__type__*)(void*)(__array__)->data)[__index__]) */
 #define r_array_slot(__array__, __index__) (((ruint8*)(__array__)->data) + (__array__)->elt_size * (__index__))
+#define r_array_index(__array__, __index__, __type__) *((__type__*)r_array_slot(__array__, __index__))
 #define r_array_lastslot(__array__) (r_array_length(__array__) ? r_array_slot(__array__, r_array_length(__array__) - 1) : NULL)
 #define r_array_push(__array__, __val__, __type__) do {__type__ __v__ = (__type__)__val__; r_array_add(__array__, &__v__); } while(0)
 #define r_array_pop(__array__, __type__) (r_array_index(__array__, (__array__)->len ? --(__array__)->len : 0, __type__))

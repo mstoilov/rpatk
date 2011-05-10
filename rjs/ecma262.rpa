@@ -81,6 +81,7 @@
 #!emitid PostfixExpressionOp			UID_POSTFIXEXPRESSIONOP				47
 #!emitid PrefixExpressionOp				UID_PREFIXEXPRESSIONOP				48
 #!emitid NewExpressionCall				UID_NEWEXPRESSIONCALL				49
+#!emitid FunctionExpression				UID_FUNCTIONEXPRESSION				50
 
 
 
@@ -210,8 +211,7 @@ MemberExpression 				::= <MemberExpressionIndexOp>  |
 									
 NewKeyword						::= 'new' - 'new' <IdentifierPart>
 NewArrayExpression				::= <S>? 'new' <S> ( 'Array' | 'Object') <S>? <Arguments>?
-NewExpressionCall				::= 'new' <S>? <MemberExpression> <S>? <Arguments>
-
+NewExpressionCall				::= 'new' <S>? <MemberExpression> <S>? <Arguments>?
 
 
 NewExpression 					::= <NewArrayExpression> |
