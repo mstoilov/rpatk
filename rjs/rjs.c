@@ -4,9 +4,12 @@
 
 static void rjs_engine_print(rvmcpu_t *cpu, rvm_asmins_t *ins);
 static void rjs_engine_dbgprint(rvmcpu_t *cpu, rvm_asmins_t *ins);
+static void rjs_engine_object(rvmcpu_t *cpu, rvm_asmins_t *ins);
 static rvm_switable_t rjsswitable[] = {
 		{"print", rjs_engine_print},
 		{"dbgprint", rjs_engine_dbgprint},
+		{"Object", rjs_engine_object},
+		{"Array", rjs_engine_object},
 		{NULL, NULL},
 };
 
@@ -189,4 +192,10 @@ static void rjs_engine_dbgprint(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		r_printf("(function) %p\n",RVM_REG_GETP(r));
 	else
 		r_printf("%p\n", RVM_REG_GETP(r));
+}
+
+
+static void rjs_engine_object(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+
 }

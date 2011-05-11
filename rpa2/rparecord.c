@@ -376,8 +376,7 @@ void rpa_record_dump(rarray_t *records, rlong rec)
 	prev = rpa_recordtree_prev(records, rec, RPA_RECORD_START);
 	parent = rpa_recordtree_parent(records, rec, RPA_RECORD_START);
 
-//	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "%5d  ( %7ld, %4d ) : ", rec, prec->ruleid, (ruint32)prec->ruleuid);
-	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "%5ld, n:%5ld (s: %5ld, e: %5ld, p: %5ld) ( %4d, 0x%03x ) : ", rec, prec->next, start, end, parent, prec->ruleuid, prec->usertype);
+	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "%5ld: [ s: %5ld, e: %5ld, p: %5ld ] ( %4d, 0x%03x ) : ", rec, start, end, parent, prec->ruleuid, prec->usertype);
 	if (prec->type & RPA_RECORD_START)
 		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "START ");
 	if (prec->type & RPA_RECORD_END)

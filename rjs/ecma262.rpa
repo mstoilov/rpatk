@@ -1,43 +1,39 @@
 #!emitall
 #!emitnone
 
-#!emit AdditiveOperator
-#!emit AssignmentExpression
-#!emit AssignmentOperator
-#!emit BitwiseANDOperator
-#!emit BitwiseNotExpressionOp
-#!emit BitwiseNotOperator
-#!emit BitwiseOROperator
-#!emit BitwiseXOROperator
+
 #!emit DoKeyword
-#!emit EqualityOperator
 #!emit FunctionCallName
 #!emit IterationDo
-#!emit LogicalANDOperator
 #!emit LogicalNotExpressionOp
-#!emit LogicalNotOperator
-#!emit LogicalOROperator
-#!emit MultiplicativeOperator
 #!emit PostfixExpressionOp
-#!emit PostfixOperator
-#!emit PostfixOperator
 #!emit PrefixExpressionOp
-#!emit PrefixOperator
-#!emit PrefixOperator
-#!emit RelationalOperator
-#!emit ShiftOperator
-#!emit UnaryExpressionOp
-#!emit UnaryOperator
 #!emit dqstring
 #!emit sqstring
 
-#!emitid Program 						UID_PROGRAM 						1
-#!emitid This					 		UID_THIS				 			2
-#!emitid Expression						UID_EXPRESSION						3
-#!emitid LeftHandSideExpression			UID_LEFTHANDSIDEEXPRESSION			4
-#!emitid LeftHandSideExpressionAddr		UID_LEFTHANDSIDEEXPRESSIONADDR		5
-#!emitid DecimalIntegerLiteral			UID_DECIMALINTEGERLITERAL			6
-#!emitid DecimalNonIntegerLiteral		UID_DECIMALNONINTEGERLITERAL		7
+#!emitid UnaryOperator					UID_UNARYOPERATOR					1
+#!emitid AdditiveOperator				UID_BINARYOPERATOR					2
+#!emitid AdditiveOperator				UID_ADDITIVEOPERATOR				2
+#!emitid MultiplicativeOperator			UID_MULTIPLICATIVEOPERATOR			2
+#!emitid AssignmentOperator				UID_ASSIGNMENTOPERATOR				2
+#!emitid BitwiseANDOperator				UID_BITWISEANDOPERATOR				2
+#!emitid BitwiseNotExpressionOp			UID_BITWISENOTEXPRESSIONOP			2
+#!emitid BitwiseNotOperator				UID_BITWISENOTOPERATOR				2
+#!emitid BitwiseOROperator				UID_BITWISEOROPERATOR				2
+#!emitid BitwiseXOROperator				UID_BITWISEXOROPERATOR				2
+#!emitid LogicalNotOperator				UID_LOGICALNOTOPERATOR				2
+#!emitid LogicalOROperator				UID_LOGICALOROPERATOR				2
+#!emitid LogicalANDOperator				UID_LOGICALANDOPERATOR				2
+#!emitid RelationalOperator				UID_RELATIONALOPERATOR				2
+#!emitid PostfixOperator				UID_POSTFIXOPERATOR					2
+#!emitid PrefixOperator					UID_PREFIXOPERATOR					2
+#!emitid ShiftOperator					UID_SHIFTOPERATOR					2
+#!emitid EqualityOperator				UID_EQUALITYOPERATOR				2
+#!emitid Program 						UID_PROGRAM 						3
+#!emitid This					 		UID_THIS				 			4
+#!emitid Expression						UID_EXPRESSION						5
+#!emitid LeftHandSideExpression			UID_LEFTHANDSIDEEXPRESSION			6
+#!emitid LeftHandSideExpressionAddr		UID_LEFTHANDSIDEEXPRESSIONADDR		7
 #!emitid AdditiveExpressionOp			UID_ADDITIVEEXPRESSIONOP			8
 #!emitid MultiplicativeExpressionOp		UID_MULTIPLICATIVEEXPRESSIONOP		9
 #!emitid BitwiseANDOp					UID_BITWISEANDOP					10
@@ -82,7 +78,11 @@
 #!emitid PrefixExpressionOp				UID_PREFIXEXPRESSIONOP				48
 #!emitid NewExpressionCall				UID_NEWEXPRESSIONCALL				49
 #!emitid FunctionExpression				UID_FUNCTIONEXPRESSION				50
-
+#!emitid UnaryExpressionOp				UID_UNARYEXPRESSIONOP				51
+#!emitid DecimalIntegerLiteral			UID_DECIMALINTEGERLITERAL			52
+#!emitid DecimalNonIntegerLiteral		UID_DECIMALNONINTEGERLITERAL		53
+#!emitid BreakStatement					UID_BREAKSTATEMENT					54
+#!emitid ContinueStatement				UID_CONTINUESTATEMENT				55
 
 
 # 6 Source Text
@@ -208,14 +208,10 @@ MemberExpression 				::= <MemberExpressionIndexOp>  |
 									<FunctionExpression> |
 									<PrimaryExpression>
 									
-									
 NewKeyword						::= 'new' - 'new' <IdentifierPart>
-NewArrayExpression				::= <S>? 'new' <S> ( 'Array' | 'Object') <S>? <Arguments>?
-NewExpressionCall				::= 'new' <S>? <MemberExpression> <S>? <Arguments>?
+NewExpressionCall				::= <NewKeyword> <S>? <MemberExpression> <S>? <Arguments>?
 
-
-NewExpression 					::= <NewArrayExpression> |
-									<NewExpressionCall> |
+NewExpression 					::= <NewExpressionCall> |
 									<MemberExpression>
 
 # NewExpression 					::= <NewKeyword> <S>? <NewExpression> |

@@ -125,6 +125,7 @@ enum {
 	RVM_TYPE,		/* Type: op1 = typeof(op2) */
 	RVM_SETTYPE,	/* Type: op1.type = op2 */
 	RVM_EMOV,
+	RVM_ENEG,		/* Negative: op1 = -op2, Update the status register */
 	RVM_EADD,		/* Add: op1 = op2 + op3, update the status register */
 	RVM_ESUB,		/* Subtract: op1 = op2 - op3, update the status register */
 	RVM_EMUL,		/* Multiply: op1 = op2 * op3, update the status register */

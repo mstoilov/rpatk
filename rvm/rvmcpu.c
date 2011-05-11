@@ -122,6 +122,7 @@ static const char *stropcalls[] = {
 	"RVM_TYPE",		/* Type: op1 = typeof(op2) */
 	"RVM_SETTYPE",	/* Type: op1.type = op2 */
 	"RVM_EMOV",
+	"RVM_ENEG",
 	"RVM_EADD",
 	"RVM_ESUB",
 	"RVM_EMUL",
@@ -1303,6 +1304,17 @@ static void rvm_op_esub(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static void rvm_op_eneg(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
+	rvmreg_t zero;
+
+	rvm_reg_setunsigned(&zero, 0);
+	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_SUB, cpu, RVM_CPUREG_PTR(cpu, ins->op1), &zero, arg2);
+}
+
+
+
 static void rvm_op_emul(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
@@ -1850,6 +1862,7 @@ static rvm_cpu_op ops[] = {
 	rvm_op_type,		// RVM_TYPE
 	rvm_op_settype,		// RVM_SETTYPE
 	rvm_op_emov,		// RVM_EMOV
+	rvm_op_eneg,		// RVM_ENEG
 	rvm_op_eadd,		// RVM_EADD
 	rvm_op_esub,		// RVM_ESUB
 	rvm_op_emul,		// RVM_EMUL
