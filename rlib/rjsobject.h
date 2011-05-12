@@ -6,6 +6,12 @@
 #include "rcarray.h"
 #include "rharray.h"
 
+/*
+ * This class targets the JavaScript Object implementation. Although I think it is pretty useful
+ * collection primitive that is worth staying in RLIB. In the future I might either rename it or
+ * move it to RJS.
+ */
+
 #ifdef __cplusplus
 extern "C" {
 #endif

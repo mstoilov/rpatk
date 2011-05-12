@@ -24,6 +24,11 @@ extern "C" {
 #define RJS_COCTX_ITERATION (1 << 5)
 #define RJS_COCTX_OPERATION (1 << 5)
 
+#define RJS_ERROR_NONE 0
+#define RJS_ERROR_UNDEFINED 1
+#define RJS_ERROR_SYNTAX 2
+
+
 typedef struct rjs_coctx_s {
 	rulong type;
 } rjs_coctx_t;
@@ -72,6 +77,13 @@ typedef struct rjs_coctx_iteration_s {
 } rjs_coctx_iteration_t;
 
 
+typedef struct rjs_coerror_s {
+	rlong code;
+	const rchar *script;
+	rlong scriptsize;
+} rjs_coerror_t;
+
+
 typedef struct rjs_compiler_s rjs_compiler_t;
 typedef rint (*RJS_COMPILER_RH)(rjs_compiler_t *co, rarray_t *records, rlong rec);
 
@@ -80,6 +92,7 @@ struct rjs_compiler_s {
 	rvm_codegen_t *cg;
 	rvm_scope_t *scope;
 	rarray_t *coctx;
+	rarray_t *errors;
 	rchar *temp;
 	rlong headoff;
 	rlong opcode;

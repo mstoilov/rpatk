@@ -64,6 +64,55 @@ error:
 }
 
 
+int rjs_exec_script(rjs_engine_t *jse, rstr_t  *script)
+{
+	if (!script)
+		return -1;
+	if (parseinfo) {
+		rjs_engine_dumpast(jse, script->str, script->size);
+	} else if (debugcompileonly) {
+		int res = 0;
+		jse->debugcompile = 1;
+		res = rjs_engine_compile(jse, script->str, script->size);
+		jse->debugcompile = 0;
+		if (res < 0)
+			return -1;
+	} else if (compileonly) {
+		rjs_engine_compile(jse, script->str, script->size);
+	} else {
+		if (rjs_engine_compile(jse, script->str, script->size) < 0)
+			return -1;
+		if (rjs_engine_run(jse) < 0)
+			return -1;
+	}
+
+	return 0;
+}
+
+
+void rjs_display_errors(rjs_engine_t *jse, rstr_t *script)
+{
+	rlong line = 0;
+	rlong i;
+	rjs_coerror_t *err;
+
+	for (i = 0; i < r_array_length(jse->co->errors); i++) {
+		err = (rjs_coerror_t *)r_array_slot(jse->co->errors, i);
+		fprintf(stdout, "Line: %ld ", (rlong)line);
+		if (err->code == RJS_ERROR_SYNTAX) {
+			fprintf(stdout, "Sytax Error");
+		} else if (err->code == RJS_ERROR_UNDEFINED) {
+			fprintf(stdout, "Undefined Identifier");
+		} else {
+			fprintf(stdout, "Error");
+		}
+		fprintf(stdout, "(%ld, %ld): ", (rlong)(err->script - script->str), (rlong)err->scriptsize);
+		fwrite(err->script, sizeof(rchar), err->scriptsize, stdout);
+		fprintf(stdout, "\n");
+	}
+}
+
+
 int main(int argc, char *argv[])
 {
 	rint i;
@@ -76,6 +125,7 @@ int main(int argc, char *argv[])
 
 		} else if (r_strcmp(argv[i], "-d") == 0) {
 			debuginfo = 1;
+			jse->debugexec = 1;
 		} else if (r_strcmp(argv[i], "-p") == 0) {
 			parseinfo = 1;
 		} else if (r_strcmp(argv[i], "-C") == 0) {
@@ -95,7 +145,8 @@ int main(int argc, char *argv[])
 				line.size = r_strlen(argv[i]);
 				script = &line;
 			}
-			goto exec;
+			if (rjs_exec_script(jse, script) < 0)
+				goto end;
 		}
 	}
 
@@ -107,30 +158,14 @@ int main(int argc, char *argv[])
 					unmapscript = script;
 				}
 			}
-			goto exec;
+			if (rjs_exec_script(jse, script) < 0)
+				goto end;
 		}
 	}
 
-exec:
-	if (!script)
-		goto end;
-	if (parseinfo) {
-		rjs_engine_dumpast(jse, script->str, script->size);
-	} else if (debugcompileonly) {
-		jse->debugcompile = 1;
-		rjs_engine_compile(jse, script->str, script->size);
-		jse->debugcompile = 0;
-	} else if (compileonly) {
-		rjs_engine_compile(jse, script->str, script->size);
-	} else {
-		if (rjs_engine_compile(jse, script->str, script->size) < 0)
-			goto end;
-		if (debuginfo)
-			jse->debugexec = 1;
-		rjs_engine_run(jse);
-	}
-
 end:
+	if (jse->co && r_array_length(jse->co->errors))
+		rjs_display_errors(jse, script);
 	rjs_engine_destroy(jse);
 	if (unmapscript)
 		rjs_unmap_file(unmapscript);

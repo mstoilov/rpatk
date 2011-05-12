@@ -11,7 +11,7 @@
 #!emit dqstring
 #!emit sqstring
 
-#!emitid UnaryOperator					UID_UNARYOPERATOR					1
+#!emitid SyntaxError					UID_SYNTAXERROR						1
 #!emitid AdditiveOperator				UID_BINARYOPERATOR					2
 #!emitid AdditiveOperator				UID_ADDITIVEOPERATOR				2
 #!emitid MultiplicativeOperator			UID_MULTIPLICATIVEOPERATOR			2
@@ -29,7 +29,7 @@
 #!emitid PrefixOperator					UID_PREFIXOPERATOR					2
 #!emitid ShiftOperator					UID_SHIFTOPERATOR					2
 #!emitid EqualityOperator				UID_EQUALITYOPERATOR				2
-#!emitid Program 						UID_PROGRAM 						3
+#!emitid UnaryOperator					UID_UNARYOPERATOR					3
 #!emitid This					 		UID_THIS				 			4
 #!emitid Expression						UID_EXPRESSION						5
 #!emitid LeftHandSideExpression			UID_LEFTHANDSIDEEXPRESSION			6
@@ -83,6 +83,11 @@
 #!emitid DecimalNonIntegerLiteral		UID_DECIMALNONINTEGERLITERAL		53
 #!emitid BreakStatement					UID_BREAKSTATEMENT					54
 #!emitid ContinueStatement				UID_CONTINUESTATEMENT				55
+#!emitid IterationWhile					UID_ITERATIONWHILE					56
+#!emitid IterationDo					UID_ITERATIONDO						57
+#!emitid WhileExpressionCompare			UID_WHILEEXPRESSIONCOMPARE			58
+#!emitid DoWhileExpressionCompare		UID_DOWHILEEXPRESSIONCOMPARE		59
+#!emitid Program 						UID_PROGRAM 						60
 
 
 # 6 Source Text
@@ -366,14 +371,12 @@ IfStatement							::= <IfConditionOp> <S>? <IfTrueStatement> <S>? 'else' <S>? <I
 
 # 12.6 Iteration Statements
 # 12.6a Iteration do ... while() 
-WhileKeyword						::= 'while'
-WhileExpression						::= <WhileKeyword> <S>? '(' <S>? <Expression> <S>? ')'
-DoKeyword							::= 'do'
-IterationDo							::= <DoKeyword> <S>? <Statement> <S>? <WhileExpression> (<S>? ';')
+DoWhileExpressionCompare			::= <Expression>
+IterationDo							::= 'do' <S>? <Statement> <S>? 'while' <S>? '(' <S>? <DoWhileExpressionCompare> <S>? ')' (<S>? ';')
 
 # 12.6b Iteration while()
-WhileConditionOp					::= 'while' <S>? '(' <S>? <Expression> <S>? ')'
-IterationWhileOp					::= <WhileConditionOp> <S>? <Statement>
+WhileExpressionCompare				::= <Expression>
+IterationWhile						::= 'while' <S>? '(' <S>? <WhileExpressionCompare> <S>? ')' <S>? <Statement>
 
 # 12.6c Iteration for ( ; ; )
 ExpressionNoIn						::= <Expression>
@@ -384,7 +387,7 @@ ForIterationStatement				::= <Statement>
 IterationFor						::= 'for' <S>? '(' <S>? <ForExpressionInit>? <S>? ';' <S>? <ForExpressionCompare>? <S>? ';' <S>? <ForExpressionIncrement>? <S>? ')' <S>? <ForIterationStatement>
 
 
-IterationStatement 					::= <IterationWhileOp> |
+IterationStatement 					::= <IterationWhile> |
 										<IterationFor> |
 	    								<IterationDo>
 
@@ -443,9 +446,11 @@ FunctionDeclarationStatement		::= ('function' - 'function' <IdentifierPart>)<S>?
 
 
 # 14 Program
+SyntaxError						::= (. - <SC>)+ <SC>?
 SourceElements 					::= (<S>? <SourceElement>)+
-SourceElement 						::= <FunctionDeclaration> |
-			    						<Statement>
+SourceElement 					::= <FunctionDeclaration> |
+			    					<Statement> |
+			    					<SyntaxError>
 Program							::= <SourceElements>
 # The root rule, it is anonymous
 <Program>

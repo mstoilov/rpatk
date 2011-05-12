@@ -256,7 +256,6 @@ rint rjs_compiler_rh_program(rjs_compiler_t *co, rarray_t *records, rlong rec)
 	rjs_compiler_debughead(co, records, rec);
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 	rvm_codegen_redefinelabel(co->cg, mainidx);
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCOBJ, TP, DA, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BL, DA, XX, XX, start - rvm_codegen_getcodesize(co->cg)));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
 	rjs_compiler_debugtail(co, records, rec);
@@ -332,6 +331,7 @@ rint rjs_compiler_rh_initializer(rjs_compiler_t *co, rarray_t *records, rlong re
 
 rint rjs_compiler_rh_identifier(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
+	rjs_coerror_t error;
 	rvm_varmap_t *v;
 	rparecord_t *prec;
 	rlong swiid = -1;
@@ -356,8 +356,11 @@ rint rjs_compiler_rh_identifier(rjs_compiler_t *co, rarray_t *records, rlong rec
 			goto end;
 		}
 
-		r_printf("ERROR: Undefined identifier: %s\n", rjs_compiler_record2str(co, records, rec));
-		return -1;
+		error.code = RJS_ERROR_UNDEFINED;
+		error.script = prec->input;
+		error.scriptsize = prec->inputsiz;
+		r_array_add(co->errors, &error);
+		return 0;
 	}
 
 	if (rjs_compiler_record_parentuid(co, records, rec) == UID_LEFTHANDSIDEEXPRESSIONADDR && rpa_recordtree_next(records, rec, RPA_RECORD_START) == -1) {
@@ -1034,6 +1037,114 @@ error:
 }
 
 
+rint rjs_compiler_rh_iterationwhile(rjs_compiler_t *co, rarray_t *records, rlong rec)
+{
+	rparecord_t *prec;
+	rjs_coctx_iteration_t ctx;
+
+	r_memset(&ctx, 0, sizeof(ctx));
+	ctx.base.type = RJS_COCTX_ITERATION;
+	ctx.start = rvm_codegen_getcodesize(co->cg);
+	ctx.iterationidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__iteration", ctx.start);
+	ctx.continueidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__continue", ctx.start);
+	ctx.endidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__end", ctx.start);
+	r_array_push(co->coctx, &ctx, rjs_coctx_t*);
+	rvm_scope_push(co->scope);
+
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rjs_compiler_debugtail(co, records, rec);
+
+
+	rvm_codegen_redefinelabel(co->cg, ctx.iterationidx);
+	rvm_codegen_redefinelabel(co->cg, ctx.continueidx);
+
+	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
+		goto error;
+
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, ctx.iterationidx, rvm_asm(RVM_B, DA, XX, XX, 0));
+	rvm_codegen_redefinelabel(co->cg, ctx.endidx);
+	rjs_compiler_debugtail(co, records, rec);
+
+	rvm_scope_pop(co->scope);
+	r_array_removelast(co->coctx);
+	return 0;
+
+error:
+	rvm_scope_pop(co->scope);
+	r_array_removelast(co->coctx);
+	return -1;
+}
+
+
+rint rjs_compiler_rh_iterationdo(rjs_compiler_t *co, rarray_t *records, rlong rec)
+{
+	rparecord_t *prec;
+	rjs_coctx_iteration_t ctx;
+
+	r_memset(&ctx, 0, sizeof(ctx));
+	ctx.base.type = RJS_COCTX_ITERATION;
+	ctx.start = rvm_codegen_getcodesize(co->cg);
+	ctx.iterationidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__iteration", ctx.start);
+	ctx.continueidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__continue", ctx.start);
+	ctx.endidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__end", ctx.start);
+	r_array_push(co->coctx, &ctx, rjs_coctx_t*);
+	rvm_scope_push(co->scope);
+
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rjs_compiler_debugtail(co, records, rec);
+
+
+	rvm_codegen_redefinelabel(co->cg, ctx.iterationidx);
+
+	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
+		goto error;
+
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, ctx.iterationidx, rvm_asm(RVM_B, DA, XX, XX, 0));
+	rvm_codegen_redefinelabel(co->cg, ctx.endidx);
+	rjs_compiler_debugtail(co, records, rec);
+
+	rvm_scope_pop(co->scope);
+	r_array_removelast(co->coctx);
+	return 0;
+
+error:
+	rvm_scope_pop(co->scope);
+	r_array_removelast(co->coctx);
+	return -1;
+}
+
+
+rint rjs_compiler_rh_dowhileexpressioncompare(rjs_compiler_t *co, rarray_t *records, rlong rec)
+{
+	rparecord_t *prec;
+	rjs_coctx_iteration_t *ctx = (rjs_coctx_iteration_t *)rjs_compiler_getctx(co, RJS_COCTX_ITERATION);
+
+	R_ASSERT(ctx);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rvm_codegen_redefinelabel(co->cg, ctx->continueidx);
+	rjs_compiler_debugtail(co, records, rec);
+
+	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
+		return -1;
+
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, ctx->endidx, rvm_asm(RVM_BEQ, DA, XX, XX, 0));
+	rjs_compiler_debugtail(co, records, rec);
+	return 0;
+}
+
+
 rint rjs_compiler_rh_forexpressioncompare(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
@@ -1316,6 +1427,31 @@ rint rjs_compiler_rh_break(rjs_compiler_t *co, rarray_t *records, rlong rec)
 }
 
 
+rint rjs_compiler_rh_syntaxerror(rjs_compiler_t *co, rarray_t *records, rlong rec)
+{
+	rjs_coerror_t error;
+
+	r_memset(&error, 0, sizeof(error));
+	rparecord_t *prec;
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rjs_compiler_debugtail(co, records, rec);
+
+	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
+		return -1;
+
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	error.code = RJS_ERROR_SYNTAX;
+	error.script = prec->input;
+	error.scriptsize = prec->inputsiz;
+	r_array_add(co->errors, &error);
+	rjs_compiler_debugtail(co, records, rec);
+	return 0;
+}
+
+
 rint rjs_compiler_rh_(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
@@ -1341,6 +1477,7 @@ rjs_compiler_t *rjs_compiler_create(rvmcpu_t *cpu)
 	co->cg = rvm_codegen_create();
 	co->scope = rvm_scope_create();
 	co->coctx = r_array_create(sizeof(rjs_coctx_t *));
+	co->errors = r_array_create(sizeof(rjs_coerror_t));
 	co->cpu = cpu;
 	r_memset(co->handlers, 0, sizeof(co->handlers));
 
@@ -1382,7 +1519,11 @@ rjs_compiler_t *rjs_compiler_create(rvmcpu_t *cpu)
 	co->handlers[UID_IFCONDITIONOP] = rjs_compiler_rh_ifconditionop;
 	co->handlers[UID_IFTRUESTATEMENT] = rjs_compiler_rh_iftruestatement;
 	co->handlers[UID_IFFALSESTATEMENT] = rjs_compiler_rh_iffalsestatement;
+	co->handlers[UID_ITERATIONDO] = rjs_compiler_rh_iterationdo;
+	co->handlers[UID_ITERATIONWHILE] = rjs_compiler_rh_iterationwhile;
 	co->handlers[UID_ITERATIONFOR] = rjs_compiler_rh_iterationfor;
+	co->handlers[UID_DOWHILEEXPRESSIONCOMPARE] = rjs_compiler_rh_dowhileexpressioncompare;
+	co->handlers[UID_WHILEEXPRESSIONCOMPARE] = rjs_compiler_rh_forexpressioncompare;
 	co->handlers[UID_FOREXPRESSIONCOMPARE] = rjs_compiler_rh_forexpressioncompare;
 	co->handlers[UID_FOREXPRESSIONINCREMENT] = rjs_compiler_rh_forexpressionincrement;
 	co->handlers[UID_POSTFIXEXPRESSIONOP] = rjs_compiler_rh_postfixexpressionop;
@@ -1394,6 +1535,7 @@ rjs_compiler_t *rjs_compiler_create(rvmcpu_t *cpu)
 	co->handlers[UID_UNARYOPERATOR] = rjs_compiler_rh_unaryoperator;
 	co->handlers[UID_BREAKSTATEMENT] = rjs_compiler_rh_break;
 	co->handlers[UID_CONTINUESTATEMENT] = rjs_compiler_rh_continue;
+	co->handlers[UID_SYNTAXERROR] = rjs_compiler_rh_syntaxerror;
 
 	return co;
 }
@@ -1405,6 +1547,7 @@ void rjs_compiler_destroy(rjs_compiler_t *co)
 		rvm_codegen_destroy(co->cg);
 		rvm_scope_destroy(co->scope);
 		r_array_destroy(co->coctx);
+		r_array_destroy(co->errors);
 		r_free(co->temp);
 		co->cpu = NULL;
 		r_free(co);
@@ -1481,12 +1624,20 @@ rint rjs_compiler_compile(rjs_compiler_t *co, rarray_t *records)
 		return -1;
 	}
 
+	r_array_setlength(co->errors, 0);
 	for (i = 0; i >= 0; i = rpa_recordtree_next(records, i, RPA_RECORD_START)) {
 		if (rjs_compiler_playrecord(co, records, i) < 0)
 			/*
 			 * TBD
 			 */
 			return -1;
+	}
+
+	if (r_array_length(co->errors)) {
+		/*
+		 * TBD
+		 */
+		return -1;
 	}
 
 	if (rvm_codegen_relocate(co->cg, &labelerr) < 0) {

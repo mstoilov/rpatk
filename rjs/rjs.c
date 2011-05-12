@@ -1,4 +1,5 @@
 #include "rmem.h"
+#include "rjsobject.h"
 #include "rjs.h"
 
 
@@ -22,11 +23,17 @@ const rchar *rjs_version()
 
 rjs_engine_t *rjs_engine_create()
 {
+	rvmreg_t *tp;
 	rjs_engine_t *jse = (rjs_engine_t *) r_zmalloc(sizeof(*jse));
 
 	jse->pa = rjs_parser_create();
 	jse->cpu = rvm_cpu_create_default();
 	rvm_cpu_addswitable(jse->cpu, "rjsswitable", rjsswitable);
+
+	tp = rvm_cpu_alloc_global(jse->cpu);
+	rvm_reg_setjsobject(tp, (robject_t *)rjs_object_create(sizeof(rvmreg_t)));
+	rvm_cpu_setreg(jse->cpu, TP, tp);
+
 	return jse;
 }
 
