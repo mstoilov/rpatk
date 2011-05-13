@@ -19,6 +19,26 @@ static int compileonly = 0;
 static int debugcompileonly = 0;
 
 
+static rchar *errormsg[] = {
+	"OK",
+	"Undefined identifier",
+	"Syntax error",
+	"Not a function",
+	"Not a function call",
+	"Not a loop",
+	"Not a if statement",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+};
+
 void rjs_unmap_file(rstr_t *buf)
 {
 	if (buf) {
@@ -90,6 +110,20 @@ int rjs_exec_script(rjs_engine_t *jse, rstr_t  *script)
 }
 
 
+rlong jrs_offset2line(const rchar *script, rlong offset)
+{
+	rlong line = 0;
+	const rchar *ptr;
+
+	for (line = 1, ptr = script + offset; ptr >= script; --ptr) {
+		if (*ptr == '\n')
+			line += 1;
+	}
+
+	return line;
+}
+
+
 void rjs_display_errors(rjs_engine_t *jse, rstr_t *script)
 {
 	rlong line = 0;
@@ -98,15 +132,9 @@ void rjs_display_errors(rjs_engine_t *jse, rstr_t *script)
 
 	for (i = 0; i < r_array_length(jse->co->errors); i++) {
 		err = (rjs_coerror_t *)r_array_slot(jse->co->errors, i);
-		fprintf(stdout, "Line: %ld ", (rlong)line);
-		if (err->code == RJS_ERROR_SYNTAX) {
-			fprintf(stdout, "Sytax Error");
-		} else if (err->code == RJS_ERROR_UNDEFINED) {
-			fprintf(stdout, "Undefined Identifier");
-		} else {
-			fprintf(stdout, "Error");
-		}
-		fprintf(stdout, "(%ld, %ld): ", (rlong)(err->script - script->str), (rlong)err->scriptsize);
+		line = jrs_offset2line(script->str, (rlong)(err->script - script->str));
+		fprintf(stdout, "Line: %ld (%ld, %ld), Error Code: %ld, ", (rlong)line, (rlong)(err->script - script->str), (rlong)err->scriptsize, err->code);
+		fprintf(stdout, "%s: ", errormsg[err->code]);
 		fwrite(err->script, sizeof(rchar), err->scriptsize, stdout);
 		fprintf(stdout, "\n");
 	}
@@ -118,8 +146,9 @@ int main(int argc, char *argv[])
 	rint i;
 	rstr_t *script = NULL, *unmapscript = NULL;
 	rstr_t line;
-	rjs_engine_t *jse = rjs_engine_create();
+	rjs_engine_t *jse;
 
+	jse = rjs_engine_create();
 	for (i = 1; i < argc; i++) {
 		if (r_strcmp(argv[i], "-L") == 0) {
 
@@ -136,7 +165,6 @@ int main(int argc, char *argv[])
 
 		}
 	}
-
 
 	for (i = 1; i < argc; i++) {
 		if (r_strcmp(argv[i], "-e") == 0) {

@@ -27,7 +27,10 @@ extern "C" {
 #define RJS_ERROR_NONE 0
 #define RJS_ERROR_UNDEFINED 1
 #define RJS_ERROR_SYNTAX 2
-
+#define RJS_ERROR_NOTAFUNCTION 3
+#define RJS_ERROR_NOTAFUNCTIONCALL 4
+#define RJS_ERROR_NOTALOOP 5
+#define RJS_ERROR_NOTAIFSTATEMENT 6
 
 typedef struct rjs_coctx_s {
 	rulong type;
@@ -36,7 +39,6 @@ typedef struct rjs_coctx_s {
 
 typedef struct rjs_coctx_global_s {
 	rjs_coctx_t base;
-	rsize_t allocs;
 } rjs_coctx_global_t;
 
 
