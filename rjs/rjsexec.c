@@ -99,7 +99,8 @@ int rjs_exec_script(rjs_engine_t *jse, rstr_t  *script)
 		if (res < 0)
 			return -1;
 	} else if (compileonly) {
-		rjs_engine_compile(jse, script->str, script->size);
+		if (rjs_engine_compile(jse, script->str, script->size) < 0)
+			return -1;
 	} else {
 		if (rjs_engine_compile(jse, script->str, script->size) < 0)
 			return -1;
