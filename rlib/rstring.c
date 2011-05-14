@@ -290,3 +290,11 @@ rstring_t *r_string_create_strsize(const rchar *str, ruint size)
 	}
 	return r_string_create_from_rstr(&rstr);
 }
+
+
+const char *r_string_ansi(const rstring_t *str)
+{
+	if (!str)
+		return NULL;
+	return str->s.str;
+}

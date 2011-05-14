@@ -239,6 +239,8 @@ rlong rjs_compiler_record2unaryopcode(rparecord_t *prec)
 		return RVM_ENEG;
 	else if (r_stringncmp("~", input,  size))
 		return RVM_ENOT;
+	else if (r_stringncmp("!", input,  size))
+		return RVM_ELNOT;
 
 	return -1;
 }

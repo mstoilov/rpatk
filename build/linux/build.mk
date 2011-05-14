@@ -7,6 +7,7 @@ all:
 	+make -C $(SRCDIR)/rjs/build/$(OS)/$(ARCHDIR) all
 	+make -C $(SRCDIR)/tests/build/$(OS)/$(ARCHDIR) all
 	+make -C $(SRCDIR)/testrpa2/build/$(OS)/$(ARCHDIR) all
+	+make -C $(SRCDIR)/testrjs/build/$(OS)/$(ARCHDIR) all
 	+make -C $(SRCDIR)/rgrep/build/$(OS)/$(ARCHDIR) all
 
 distclean: clean
@@ -18,6 +19,7 @@ distclean: clean
 	+make -C $(SRCDIR)/rjs/build/$(OS)/$(ARCHDIR) distclean
 	+make -C $(SRCDIR)/tests/build/$(OS)/$(ARCHDIR) distclean
 	+make -C $(SRCDIR)/testrpa2/build/$(OS)/$(ARCHDIR) distclean
+	+make -C $(SRCDIR)/testrjs/build/$(OS)/$(ARCHDIR) distclean
 	+make -C $(SRCDIR)/rgrep/build/$(OS)/$(ARCHDIR) distclean
 
 clean:
@@ -29,5 +31,6 @@ clean:
 	+make -C $(SRCDIR)/rjs/build/$(OS)/$(ARCHDIR) clean
 	+make -C $(SRCDIR)/tests/build/$(OS)/$(ARCHDIR) clean
 	+make -C $(SRCDIR)/testrpa2/build/$(OS)/$(ARCHDIR) clean
+	+make -C $(SRCDIR)/testrjs/build/$(OS)/$(ARCHDIR) clean
 	+make -C $(SRCDIR)/rgrep/build/$(OS)/$(ARCHDIR) clean
 

@@ -2,9 +2,7 @@
 #!emitnone
 
 
-#!emit DoKeyword
 #!emit FunctionCallName
-#!emit IterationDo
 #!emit LogicalNotExpressionOp
 #!emit PostfixExpressionOp
 #!emit PrefixExpressionOp
@@ -427,11 +425,11 @@ DefaultClauseOp						::= <DefaultKeywordOp> <S>? ':' <S>? <StatementList>?
 
 # 13 Function Definition
 FunctionName						::= <IdentifierNoEmit>
-FunctionDeclaration					::= ('function'-'function'<IdentifierPart>)<S>?<FunctionName><S>?'('<S>?<FormalParameterList>?<S>?')'<S>?'{'<S>?<FunctionBody>?<S>?'}'
-FunctionExpression					::= ('function'-'function'<IdentifierPart>)<S>?<FunctionName>?<S>?'('<S>?<FormalParameterList>?<S>?')'<S>?'{'<S>?<FunctionBody>?<S>?'}'
+FunctionDeclaration					::= ('function'-'function'<IdentifierPart>)<S>?<FunctionName><S>?'('<S>?<FormalParameterList>?<S>?')'<S>?' {' <S>? <FunctionBody>? <S>?'}'
+FunctionExpression					::= ('function'-'function'<IdentifierPart>)<S>?<FunctionName>?<S>?'('<S>?<FormalParameterList>?<S>?')'<S>?'{'<S>? <FunctionBody>? <S>?'}'
 FormalParameterList 				::= <FunctionParameter> ( <S>? ',' <S>? <FunctionParameter> )*
 FunctionParameter 					::= <IdentifierNoEmit>
-FunctionBody						::= <SourceElements>
+FunctionBody						::= (<SourceElement> - '}')+
 FunctionDeclarationStatement		::= ('function' - 'function' <IdentifierPart>)<S>?<FunctionName><S>?'('<S>?<FormalParameterList>?<S>?')' <SC>
 
 # FunctionName						::= <IdentifierNoEmit>
@@ -446,12 +444,13 @@ FunctionDeclarationStatement		::= ('function' - 'function' <IdentifierPart>)<S>?
 
 
 # 14 Program
-SyntaxError						::= (. - <SC>)+ <SC>?
+SyntaxError						::= (. - (<SC> | <S>))+
 SourceElements 					::= (<S>? <SourceElement>)+
 SourceElement 					::= <FunctionDeclaration> |
 			    					<Statement> |
 			    					<SyntaxError>
-Program							::= <SourceElements>
+Program							::= (<FunctionDeclaration> | <Statement> | <S> | <SyntaxError>)*
+
 # The root rule, it is anonymous
 <Program>
 

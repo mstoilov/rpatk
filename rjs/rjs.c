@@ -28,6 +28,7 @@ rjs_engine_t *rjs_engine_create()
 
 	jse->pa = rjs_parser_create();
 	jse->cpu = rvm_cpu_create_default();
+	jse->co = rjs_compiler_create(jse->cpu);
 	rvm_cpu_addswitable(jse->cpu, "rjsswitable", rjsswitable);
 
 	tp = rvm_cpu_alloc_global(jse->cpu);
@@ -67,9 +68,9 @@ static rint rjs_engine_parse(rjs_engine_t *jse, const rchar *script, rsize_t siz
 rint rjs_engine_compile(rjs_engine_t *jse, const rchar *script, rsize_t size)
 {
 	rarray_t *records = NULL;
-	if (jse->co)
-		rjs_compiler_destroy(jse->co);
-	jse->co = rjs_compiler_create(jse->cpu);
+//	if (jse->co)
+//		rjs_compiler_destroy(jse->co);
+//	jse->co = rjs_compiler_create(jse->cpu);
 	jse->co->debug = jse->debugcompile;
 
 	if (rjs_engine_parse(jse, script, size, &records) < 0) {
@@ -138,6 +139,22 @@ rint rjs_engine_run(rjs_engine_t *jse)
 		res = rvm_cpu_exec(jse->cpu, rvm_codegen_getcode(jse->co->cg, 0), 0);
 	}
 	return res;
+}
+
+
+rvmreg_t * rjs_engine_exec(rjs_engine_t *jse, const rchar *script, rsize_t size)
+{
+	if (rjs_engine_compile(jse, script, size) < 0)
+		return NULL;
+	if (rjs_engine_run(jse) < 0)
+		return NULL;
+	return RVM_CPUREG_PTR(jse->cpu, R0);
+}
+
+
+rvmreg_t *rjs_engine_exec_s(rjs_engine_t *jse, const rchar *script)
+{
+	return rjs_engine_exec(jse, script, r_strlen(script));
 }
 
 

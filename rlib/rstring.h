@@ -58,7 +58,7 @@ rstring_t *r_string_create_from_rstr(const rstr_t *str);
 robject_t *r_string_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy);
 void r_string_assign(rstring_t *string, const rstr_t *str);
 void r_string_cat(rstring_t *string, const rstr_t *str);
-
+const char *r_string_ansi(const rstring_t *str);
 /*
  * Virtual methods implementation
  */

@@ -35,6 +35,8 @@ rint rjs_engine_compile_s(rjs_engine_t *jse, const rchar *script);
 rint rjs_engine_close(rjs_engine_t *jse);
 rint rjs_engine_run(rjs_engine_t *jse);
 rint rjs_engine_dumpast(rjs_engine_t *jse, const rchar *script, rsize_t size);
+rvmreg_t *rjs_engine_exec(rjs_engine_t *jse, const rchar *script, rsize_t size);
+rvmreg_t *rjs_engine_exec_s(rjs_engine_t *jse, const rchar *script);
 
 
 #ifdef __cplusplus

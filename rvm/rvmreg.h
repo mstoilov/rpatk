@@ -6,6 +6,7 @@
 #include "rarray.h"
 #include "rharray.h"
 #include "rcarray.h"
+#include "rjsobject.h"
 #include "rstring.h"
 
 
@@ -173,6 +174,14 @@ void rvm_reg_setjsobject(rvmreg_t *r, robject_t *ptr);
 int rvm_reg_str2num(rvmreg_t *dst, const rvmreg_t *src);
 int rvm_reg_str2long(rvmreg_t *dst, const rvmreg_t *ssrc);
 int rvm_reg_str2double(rvmreg_t *dst, const rvmreg_t *ssrc);
+
+rint rvm_reg_int(const rvmreg_t *src);
+rlong rvm_reg_long(const rvmreg_t *src);
+ruchar rvm_reg_boolean(const rvmreg_t *src);
+rdouble rvm_reg_double(const rvmreg_t *src);
+rpointer rvm_reg_pointer(const rvmreg_t *src);
+rstring_t *rvm_reg_string(const rvmreg_t *src);
+rjs_object_t *rvm_reg_jsobject(const rvmreg_t *src);
 
 
 #ifdef __cplusplus

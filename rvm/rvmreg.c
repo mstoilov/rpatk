@@ -205,6 +205,7 @@ rvmreg_t rvm_reg_create_harray()
 	return r;
 }
 
+
 void rvm_reg_setstring(rvmreg_t *r, rstring_t *ptr)
 {
 	RVM_REG_SETP(r, ptr);
@@ -430,4 +431,53 @@ int rvm_reg_str2double(rvmreg_t *dst, const rvmreg_t *src)
 		return -1;
 	rvm_reg_setdouble(dst, d);
 	return 0;
+}
+
+
+rint rvm_reg_int(const rvmreg_t *src)
+{
+	R_ASSERT(src);
+	return (int)RVM_REG_GETL(src);
+}
+
+
+rlong rvm_reg_long(const rvmreg_t *src)
+{
+	R_ASSERT(src);
+	return (rlong)RVM_REG_GETL(src);
+}
+
+
+ruchar rvm_reg_boolean(const rvmreg_t *src)
+{
+	R_ASSERT(src);
+	return (ruchar)(RVM_REG_GETL(src) ? 1 : 0);
+}
+
+
+rdouble rvm_reg_double(const rvmreg_t *src)
+{
+	R_ASSERT(src);
+	return (rdouble)RVM_REG_GETL(src);
+}
+
+
+rpointer rvm_reg_pointer(const rvmreg_t *src)
+{
+	R_ASSERT(src);
+	return (rpointer)RVM_REG_GETP(src);
+}
+
+
+rstring_t *rvm_reg_string(const rvmreg_t *src)
+{
+	R_ASSERT(src && rvm_reg_gettype(src) == RVM_DTYPE_STRING);
+	return (rstring_t*)RVM_REG_GETP(src);
+}
+
+
+rjs_object_t *rvm_reg_jsobject(const rvmreg_t *src)
+{
+	R_ASSERT(src && rvm_reg_gettype(src) == RVM_DTYPE_JSOBJECT);
+	return (rjs_object_t*)RVM_REG_GETP(src);
 }

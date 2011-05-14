@@ -17,6 +17,7 @@ static int debuginfo = 0;
 static int parseinfo = 0;
 static int compileonly = 0;
 static int debugcompileonly = 0;
+static int statinfo = 0;
 
 
 static rchar *errormsg[] = {
@@ -161,8 +162,8 @@ int main(int argc, char *argv[])
 			debugcompileonly = 1;
 		} else if (r_strcmp(argv[i], "-c") == 0) {
 			compileonly = 1;
-		} else if (r_strcmp(argv[i], "-m") == 0) {
-
+		} else if (r_strcmp(argv[i], "-t") == 0) {
+			statinfo = 1;
 		}
 	}
 
@@ -197,7 +198,7 @@ end:
 	rjs_engine_destroy(jse);
 	if (unmapscript)
 		rjs_unmap_file(unmapscript);
-	if (debuginfo)
+	if (statinfo)
 		fprintf(stdout, "\nRJS Version: %s, memory: %ld KB (leaked %ld Bytes)\n", rjs_version(), (rlong)r_debug_get_maxmem()/1000, (rlong)r_debug_get_allocmem());
 	return 0;
 }
