@@ -31,7 +31,7 @@ void rpa_compiler_index_reference_nan(rpa_compiler_t *co, rulong index)
 
 void rpa_compiler_reference_nan(rpa_compiler_t *co, const rchar *name, rsize_t namesize)
 {
-	rpa_compiler_index_reference_nan(co, rvm_codemap_lookup(co->cg->codemap, name, namesize));
+	rpa_compiler_index_reference_nan(co, rvm_codemap_lookupadd(co->cg->codemap, name, namesize));
 }
 
 
@@ -52,7 +52,7 @@ void rpa_compiler_index_reference_opt(rpa_compiler_t *co, rulong index)
 
 void rpa_compiler_reference_opt(rpa_compiler_t *co, const rchar *name, rsize_t namesize)
 {
-	rpa_compiler_index_reference_opt(co, rvm_codemap_lookup(co->cg->codemap, name, namesize));
+	rpa_compiler_index_reference_opt(co, rvm_codemap_lookupadd(co->cg->codemap, name, namesize));
 }
 
 
@@ -77,7 +77,7 @@ void rpa_compiler_index_reference_mul(rpa_compiler_t *co, rulong index)
 
 void rpa_compiler_reference_mul(rpa_compiler_t *co, const rchar *name, rsize_t namesize)
 {
-	rpa_compiler_index_reference_mul(co, rvm_codemap_lookup(co->cg->codemap, name, namesize));
+	rpa_compiler_index_reference_mul(co, rvm_codemap_lookupadd(co->cg->codemap, name, namesize));
 
 }
 
@@ -103,7 +103,7 @@ void rpa_compiler_index_reference_mop(rpa_compiler_t *co, rulong index)
 
 void rpa_compiler_reference_mop(rpa_compiler_t *co, const rchar *name, rsize_t namesize)
 {
-	rpa_compiler_index_reference_mop(co, rvm_codemap_lookup(co->cg->codemap, name, namesize));
+	rpa_compiler_index_reference_mop(co, rvm_codemap_lookupadd(co->cg->codemap, name, namesize));
 }
 
 
@@ -129,7 +129,7 @@ void rpa_compiler_index_reference(rpa_compiler_t *co, rulong index, ruint qflag)
 
 void rpa_compiler_reference(rpa_compiler_t *co, const rchar *name, rsize_t namesize, ruint qflag)
 {
-	rpa_compiler_index_reference(co, rvm_codemap_lookup(co->cg->codemap, name, namesize), qflag);
+	rpa_compiler_index_reference(co, rvm_codemap_lookupadd(co->cg->codemap, name, namesize), qflag);
 }
 
 

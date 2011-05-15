@@ -40,6 +40,8 @@ rlong rvm_codemap_addoffset(rvm_codemap_t *codemap, const rchar *name, ruint nam
 rlong rvm_codemap_addoffset_s(rvm_codemap_t *codemap, const rchar *name, rulong base, rulong offset);
 rlong rvm_codemap_addpointer(rvm_codemap_t *codemap, const rchar *name, ruint namesize, rpointer ptr);
 rlong rvm_codemap_addpointer_s(rvm_codemap_t *codemap, const rchar *name, rpointer ptr);
+rlong rvm_codemap_lookupadd(rvm_codemap_t *codemap, const rchar *name, ruint namesize);
+rlong rvm_codemap_lookupadd_s(rvm_codemap_t *codemap, const rchar *name);
 rlong rvm_codemap_lookup(rvm_codemap_t *codemap, const rchar *name, ruint namesize);
 rlong rvm_codemap_lookup_s(rvm_codemap_t *codemap, const rchar *name);
 rlong rvm_codemap_lastlabel(rvm_codemap_t *codemap);

@@ -214,6 +214,8 @@ static void rjs_engine_dbgprint(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_HARRAY)
 		r_printf("(hashed array) %p\n",RVM_REG_GETP(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_SWIID)
+		r_printf("(swi function) %p\n",RVM_REG_GETP(r));
+	else if (rvm_reg_gettype(r) == RVM_DTYPE_FUNCTION)
 		r_printf("(function) %p\n",RVM_REG_GETP(r));
 	else
 		r_printf("%p\n", RVM_REG_GETP(r));

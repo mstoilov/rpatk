@@ -148,13 +148,28 @@ rlong rvm_codemap_lastlabel(rvm_codemap_t *codemap)
 }
 
 
-rlong rvm_codemap_lookup(rvm_codemap_t *codemap, const rchar *name, ruint namesize)
+rlong rvm_codemap_lookupadd(rvm_codemap_t *codemap, const rchar *name, ruint namesize)
 {
 	rstr_t lookupstr = {(char*)name, namesize};
 	rlong labelidx = r_hash_lookup_indexval(codemap->hash, &lookupstr);
 
 	if (labelidx < 0)
 		labelidx = rvm_codemap_invalid_add(codemap, name, namesize);
+	return labelidx;
+}
+
+
+rlong rvm_codemap_lookupadd_s(rvm_codemap_t *codemap, const rchar *name)
+{
+	return rvm_codemap_lookupadd(codemap, name, r_strlen(name));
+}
+
+
+rlong rvm_codemap_lookup(rvm_codemap_t *codemap, const rchar *name, ruint namesize)
+{
+	rstr_t lookupstr = {(char*)name, namesize};
+	rlong labelidx = r_hash_lookup_indexval(codemap->hash, &lookupstr);
+
 	return labelidx;
 }
 
