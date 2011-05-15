@@ -26,4 +26,4 @@ CFLAGS := $(CFLAGS)
 LDFLAGS = $(MACH)
 
 
-include ../robject-tests.mk
+include ../misc-tests.mk
