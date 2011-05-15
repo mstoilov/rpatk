@@ -1,8 +1,0 @@
-S			::= [#0x0009] | [#0x000B] | [#0x000C] | [#0x0020] | [#0x00A0] | [#0xFEFF]
-Identifier		::= [a-zA-Z0-9]+
-AssignmentOperator	::= '='
-MemberExpression	::= <:MemberExpression:> '[' <:AssignmentExpression:> ']'  |
-			    <:Identifier:>
-AssignmentExpression	::= <:MemberExpression:> <:AssignmentOperator:> <:AssignmentExpression:> | 
-			    <:Identifier:>
-<:MemberExpression:>					
