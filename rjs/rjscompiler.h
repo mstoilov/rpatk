@@ -48,6 +48,7 @@ typedef struct rjs_coctx_function_s {
 	rlong execidx;
 	rlong endidx;
 	rlong allocsidx;
+	rlong execoff;
 	rsize_t allocs;
 } rjs_coctx_function_t;
 

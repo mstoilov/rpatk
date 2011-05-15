@@ -88,7 +88,6 @@
 #!emitid WhileExpressionCompare			UID_WHILEEXPRESSIONCOMPARE			58
 #!emitid DoWhileExpressionCompare		UID_DOWHILEEXPRESSIONCOMPARE		59
 #!emitid Program 						UID_PROGRAM 						60
-#!emitid FunctionNameAlloc				UID_FUNCTIONNAMEALLOC				61
 
 
 # 6 Source Text
@@ -428,9 +427,8 @@ DefaultClauseOp						::= <DefaultKeywordOp> <S>? ':' <S>? <StatementList>?
 
 # 13 Function Definition
 FunctionName						::= <IdentifierNoEmit>
-FunctionNameAlloc					::= <IdentifierNoEmit>
-FunctionDeclaration					::= ('function'-'function'<IdentifierPart>)<S>?<FunctionNameAlloc><S>?'('<S>?<FormalParameterList>?<S>?')'<S>?'{'<S>?<FunctionBody>?<S>?'}'
-FunctionExpression					::= ('function'-'function'<IdentifierPart>)<S>?<FunctionNameAlloc>?<S>?'('<S>?<FormalParameterList>?<S>?')'<S>?'{'<S>?<FunctionBody>?<S>?'}'
+FunctionDeclaration					::= ('function'-'function'<IdentifierPart>)<S>?<FunctionName><S>?'('<S>?<FormalParameterList>?<S>?')'<S>?'{'<S>?<FunctionBody>?<S>?'}'
+FunctionExpression					::= ('function'-'function'<IdentifierPart>)<S>?<FunctionName>?<S>?'('<S>?<FormalParameterList>?<S>?')'<S>?'{'<S>?<FunctionBody>?<S>?'}'
 FormalParameterList 				::= <FunctionParameter> ( <S>? ',' <S>? <FunctionParameter> )*
 FunctionParameter 					::= <IdentifierNoEmit>
 FunctionBody						::= <SourceElements>
