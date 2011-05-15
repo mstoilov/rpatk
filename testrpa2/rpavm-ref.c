@@ -20,7 +20,7 @@ void code_rpa_matchabc(rpa_compiler_t *co, rpastat_t *stat)
 	const rchar *ruleend = "rpa_matchabc_end";
 
 	ruleidx = rvm_codegen_addstring_s(co->cg, NULL, rule);
-	rvm_codegen_addlabel_s(co->cg, rule);
+	rvm_codegen_addlabel_default_s(co->cg, rule);
 
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_STRING, ruleidx, rvm_asm(RPA_EMITSTART, DA, R_TOP, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(R_TOP)|BIT(LR)));
@@ -36,7 +36,7 @@ void code_rpa_matchabc(rpa_compiler_t *co, rpastat_t *stat)
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_SUBS, R0, R_TOP, R1, 0));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_STRING, ruleidx, rvm_asm(RPA_EMITEND, DA, R1, R0, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
-	rvm_codegen_addlabel_s(co->cg, ruleend);
+	rvm_codegen_addlabel_default_s(co->cg, ruleend);
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BIT(R_TOP)|BIT(LR)));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, DA, XX, -1));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
@@ -50,7 +50,7 @@ void code_rpa_matchxyz(rpa_compiler_t *co, rpastat_t *stat)
 	const rchar *ruleend = "rpa_matchxyz_end";
 
 	ruleidx = rvm_codegen_addstring_s(co->cg, NULL, rule);
-	rvm_codegen_addlabel_s(co->cg, rule);
+	rvm_codegen_addlabel_default_s(co->cg, rule);
 
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_STRING, ruleidx, rvm_asm(RPA_EMITSTART, DA, R_TOP, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(R_TOP)|BIT(LR)));
@@ -66,7 +66,7 @@ void code_rpa_matchxyz(rpa_compiler_t *co, rpastat_t *stat)
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_SUBS, R0, R_TOP, R1, 0));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_STRING, ruleidx, rvm_asm(RPA_EMITEND, DA, R1, R0, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
-	rvm_codegen_addlabel_s(co->cg, ruleend);
+	rvm_codegen_addlabel_default_s(co->cg, ruleend);
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BIT(R_TOP)|BIT(LR)));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, DA, XX, -1));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
