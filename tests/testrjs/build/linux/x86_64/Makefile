@@ -1,7 +1,7 @@
 ARCHDIR = x86_64
 OUTDIR = out
 OS = $(shell uname | tr "[:upper:]" "[:lower:]")
-SRCDIR = ../../../..
+SRCDIR = ../../../../..
 
 
 CC = gcc
@@ -26,4 +26,4 @@ CFLAGS := $(CFLAGS)
 LDFLAGS = $(MACH)
 
 
-include ../testrpa2.mk
+include ../testrjs.mk
