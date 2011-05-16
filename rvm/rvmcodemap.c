@@ -19,9 +19,9 @@ rvm_codemap_t *rvm_codemap_create()
 
 void rvm_codemap_destroy(rvm_codemap_t *codemap)
 {
-	int i;
+	rlong i;
 	rvm_codelabel_t *label;
-	int len = r_array_length(codemap->labels);
+	rlong len = r_array_length(codemap->labels);
 
 	for (i = 0; i < len; i++) {
 		label = (rvm_codelabel_t*)r_array_slot(codemap->labels, i);
@@ -35,8 +35,15 @@ void rvm_codemap_destroy(rvm_codemap_t *codemap)
 
 void rvm_codemap_clear(rvm_codemap_t *codemap)
 {
-	r_hash_removeall(codemap->hash);
+	rlong i;
+	rvm_codelabel_t *label;
+
+	for (i = 0; i < r_array_length(codemap->labels); i++) {
+		label = (rvm_codelabel_t*)r_array_slot(codemap->labels, i);
+		r_free(label->name);
+	}
 	r_array_setlength(codemap->labels, 0);
+	r_hash_removeall(codemap->hash);
 }
 
 
