@@ -47,7 +47,7 @@ void rjs_engine_destroy(rjs_engine_t *jse)
 	rlong i;
 	if (jse) {
 		for (i = 0; i < r_array_length(jse->cgs); i++) {
-//			rvm_codegen_destroy(r_array_index(jse->cgs, i, rvm_codegen_t*));
+			rvm_codegen_destroy(r_array_index(jse->cgs, i, rvm_codegen_t*));
 		}
 		r_array_destroy(jse->cgs);
 		rjs_parser_destroy(jse->pa);
@@ -84,14 +84,12 @@ rint rjs_engine_compile(rjs_engine_t *jse, const rchar *script, rsize_t size)
 	}
 
 	topcg =  r_array_empty(jse->cgs) ? NULL : r_array_last(jse->cgs, rvm_codegen_t*);
-	if (!topcg || (topcg->userdata & RJS_COMPILER_CODEGENKEEP) == 0) {
+	if (!topcg || (topcg->userdata & RJS_COMPILER_CODEGENKEEP) == 1) {
 		topcg = rvm_codegen_create();
 		r_array_add(jse->cgs, &topcg);
 	} else {
-		topcg->userdata = 0;
 		rvm_codegen_clear(topcg);
 	}
-	r_printf("cgs size: %ld\n", r_array_length(jse->cgs));
 	topcg->userdata = 0;
 	if (rjs_compiler_compile(jse->co, records, topcg) < 0) {
 		topcg->userdata = 0;
