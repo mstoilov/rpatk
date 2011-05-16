@@ -1,6 +1,7 @@
 #include "rmem.h"
 #include "rjsobject.h"
 #include "rjs.h"
+#include "rvmcodegen.h"
 
 
 static void rjs_engine_print(rvmcpu_t *cpu, rvm_asmins_t *ins);
@@ -29,6 +30,7 @@ rjs_engine_t *rjs_engine_create()
 	jse->pa = rjs_parser_create();
 	jse->cpu = rvm_cpu_create_default();
 	jse->co = rjs_compiler_create(jse->cpu);
+	jse->cgs = r_array_create(sizeof(rvm_codegen_t*));
 	rvm_cpu_addswitable(jse->cpu, "rjsswitable", rjsswitable);
 
 	tp = rvm_cpu_alloc_global(jse->cpu);
@@ -42,7 +44,12 @@ rjs_engine_t *rjs_engine_create()
 
 void rjs_engine_destroy(rjs_engine_t *jse)
 {
+	rlong i;
 	if (jse) {
+		for (i = 0; i < r_array_length(jse->cgs); i++) {
+//			rvm_codegen_destroy(r_array_index(jse->cgs, i, rvm_codegen_t*));
+		}
+		r_array_destroy(jse->cgs);
 		rjs_parser_destroy(jse->pa);
 		rvm_cpu_destroy(jse->cpu);
 		rjs_compiler_destroy(jse->co);
@@ -67,10 +74,8 @@ static rint rjs_engine_parse(rjs_engine_t *jse, const rchar *script, rsize_t siz
 
 rint rjs_engine_compile(rjs_engine_t *jse, const rchar *script, rsize_t size)
 {
+	rvm_codegen_t *topcg = NULL;
 	rarray_t *records = NULL;
-//	if (jse->co)
-//		rjs_compiler_destroy(jse->co);
-//	jse->co = rjs_compiler_create(jse->cpu);
 	jse->co->debug = jse->debugcompile;
 
 	if (rjs_engine_parse(jse, script, size, &records) < 0) {
@@ -78,8 +83,18 @@ rint rjs_engine_compile(rjs_engine_t *jse, const rchar *script, rsize_t size)
 		goto err;
 	}
 
-	if (rjs_compiler_compile(jse->co, records) < 0) {
-
+	topcg =  r_array_empty(jse->cgs) ? NULL : r_array_last(jse->cgs, rvm_codegen_t*);
+	if (!topcg || (topcg->userdata & RJS_COMPILER_CODEGENKEEP) == 0) {
+		topcg = rvm_codegen_create();
+		r_array_add(jse->cgs, &topcg);
+	} else {
+		topcg->userdata = 0;
+		rvm_codegen_clear(topcg);
+	}
+	r_printf("cgs size: %ld\n", r_array_length(jse->cgs));
+	topcg->userdata = 0;
+	if (rjs_compiler_compile(jse->co, records, topcg) < 0) {
+		topcg->userdata = 0;
 		goto err;
 	}
 
@@ -128,15 +143,16 @@ rint rjs_engine_close(rjs_engine_t *jse)
 rint rjs_engine_run(rjs_engine_t *jse)
 {
 	rint res = 0;
+	rvm_codegen_t *cg = r_array_empty(jse->cgs) ? NULL : r_array_last(jse->cgs, rvm_codegen_t*);
 
-	if (!jse->co) {
+	if (!cg) {
 
 		return -1;
 	}
 	if (jse->debugexec) {
-		res = rvm_cpu_exec_debug(jse->cpu, rvm_codegen_getcode(jse->co->cg, 0), 0);
+		res = rvm_cpu_exec_debug(jse->cpu, rvm_codegen_getcode(cg, 0), 0);
 	} else {
-		res = rvm_cpu_exec(jse->cpu, rvm_codegen_getcode(jse->co->cg, 0), 0);
+		res = rvm_cpu_exec(jse->cpu, rvm_codegen_getcode(cg, 0), 0);
 	}
 	return res;
 }

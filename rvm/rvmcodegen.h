@@ -13,8 +13,10 @@
 extern "C" {
 #endif
 
+
 #define RVM_CODEGEN_FUNCINITOFFSET 3
 #define RVM_CODEGEN_E_NONE 0
+
 
 typedef struct rvm_codegen_s {
 	rarray_t *code;
@@ -22,6 +24,7 @@ typedef struct rvm_codegen_s {
 	ruint codeoff;
 	rvm_codemap_t *codemap;
 	rvm_relocmap_t *relocmap;
+	rulong userdata;
 } rvm_codegen_t;
 
 

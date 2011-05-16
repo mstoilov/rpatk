@@ -200,6 +200,6 @@ end:
 	if (unmapscript)
 		rjs_unmap_file(unmapscript);
 	if (statinfo)
-		fprintf(stdout, "\nRJS Version: %s, memory: %ld KB (leaked %ld Bytes)\n", rjs_version(), (rlong)r_debug_get_maxmem()/1000, (rlong)r_debug_get_allocmem());
+		fprintf(stdout, "\nRJS Version: %s, memory: %ld Bytes (leaked %ld Bytes)\n", rjs_version(), (rlong)r_debug_get_maxmem(), (rlong)r_debug_get_allocmem());
 	return 0;
 }

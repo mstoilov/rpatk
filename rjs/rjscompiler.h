@@ -15,6 +15,7 @@ extern "C" {
 #include "rparecord.h"
 
 #define RJS_COMPILER_NHANDLERS 128
+#define RJS_COMPILER_CODEGENKEEP (1 << 0)
 
 #define RJS_COCTX_NONE 0
 #define RJS_COCTX_GLOBAL (1 << 1)
@@ -110,7 +111,7 @@ struct rjs_compiler_s {
 
 rjs_compiler_t *rjs_compiler_create(rvmcpu_t *cpu);
 void rjs_compiler_destroy(rjs_compiler_t *co);
-rint rjs_compiler_compile(rjs_compiler_t *co, rarray_t *records);
+rint rjs_compiler_compile(rjs_compiler_t *co, rarray_t *records, rvm_codegen_t *cg);
 rjs_coctx_t *rjs_compiler_getctx(rjs_compiler_t *co, rulong type);
 
 #ifdef __cplusplus

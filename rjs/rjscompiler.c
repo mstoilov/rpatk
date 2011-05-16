@@ -726,6 +726,7 @@ rint rjs_compiler_rh_functiondeclaration(rjs_compiler_t *co, rarray_t *records, 
 	rvm_codegen_redefinepointer(co->cg, allocsidx, (rpointer)ctx.allocs);
 	rjs_compiler_debugtail(co, records, rec);
 
+	co->cg->userdata = RJS_COMPILER_CODEGENKEEP;
 	rvm_scope_pop(co->scope);
 	r_array_removelast(co->coctx);
 	return 0;
@@ -1525,7 +1526,6 @@ rjs_compiler_t *rjs_compiler_create(rvmcpu_t *cpu)
 {
 	rjs_compiler_t *co = (rjs_compiler_t *) r_zmalloc(sizeof(*co));
 
-	co->cg = rvm_codegen_create();
 	co->scope = rvm_scope_create();
 	co->coctx = r_array_create(sizeof(rjs_coctx_t *));
 	co->errors = r_array_create(sizeof(rjs_coerror_t));
@@ -1595,7 +1595,6 @@ rjs_compiler_t *rjs_compiler_create(rvmcpu_t *cpu)
 void rjs_compiler_destroy(rjs_compiler_t *co)
 {
 	if (co) {
-		rvm_codegen_destroy(co->cg);
 		rvm_scope_destroy(co->scope);
 		r_array_destroy(co->coctx);
 		r_array_destroy(co->errors);
@@ -1663,17 +1662,18 @@ static rint rjs_compiler_playrecord(rjs_compiler_t *co, rarray_t *records, rlong
 }
 
 
-rint rjs_compiler_compile(rjs_compiler_t *co, rarray_t *records)
+rint rjs_compiler_compile(rjs_compiler_t *co, rarray_t *records, rvm_codegen_t *cg)
 {
 	rlong i;
 	rvm_codelabel_t *labelerr;
 
-	if (!co || !records || r_array_empty(records)) {
+	if (!co || !records || !cg || r_array_empty(records)) {
 		/*
 		 * TBD
 		 */
 		return -1;
 	}
+	co->cg = cg;
 
 	r_array_setlength(co->errors, 0);
 	for (i = 0; i >= 0; i = rpa_recordtree_next(records, i, RPA_RECORD_START)) {
