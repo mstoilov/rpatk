@@ -1,6 +1,6 @@
 RLIB_SRCDIR = $(SRCDIR)/rlib
 RVM_SRCDIR = $(SRCDIR)/rvm
-RPA_SRCDIR = $(SRCDIR)/rpa2
+RPA_SRCDIR = $(SRCDIR)/rpa
 RJS_SRCDIR = $(SRCDIR)/rjs
 RJS_LIB = $(OUTDIR)/librjs.a
 RJS_SO = $(OUTDIR)/librjs.so.1.0
@@ -12,7 +12,7 @@ LIBS = -L$(RLIB_SRCDIR)/build/$(OS)/$(ARCHDIR)/out
 LIBS += -L$(RVM_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
 LIBS += -L$(RPA_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
 LIBS += -L$(RJS_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
-LIBS += -lrjs -lrpa2 -lrvm -lrlib -lpthread -lm --static
+LIBS += -lrjs -lrpa -lrvm -lrlib -lpthread -lm --static
 
 RJS_OBJECTS =	\
 	$(OUTDIR)/rjs.o \

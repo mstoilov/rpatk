@@ -1,6 +1,6 @@
 RLIB_SRCDIR = $(SRCDIR)/rlib
 RVM_SRCDIR = $(SRCDIR)/rvm
-RPA_SRCDIR = $(SRCDIR)/rpa2
+RPA_SRCDIR = $(SRCDIR)/rpa
 RGREP_SRCDIR = $(SRCDIR)/rgrep
 INCLUDE = -I$(SRCDIR)/arch/$(OS)/$(ARCHDIR) -I$(RLIB_SRCDIR) -I$(RVM_SRCDIR) -I$(RPA_SRCDIR) -I$(RGREP_SRCDIR) -I$(RGREP_SRCDIR)/unix
 
@@ -8,7 +8,7 @@ INCLUDE = -I$(SRCDIR)/arch/$(OS)/$(ARCHDIR) -I$(RLIB_SRCDIR) -I$(RVM_SRCDIR) -I$
 LIBS = -L$(RLIB_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
 LIBS += -L$(RVM_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
 LIBS += -L$(RPA_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
-LIBS += -lrpa2 -lrvm -lrlib -lpthread -lm --static
+LIBS += -lrpa -lrvm -lrlib -lpthread -lm --static
 OBJECTS	= $(OUTDIR)/rpagrep.o $(OUTDIR)/main.o $(OUTDIR)/fsenum.o $(OUTDIR)/rpagrepdep.o $(OUTDIR)/rpagreputf.o
 RPAGREP	= rgrep
 

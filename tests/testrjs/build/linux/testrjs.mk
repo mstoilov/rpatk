@@ -1,17 +1,17 @@
 ROBJECT_SRCDIR = $(SRCDIR)/robject
 RLIB_SRCDIR = $(SRCDIR)/rlib
 RVM_SRCDIR = $(SRCDIR)/rvm
-RPA2_SRCDIR = $(SRCDIR)/rpa2
+RPA_SRCDIR = $(SRCDIR)/rpa
 RJS_SRCDIR = $(SRCDIR)/rjs
 TESTS_SRCDIR = $(SRCDIR)/tests/testrjs
-INCLUDE = -I$(SRCDIR)/arch/$(OS)/$(ARCHDIR) -I$(ROBJECT_SRCDIR) -I$(RLIB_SRCDIR) -I$(RVM_SRCDIR) -I$(RJS_SRCDIR) -I$(RPA2_SRCDIR) 
+INCLUDE = -I$(SRCDIR)/arch/$(OS)/$(ARCHDIR) -I$(ROBJECT_SRCDIR) -I$(RLIB_SRCDIR) -I$(RVM_SRCDIR) -I$(RJS_SRCDIR) -I$(RPA_SRCDIR) 
 
 LIBS =  -L$(ROBJECT_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
 LIBS += -L$(RLIB_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
 LIBS += -L$(RVM_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
 LIBS += -L$(RJS_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
-LIBS += -L$(RPA2_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
-LIBS += -lrjs -lrpa2 -lrvm -lrlib -lpthread -lm --static
+LIBS += -L$(RPA_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
+LIBS += -lrjs -lrpa -lrvm -lrlib -lpthread -lm --static
 
 
 TESTS   += $(OUTDIR)/rjs-simple

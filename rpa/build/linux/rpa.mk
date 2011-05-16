@@ -1,6 +1,6 @@
-RPA_SRCDIR = $(SRCDIR)/rpa2
-RPA_LIB = $(OUTDIR)/librpa2.a
-RPA_SO = $(OUTDIR)/librpa2.so.1.0
+RPA_SRCDIR = $(SRCDIR)/rpa
+RPA_LIB = $(OUTDIR)/librpa.a
+RPA_SO = $(OUTDIR)/librpa.so.1.0
 
 CFLAGS += -I$(RVM_SRCDIR)/config -I$(SRCDIR)/rlib -I$(SRCDIR)/rvm
 
@@ -29,7 +29,7 @@ $(RPA_LIB): $(RPA_OBJECTS)
 	$(AR) -cr $@ $^
 
 $(RPA_SO): $(RPA_OBJECTS)
-	$(CC) $(LDFLAGS) -shared -Wl,-soname,librpa2.so -o $@ $^
+	$(CC) $(LDFLAGS) -shared -Wl,-soname,librpa.so -o $@ $^
 
 $(OUTDIR):
 	@mkdir $(OUTDIR)

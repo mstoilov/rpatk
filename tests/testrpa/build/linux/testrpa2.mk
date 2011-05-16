@@ -1,14 +1,14 @@
 RLIB_SRCDIR = $(SRCDIR)/rlib
 RVM_SRCDIR = $(SRCDIR)/rvm
-RPA2_SRCDIR = $(SRCDIR)/rpa2
-TESTS_SRCDIR = $(SRCDIR)/tests/testrpa2
-INCLUDE = -I$(SRCDIR)/arch/$(OS)/$(ARCHDIR) -I$(RLIB_SRCDIR) -I$(RVM_SRCDIR) -I$(RPA2_SRCDIR)
+RPA_SRCDIR = $(SRCDIR)/rpa
+TESTS_SRCDIR = $(SRCDIR)/tests/testrpa
+INCLUDE = -I$(SRCDIR)/arch/$(OS)/$(ARCHDIR) -I$(RLIB_SRCDIR) -I$(RVM_SRCDIR) -I$(RPA_SRCDIR)
 
 
 LIBS = -L$(RLIB_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
 LIBS += -L$(RVM_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
-LIBS += -L$(RPA2_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
-LIBS += -lrpa2 -lrvm -lrlib -lpthread -lm --static
+LIBS += -L$(RPA_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
+LIBS += -lrpa -lrvm -lrlib -lpthread -lm --static
 
 
 TESTS	+= $(OUTDIR)/rpavm-matchchr
@@ -32,7 +32,7 @@ all : $(OUTDIR) $(TESTS)
 
 
 $(OUTDIR)/%: $(TESTS_SRCDIR)/%.c
-	+ $(CC) $(CFLAGS) -o $(OUTDIR)/$* $(TESTS_SRCDIR)/$*.c  -lrpa2 $(LIBS) $(INCLUDE)
+	+ $(CC) $(CFLAGS) -o $(OUTDIR)/$* $(TESTS_SRCDIR)/$*.c  -lrpa $(LIBS) $(INCLUDE)
 
 
 $(OUTDIR)/%.o: $(TESTS_SRCDIR)/%.rpa
