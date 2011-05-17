@@ -1,0 +1,13 @@
+/*! \page intro Introduction
+Regular Pattern Analyzer (RPA) is a bottom-up, recursive parser. Although, it uses iterative algorithm to handle Left-Recursion,
+because it is impossible to handle Left-Recursion using recursion. The RPA parser is capable to handle both direct and indirect Left and
+Right Recursions. The input grammar notation is Backus–Naur Form (BNF) and the output the produced output is an Abstract Syntax Tree.
+The grammar allows Regular Expressions, so the parser can also be used as RegEx or search engine. 
+
+\section design Design
+RPA analyzes the BNF schema and builds a parsing tree. Then the parsing tree is compiled to byte code. The byte code is run in a
+virtual machine to parse the input stream and produce an Abstract Syntax Tree (AST). Once the schema is compiled to byte code, that
+code can be run in multiple threads, the parser naturally supports multi-threading.
+
+
+*/

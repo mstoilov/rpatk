@@ -1,0 +1,6 @@
+/*! \mainpage A simple manual
+Some general info.
+This manual is divided in the following sections:
+- \subpage intro "The Introduction Section"
+- \subpage overview "Overview"
+*/

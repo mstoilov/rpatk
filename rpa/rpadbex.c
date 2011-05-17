@@ -1,3 +1,7 @@
+/**
+ *\file rpadbex.c
+ */
+
 #include "rpacompiler.h"
 #include "rpadbex.h"
 #include "rpaerror.h"
