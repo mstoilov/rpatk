@@ -7,7 +7,7 @@ void rjs_parser_dbex_error(rjs_parser_t *parser)
 {
 	rpa_errinfo_t err;
 	r_memset(&err, 0, sizeof(err));
-	rpa_dbex_getlasterrinfo(parser->dbex, &err);
+	rpa_dbex_lasterrorinfo(parser->dbex, &err);
 	r_printf("Failed to load RPA rules");
 	if (err.mask & RPA_ERRINFO_CODE) {
 		r_printf(", Error Code: %ld", err.code);
@@ -66,7 +66,7 @@ rlong rjs_parser_exec(rjs_parser_t *parser, const rchar *script, rsize_t size, r
 {
 	rlong res = 0;
 	rpastat_t *stat = rpa_stat_create(parser->dbex, 4096);
-	res = rpa_stat_parse(stat, rpa_dbex_default(parser->dbex), script, script, script + size, ast);
+	res = rpa_stat_parse(stat, rpa_dbex_last(parser->dbex), script, script, script + size, ast);
 	rpa_stat_destroy(stat);
 	return res;
 }

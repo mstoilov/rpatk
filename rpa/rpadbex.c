@@ -4,7 +4,6 @@
 
 #include "rpacompiler.h"
 #include "rpadbex.h"
-#include "rpaerror.h"
 #include "rpaparser.h"
 #include "rpaoptimization.h"
 #include "rmem.h"
@@ -1156,7 +1155,7 @@ rint rpa_dbex_dumprules(rpadbex_t *dbex)
 		return -1;
 	}
 	for (rid = rpa_dbex_first(dbex); rid >= 0; rid = rpa_dbex_next(dbex, rid)) {
-		ret = rpa_dbex_copy(dbex, rid, buffer, sizeof(buffer));
+		ret = rpa_dbex_strncpy(dbex, buffer, rid, sizeof(buffer));
 		if ( ret >= 0) {
 			if (ret == sizeof(buffer))
 				r_printf("   %s ...\n", buffer);
@@ -1277,7 +1276,8 @@ rint rpa_dbex_dumpcode(rpadbex_t* dbex, const rchar *rulename)
 	return 0;
 }
 
-rsize_t rpa_dbex_copy(rpadbex_t *dbex, rparule_t rid, rchar *buf, rsize_t bufsize)
+
+rsize_t rpa_dbex_strlen(rpadbex_t *dbex, rparule_t rid)
 {
 	rparecord_t *prec;
 	rsize_t size;
@@ -1289,10 +1289,26 @@ rsize_t rpa_dbex_copy(rpadbex_t *dbex, rparule_t rid, rchar *buf, rsize_t bufsiz
 		return -1;
 	}
 	size = prec->inputsiz;
-	if (bufsize <= size)
-		size = bufsize - 1;
-	r_memset(buf, 0, bufsize);
-	r_strncpy(buf, prec->input, size);
+	return size;
+}
+
+
+rsize_t rpa_dbex_strncpy(rpadbex_t *dbex, rchar *dst, rparule_t rid, rsize_t n)
+{
+	rparecord_t *prec;
+	rsize_t size;
+
+	if (!dbex)
+		return -1;
+	if ((prec = rpa_dbex_rulerecord(dbex, rid)) == NULL) {
+		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_NOTFOUND);
+		return -1;
+	}
+	size = prec->inputsiz;
+	if (n <= size)
+		size = n - 1;
+	r_memset(dst, 0, n);
+	r_strncpy(dst, prec->input, size);
 	return size + 1;
 }
 
@@ -1316,12 +1332,6 @@ rparule_t rpa_dbex_last(rpadbex_t *dbex)
 	if (r_array_length(dbex->rules->members) > 0)
 		return r_array_length(dbex->rules->members) - 1;
 	return -1;
-}
-
-
-rparule_t rpa_dbex_default(rpadbex_t *dbex)
-{
-	return rpa_dbex_last(dbex);
 }
 
 
@@ -1363,7 +1373,7 @@ rparule_t rpa_dbex_prev(rpadbex_t *dbex, rparule_t rid)
 }
 
 
-rlong rpa_dbex_getlasterror(rpadbex_t *dbex)
+rlong rpa_dbex_lasterror(rpadbex_t *dbex)
 {
 	if (!dbex)
 		return -1;
@@ -1371,7 +1381,7 @@ rlong rpa_dbex_getlasterror(rpadbex_t *dbex)
 }
 
 
-rlong rpa_dbex_getlasterrinfo(rpadbex_t *dbex, rpa_errinfo_t *errinfo)
+rlong rpa_dbex_lasterrorinfo(rpadbex_t *dbex, rpa_errinfo_t *errinfo)
 {
 	if (!dbex || !errinfo)
 		return -1;
@@ -1483,7 +1493,7 @@ rint rpa_dbex_compile(rpadbex_t *dbex)
 }
 
 
-rvm_asmins_t *rvm_dbex_getexecutable(rpadbex_t *dbex)
+rvm_asmins_t *rpa_dbex_executable(rpadbex_t *dbex)
 {
 	if (!dbex)
 		return NULL;
@@ -1495,7 +1505,7 @@ rvm_asmins_t *rvm_dbex_getexecutable(rpadbex_t *dbex)
 }
 
 
-rlong rvm_dbex_executableoffset(rpadbex_t *dbex, rparule_t rid)
+rlong rpa_dbex_executableoffset(rpadbex_t *dbex, rparule_t rid)
 {
 	rpa_ruleinfo_t *info;
 

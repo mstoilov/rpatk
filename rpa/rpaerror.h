@@ -22,7 +22,6 @@
 #define _RPAERROR_H_
 
 #include "rtypes.h"
-#include "rpadbex.h"
 
 #define RPA_ERRINFO_NONE 0
 #define RPA_ERRINFO_CODE (1<<0)
@@ -51,8 +50,6 @@ struct rpa_errinfo_s {
 	rlong ruleid;
 	rchar name[128];
 };
-
-rlong rpa_dbex_getlasterrinfo(rpadbex_t *dbex, rpa_errinfo_t *errinfo);
 
 
 #endif

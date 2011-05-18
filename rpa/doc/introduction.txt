@@ -1,13 +1,37 @@
 /*! \page intro Introduction
-Regular Pattern Analyzer (RPA) is a bottom-up, recursive parser. Although, it uses iterative algorithm to handle Left-Recursion,
-because it is impossible to handle Left-Recursion using recursion. The RPA parser is capable to handle both direct and indirect Left and
-Right Recursions. The input grammar notation is Backus–Naur Form (BNF) and the output the produced output is an Abstract Syntax Tree.
-The grammar allows Regular Expressions, so the parser can also be used as RegEx or search engine. 
+Regular Pattern Analyzer (RPA) is a bottom-up, recursive parser. 
+The input grammar notation is Backus–Naur Form (BNF) and the produced output is a browsable Abstract Syntax Tree (AST).
+The grammar allows Regular Expressions, so the parser can also be used as RegEx or search engine. The execution
+engine supports muti-threading and it can parse multiple input streams simultaneously.
+
+\section features Features
+ - Backus–Naur Form (BNF)
+
+ - Produces a browsable Abstract Syntax Tree
+ 
+ - Regular Expressions
+ 
+ - Input Encodings: UTF8, UTF16
+ 
+ - Case sensitive/insensitive searching or parsing
+ 
+ - Left-Recursive expressions (direct and indirect)
+
+ - Right-Recursive expressions (direct and indirect)
+
+ - Multi-Threading.
+
+Support for recursive expressions is important for parsing computer languages, especially the Left-Recursion.
+The RPA parser is capable to handle both direct and indirect left and right recursive expressions.
+It uses iterative algorithm to handle Left-Recursion, because it is impossible to handle Left-Recursive expressions using recursion.  
+Left-Recursive expressions produce left associativity and that is what you would want to use for parsing mathematical expressions. Math operations normally 
+have left associativity. For example, consider the expression 7 − 4 + 2. The result could be either (7 − 4) + 2 = 5 or 7 − (4 + 2) = 1. 
+The former result corresponds to the case when + and − are left-associative, the latter to when + and - are right-associative.
 
 \section design Design
 RPA analyzes the BNF schema and builds a parsing tree. Then the parsing tree is compiled to byte code. The byte code is run in a
-virtual machine to parse the input stream and produce an Abstract Syntax Tree (AST). Once the schema is compiled to byte code, that
-code can be run in multiple threads, the parser naturally supports multi-threading.
+virtual machine to parse the input stream and produce an Abstract Syntax Tree (AST). Once the schema is compiled to byte code, the
+code can be run in multiple VMs (threads), the parser naturally supports multi-threading. 
 
 
 */

@@ -144,7 +144,7 @@ int rpa_grep_load_pattern(rpa_grep_t *pGrep, rpa_buffer_t *buf)
 	}
 	if (ret < 0) {
 		rpa_errinfo_t errinfo;
-		rpa_dbex_getlasterrinfo(pGrep->hDbex, &errinfo);
+		rpa_dbex_lasterrorinfo(pGrep->hDbex, &errinfo);
 		if (errinfo.code == RPA_E_SYNTAX_ERROR) {
 			pattern += errinfo.offset;
 			for (line = 1; pattern >= buf->s; --pattern) {
@@ -159,7 +159,7 @@ int rpa_grep_load_pattern(rpa_grep_t *pGrep, rpa_buffer_t *buf)
 	}	
 	
 	rpa_dbex_close(pGrep->hDbex);
-	pGrep->hPattern = rpa_dbex_default(pGrep->hDbex);
+	pGrep->hPattern = rpa_dbex_last(pGrep->hDbex);
 	return 0;
 	
 error:

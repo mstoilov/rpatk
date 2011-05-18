@@ -186,7 +186,7 @@ int main(int argc, const char *argv[])
 
 	if (rpa_dbex_compile(pGrep->hDbex) < 0) {
 		rpa_errinfo_t errinfo;
-		rpa_dbex_getlasterrinfo(pGrep->hDbex, &errinfo);
+		rpa_dbex_lasterrorinfo(pGrep->hDbex, &errinfo);
 		if (errinfo.code == RPA_E_UNRESOLVED_SYMBOL) {
 			fprintf(stdout, "ERROR: Unresolved Symbol: %s\n", errinfo.name);
 		} else {
