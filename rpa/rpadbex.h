@@ -268,27 +268,84 @@ rparule_t rpa_dbex_next(rpadbex_t *dbex, rparule_t rid);
  */
 rparule_t rpa_dbex_prev(rpadbex_t *dbex, rparule_t rid);
 
+
 /**
- *\brief Returns the string length of the specified BNF expression
+ * \brief Returns the string length of the specified BNF expression
+ *
+ * \param dbex Pointer to \ref rpadbex_t object.
+ * \param rid expression id.
+ * \return the string length of the specified expression
  */
 rsize_t rpa_dbex_strlen(rpadbex_t *dbex, rparule_t rid);
 
 
 /**
- *\brief The function copies the string of the specified BNF expression
+ * \brief Copy the string of the specified BNF expression to the destination buffer
+ *
+ * \param dbex Pointer to \ref rpadbex_t object.
+ * \param rid expression id.
+ * \param dest destination buffer
+ * \param size to be copied
+ * \return Return the number of bytes written in the buffer.
  */
 rsize_t rpa_dbex_strncpy(rpadbex_t *dbex, rchar *dest, rparule_t rid, rsize_t size);
 
 
-rint rpa_dbex_dumprecords(rpadbex_t *dbex);
-rint rpa_dbex_dumptree_s(rpadbex_t *dbex, const rchar *name, rint level);
+/**
+ * \brief Set a configuration value for the dbex object.
+ *
+ * \param dbex Pointer to \ref rpadbex_t object.
+ * \param cfg Configuration id
+ * \param val Configuration value
+ *
+ * Supported configuration IDs / Values:
+ * - RPA_DBEXCFG_OPTIMIZATIONS
+ *   - 0 Dissable optimizations
+ *   - 1 Enable optimizations
+ */
+rlong rpa_dbex_cfgset(rpadbex_t *dbex, rulong cfg, rulong val);
+
+
+/**
+ * \brief Get a configuration value for the dbex object.
+ *
+ * \param dbex Pointer to \ref rpadbex_t object.
+ * \param cfg Configuration ID.
+ * \return Return the value of the specified configuration ID. If an error occurs the return negative.
+ *
+ * Supported configuration IDs
+ * - RPA_DBEXCFG_OPTIMIZATIONS
+ */
+rlong rpa_dbex_cfgget(rpadbex_t *dbex, rulong cfg);
+
+
+/**
+ * \brief Print a BFN expression in a tree format
+ *
+ *
+ */
 rint rpa_dbex_dumptree(rpadbex_t *dbex, const rchar *rulename, rsize_t namesize, rint level);
+
+
+/**
+ * \brief Print a BNF expression in a tree format
+ *
+ *
+ */
+rint rpa_dbex_dumptree_s(rpadbex_t *dbex, const rchar *name, rint level);
+
+
+/*
+ * \brief Print the AST of the parsed BNF expressions.
+ *
+ * This function is a debugging helper, you shouldn't need it
+ * unless you are debugging this library.
+ */
+rint rpa_dbex_dumprecords(rpadbex_t *dbex);
 rint rpa_dbex_dumprules(rpadbex_t *dbex);
 rint rpa_dbex_dumpinfo(rpadbex_t *dbex);
 rint rpa_dbex_dumpcode(rpadbex_t* dbex, const rchar *rule);
 rint rpa_dbex_dumpalias(rpadbex_t *dbex);
-rlong rpa_dbex_cfgset(rpadbex_t *dbex, rulong cfg, rulong val);
-rlong rpa_dbex_cfgget(rpadbex_t *dbex, rulong cfg);
 
 
 
