@@ -1,6 +1,6 @@
 #include "rmem.h"
 #include "rarray.h"
-#include "rpastat.h"
+#include "rpastatpriv.h"
 #include "rvmcodegen.h"
 #include "rvmcpu.h"
 #include "rutf.h"

@@ -1,5 +1,5 @@
 #include "rpavm.h"
-#include "rpastat.h"
+#include "rpastatpriv.h"
 #include "rutf.h"
 #include "rmem.h"
 

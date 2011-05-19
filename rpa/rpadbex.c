@@ -4,6 +4,7 @@
 
 #include "rpacompiler.h"
 #include "rpadbex.h"
+#include "rpastatpriv.h"
 #include "rpaparser.h"
 #include "rpaoptimization.h"
 #include "rmem.h"
@@ -1115,34 +1116,32 @@ static void rpa_dbex_dumptree_do(rpadbex_t *dbex, rlong rec, rint level)
 }
 
 
-rint rpa_dbex_dumptree(rpadbex_t *dbex, const rchar *rulename, rsize_t namesize, rint level)
+rint rpa_dbex_dumptree(rpadbex_t *dbex, rparule_t rid)
 {
 	rpa_ruleinfo_t *info;
 
 	if (!dbex)
 		return -1;
+	if (rid < 0) {
+		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_PARAM);
+		return -1;
+	}
 	if (!dbex->rules) {
 		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_NOTCLOSED);
 		return -1;
 	}
-	if (!(info = (rpa_ruleinfo_t *)r_harray_get(dbex->rules, rpa_dbex_lookup(dbex, rulename, namesize)))) {
+	if (!(info = (rpa_ruleinfo_t *)r_harray_get(dbex->rules, rid))) {
 		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_NOTFOUND);
 		return -1;
 	}
 	r_array_add(dbex->inlinestack, &info->startrec);
-	rpa_dbex_dumptree_do(dbex, info->startrec, level);
+	rpa_dbex_dumptree_do(dbex, info->startrec, 0);
 	r_array_removelast(dbex->inlinestack);
 	return 0;
 }
 
 
-rint rpa_dbex_dumptree_s(rpadbex_t *dbex, const rchar *rulename, rint level)
-{
-	return rpa_dbex_dumptree(dbex, rulename, r_strlen(rulename), level);
-}
-
-
-rint rpa_dbex_dumprules(rpadbex_t *dbex)
+rint rpa_dbex_dumpproductions(rpadbex_t *dbex)
 {
 	rint ret = 0;
 	rparule_t rid;
@@ -1219,7 +1218,7 @@ rint rpa_dbex_dumpinfo(rpadbex_t *dbex)
 }
 
 
-rint rpa_dbex_dumpalias(rpadbex_t *dbex)
+rint rpa_dbex_dumpuids(rpadbex_t *dbex)
 {
 	rlong i;
 	rlong rec;
@@ -1260,16 +1259,20 @@ rint rpa_dbex_dumpalias(rpadbex_t *dbex)
 }
 
 
-rint rpa_dbex_dumpcode(rpadbex_t* dbex, const rchar *rulename)
+rint rpa_dbex_dumpcode(rpadbex_t* dbex, rparule_t rid)
 {
 	rpa_ruleinfo_t *info;
 	if (!dbex)
 		return -1;
+	if (rid < 0) {
+		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_PARAM);
+		return -1;
+	}
 	if (!dbex->rules) {
 		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_NOTCLOSED);
 		return -1;
 	}
-	info = (rpa_ruleinfo_t *)r_harray_get(dbex->rules, rpa_dbex_lookup_s(dbex, rulename));
+	info = (rpa_ruleinfo_t *)r_harray_get(dbex->rules, rid);
 	if (!info)
 		return -1;
 	rvm_asm_dump(rvm_codegen_getcode(dbex->co->cg, info->codeoff), info->codesiz);

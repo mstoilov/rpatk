@@ -8,7 +8,7 @@
 #include <sys/mman.h>
 #include "rmem.h"
 #include "rpacompiler.h"
-#include "rpastat.h"
+#include "rpastatpriv.h"
 #include "common.h"
 
 

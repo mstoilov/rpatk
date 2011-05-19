@@ -1,3 +1,38 @@
+/*
+ *  Regular Pattern Analyzer (RPA)
+ *  Copyright (c) 2009-2010 Martin Stoilov
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  Martin Stoilov <martin@rpasearch.com>
+ */
+
+/**
+ * \file rparecord.h
+ * \brief The public interface for working with the produced Abstract Syntax Tree (AST).
+ *
+ *
+ * <h2>Synopsis</h2>
+ * Upon a successful call to \ref rpa_stat_parse, the parser produces a stack of \ref rparecord_t records.
+ * There are two kinds of records: \ref RPA_RECORD_START and \ref RPA_RECORD_END. \ref RPA_RECORD_START marks
+ * the beginning of a branch and \ref RPA_RECORD_END marks the end of that branch. Empty branches are specified by
+ * a record \ref RPA_RECORD_START followed immediately by \ref RPA_RECORD_END (no child records in between).
+ * Empty branches are considered leaves.
+ *
+ */
+
+
 #ifndef _RPARECORD_H_
 #define _RPARECORD_H_
 
@@ -20,6 +55,10 @@ extern "C" {
 
 #define RPA_RECORD_INVALID_UID ((ruint32)-1)
 
+/**
+ * \typedef rparecord_t
+ * \brief Abstract Syntax Tree (AST) construction element.
+ */
 typedef struct rparecord_s {
 	rlong next;
 	const rchar *rule;

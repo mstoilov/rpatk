@@ -2,6 +2,7 @@
 #include "rvmcodegen.h"
 #include "rstring.h"
 #include "rpaparser.h"
+#include "rpastatpriv.h"
 
 static rint rpa_parser_init(rpa_parser_t *pa);
 

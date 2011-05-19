@@ -18,6 +18,15 @@
  *  Martin Stoilov <martin@rpasearch.com>
  */
 
+/**
+ * \file rpaerror.h
+ * \brief The public interface for examining errors.
+ *
+ *
+ * <h2>Synopsis</h2>
+ * The RPA error(s) interface.
+ */
+
 #ifndef _RPAERROR_H_
 #define _RPAERROR_H_
 
@@ -38,10 +47,14 @@
 #define RPA_E_NOTFOUND 1005
 #define RPA_E_SYNTAX_ERROR 1006
 #define RPA_E_UNRESOLVED_SYMBOL 1007
+#define RPA_E_PARAM 1008
 
 #define RPA_E_USERABORT 2001
 
-
+/**
+ * \typedef rpaerror_t
+ * \brief RPA error description.
+ */
 typedef struct rpa_errinfo_s rpa_errinfo_t;
 struct rpa_errinfo_s {
 	rulong mask;

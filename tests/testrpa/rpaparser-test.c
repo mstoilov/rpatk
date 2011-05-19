@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
 
 	for (i = 1; i < argc; i++) {
 		if (r_strcmp(argv[i], "-i") == 0) {
-			rpa_dbex_dumprules(dbex);
+			rpa_dbex_dumpproductions(dbex);
 		}
 	}
 
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 	for (i = 1; i < argc; i++) {
 		if (r_strcmp(argv[i], "-d") == 0) {
 			if (++i < argc) {
-				rpa_dbex_dumptree_s(dbex, argv[i], 0);
+				rpa_dbex_dumptree(dbex, rpa_dbex_lookup_s(dbex, argv[i]));
 			}
 		}
 	}

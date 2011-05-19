@@ -51,7 +51,7 @@ int usage(int argc, const char *argv[])
 		fprintf(stderr, "\t-l                       Line mode.\n");
 		fprintf(stderr, "\t-16                      Force UTF16 encoding.\n");
 		fprintf(stderr, "\t-b                       Force byte encoding.\n");
-		fprintf(stderr, "\t-d                       Dump the pattern tree.\n");
+		fprintf(stderr, "\t-d                       Dump a production in a tree format.\n");
 		fprintf(stderr, "\t-t                       Display time elapsed.\n");
 		fprintf(stderr, "\t-L, --list-rules         List all patterns.\n");
 		fprintf(stderr, "\t-v                       Display version information.\n");
@@ -141,10 +141,9 @@ int main(int argc, const char *argv[])
 		if (strcmp(argv[i], "--dump-code") == 0) {
 			if (rpa_dbex_compile(pGrep->hDbex) == 0) {
 				if (++i < argc) {
-					rpa_dbex_dumpcode(pGrep->hDbex, argv[i]);
+					rpa_dbex_dumpcode(pGrep->hDbex, rpa_dbex_lookup_s(pGrep->hDbex, argv[i]));
 				}
 			}
-
 			goto end;
 		}
 	}

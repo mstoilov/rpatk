@@ -4,9 +4,7 @@
 #include "rtypes.h"
 #include "rarray.h"
 #include "rvmreg.h"
-#include "rpavm.h"
 #include "rpadbex.h"
-#include "rpacache.h"
 
 #define RPA_ENCODING_UTF8 0
 #define RPA_ENCODING_BYTE 1
@@ -23,46 +21,65 @@
 extern "C" {
 #endif
 
+/**
+ * \file rpastat.h
+ * \brief The public interface to the execution context.
+ *
+ *
+ * <h2>Synopsis</h2>
+ * The following APIs are used to parse, match, scan an input stream, using an existing
+ * BNF productions database \ref rpadbex_t
+ */
 
 
+/**
+ * \typedef rpastat_t
+ * \brief Execution context. If you need mutli-threading, multiple objects of this
+ * type must be created for every concurrent thread. All objects can be created/destroyed from the
+ * main thread. Only the execution functions: \ref rpa_stat_parse, \ref rpa_stat_match and
+ * \ref rpa_stat_scan have to be called from separate threads.
+ */
 typedef struct rpastat_s rpastat_t;
-struct rpastat_s {
-	rpadbex_t *dbex;
-	const rchar *input;
-	const rchar *start;
-	const rchar *end;
-	ruint error;
-	ruint encoding;
-	ruint debug;
-	rarray_t *records;
-	rarray_t *emitstack;
-	rarray_t *orphans;
-	rpainput_t *instackbuffer;
-	rpainput_t *instack;			/* instack = &instackbuffer[1]; This allows R_TOP = -1, without any additional checks */
-	rulong instacksize;
-	rpacache_t *cache;
-	rpainmap_t ip;
-	rvmcpu_t *cpu;
-};
 
-
+/**
+ * \brief Create an object of type \ref rpastat_t.
+ *
+ * Multi-threading is supported by creating multiple \ref rpastat_t objects,
+ * referencing the same \ref rpadbex_t BNF productions database. Every thread
+ * must have its own \ref rpastat_t object, created with this function. This
+ * function can be called from the main thread multiple times to allocate the objects and
+ * then the returned pointer(s) passed to the child threads.
+ *
+ * If you don't need multi-threading, call this function and any one of the execution
+ * functions \ref rpa_stat_parse, \ref rpa_stat_match and \ref rpa_stat_scan from the
+ * main thread.
+ *
+ * The allocated \ref rpastat_t object must be destroyed with \ref rpa_stat_destroy.
+ *
+ * \param dbex BNF productions database created with \ref rpa_dbex_create.
+ * \param stacksize Execution stack size. The size is specified in byts.
+ * \return Returns a pointer to newly created \ref rpastat_t object or NULL if error occured.
+ */
 rpastat_t *rpa_stat_create(rpadbex_t *dbex, rulong stacksize);
-void rpa_stat_destroy(rpastat_t *stat);
-rint rpa_stat_init(rpastat_t *stat, const rchar *input, const rchar *start, const rchar *end);
-void rpa_stat_cachedisable(rpastat_t *stat, ruint disable);
-void rpa_stat_cacheinvalidate(rpastat_t *stat);
-rint rpa_stat_encodingset(rpastat_t *stat, ruint encoding);
 
-rlong rpa_stat_exec(rpastat_t *stat, rvm_asmins_t *prog, rword off);
+
+/**
+ * \brief Destroy an object of type \ref rpastat_t
+ *
+ * Destroy the object created with \ref rpa_stat_create. After calling this function
+ * the pointer is invalid and must never be used again.
+ *
+ * \param stat Pointer to object.
+ */
+void rpa_stat_destroy(rpastat_t *stat);
+
+
+rint rpa_stat_encodingset(rpastat_t *stat, ruint encoding);
 rlong rpa_stat_scan(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end, const rchar **where);
 rlong rpa_stat_match(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end);
 rlong rpa_stat_parse(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end, rarray_t **records);
 rint rpa_stat_abort(rpastat_t *stat);
-
-rint rpa_stat_matchchr(rpastat_t *stat, rssize_t top, rulong wc);
-rint rpa_stat_matchspchr(rpastat_t *stat, rssize_t top, rulong wc);
-rint rpa_stat_matchrng(rpastat_t *stat, rssize_t top, rulong wc1, rulong wc2);
-rlong rpa_stat_shift(rpastat_t *stat, rssize_t top);
+rlong rpa_stat_exec(rpastat_t *stat, rvm_asmins_t *prog, rword off);
 
 
 #ifdef __cplusplus

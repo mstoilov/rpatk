@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include "rpaerror.h"
 #include "rpadbex.h"
-#include "rpastat.h"
+#include "rpastatpriv.h"
 
 
 #ifdef __cplusplus

@@ -170,7 +170,7 @@ error:
 
 void rpa_grep_list_patterns(rpa_grep_t *pGrep)
 {
-	rpa_dbex_dumprules(pGrep->hDbex);
+	rpa_dbex_dumpproductions(pGrep->hDbex);
 }
 
 
@@ -190,7 +190,7 @@ void rpa_grep_dump_pattern_info(rpa_grep_t *pGrep)
 void rpa_grep_dump_alias_info(rpa_grep_t *pGrep)
 {
 	rpa_dbex_compile(pGrep->hDbex);
-	rpa_dbex_dumpalias(pGrep->hDbex);
+	rpa_dbex_dumpuids(pGrep->hDbex);
 }
 
 
@@ -480,7 +480,7 @@ void rpa_grep_setup_matched_callback(rpa_grep_t *pGrep, rpa_buffer_t *pattern)
 
 void rpa_grep_dump_pattern_tree(rpa_grep_t *pGrep, rpa_buffer_t *pattern)
 {
-	rpa_dbex_dumptree_s(pGrep->hDbex, pattern->s, 0);
+	rpa_dbex_dumptree(pGrep->hDbex, rpa_dbex_lookup_s(pGrep->hDbex, pattern->s));
 }
 
 
