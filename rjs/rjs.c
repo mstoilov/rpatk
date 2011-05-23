@@ -32,13 +32,16 @@ rjs_engine_t *rjs_engine_create()
 	jse->co = rjs_compiler_create(jse->cpu);
 	jse->cgs = r_array_create(sizeof(rvm_codegen_t*));
 	rvm_cpu_addswitable(jse->cpu, "rjsswitable", rjsswitable);
-
+	if (!jse->pa || !jse->cpu || !jse->co || !jse->cgs)
+		goto error;
 	tp = rvm_cpu_alloc_global(jse->cpu);
 	rvm_reg_setjsobject(tp, (robject_t *)rjs_object_create(sizeof(rvmreg_t)));
 	rvm_gc_add(jse->cpu->gc, (robject_t*)RVM_REG_GETP(tp));
 	rvm_cpu_setreg(jse->cpu, TP, tp);
-
 	return jse;
+error:
+	rjs_engine_destroy(jse);
+	return NULL;
 }
 
 
@@ -46,8 +49,10 @@ void rjs_engine_destroy(rjs_engine_t *jse)
 {
 	rlong i;
 	if (jse) {
-		for (i = 0; i < r_array_length(jse->cgs); i++) {
-			rvm_codegen_destroy(r_array_index(jse->cgs, i, rvm_codegen_t*));
+		if (jse->cgs) {
+			for (i = 0; i < r_array_length(jse->cgs); i++) {
+				rvm_codegen_destroy(r_array_index(jse->cgs, i, rvm_codegen_t*));
+			}
 		}
 		r_array_destroy(jse->cgs);
 		rjs_parser_destroy(jse->pa);

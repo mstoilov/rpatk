@@ -151,6 +151,8 @@ int main(int argc, char *argv[])
 	rjs_engine_t *jse;
 
 	jse = rjs_engine_create();
+	if (!jse)
+		return 1;
 	for (i = 1; i < argc; i++) {
 		if (r_strcmp(argv[i], "-L") == 0) {
 

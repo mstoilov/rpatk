@@ -12,6 +12,12 @@
 #!emit sqstring
 
 #!emitid SyntaxError					UID_SYNTAXERROR						1
+#!emitid FunctionSyntaxError			UID_FUNCTIONSYNTAXERROR				1
+#!emitid BlockSyntaxError				UID_BLOCKSYNTAXERROR				1
+#!emitid GlobalSyntaxError				UID_GLOBALSYNTAXERROR				1
+#!emitid IndexSyntaxError				UID_INDEXSYNTAXERROR				1
+#!emitid MultiplicativeSyntaxError		UID_MULTIPLICATIVESYNTAXERROR		1
+#!emitid AdditiveSyntaxError			UID_ADDITIVESYNTAXERROR				1
 #!emitid AdditiveOperator				UID_BINARYOPERATOR					2
 #!emitid AdditiveOperator				UID_ADDITIVEOPERATOR				2
 #!emitid MultiplicativeOperator			UID_MULTIPLICATIVEOPERATOR			2
@@ -202,10 +208,9 @@ Elision							::= ',' <S>? <Elision> | <S>? ','
 
 
 # 11.2 Left-Hand-Side Expressions
-LSB								::= <S>? '[' <S>?
-RSB								::= <S>? ']' <S>?
+IndexSyntaxError				::= '[' (. - <SC>)*
 MemberExpressionBase			::= <MemberExpression>
-MemberExpressionIndexOp			::= <MemberExpressionBase> <LSB> <Expression> <RSB>
+MemberExpressionIndexOp			::= <MemberExpressionBase> <S>? (('[' <S>? <Expression> <S>? ']' <S>?) | <IndexSyntaxError>) 
 MemberExpressionDotOp			::= <MemberExpressionBase> '.' <IdentifierName>
 
 MemberExpression 				::= <MemberExpressionIndexOp>  |
@@ -255,14 +260,16 @@ UnaryExpression		    		::=	<UnaryExpressionOp> | <PrefixExpression>
 
 
 # 11.5 Multiplicative Operators
+MultiplicativeSyntaxError		::= <MultiplicativeOperator>  
 MultiplicativeOperator 			::= '*' | '/' | '%'
-MultiplicativeExpressionOp		::= <MultiplicativeExpression> <S>? <MultiplicativeOperator> <S>? <UnaryExpression>
+MultiplicativeExpressionOp		::= <MultiplicativeExpression> <S>? ((<MultiplicativeOperator> <S>? <UnaryExpression>) | <MultiplicativeSyntaxError>)
 MultiplicativeExpression		::= <MultiplicativeExpressionOp> | 
 									<UnaryExpression>
 
 # 11.6 Additive Operators
+AdditiveSyntaxError				::= <AdditiveOperator>  
 AdditiveOperator 				::= '+' | '-'
-AdditiveExpressionOp			::= <AdditiveExpression> <S>? <AdditiveOperator> <S>? <MultiplicativeExpression>
+AdditiveExpressionOp			::= <AdditiveExpression> <S>? ((<AdditiveOperator> <S>? <MultiplicativeExpression>) | <AdditiveSyntaxError>)
 AdditiveExpression				::= <AdditiveExpressionOp> | 
 									<MultiplicativeExpression>
 
@@ -343,7 +350,7 @@ Statement						::= <FunctionDeclarationStatement> |
 			    					<SwitchStatementOp>
 
 # 12.1 Block
-Block								::= <S>? '{' <S>? <StatementList>? <S>? '}' <S>?
+Block								::= <S>? '{' <S>? <StatementList>? <S>? ('}' | <BlockSyntaxError>) <S>?
 StatementList						::= (<S>? <Statement>)+
 
 # 12.2 Variable Statement
@@ -427,11 +434,12 @@ DefaultClauseOp						::= <DefaultKeywordOp> <S>? ':' <S>? <StatementList>?
 
 # 13 Function Definition
 FunctionName						::= <IdentifierNoEmit>
-FunctionDeclaration					::= ('function'-'function'<IdentifierPart>)<S>?<FunctionName><S>?'('<S>?<FormalParameterList>?<S>?')'<S>?'{'<S>?<FunctionBody>?<S>?'}'
-FunctionExpression					::= ('function'-'function'<IdentifierPart>)<S>?<FunctionName>?<S>?'('<S>?<FormalParameterList>?<S>?')'<S>?'{'<S>?<FunctionBody>?<S>?'}'
+FunctionDeclaration					::= ('function'-'function'<IdentifierPart>)<S>?<FunctionName><S>?'('<S>?<FormalParameterList>?<S>?')'<S>?'{'<S>?<FunctionBody>?<S>? ('}' | <FunctionSyntaxError>)
+FunctionExpression					::= ('function'-'function'<IdentifierPart>)<S>?<FunctionName>?<S>?'('<S>?<FormalParameterList>?<S>?')'<S>?'{'<S>?<FunctionBody>?<S>?('}' | <FunctionSyntaxError>)
 FormalParameterList 				::= <FunctionParameter> ( <S>? ',' <S>? <FunctionParameter> )*
 FunctionParameter 					::= <IdentifierNoEmit>
-FunctionBody						::= <SourceElements>
+# FunctionBody						::= <SourceElements>
+FunctionBody						::= (<S>? (<SourceElement> ))+
 FunctionDeclarationStatement		::= ('function' - 'function' <IdentifierPart>)<S>?<FunctionName><S>?'('<S>?<FormalParameterList>?<S>?')' <SC>
 
 # FunctionName						::= <IdentifierNoEmit>
@@ -446,11 +454,14 @@ FunctionDeclarationStatement		::= ('function' - 'function' <IdentifierPart>)<S>?
 
 
 # 14 Program
-SyntaxError						::= (. - <SC>)+ <SC>?
+BlockSyntaxError				::= (. - '}')+ '}'
+FunctionSyntaxError				::= (. - '}')+ '}'
+GlobalSyntaxError				::= (. - <SC>)+
+
 SourceElements 					::= (<S>? <SourceElement>)+
 SourceElement 					::= <FunctionDeclaration> |
 			    					<Statement> 
-Program							::= <SourceElements>
+Program							::= <SourceElements> | <GlobalSyntaxError>
 # The root rule, it is anonymous
 <Program>
 
