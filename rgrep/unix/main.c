@@ -56,6 +56,7 @@ int usage(int argc, const char *argv[])
 		fprintf(stderr, "\t-L, --list-rules         List all patterns.\n");
 		fprintf(stderr, "\t-v                       Display version information.\n");
 		fprintf(stderr, "\t-h, --help               Display this help.\n");
+		fprintf(stderr, "\t    --debug-compile      Display debug compilation information.\n");
 		fprintf(stderr, "\t    --dump-info          Display rules info.\n");
 		fprintf(stderr, "\t    --dump-alias         Display alias info.\n");
 		fprintf(stderr, "\t    --dump-records       Display rules parsing records.\n");
@@ -155,6 +156,14 @@ int main(int argc, const char *argv[])
 			goto end;
 		}
 	}
+
+	for (i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "--debug-compile") == 0) {
+			rpa_grep_debug_compile(pGrep);
+			goto end;
+		}
+	}
+
 
 	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "--dump-alias") == 0) {

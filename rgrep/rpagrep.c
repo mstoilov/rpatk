@@ -180,6 +180,14 @@ void rpa_grep_dump_pattern_records(rpa_grep_t *pGrep)
 }
 
 
+void rpa_grep_debug_compile(rpa_grep_t *pGrep)
+{
+	rpa_dbex_cfgset(pGrep->hDbex, RPA_DBEXCFG_DEBUG, 1);
+	rpa_dbex_compile(pGrep->hDbex);
+	rpa_dbex_cfgset(pGrep->hDbex, RPA_DBEXCFG_DEBUG, 0);
+}
+
+
 void rpa_grep_dump_pattern_info(rpa_grep_t *pGrep)
 {
 	rpa_dbex_compile(pGrep->hDbex);

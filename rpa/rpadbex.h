@@ -53,6 +53,7 @@ typedef struct rpadbex_s rpadbex_t;
 typedef rlong rparule_t;
 
 #define RPA_DBEXCFG_OPTIMIZATIONS 1
+#define RPA_DBEXCFG_DEBUG 2
 
 /**
  * \brief Return the version string of the RPA library.
@@ -302,6 +303,9 @@ rsize_t rpa_dbex_strncpy(rpadbex_t *dbex, rchar *dest, rparule_t rid, rsize_t si
  * - RPA_DBEXCFG_OPTIMIZATIONS
  *   - 0 Dissable optimizations
  *   - 1 Enable optimizations
+ * - RPA_DBEXCFG_DEBUG
+ *   - 0 Dissable debugging
+ *   - 1 Enable debugging
  */
 rlong rpa_dbex_cfgset(rpadbex_t *dbex, rulong cfg, rulong val);
 
@@ -315,6 +319,7 @@ rlong rpa_dbex_cfgset(rpadbex_t *dbex, rulong cfg, rulong val);
  *
  * Supported configuration IDs
  * - RPA_DBEXCFG_OPTIMIZATIONS
+ * - RPA_DBEXCFG_DEBUG
  */
 rlong rpa_dbex_cfgget(rpadbex_t *dbex, rulong cfg);
 
