@@ -47,6 +47,7 @@ enum {
 	RPA_PRODUCTION_DIRECTIVENOEMIT,
 	RPA_PRODUCTION_DIRECTIVEEMITNONE,
 	RPA_PRODUCTION_DIRECTIVEEMITALL,
+	RPA_PRODUCTION_DIRECTIVEABORT,
 	RPA_PRODUCTION_DIRECTIVEEMITID,
 
 
@@ -66,8 +67,8 @@ typedef struct rpa_parser_s {
 
 rpa_parser_t *rpa_parser_create();
 void rpa_parser_destroy(rpa_parser_t *pa);
-rlong rpa_parser_load(rpa_parser_t *pa, const rchar *prods, rsize_t size);
-rlong rpa_parser_load_s(rpa_parser_t *pa, const rchar *prods);
+rlong rpa_parser_load(rpa_parser_t *pa, const rchar *prods, rsize_t size, rarray_t *records);
+rlong rpa_parser_load_s(rpa_parser_t *pa, const rchar *prods, rarray_t *records);
 
 #ifdef __cplusplus
 }

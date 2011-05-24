@@ -33,16 +33,14 @@ void rpa_parser_destroy(rpa_parser_t *pa)
 }
 
 
-rlong rpa_parser_load(rpa_parser_t *pa, const rchar *prods, rsize_t size)
+rlong rpa_parser_load(rpa_parser_t *pa, const rchar *prods, rsize_t size, rarray_t *records)
 {
 	rlong ret = 0;
 	rpa_compiler_t *co = pa->co;
 	rpastat_t *stat = pa->stat;
 
-	rpa_stat_init(stat, prods, prods, prods + size);
 	rpa_stat_cachedisable(stat, 0);
-
-	if (rpa_stat_exec(stat, rvm_codegen_getcode(co->cg, 0), pa->main) < 0)
+	if (rpa_stat_exec(stat, rvm_codegen_getcode(co->cg, 0), pa->main, prods, prods, prods + size, records) < 0)
 		return -1;
 	ret = (rlong)RVM_CPUREG_GETL(stat->cpu, R0);
 	if (ret < 0)
@@ -51,9 +49,9 @@ rlong rpa_parser_load(rpa_parser_t *pa, const rchar *prods, rsize_t size)
 }
 
 
-rlong rpa_parser_load_s(rpa_parser_t *pa, const rchar *prods)
+rlong rpa_parser_load_s(rpa_parser_t *pa, const rchar *prods, rarray_t *records)
 {
-	return rpa_parser_load(pa, prods, r_strlen(prods));
+	return rpa_parser_load(pa, prods, r_strlen(prods), records);
 }
 
 
@@ -84,6 +82,12 @@ static void rpa_production_directives(rpa_parser_t *pa)
 	rpa_compiler_reference_nan_s(co, "emitnone");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_compiler_branch_end(co);
+
+	rpa_compiler_branch_begin(co, RPA_MATCH_NONE);
+	rpa_compiler_reference_nan_s(co, "abort");
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
+	rpa_compiler_branch_end(co);
+
 
 	rpa_compiler_branch_begin(co, RPA_MATCH_NONE);
 	rpa_compiler_reference_nan_s(co, "emitid");
@@ -220,6 +224,37 @@ static void rpa_production_directive_emit(rpa_parser_t *pa)
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, 'm'));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, 'i'));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, 't'));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "space");
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
+	rpa_compiler_reference_nan_s(co, "rulename");
+
+	rpa_compiler_rule_end(co);
+}
+
+
+static void rpa_production_directive_abort(rpa_parser_t *pa)
+{
+	rpa_compiler_t *co = pa->co;
+
+	rpa_compiler_rulepref_set_ruleuid_flags_s(co, "abort", RPA_PRODUCTION_DIRECTIVEABORT, RPA_RFLAG_EMITRECORD);
+	rpa_compiler_rule_begin_s(co, "abort");
+
+	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, '#'));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
+	rpa_compiler_reference_opt_s(co, "space");
+	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, '!'));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
+	rpa_compiler_reference_opt_s(co, "space");
+	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, 'a'));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, 'b'));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, 'o'));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, 'r'));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, 't'));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
@@ -425,6 +460,9 @@ static void rpa_production_rulename(rpa_parser_t *pa)
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BGRE, DA, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm2(RPA_MATCHRNG_NAN, DA, XX, XX, 'A', 'Z'));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BGRE, DA, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, '_'));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BGRE, DA, XX, XX, 0));
+
 	rpa_compiler_class_end(co);
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
@@ -434,6 +472,8 @@ static void rpa_production_rulename(rpa_parser_t *pa)
 	rvm_codegen_addins(co->cg, rvm_asm2(RPA_MATCHRNG_NAN, DA, XX, XX, 'A', 'Z'));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BGRE, DA, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm2(RPA_MATCHRNG_NAN, DA, XX, XX, '0', '9'));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BGRE, DA, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, '_'));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BGRE, DA, XX, XX, 0));
 	rpa_compiler_class_end(co);
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
@@ -1415,6 +1455,7 @@ static rint rpa_parser_init(rpa_parser_t *pa)
 	rpa_production_directive_emit(pa);
 	rpa_production_directive_noemit(pa);
 	rpa_production_directive_emitid(pa);
+	rpa_production_directive_abort(pa);
 	rpa_production_directives(pa);
 	rpa_production_char(pa);
 	rpa_production_clsnum(pa);

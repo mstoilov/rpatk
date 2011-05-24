@@ -12,12 +12,6 @@
 #!emit sqstring
 
 #!emitid SyntaxError					UID_SYNTAXERROR						1
-#!emitid FunctionSyntaxError			UID_FUNCTIONSYNTAXERROR				1
-#!emitid BlockSyntaxError				UID_BLOCKSYNTAXERROR				1
-#!emitid GlobalSyntaxError				UID_GLOBALSYNTAXERROR				1
-#!emitid IndexSyntaxError				UID_INDEXSYNTAXERROR				1
-#!emitid MultiplicativeSyntaxError		UID_MULTIPLICATIVESYNTAXERROR		1
-#!emitid AdditiveSyntaxError			UID_ADDITIVESYNTAXERROR				1
 #!emitid AdditiveOperator				UID_BINARYOPERATOR					2
 #!emitid AdditiveOperator				UID_ADDITIVEOPERATOR				2
 #!emitid MultiplicativeOperator			UID_MULTIPLICATIVEOPERATOR			2
@@ -95,6 +89,9 @@
 #!emitid DoWhileExpressionCompare		UID_DOWHILEEXPRESSIONCOMPARE		59
 #!emitid Program 						UID_PROGRAM 						60
 
+#!abort AbortIfNotSC
+#!abort AbortIfNotMultiplicativeExpression
+
 
 # 6 Source Text
 SourceCharacter			::= .
@@ -109,6 +106,7 @@ S						::= ( <WhiteSpace> | <LineTerminator> )+
 SC						::= <S>? ';' <S>?
 COMMA					::= <S>? ',' <S>?
 EQ						::= <S>? '=' <S>?
+AbortIfNotSC			::= <SC>
 
 # 7.4 Comments
 Comment					::= <MultiLineComment> | <SingleLineComment>
@@ -208,9 +206,10 @@ Elision							::= ',' <S>? <Elision> | <S>? ','
 
 
 # 11.2 Left-Hand-Side Expressions
-IndexSyntaxError				::= '[' (. - <SC>)*
+LSB								::= <S>? '[' <S>?
+RSB								::= <S>? ']' <S>?
 MemberExpressionBase			::= <MemberExpression>
-MemberExpressionIndexOp			::= <MemberExpressionBase> <S>? (('[' <S>? <Expression> <S>? ']' <S>?) | <IndexSyntaxError>) 
+MemberExpressionIndexOp			::= <MemberExpressionBase> <LSB> <Expression> <RSB>
 MemberExpressionDotOp			::= <MemberExpressionBase> '.' <IdentifierName>
 
 MemberExpression 				::= <MemberExpressionIndexOp>  |
@@ -260,16 +259,15 @@ UnaryExpression		    		::=	<UnaryExpressionOp> | <PrefixExpression>
 
 
 # 11.5 Multiplicative Operators
-MultiplicativeSyntaxError		::= <MultiplicativeOperator>  
 MultiplicativeOperator 			::= '*' | '/' | '%'
-MultiplicativeExpressionOp		::= <MultiplicativeExpression> <S>? ((<MultiplicativeOperator> <S>? <UnaryExpression>) | <MultiplicativeSyntaxError>)
+MultiplicativeExpressionOp		::= <MultiplicativeExpression> <S>? <MultiplicativeOperator> <S>? <UnaryExpression>
 MultiplicativeExpression		::= <MultiplicativeExpressionOp> | 
 									<UnaryExpression>
 
 # 11.6 Additive Operators
-AdditiveSyntaxError				::= <AdditiveOperator>  
 AdditiveOperator 				::= '+' | '-'
-AdditiveExpressionOp			::= <AdditiveExpression> <S>? ((<AdditiveOperator> <S>? <MultiplicativeExpression>) | <AdditiveSyntaxError>)
+AbortIfNotMultiplicativeExpression	::= <MultiplicativeExpression>
+AdditiveExpressionOp			::= <AdditiveExpression> <S>? <AdditiveOperator> <S>? <AbortIfNotMultiplicativeExpression>
 AdditiveExpression				::= <AdditiveExpressionOp> | 
 									<MultiplicativeExpression>
 
@@ -350,11 +348,11 @@ Statement						::= <FunctionDeclarationStatement> |
 			    					<SwitchStatementOp>
 
 # 12.1 Block
-Block								::= <S>? '{' <S>? <StatementList>? <S>? ('}' | <BlockSyntaxError>) <S>?
+Block								::= <S>? '{' <S>? <StatementList>? <S>? '}' <S>?
 StatementList						::= (<S>? <Statement>)+
 
 # 12.2 Variable Statement
-VariableStatement 					::= 'var' <S>? <VariableDeclarationList> <SC>
+VariableStatement 					::= 'var' <S>? <VariableDeclarationList> <AbortIfNotSC>
 VariableDeclarationList 			::= <VariableDeclaration> (<COMMA> <VariableDeclaration> )*
 VariableAllocate					::= <IdentifierNoEmit>
 VariableAllocateAndInit				::= <IdentifierNoEmit>
@@ -366,7 +364,7 @@ Initialiser							::= <EQ> <AssignmentExpression>
 EmptyStatement						::= <SC>
 
 # 12.4 Expression Statement
-ExpressionStatement 				::= (<Expression> - ('function' | '{')) <SC>
+ExpressionStatement 				::= (<Expression> - ('function' | '{')) <AbortIfNotSC>
 
 
 # 12.5 The if Statement
@@ -379,7 +377,7 @@ IfStatement							::= <IfConditionOp> <S>? <IfTrueStatement> <S>? 'else' <S>? <I
 # 12.6 Iteration Statements
 # 12.6a Iteration do ... while() 
 DoWhileExpressionCompare			::= <Expression>
-IterationDo							::= 'do' <S>? <Statement> <S>? 'while' <S>? '(' <S>? <DoWhileExpressionCompare> <S>? ')' (<S>? ';')
+IterationDo							::= 'do' <S>? <Statement> <S>? 'while' <S>? '(' <S>? <DoWhileExpressionCompare> <S>? ')' <AbortIfNotSC>
 
 # 12.6b Iteration while()
 WhileExpressionCompare				::= <Expression>
@@ -399,16 +397,16 @@ IterationStatement 					::= <IterationWhile> |
 	    								<IterationDo>
 
 # 12.9 The return Statement
-ReturnOp							::= ('return' - 'return' <IdentifierPart>) <WhiteSpace>* <AssignmentExpression>? (<S>? ';')
-ReturnStatement						::= ('return' - 'return' <IdentifierPart>) <WhiteSpace>* <AssignmentExpression>? (<S>? ';')
+ReturnOp							::= ('return' - 'return' <IdentifierPart>) <WhiteSpace>* <AssignmentExpression>? <AbortIfNotSC>
+ReturnStatement						::= ('return' - 'return' <IdentifierPart>) <WhiteSpace>* <AssignmentExpression>? <AbortIfNotSC>
 
 # The Break Statement
 BreakOp								::= 'break' - 'break' <IdentifierPart>
-BreakStatement						::= <S>? <BreakOp> <SC>
+BreakStatement						::= <S>? <BreakOp> <AbortIfNotSC>
 
 # The Continue Statement
 ContinueOp							::= 'continue' - 'continue' <IdentifierPart>
-ContinueStatement					::= <S>? <ContinueOp> <SC>
+ContinueStatement					::= <S>? <ContinueOp> <AbortIfNotSC>
 
 
 
@@ -434,13 +432,12 @@ DefaultClauseOp						::= <DefaultKeywordOp> <S>? ':' <S>? <StatementList>?
 
 # 13 Function Definition
 FunctionName						::= <IdentifierNoEmit>
-FunctionDeclaration					::= ('function'-'function'<IdentifierPart>)<S>?<FunctionName><S>?'('<S>?<FormalParameterList>?<S>?')'<S>?'{'<S>?<FunctionBody>?<S>? ('}' | <FunctionSyntaxError>)
-FunctionExpression					::= ('function'-'function'<IdentifierPart>)<S>?<FunctionName>?<S>?'('<S>?<FormalParameterList>?<S>?')'<S>?'{'<S>?<FunctionBody>?<S>?('}' | <FunctionSyntaxError>)
+FunctionDeclaration					::= ('function'-'function'<IdentifierPart>)<S>?<FunctionName><S>?'('<S>?<FormalParameterList>?<S>?')'<S>?'{'<S>?<FunctionBody>?<S>?'}'
+FunctionExpression					::= ('function'-'function'<IdentifierPart>)<S>?<FunctionName>?<S>?'('<S>?<FormalParameterList>?<S>?')'<S>?'{'<S>?<FunctionBody>?<S>?'}'
 FormalParameterList 				::= <FunctionParameter> ( <S>? ',' <S>? <FunctionParameter> )*
 FunctionParameter 					::= <IdentifierNoEmit>
-# FunctionBody						::= <SourceElements>
-FunctionBody						::= (<S>? (<SourceElement> ))+
-FunctionDeclarationStatement		::= ('function' - 'function' <IdentifierPart>)<S>?<FunctionName><S>?'('<S>?<FormalParameterList>?<S>?')' <SC>
+FunctionBody						::= <SourceElements>
+FunctionDeclarationStatement		::= ('function' - 'function' <IdentifierPart>)<S>?<FunctionName><S>?'('<S>?<FormalParameterList>?<S>?')' <AbortIfNotSC>
 
 # FunctionName						::= <IdentifierNoEmit>
 # FunctionNameLookupAlloc			::= <IdentifierNoEmit>
@@ -449,19 +446,15 @@ FunctionDeclarationStatement		::= ('function' - 'function' <IdentifierPart>)<S>?
 # FunctionExpression				::= ('function' - 'function'<IdentifierPart>)<S>?<FunctionName>?<S>?'('<S>?<FormalParameterList>?<S>?')'<S>?'{'<S>?<FunctionBody>?<S>?'}'
 # FunctionParameter 				::= <Identifier>
 # FormalParameterList 				::= <FunctionParameter> ( <S>? ',' <S>? <FunctionParameter> )*
-# FunctionDefinitionStatement		::= ('function' - 'function' <IdentifierPart>)<S>?<FunctionNameLookupAlloc><S>?'('<S>?<FormalParameterList>?<S>?')' <SC>
+# FunctionDefinitionStatement		::= ('function' - 'function' <IdentifierPart>)<S>?<FunctionNameLookupAlloc><S>?'('<S>?<FormalParameterList>?<S>?')' <AbortIfNotSC>
 # FunctionBody						::= <SourceElements>
 
 
 # 14 Program
-BlockSyntaxError				::= (. - '}')+ '}'
-FunctionSyntaxError				::= (. - '}')+ '}'
-GlobalSyntaxError				::= (. - <SC>)+
-
 SourceElements 					::= (<S>? <SourceElement>)+
 SourceElement 					::= <FunctionDeclaration> |
 			    					<Statement> 
-Program							::= <SourceElements> | <GlobalSyntaxError>
+Program							::= <SourceElements>
 # The root rule, it is anonymous
 <Program>
 

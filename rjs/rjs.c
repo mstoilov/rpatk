@@ -31,6 +31,7 @@ rjs_engine_t *rjs_engine_create()
 	jse->cpu = rvm_cpu_create_default();
 	jse->co = rjs_compiler_create(jse->cpu);
 	jse->cgs = r_array_create(sizeof(rvm_codegen_t*));
+	jse->errors = r_array_create(sizeof(rjs_error_t));
 	rvm_cpu_addswitable(jse->cpu, "rjsswitable", rjsswitable);
 	if (!jse->pa || !jse->cpu || !jse->co || !jse->cgs)
 		goto error;
@@ -55,6 +56,7 @@ void rjs_engine_destroy(rjs_engine_t *jse)
 			}
 		}
 		r_array_destroy(jse->cgs);
+		r_array_destroy(jse->errors);
 		rjs_parser_destroy(jse->pa);
 		rvm_cpu_destroy(jse->cpu);
 		rjs_compiler_destroy(jse->co);
@@ -69,10 +71,15 @@ rint rjs_engine_open(rjs_engine_t *jse)
 }
 
 
-static rint rjs_engine_parse(rjs_engine_t *jse, const rchar *script, rsize_t size, rarray_t **records)
+static rint rjs_engine_parse(rjs_engine_t *jse, const rchar *script, rsize_t size, rarray_t *records)
 {
 	rlong res = 0;
-	res = rjs_parser_exec(jse->pa, script, size, records);
+	rjs_error_t error;
+
+	r_memset(&error, 0, sizeof(error));
+	res = rjs_parser_exec(jse->pa, script, size, records, &error);
+	if (res < 0)
+		r_array_add(jse->errors, &error);
 	return res;
 }
 
@@ -80,10 +87,10 @@ static rint rjs_engine_parse(rjs_engine_t *jse, const rchar *script, rsize_t siz
 rint rjs_engine_compile(rjs_engine_t *jse, const rchar *script, rsize_t size)
 {
 	rvm_codegen_t *topcg = NULL;
-	rarray_t *records = NULL;
+	rarray_t *records = rpa_record_array();
 	jse->co->debug = jse->debugcompile;
 
-	if (rjs_engine_parse(jse, script, size, &records) < 0) {
+	if (rjs_engine_parse(jse, script, size, records) < 0) {
 
 		goto err;
 	}
@@ -112,8 +119,8 @@ err:
 
 rint rjs_engine_dumpast(rjs_engine_t *jse, const rchar *script, rsize_t size)
 {
-	rarray_t *records = NULL;
-	if (rjs_engine_parse(jse, script, size, &records) < 0) {
+	rarray_t *records = rpa_record_array();
+	if (rjs_engine_parse(jse, script, size, records) < 0) {
 
 
 		return -1;

@@ -50,8 +50,6 @@ typedef struct rpa_grep_s {
 	unsigned long scanmilisec;
 	unsigned long usedstack;
 	unsigned long cachehit;
-	unsigned long orphrecords;
-	unsigned long emitstacksize;		// Must be ZERO, if not something is going wrong
 	unsigned int icase;
 	unsigned int encoding;
 	unsigned int greptype;

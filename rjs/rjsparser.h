@@ -10,6 +10,7 @@ extern "C" {
 #include "rarray.h"
 #include "rvmcpu.h"
 #include "rpa.h"
+#include "rjserror.h"
 
 
 typedef struct rjs_parser_s {
@@ -20,7 +21,7 @@ typedef struct rjs_parser_s {
 
 rjs_parser_t *rjs_parser_create();
 void rjs_parser_destroy(rjs_parser_t *parser);
-rlong rjs_parser_exec(rjs_parser_t *parser, const rchar *script, rsize_t size, rarray_t **ast);
+rlong rjs_parser_exec(rjs_parser_t *parser, const rchar *script, rsize_t size, rarray_t *ast, rjs_error_t *error);
 
 
 #ifdef __cplusplus

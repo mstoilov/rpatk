@@ -13,6 +13,7 @@ extern "C" {
 #include "rvmcpu.h"
 #include "rjsuids.h"
 #include "rparecord.h"
+#include "rjserror.h"
 
 #define RJS_COMPILER_NHANDLERS 128
 #define RJS_COMPILER_CODEGENKEEP (1 << 0)
@@ -25,13 +26,6 @@ extern "C" {
 #define RJS_COCTX_ITERATION (1 << 5)
 #define RJS_COCTX_OPERATION (1 << 5)
 
-#define RJS_ERROR_NONE 0
-#define RJS_ERROR_UNDEFINED 1
-#define RJS_ERROR_SYNTAX 2
-#define RJS_ERROR_NOTAFUNCTION 3
-#define RJS_ERROR_NOTAFUNCTIONCALL 4
-#define RJS_ERROR_NOTALOOP 5
-#define RJS_ERROR_NOTAIFSTATEMENT 6
 
 typedef struct rjs_coctx_s {
 	rulong type;
@@ -85,12 +79,6 @@ typedef struct rjs_coctx_iteration_s {
 } rjs_coctx_iteration_t;
 
 
-typedef struct rjs_coerror_s {
-	rlong code;
-	const rchar *script;
-	rlong scriptsize;
-} rjs_coerror_t;
-
 
 typedef struct rjs_compiler_s rjs_compiler_t;
 typedef rint (*RJS_COMPILER_RH)(rjs_compiler_t *co, rarray_t *records, rlong rec);
@@ -100,7 +88,6 @@ struct rjs_compiler_s {
 	rvm_codegen_t *cg;
 	rvm_scope_t *scope;
 	rarray_t *coctx;
-	rarray_t *errors;
 	rchar *temp;
 	rlong headoff;
 	rlong opcode;

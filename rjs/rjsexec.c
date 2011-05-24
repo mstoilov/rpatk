@@ -128,16 +128,14 @@ rlong jrs_offset2line(const rchar *script, rlong offset)
 
 void rjs_display_errors(rjs_engine_t *jse, rstr_t *script)
 {
-	rlong line = 0;
 	rlong i;
-	rjs_coerror_t *err;
+	rjs_error_t *err;
 
-	for (i = 0; i < r_array_length(jse->co->errors); i++) {
-		err = (rjs_coerror_t *)r_array_slot(jse->co->errors, i);
-		line = jrs_offset2line(script->str, (rlong)(err->script - script->str));
-		fprintf(stdout, "Line: %ld (%ld, %ld), Error Code: %ld, ", (rlong)line, (rlong)(err->script - script->str), (rlong)err->scriptsize, err->code);
-		fprintf(stdout, "%s: ", errormsg[err->code]);
-		fwrite(err->script, sizeof(rchar), err->scriptsize, stdout);
+	for (i = 0; i < r_array_length(jse->errors); i++) {
+		err = (rjs_error_t *)r_array_slot(jse->errors, i);
+		fprintf(stdout, "Line: %ld (%ld, %ld), Error Code: %ld, ", (rlong)err->line, err->offset, err->lineoffset, err->error);
+		fprintf(stdout, "%s: ", errormsg[err->error]);
+		fwrite(script->str + err->lineoffset, sizeof(rchar), err->offset - err->lineoffset, stdout);
 		fprintf(stdout, "\n");
 	}
 }
@@ -196,7 +194,7 @@ int main(int argc, char *argv[])
 	}
 
 end:
-	if (jse->co && r_array_length(jse->co->errors))
+	if (jse && r_array_length(jse->errors))
 		rjs_display_errors(jse, script);
 	rjs_engine_destroy(jse);
 	if (unmapscript)

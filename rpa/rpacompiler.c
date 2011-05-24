@@ -341,7 +341,7 @@ rint rpa_compiler_loop_end(rpa_compiler_t *co)
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R3, R0, XX, 0));                                                //          |
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R_TOP, R_OTP, XX, 0));                                          //          |
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, exp.loopidx, rvm_asm(RVM_B, DA, XX, XX, 0));        //          |
-	rvm_codegen_redefinelabel_default(co->cg, exp.failidx);	                                                            //          |
+	rvm_codegen_redefinelabel_default(co->cg, exp.failidx);	                                                    //          |
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R_REC, R1, XX, 0));	         //        <-------------------------------------
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOVS, R0, DA, XX, -1));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
@@ -356,7 +356,11 @@ rint rpa_compiler_loop_end(rpa_compiler_t *co)
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_CMP, R0, DA, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BGRE, DA, XX, XX, 3));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOVS, R0, DA, XX, -1));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
+	if (exp.rulepref && (exp.rulepref->flags & RPA_RFLAG_ABORTONFAIL)) {
+		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BLOB, exp.dataidx, rvm_asm(RPA_ABORT, DA, R_OTP, R0, 0));
+	} else {
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
+	}
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_ADD, R_TOP, R_TOP, R3, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 	return 0;
@@ -419,6 +423,9 @@ rint rpa_compiler_rule_end(rpa_compiler_t *co)
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R_REC, R1, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOVS, R0, DA, XX, -1));
+	if (exp.rulepref && (exp.rulepref->flags & RPA_RFLAG_ABORTONFAIL)) {
+		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BLOB, exp.dataidx, rvm_asm(RPA_ABORT, DA, R_OTP, R0, 0));
+	}
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 	rvm_codegen_redefinelabel_default(co->cg, exp.endidx);
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, LR, XX, XX, 0));
@@ -427,6 +434,9 @@ rint rpa_compiler_rule_end(rpa_compiler_t *co)
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R_OTP, R_TOP, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOVS, R0, DA, XX, -1));
 	rvm_codegen_addins(co->cg, rvm_asml(RPA_SETCACHE, DA, R_REC, R_REC, exp.start));
+	if (exp.rulepref && (exp.rulepref->flags & RPA_RFLAG_ABORTONFAIL)) {
+		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BLOB, exp.dataidx, rvm_asm(RPA_ABORT, DA, R_OTP, R0, 0));
+	}
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 	return 0;
 }

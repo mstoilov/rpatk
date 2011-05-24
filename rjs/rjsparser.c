@@ -1,6 +1,7 @@
 #include "rmem.h"
 #include "rjsrules.h"
 #include "rjsparser.h"
+#include "rjserror.h"
 
 
 void rjs_parser_dbex_error(rjs_parser_t *parser)
@@ -62,11 +63,50 @@ void rjs_parser_destroy(rjs_parser_t *parser)
 }
 
 
-rlong rjs_parser_exec(rjs_parser_t *parser, const rchar *script, rsize_t size, rarray_t **ast)
+rlong jrs_parser_offset2line(const rchar *script, rlong offset)
+{
+	rlong line = 1;
+	const rchar *ptr;
+
+	for (line = 1, ptr = script + offset; ptr >= script; --ptr) {
+		if (*ptr == '\n')
+			line += 1;
+	}
+
+	return line;
+}
+
+
+rlong jrs_parser_offset2lineoffset(const rchar *script, rlong offset)
+{
+	rlong lineoffset = 0;
+	const rchar *ptr;
+
+	for (lineoffset = 0, ptr = script + offset; ptr > script; --ptr) {
+		if (*ptr == '\n')
+			break;
+		lineoffset += 1;
+	}
+	return offset - lineoffset;
+}
+
+
+rlong rjs_parser_exec(rjs_parser_t *parser, const rchar *script, rsize_t size, rarray_t *ast, rjs_error_t *error)
 {
 	rlong res = 0;
 	rpastat_t *stat = rpa_stat_create(parser->dbex, 4096);
 	res = rpa_stat_parse(stat, rpa_dbex_last(parser->dbex), script, script, script + size, ast);
+	if (res < 0 && error) {
+		rpa_errinfo_t rpaerror;
+		rpa_stat_lasterrorinfo(stat, &rpaerror);
+		if (rpaerror.code == RPA_E_RULEABORT) {
+			error->type = RJS_ERRORTYPE_SYNTAX;
+			error->error = RJS_ERROR_SYNTAX;
+			error->offset = rpaerror.offset;
+			error->line = jrs_parser_offset2line(script, error->offset);
+			error->lineoffset = jrs_parser_offset2lineoffset(script, error->offset);
+		}
+	}
 	rpa_stat_destroy(stat);
 	return res;
 }

@@ -74,12 +74,33 @@ rpastat_t *rpa_stat_create(rpadbex_t *dbex, rulong stacksize);
 void rpa_stat_destroy(rpastat_t *stat);
 
 
-rint rpa_stat_encodingset(rpastat_t *stat, ruint encoding);
 rlong rpa_stat_scan(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end, const rchar **where);
+rlong rpa_stat_parse(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end, rarray_t *records);
 rlong rpa_stat_match(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end);
-rlong rpa_stat_parse(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end, rarray_t **records);
+rlong rpa_stat_exec(rpastat_t *stat, rvm_asmins_t *prog, rword off, const rchar *input, const rchar *start, const rchar *end, rarray_t *records);
 rint rpa_stat_abort(rpastat_t *stat);
-rlong rpa_stat_exec(rpastat_t *stat, rvm_asmins_t *prog, rword off);
+rint rpa_stat_setencoding(rpastat_t *stat, ruint encoding);
+
+
+/**
+ * \brief Return the error code of the last occurred error.
+ *
+ * \param dbex Pointer to \ref rpadbex_t object.
+ * \return The error code of the last occurred error. If this function fails the
+ * return value is negative.
+ */
+rlong rpa_stat_lasterror(rpastat_t *stat);
+
+/**
+ * \brief Get error information for the last occurred error.
+ *
+ * \param dbex Pointer to \ref rpadbex_t object.
+ * \param errinfo Pointer to \ref rpa_errinfo_t buffer that will be
+ * filled with the error information. This parameter cannot be NULL.
+ * \return Return 0 if the function is successful or negative otherwise. If this function fails the
+ * return value is negative.
+ */
+rlong rpa_stat_lasterrorinfo(rpastat_t *stat, rpa_errinfo_t *errinfo);
 
 
 #ifdef __cplusplus

@@ -212,7 +212,7 @@ int rpa_grep_match(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 	if (!hStat)
 		return -1;
 	rpa_stat_cachedisable(hStat, pGrep->disablecache);
-	rpa_stat_encodingset(hStat, pGrep->encoding);
+	rpa_stat_setencoding(hStat, pGrep->encoding);
 	hStat->debug = pGrep->execdebug;
 	ret = rpa_stat_match(hStat, pGrep->hPattern, input, start, end);
 	if (ret > 0) {
@@ -221,9 +221,6 @@ int rpa_grep_match(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 		rpa_grep_output_utf8_string(pGrep, "\n");
 	}
 	pGrep->cachehit = hStat->cache->hit;
-	pGrep->orphrecords = r_array_length(hStat->orphans);
-	pGrep->emitstacksize = r_array_length(hStat->emitstack);
-
 	rpa_stat_destroy(hStat);
 	return 0;
 }
@@ -231,10 +228,11 @@ int rpa_grep_match(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 
 int rpa_grep_parse(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 {
+	rlong ret;
 	rlong i;
 	rchar location[128];
 	rpastat_t *hStat;
-	rarray_t *records = NULL;
+	rarray_t *records = rpa_record_array();
 	rparecord_t *prec;
 	const char *input = buffer, *start = buffer, *end = buffer + size;
 
@@ -242,10 +240,31 @@ int rpa_grep_parse(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 	if (!hStat)
 		return -1;
 	rpa_stat_cachedisable(hStat, pGrep->disablecache);
-	rpa_stat_encodingset(hStat, pGrep->encoding);
+	rpa_stat_setencoding(hStat, pGrep->encoding);
 	hStat->debug = pGrep->execdebug;
-	rpa_stat_parse(hStat, pGrep->hPattern, input, start, end, &records);
-	if (records) {
+	ret = rpa_stat_parse(hStat, pGrep->hPattern, input, start, end, records);
+	if (ret < 0) {
+		rpa_errinfo_t err;
+		rpa_stat_lasterrorinfo(hStat, &err);
+		if (err.code) {
+			r_snprintf(location, sizeof(location), "Parse Error: Code: %ld", err.code);
+			rpa_grep_output_utf8_string(pGrep, location);
+		}
+		if (err.ruleid) {
+			r_snprintf(location, sizeof(location), ", Rule UID: %ld", err.ruleid);
+			rpa_grep_output_utf8_string(pGrep, location);
+		}
+		if (*err.name) {
+			r_snprintf(location, sizeof(location), ", Name: %s", err.name);
+			rpa_grep_output_utf8_string(pGrep, location);
+		}
+		if (err.offset) {
+			r_snprintf(location, sizeof(location), " at Offset: %ld", err.offset);
+			rpa_grep_output_utf8_string(pGrep, location);
+		}
+		rpa_grep_output_utf8_string(pGrep, "\n");
+
+	} else {
 		if (pGrep->greptype == RPA_GREPTYPE_PARSE) {
 			for (i = 0; i < r_array_length(records); i++) {
 				prec = (rparecord_t *)r_array_slot(records, i);
@@ -264,12 +283,9 @@ int rpa_grep_parse(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 			}
 
 		}
-		r_array_destroy(records);
 	}
+	r_array_destroy(records);
 	pGrep->cachehit = hStat->cache->hit;
-	pGrep->orphrecords = r_array_length(hStat->orphans);
-	pGrep->emitstacksize = r_array_length(hStat->emitstack);
-
 	rpa_stat_destroy(hStat);
 	return 0;
 }
@@ -286,16 +302,14 @@ int rpa_grep_scan(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 	hStat = rpa_stat_create(pGrep->hDbex, 0);
 	if (!hStat)
 		return -1;
-	rpa_stat_encodingset(hStat, pGrep->encoding);
+	rpa_stat_setencoding(hStat, pGrep->encoding);
 	rpa_stat_cachedisable(hStat, pGrep->disablecache);
 	hStat->debug = pGrep->execdebug;
 	pGrep->cachehit = hStat->cache->hit;
-	pGrep->orphrecords = r_array_length(hStat->orphans);
 
 again:
 	ret = rpa_stat_scan(hStat, pGrep->hPattern, input, start, end, &matched);
 	pGrep->cachehit += hStat->cache->hit;
-	pGrep->orphrecords += r_array_length(hStat->orphans);
 
 	if (ret > 0) {
 		if (!displayed) {
@@ -309,8 +323,6 @@ again:
 		input = matched + ret;
 		goto again;
 	}
-
-	pGrep->emitstacksize = r_array_length(hStat->emitstack);
 	rpa_stat_destroy(hStat);
 	return 0;
 }
@@ -328,7 +340,7 @@ int rpa_grep_scan_lines(rpa_grep_t *pGrep, const char* buffer, unsigned long siz
 	hStat = rpa_stat_create(pGrep->hDbex, 0);
 	if (!hStat)
 		return -1;
-	rpa_stat_encodingset(hStat, pGrep->encoding);
+	rpa_stat_setencoding(hStat, pGrep->encoding);
 	hStat->debug = pGrep->execdebug;
 	
 again:

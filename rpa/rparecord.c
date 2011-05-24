@@ -436,3 +436,12 @@ void rpa_record_dumpindented(rarray_t *records, rlong rec, rint level)
 		r_printf(" %s\n", buffer);
 	return;
 }
+
+
+rarray_t *rpa_record_array()
+{
+	rarray_t *records;
+
+	records = r_array_create(sizeof(rparecord_t));
+	return records;
+}

@@ -49,7 +49,9 @@
 #define RPA_E_UNRESOLVED_SYMBOL 1007
 #define RPA_E_PARAM 1008
 
+#define RPA_E_EXECUTION 2000
 #define RPA_E_USERABORT 2001
+#define RPA_E_RULEABORT 2002
 
 /**
  * \typedef rpaerror_t

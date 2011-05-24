@@ -61,10 +61,11 @@ void rpa_cache_set(rpacache_t *cache, rlong top, rlong ruleid, rlong ret, rarray
 	cache->entry[bucket].recsize = size;
 	cache->entry[bucket].serial = cache->serial;
 	r_array_setlength(cacherecords, 0);
-	for (i = 0; i < size; i++) {
-		r_array_add(cacherecords, r_array_slot(records, startrec + i));
+	if (records) {
+		for (i = 0; i < size; i++) {
+			r_array_add(cacherecords, r_array_slot(records, startrec + i));
+		}
 	}
-
 }
 
 

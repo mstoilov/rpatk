@@ -10,11 +10,14 @@ extern "C" {
 #include "rvmcpu.h"
 #include "rjsparser.h"
 #include "rjscompiler.h"
+#include "rjserror.h"
+
 
 typedef struct rjs_engine_s {
 	rjs_parser_t *pa;
 	rjs_compiler_t *co;
 	rarray_t *cgs;
+	rarray_t *errors;
 	rvmcpu_t *cpu;
 	rlong debugcompile:1;
 	rlong debugexec:1;
