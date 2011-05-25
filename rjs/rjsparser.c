@@ -63,13 +63,13 @@ void rjs_parser_destroy(rjs_parser_t *parser)
 }
 
 
-rlong jrs_parser_offset2line(const rchar *script, rlong offset)
+rlong rjs_parser_offset2line(const rchar *script, rlong offset)
 {
 	rlong line = 1;
 	const rchar *ptr;
 
 	for (line = 1, ptr = script + offset; ptr >= script; --ptr) {
-		if (*ptr == '\n')
+		if (*ptr == '\n' && ptr != script + offset)
 			line += 1;
 	}
 
@@ -77,13 +77,13 @@ rlong jrs_parser_offset2line(const rchar *script, rlong offset)
 }
 
 
-rlong jrs_parser_offset2lineoffset(const rchar *script, rlong offset)
+rlong rjs_parser_offset2lineoffset(const rchar *script, rlong offset)
 {
 	rlong lineoffset = 0;
 	const rchar *ptr;
 
 	for (lineoffset = 0, ptr = script + offset; ptr > script; --ptr) {
-		if (*ptr == '\n')
+		if (*ptr == '\n' && ptr != script + offset)
 			break;
 		lineoffset += 1;
 	}
@@ -103,8 +103,8 @@ rlong rjs_parser_exec(rjs_parser_t *parser, const rchar *script, rsize_t size, r
 			error->type = RJS_ERRORTYPE_SYNTAX;
 			error->error = RJS_ERROR_SYNTAX;
 			error->offset = rpaerror.offset;
-			error->line = jrs_parser_offset2line(script, error->offset);
-			error->lineoffset = jrs_parser_offset2lineoffset(script, error->offset);
+			error->line = rjs_parser_offset2line(script, error->offset);
+			error->lineoffset = rjs_parser_offset2lineoffset(script, error->offset);
 		}
 	}
 	rpa_stat_destroy(stat);

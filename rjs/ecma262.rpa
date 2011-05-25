@@ -89,8 +89,7 @@
 #!emitid DoWhileExpressionCompare		UID_DOWHILEEXPRESSIONCOMPARE		59
 #!emitid Program 						UID_PROGRAM 						60
 
-#!abort AbortIfNotSC
-#!abort AbortIfNotMultiplicativeExpression
+#!abort SC
 
 
 # 6 Source Text
@@ -106,7 +105,6 @@ S						::= ( <WhiteSpace> | <LineTerminator> )+
 SC						::= <S>? ';' <S>?
 COMMA					::= <S>? ',' <S>?
 EQ						::= <S>? '=' <S>?
-AbortIfNotSC			::= <SC>
 
 # 7.4 Comments
 Comment					::= <MultiLineComment> | <SingleLineComment>
@@ -266,8 +264,8 @@ MultiplicativeExpression		::= <MultiplicativeExpressionOp> |
 
 # 11.6 Additive Operators
 AdditiveOperator 				::= '+' | '-'
-AbortIfNotMultiplicativeExpression	::= <MultiplicativeExpression>
-AdditiveExpressionOp			::= <AdditiveExpression> <S>? <AdditiveOperator> <S>? <AbortIfNotMultiplicativeExpression>
+# AbortIfNotMultiplicativeExpression	::= <MultiplicativeExpression>
+AdditiveExpressionOp			::= <AdditiveExpression> <S>? <AdditiveOperator> <S>? <MultiplicativeExpression>
 AdditiveExpression				::= <AdditiveExpressionOp> | 
 									<MultiplicativeExpression>
 
@@ -352,7 +350,7 @@ Block								::= <S>? '{' <S>? <StatementList>? <S>? '}' <S>?
 StatementList						::= (<S>? <Statement>)+
 
 # 12.2 Variable Statement
-VariableStatement 					::= 'var' <S>? <VariableDeclarationList> <AbortIfNotSC>
+VariableStatement 					::= 'var' <S>? <VariableDeclarationList> <SC>
 VariableDeclarationList 			::= <VariableDeclaration> (<COMMA> <VariableDeclaration> )*
 VariableAllocate					::= <IdentifierNoEmit>
 VariableAllocateAndInit				::= <IdentifierNoEmit>
@@ -361,14 +359,16 @@ Initialiser							::= <EQ> <AssignmentExpression>
 
 
 # 12.3 Empty Statement
-EmptyStatement						::= <SC>
+EmptyStatement						::= <S>? ';' <S>?
 
 # 12.4 Expression Statement
-ExpressionStatement 				::= (<Expression> - ('function' | '{')) <AbortIfNotSC>
+ExpressionStatement 				::= (<Expression> - ('function' | '{')) <SC>
 
 
 # 12.5 The if Statement
-IfConditionOp						::= 'if' <S>? '(' <S>? <Expression> <S>? ')'
+#!abort	IfBrackets
+IfBrackets							::= '(' <S>? <Expression> <S>? ')'
+IfConditionOp						::= 'if' <S>? <IfBrackets>
 IfTrueStatement						::= <Statement>
 IfFalseStatement					::= <Statement>
 IfStatement							::= <IfConditionOp> <S>? <IfTrueStatement> <S>? 'else' <S>? <IfFalseStatement> |
@@ -377,7 +377,7 @@ IfStatement							::= <IfConditionOp> <S>? <IfTrueStatement> <S>? 'else' <S>? <I
 # 12.6 Iteration Statements
 # 12.6a Iteration do ... while() 
 DoWhileExpressionCompare			::= <Expression>
-IterationDo							::= 'do' <S>? <Statement> <S>? 'while' <S>? '(' <S>? <DoWhileExpressionCompare> <S>? ')' <AbortIfNotSC>
+IterationDo							::= 'do' <S>? <Statement> <S>? 'while' <S>? '(' <S>? <DoWhileExpressionCompare> <S>? ')' <SC>
 
 # 12.6b Iteration while()
 WhileExpressionCompare				::= <Expression>
@@ -397,16 +397,16 @@ IterationStatement 					::= <IterationWhile> |
 	    								<IterationDo>
 
 # 12.9 The return Statement
-ReturnOp							::= ('return' - 'return' <IdentifierPart>) <WhiteSpace>* <AssignmentExpression>? <AbortIfNotSC>
-ReturnStatement						::= ('return' - 'return' <IdentifierPart>) <WhiteSpace>* <AssignmentExpression>? <AbortIfNotSC>
+ReturnOp							::= ('return' - 'return' <IdentifierPart>) <WhiteSpace>* <AssignmentExpression>? <SC>
+ReturnStatement						::= ('return' - 'return' <IdentifierPart>) <WhiteSpace>* <AssignmentExpression>? <SC>
 
 # The Break Statement
 BreakOp								::= 'break' - 'break' <IdentifierPart>
-BreakStatement						::= <S>? <BreakOp> <AbortIfNotSC>
+BreakStatement						::= <S>? <BreakOp> <SC>
 
 # The Continue Statement
 ContinueOp							::= 'continue' - 'continue' <IdentifierPart>
-ContinueStatement					::= <S>? <ContinueOp> <AbortIfNotSC>
+ContinueStatement					::= <S>? <ContinueOp> <SC>
 
 
 
@@ -437,7 +437,7 @@ FunctionExpression					::= ('function'-'function'<IdentifierPart>)<S>?<FunctionN
 FormalParameterList 				::= <FunctionParameter> ( <S>? ',' <S>? <FunctionParameter> )*
 FunctionParameter 					::= <IdentifierNoEmit>
 FunctionBody						::= <SourceElements>
-FunctionDeclarationStatement		::= ('function' - 'function' <IdentifierPart>)<S>?<FunctionName><S>?'('<S>?<FormalParameterList>?<S>?')' <AbortIfNotSC>
+FunctionDeclarationStatement		::= ('function' - 'function' <IdentifierPart>)<S>?<FunctionName><S>?'('<S>?<FormalParameterList>?<S>?')' <SC>
 
 # FunctionName						::= <IdentifierNoEmit>
 # FunctionNameLookupAlloc			::= <IdentifierNoEmit>
@@ -446,7 +446,7 @@ FunctionDeclarationStatement		::= ('function' - 'function' <IdentifierPart>)<S>?
 # FunctionExpression				::= ('function' - 'function'<IdentifierPart>)<S>?<FunctionName>?<S>?'('<S>?<FormalParameterList>?<S>?')'<S>?'{'<S>?<FunctionBody>?<S>?'}'
 # FunctionParameter 				::= <Identifier>
 # FormalParameterList 				::= <FunctionParameter> ( <S>? ',' <S>? <FunctionParameter> )*
-# FunctionDefinitionStatement		::= ('function' - 'function' <IdentifierPart>)<S>?<FunctionNameLookupAlloc><S>?'('<S>?<FormalParameterList>?<S>?')' <AbortIfNotSC>
+# FunctionDefinitionStatement		::= ('function' - 'function' <IdentifierPart>)<S>?<FunctionNameLookupAlloc><S>?'('<S>?<FormalParameterList>?<S>?')' <SC>
 # FunctionBody						::= <SourceElements>
 
 
