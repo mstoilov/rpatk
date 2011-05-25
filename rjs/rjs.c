@@ -87,7 +87,7 @@ static rint rjs_engine_parse(rjs_engine_t *jse, const rchar *script, rsize_t siz
 rint rjs_engine_compile(rjs_engine_t *jse, const rchar *script, rsize_t size)
 {
 	rvm_codegen_t *topcg = NULL;
-	rarray_t *records = rpa_record_array();
+	rarray_t *records = rpa_records_create();
 	jse->co->debug = jse->debugcompile;
 
 	if (rjs_engine_parse(jse, script, size, records) < 0) {
@@ -108,18 +108,18 @@ rint rjs_engine_compile(rjs_engine_t *jse, const rchar *script, rsize_t size)
 		goto err;
 	}
 
-	r_array_destroy(records);
+	rpa_records_destroy(records);
 	return 0;
 
 err:
-	r_array_destroy(records);
+	rpa_records_destroy(records);
 	return -1;
 }
 
 
 rint rjs_engine_dumpast(rjs_engine_t *jse, const rchar *script, rsize_t size)
 {
-	rarray_t *records = rpa_record_array();
+	rarray_t *records = rpa_records_create();
 	if (rjs_engine_parse(jse, script, size, records) < 0) {
 
 
@@ -128,11 +128,11 @@ rint rjs_engine_dumpast(rjs_engine_t *jse, const rchar *script, rsize_t size)
 
 	if (records) {
 		rlong i;
-		for (i = 0; i < r_array_length(records); i++)
+		for (i = 0; i < rpa_records_length(records); i++)
 			rpa_record_dump(records, i);
 	}
 
-	r_array_destroy(records);
+	rpa_records_destroy(records);
 	return 0;
 }
 

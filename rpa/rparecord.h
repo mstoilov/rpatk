@@ -94,7 +94,11 @@ void rpa_record_setusertype(rarray_t *records, rlong rec, ruint32 usertype, rval
 rlong rpa_record_getusertype(rarray_t *records, rlong rec);
 rint rpa_record_optchar(rparecord_t *prec, rint defc);
 rint rpa_record_loopchar(rparecord_t *prec, rint defc);
-rarray_t *rpa_record_array();
+rarray_t *rpa_records_create();
+void rpa_records_destroy(rarray_t *records);
+rlong rpa_records_length(rarray_t *records);
+rparecord_t *rpa_records_slot(rarray_t *records, rlong index);
+
 #ifdef __cplusplus
 }
 #endif

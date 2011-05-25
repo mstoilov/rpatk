@@ -232,7 +232,7 @@ int rpa_grep_parse(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 	rlong i;
 	rchar location[128];
 	rpastat_t *hStat;
-	rarray_t *records = rpa_record_array();
+	rarray_t *records = rpa_records_create();
 	rparecord_t *prec;
 	const char *input = buffer, *start = buffer, *end = buffer + size;
 
@@ -266,8 +266,8 @@ int rpa_grep_parse(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 
 	} else {
 		if (pGrep->greptype == RPA_GREPTYPE_PARSE) {
-			for (i = 0; i < r_array_length(records); i++) {
-				prec = (rparecord_t *)r_array_slot(records, i);
+			for (i = 0; i < rpa_records_length(records); i++) {
+				prec = (rparecord_t *)rpa_records_slot(records, i);
 				if (prec->type & RPA_RECORD_END) {
 					rpa_grep_output_utf8_string(pGrep, prec->rule);
 					r_snprintf(location, sizeof(location), " (%ld, %ld)", (rlong)(prec->input - input), (rlong)prec->inputsiz);
@@ -278,13 +278,13 @@ int rpa_grep_parse(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 				}
 			}
 		} else if (pGrep->greptype == RPA_GREPTYPE_PARSEAST) {
-			for (i = 0; i < r_array_length(records); i++) {
+			for (i = 0; i < rpa_records_length(records); i++) {
 				rpa_record_dump(records, i);
 			}
 
 		}
 	}
-	r_array_destroy(records);
+	rpa_records_destroy(records);
 	pGrep->cachehit = hStat->cache->hit;
 	rpa_stat_destroy(hStat);
 	return 0;

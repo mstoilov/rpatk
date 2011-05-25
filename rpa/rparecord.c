@@ -438,10 +438,29 @@ void rpa_record_dumpindented(rarray_t *records, rlong rec, rint level)
 }
 
 
-rarray_t *rpa_record_array()
+rarray_t *rpa_records_create()
 {
 	rarray_t *records;
 
 	records = r_array_create(sizeof(rparecord_t));
 	return records;
+}
+
+void rpa_records_destroy(rarray_t *records)
+{
+	r_array_destroy(records);
+}
+
+
+rlong rpa_records_length(rarray_t *records)
+{
+	return r_array_length(records);
+}
+
+
+rparecord_t *rpa_records_slot(rarray_t *records, rlong index)
+{
+	if (index < 0 || index >= r_array_length(records))
+		return NULL;
+	return (rparecord_t *)r_array_slot(records, index);
 }
