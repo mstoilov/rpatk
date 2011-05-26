@@ -41,13 +41,13 @@ struct rarray_s {
 robject_t *r_array_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, rsize_t elt_size);
 rarray_t *r_array_create(rsize_t elt_size);
 void r_array_destroy(rarray_t *array);
-rint r_array_add(rarray_t *array, rconstpointer data);
+rsize_t r_array_add(rarray_t *array, rconstpointer data);
 rint r_array_move(rarray_t *array, rlong dest, rlong src, rlong size);
-rlong r_array_removelast(rarray_t *array);
-rint r_array_insert(rarray_t *array, rsize_t index, rconstpointer data);
-rint r_array_replace(rarray_t *array, rsize_t index, rconstpointer data);
-rint r_array_setlength(rarray_t *array, rsize_t len);
-rint r_array_expand(rarray_t *array, rsize_t len);
+rsize_t r_array_removelast(rarray_t *array);
+rsize_t r_array_insert(rarray_t *array, rsize_t index, rconstpointer data);
+rsize_t r_array_replace(rarray_t *array, rsize_t index, rconstpointer data);
+rsize_t r_array_setlength(rarray_t *array, rsize_t len);
+rsize_t r_array_expand(rarray_t *array, rsize_t len);
 void *r_array_slot_expand(rarray_t *array, rsize_t index);
 
 /*

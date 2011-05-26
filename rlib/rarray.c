@@ -74,9 +74,9 @@ static void r_array_exist_replace(rarray_t *array, rsize_t index, rconstpointer 
 }
 
 
-rint r_array_add(rarray_t *array, rconstpointer data)
+rsize_t r_array_add(rarray_t *array, rconstpointer data)
 {
-	rint index = r_array_length(array);
+	rsize_t index = r_array_length(array);
 
 	r_array_setlength(array, index + 1);
 	r_array_exist_replace(array, index, data);
@@ -84,7 +84,7 @@ rint r_array_add(rarray_t *array, rconstpointer data)
 }
 
 
-rlong r_array_removelast(rarray_t *array)
+rsize_t r_array_removelast(rarray_t *array)
 {
 	if (!r_array_empty(array))
 		r_array_setlength(array, r_array_length(array) - 1);
@@ -92,7 +92,7 @@ rlong r_array_removelast(rarray_t *array)
 }
 
 
-rint r_array_insert(rarray_t *array, rsize_t index, rconstpointer data)
+rsize_t r_array_insert(rarray_t *array, rsize_t index, rconstpointer data)
 {
 	r_array_checkexpand(array, index + 1);
 	if (index < r_array_length(array)) {
@@ -107,7 +107,7 @@ rint r_array_insert(rarray_t *array, rsize_t index, rconstpointer data)
 }
 
 
-rint r_array_replace(rarray_t *array, rsize_t index, rconstpointer data)
+rsize_t r_array_replace(rarray_t *array, rsize_t index, rconstpointer data)
 {
 	if (index >= r_array_length(array))
 		return r_array_insert(array, index, data);
@@ -116,7 +116,7 @@ rint r_array_replace(rarray_t *array, rsize_t index, rconstpointer data)
 }
 
 
-rint r_array_setlength(rarray_t *array, rsize_t len)
+rsize_t r_array_setlength(rarray_t *array, rsize_t len)
 {
 	r_array_checkexpand(array, len);
 	r_array_length(array) = len;
@@ -124,7 +124,7 @@ rint r_array_setlength(rarray_t *array, rsize_t len)
 }
 
 
-rint r_array_expand(rarray_t *array, rsize_t len)
+rsize_t r_array_expand(rarray_t *array, rsize_t len)
 {
 	return r_array_setlength(array, r_array_length(array) + len);
 }
