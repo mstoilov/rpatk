@@ -172,6 +172,14 @@ rint rjs_engine_run(rjs_engine_t *jse)
 	} else {
 		res = rvm_cpu_exec(jse->cpu, rvm_codegen_getcode(cg, 0), 0);
 	}
+
+	if (jse->cpu->error == RVM_E_USERABORT) {
+		rlong idx = RVM_CPUREG_GETIP(jse->cpu, PC) - rvm_codegen_getcode(cg, 0);
+		if (idx >= 0) {
+			r_printf("Aborted at source index: %ld\n", rvm_codegen_getsource(cg, idx));
+		}
+	}
+
 	return res;
 }
 

@@ -10,6 +10,7 @@ static rint rjs_compiler_playchildrecords(rjs_compiler_t *co, rarray_t *records,
 
 void rjs_compiler_debughead(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
+	rvm_codegen_setsource(co->cg, rec);
 	if (co->debug) {
 		rparecord_t *prec = (rparecord_t *) r_array_slot(records, rec);
 		co->headoff = rvm_codegen_getcodesize(co->cg);
@@ -23,6 +24,7 @@ void rjs_compiler_debughead(rjs_compiler_t *co, rarray_t *records, rlong rec)
 
 void rjs_compiler_debugtail(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
+	rvm_codegen_setsource(co->cg, rec);
 	if (co->debug) {
 		rparecord_t *prec = (rparecord_t *) r_array_slot(records, rec);
 		rvm_asm_dump(rvm_codegen_getcode(co->cg, co->headoff), rvm_codegen_getcodesize(co->cg) - co->headoff);
@@ -1539,6 +1541,28 @@ rint rjs_compiler_rh_syntaxerror(rjs_compiler_t *co, rarray_t *records, rlong re
 }
 
 
+rint rjs_compiler_rh_block(rjs_compiler_t *co, rarray_t *records, rlong rec)
+{
+	rparecord_t *prec;
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rvm_scope_push(co->scope);
+	rjs_compiler_debugtail(co, records, rec);
+
+	if (rjs_compiler_playchildrecords(co, records, rec) < 0) {
+		rvm_scope_pop(co->scope);
+		return -1;
+	}
+
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rvm_scope_pop(co->scope);
+	rjs_compiler_debugtail(co, records, rec);
+	return 0;
+}
+
+
 rint rjs_compiler_rh_(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
@@ -1622,6 +1646,7 @@ rjs_compiler_t *rjs_compiler_create(rvmcpu_t *cpu)
 	co->handlers[UID_BREAKSTATEMENT] = rjs_compiler_rh_break;
 	co->handlers[UID_CONTINUESTATEMENT] = rjs_compiler_rh_continue;
 	co->handlers[UID_SYNTAXERROR] = rjs_compiler_rh_syntaxerror;
+	co->handlers[UID_BLOCK] = rjs_compiler_rh_block;
 
 	return co;
 }
