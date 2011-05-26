@@ -204,6 +204,16 @@ void r_string_assign(rstring_t *string, const rstr_t *str)
 		r_memset(string->s.str, 0, str->size + 1);
 		r_memcpy(string->s.str, str->str, str->size);
 		string->s.size = str->size;
+	} else {
+		/*
+		 * Create empty string
+		 */
+		r_free(string->s.str);
+		string->s.str = (rchar*)r_malloc(1);
+		if (!string->s.str)
+			return;
+		r_memset(string->s.str, 0, 1);
+
 	}
 }
 
