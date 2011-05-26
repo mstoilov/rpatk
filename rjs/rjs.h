@@ -30,6 +30,8 @@ typedef struct rjs_engine_s {
 #define RJS_VERSION_STRING "0.51.1"
 #define RJS_SWI_PARAM(__cpu__, __n__) RVM_STACK_ADDR((__cpu__)->stack, RVM_CPUREG_GETU(__cpu__, FP) + (__n__))
 #define RJS_SWI_PARAMS(__cpu__) (RVM_CPUREG_GETU((__cpu__), SP) - RVM_CPUREG_GETU((__cpu__), FP))
+#define RJS_SWI_ABORT(__j__, __e__) do { rjs_engine_abort((__j__), (__e__)); return; } while (0)
+
 
 const rchar *rjs_version();
 

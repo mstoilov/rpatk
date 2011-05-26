@@ -48,23 +48,16 @@ static void rjs_exec_ltrim(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *r = NULL, *l = NULL;
 	rstring_t *src, *dest;
 
-	if (RJS_SWI_PARAMS(cpu) == 0) {
-		rjs_engine_abort(rjs_engine_get(cpu), NULL);
-		return;
-	}
+	if (RJS_SWI_PARAMS(cpu) == 0)
+		RJS_SWI_ABORT(rjs_engine_get(cpu), NULL);
 	r = (rvmreg_t *) RJS_SWI_PARAM(cpu, 1);
 	if (RJS_SWI_PARAMS(cpu) > 1) {
 		l = (rvmreg_t *) RJS_SWI_PARAM(cpu, 2);
-		if (rvm_reg_gettype(l) != RVM_DTYPE_STRING) {
-			rjs_engine_abort(rjs_engine_get(cpu), NULL);
-			return;
-		}
+		if (rvm_reg_gettype(l) != RVM_DTYPE_STRING)
+			RJS_SWI_ABORT(rjs_engine_get(cpu), NULL);
 	}
-	if (rvm_reg_gettype(r) != RVM_DTYPE_STRING) {
-		rjs_engine_abort(rjs_engine_get(cpu), NULL);
-		return;
-	}
-
+	if (rvm_reg_gettype(r) != RVM_DTYPE_STRING)
+		RJS_SWI_ABORT(rjs_engine_get(cpu), NULL);
 	if (l)
 		list = ((rstring_t *)RVM_REG_GETP(l))->s.str;
 	else
@@ -91,23 +84,16 @@ static void rjs_exec_rtrim(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *r = NULL, *l = NULL;
 	rstring_t *src, *dest;
 
-	if (RJS_SWI_PARAMS(cpu) == 0) {
-		rjs_engine_abort(rjs_engine_get(cpu), NULL);
-		return;
-	}
+	if (RJS_SWI_PARAMS(cpu) == 0)
+		RJS_SWI_ABORT(rjs_engine_get(cpu), NULL);
 	r = (rvmreg_t *) RJS_SWI_PARAM(cpu, 1);
 	if (RJS_SWI_PARAMS(cpu) > 1) {
 		l = (rvmreg_t *) RJS_SWI_PARAM(cpu, 2);
-		if (rvm_reg_gettype(l) != RVM_DTYPE_STRING) {
-			rjs_engine_abort(rjs_engine_get(cpu), NULL);
-			return;
-		}
+		if (rvm_reg_gettype(l) != RVM_DTYPE_STRING)
+			RJS_SWI_ABORT(rjs_engine_get(cpu), NULL);
 	}
-	if (rvm_reg_gettype(r) != RVM_DTYPE_STRING) {
-		rjs_engine_abort(rjs_engine_get(cpu), NULL);
-		return;
-	}
-
+	if (rvm_reg_gettype(r) != RVM_DTYPE_STRING)
+		RJS_SWI_ABORT(rjs_engine_get(cpu), NULL);
 	if (l)
 		list = ((rstring_t *)RVM_REG_GETP(l))->s.str;
 	else
@@ -134,23 +120,17 @@ static void rjs_exec_trim(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *r = NULL, *l = NULL;
 	rstring_t *src, *dest;
 
-	if (RJS_SWI_PARAMS(cpu) == 0) {
-		rjs_engine_abort(rjs_engine_get(cpu), NULL);
-		return;
-	}
+	if (RJS_SWI_PARAMS(cpu) == 0)
+		RJS_SWI_ABORT(rjs_engine_get(cpu), NULL);
+
 	r = (rvmreg_t *) RJS_SWI_PARAM(cpu, 1);
 	if (RJS_SWI_PARAMS(cpu) > 1) {
 		l = (rvmreg_t *) RJS_SWI_PARAM(cpu, 2);
-		if (rvm_reg_gettype(l) != RVM_DTYPE_STRING) {
-			rjs_engine_abort(rjs_engine_get(cpu), NULL);
-			return;
-		}
+		if (rvm_reg_gettype(l) != RVM_DTYPE_STRING)
+			RJS_SWI_ABORT(rjs_engine_get(cpu), NULL);
 	}
-	if (rvm_reg_gettype(r) != RVM_DTYPE_STRING) {
-		rjs_engine_abort(rjs_engine_get(cpu), NULL);
-		return;
-	}
-
+	if (rvm_reg_gettype(r) != RVM_DTYPE_STRING)
+		RJS_SWI_ABORT(rjs_engine_get(cpu), NULL);
 	if (l)
 		list = ((rstring_t *)RVM_REG_GETP(l))->s.str;
 	else

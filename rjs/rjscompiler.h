@@ -90,6 +90,7 @@ struct rjs_compiler_s {
 	rjs_error_t *error;
 	rarray_t *coctx;
 	rchar *temp;
+	rstr_t stringcharacters;
 	const rchar *script;
 	rsize_t scriptsize;
 	rlong headoff;

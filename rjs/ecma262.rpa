@@ -88,6 +88,7 @@
 #!emitid WhileExpressionCompare			UID_WHILEEXPRESSIONCOMPARE			58
 #!emitid DoWhileExpressionCompare		UID_DOWHILEEXPRESSIONCOMPARE		59
 #!emitid Program 						UID_PROGRAM 						60
+#!emitid StringLiteral					UID_STRINGLITERAL					61
 
 #!abort SC
 

@@ -11,8 +11,12 @@ static rint rjs_compiler_playchildrecords(rjs_compiler_t *co, rarray_t *records,
 void rjs_compiler_debughead(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	if (co->debug) {
-		rpa_record_dump(records, rec);
+		rparecord_t *prec = (rparecord_t *) r_array_slot(records, rec);
 		co->headoff = rvm_codegen_getcodesize(co->cg);
+		if (prec->type & RPA_RECORD_START) {
+			rpa_record_dump(records, rec);
+		}
+
 	}
 }
 
@@ -20,7 +24,11 @@ void rjs_compiler_debughead(rjs_compiler_t *co, rarray_t *records, rlong rec)
 void rjs_compiler_debugtail(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	if (co->debug) {
+		rparecord_t *prec = (rparecord_t *) r_array_slot(records, rec);
 		rvm_asm_dump(rvm_codegen_getcode(co->cg, co->headoff), rvm_codegen_getcodesize(co->cg) - co->headoff);
+		if (prec->type & RPA_RECORD_END) {
+			rpa_record_dump(records, rec);
+		}
 	}
 
 }
@@ -499,16 +507,8 @@ rint rjs_compiler_rh_stringcharacters(rjs_compiler_t *co, rarray_t *records, rlo
 {
 	rparecord_t *prec;
 	prec = (rparecord_t *)r_array_slot(records, rec);
-	rvmreg_t *strreg = rvm_cpu_alloc_global(co->cpu);
-	rstring_t *s = r_string_create_strsize((const rchar*)prec->input, prec->inputsiz);
-	rvm_gc_add(co->cpu->gc, (robject_t*)s);
-	rvm_reg_setstring(strreg, s);
 
 	rjs_compiler_debughead(co, records, rec);
-//	rvm_codegen_addins(co->cg, rvm_asmp(RVM_MOV, R1, DA, XX, (void*)prec->input));
-//	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R2, DA, XX, prec->inputsiz));
-//	rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCSTR, R0, R1, R2, 0));
-	rvm_codegen_addins(co->cg, rvm_asmp(RVM_LDRR, R0, DA, XX, strreg));
 	rjs_compiler_debugtail(co, records, rec);
 
 	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
@@ -517,6 +517,36 @@ rint rjs_compiler_rh_stringcharacters(rjs_compiler_t *co, rarray_t *records, rlo
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
+	co->stringcharacters.str = (rchar*)prec->input;
+	co->stringcharacters.size = prec->inputsiz;
+	rjs_compiler_debugtail(co, records, rec);
+	return 0;
+}
+
+
+rint rjs_compiler_rh_stringliteral(rjs_compiler_t *co, rarray_t *records, rlong rec)
+{
+	rparecord_t *prec;
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rvmreg_t *strreg;
+	rstring_t *s;
+
+	rjs_compiler_debughead(co, records, rec);
+	co->stringcharacters.str = NULL;
+	co->stringcharacters.size = 0;
+	rjs_compiler_debugtail(co, records, rec);
+
+	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
+		return -1;
+
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	strreg = rvm_cpu_alloc_global(co->cpu);
+	s = r_string_create_from_rstr(&co->stringcharacters);
+	rvm_gc_add(co->cpu->gc, (robject_t*)s);
+	rvm_reg_setstring(strreg, s);
+	rvm_codegen_addins(co->cg, rvm_asmp(RVM_LDRR, R0, DA, XX, strreg));
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;
 }
@@ -1543,6 +1573,8 @@ rjs_compiler_t *rjs_compiler_create(rvmcpu_t *cpu)
 	co->handlers[UID_DECIMALINTEGERLITERAL] = rjs_compiler_rh_decimalintegerliteral;
 	co->handlers[UID_DECIMALNONINTEGERLITERAL] = rjs_compiler_rh_decimalnonintegerliteral;
 	co->handlers[UID_STRINGCHARACTERS] = rjs_compiler_rh_stringcharacters;
+	co->handlers[UID_STRINGLITERAL] = rjs_compiler_rh_stringliteral;
+
 	co->handlers[UID_ADDITIVEEXPRESSIONOP] = rjs_compiler_rh_binaryexpressionop;
 	co->handlers[UID_MULTIPLICATIVEEXPRESSIONOP] = rjs_compiler_rh_binaryexpressionop;
 	co->handlers[UID_BITWISEANDOP] = rjs_compiler_rh_binaryexpressionop;
@@ -1569,7 +1601,6 @@ rjs_compiler_t *rjs_compiler_create(rvmcpu_t *cpu)
 	co->handlers[UID_ARGUMENT] = rjs_compiler_rh_argument;
 	co->handlers[UID_ARGUMENTS] = rjs_compiler_rh_arguments;
 	co->handlers[UID_RETURNSTATEMENT] = rjs_compiler_rh_returnstatement;
-	co->handlers[UID_STRINGCHARACTERS] = rjs_compiler_rh_stringcharacters;
 	co->handlers[UID_IFSTATEMENT] = rjs_compiler_rh_ifstatement;
 	co->handlers[UID_IFCONDITIONOP] = rjs_compiler_rh_ifconditionop;
 	co->handlers[UID_IFTRUESTATEMENT] = rjs_compiler_rh_iftruestatement;
