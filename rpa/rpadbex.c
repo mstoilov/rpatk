@@ -64,10 +64,9 @@ static rint rpa_dbex_rh_default(rpadbex_t *dbex, rlong rec);
 
 void rpa_dbex_debug_recordhead(rpadbex_t *dbex, rlong rec)
 {
-	rarray_t *records = dbex->records;
-	rparecord_t *prec = (rparecord_t *) r_array_slot(records, rec);
-
 	if (dbex->debug) {
+		rarray_t *records = dbex->records;
+		rparecord_t *prec = (rparecord_t *) r_array_slot(records, rec);
 		dbex->headoff = rvm_codegen_getcodesize(dbex->co->cg);
 		if (prec->type & RPA_RECORD_START) {
 			rpa_record_dump(records, rec);
@@ -79,10 +78,9 @@ void rpa_dbex_debug_recordhead(rpadbex_t *dbex, rlong rec)
 
 void rpa_dbex_debug_recordtail(rpadbex_t *dbex, rlong rec)
 {
-	rarray_t *records = dbex->records;
-	rparecord_t *prec = (rparecord_t *) r_array_slot(records, rec);
-
 	if (dbex->debug) {
+		rarray_t *records = dbex->records;
+		rparecord_t *prec = (rparecord_t *) r_array_slot(records, rec);
 		rvm_asm_dump(rvm_codegen_getcode(dbex->co->cg, dbex->headoff), rvm_codegen_getcodesize(dbex->co->cg) - dbex->headoff);
 		if (prec->type & RPA_RECORD_END) {
 			rpa_record_dump(records, rec);
