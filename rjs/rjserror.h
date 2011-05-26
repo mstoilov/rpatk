@@ -20,8 +20,10 @@ typedef struct rjs_error_s {
 	rlong type;
 	rlong error;
 	rlong offset;
+	rlong size;
 	rlong line;
 	rlong lineoffset;
+	const rchar *script;
 } rjs_error_t;
 
 

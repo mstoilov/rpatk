@@ -40,6 +40,152 @@ static rchar *errormsg[] = {
 	"Unknown",
 };
 
+
+static void rjs_exec_ltrim(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	const rchar *ptr, *list;
+	rsize_t size;
+	rvmreg_t *r = NULL, *l = NULL;
+	rstring_t *src, *dest;
+
+	if (RJS_SWI_PARAMS(cpu) == 0) {
+		rjs_engine_abort(rjs_engine_get(cpu), NULL);
+		return;
+	}
+	r = (rvmreg_t *) RJS_SWI_PARAM(cpu, 1);
+	if (RJS_SWI_PARAMS(cpu) > 1) {
+		l = (rvmreg_t *) RJS_SWI_PARAM(cpu, 2);
+		if (rvm_reg_gettype(l) != RVM_DTYPE_STRING) {
+			rjs_engine_abort(rjs_engine_get(cpu), NULL);
+			return;
+		}
+	}
+	if (rvm_reg_gettype(r) != RVM_DTYPE_STRING) {
+		rjs_engine_abort(rjs_engine_get(cpu), NULL);
+		return;
+	}
+
+	if (l)
+		list = ((rstring_t *)RVM_REG_GETP(l))->s.str;
+	else
+		list = " \t\n\r\0";
+	src = (rstring_t *)RVM_REG_GETP(r);
+	ptr = src->s.str;
+	size = src->s.size;
+	while (size > 0) {
+		if (!r_strchr(list, *ptr))
+			break;
+		size--;
+		ptr++;
+	}
+	dest = r_string_create_strsize(ptr, size);
+	rvm_gc_add(cpu->gc, (robject_t*)dest);
+	rvm_reg_setstring(RVM_CPUREG_PTR(cpu, R0), dest);
+}
+
+
+static void rjs_exec_rtrim(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	const rchar *ptr, *list;
+	rsize_t size;
+	rvmreg_t *r = NULL, *l = NULL;
+	rstring_t *src, *dest;
+
+	if (RJS_SWI_PARAMS(cpu) == 0) {
+		rjs_engine_abort(rjs_engine_get(cpu), NULL);
+		return;
+	}
+	r = (rvmreg_t *) RJS_SWI_PARAM(cpu, 1);
+	if (RJS_SWI_PARAMS(cpu) > 1) {
+		l = (rvmreg_t *) RJS_SWI_PARAM(cpu, 2);
+		if (rvm_reg_gettype(l) != RVM_DTYPE_STRING) {
+			rjs_engine_abort(rjs_engine_get(cpu), NULL);
+			return;
+		}
+	}
+	if (rvm_reg_gettype(r) != RVM_DTYPE_STRING) {
+		rjs_engine_abort(rjs_engine_get(cpu), NULL);
+		return;
+	}
+
+	if (l)
+		list = ((rstring_t *)RVM_REG_GETP(l))->s.str;
+	else
+		list = " \t\n\r\0";
+	src = (rstring_t *)RVM_REG_GETP(r);
+	size = src->s.size;
+	ptr = src->s.str + size - 1;
+	while (size > 0) {
+		if (!r_strchr(list, *ptr))
+			break;
+		size--;
+		ptr--;
+	}
+	dest = r_string_create_strsize(src->s.str, size);
+	rvm_gc_add(cpu->gc, (robject_t*)dest);
+	rvm_reg_setstring(RVM_CPUREG_PTR(cpu, R0), dest);
+}
+
+
+static void rjs_exec_trim(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	const rchar *start, *ptr, *list;
+	rsize_t size;
+	rvmreg_t *r = NULL, *l = NULL;
+	rstring_t *src, *dest;
+
+	if (RJS_SWI_PARAMS(cpu) == 0) {
+		rjs_engine_abort(rjs_engine_get(cpu), NULL);
+		return;
+	}
+	r = (rvmreg_t *) RJS_SWI_PARAM(cpu, 1);
+	if (RJS_SWI_PARAMS(cpu) > 1) {
+		l = (rvmreg_t *) RJS_SWI_PARAM(cpu, 2);
+		if (rvm_reg_gettype(l) != RVM_DTYPE_STRING) {
+			rjs_engine_abort(rjs_engine_get(cpu), NULL);
+			return;
+		}
+	}
+	if (rvm_reg_gettype(r) != RVM_DTYPE_STRING) {
+		rjs_engine_abort(rjs_engine_get(cpu), NULL);
+		return;
+	}
+
+	if (l)
+		list = ((rstring_t *)RVM_REG_GETP(l))->s.str;
+	else
+		list = " \t\n\r\0";
+	src = (rstring_t *)RVM_REG_GETP(r);
+	ptr = src->s.str;
+	size = src->s.size;
+	while (size > 0) {
+		if (!r_strchr(list, *ptr))
+			break;
+		size--;
+		ptr++;
+	}
+	start = ptr;
+	ptr = start + size - 1;
+	while (size > 0) {
+		if (!r_strchr(list, *ptr))
+			break;
+		size--;
+		ptr--;
+	}
+	dest = r_string_create_strsize(start, size);
+	rvm_gc_add(cpu->gc, (robject_t*)dest);
+	rvm_reg_setstring(RVM_CPUREG_PTR(cpu, R0), dest);
+}
+
+
+static rvm_switable_t swistring[] = {
+		{"ltrim", rjs_exec_ltrim},
+		{"rtrim", rjs_exec_rtrim},
+		{"trim", rjs_exec_trim},
+		{NULL, NULL},
+};
+
+
 void rjs_unmap_file(rstr_t *buf)
 {
 	if (buf) {
@@ -135,7 +281,11 @@ void rjs_display_errors(rjs_engine_t *jse, rstr_t *script)
 		err = (rjs_error_t *)r_array_slot(jse->errors, i);
 		fprintf(stdout, "Line: %ld (%ld, %ld), Error Code: %ld, ", (rlong)err->line, err->offset, err->lineoffset, err->error);
 		fprintf(stdout, "%s: ", errormsg[err->error]);
-		fwrite(script->str + err->lineoffset, sizeof(rchar), err->offset - err->lineoffset, stdout);
+		if (err->size) {
+			fwrite(script->str + err->offset, sizeof(rchar), err->size, stdout);
+		} else {
+			fwrite(script->str + err->lineoffset, sizeof(rchar), err->offset - err->lineoffset, stdout);
+		}
 		fprintf(stdout, "\n");
 	}
 }
@@ -151,6 +301,9 @@ int main(int argc, char *argv[])
 	jse = rjs_engine_create();
 	if (!jse)
 		return 1;
+	if (rjs_engine_addswitable(jse, "string", swistring) < 0) {
+		return 2;
+	}
 	for (i = 1; i < argc; i++) {
 		if (r_strcmp(argv[i], "-L") == 0) {
 

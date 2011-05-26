@@ -1,5 +1,7 @@
 #include "rmem.h"
 #include "rjscompiler.h"
+#include "rjsparser.h"
+
 
 rint rjs_compiler_playreversechildrecords(rjs_compiler_t *co, rarray_t *records, rlong rec);
 static rint rjs_compiler_playrecord(rjs_compiler_t *co, rarray_t *records, rlong rec);
@@ -24,11 +26,16 @@ void rjs_compiler_debugtail(rjs_compiler_t *co, rarray_t *records, rlong rec)
 }
 
 
-void rjs_compiler_adderror(rjs_compiler_t *co, rlong code, const rchar *script)
+void rjs_compiler_adderror(rjs_compiler_t *co, rlong code, rparecord_t *prec)
 {
-	/*
-	 * Not used for now. I should probably get rid of this altogether.
-	 */
+	co->error->type = RJS_ERRORTYPE_SYNTAX;
+	co->error->error = code;
+	co->error->script = co->script;
+	co->error->offset = prec->input - co->script;
+	co->error->size = prec->inputsiz;
+	co->error->line = rjs_parser_offset2line(co->script, co->error->offset);
+	co->error->lineoffset = rjs_parser_offset2lineoffset(co->script, co->error->offset);
+
 }
 
 
@@ -368,8 +375,8 @@ rint rjs_compiler_rh_identifier(rjs_compiler_t *co, rarray_t *records, rlong rec
 			goto end;
 		}
 
-		rjs_compiler_adderror(co, RJS_ERROR_UNDEFINED, prec->input);
-		return 0;
+		rjs_compiler_adderror(co, RJS_ERROR_UNDEFINED, prec);
+		return -1;
 	}
 
 	if (rjs_compiler_record_parentuid(co, records, rec) == UID_LEFTHANDSIDEEXPRESSIONADDR && rpa_recordtree_next(records, rec, RPA_RECORD_START) == -1) {
@@ -750,8 +757,8 @@ rint rjs_compiler_rh_functionparameter(rjs_compiler_t *co, rarray_t *records, rl
 	 */
 	ctx = rjs_compiler_getctx(co, RJS_COCTX_FUNCTION);
 	if (!ctx) {
-		rjs_compiler_adderror(co, RJS_ERROR_NOTAFUNCTION, prec->input);
-		return 0;
+		rjs_compiler_adderror(co, RJS_ERROR_NOTAFUNCTION, prec);
+		return -1;
 	}
 	R_ASSERT(ctx);
 	functx = (rjs_coctx_function_t *)ctx;
@@ -831,8 +838,8 @@ rint rjs_compiler_rh_argument(rjs_compiler_t *co, rarray_t *records, rlong rec)
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	if (!ctx) {
-		rjs_compiler_adderror(co, RJS_ERROR_NOTAFUNCTIONCALL, prec->input);
-		return 0;
+		rjs_compiler_adderror(co, RJS_ERROR_NOTAFUNCTIONCALL, prec);
+		return -1;
 	}
 	R_ASSERT(ctx);
 	rjs_compiler_debugtail(co, records, rec);
@@ -858,8 +865,8 @@ rint rjs_compiler_rh_arguments(rjs_compiler_t *co, rarray_t *records, rlong rec)
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	if (!ctx) {
-		rjs_compiler_adderror(co, RJS_ERROR_NOTAFUNCTIONCALL, prec->input);
-		return 0;
+		rjs_compiler_adderror(co, RJS_ERROR_NOTAFUNCTIONCALL, prec);
+		return -1;
 	}
 	R_ASSERT(ctx);
 	rjs_compiler_debugtail(co, records, rec);
@@ -938,8 +945,8 @@ rint rjs_compiler_rh_ifconditionop(rjs_compiler_t *co, rarray_t *records, rlong 
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	if (!ctx) {
-		rjs_compiler_adderror(co, RJS_ERROR_NOTAIFSTATEMENT, prec->input);
-		return 0;
+		rjs_compiler_adderror(co, RJS_ERROR_NOTAIFSTATEMENT, prec);
+		return -1;
 	}
 	R_ASSERT(ctx);
 	rjs_compiler_debugtail(co, records, rec);
@@ -962,8 +969,8 @@ rint rjs_compiler_rh_iftruestatement(rjs_compiler_t *co, rarray_t *records, rlon
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	if (!ctx) {
-		rjs_compiler_adderror(co, RJS_ERROR_NOTAIFSTATEMENT, prec->input);
-		return 0;
+		rjs_compiler_adderror(co, RJS_ERROR_NOTAIFSTATEMENT, prec);
+		return -1;
 	}
 	R_ASSERT(ctx);
 	rjs_compiler_debugtail(co, records, rec);
@@ -988,8 +995,8 @@ rint rjs_compiler_rh_iffalsestatement(rjs_compiler_t *co, rarray_t *records, rlo
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	if (!ctx) {
-		rjs_compiler_adderror(co, RJS_ERROR_NOTAIFSTATEMENT, prec->input);
-		return 0;
+		rjs_compiler_adderror(co, RJS_ERROR_NOTAIFSTATEMENT, prec);
+		return -1;
 	}
 	R_ASSERT(ctx);
 	rvm_codegen_redefinelabel_default(co->cg, ctx->falseidx);
@@ -1169,8 +1176,8 @@ rint rjs_compiler_rh_dowhileexpressioncompare(rjs_compiler_t *co, rarray_t *reco
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	if (!ctx) {
-		rjs_compiler_adderror(co, RJS_ERROR_NOTALOOP, prec->input);
-		return 0;
+		rjs_compiler_adderror(co, RJS_ERROR_NOTALOOP, prec);
+		return -1;
 	}
 	R_ASSERT(ctx);
 	rvm_codegen_redefinelabel_default(co->cg, ctx->continueidx);
@@ -1196,8 +1203,8 @@ rint rjs_compiler_rh_forexpressioncompare(rjs_compiler_t *co, rarray_t *records,
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	if (!ctx) {
-		rjs_compiler_adderror(co, RJS_ERROR_NOTALOOP, prec->input);
-		return 0;
+		rjs_compiler_adderror(co, RJS_ERROR_NOTALOOP, prec);
+		return -1;
 	}
 	R_ASSERT(ctx);
 	rjs_compiler_debugtail(co, records, rec);
@@ -1222,8 +1229,8 @@ rint rjs_compiler_rh_forexpressionincrement(rjs_compiler_t *co, rarray_t *record
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	if (!ctx) {
-		rjs_compiler_adderror(co, RJS_ERROR_NOTALOOP, prec->input);
-		return 0;
+		rjs_compiler_adderror(co, RJS_ERROR_NOTALOOP, prec);
+		return -1;
 	}
 	R_ASSERT(ctx);
 	rjs_compiler_debugtail(co, records, rec);
@@ -1434,8 +1441,8 @@ rint rjs_compiler_rh_continue(rjs_compiler_t *co, rarray_t *records, rlong rec)
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	if (!ctx) {
-		rjs_compiler_adderror(co, RJS_ERROR_NOTALOOP, prec->input);
-		return 0;
+		rjs_compiler_adderror(co, RJS_ERROR_NOTALOOP, prec);
+		return -1;
 	}
 	R_ASSERT(ctx);
 	iterctx = (rjs_coctx_iteration_t *)ctx;
@@ -1464,8 +1471,8 @@ rint rjs_compiler_rh_break(rjs_compiler_t *co, rarray_t *records, rlong rec)
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	if (!ctx) {
-		rjs_compiler_adderror(co, RJS_ERROR_NOTALOOP, prec->input);
-		return 0;
+		rjs_compiler_adderror(co, RJS_ERROR_NOTALOOP, prec);
+		return -1;
 	}
 	R_ASSERT(ctx);
 	iterctx = (rjs_coctx_iteration_t *)ctx;
@@ -1496,7 +1503,7 @@ rint rjs_compiler_rh_syntaxerror(rjs_compiler_t *co, rarray_t *records, rlong re
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
-	rjs_compiler_adderror(co, RJS_ERROR_SYNTAX, prec->input);
+	rjs_compiler_adderror(co, RJS_ERROR_SYNTAX, prec);
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;
 }
@@ -1658,7 +1665,7 @@ static rint rjs_compiler_playrecord(rjs_compiler_t *co, rarray_t *records, rlong
 }
 
 
-rint rjs_compiler_compile(rjs_compiler_t *co, rarray_t *records, rvm_codegen_t *cg)
+rint rjs_compiler_compile(rjs_compiler_t *co, const rchar *script, rsize_t scriptsize, rarray_t *records, rvm_codegen_t *cg, rjs_error_t *error)
 {
 	rlong i;
 	rvm_codelabel_t *labelerr;
@@ -1670,6 +1677,9 @@ rint rjs_compiler_compile(rjs_compiler_t *co, rarray_t *records, rvm_codegen_t *
 		return -1;
 	}
 	co->cg = cg;
+	co->error = error;
+	co->script = script;
+	co->scriptsize = scriptsize;
 
 	for (i = 0; i >= 0; i = rpa_recordtree_next(records, i, RPA_RECORD_START)) {
 		if (rjs_compiler_playrecord(co, records, i) < 0)

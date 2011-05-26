@@ -87,8 +87,11 @@ struct rjs_compiler_s {
 	rvmcpu_t *cpu;
 	rvm_codegen_t *cg;
 	rvm_scope_t *scope;
+	rjs_error_t *error;
 	rarray_t *coctx;
 	rchar *temp;
+	const rchar *script;
+	rsize_t scriptsize;
 	rlong headoff;
 	rlong opcode;
 	rulong debug:1;
@@ -98,7 +101,7 @@ struct rjs_compiler_s {
 
 rjs_compiler_t *rjs_compiler_create(rvmcpu_t *cpu);
 void rjs_compiler_destroy(rjs_compiler_t *co);
-rint rjs_compiler_compile(rjs_compiler_t *co, rarray_t *records, rvm_codegen_t *cg);
+rint rjs_compiler_compile(rjs_compiler_t *co, const rchar *script, rsize_t scriptsize, rarray_t *records, rvm_codegen_t *cg, rjs_error_t *error);
 rjs_coctx_t *rjs_compiler_getctx(rjs_compiler_t *co, rulong type);
 
 #ifdef __cplusplus

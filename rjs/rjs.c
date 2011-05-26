@@ -32,6 +32,7 @@ rjs_engine_t *rjs_engine_create()
 	jse->co = rjs_compiler_create(jse->cpu);
 	jse->cgs = r_array_create(sizeof(rvm_codegen_t*));
 	jse->errors = r_array_create(sizeof(rjs_error_t));
+	jse->cpu->userdata1 = jse;
 	rvm_cpu_addswitable(jse->cpu, "rjsswitable", rjsswitable);
 	if (!jse->pa || !jse->cpu || !jse->co || !jse->cgs)
 		goto error;
@@ -71,15 +72,17 @@ rint rjs_engine_open(rjs_engine_t *jse)
 }
 
 
-static rint rjs_engine_parse(rjs_engine_t *jse, const rchar *script, rsize_t size, rarray_t *records)
+rint rjs_engine_addswitable(rjs_engine_t *jse, const rchar *tabname, rvm_switable_t *switalbe)
+{
+	return rvm_cpu_addswitable(jse->cpu, tabname, switalbe);
+}
+
+
+static rint rjs_engine_parse(rjs_engine_t *jse, const rchar *script, rsize_t size, rarray_t *records, rjs_error_t *error)
 {
 	rlong res = 0;
-	rjs_error_t error;
 
-	r_memset(&error, 0, sizeof(error));
-	res = rjs_parser_exec(jse->pa, script, size, records, &error);
-	if (res < 0)
-		r_array_add(jse->errors, &error);
+	res = rjs_parser_exec(jse->pa, script, size, records, error);
 	return res;
 }
 
@@ -88,9 +91,11 @@ rint rjs_engine_compile(rjs_engine_t *jse, const rchar *script, rsize_t size)
 {
 	rvm_codegen_t *topcg = NULL;
 	rarray_t *records = rpa_records_create();
+	rjs_error_t error;
 	jse->co->debug = jse->debugcompile;
 
-	if (rjs_engine_parse(jse, script, size, records) < 0) {
+	r_memset(&error, 0, sizeof(error));
+	if (rjs_engine_parse(jse, script, size, records, &error) < 0) {
 
 		goto err;
 	}
@@ -103,7 +108,7 @@ rint rjs_engine_compile(rjs_engine_t *jse, const rchar *script, rsize_t size)
 		rvm_codegen_clear(topcg);
 	}
 	topcg->userdata = 0;
-	if (rjs_compiler_compile(jse->co, records, topcg) < 0) {
+	if (rjs_compiler_compile(jse->co, script, size, records, topcg, &error) < 0) {
 		topcg->userdata = 0;
 		goto err;
 	}
@@ -112,6 +117,7 @@ rint rjs_engine_compile(rjs_engine_t *jse, const rchar *script, rsize_t size)
 	return 0;
 
 err:
+	r_array_add(jse->errors, &error);
 	rpa_records_destroy(records);
 	return -1;
 }
@@ -119,8 +125,10 @@ err:
 
 rint rjs_engine_dumpast(rjs_engine_t *jse, const rchar *script, rsize_t size)
 {
+	rjs_error_t error;
 	rarray_t *records = rpa_records_create();
-	if (rjs_engine_parse(jse, script, size, records) < 0) {
+
+	if (rjs_engine_parse(jse, script, size, records, &error) < 0) {
 
 
 		return -1;
@@ -251,4 +259,19 @@ static void rjs_engine_dbgprint(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rjs_engine_object(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 
+}
+
+
+void rjs_engine_abort(rjs_engine_t *jse, rjs_error_t *error)
+{
+	if (error) {
+		r_array_add(jse->errors, error);
+	}
+	rvm_cpu_abort(jse->cpu);
+}
+
+
+rjs_engine_t *rjs_engine_get(rvmcpu_t *cpu)
+{
+	return (rjs_engine_t *)cpu->userdata1;
 }
