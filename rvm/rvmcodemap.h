@@ -49,6 +49,9 @@ rvm_codelabel_t *rvm_codemap_label(rvm_codemap_t *codemap, rlong index);
 rlong rvm_codemap_validindex(rvm_codemap_t *codemap, rlong labelidx);
 rword rvm_codemap_resolve(rvm_codemap_t *codemap, rlong index, rvm_codelabel_t **err);
 void rvm_codemap_dump(rvm_codemap_t *codemap);
+void rvm_codelabel_setoffset(rvm_codelabel_t *label, rulong base, rulong offset);
+void rvm_codelabel_setpointer(rvm_codelabel_t *label, rpointer ptr);
+void rvm_codelabel_setinvalid(rvm_codelabel_t *label);
 
 #ifdef __cplusplus
 }

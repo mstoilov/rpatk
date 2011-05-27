@@ -69,7 +69,6 @@ static rlong rvm_codemap_add(rvm_codemap_t *codemap, const rchar *name, ruint na
 
 	labelidx = rvm_codemap_dolookup(codemap, name, namesize);
 	if (labelidx < 0) {
-		r_memset(&label, 0, sizeof(label));
 		labelidx = r_array_add(codemap->labels, NULL);
 		label = rvm_codemap_label(codemap, labelidx);
 		if (name) {
@@ -81,17 +80,36 @@ static rlong rvm_codemap_add(rvm_codemap_t *codemap, const rchar *name, ruint na
 }
 
 
+void rvm_codelabel_setoffset(rvm_codelabel_t *label, rulong base, rulong offset)
+{
+	label->base = base;
+	label->value = offset;
+	label->type = RVM_CODELABEL_OFFSET;
+}
+
+
+void rvm_codelabel_setpointer(rvm_codelabel_t *label, rpointer ptr)
+{
+	label->base = 0;
+	label->value = (rword)ptr;
+	label->type = RVM_CODELABEL_POINTER;
+}
+
+
+void rvm_codelabel_setinvalid(rvm_codelabel_t *label)
+{
+	label->base = 0;
+	label->value = 0;
+	label->type = RVM_CODELABEL_INVALID;
+}
+
 
 rlong rvm_codemap_addoffset(rvm_codemap_t *codemap, const rchar *name, ruint namesize, rulong base, rulong offset)
 {
 	rlong labelidx = rvm_codemap_add(codemap, name, namesize);
 	rvm_codelabel_t *label = rvm_codemap_label(codemap, labelidx);
-
-	if (label) {
-		label->base = base;
-		label->value = offset;
-		label->type = RVM_CODELABEL_OFFSET;
-	}
+	if (label)
+		rvm_codelabel_setoffset(label, base, offset);
 	return labelidx;
 }
 
@@ -108,8 +126,7 @@ rlong rvm_codemap_addpointer(rvm_codemap_t *codemap, const rchar *name, ruint na
 	rvm_codelabel_t *label = rvm_codemap_label(codemap, labelidx);
 
 	if (label) {
-		label->value = (rword)ptr;
-		label->type = RVM_CODELABEL_POINTER;
+		rvm_codelabel_setpointer(label, ptr);
 	}
 	return labelidx;
 }
@@ -127,7 +144,7 @@ rlong rvm_codemap_invalid_add(rvm_codemap_t *codemap, const rchar *name, ruint n
 	rvm_codelabel_t *label = rvm_codemap_label(codemap, labelidx);
 
 	if (label) {
-		label->type = RVM_CODELABEL_INVALID;
+		rvm_codelabel_setinvalid(label);
 	}
 	return labelidx;
 }

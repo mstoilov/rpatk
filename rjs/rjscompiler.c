@@ -111,18 +111,21 @@ static rlong rjs_compiler_record2identifer(rjs_compiler_t *co, rarray_t *records
 		return -1;
 	}
 
-	if (ctx->type == RJS_COCTX_FUNCTION) {
+	if ( ctx->type == RJS_COCTX_FUNCTION ) {
 		rjs_coctx_function_t *functx = (rjs_coctx_function_t *)ctx;
-		functx->allocs += 1;
-		rvm_scope_addoffset(co->scope, prec->input, prec->inputsiz, functx->allocs);
+		functx->stackallocs += 1;
+		rvm_scope_addoffset(co->scope, prec->input, prec->inputsiz, functx->stackallocs);
 	} else {
-//		rjs_coctx_global_t *globalctx = (rjs_coctx_global_t *)ctx;
-//		r_carray_setlength(co->cpu->data, globalctx->allocs + 1);
-//		rvm_scope_addpointer(co->scope, prec->input, prec->inputsiz, r_carray_slot(co->cpu->data, globalctx->allocs));
-
-//		rvm_scope_addpointer(co->scope, prec->input, prec->inputsiz, r_carray_slot_expand(co->cpu->data, r_carray_length(co->cpu->data)));
-//		r_carray_setlength(co->cpu->data, r_carray_length(co->cpu->data) + 1);
-		rvm_scope_addpointer(co->scope, prec->input, prec->inputsiz, rvm_cpu_alloc_global(co->cpu));
+		if (rvm_scope_count(co->scope)) {
+			rjs_coctx_global_t *globalctx = (rjs_coctx_global_t *)ctx;
+			globalctx->stackallocs += 1;
+			rvm_scope_addoffset(co->scope, prec->input, prec->inputsiz, globalctx->stackallocs);
+		} else {
+			/*
+			 * Global Data
+			 */
+			rvm_scope_addpointer(co->scope, prec->input, prec->inputsiz, rvm_cpu_alloc_global(co->cpu));
+		}
 	}
 	v = rvm_scope_tiplookup(co->scope, prec->input, prec->inputsiz);
 	if (v->datatype == VARMAP_DATATYPE_OFFSET) {
@@ -266,6 +269,7 @@ rint rjs_compiler_rh_program(rjs_compiler_t *co, rarray_t *records, rlong rec)
 	rjs_coctx_global_t ctx;
 	rparecord_t *prec;
 	rlong mainidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__main", 0);
+	rlong allocsidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__allocs", 0);
 	rlong start;
 
 	r_memset(&ctx, 0, sizeof(ctx));
@@ -276,6 +280,7 @@ rint rjs_compiler_rh_program(rjs_compiler_t *co, rarray_t *records, rlong rec)
 	rjs_compiler_debughead(co, records, rec);
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, mainidx, rvm_asm(RVM_B, DA, XX, XX, 0));
 	start = rvm_codegen_addins(co->cg, rvm_asm(RVM_NOP, XX, XX, XX, 0));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_DEFAULT, allocsidx, rvm_asm(RVM_ADD, SP, FP, DA, 0));
 	rjs_compiler_debugtail(co, records, rec);
 
 	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
@@ -283,6 +288,7 @@ rint rjs_compiler_rh_program(rjs_compiler_t *co, rarray_t *records, rlong rec)
 
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);
+	rvm_codegen_redefinepointer(co->cg, allocsidx, (rpointer)ctx.stackallocs);
 	rjs_compiler_debughead(co, records, rec);
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 	rvm_codegen_redefinelabel_default(co->cg, mainidx);
@@ -532,6 +538,8 @@ rint rjs_compiler_rh_stringliteral(rjs_compiler_t *co, rarray_t *records, rlong 
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rvmreg_t *strreg;
 	rstring_t *s;
+	rlong stringidx;
+	rchar temp[256];
 
 	rjs_compiler_debughead(co, records, rec);
 	co->stringcharacters.str = NULL;
@@ -544,11 +552,19 @@ rint rjs_compiler_rh_stringliteral(rjs_compiler_t *co, rarray_t *records, rlong 
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
+
+/*
+	memset(temp, 0, sizeof(temp));
+	r_snprintf(temp, sizeof(temp), "__%ld__stringliteral", rvm_codegen_getcodesize(co->cg));
+	stringidx = rvm_codegen_adddata_s(co->cg, temp, "hello", 4);
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_STRING, stringidx, rvm_asma(RVM_MOV, R0, DA, XX, 0, co->stringcharacters.size));
+*/
 	strreg = rvm_cpu_alloc_global(co->cpu);
 	s = r_string_create_from_rstr(&co->stringcharacters);
 	rvm_gc_add(co->cpu->gc, (robject_t*)s);
 	rvm_reg_setstring(strreg, s);
 	rvm_codegen_addins(co->cg, rvm_asmp(RVM_LDRR, R0, DA, XX, strreg));
+
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;
 }
@@ -760,7 +776,7 @@ rint rjs_compiler_rh_functiondeclaration(rjs_compiler_t *co, rarray_t *records, 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 	rvm_codegen_redefinelabel_default(co->cg, endidx);
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_NOP, XX, XX, XX, 0xffffffff));
-	rvm_codegen_redefinepointer(co->cg, allocsidx, (rpointer)ctx.allocs);
+	rvm_codegen_redefinepointer(co->cg, allocsidx, (rpointer)ctx.stackallocs);
 	rjs_compiler_debugtail(co, records, rec);
 
 	co->cg->userdata = RJS_COMPILER_CODEGENKEEP;
@@ -812,8 +828,8 @@ rint rjs_compiler_rh_functionparameter(rjs_compiler_t *co, rarray_t *records, rl
 		return -1;
 	}
 
-	functx->allocs += 1;
-	rvm_scope_addoffset(co->scope, prec->input, prec->inputsiz, functx->allocs);
+	functx->stackallocs += 1;
+	rvm_scope_addoffset(co->scope, prec->input, prec->inputsiz, functx->stackallocs);
 
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;

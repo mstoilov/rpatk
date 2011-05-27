@@ -85,8 +85,34 @@ void rvm_opmap_invoke_binary_handler(rvm_opmap_t *opmap, rushort opid, rvmcpu_t 
 {
 	rvm_ophandler_t *h;
 	rvm_opinfo_t *opinfo;
-	ruint index = RVM_OP_HANDLER(RVM_REG_GETTYPE(arg1), RVM_REG_GETTYPE(arg2));
+	ruint index;
+	rstring_t tempstr1, tempstr2;
+	rvmreg_t temparg1, temparg2;
 
+	/*
+	 * if any of the arg1 or arg2 are of type RVM_DTYPE_STRPTR (static string) We need to convert them to
+	 * rstring_t;
+	 */
+	if (RVM_REG_GETTYPE(arg1) == RVM_DTYPE_STRPTR) {
+		r_memset(&tempstr1, 0, sizeof(tempstr1));
+		tempstr1.s.str = RVM_REG_GETSTR(arg1);
+		tempstr1.s.size = RVM_REG_GETSIZE(arg1);
+		RVM_REG_SETP(&temparg1, &tempstr1);
+		RVM_REG_SETTYPE(&temparg1, RVM_DTYPE_STRING);
+		arg1 = &temparg1;
+	}
+
+	if (RVM_REG_GETTYPE(arg2) == RVM_DTYPE_STRPTR) {
+		r_memset(&tempstr2, 0, sizeof(tempstr2));
+		tempstr2.s.str = RVM_REG_GETSTR(arg2);
+		tempstr2.s.size = RVM_REG_GETSIZE(arg2);
+		RVM_REG_SETP(&temparg2, &tempstr2);
+		RVM_REG_SETTYPE(&temparg2, RVM_DTYPE_STRING);
+		arg2 = &temparg2;
+	}
+
+
+	index = RVM_OP_HANDLER(RVM_REG_GETTYPE(arg1), RVM_REG_GETTYPE(arg2));
 	if (opid >= r_array_length(opmap->operators))
 		goto error;
 	opinfo = ((rvm_opinfo_t*)r_array_slot(opmap->operators, opid));
@@ -105,8 +131,20 @@ void rvm_opmap_invoke_unary_handler(rvm_opmap_t *opmap, rushort opid, rvmcpu_t *
 {
 	rvm_ophandler_t *h;
 	rvm_opinfo_t *opinfo;
-	ruint index = RVM_UNARY_HANDLER(RVM_REG_GETTYPE(arg));
+	ruint index;
+	rstring_t tempstr;
+	rvmreg_t temparg;
 
+	if (RVM_REG_GETTYPE(arg) == RVM_DTYPE_STRPTR) {
+		r_memset(&tempstr, 0, sizeof(tempstr));
+		tempstr.s.str = RVM_REG_GETSTR(arg);
+		tempstr.s.size = RVM_REG_GETSIZE(arg);
+		RVM_REG_SETP(&temparg, &tempstr);
+		RVM_REG_SETTYPE(&temparg, RVM_DTYPE_STRING);
+		arg = &temparg;
+	}
+
+	index = RVM_UNARY_HANDLER(RVM_REG_GETTYPE(arg));
 	if (opid >= r_array_length(opmap->operators))
 		goto error;
 	opinfo = ((rvm_opinfo_t*)r_array_slot(opmap->operators, opid));

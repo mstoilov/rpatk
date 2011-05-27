@@ -34,6 +34,7 @@ typedef struct rjs_coctx_s {
 
 typedef struct rjs_coctx_global_s {
 	rjs_coctx_t base;
+	rsize_t stackallocs;
 } rjs_coctx_global_t;
 
 
@@ -44,7 +45,7 @@ typedef struct rjs_coctx_function_s {
 	rlong endidx;
 	rlong allocsidx;
 	rlong execoff;
-	rsize_t allocs;
+	rsize_t stackallocs;
 } rjs_coctx_function_t;
 
 

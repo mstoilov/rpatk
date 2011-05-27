@@ -88,6 +88,10 @@ rlong rvm_codegen_redefinelabel(rvm_codegen_t *cg, rlong index, rulong offset)
 	if (!label)
 		return -1;
 	return rvm_codemap_addoffset(cg->codemap, label->name->str, label->name->size, rvm_codemap_lookupadd_s(cg->codemap, ".code"), RVM_CODE2BYTE_OFFSET(offset));
+
+//  This doesn't work
+//	rvm_codelabel_setoffset(label, rvm_codemap_lookupadd_s(cg->codemap, ".code"), RVM_CODE2BYTE_OFFSET(offset));
+//	return index;
 }
 
 
@@ -110,6 +114,10 @@ rlong rvm_codegen_redefinepointer(rvm_codegen_t *cg, rlong index, rpointer data)
 	if (!label)
 		return -1;
 	return rvm_codemap_addpointer(cg->codemap, label->name->str, label->name->size, data);
+
+// This doesn't work
+//	rvm_codelabel_setpointer(label, data);
+//	return index;
 }
 
 
@@ -250,7 +258,7 @@ rlong rvm_codegen_adddata(rvm_codegen_t *cg, const rchar *name, ruint namesize, 
 	rpointer buffer;
 	rulong cursize = R_SIZE_ALIGN(r_array_length(cg->data), sizeof(rword));
 
-	r_array_setlength(cg->data, cursize + size + sizeof(rword));
+	r_array_setlength(cg->data, cursize + size + sizeof(rword) + 1);
 	buffer = r_array_slot(cg->data, cursize);
 	r_memset(buffer, 0, size + sizeof(rword));
 	r_memmove(buffer, data, size);
