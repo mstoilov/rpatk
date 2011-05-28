@@ -21,7 +21,14 @@ typedef enum {
 } rvm_reloctype_t;
 
 
+typedef enum {
+	RVM_RELOC_CODE = 0,
+	RVM_RELOC_DATA,
+} rvm_reloctarget_t;
+
+
 typedef struct rvm_relocrecord_s {
+	rvm_reloctarget_t target;
 	rvm_reloctype_t type;
 	rulong offset;
 	rulong label;
