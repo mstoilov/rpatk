@@ -64,7 +64,7 @@ static rlong rvm_codemap_dolookup(rvm_codemap_t *codemap, const rchar *name, rui
 
 static rlong rvm_codemap_add(rvm_codemap_t *codemap, const rchar *name, ruint namesize)
 {
-	rvm_codelabel_t *label;
+	rvm_codelabel_t *label = NULL;
 	rlong labelidx = -1;
 
 	labelidx = rvm_codemap_dolookup(codemap, name, namesize);

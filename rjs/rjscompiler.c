@@ -539,7 +539,6 @@ rint rjs_compiler_rh_stringliteral(rjs_compiler_t *co, rarray_t *records, rlong 
 	rvmreg_t *strreg;
 	rstring_t *s;
 	rlong stringidx;
-	rchar temp[256];
 
 	rjs_compiler_debughead(co, records, rec);
 	co->stringcharacters.str = NULL;
@@ -554,9 +553,7 @@ rint rjs_compiler_rh_stringliteral(rjs_compiler_t *co, rarray_t *records, rlong 
 	rjs_compiler_debughead(co, records, rec);
 
 /*
-	memset(temp, 0, sizeof(temp));
-	r_snprintf(temp, sizeof(temp), "__%ld__stringliteral", rvm_codegen_getcodesize(co->cg));
-	stringidx = rvm_codegen_adddata_s(co->cg, temp, "hello", 4);
+	stringidx = rvm_codegen_adddata_s(co->cg, NULL, co->stringcharacters.str, co->stringcharacters.size);
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_STRING, stringidx, rvm_asma(RVM_MOV, R0, DA, XX, 0, co->stringcharacters.size));
 */
 	strreg = rvm_cpu_alloc_global(co->cpu);
@@ -564,7 +561,6 @@ rint rjs_compiler_rh_stringliteral(rjs_compiler_t *co, rarray_t *records, rlong 
 	rvm_gc_add(co->cpu->gc, (robject_t*)s);
 	rvm_reg_setstring(strreg, s);
 	rvm_codegen_addins(co->cg, rvm_asmp(RVM_LDRR, R0, DA, XX, strreg));
-
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;
 }
