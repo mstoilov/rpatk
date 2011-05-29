@@ -168,7 +168,7 @@ rsize_t rvm_codegen_addlabelins_s(rvm_codegen_t *cg, const rchar* name, rvm_asmi
 
 rsize_t rvm_codegen_index_addrelocins(rvm_codegen_t *cg, rvm_reloctype_t type, rulong index, rvm_asmins_t ins)
 {
-	rvm_relocmap_add(cg->relocmap, type, rvm_codegen_getcodesize(cg), index);
+	rvm_relocmap_add(cg->relocmap, RVM_RELOC_CODE, type, rvm_codegen_getcodesize(cg), index);
 	return rvm_codegen_addins(cg, ins);
 }
 

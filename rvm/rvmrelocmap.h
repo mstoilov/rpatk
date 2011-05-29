@@ -43,7 +43,7 @@ typedef struct rvm_relocmap_s {
 rvm_relocmap_t *rvm_relocmap_create();
 void rvm_relocmap_destroy(rvm_relocmap_t *relocmap);
 void rvm_relocmap_clear(rvm_relocmap_t *relocmap);
-rlong rvm_relocmap_add(rvm_relocmap_t *relocmap, rvm_reloctype_t type, rulong offset, rulong label);
+rlong rvm_relocmap_add(rvm_relocmap_t *relocmap, rvm_reloctarget_t target, rvm_reloctype_t type, rulong offset, rulong label);
 rvm_relocrecord_t *rvm_relocmap_get(rvm_relocmap_t *relocmap, rulong index);
 rulong rvm_relocmap_length(rvm_relocmap_t *relocmap);
 rint rvm_relocmap_relocate(rvm_relocmap_t *relocmap, rvm_codemap_t *codemap, rvm_asmins_t *code, rvm_codelabel_t **err);

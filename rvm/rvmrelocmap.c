@@ -26,9 +26,10 @@ void rvm_relocmap_clear(rvm_relocmap_t *relocmap)
 }
 
 
-rlong rvm_relocmap_add(rvm_relocmap_t *relocmap, rvm_reloctype_t type, rulong offset, rulong label)
+rlong rvm_relocmap_add(rvm_relocmap_t *relocmap, rvm_reloctarget_t target, rvm_reloctype_t type, rulong offset, rulong label)
 {
 	rvm_relocrecord_t record;
+	record.target = target;
 	record.type = type;
 	record.offset = offset;
 	record.label = label;
@@ -62,17 +63,23 @@ rint rvm_relocmap_relocate(rvm_relocmap_t *relocmap, rvm_codemap_t *codemap, rvm
 		value = rvm_codemap_resolve(codemap, reloc->label, err);
 		if (value == (rword)-1)
 			return -1;
-		if (reloc->type == RVM_RELOC_BRANCH) {
-			code[reloc->offset].data.v.w = RVM_BYTE2CODE_OFFSET(value - (rword)&code[reloc->offset]);
-		} else if (reloc->type == RVM_RELOC_JUMP) {
-			code[reloc->offset].data.v.w = value - RVM_CODE2BYTE_OFFSET(1);
-		} else if (reloc->type == RVM_RELOC_STRING) {
-			code[reloc->offset].data.v.w = value;
-			code[reloc->offset].data.size = r_strlen((rchar*)value);
-		} else if (reloc->type == RVM_RELOC_BLOB) {
-			code[reloc->offset].data.v.w = value;
-		} else {
-			code[reloc->offset].data.v.w = value;
+		if (reloc->target == RVM_RELOC_CODE) {
+			if (reloc->type == RVM_RELOC_BRANCH) {
+				code[reloc->offset].data.v.w = RVM_BYTE2CODE_OFFSET(value - (rword)&code[reloc->offset]);
+			} else if (reloc->type == RVM_RELOC_JUMP) {
+				code[reloc->offset].data.v.w = value - RVM_CODE2BYTE_OFFSET(1);
+			} else if (reloc->type == RVM_RELOC_STRING) {
+				code[reloc->offset].data.v.w = value;
+				code[reloc->offset].data.size = r_strlen((rchar*)value);
+			} else if (reloc->type == RVM_RELOC_BLOB) {
+				code[reloc->offset].data.v.w = value;
+			} else {
+				code[reloc->offset].data.v.w = value;
+			}
+		} else if (reloc->target == RVM_RELOC_DATA){
+			/*
+			 * TBD: No support for data relocation yet.
+			 */
 		}
 	}
 	return 0;

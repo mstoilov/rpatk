@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 
 	rvm_cpu_addswitable(vm, "common_table", common_calltable);
 
-	rvm_relocmap_add(relocmap, RVM_RELOC_BRANCH, off, rvm_codemap_lookupadd_s(codemap, "l_main"));
+	rvm_relocmap_add(relocmap, RVM_RELOC_CODE, RVM_RELOC_BRANCH, off, rvm_codemap_lookupadd_s(codemap, "l_main"));
 	vmcode[off++]   = rvm_asm(RVM_B,   DA, XX, XX, 0);
 
 	/*
@@ -34,10 +34,10 @@ int main(int argc, char *argv[])
 	rvm_codemap_addoffset_s(codemap, "l_add3", rvm_codemap_lookupadd_s(codemap, ".code"), RVM_CODE2BYTE_OFFSET(off));
 	vmcode[off++] = rvm_asm(RVM_PUSHM,DA, XX, XX, BIT(R7)|BIT(R8)|BIT(SP)|BIT(LR));
 	vmcode[off++] = rvm_asm(RVM_PUSH, R2, XX, XX, 0);
-	rvm_relocmap_add(relocmap, RVM_RELOC_JUMP, off, rvm_codemap_lookupadd_s(codemap, "l_add2"));
+	rvm_relocmap_add(relocmap, RVM_RELOC_CODE, RVM_RELOC_JUMP, off, rvm_codemap_lookupadd_s(codemap, "l_add2"));
 	vmcode[off++] = rvm_asm(RVM_BXL,   DA, XX, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_POP,  R1, XX, XX, 0);
-	rvm_relocmap_add(relocmap, RVM_RELOC_JUMP, off, rvm_codemap_lookupadd_s(codemap, "l_add2"));
+	rvm_relocmap_add(relocmap, RVM_RELOC_CODE, RVM_RELOC_JUMP, off, rvm_codemap_lookupadd_s(codemap, "l_add2"));
 	vmcode[off++] = rvm_asm(RVM_BXL,   DA, XX, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_POPM, DA, XX, XX, BIT(R7)|BIT(R8)|BIT(SP)|BIT(LR));
 	vmcode[off++] = rvm_asm(RVM_RET,  XX, XX, XX, 0);
@@ -51,13 +51,13 @@ int main(int argc, char *argv[])
 	rvm_codemap_addoffset_s(codemap, "l_main", rvm_codemap_lookupadd_s(codemap, ".code"), RVM_CODE2BYTE_OFFSET(off));
 	vmcode[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 1);
 	vmcode[off++] = rvm_asm(RVM_MOV, R1, DA, XX, 2);
-	rvm_relocmap_add(relocmap, RVM_RELOC_JUMP, off, rvm_codemap_lookupadd_s(codemap, "l_add2"));
+	rvm_relocmap_add(relocmap, RVM_RELOC_CODE, RVM_RELOC_JUMP, off, rvm_codemap_lookupadd_s(codemap, "l_add2"));
 	vmcode[off++] = rvm_asm(RVM_BXL,  DA, XX, XX, 0);
 	VMTEST_REG(vmcode, off, 0, 3, "BL/RET");
 	vmcode[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 1);
 	vmcode[off++] = rvm_asm(RVM_MOV, R1, DA, XX, 2);
 	vmcode[off++] = rvm_asm(RVM_MOV, R2, DA, XX, 4);
-	rvm_relocmap_add(relocmap, RVM_RELOC_JUMP, off, rvm_codemap_lookupadd_s(codemap, "l_add3"));
+	rvm_relocmap_add(relocmap, RVM_RELOC_CODE, RVM_RELOC_JUMP, off, rvm_codemap_lookupadd_s(codemap, "l_add3"));
 	vmcode[off++] = rvm_asm(RVM_BXL,  DA, XX, XX, 0);
 	VMTEST_REG(vmcode, off, 0, 7, "BL/RET");
 	vmcode[off++] = rvm_asm(RVM_EXT, R0, XX, XX, 0);
