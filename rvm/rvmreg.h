@@ -160,6 +160,7 @@ ruint rvm_reg_gettype(const rvmreg_t *r);
 rboolean rvm_reg_tstflag(const rvmreg_t *r, ruint16 flag);
 void rvm_reg_setflag(rvmreg_t *r, ruint16 flag);
 void rvm_reg_clrflag(rvmreg_t *r, ruint16 flag);
+void rvm_reg_setundef(rvmreg_t *r);
 void rvm_reg_setunsigned(rvmreg_t *r, rword u);
 void rvm_reg_setboolean(rvmreg_t *r, ruint b);
 void rvm_reg_setlong(rvmreg_t *r, rlong l);

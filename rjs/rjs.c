@@ -208,15 +208,15 @@ static rint rjs_compiler_argarray_setup(rjs_compiler_t *co)
 {
 	rvm_varmap_t *v;
 	rvmreg_t count = rvm_reg_create_long(0);
-	rjs_object_t *a = rjs_object_create(sizeof(rvmreg_t));
-	rvm_gc_add(co->cpu->gc, (robject_t*)a);
-	r_harray_add_s(a->harray, "count", &count);
+	rjs_object_t *a;
 
 	v = rvm_scope_tiplookup_s(co->scope, "ARGS");
 	if (!v) {
-		rvm_scope_addpointer_s(co->scope, "ARGS", rvm_cpu_alloc_global(co->cpu));
-		v = rvm_scope_tiplookup_s(co->scope, "ARGS");
+		return -1;
 	}
+	a = rjs_object_create(sizeof(rvmreg_t));
+	rvm_gc_add(co->cpu->gc, (robject_t*)a);
+	r_harray_add_s(a->harray, "count", &count);
 	rvm_reg_setjsobject((rvmreg_t*)v->data.ptr, (robject_t*)a);
 	return 0;
 }
@@ -249,12 +249,14 @@ rvmreg_t *rjs_engine_vexec(rjs_engine_t *jse, const rchar *script, rsize_t size,
 	rvmreg_t arg;
 	rsize_t i = 0;
 
-	rjs_compiler_argarray_setup(jse->co);
 	if (rjs_engine_compile(jse, script, size) < 0)
 		return NULL;
-	for (i = 0; i < nargs; i++) {
-		arg = va_arg(args, rvmreg_t);
-		rjs_compiler_addarg(jse->co, &arg);
+	if (nargs > 0) {
+		rjs_compiler_argarray_setup(jse->co);
+		for (i = 0; i < nargs; i++) {
+			arg = va_arg(args, rvmreg_t);
+			rjs_compiler_addarg(jse->co, &arg);
+		}
 	}
 	RVM_CPUREG_SETU(jse->cpu, FP, 0);
 	RVM_CPUREG_SETU(jse->cpu, SP, 0);

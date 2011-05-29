@@ -347,6 +347,13 @@ void rvm_reg_clrflag(rvmreg_t *r, ruint16 flag)
 }
 
 
+void rvm_reg_setundef(rvmreg_t *r)
+{
+	RVM_REG_CLEAR(r);
+	RVM_REG_SETTYPE(r, RVM_DTYPE_UNDEF);
+}
+
+
 void rvm_reg_setunsigned(rvmreg_t *r, rword u)
 {
 	RVM_REG_SETU(r, u);

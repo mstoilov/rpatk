@@ -264,6 +264,21 @@ rlong rjs_compiler_record2unaryopcode(rparecord_t *prec)
 }
 
 
+static rint rjs_compiler_internalvars_setup(rjs_compiler_t *co)
+{
+	rvm_varmap_t *v;
+
+	v = rvm_scope_tiplookup_s(co->scope, "ARGS");
+	if (!v) {
+		rvm_scope_addpointer_s(co->scope, "ARGS", rvm_cpu_alloc_global(co->cpu));
+		v = rvm_scope_tiplookup_s(co->scope, "ARGS");
+		R_ASSERT(v);
+		return -1;
+	}
+	rvm_reg_setundef((rvmreg_t*)v->data.ptr);
+
+	return 0;
+}
 
 
 rint rjs_compiler_rh_program(rjs_compiler_t *co, rarray_t *records, rlong rec)
@@ -280,6 +295,7 @@ rint rjs_compiler_rh_program(rjs_compiler_t *co, rarray_t *records, rlong rec)
 
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
+	rjs_compiler_internalvars_setup(co);
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, mainidx, rvm_asm(RVM_B, DA, XX, XX, 0));
 	start = rvm_codegen_addins(co->cg, rvm_asm(RVM_NOP, XX, XX, XX, 0));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_DEFAULT, allocsidx, rvm_asm(RVM_ADD, SP, FP, DA, 0));
