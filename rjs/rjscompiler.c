@@ -268,8 +268,8 @@ rint rjs_compiler_rh_program(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rjs_coctx_global_t ctx;
 	rparecord_t *prec;
-	rlong mainidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__main", 0);
-	rlong allocsidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__allocs", 0);
+	rlong mainidx = rvm_codegen_invalid_addlabel_s(co->cg, NULL);
+	rlong allocsidx = rvm_codegen_invalid_addlabel_s(co->cg, NULL);
 	rlong start;
 
 	r_memset(&ctx, 0, sizeof(ctx));
@@ -730,10 +730,9 @@ rint rjs_compiler_rh_functiondeclaration(rjs_compiler_t *co, rarray_t *records, 
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	start = rvm_codegen_getcodesize(co->cg);
-	endidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__funend", start);
-	execidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__funexec", start);
-	allocsidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__allocs", start);
-
+	endidx = rvm_codegen_invalid_addlabel_s(co->cg, NULL);
+	execidx = rvm_codegen_invalid_addlabel_s(co->cg, NULL);
+	allocsidx = rvm_codegen_invalid_addlabel_s(co->cg, NULL);
 	if (rpa_record_getruleuid(records, rpa_recordtree_firstchild(records, rec, RPA_RECORD_START)) == UID_FUNCTIONNAME) {
 		if (rjs_compiler_record2identifer(co, records, rpa_recordtree_firstchild(records, rec, RPA_RECORD_START)) < 0)
 			goto error;
@@ -943,17 +942,15 @@ rint rjs_compiler_rh_ifstatement(rjs_compiler_t *co, rarray_t *records, rlong re
 	r_memset(&ctx, 0, sizeof(ctx));
 	ctx.base.type = RJS_COCTX_IFSTATEMENT;
 	ctx.start = rvm_codegen_getcodesize(co->cg);
-	ctx.trueidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__iftrue", ctx.start);
-	ctx.falseidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__iffalse", ctx.start);
-	ctx.endidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__ifend", ctx.start);
+	ctx.trueidx = rvm_codegen_invalid_addlabel_s(co->cg, NULL);
+	ctx.falseidx = rvm_codegen_invalid_addlabel_s(co->cg, NULL);
+	ctx.endidx = rvm_codegen_invalid_addlabel_s(co->cg, NULL);
 	r_array_push(co->coctx, &ctx, rjs_coctx_t*);
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	rjs_compiler_debugtail(co, records, rec);
-
 	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
 		goto error;
-
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
@@ -961,7 +958,6 @@ rint rjs_compiler_rh_ifstatement(rjs_compiler_t *co, rarray_t *records, rlong re
 	if (!rvm_codegen_validlabel(co->cg, ctx.falseidx))
 		rvm_codegen_redefinelabel_default(co->cg, ctx.falseidx);
 	rjs_compiler_debugtail(co, records, rec);
-
 	r_array_removelast(co->coctx);
 	return 0;
 
@@ -1056,16 +1052,14 @@ rint rjs_compiler_rh_iterationfor(rjs_compiler_t *co, rarray_t *records, rlong r
 	r_memset(&ctx, 0, sizeof(ctx));
 	ctx.base.type = RJS_COCTX_ITERATION;
 	ctx.start = rvm_codegen_getcodesize(co->cg);
-	ctx.iterationidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__iteration", ctx.start);
-	ctx.continueidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__continue", ctx.start);
-	ctx.endidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__end", ctx.start);
+	ctx.iterationidx = rvm_codegen_invalid_addlabel_s(co->cg, NULL);
+	ctx.continueidx = rvm_codegen_invalid_addlabel_s(co->cg, NULL);
+	ctx.endidx = rvm_codegen_invalid_addlabel_s(co->cg, NULL);
 	r_array_push(co->coctx, &ctx, rjs_coctx_t*);
 	rvm_scope_push(co->scope);
-
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	rjs_compiler_debugtail(co, records, rec);
-
 	for (childrec = rpa_recordtree_firstchild(records, rec, RPA_RECORD_START); childrec >= 0; childrec = rpa_recordtree_next(records, childrec, RPA_RECORD_START)) {
 		if (rpa_record_getruleuid(records, childrec) == UID_FOREXPRESSIONINIT) {
 			if (rjs_compiler_playrecord(co, records, childrec) < 0)
@@ -1073,7 +1067,6 @@ rint rjs_compiler_rh_iterationfor(rjs_compiler_t *co, rarray_t *records, rlong r
 			break;
 		}
 	}
-
 	rvm_codegen_redefinelabel_default(co->cg, ctx.iterationidx);
 	for (childrec = rpa_recordtree_firstchild(records, rec, RPA_RECORD_START); childrec >= 0; childrec = rpa_recordtree_next(records, childrec, RPA_RECORD_START)) {
 		if (rpa_record_getruleuid(records, childrec) == UID_FOREXPRESSIONCOMPARE) {
@@ -1082,7 +1075,6 @@ rint rjs_compiler_rh_iterationfor(rjs_compiler_t *co, rarray_t *records, rlong r
 			break;
 		}
 	}
-
 	for (childrec = rpa_recordtree_firstchild(records, rec, RPA_RECORD_START); childrec >= 0; childrec = rpa_recordtree_next(records, childrec, RPA_RECORD_START)) {
 		if (rpa_record_getruleuid(records, childrec) == UID_FORITERATIONSTATEMENT) {
 			if (rjs_compiler_playrecord(co, records, childrec) < 0)
@@ -1090,7 +1082,6 @@ rint rjs_compiler_rh_iterationfor(rjs_compiler_t *co, rarray_t *records, rlong r
 			break;
 		}
 	}
-
 	rvm_codegen_redefinelabel_default(co->cg, ctx.continueidx);
 	for (childrec = rpa_recordtree_firstchild(records, rec, RPA_RECORD_START); childrec >= 0; childrec = rpa_recordtree_next(records, childrec, RPA_RECORD_START)) {
 		if (rpa_record_getruleuid(records, childrec) == UID_FOREXPRESSIONINCREMENT) {
@@ -1099,13 +1090,11 @@ rint rjs_compiler_rh_iterationfor(rjs_compiler_t *co, rarray_t *records, rlong r
 			break;
 		}
 	}
-
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	rvm_codegen_redefinelabel_default(co->cg, ctx.endidx);
 	rjs_compiler_debugtail(co, records, rec);
-
 	rvm_scope_pop(co->scope);
 	r_array_removelast(co->coctx);
 	return 0;
@@ -1125,30 +1114,24 @@ rint rjs_compiler_rh_iterationwhile(rjs_compiler_t *co, rarray_t *records, rlong
 	r_memset(&ctx, 0, sizeof(ctx));
 	ctx.base.type = RJS_COCTX_ITERATION;
 	ctx.start = rvm_codegen_getcodesize(co->cg);
-	ctx.iterationidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__iteration", ctx.start);
-	ctx.continueidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__continue", ctx.start);
-	ctx.endidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__end", ctx.start);
+	ctx.iterationidx = rvm_codegen_invalid_addlabel_s(co->cg, NULL);
+	ctx.continueidx = rvm_codegen_invalid_addlabel_s(co->cg, NULL);
+	ctx.endidx = rvm_codegen_invalid_addlabel_s(co->cg, NULL);
 	r_array_push(co->coctx, &ctx, rjs_coctx_t*);
 	rvm_scope_push(co->scope);
-
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	rjs_compiler_debugtail(co, records, rec);
-
-
 	rvm_codegen_redefinelabel_default(co->cg, ctx.iterationidx);
 	rvm_codegen_redefinelabel_default(co->cg, ctx.continueidx);
-
 	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
 		goto error;
-
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, ctx.iterationidx, rvm_asm(RVM_B, DA, XX, XX, 0));
 	rvm_codegen_redefinelabel_default(co->cg, ctx.endidx);
 	rjs_compiler_debugtail(co, records, rec);
-
 	rvm_scope_pop(co->scope);
 	r_array_removelast(co->coctx);
 	return 0;
@@ -1168,29 +1151,23 @@ rint rjs_compiler_rh_iterationdo(rjs_compiler_t *co, rarray_t *records, rlong re
 	r_memset(&ctx, 0, sizeof(ctx));
 	ctx.base.type = RJS_COCTX_ITERATION;
 	ctx.start = rvm_codegen_getcodesize(co->cg);
-	ctx.iterationidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__iteration", ctx.start);
-	ctx.continueidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__continue", ctx.start);
-	ctx.endidx = rvm_codegen_invalid_add_numlabel_s(co->cg, "__end", ctx.start);
+	ctx.iterationidx = rvm_codegen_invalid_addlabel_s(co->cg, NULL);
+	ctx.continueidx = rvm_codegen_invalid_addlabel_s(co->cg, NULL);
+	ctx.endidx = rvm_codegen_invalid_addlabel_s(co->cg, NULL);
 	r_array_push(co->coctx, &ctx, rjs_coctx_t*);
 	rvm_scope_push(co->scope);
-
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	rjs_compiler_debugtail(co, records, rec);
-
-
 	rvm_codegen_redefinelabel_default(co->cg, ctx.iterationidx);
-
 	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
 		goto error;
-
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, ctx.iterationidx, rvm_asm(RVM_B, DA, XX, XX, 0));
 	rvm_codegen_redefinelabel_default(co->cg, ctx.endidx);
 	rjs_compiler_debugtail(co, records, rec);
-
 	rvm_scope_pop(co->scope);
 	r_array_removelast(co->coctx);
 	return 0;
