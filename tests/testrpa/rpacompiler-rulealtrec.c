@@ -132,13 +132,14 @@ int main(int argc, char *argv[])
 	rpastat_t *stat;
 	ruint mainoff;
 	rint i;
+	rarray_t *records = rpa_records_create();
 	char teststr[] = "123-4567ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
 
 	co = rpa_compiler_create();
 	stat = rpa_stat_create(NULL, 4096);
 	rvm_cpu_addswitable(stat->cpu, "common_table", common_calltable);
 
-	rpa_stat_init(stat, teststr, teststr, teststr+30, NULL);
+	rpa_stat_init(stat, teststr, teststr, teststr+30, records);
 
 	mainoff = rvm_codegen_addins(co->cg, rvm_asml(RVM_NOP, XX, XX, XX, -1));
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, R_TOP, DA, XX, -1));
@@ -160,8 +161,8 @@ int main(int argc, char *argv[])
 
 	rpa_stat_cachedisable(stat, 0);
 	rvm_cpu_exec(stat->cpu, rvm_codegen_getcode(co->cg, 0), mainoff);
-	for (i = 0;  i < r_array_length(stat->records); i++) {
-		rpa_record_dump(stat->records, i);
+	for (i = 0;  i < r_array_length(records); i++) {
+		rpa_record_dump(records, i);
 	}
 
 	r_printf("(%s) Matched size: %s(cache hits: %d)\n", argv[0], RVM_CPUREG_GETU(stat->cpu, R0) == 8 ? "PASSED" : "FAILED", stat->cache->hit);
@@ -169,6 +170,7 @@ int main(int argc, char *argv[])
 end:
 	rpa_stat_destroy(stat);
 	rpa_compiler_destroy(co);
+	rpa_records_destroy(records);
 
 
 //	r_printf("Max alloc mem: %ld\n", r_debug_get_maxmem());

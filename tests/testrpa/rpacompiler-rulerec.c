@@ -74,13 +74,14 @@ int main(int argc, char *argv[])
 	rpastat_t *stat;
 	ruint mainoff;
 	rint i;
+	rarray_t *records = rpa_records_create();
 	char teststr[] = "abcabcxyzabc";
 
 	co = rpa_compiler_create();
 	stat = rpa_stat_create(NULL, 4096);
 	rvm_cpu_addswitable(stat->cpu, "common_table", common_calltable);
 
-	rpa_stat_init(stat, teststr, teststr, teststr+12, NULL);
+	rpa_stat_init(stat, teststr, teststr, teststr+12, records);
 
 	mainoff = rvm_codegen_addins(co->cg, rvm_asml(RVM_NOP, XX, XX, XX, -1));
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, R_TOP, DA, XX, -1));
@@ -102,8 +103,8 @@ int main(int argc, char *argv[])
 
 	rvm_cpu_exec(stat->cpu, rvm_codegen_getcode(co->cg, 0), mainoff);
 
-	for (i = 0; i < r_array_length(stat->records); i++) {
-		rparecord_t *rec = (rparecord_t *)r_array_slot(stat->records, i);
+	for (i = 0; i < r_array_length(records); i++) {
+		rparecord_t *rec = (rparecord_t *)r_array_slot(records, i);
 		r_printf("%3d : ", i);
 		if (rec->type & RPA_RECORD_START)
 			r_printf("START ");
@@ -117,7 +118,7 @@ int main(int argc, char *argv[])
 end:
 	rpa_stat_destroy(stat);
 	rpa_compiler_destroy(co);
-
+	rpa_records_destroy(records);
 
 	r_printf("Max alloc mem: %ld\n", r_debug_get_maxmem());
 	r_printf("Leaked mem: %ld\n", r_debug_get_allocmem());
