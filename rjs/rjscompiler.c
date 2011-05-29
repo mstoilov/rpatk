@@ -264,6 +264,8 @@ rlong rjs_compiler_record2unaryopcode(rparecord_t *prec)
 }
 
 
+
+
 rint rjs_compiler_rh_program(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rjs_coctx_global_t ctx;

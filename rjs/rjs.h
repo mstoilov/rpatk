@@ -6,6 +6,7 @@
 extern "C" {
 #endif
 
+#include <stdarg.h>
 #include "rtypes.h"
 #include "rvmcpu.h"
 #include "rjsparser.h"
@@ -45,6 +46,9 @@ rint rjs_engine_run(rjs_engine_t *jse);
 rint rjs_engine_addswitable(rjs_engine_t *jse, const rchar *tabname, rvm_switable_t *switalbe);
 rint rjs_engine_dumpast(rjs_engine_t *jse, const rchar *script, rsize_t size);
 rvmreg_t *rjs_engine_exec(rjs_engine_t *jse, const rchar *script, rsize_t size);
+rvmreg_t *rjs_engine_vexec(rjs_engine_t *jse, const rchar *script, rsize_t size, rsize_t nargs, va_list args);
+rvmreg_t *rjs_engine_args_exec(rjs_engine_t *jse, const rchar *script, rsize_t size, rsize_t nargs, ...);
+rvmreg_t *rjs_engine_args_exec_s(rjs_engine_t *jse, const rchar *script, rsize_t nargs, ...);
 rvmreg_t *rjs_engine_exec_s(rjs_engine_t *jse, const rchar *script);
 void rjs_engine_abort(rjs_engine_t *jse, rjs_error_t *error);
 rjs_engine_t *rjs_engine_get(rvmcpu_t *cpu);

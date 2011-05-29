@@ -1,3 +1,4 @@
+#include <stdarg.h>
 #include "rmem.h"
 #include "rjsobject.h"
 #include "rjs.h"
@@ -7,6 +8,7 @@
 static void rjs_engine_print(rvmcpu_t *cpu, rvm_asmins_t *ins);
 static void rjs_engine_dbgprint(rvmcpu_t *cpu, rvm_asmins_t *ins);
 static void rjs_engine_object(rvmcpu_t *cpu, rvm_asmins_t *ins);
+
 static rvm_switable_t rjsswitable[] = {
 		{"print", rjs_engine_print},
 		{"dbgprint", rjs_engine_dbgprint},
@@ -188,6 +190,8 @@ rvmreg_t * rjs_engine_exec(rjs_engine_t *jse, const rchar *script, rsize_t size)
 {
 	if (rjs_engine_compile(jse, script, size) < 0)
 		return NULL;
+	RVM_CPUREG_SETU(jse->cpu, FP, 0);
+	RVM_CPUREG_SETU(jse->cpu, SP, 0);
 	if (rjs_engine_run(jse) < 0)
 		return NULL;
 	return RVM_CPUREG_PTR(jse->cpu, R0);
@@ -197,6 +201,88 @@ rvmreg_t * rjs_engine_exec(rjs_engine_t *jse, const rchar *script, rsize_t size)
 rvmreg_t *rjs_engine_exec_s(rjs_engine_t *jse, const rchar *script)
 {
 	return rjs_engine_exec(jse, script, r_strlen(script));
+}
+
+
+static rint rjs_compiler_argarray_setup(rjs_compiler_t *co)
+{
+	rvm_varmap_t *v;
+	rvmreg_t count = rvm_reg_create_long(0);
+	rjs_object_t *a = rjs_object_create(sizeof(rvmreg_t));
+	rvm_gc_add(co->cpu->gc, (robject_t*)a);
+	r_harray_add_s(a->harray, "count", &count);
+
+	v = rvm_scope_tiplookup_s(co->scope, "ARGS");
+	if (!v) {
+		rvm_scope_addpointer_s(co->scope, "ARGS", rvm_cpu_alloc_global(co->cpu));
+		v = rvm_scope_tiplookup_s(co->scope, "ARGS");
+	}
+	rvm_reg_setjsobject((rvmreg_t*)v->data.ptr, (robject_t*)a);
+	return 0;
+}
+
+
+static rint rjs_compiler_addarg(rjs_compiler_t *co, rvmreg_t *arg)
+{
+	rvm_varmap_t *v;
+	rjs_object_t *a;
+	rvmreg_t *count;
+	rlong index;
+
+	v = rvm_scope_tiplookup_s(co->scope, "ARGS");
+	if (!v) {
+		return -1;
+	}
+	a = (rjs_object_t*)RVM_REG_GETP((rvmreg_t*)v->data.ptr);
+	r_carray_add(a->narray, arg);
+	index = r_harray_lookup_s(a->harray, "count");
+	R_ASSERT(index >= 0);
+	count = (rvmreg_t *)r_harray_slot(a->harray, index);
+	rvm_reg_setlong(count, RVM_REG_GETL(count) + 1);
+
+	return 0;
+}
+
+
+rvmreg_t *rjs_engine_vexec(rjs_engine_t *jse, const rchar *script, rsize_t size, rsize_t nargs, va_list args)
+{
+	rvmreg_t arg;
+	rsize_t i = 0;
+
+	rjs_compiler_argarray_setup(jse->co);
+	if (rjs_engine_compile(jse, script, size) < 0)
+		return NULL;
+	for (i = 0; i < nargs; i++) {
+		arg = va_arg(args, rvmreg_t);
+		rjs_compiler_addarg(jse->co, &arg);
+	}
+	RVM_CPUREG_SETU(jse->cpu, FP, 0);
+	RVM_CPUREG_SETU(jse->cpu, SP, 0);
+	if (rjs_engine_run(jse) < 0)
+		return NULL;
+	return RVM_CPUREG_PTR(jse->cpu, R0);
+}
+
+
+rvmreg_t *rjs_engine_args_exec(rjs_engine_t *jse, const rchar *script, rsize_t size, rsize_t nargs, ...)
+{
+	rvmreg_t *ret;
+	va_list args;
+	va_start(args, nargs);
+	ret = rjs_engine_vexec(jse, script, size, nargs, args);
+	va_end(args);
+	return ret;
+}
+
+
+rvmreg_t *rjs_engine_args_exec_s(rjs_engine_t *jse, const rchar *script, rsize_t nargs, ...)
+{
+	rvmreg_t *ret;
+	va_list args;
+	va_start(args, nargs);
+	ret = rjs_engine_vexec(jse, script, r_strlen(script), nargs, args);
+	va_end(args);
+	return ret;
 }
 
 

@@ -15,6 +15,7 @@ LIBS += -lrjs -lrpa -lrvm -lrlib -lpthread -lm --static
 
 
 TESTS   += $(OUTDIR)/rjs-simple
+TESTS   += $(OUTDIR)/rjs-args
 
 
 all : $(OUTDIR) $(TESTS)
