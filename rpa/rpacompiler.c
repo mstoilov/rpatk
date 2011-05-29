@@ -5,21 +5,37 @@
 
 static rlong rpa_codegen_add_numlabel_s(rvm_codegen_t *cg, const rchar *alphaname, rlong numname)
 {
+#if 0
+	/*
+	 * The alphaname and numname, might be used for
+	 * debugging at some point, but not used for now
+	 */
 	rchar label[128];
 
 	r_memset(label, 0, sizeof(label));
 	r_snprintf(label, sizeof(label) - 1, "L%07ld__%s:", numname, alphaname);
 	return rvm_codegen_addlabel_default_s(cg, label);
+#else
+	return rvm_codegen_addlabel_default_s(cg, NULL);
+#endif
 }
 
 
 static rlong rpa_codegen_invalid_add_numlabel_s(rvm_codegen_t *cg, const rchar *alphaname, rlong numname)
 {
+#if 0
+	/*
+	 * The alphaname and numname, might be used for
+	 * debugging at some point, but not used for now
+	 */
 	rchar label[128];
 
 	r_memset(label, 0, sizeof(label));
 	r_snprintf(label, sizeof(label) - 1, "L%07ld__%s:", numname, alphaname);
 	return rvm_codegen_invalid_addlabel_s(cg, label);
+#else
+	return rvm_codegen_invalid_addlabel_s(cg, NULL);
+#endif
 }
 
 
