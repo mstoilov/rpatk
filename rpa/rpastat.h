@@ -69,11 +69,25 @@ rpastat_t *rpa_stat_create(rpadbex_t *dbex, rulong stacksize);
  * Destroy the object created with \ref rpa_stat_create. After calling this function
  * the pointer is invalid and must never be used again.
  *
- * \param stat Pointer to object.
+ * \param stat Pointer to object of type \ref rpastat_t.
  */
 void rpa_stat_destroy(rpastat_t *stat);
 
 
+/**
+ * \brief Scan an input stream
+ *
+ * Scan the stream using the specified rule id.
+ * \param stat Pointer to object of type \ref rpastat_t
+ * \param rid Rule ID of the BNF root.
+ * \param input The starting point of the operation. <b>Important:</b> input >= start && input < end
+ * \param start The start of the buffer.
+ * \param end The end of the buffer, end will never be dereferenced.
+ * \param where If this function returns a number greater than 0 (a match was found) this parameter will be
+ * 				initialized with a pointer the place in the buffer where the match was found.
+ * \return If successful return the size of the matched string in bytes, if no match was found
+ * 			return 0, return negative in case of error.
+ */
 rlong rpa_stat_scan(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end, const rchar **where);
 rlong rpa_stat_parse(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end, rarray_t *records);
 rlong rpa_stat_match(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end);
