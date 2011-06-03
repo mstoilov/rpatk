@@ -39,7 +39,7 @@ struct rpastat_s {
 	rvmcpu_t *cpu;
 };
 
-rint rpa_stat_init(rpastat_t *stat, const rchar *input, const rchar *start, const rchar *end, rarray_t *records);
+rint rpa_stat_init(rpastat_t *stat, ruint encoding, const rchar *input, const rchar *start, const rchar *end, rarray_t *records);
 void rpa_stat_cachedisable(rpastat_t *stat, ruint disable);
 void rpa_stat_cacheinvalidate(rpastat_t *stat);
 rint rpa_stat_matchchr(rpastat_t *stat, rssize_t top, rulong wc);

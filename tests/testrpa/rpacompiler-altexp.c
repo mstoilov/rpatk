@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
 	stat = rpa_stat_create(NULL, 4096);
 	rvm_cpu_addswitable(stat->cpu, "common_table", common_calltable);
 
-	rpa_stat_init(stat, teststr, teststr, teststr+12, NULL);
+	rpa_stat_init(stat, RPA_ENCODING_UTF8, teststr, teststr, teststr+12, NULL);
 
 	mainoff = rvm_codegen_addins(co->cg, rvm_asml(RVM_NOP, XX, XX, XX, -1));
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, R_TOP, DA, XX, -1));

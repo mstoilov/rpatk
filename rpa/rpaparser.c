@@ -40,7 +40,7 @@ rlong rpa_parser_load(rpa_parser_t *pa, const rchar *prods, rsize_t size, rarray
 	rpastat_t *stat = pa->stat;
 
 	rpa_stat_cachedisable(stat, 0);
-	if (rpa_stat_exec(stat, rvm_codegen_getcode(co->cg, 0), pa->main, prods, prods, prods + size, records) < 0)
+	if (rpa_stat_exec(stat, rvm_codegen_getcode(co->cg, 0), pa->main, RPA_ENCODING_UTF8, prods, prods, prods + size, records) < 0)
 		return -1;
 	ret = (rlong)RVM_CPUREG_GETL(stat->cpu, R0);
 	if (ret < 0)

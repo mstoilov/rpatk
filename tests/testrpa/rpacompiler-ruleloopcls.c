@@ -331,7 +331,7 @@ int main(int argc, char *argv[])
 	}
 
 	for (i = 0; i < 1000; i++) {
-		rpa_stat_init(stat, teststr, teststr, teststr+170);
+		rpa_stat_init(stat, RPA_ENCODING_UTF8, teststr, teststr, teststr+170);
 		rpa_stat_cachedisable(stat, 0);
 
 		rvm_cpu_exec(stat->cpu, rvm_codegen_getcode(co->cg, 0), mainoff);

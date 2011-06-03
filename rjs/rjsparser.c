@@ -95,7 +95,7 @@ rlong rjs_parser_exec(rjs_parser_t *parser, const rchar *script, rsize_t size, r
 {
 	rlong res = 0;
 	rpastat_t *stat = rpa_stat_create(parser->dbex, 4096);
-	res = rpa_stat_parse(stat, rpa_dbex_last(parser->dbex), script, script, script + size, ast);
+	res = rpa_stat_parse(stat, rpa_dbex_last(parser->dbex), RPA_ENCODING_UTF8, script, script, script + size, ast);
 	if (res < 0 && error) {
 		rpa_errinfo_t rpaerror;
 		rpa_stat_lasterrorinfo(stat, &rpaerror);

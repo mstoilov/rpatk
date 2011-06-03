@@ -42,7 +42,7 @@ void rpa_stat_cachedisable(rpastat_t *stat, ruint disable)
 }
 
 
-rint rpa_stat_init(rpastat_t *stat, const rchar *input, const rchar *start, const rchar *end, rarray_t *records)
+rint rpa_stat_init(rpastat_t *stat, ruint encoding, const rchar *input, const rchar *start, const rchar *end, rarray_t *records)
 {
 	rulong size;
 
@@ -57,6 +57,7 @@ rint rpa_stat_init(rpastat_t *stat, const rchar *input, const rchar *start, cons
 	}
 	r_memset(&stat->err, 0, sizeof(stat->err));
 	size = end - start;
+	stat->encoding = encoding;
 	stat->start = start;
 	stat->end = end;
 	stat->input = input;
@@ -88,18 +89,7 @@ void rpa_stat_cacheinvalidate(rpastat_t *stat)
 }
 
 
-rint rpa_stat_setencoding(rpastat_t *stat, ruint encoding)
-{
-	if (!stat) {
-		return -1;
-	}
-
-	stat->encoding = encoding;
-	return 0;
-}
-
-
-rlong rpa_stat_exec(rpastat_t *stat, rvm_asmins_t *prog, rword off, const rchar *input, const rchar *start, const rchar *end, rarray_t *records)
+rlong rpa_stat_exec(rpastat_t *stat, rvm_asmins_t *prog, rword off, ruint encoding, const rchar *input, const rchar *start, const rchar *end, rarray_t *records)
 {
 	rlong ret;
 
@@ -107,7 +97,8 @@ rlong rpa_stat_exec(rpastat_t *stat, rvm_asmins_t *prog, rword off, const rchar 
 		return -1;
 	}
 	rpa_stat_cacheinvalidate(stat);
-	rpa_stat_init(stat, input, start, end, records);
+	rpa_stat_init(stat, encoding, input, start, end, records);
+
 	if (stat->debug) {
 		ret = rvm_cpu_exec_debug(stat->cpu, prog, off);
 	} else {
@@ -135,12 +126,12 @@ rlong rpa_stat_exec(rpastat_t *stat, rvm_asmins_t *prog, rword off, const rchar 
 }
 
 
-static rlong rpa_stat_exec_rid(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end, rarray_t *records)
+static rlong rpa_stat_exec_rid(rpastat_t *stat, rparule_t rid, ruint encoding, const rchar *input, const rchar *start, const rchar *end, rarray_t *records)
 {
 	rlong topsiz = 0;
 	rpainput_t *ptp;
 
-	if ((topsiz = rpa_stat_exec(stat, rpa_dbex_executable(stat->dbex), rpa_dbex_executableoffset(stat->dbex, rid),  input, start, end, records)) < 0) {
+	if ((topsiz = rpa_stat_exec(stat, rpa_dbex_executable(stat->dbex), rpa_dbex_executableoffset(stat->dbex, rid), encoding, input, start, end, records)) < 0) {
 		return -1;
 	}
 	if (topsiz <= 0)
@@ -150,12 +141,12 @@ static rlong rpa_stat_exec_rid(rpastat_t *stat, rparule_t rid, const rchar *inpu
 }
 
 
-rlong rpa_stat_scan(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end, const rchar **where)
+rlong rpa_stat_scan(rpastat_t *stat, rparule_t rid, ruint encoding, const rchar *input, const rchar *start, const rchar *end, const rchar **where)
 {
 	rlong ret;
 
 	while (input < end) {
-		ret = rpa_stat_exec_rid(stat, rid, input, start, end, NULL);
+		ret = rpa_stat_exec_rid(stat, rid, encoding, input, start, end, NULL);
 		if (ret < 0)
 			return -1;
 		if (ret > 0) {
@@ -168,15 +159,15 @@ rlong rpa_stat_scan(rpastat_t *stat, rparule_t rid, const rchar *input, const rc
 }
 
 
-rlong rpa_stat_match(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end)
+rlong rpa_stat_match(rpastat_t *stat, rparule_t rid, ruint encoding, const rchar *input, const rchar *start, const rchar *end)
 {
-	return rpa_stat_exec_rid(stat, rid, input, start, end, NULL);
+	return rpa_stat_exec_rid(stat, rid, encoding, input, start, end, NULL);
 }
 
 
-rlong rpa_stat_parse(rpastat_t *stat, rparule_t rid, const rchar *input, const rchar *start, const rchar *end, rarray_t *records)
+rlong rpa_stat_parse(rpastat_t *stat, rparule_t rid, ruint encoding, const rchar *input, const rchar *start, const rchar *end, rarray_t *records)
 {
-	return rpa_stat_exec_rid(stat, rid, input, start, end, records);
+	return rpa_stat_exec_rid(stat, rid, encoding, input, start, end, records);
 }
 
 

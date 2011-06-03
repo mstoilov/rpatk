@@ -212,9 +212,8 @@ int rpa_grep_match(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 	if (!hStat)
 		return -1;
 	rpa_stat_cachedisable(hStat, pGrep->disablecache);
-	rpa_stat_setencoding(hStat, pGrep->encoding);
 	hStat->debug = pGrep->execdebug;
-	ret = rpa_stat_match(hStat, pGrep->hPattern, input, start, end);
+	ret = rpa_stat_match(hStat, pGrep->hPattern, pGrep->encoding, input, start, end);
 	if (ret > 0) {
 		rpa_grep_print_filename(pGrep);
 		rpa_grep_output(pGrep, input, ret, pGrep->encoding);
@@ -240,9 +239,8 @@ int rpa_grep_parse(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 	if (!hStat)
 		return -1;
 	rpa_stat_cachedisable(hStat, pGrep->disablecache);
-	rpa_stat_setencoding(hStat, pGrep->encoding);
 	hStat->debug = pGrep->execdebug;
-	ret = rpa_stat_parse(hStat, pGrep->hPattern, input, start, end, records);
+	ret = rpa_stat_parse(hStat, pGrep->hPattern, pGrep->encoding, input, start, end, records);
 	if (ret < 0) {
 		rpa_errinfo_t err;
 		rpa_stat_lasterrorinfo(hStat, &err);
@@ -302,13 +300,12 @@ int rpa_grep_scan(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 	hStat = rpa_stat_create(pGrep->hDbex, 0);
 	if (!hStat)
 		return -1;
-	rpa_stat_setencoding(hStat, pGrep->encoding);
 	rpa_stat_cachedisable(hStat, pGrep->disablecache);
 	hStat->debug = pGrep->execdebug;
 	pGrep->cachehit = hStat->cache->hit;
 
 again:
-	ret = rpa_stat_scan(hStat, pGrep->hPattern, input, start, end, &matched);
+	ret = rpa_stat_scan(hStat, pGrep->hPattern, pGrep->encoding, input, start, end, &matched);
 	pGrep->cachehit += hStat->cache->hit;
 
 	if (ret > 0) {
@@ -340,7 +337,6 @@ int rpa_grep_scan_lines(rpa_grep_t *pGrep, const char* buffer, unsigned long siz
 	hStat = rpa_stat_create(pGrep->hDbex, 0);
 	if (!hStat)
 		return -1;
-	rpa_stat_setencoding(hStat, pGrep->encoding);
 	hStat->debug = pGrep->execdebug;
 	
 again:
@@ -363,7 +359,7 @@ again:
 	}
 	if (!lines)
 		return 0;
-	ret = rpa_stat_scan(hStat, pGrep->hPattern, lstart, lstart, lend, &matched);
+	ret = rpa_stat_scan(hStat, pGrep->hPattern, pGrep->encoding, lstart, lstart, lend, &matched);
 	if (ret > 0) {
 		if (!displayed) {
 			displayed = 1;
