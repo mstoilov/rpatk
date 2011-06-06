@@ -22,6 +22,7 @@ TESTS   += $(OUTDIR)/rlock-test
 TESTS   += $(OUTDIR)/rarray-test
 TESTS   += $(OUTDIR)/rcarray-test
 TESTS   += $(OUTDIR)/rharray-test
+TESTS   += $(OUTDIR)/rmap-test
 TESTS   += $(OUTDIR)/scope-test
 TESTS   += $(OUTDIR)/rhash-test
 TESTS   += $(OUTDIR)/rvm-test

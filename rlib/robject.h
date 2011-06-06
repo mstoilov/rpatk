@@ -14,10 +14,11 @@ extern "C" {
 #define R_OBJECT_ARRAY 2
 #define R_OBJECT_HARRAY 3
 #define R_OBJECT_CARRAY 4
-#define R_OBJECT_HASH 5
-#define R_OBJECT_REF 6
-#define R_OBJECT_JSOBJECT 7
-#define R_OBJECT_GC 8
+#define R_OBJECT_MAP 5
+#define R_OBJECT_HASH 6
+#define R_OBJECT_REF 7
+#define R_OBJECT_JSOBJECT 8
+#define R_OBJECT_GC 9
 #define R_OBJECT_USER 256
 
 

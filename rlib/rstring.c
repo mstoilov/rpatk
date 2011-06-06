@@ -98,7 +98,8 @@ rstr_t *r_rstrdup(const rchar *s, ruint size)
 		r_memset(d, 0, allocsize);
 		d->size = size;
 		d->str = (rchar*)&d[1];
-		r_memcpy((rchar*)d->str, s, size);
+		if (s)
+			r_memcpy((rchar*)d->str, s, size);
 	}
 	return d;
 }
