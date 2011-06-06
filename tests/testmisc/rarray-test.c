@@ -12,7 +12,7 @@ static void r_array_addint(rarray_t *array, int elt)
 
 int main(int argc, char *argv[])
 {
-	int i;
+	int i, j;
 	rarray_t *a;
 
 	a = r_array_create(sizeof(int));
@@ -43,6 +43,38 @@ int main(int argc, char *argv[])
 	for (i = 0; i < r_array_length(a); i++) {
 		fprintf(stdout, "index %d: %d\n", i, *((int*)r_array_slot(a, i)));
 	}
+	fprintf(stdout, "\n");
+
+	r_array_delete(a, 0);
+	fprintf(stdout, "r_array_delete %d\n", 0);
+	for (i = 0; i < r_array_length(a); i++) {
+		fprintf(stdout, "index %d: %d\n", i, *((int*)r_array_slot(a, i)));
+	}
+	fprintf(stdout, "\n");
+
+	r_array_delete(a, 20);
+	fprintf(stdout, "r_array_delete %d\n", 20);
+	for (i = 0; i < r_array_length(a); i++) {
+		fprintf(stdout, "index %d: %d\n", i, *((int*)r_array_slot(a, i)));
+	}
+	fprintf(stdout, "\n");
+
+	r_array_delete(a, 19);
+	fprintf(stdout, "r_array_delete %d\n", 19);
+	for (i = 0; i < r_array_length(a); i++) {
+		fprintf(stdout, "index %d: %d\n", i, *((int*)r_array_slot(a, i)));
+	}
+	fprintf(stdout, "\n");
+
+	for (j = 0; j < 21; j++) {
+		r_array_delete(a, 0);
+		fprintf(stdout, "r_array_delete %d\n", 0);
+		for (i = 0; i < r_array_length(a); i++) {
+			fprintf(stdout, "index %d: %d\n", i, *((int*)r_array_slot(a, i)));
+		}
+		fprintf(stdout, "\n");
+	}
+
 
 	r_object_destroy((robject_t*)a);
 

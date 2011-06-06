@@ -185,3 +185,19 @@ rint r_array_move(rarray_t *array, rlong dest, rlong src, rlong size)
 	}
 	return 0;
 }
+
+
+void r_array_delete(rarray_t *array, rsize_t index)
+{
+	rsize_t movesize;
+	rsize_t moveindex;
+
+	if (r_array_length(array) <= index)
+		return;
+	moveindex = index + 1;
+	movesize = r_array_length(array) - moveindex;
+	if (movesize > 0) {
+		r_array_move(array, index, moveindex, movesize);
+	}
+	r_array_removelast(array);
+}
