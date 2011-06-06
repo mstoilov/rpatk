@@ -13,6 +13,7 @@ RLIB_OBJECTS +=	$(OUTDIR)/ratomic.o
 RLIB_OBJECTS +=	$(OUTDIR)/rspinlock.o
 RLIB_OBJECTS +=	$(OUTDIR)/rjsobject.o
 RLIB_OBJECTS +=	$(OUTDIR)/rharray.o
+RLIB_OBJECTS +=	$(OUTDIR)/rhasharray.o
 RLIB_OBJECTS +=	$(OUTDIR)/rcarray.o
 RLIB_OBJECTS +=	$(OUTDIR)/rarray.o
 RLIB_OBJECTS +=	$(OUTDIR)/rhash.o
