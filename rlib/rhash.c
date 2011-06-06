@@ -115,6 +115,12 @@ rhash_t *r_hash_create(ruint nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfun
 }
 
 
+void r_hash_destroy(rhash_t* hash)
+{
+	r_object_destroy((robject_t*)hash);
+}
+
+
 robject_t *r_hash_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy,
 						ruint nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfunc)
 {

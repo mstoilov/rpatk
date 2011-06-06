@@ -30,6 +30,7 @@ struct rhash_s {
 #define r_hash_size(__h__) (1 << (__h__)->nbits)
 #define r_hash_mask(__h__) (r_hash_size(__h__) - 1)
 rhash_t *r_hash_create(ruint nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfunc);
+void r_hash_destroy(rhash_t* hash);
 robject_t *r_hash_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy,
 						ruint nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfunc);
 

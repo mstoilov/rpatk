@@ -3,6 +3,7 @@
 
 #include "rcarray.h"
 #include "rhash.h"
+#include "rlist.h"
 #include "rstring.h"
 #include "robject.h"
 
@@ -13,9 +14,10 @@ extern "C" {
 
 typedef struct rmap_s {
 	robject_t obj;
-	rcarray_t *members;
-	rarray_t *names;
 	rhash_t *hash;
+	rcarray_t *members;
+	rlist_t active;
+	rlist_t inactive;
 } rmap_t;
 
 
