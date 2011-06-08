@@ -18,8 +18,8 @@ extern "C" {
 typedef struct rmap_s {
 	robject_t obj;
 	ruint nbits;
+	ruint elt_size;
 	rcarray_t *data;
-	rarray_t *nodes;
 	rlist_t *hash;
 	rlist_t active;
 	rlist_t inactive;

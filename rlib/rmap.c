@@ -1,13 +1,18 @@
+#include "rtypes.h"
 #include "rmap.h"
 #include "rstring.h"
 #include "rmem.h"
 
 
 typedef struct r_mapnode_s {
-	rstr_t *key;
-	rsize_t index;
 	rlink_t active;
 	rlink_t hash;
+	rsize_t index;
+	rstr_t *key;
+	union {
+		rpointer p;
+		rchar data[0];
+	} value;
 } r_mapnode_t;
 
 
@@ -30,42 +35,30 @@ static rulong r_map_rstrhash(const rstr_t *key)
 	return hash;
 }
 
-r_mapnode_t *r_mapnode_create(const rchar *key, rsize_t size)
+void r_mapnode_init(r_mapnode_t *node, const rchar *key, rsize_t size)
 {
-	r_mapnode_t *node = (r_mapnode_t *)r_zmalloc(sizeof(*node));
 	node->key = r_rstrdup(key, size);
 	r_list_init(&node->active);
 	r_list_init(&node->hash);
-	return node;
 }
 
 
-r_mapnode_t *r_map_allocnode(rmap_t *map, const rchar *key, rsize_t size)
+r_mapnode_t *r_map_getfreenode(rmap_t *map, const rchar *key, rsize_t size)
 {
 	r_mapnode_t *node = NULL;
 
 	if (r_list_empty(&map->inactive)) {
 		rlong index = r_carray_add(map->data, NULL);
-		node = r_mapnode_create(key, size);
+		node = (r_mapnode_t*)r_carray_slot(map->data, index);
+		r_mapnode_init(node, key, size);
 		node->index = index;
 	} else {
 		node = r_list_entry(r_list_first(&map->inactive), r_mapnode_t, active);
 		r_list_del(&node->active);
-		node->key = r_rstrdup(key, size);
-		r_list_init(&node->active);
-		r_list_init(&node->hash);
+		r_mapnode_init(node, key, size);
 	}
 	return node;
 }
-
-
-void r_mapnode_destroy(r_mapnode_t *node)
-{
-	if (node)
-		r_free(node->key);
-	r_free(node);
-}
-
 
 
 robject_t *r_map_copy(const robject_t *obj)
@@ -82,16 +75,13 @@ void r_map_cleanup(robject_t *obj)
 	while (!r_list_empty(&map->active)) {
 		node = r_list_entry(r_list_first(&map->active), r_mapnode_t, active);
 		r_list_del(&node->active);
-		r_mapnode_destroy(node);
 	}
 	while (!r_list_empty(&map->inactive)) {
 		node = r_list_entry(r_list_first(&map->inactive), r_mapnode_t, active);
 		r_list_del(&node->active);
-		r_mapnode_destroy(node);
 	}
 
 	r_carray_destroy(map->data);
-	r_array_destroy(map->nodes);
 	r_free(map->hash);
 	r_object_cleanup(&map->obj);
 }
@@ -99,6 +89,7 @@ void r_map_cleanup(robject_t *obj)
 
 robject_t *r_map_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, ruint elt_size, ruint nbits)
 {
+	rsize_t elt_realsize = R_SIZE_ALIGN(elt_size + sizeof(r_mapnode_t), sizeof(rword));
 	rsize_t hashsize, i;
 	rmap_t *map = (rmap_t*)obj;
 	if (nbits == 0 || nbits > 16) {
@@ -106,9 +97,9 @@ robject_t *r_map_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup,
 		return NULL;
 	}
 	r_object_init(obj, type, cleanup, copy);
-	map->data = r_carray_create(elt_size);
-	map->nodes = r_array_create(sizeof(r_mapnode_t*));
+	map->data = r_carray_create(elt_realsize);
 	map->nbits = nbits;
+	map->elt_size = elt_size;
 	r_list_init(&map->active);
 	r_list_init(&map->inactive);
 	hashsize = r_map_hashsize(map);
@@ -140,15 +131,14 @@ void r_map_destroy(rmap_t *map)
 rlong r_map_add(rmap_t *map, const rchar *name, rsize_t namesize, rconstpointer pval)
 {
 	r_mapnode_t *node;
-	rlong index = r_carray_add(map->data, pval);
 	rulong nbucket;
 
-	node = r_map_allocnode(map, name, namesize);
-	r_array_replace(map->nodes, index, &node);
+	node = r_map_getfreenode(map, name, namesize);
+	r_memcpy(node->value.data, pval, map->elt_size);
 	nbucket = (r_map_rstrhash(node->key) & r_map_hashmask(map));
 	r_list_addt(&map->hash[nbucket], &node->hash);
 	r_list_addt(&map->active, &node->active);
-	return index;
+	return node->index;
 }
 
 
@@ -161,9 +151,7 @@ rlong r_map_add_s(rmap_t *map, const rchar *name, rconstpointer pval)
 r_mapnode_t *r_map_node(rmap_t *map, rsize_t index)
 {
 	r_mapnode_t *node;
-	if (index >= r_array_length(map->nodes))
-		return NULL;
-	node = r_array_index(map->nodes, index, r_mapnode_t*);
+	node = (r_mapnode_t*)r_carray_slot(map->data, index);
 	return node;
 }
 
@@ -182,7 +170,7 @@ rpointer r_map_value(rmap_t *map, rsize_t index)
 	r_mapnode_t *node = r_map_node(map, index);
 	if (!node)
 		return NULL;
-	return r_carray_slot(map->data, node->index);
+	return (rpointer)node->value.data;
 }
 
 
@@ -192,9 +180,9 @@ rint r_map_delete(rmap_t *map, rsize_t index)
 	if (!node)
 		return -1;
 	r_free(node->key);
+	node->key = NULL;
 	r_list_del(&node->hash);
 	r_list_del(&node->active);
 	r_list_addt(&map->inactive, &node->active);
-	r_array_replace(map->nodes, index, NULL);
 	return 0;
 }
