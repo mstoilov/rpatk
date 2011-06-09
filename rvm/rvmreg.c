@@ -483,8 +483,8 @@ rstring_t *rvm_reg_string(const rvmreg_t *src)
 }
 
 
-rjs_object_t *rvm_reg_jsobject(const rvmreg_t *src)
+rmap_t *rvm_reg_jsobject(const rvmreg_t *src)
 {
 	R_ASSERT(src && rvm_reg_gettype(src) == RVM_DTYPE_JSOBJECT);
-	return (rjs_object_t*)RVM_REG_GETP(src);
+	return (rmap_t*)RVM_REG_GETP(src);
 }

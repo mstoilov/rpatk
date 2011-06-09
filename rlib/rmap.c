@@ -151,6 +151,24 @@ rlong r_map_add_s(rmap_t *map, const rchar *name, rconstpointer pval)
 }
 
 
+rlong r_map_add_l(rmap_t *map, long name, rconstpointer pval)
+{
+	rchar key[128];
+	r_memset(key, 0, sizeof(key));
+	r_snprintf(key, sizeof(key) - 1, "%ld", name);
+	return r_map_add_s(map, key, pval);
+}
+
+
+rlong r_map_add_d(rmap_t *map, double name, rconstpointer pval)
+{
+	rchar key[128];
+	r_memset(key, 0, sizeof(key));
+	r_snprintf(key, sizeof(key) - 1, "%.15f", name);
+	return r_map_add_s(map, key, pval);
+}
+
+
 r_mapnode_t *r_map_node(rmap_t *map, rulong index)
 {
 	r_mapnode_t *node;
@@ -242,6 +260,24 @@ rlong r_map_lookup(rmap_t *map, rlong current, const rchar *name, rsize_t namesi
 rlong r_map_lookup_s(rmap_t *map, rlong current, const rchar *name)
 {
 	return r_map_lookup(map, current, name, r_strlen(name));
+}
+
+
+rlong r_map_lookup_l(rmap_t *map, rlong current, long name)
+{
+	rchar key[128];
+	r_memset(key, 0, sizeof(key));
+	r_snprintf(key, sizeof(key) - 1, "%ld", name);
+	return r_map_lookup_s(map, current, key);
+}
+
+
+rlong r_map_lookup_d(rmap_t *map, rlong current, double name)
+{
+	rchar key[128];
+	r_memset(key, 0, sizeof(key));
+	r_snprintf(key, sizeof(key) - 1, "%.15f", name);
+	return r_map_lookup_s(map, current, key);
 }
 
 

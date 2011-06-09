@@ -6,7 +6,7 @@
 #include "rarray.h"
 #include "rharray.h"
 #include "rcarray.h"
-#include "rjsobject.h"
+#include "rmap.h"
 #include "rstring.h"
 
 
@@ -182,7 +182,7 @@ ruchar rvm_reg_boolean(const rvmreg_t *src);
 rdouble rvm_reg_double(const rvmreg_t *src);
 rpointer rvm_reg_pointer(const rvmreg_t *src);
 rstring_t *rvm_reg_string(const rvmreg_t *src);
-rjs_object_t *rvm_reg_jsobject(const rvmreg_t *src);
+rmap_t *rvm_reg_jsobject(const rvmreg_t *src);
 
 
 #ifdef __cplusplus

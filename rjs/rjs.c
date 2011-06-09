@@ -208,15 +208,15 @@ static rint rjs_compiler_argarray_setup(rjs_compiler_t *co)
 {
 	rvm_varmap_t *v;
 	rvmreg_t count = rvm_reg_create_long(0);
-	rjs_object_t *a;
+	rmap_t *a;
 
 	v = rvm_scope_tiplookup_s(co->scope, "ARGS");
 	if (!v) {
 		return -1;
 	}
-	a = rjs_object_create(sizeof(rvmreg_t));
+	a = r_map_create(sizeof(rvmreg_t), 7);
 	rvm_gc_add(co->cpu->gc, (robject_t*)a);
-	r_harray_add_s(a->harray, "count", &count);
+	r_map_add_s(a, "count", &count);
 	rvm_reg_setjsobject((rvmreg_t*)v->data.ptr, (robject_t*)a);
 	return 0;
 }
@@ -225,7 +225,7 @@ static rint rjs_compiler_argarray_setup(rjs_compiler_t *co)
 static rint rjs_compiler_addarg(rjs_compiler_t *co, rvmreg_t *arg)
 {
 	rvm_varmap_t *v;
-	rjs_object_t *a;
+	rmap_t *a;
 	rvmreg_t *count;
 	rlong index;
 
@@ -233,11 +233,11 @@ static rint rjs_compiler_addarg(rjs_compiler_t *co, rvmreg_t *arg)
 	if (!v) {
 		return -1;
 	}
-	a = (rjs_object_t*)RVM_REG_GETP((rvmreg_t*)v->data.ptr);
-	r_carray_add(a->narray, arg);
-	index = r_harray_lookup_s(a->harray, "count");
+	a = (rmap_t*)RVM_REG_GETP((rvmreg_t*)v->data.ptr);
+	index = r_map_lookup_s(a, -1, "count");
 	R_ASSERT(index >= 0);
-	count = (rvmreg_t *)r_harray_slot(a->harray, index);
+	count = (rvmreg_t *)r_map_value(a, index);
+	r_map_add_l(a, RVM_REG_GETL(count), arg);
 	rvm_reg_setlong(count, RVM_REG_GETL(count) + 1);
 
 	return 0;

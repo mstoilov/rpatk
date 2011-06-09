@@ -31,7 +31,6 @@
 #include "rstring.h"
 #include "rvmreg.h"
 #include "rmap.h"
-#include "rjsobject.h"
 
 #define RVM_DEFAULT_STACKSIZE (4 * 1024)
 
@@ -1520,7 +1519,6 @@ static void rvm_op_mapalloc(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	if (!a) {
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	}
-//	r_carray_setlength(a, RVM_CPUREG_GETU(cpu, ins->op2));
 	rvm_gc_add(cpu->gc, (robject_t*)a);
 	rvm_reg_setjsobject(arg1, (robject_t*)a);
 }
@@ -1543,8 +1541,6 @@ static void rvm_op_allocarr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rvm_op_maplookup(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rlong index;
-	rlong keysize;
-	rchar key[256], *pkey = key;
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
@@ -1554,19 +1550,16 @@ static void rvm_op_maplookup(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	}
 	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_LONG || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
-		keysize = r_snprintf(key, sizeof(key) - 1, "%ld", RVM_REG_GETL(arg3));
+		index = r_map_lookup_l(a, -1, RVM_REG_GETL(arg3));
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_DOUBLE) {
-		keysize = r_snprintf(key, sizeof(key) - 1, "%f", RVM_REG_GETD(arg3));
+		index = r_map_lookup_d(a, -1, RVM_REG_GETD(arg3));
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_STRING) {
-		pkey = ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str;
-		keysize = ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.size;
+		index = r_map_lookup(a, -1, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.size);
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_POINTER) {
-		pkey = (rchar*)RVM_CPUREG_GETP(cpu, ins->op3);
-		keysize = RVM_CPUREG_GETL(cpu, ins->op1);
+		index = r_map_lookup(a, -1, (rchar*)RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1));
 	} else {
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	}
-	index = r_map_lookup(a, -1, pkey, keysize);
 
 	RVM_REG_CLEAR(arg1);
 	RVM_REG_SETTYPE(arg1, RVM_DTYPE_LONG);
@@ -1577,8 +1570,6 @@ static void rvm_op_maplookup(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rvm_op_mapadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rlong index;
-	rlong keysize;
-	rchar key[256], *pkey = key;
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
@@ -1588,19 +1579,16 @@ static void rvm_op_mapadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	}
 	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_LONG || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
-		keysize = r_snprintf(key, sizeof(key) - 1, "%ld", RVM_REG_GETL(arg3));
+		index = r_map_add_l(a, RVM_REG_GETL(arg3), NULL);
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_DOUBLE) {
-		keysize = r_snprintf(key, sizeof(key) - 1, "%f", RVM_REG_GETD(arg3));
+		index = r_map_add_d(a, RVM_REG_GETD(arg3), NULL);
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_STRING) {
-		pkey = ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str;
-		keysize = ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.size;
+		index = r_map_add(a, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.size, NULL);
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_POINTER) {
-		pkey = (rchar*)RVM_CPUREG_GETP(cpu, ins->op3);
-		keysize = RVM_CPUREG_GETL(cpu, ins->op1);
+		index = r_map_add(a, (rchar*)RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1), NULL);
 	} else {
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	}
-	index = r_map_add(a, pkey, keysize, NULL);
 
 	RVM_REG_CLEAR(arg1);
 	RVM_REG_SETTYPE(arg1, RVM_DTYPE_LONG);
@@ -1611,8 +1599,6 @@ static void rvm_op_mapadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rvm_op_maplookupadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rlong index;
-	rlong keysize;
-	rchar key[256], *pkey = key;
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
@@ -1621,23 +1607,25 @@ static void rvm_op_maplookupadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT) {
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	}
-
 	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_LONG || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
-		keysize = r_snprintf(key, sizeof(key) - 1, "%ld", RVM_REG_GETL(arg3));
+		index = r_map_lookup_l(a, -1, RVM_REG_GETL(arg3));
+		if (index < 0)
+			index = r_map_add_l(a, RVM_REG_GETL(arg3), NULL);
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_DOUBLE) {
-		keysize = r_snprintf(key, sizeof(key) - 1, "%f", RVM_REG_GETD(arg3));
+		index = r_map_lookup_d(a, -1, RVM_REG_GETD(arg3));
+		if (index < 0)
+			index = r_map_add_d(a, RVM_REG_GETD(arg3), NULL);
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_STRING) {
-		pkey = ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str;
-		keysize = ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.size;
+		index = r_map_lookup(a, -1, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.size);
+		if (index < 0)
+			index = r_map_add(a, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.size, NULL);
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_POINTER) {
-		pkey = (rchar*)RVM_CPUREG_GETP(cpu, ins->op3);
-		keysize = RVM_CPUREG_GETL(cpu, ins->op1);
+		index = r_map_lookup(a, -1, (rchar*)RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1));
+		if (index < 0)
+			index = r_map_add(a, (rchar*)RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1), NULL);
 	} else {
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	}
-	index = r_map_lookup(a, -1, pkey, keysize);
-	if (index < 0)
-		index = r_map_add(a, pkey, keysize, NULL);
 	RVM_REG_CLEAR(arg1);
 	RVM_REG_SETTYPE(arg1, RVM_DTYPE_LONG);
 	RVM_REG_SETL(arg1, index);

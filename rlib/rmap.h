@@ -32,8 +32,12 @@ rlong r_map_lookup(rmap_t *map, rlong current, const rchar *name, rsize_t namesi
 rlong r_map_lookup_s(rmap_t *map, rlong current, const rchar *name);
 rlong r_map_taillookup(rmap_t *map, rlong current, const rchar *name, rsize_t namesize);
 rlong r_map_taillookup_s(rmap_t *map, rlong current, const rchar *name);
+rlong r_map_lookup_d(rmap_t *map, rlong current, double name);
+rlong r_map_lookup_l(rmap_t *map, rlong current, long name);
 rlong r_map_add(rmap_t *map, const rchar *name, rsize_t namesize, rconstpointer pval);
 rlong r_map_add_s(rmap_t *map, const rchar *name, rconstpointer pval);
+rlong r_map_add_d(rmap_t *map, double name, rconstpointer pval);
+rlong r_map_add_l(rmap_t *map, long name, rconstpointer pval);
 rlong r_map_setvalue(rmap_t *map, rlong index, rconstpointer pval);
 const rchar *r_map_key(rmap_t *map, rulong index);
 rpointer r_map_value(rmap_t *map, rulong index);
