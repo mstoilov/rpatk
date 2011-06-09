@@ -152,16 +152,13 @@ static const char *stropcalls[] = {
 	"RVM_ADDRA",
 	"RVM_LDA",
 	"RVM_STA",
-	"RVM_ALLOCOBJ",
-	"RVM_ADDROBJN",
-	"RVM_ADDROBJH",
-	"RVM_LDOBJN",
-	"RVM_STOBJN",
-	"RVM_LDOBJH",
-	"RVM_STOBJH",
-	"RVM_OBJLKUP",
-	"RVM_OBJADD",
-	"RVM_OBJLKUPADD",
+	"RVM_MAPALLOC",
+	"RVM_MAPADDR",
+	"RVM_MAPLDR",
+	"RVM_MAPSTR",
+	"RVM_MAPLKUP",
+	"RVM_MAPADD",
+	"RVM_MAPLKUPADD",
 	"UNKNOWN",
 	"UNKNOWN",
 	"UNKNOWN",
@@ -1516,7 +1513,7 @@ static void rvm_op_allocstr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
-static void rvm_op_allocobj(rvmcpu_t *cpu, rvm_asmins_t *ins)
+static void rvm_op_mapalloc(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rmap_t *a = r_map_create(sizeof(rvmreg_t), 7);
@@ -1543,76 +1540,33 @@ static void rvm_op_allocarr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
-static void rvm_op_addrobjn(rvmcpu_t *cpu, rvm_asmins_t *ins)
+static void rvm_op_maplookup(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
+	rlong index;
+	rlong keysize;
+	rchar key[256], *pkey = key;
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t tmp = rvm_reg_create_long(0);
-	rmap_t *a;
-	rlong index;
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
-	index = RVM_REG_GETL(&tmp);
-	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT)
-		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
-	if (index < 0)
-		RVM_ABORT(cpu, RVM_E_ILLEGAL);
-	a = (rmap_t*)RVM_REG_GETP(arg2);
-	RVM_REG_CLEAR(arg1);
-	RVM_REG_SETTYPE(arg1, RVM_DTYPE_POINTER);
-	RVM_REG_SETP(arg1, r_map_value(a, index));
-}
-
-
-static void rvm_op_ldobjn(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t tmp = rvm_reg_create_long(0);
-	rmap_t *a = NULL;
-	rlong index;
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
-	index = RVM_REG_GETL(&tmp);
-	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT)
-		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
-	if (index < 0)
-		RVM_ABORT(cpu, RVM_E_ILLEGAL);
-	a = (rmap_t*)RVM_REG_GETP(arg2);
-	*arg1 = *((rvmreg_t*)r_map_value(a, index));
-}
-
-
-static void rvm_op_stobjn(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t tmp = rvm_reg_create_long(0);
-	rmap_t *a = NULL;
-	rlong index;
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
-	index = RVM_REG_GETL(&tmp);
-	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT)
-		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
-	if (index < 0)
-		RVM_ABORT(cpu, RVM_E_ILLEGAL);
-	a = (rmap_t*)RVM_REG_GETP(arg2);
-	r_map_setvalue(a, index, arg1);
-}
-
-
-static void rvm_op_objlookup(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rlong index;
+	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
 	rmap_t *a = (rmap_t*)RVM_REG_GETP(arg2);
 
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT) {
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	}
-	index = r_map_lookup(a, -1, RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1));
+	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_LONG || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
+		keysize = r_snprintf(key, sizeof(key) - 1, "%ld", RVM_REG_GETL(arg3));
+	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_DOUBLE) {
+		keysize = r_snprintf(key, sizeof(key) - 1, "%f", RVM_REG_GETD(arg3));
+	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_STRING) {
+		pkey = ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str;
+		keysize = ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.size;
+	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_POINTER) {
+		pkey = (rchar*)RVM_CPUREG_GETP(cpu, ins->op3);
+		keysize = RVM_CPUREG_GETL(cpu, ins->op1);
+	} else {
+		RVM_ABORT(cpu, RVM_E_ILLEGAL);
+	}
+	index = r_map_lookup(a, -1, pkey, keysize);
 
 	RVM_REG_CLEAR(arg1);
 	RVM_REG_SETTYPE(arg1, RVM_DTYPE_LONG);
@@ -1620,17 +1574,33 @@ static void rvm_op_objlookup(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
-static void rvm_op_objkeyadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
+static void rvm_op_mapadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
+	rlong index;
+	rlong keysize;
+	rchar key[256], *pkey = key;
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rlong index;
+	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
 	rmap_t *a = (rmap_t*)RVM_REG_GETP(arg2);
 
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT) {
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	}
-	index = r_map_add(a, RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1), NULL);
+	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_LONG || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
+		keysize = r_snprintf(key, sizeof(key) - 1, "%ld", RVM_REG_GETL(arg3));
+	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_DOUBLE) {
+		keysize = r_snprintf(key, sizeof(key) - 1, "%f", RVM_REG_GETD(arg3));
+	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_STRING) {
+		pkey = ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str;
+		keysize = ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.size;
+	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_POINTER) {
+		pkey = (rchar*)RVM_CPUREG_GETP(cpu, ins->op3);
+		keysize = RVM_CPUREG_GETL(cpu, ins->op1);
+	} else {
+		RVM_ABORT(cpu, RVM_E_ILLEGAL);
+	}
+	index = r_map_add(a, pkey, keysize, NULL);
 
 	RVM_REG_CLEAR(arg1);
 	RVM_REG_SETTYPE(arg1, RVM_DTYPE_LONG);
@@ -1638,27 +1608,43 @@ static void rvm_op_objkeyadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
-static void rvm_op_objkeylookupadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
+static void rvm_op_maplookupadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
+	rlong index;
+	rlong keysize;
+	rchar key[256], *pkey = key;
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rlong index;
+	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
 	rmap_t *a = (rmap_t*)RVM_REG_GETP(arg2);
 
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT) {
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	}
-	index = r_map_lookup(a, -1, RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1));
+
+	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_LONG || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
+		keysize = r_snprintf(key, sizeof(key) - 1, "%ld", RVM_REG_GETL(arg3));
+	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_DOUBLE) {
+		keysize = r_snprintf(key, sizeof(key) - 1, "%f", RVM_REG_GETD(arg3));
+	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_STRING) {
+		pkey = ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str;
+		keysize = ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.size;
+	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_POINTER) {
+		pkey = (rchar*)RVM_CPUREG_GETP(cpu, ins->op3);
+		keysize = RVM_CPUREG_GETL(cpu, ins->op1);
+	} else {
+		RVM_ABORT(cpu, RVM_E_ILLEGAL);
+	}
+	index = r_map_lookup(a, -1, pkey, keysize);
 	if (index < 0)
-		index = r_map_add(a, RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1), NULL);
-
+		index = r_map_add(a, pkey, keysize, NULL);
 	RVM_REG_CLEAR(arg1);
 	RVM_REG_SETTYPE(arg1, RVM_DTYPE_LONG);
 	RVM_REG_SETL(arg1, index);
 }
 
 
-static void rvm_op_addrobjh(rvmcpu_t *cpu, rvm_asmins_t *ins)
+static void rvm_op_mapaddr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
@@ -1681,7 +1667,7 @@ static void rvm_op_addrobjh(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
-static void rvm_op_ldobjh(rvmcpu_t *cpu, rvm_asmins_t *ins)
+static void rvm_op_mapldr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
@@ -1705,7 +1691,7 @@ static void rvm_op_ldobjh(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
-static void rvm_op_stobjh(rvmcpu_t *cpu, rvm_asmins_t *ins)
+static void rvm_op_mapstr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
@@ -1899,16 +1885,13 @@ static rvm_cpu_op ops[] = {
 	rvm_op_addra,		// RVM_ADDRA
 	rvm_op_lda,			// RVM_LDA
 	rvm_op_sta,			// RVM_STA
-	rvm_op_allocobj,	// RVM_ALLOCOBJ
-	rvm_op_addrobjn,	// RVM_ADDROBJN,
-	rvm_op_addrobjh,	// RVM_ADDROBJH,
-	rvm_op_ldobjn,		// RVM_LDOBJN,
-	rvm_op_stobjn,		// RVM_STOBJN,
-	rvm_op_ldobjh,		// RVM_LDOBJH,
-	rvm_op_stobjh,		// RVM_STOBJH,
-	rvm_op_objlookup,	// RVM_OBJLKUP,
-	rvm_op_objkeyadd,	// RVM_OBJADD,
-	rvm_op_objkeylookupadd,	// RVM_OBJLKUPADD,
+	rvm_op_mapalloc,	// RVM_MAPALLOC
+	rvm_op_mapaddr,		// RVM_MAPADDR,
+	rvm_op_mapldr,		// RVM_MAPLDR,
+	rvm_op_mapstr,		// RVM_MAPSTR,
+	rvm_op_maplookup,	// RVM_MAPLKUP,
+	rvm_op_mapadd,		// RVM_MAPADD,
+	rvm_op_maplookupadd,// RVM_MAPLKUPADD,
 	(void*) 0,
 	(void*) 0,
 	(void*) 0,

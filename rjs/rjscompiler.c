@@ -675,7 +675,7 @@ rint rjs_compiler_rh_newarrayexpression(rjs_compiler_t *co, rarray_t *records, r
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCOBJ, R0, DA, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPALLOC, R0, DA, XX, 0));
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;
 }
@@ -698,12 +698,12 @@ rint rjs_compiler_rh_memberexpressiondotop(rjs_compiler_t *co, rarray_t *records
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	if (rjs_compiler_record_parentuid(co, records, rec) == UID_LEFTHANDSIDEEXPRESSIONADDR && rjs_compiler_record_lastofkind(co, records, rec)) {
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_OBJLKUPADD, R0, R1, R2, 0));	// Get the offset of the element at offset R0
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_ADDROBJH, R0, R1, R0, 0));	// Get the address of the element at offset R0
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLKUPADD, R0, R1, R2, 0));	// Get the offset of the element at offset R0
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPADDR, R0, R1, R0, 0));	// Get the address of the element at offset R0
 
 	} else {
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_OBJLKUP, R0, R1, R2, 0));	// Get the offset of the element at offset R0
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_LDOBJH, R0, R1, R0, 0));	// Get the value of the element at offset R0
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLKUP, R0, R1, R2, 0));	// Get the offset of the element at offset R0
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLDR, R0, R1, R0, 0));	// Get the value of the element at offset R0
 	}
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;
@@ -712,6 +712,7 @@ rint rjs_compiler_rh_memberexpressiondotop(rjs_compiler_t *co, rarray_t *records
 
 rint rjs_compiler_rh_memberexpressionindexop(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
+	rjs_coctx_t *ctx = rjs_compiler_gettopctx(co);
 	rparecord_t *prec;
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
@@ -720,16 +721,20 @@ rint rjs_compiler_rh_memberexpressionindexop(rjs_compiler_t *co, rarray_t *recor
 
 	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
 		return -1;
+	if (ctx && ctx->type == RJS_COCTX_FUNCTIONCALL)
+		((rjs_coctx_functioncall_t *)ctx)->setthis = 1;
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	if (rjs_compiler_record_parentuid(co, records, rec) == UID_LEFTHANDSIDEEXPRESSIONADDR && rjs_compiler_record_lastofkind(co, records, rec)) {
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0)); 	// Supposedly an Array
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_ADDROBJN, R0, R1, R0, 0));	// Get the address of the element at offset R0
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLKUPADD, R0, R1, R0, 0));	// R1 Array
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPADDR, R0, R1, R0, 0));	// Get the address of the element at offset R0
 
 	} else {
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0)); 	// Supposedly an Array
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_LDOBJN, R0, R1, R0, 0));	// Get the value of the element at offset R0
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLKUP, R0, R1, R0, 0));	// R1 Array
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLDR, R0, R1, R0, 0));	// Get the value of the element at offset R0
 	}
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;
@@ -1361,7 +1366,7 @@ rint rjs_compiler_rh_newexpressioncall(rjs_compiler_t *co, rarray_t *records, rl
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCOBJ, TP, DA, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPALLOC, TP, DA, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_SUB, FP, SP, DA, ctx.arguments));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_CALL, R0, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, SP, FP, XX, 0));

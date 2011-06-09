@@ -647,7 +647,7 @@ int codegen_program_callback(rpa_stat_handle stat, const char *name, void *userd
 		rvm_costat_pushroot(co);
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_NOP, XX, XX, XX, 0));
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_NOP, XX, XX, XX, 0));
-//		rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCOBJ, R8, DA, XX, 0));
+//		rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPALLOC, R8, DA, XX, 0));
 //		rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, TP, R8, XX, 0));
 	} else {
 		rvm_codegen_replaceins(co->cg, 0, rvm_asm(RVM_MOV, FP, SP, XX, 0));
@@ -757,9 +757,9 @@ int codegen_addressoflefthandside_callback(rpa_stat_handle stat, const char *nam
 	} else if (last->opcode == RVM_LDOBJN) {
 		last->opcode = RVM_ADDROBJN;
 		off -= 1;
-	} else if (last->opcode == RVM_LDOBJH && lastlast->opcode == RVM_OBJLKUP) {
-		lastlast->opcode = RVM_OBJLKUPADD;
-		last->opcode = RVM_ADDROBJH;
+	} else if (last->opcode == RVM_MAPLDR && lastlast->opcode == RVM_MAPLKUP) {
+		lastlast->opcode = RVM_MAPLKUPADD;
+		last->opcode = RVM_MAPADDR;
 		off -= 2;
 	} else {
 		fprintf(stdout, "ERROR: Invalid Left-Hand side expression: ");
@@ -800,7 +800,7 @@ int codegen_h_arraynamelookup_callback(rpa_stat_handle stat, const char *name, v
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0)); 	// Supposedly Array Address
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, DA, XX, size));
 	rvm_codegen_addins(co->cg, rvm_asmp(RVM_MOV, R2, DA, XX, (void*)input));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_OBJLKUP, R0, R1, R2, 0));	// Get the address of the element at offset R0
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLKUP, R0, R1, R2, 0));	// Get the address of the element at offset R0
 
 	codegen_print_callback(stat, name, userdata, input, size, reason);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
@@ -814,7 +814,7 @@ int codegen_h_arrayelementvalue_callback(rpa_stat_handle stat, const char *name,
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
 
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDOBJH, R0, R1, R0, 0));	// Get the address of the element at offset R0
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLDR, R0, R1, R0, 0));	// Get the address of the element at offset R0
 
 	codegen_print_callback(stat, name, userdata, input, size, reason);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
@@ -972,7 +972,7 @@ int codegen_opnewarray_callback(rpa_stat_handle stat, const char *name, void *us
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
 
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCOBJ, R0, DA, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPALLOC, R0, DA, XX, 0));
 
 	codegen_print_callback(stat, name, userdata, input, size, reason);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
@@ -1056,7 +1056,7 @@ int codegen_newexpressioncallop_callback(rpa_stat_handle stat, const char *name,
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(TP)|BIT(FP)|BIT(SP)|BIT(LR)));
 	} else if (reason & RPA_REASON_MATCHED){
 		rvm_funcall_t *funcall = r_array_empty(co->funcall) ? NULL : (rvm_funcall_t *) r_array_slot(co->funcall, r_array_length(co->funcall) - 1);
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCOBJ, TP, DA, XX, 0));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPALLOC, TP, DA, XX, 0));
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_SUB, FP, SP, DA, funcall->params));
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_CALL, R0, DA, XX, -rvm_codegen_getcodesize(co->cg)));
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, SP, FP, XX, 0));
@@ -1085,7 +1085,7 @@ int codegen_funcallname_callback(rpa_stat_handle stat, const char *name, void *u
 	rulong off = rvm_codegen_getcodesize(co->cg);
 	rvm_asmins_t *last = rvm_codegen_getcode(co->cg, off - 1);
 
-	if (last->op1 == R0 && last->op2 == R1 && (last->opcode == RVM_LDOBJN || last->opcode == RVM_LDOBJH)) {
+	if (last->op1 == R0 && last->op2 == R1 && (last->opcode == RVM_LDOBJN || last->opcode == RVM_MAPLDR)) {
 		/*
 		 * The function call id is comming from an object, so we set the this pointer (TP)
 		 * to point to the object (R1)

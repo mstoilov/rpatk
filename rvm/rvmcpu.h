@@ -155,16 +155,13 @@ enum {
 	RVM_ADDRA,		/* op1 is the destination memory, op2 is the array, op3 is the offset */
 	RVM_LDA,		/* op1 is the destination, op2 is the array, op3 is the offset */
 	RVM_STA,		/* op1 is the source, op2 is the array, op3 is the offset */
-	RVM_ALLOCOBJ,
-	RVM_ADDROBJN,
-	RVM_ADDROBJH,
-	RVM_LDOBJN,
-	RVM_STOBJN,
-	RVM_LDOBJH,
-	RVM_STOBJH,
-	RVM_OBJLKUP,
-	RVM_OBJADD,
-	RVM_OBJLKUPADD,
+	RVM_MAPALLOC,
+	RVM_MAPADDR,
+	RVM_MAPLDR,
+	RVM_MAPSTR,
+	RVM_MAPLKUP,
+	RVM_MAPADD,
+	RVM_MAPLKUPADD,
 };
 
 

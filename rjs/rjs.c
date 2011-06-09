@@ -1,6 +1,6 @@
 #include <stdarg.h>
 #include "rmem.h"
-#include "rjsobject.h"
+#include "rmap.h"
 #include "rjs.h"
 #include "rvmcodegen.h"
 
@@ -39,7 +39,7 @@ rjs_engine_t *rjs_engine_create()
 	if (!jse->pa || !jse->cpu || !jse->co || !jse->cgs)
 		goto error;
 	tp = rvm_cpu_alloc_global(jse->cpu);
-	rvm_reg_setjsobject(tp, (robject_t *)rjs_object_create(sizeof(rvmreg_t)));
+	rvm_reg_setjsobject(tp, (robject_t *)r_map_create(sizeof(rvmreg_t), 7));
 	rvm_gc_add(jse->cpu->gc, (robject_t*)RVM_REG_GETP(tp));
 	rvm_cpu_setreg(jse->cpu, TP, tp);
 	return jse;
