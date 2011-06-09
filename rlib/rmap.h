@@ -28,13 +28,21 @@ typedef struct rmap_s {
 
 rmap_t *r_map_create(ruint elt_size, ruint nbits);
 void r_map_destroy(rmap_t *array);
+rlong r_map_lookup(rmap_t *map, rlong current, const rchar *name, rsize_t namesize);
+rlong r_map_lookup_s(rmap_t *map, rlong current, const rchar *name);
+rlong r_map_taillookup(rmap_t *map, rlong current, const rchar *name, rsize_t namesize);
+rlong r_map_taillookup_s(rmap_t *map, rlong current, const rchar *name);
 rlong r_map_add(rmap_t *map, const rchar *name, rsize_t namesize, rconstpointer pval);
 rlong r_map_add_s(rmap_t *map, const rchar *name, rconstpointer pval);
-rlong r_map_replace(rmap_t *map, const rchar *name, rsize_t namesize, rconstpointer pval);
-rlong r_map_replace_s(rmap_t *map, const rchar *name, rconstpointer pval);
-const rchar *r_map_key(rmap_t *map, rsize_t index);
-rpointer r_map_value(rmap_t *map, rsize_t index);
-rint r_map_delete(rmap_t *map, rsize_t index);
+rlong r_map_setvalue(rmap_t *map, rlong index, rconstpointer pval);
+const rchar *r_map_key(rmap_t *map, rulong index);
+rpointer r_map_value(rmap_t *map, rulong index);
+rint r_map_delete(rmap_t *map, rulong index);
+
+rlong r_map_first(rmap_t *map);
+rlong r_map_last(rmap_t *map);
+rlong r_map_next(rmap_t *map, rlong current);
+rlong r_map_prev(rmap_t *map, rlong current);
 
 
 #ifdef __cplusplus

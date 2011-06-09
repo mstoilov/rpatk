@@ -30,6 +30,7 @@
 #include "rmem.h"
 #include "rstring.h"
 #include "rvmreg.h"
+#include "rmap.h"
 #include "rjsobject.h"
 
 #define RVM_DEFAULT_STACKSIZE (4 * 1024)
@@ -1518,7 +1519,7 @@ static void rvm_op_allocstr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rvm_op_allocobj(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
-	rjs_object_t *a = rjs_object_create(sizeof(rvmreg_t));
+	rmap_t *a = r_map_create(sizeof(rvmreg_t), 7);
 	if (!a) {
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	}
@@ -1547,7 +1548,7 @@ static void rvm_op_addrobjn(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t tmp = rvm_reg_create_long(0);
-	rjs_object_t *a;
+	rmap_t *a;
 	rlong index;
 
 	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
@@ -1556,10 +1557,10 @@ static void rvm_op_addrobjn(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	if (index < 0)
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
-	a = (rjs_object_t*)RVM_REG_GETP(arg2);
+	a = (rmap_t*)RVM_REG_GETP(arg2);
 	RVM_REG_CLEAR(arg1);
 	RVM_REG_SETTYPE(arg1, RVM_DTYPE_POINTER);
-	RVM_REG_SETP(arg1, r_carray_slot_expand(a->narray, index));
+	RVM_REG_SETP(arg1, r_map_value(a, index));
 }
 
 
@@ -1568,7 +1569,7 @@ static void rvm_op_ldobjn(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t tmp = rvm_reg_create_long(0);
-	rjs_object_t *a = NULL;
+	rmap_t *a = NULL;
 	rlong index;
 
 	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
@@ -1577,8 +1578,8 @@ static void rvm_op_ldobjn(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	if (index < 0)
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
-	a = (rjs_object_t*)RVM_REG_GETP(arg2);
-	*arg1 = *((rvmreg_t*)r_carray_slot_expand(a->narray, index));
+	a = (rmap_t*)RVM_REG_GETP(arg2);
+	*arg1 = *((rvmreg_t*)r_map_value(a, index));
 }
 
 
@@ -1587,7 +1588,7 @@ static void rvm_op_stobjn(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t tmp = rvm_reg_create_long(0);
-	rjs_object_t *a = NULL;
+	rmap_t *a = NULL;
 	rlong index;
 
 	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
@@ -1596,8 +1597,8 @@ static void rvm_op_stobjn(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	if (index < 0)
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
-	a = (rjs_object_t*)RVM_REG_GETP(arg2);
-	r_carray_replace(a->narray, index, arg1);
+	a = (rmap_t*)RVM_REG_GETP(arg2);
+	r_map_setvalue(a, index, arg1);
 }
 
 
@@ -1606,12 +1607,12 @@ static void rvm_op_objlookup(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rlong index;
-	rjs_object_t *a = (rjs_object_t*)RVM_REG_GETP(arg2);
+	rmap_t *a = (rmap_t*)RVM_REG_GETP(arg2);
 
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT) {
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	}
-	index = r_harray_lookup(a->harray, RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1));
+	index = r_map_lookup(a, -1, RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1));
 
 	RVM_REG_CLEAR(arg1);
 	RVM_REG_SETTYPE(arg1, RVM_DTYPE_LONG);
@@ -1624,12 +1625,12 @@ static void rvm_op_objkeyadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rlong index;
-	rjs_object_t *a = (rjs_object_t*)RVM_REG_GETP(arg2);
+	rmap_t *a = (rmap_t*)RVM_REG_GETP(arg2);
 
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT) {
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	}
-	index = r_harray_add(a->harray, RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1), NULL);
+	index = r_map_add(a, RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1), NULL);
 
 	RVM_REG_CLEAR(arg1);
 	RVM_REG_SETTYPE(arg1, RVM_DTYPE_LONG);
@@ -1642,14 +1643,14 @@ static void rvm_op_objkeylookupadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rlong index;
-	rjs_object_t *a = (rjs_object_t*)RVM_REG_GETP(arg2);
+	rmap_t *a = (rmap_t*)RVM_REG_GETP(arg2);
 
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT) {
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	}
-	index = r_harray_lookup(a->harray, RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1));
+	index = r_map_lookup(a, -1, RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1));
 	if (index < 0)
-		index = r_harray_add(a->harray, RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1), NULL);
+		index = r_map_add(a, RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1), NULL);
 
 	RVM_REG_CLEAR(arg1);
 	RVM_REG_SETTYPE(arg1, RVM_DTYPE_LONG);
@@ -1662,19 +1663,21 @@ static void rvm_op_addrobjh(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t tmp = rvm_reg_create_long(0);
-	rjs_object_t *a;
+	rmap_t *a;
+	rpointer value;
 	rlong index;
 
 	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = RVM_REG_GETL(&tmp);
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT)
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
-	if (index < 0)
+	a = (rmap_t*)RVM_REG_GETP(arg2);
+	value = r_map_value(a, index);
+	if (!value)
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
-	a = (rjs_object_t*)RVM_REG_GETP(arg2);
 	RVM_REG_CLEAR(arg1);
 	RVM_REG_SETTYPE(arg1, RVM_DTYPE_POINTER);
-	RVM_REG_SETP(arg1, r_carray_slot_expand(a->harray->members, index));
+	RVM_REG_SETP(arg1, value);
 }
 
 
@@ -1683,19 +1686,21 @@ static void rvm_op_ldobjh(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t tmp = rvm_reg_create_long(0);
-	rjs_object_t *a = NULL;
+	rmap_t *a = NULL;
+	rpointer value;
 	rlong index;
 
 	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = RVM_REG_GETL(&tmp);
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT)
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
-	a = (rjs_object_t*)RVM_REG_GETP(arg2);
-	if (index < 0) {
+	a = (rmap_t*)RVM_REG_GETP(arg2);
+	value = r_map_value(a, index);
+	if (!value) {
 		RVM_REG_CLEAR(arg1);
 		RVM_REG_SETTYPE(arg1, RVM_DTYPE_UNDEF);
 	} else {
-		*arg1 = *((rvmreg_t*)r_carray_slot_expand(a->harray->members, index));
+		*arg1 = *((rvmreg_t*)value);
 	}
 }
 
@@ -1705,17 +1710,19 @@ static void rvm_op_stobjh(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t tmp = rvm_reg_create_long(0);
-	rjs_object_t *a = NULL;
+	rmap_t *a = NULL;
+	rpointer value;
 	rlong index;
 
 	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = RVM_REG_GETL(&tmp);
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT)
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
-	if (index < 0)
+	a = (rmap_t*)RVM_REG_GETP(arg2);
+	value = r_map_value(a, index);
+	if (!value)
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
-	a = (rjs_object_t*)RVM_REG_GETP(arg2);
-	r_carray_replace(a->harray->members, index, arg1);
+	r_map_setvalue(a, index, arg1);
 }
 
 
