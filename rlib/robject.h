@@ -45,6 +45,8 @@ void r_object_cleanup(robject_t *obj);
 void r_object_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy);
 void r_object_typeset(robject_t *obj, ruint32 type);
 ruint32 r_object_typeget(robject_t *obj);
+void r_object_gcset(robject_t *obj, rpointer gc);
+rpointer r_object_gcget(robject_t *obj);
 
 /*
  * Virtual methods

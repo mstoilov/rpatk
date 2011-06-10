@@ -12,7 +12,6 @@ RVM_OBJECTS +=	$(OUTDIR)/rvmrelocmap.o
 RVM_OBJECTS +=	$(OUTDIR)/rvmcodegen.o
 RVM_OBJECTS +=	$(OUTDIR)/rvmreg.o
 RVM_OBJECTS +=	$(OUTDIR)/rvmscope.o
-RVM_OBJECTS +=	$(OUTDIR)/rvmgc.o
 RVM_OBJECTS +=	$(OUTDIR)/rvmoperatorbin.o
 RVM_OBJECTS +=	$(OUTDIR)/rvmoperatoradd.o
 RVM_OBJECTS +=	$(OUTDIR)/rvmoperatorand.o

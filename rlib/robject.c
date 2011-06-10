@@ -80,3 +80,15 @@ ruint32 r_object_typeget(robject_t *obj)
 {
 	return obj->type;
 }
+
+
+void r_object_gcset(robject_t *obj, rpointer gc)
+{
+	obj->gc = gc;
+}
+
+
+rpointer r_object_gcget(robject_t *obj)
+{
+	return obj->gc;
+}

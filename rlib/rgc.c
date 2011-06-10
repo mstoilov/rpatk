@@ -19,6 +19,12 @@ rgc_t *r_gc_create()
 }
 
 
+void r_gc_destroy(rgc_t *gc)
+{
+	r_object_destroy((robject_t *)gc);
+}
+
+
 void r_gc_cleanup(robject_t *obj)
 {
 	rgc_t *gc = (rgc_t*)obj;
@@ -53,7 +59,7 @@ void r_gc_add(rgc_t *gc, robject_t *obj)
 	rhead_t *head = r_gc_head(gc);
 
 	r_list_addt(head, &obj->lnk);
-	obj->gc = (rpointer)gc;
+	r_object_gcset(obj, gc);
 }
 
 

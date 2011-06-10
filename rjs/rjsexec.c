@@ -72,7 +72,7 @@ static void rjs_exec_ltrim(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		ptr++;
 	}
 	dest = r_string_create_strsize(ptr, size);
-	rvm_gc_add(cpu->gc, (robject_t*)dest);
+	r_gc_add(cpu->gc, (robject_t*)dest);
 	rvm_reg_setstring(RVM_CPUREG_PTR(cpu, R0), dest);
 }
 
@@ -108,7 +108,7 @@ static void rjs_exec_rtrim(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		ptr--;
 	}
 	dest = r_string_create_strsize(src->s.str, size);
-	rvm_gc_add(cpu->gc, (robject_t*)dest);
+	r_gc_add(cpu->gc, (robject_t*)dest);
 	rvm_reg_setstring(RVM_CPUREG_PTR(cpu, R0), dest);
 }
 
@@ -153,7 +153,7 @@ static void rjs_exec_trim(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		ptr--;
 	}
 	dest = r_string_create_strsize(start, size);
-	rvm_gc_add(cpu->gc, (robject_t*)dest);
+	r_gc_add(cpu->gc, (robject_t*)dest);
 	rvm_reg_setstring(RVM_CPUREG_PTR(cpu, R0), dest);
 }
 

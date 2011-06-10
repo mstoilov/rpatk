@@ -9,7 +9,7 @@ typedef struct r_mapnode_s {
 	rlink_t hash;
 	rsize_t index;
 	rlong nbucket;
-	rstr_t *key;
+	rstring_t *key;
 	union {
 		rpointer p;
 		rchar data[0];
@@ -38,7 +38,8 @@ static rulong r_map_rstrhash(const rstr_t *key)
 
 void r_mapnode_init(r_mapnode_t *node, const rchar *key, rsize_t size)
 {
-	node->key = r_rstrdup(key, size);
+//	node->key = r_rstrdup(key, size);
+	node->key = r_string_create_strsize(key, size);
 	r_list_init(&node->active);
 	r_list_init(&node->hash);
 }
@@ -75,12 +76,14 @@ void r_map_cleanup(robject_t *obj)
 
 	while (!r_list_empty(&map->active)) {
 		node = r_list_entry(r_list_first(&map->active), r_mapnode_t, active);
-		r_free(node->key);
+		if (!r_object_gcget((robject_t*)node->key))
+			r_string_destroy(node->key);
 		r_list_del(&node->active);
 	}
 	while (!r_list_empty(&map->inactive)) {
 		node = r_list_entry(r_list_first(&map->inactive), r_mapnode_t, active);
-		r_free(node->key);
+		if (!r_object_gcget((robject_t*)node->key))
+			r_string_destroy(node->key);
 		r_list_del(&node->active);
 	}
 
@@ -131,41 +134,67 @@ void r_map_destroy(rmap_t *map)
 }
 
 
-rlong r_map_add(rmap_t *map, const rchar *name, rsize_t namesize, rconstpointer pval)
+rlong r_map_gckey_add(rmap_t *map, rgc_t* gc, const rchar *name, rsize_t namesize, rconstpointer pval)
 {
 	r_mapnode_t *node;
 
 	node = r_map_getfreenode(map, name, namesize);
 	if (pval)
 		r_memcpy(node->value.data, pval, map->elt_size);
-	node->nbucket = (r_map_rstrhash(node->key) & r_map_hashmask(map));
+	node->nbucket = (r_map_rstrhash(R_STRING2RSTR(node->key)) & r_map_hashmask(map));
 	r_list_addt(&map->hash[node->nbucket], &node->hash);
 	r_list_addt(&map->active, &node->active);
+	if (gc)
+		r_gc_add(gc, (robject_t*)node->key);
 	return node->index;
+}
+
+
+rlong r_map_gckey_add_s(rmap_t *map, rgc_t* gc, const rchar *name, rconstpointer pval)
+{
+	return r_map_gckey_add(map, gc, name, r_strlen(name), pval);
+}
+
+
+rlong r_map_gckey_add_d(rmap_t *map, rgc_t* gc, double name, rconstpointer pval)
+{
+	rchar key[128];
+	r_memset(key, 0, sizeof(key));
+	r_snprintf(key, sizeof(key) - 1, "%.15f", name);
+	return r_map_gckey_add_s(map, gc, key, pval);
+}
+
+
+rlong r_map_gckey_add_l(rmap_t *map, rgc_t* gc, long name, rconstpointer pval)
+{
+	rchar key[128];
+	r_memset(key, 0, sizeof(key));
+	r_snprintf(key, sizeof(key) - 1, "%ld", name);
+	return r_map_gckey_add_s(map, gc, key, pval);
+}
+
+
+rlong r_map_add(rmap_t *map, const rchar *name, rsize_t namesize, rconstpointer pval)
+{
+	return r_map_gckey_add(map, NULL, name, namesize, pval);
 }
 
 
 rlong r_map_add_s(rmap_t *map, const rchar *name, rconstpointer pval)
 {
-	return r_map_add(map, name, r_strlen(name), pval);
+	return r_map_gckey_add_s(map, NULL, name, pval);
 }
 
 
 rlong r_map_add_l(rmap_t *map, long name, rconstpointer pval)
 {
-	rchar key[128];
-	r_memset(key, 0, sizeof(key));
-	r_snprintf(key, sizeof(key) - 1, "%ld", name);
-	return r_map_add_s(map, key, pval);
+	return r_map_gckey_add_l(map, NULL, name, pval);
 }
 
 
 rlong r_map_add_d(rmap_t *map, double name, rconstpointer pval)
 {
-	rchar key[128];
-	r_memset(key, 0, sizeof(key));
-	r_snprintf(key, sizeof(key) - 1, "%.15f", name);
-	return r_map_add_s(map, key, pval);
+	return r_map_gckey_add_d(map, NULL, name, pval);
 }
 
 
@@ -181,12 +210,12 @@ r_mapnode_t *r_map_node(rmap_t *map, rulong index)
 }
 
 
-const rchar *r_map_key(rmap_t *map, rulong index)
+rstring_t *r_map_key(rmap_t *map, rulong index)
 {
 	r_mapnode_t *node = r_map_node(map, index);
 	if (!node)
 		return NULL;
-	return node->key->str;
+	return node->key;
 }
 
 
@@ -214,7 +243,8 @@ rint r_map_delete(rmap_t *map, rulong index)
 	r_mapnode_t *node = r_map_node(map, index);
 	if (!node)
 		return -1;
-	r_free(node->key);
+	if (!r_object_gcget((robject_t*)node->key))
+		r_string_destroy(node->key);
 	node->key = NULL;
 	r_list_del(&node->hash);
 	r_list_init(&node->hash);
@@ -247,7 +277,7 @@ rlong r_map_lookup(rmap_t *map, rlong current, const rchar *name, rsize_t namesi
 	}
 	for ( ; pos ; pos = r_list_next(bucket, pos)) {
 		node = r_list_entry(pos, r_mapnode_t, hash);
-		if (r_map_rstrequal(node->key, &lookupstr)) {
+		if (r_map_rstrequal(R_STRING2RSTR(node->key), &lookupstr)) {
 			found = node->index;
 			break;
 		}
@@ -304,7 +334,7 @@ rlong r_map_taillookup(rmap_t *map, rlong current, const rchar *name, rsize_t na
 	}
 	for ( ; pos ; pos = r_list_prev(bucket, pos)) {
 		node = r_list_entry(pos, r_mapnode_t, hash);
-		if (r_map_rstrequal(node->key, &lookupstr)) {
+		if (r_map_rstrequal(R_STRING2RSTR(node->key), &lookupstr)) {
 			found = node->index;
 			break;
 		}

@@ -400,14 +400,14 @@ int rvm_reg_str2num(rvmreg_t *dst, const rvmreg_t *src)
 	rdouble d;
 	rlong l;
 
-	l = r_strtol(R_STRING2PTR(RVM_REG_GETP(src)), &lptr, 10);
+	l = r_strtol(R_STRING2ANSI(RVM_REG_GETP(src)), &lptr, 10);
 	if (!lptr)
 		return -1;
 	if (*lptr != '.') {
 		rvm_reg_setlong(dst, l);
 		return 0;
 	}
-	d = r_strtod(R_STRING2PTR(RVM_REG_GETP(src)), &dptr);
+	d = r_strtod(R_STRING2ANSI(RVM_REG_GETP(src)), &dptr);
 	if (!dptr)
 		return -1;
 	rvm_reg_setdouble(dst, d);
@@ -420,7 +420,7 @@ int rvm_reg_str2long(rvmreg_t *dst, const rvmreg_t *src)
 	rchar *dptr;
 	rdouble d;
 
-	d = r_strtod(R_STRING2PTR(RVM_REG_GETP(src)), &dptr);
+	d = r_strtod(R_STRING2ANSI(RVM_REG_GETP(src)), &dptr);
 	if (!dptr)
 		return -1;
 	rvm_reg_setlong(dst, (long)d);
@@ -433,7 +433,7 @@ int rvm_reg_str2double(rvmreg_t *dst, const rvmreg_t *src)
 	rchar *dptr;
 	rdouble d;
 
-	d = r_strtod(R_STRING2PTR(RVM_REG_GETP(src)), &dptr);
+	d = r_strtod(R_STRING2ANSI(RVM_REG_GETP(src)), &dptr);
 	if (!dptr)
 		return -1;
 	rvm_reg_setdouble(dst, d);

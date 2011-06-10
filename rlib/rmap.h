@@ -5,6 +5,7 @@
 #include "rhash.h"
 #include "rlist.h"
 #include "rstring.h"
+#include "rgc.h"
 #include "robject.h"
 
 #ifdef __cplusplus
@@ -38,8 +39,20 @@ rlong r_map_add(rmap_t *map, const rchar *name, rsize_t namesize, rconstpointer 
 rlong r_map_add_s(rmap_t *map, const rchar *name, rconstpointer pval);
 rlong r_map_add_d(rmap_t *map, double name, rconstpointer pval);
 rlong r_map_add_l(rmap_t *map, long name, rconstpointer pval);
+
+/*
+ * The following functions allow the created keys (rstring_t objects) to be added to
+ * GC list and not being destroyed by the rmap_t, but leave it to the users of rmap_t
+ * to decide when to destroy those keys. These is useful for scripting languages with
+ * GC memory management. Another possibility would be to get the key as a rstrit_t* and
+ * make rmap_t completely get out of the memory management business.
+ */
+rlong r_map_gckey_add(rmap_t *map, rgc_t* gc, const rchar *name, rsize_t namesize, rconstpointer pval);
+rlong r_map_gckey_add_s(rmap_t *map, rgc_t* gc, const rchar *name, rconstpointer pval);
+rlong r_map_gckey_add_d(rmap_t *map, rgc_t* gc, double name, rconstpointer pval);
+rlong r_map_gckey_add_l(rmap_t *map, rgc_t* gc, long name, rconstpointer pval);
 rlong r_map_setvalue(rmap_t *map, rlong index, rconstpointer pval);
-const rchar *r_map_key(rmap_t *map, rulong index);
+rstring_t *r_map_key(rmap_t *map, rulong index);
 rpointer r_map_value(rmap_t *map, rulong index);
 rint r_map_delete(rmap_t *map, rulong index);
 

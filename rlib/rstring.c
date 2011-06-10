@@ -303,6 +303,12 @@ rstring_t *r_string_create_strsize(const rchar *str, ruint size)
 }
 
 
+void r_string_destroy(rstring_t *string)
+{
+	r_object_destroy((robject_t*)string);
+}
+
+
 const char *r_string_ansi(const rstring_t *str)
 {
 	if (!str)

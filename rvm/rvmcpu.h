@@ -25,7 +25,7 @@
 #include "rarray.h"
 #include "rcarray.h"
 #include "rvmreg.h"
-#include "rvmgc.h"
+#include "rgc.h"
 
 
 #ifdef __cplusplus
@@ -321,7 +321,7 @@ struct rvmcpu_s {
 	rcarray_t *data;
 	struct rvm_opmap_s *opmap;
 	rvmreg_t *thisptr;
-	rvm_gc_t *gc;
+	rgc_t *gc;
 	void *userdata1;
 	void *userdata2;
 	void *userdata3;

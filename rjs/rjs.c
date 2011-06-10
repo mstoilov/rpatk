@@ -40,7 +40,7 @@ rjs_engine_t *rjs_engine_create()
 		goto error;
 	tp = rvm_cpu_alloc_global(jse->cpu);
 	rvm_reg_setjsobject(tp, (robject_t *)r_map_create(sizeof(rvmreg_t), 7));
-	rvm_gc_add(jse->cpu->gc, (robject_t*)RVM_REG_GETP(tp));
+	r_gc_add(jse->cpu->gc, (robject_t*)RVM_REG_GETP(tp));
 	rvm_cpu_setreg(jse->cpu, TP, tp);
 	return jse;
 error:
@@ -215,7 +215,7 @@ static rint rjs_compiler_argarray_setup(rjs_compiler_t *co)
 		return -1;
 	}
 	a = r_map_create(sizeof(rvmreg_t), 7);
-	rvm_gc_add(co->cpu->gc, (robject_t*)a);
+	r_gc_add(co->cpu->gc, (robject_t*)a);
 	r_map_add_s(a, "count", &count);
 	rvm_reg_setjsobject((rvmreg_t*)v->data.ptr, (robject_t*)a);
 	return 0;

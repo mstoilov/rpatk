@@ -1507,7 +1507,7 @@ static void rvm_op_allocstr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	if (!s) {
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	}
-	rvm_gc_add(cpu->gc, (robject_t*)s);
+	r_gc_add(cpu->gc, (robject_t*)s);
 	rvm_reg_setstring(arg1, s);
 }
 
@@ -1519,7 +1519,7 @@ static void rvm_op_mapalloc(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	if (!a) {
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	}
-	rvm_gc_add(cpu->gc, (robject_t*)a);
+	r_gc_add(cpu->gc, (robject_t*)a);
 	rvm_reg_setjsobject(arg1, (robject_t*)a);
 }
 
@@ -1533,7 +1533,7 @@ static void rvm_op_allocarr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	}
 	r_carray_setlength(a, size);
-	rvm_gc_add(cpu->gc, (robject_t*)a);
+	r_gc_add(cpu->gc, (robject_t*)a);
 	rvm_reg_setarray(arg1, (robject_t*)a);
 }
 
@@ -1579,13 +1579,13 @@ static void rvm_op_mapadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	}
 	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_LONG || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
-		index = r_map_add_l(a, RVM_REG_GETL(arg3), NULL);
+		index = r_map_gckey_add_l(a, cpu->gc, RVM_REG_GETL(arg3), NULL);
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_DOUBLE) {
-		index = r_map_add_d(a, RVM_REG_GETD(arg3), NULL);
+		index = r_map_gckey_add_d(a, cpu->gc, RVM_REG_GETD(arg3), NULL);
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_STRING) {
-		index = r_map_add(a, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.size, NULL);
+		index = r_map_gckey_add(a, cpu->gc, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.size, NULL);
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_POINTER) {
-		index = r_map_add(a, (rchar*)RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1), NULL);
+		index = r_map_gckey_add(a, cpu->gc, (rchar*)RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1), NULL);
 	} else {
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	}
@@ -1610,19 +1610,19 @@ static void rvm_op_maplookupadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_LONG || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
 		index = r_map_lookup_l(a, -1, RVM_REG_GETL(arg3));
 		if (index < 0)
-			index = r_map_add_l(a, RVM_REG_GETL(arg3), NULL);
+			index = r_map_gckey_add_l(a, cpu->gc, RVM_REG_GETL(arg3), NULL);
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_DOUBLE) {
 		index = r_map_lookup_d(a, -1, RVM_REG_GETD(arg3));
 		if (index < 0)
-			index = r_map_add_d(a, RVM_REG_GETD(arg3), NULL);
+			index = r_map_gckey_add_d(a, cpu->gc, RVM_REG_GETD(arg3), NULL);
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_STRING) {
 		index = r_map_lookup(a, -1, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.size);
 		if (index < 0)
-			index = r_map_add(a, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.size, NULL);
+			index = r_map_gckey_add(a, cpu->gc, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.size, NULL);
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_POINTER) {
 		index = r_map_lookup(a, -1, (rchar*)RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1));
 		if (index < 0)
-			index = r_map_add(a, (rchar*)RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1), NULL);
+			index = r_map_gckey_add(a, cpu->gc, (rchar*)RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1), NULL);
 	} else {
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	}
@@ -1905,7 +1905,7 @@ rvmcpu_t *rvm_cpu_create(rulong stacksize)
 	cpu->stack = r_malloc(stacksize * sizeof(rvmreg_t));
 	cpu->data = r_carray_create(sizeof(rvmreg_t));
 	cpu->opmap = rvm_opmap_create();
-	cpu->gc = rvm_gc_create();
+	cpu->gc = r_gc_create();
 	rvm_op_binary_init(cpu->opmap);
 	rvm_op_cast_init(cpu->opmap);
 	rvm_op_not_init(cpu->opmap);
@@ -1923,8 +1923,8 @@ rvmcpu_t *rvm_cpu_create_default()
 
 void rvm_cpu_destroy(rvmcpu_t *cpu)
 {
-	rvm_gc_deallocate_all(cpu->gc);
-	rvm_gc_destroy(cpu->gc);
+	r_gc_deallocateall(cpu->gc);
+	r_gc_destroy(cpu->gc);
 	r_object_destroy((robject_t*)cpu->switables);
 	r_free(cpu->stack);
 	r_object_destroy((robject_t*)cpu->data);
