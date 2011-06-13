@@ -41,6 +41,9 @@ PHP_MSHUTDOWN_FUNCTION(prpa);
 PHP_RINIT_FUNCTION(prpa);
 PHP_RSHUTDOWN_FUNCTION(prpa);
 PHP_MINFO_FUNCTION(prpa);
+PHP_FUNCTION(rpa_dbex_version);
+
+#if 0
 PHP_FUNCTION(rpa_dbex_strmatch);
 PHP_FUNCTION(rpa_dbex_create);
 PHP_FUNCTION(rpa_dbex_open);
@@ -60,11 +63,8 @@ PHP_FUNCTION(rpa_dbex_prev_pattern);
 PHP_FUNCTION(rpa_dbex_pattern_name);
 PHP_FUNCTION(rpa_dbex_pattern_regex);
 PHP_FUNCTION(rpa_dbex_add_callback);
-PHP_FUNCTION(rpa_dbex_version);
-PHP_FUNCTION(rpa_dbex_seversion);
+#endif
 
-
-PHP_FUNCTION(confirm_prpa_compiled);	/* For testing, remove later. */
 
 /* 
   	Declare any global variables you may need between the BEGIN

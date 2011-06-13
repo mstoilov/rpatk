@@ -21,8 +21,32 @@ if test "$PHP_PRPA" != "no"; then
 
   dnl # --with-prpa -> check with-path
   MACHDIR=`uname -m 2>/dev/null`
-  OS=`uname 2>/dev/null`
-  SEARCH_PATH="/usr/local /usr  ../../rpasdk/$OS/$MACHDIR"     # you might want to change this
+  OS=linux
+
+  SEARCH_PATH="../../arch/$OS/$MACHDIR"     # you might want to change this
+  SEARCH_FOR="rtypes.h"       			 # you most likely want to change this
+  if test -r $PHP_PRPA/arch/$OS/$MACHDIR/$SEARCH_FOR; then # path given as parameter
+     RTYPES_DIR=$PHP_PRPA/arch/$OS/$MACHDIR
+  else # search default path list
+       AC_MSG_CHECKING([for arch files in default path])
+       for i in $SEARCH_PATH; do
+       	   if test -r $i/$SEARCH_FOR; then
+	      RTYPES_DIR=$i
+              AC_MSG_RESULT(found in $i)
+       	   fi
+	done
+
+  fi
+
+  if test -z "$RTYPES_DIR"; then
+     AC_MSG_RESULT([not found])
+     AC_MSG_ERROR([arch dir not found in $SEARCH_PATH . Please reinstall the prpa distribution])
+  else
+     AC_MSG_RESULT([found])
+     PHP_ADD_INCLUDE($RTYPES_DIR)
+  fi
+
+  SEARCH_PATH="../../rpa"     # you might want to change this
   SEARCH_FOR="rpadbex.h"       			 # you most likely want to change this
   if test -r $PHP_PRPA/$SEARCH_FOR; then # path given as parameter
      PRPA_DIR=$PHP_PRPA
@@ -38,11 +62,14 @@ if test "$PHP_PRPA" != "no"; then
 
   if test -z "$PRPA_DIR"; then
      AC_MSG_RESULT([not found])
-     AC_MSG_ERROR([Please reinstall the prpa distribution])
+     AC_MSG_ERROR([RPA dir not found. Please reinstall the prpa distribution])
   fi
+
+
 
   dnl # --with-prpa -> add include path
   PHP_ADD_INCLUDE($PRPA_DIR)
+
 
   dnl # --with-prpa -> check for lib and symbol presence
   LIBNAME=rpa

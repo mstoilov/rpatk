@@ -49,7 +49,6 @@ typedef struct _php_rpa_pattern {
 
 
 typedef struct _php_cbinfo {
-//	rpa_dbex_handle hDbex;
 	php_rpa_dbex *pPhpDbex;
 	char *php_callback;
 	zval *userdata;
@@ -75,6 +74,8 @@ static int le_prpa;
  */
 zend_function_entry prpa_functions[] = {
 	PHP_FE(confirm_prpa_compiled,	NULL)		/* For testing, remove later. */
+    PHP_FE(rpa_dbex_version, NULL)
+#if 0
     PHP_FE(rpa_dbex_strmatch, NULL)
     PHP_FE(rpa_dbex_create, NULL)
     PHP_FE(rpa_dbex_load_string, NULL)
@@ -94,8 +95,7 @@ zend_function_entry prpa_functions[] = {
     PHP_FE(rpa_dbex_pattern_name, NULL)
     PHP_FE(rpa_dbex_pattern_regex, NULL)
     PHP_FE(rpa_dbex_add_callback, NULL)
-    PHP_FE(rpa_dbex_version, NULL)
-    PHP_FE(rpa_dbex_seversion, NULL)
+#endif
 	{NULL, NULL, NULL}	/* Must be the last line in prpa_functions[] */
 };
 /* }}} */
@@ -215,36 +215,12 @@ PHP_MINFO_FUNCTION(prpa)
 /* }}} */
 
 
-/* Remove the following function when you have succesfully modified config.m4
-   so that your module can be compiled into PHP, it exists only for testing
-   purposes. */
-
-/* Every user-visible function in PHP should document itself in the source */
-/* {{{ proto string confirm_prpa_compiled(string arg)
-   Return a string to confirm that the module is compiled in */
-PHP_FUNCTION(confirm_prpa_compiled)
+PHP_FUNCTION(rpa_dbex_version)
 {
-	char *arg = NULL;
-	int arg_len, len;
-	char *strg;
-
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &arg, &arg_len) == FAILURE) {
-		return;
-	}
-
-	len = spprintf(&strg, 0, "Congratulations! You have successfully modified ext/%.78s/config.m4. Module %.78s is now compiled into PHP.", "prpa", arg);
-	RETURN_STRINGL(strg, len, 0);
+    RETURN_STRING(rpa_dbex_version(), 1);
 }
-/* }}} */
-/* The previous line is meant for vim and emacs, so it can correctly fold and 
-   unfold functions in source code. See the corresponding marks just before 
-   function definition, where the functions purpose is also documented. Please 
-   follow this convention for the convenience of others editing your code.
-*/
 
-
-
-
+#if 0
 static php_cbinfo *php_cbinfo_create(php_rpa_dbex *pPhpDbex, const char *php_callback, zval *userdata)
 {
 	php_cbinfo *pCbInfo;
@@ -840,14 +816,4 @@ PHP_FUNCTION(rpa_dbex_add_callback)
 	RETURN_LONG(ret);
 }
 
-
-PHP_FUNCTION(rpa_dbex_version)
-{
-    RETURN_STRING(rpa_dbex_version(), 1);
-}
-
-
-PHP_FUNCTION(rpa_dbex_seversion)
-{
-    RETURN_STRING(rpa_dbex_seversion(), 1);
-}
+#endif
