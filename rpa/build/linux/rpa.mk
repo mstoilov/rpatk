@@ -1,6 +1,12 @@
+RTK_LIB_INSTALL=/usr/lib
 RPA_SRCDIR = $(SRCDIR)/rpa
-RPA_LIB = $(OUTDIR)/librpa.a
-RPA_SO = $(OUTDIR)/librpa.so.1.0
+RPA_LIB = librpa.a
+RPA_SO_VERSION = 2.0
+RPA_SO_NAME = librpa.so
+RPA_SO = $(RPA_SO_NAME).$(RPA_SO_VERSION)
+TARGET_RPA_LIB = $(OUTDIR)/$(RPA_LIB)
+TARGET_RPA_SO = $(OUTDIR)/$(RPA_SO)
+
 
 CFLAGS += -I$(RVM_SRCDIR)/config -I$(SRCDIR)/rlib -I$(SRCDIR)/rvm
 
@@ -16,20 +22,20 @@ RPA_OBJECTS =	\
 
 
 ifeq ($(OS), linux)
-all: $(OUTDIR) $(RPA_LIB) $(RPA_SO)
+all: $(OUTDIR) $(TARGET_RPA_LIB) $(TARGET_RPA_SO)
 else
-all: $(OUTDIR) $(RPA_LIB)
+all: $(OUTDIR) $(TARGET_RPA_LIB)
 endif
 
 
 $(OUTDIR)/%.o: $(RPA_SRCDIR)/%.c
 	$(CC) $(CFLAGS) -o $(OUTDIR)/$*.o -c $(RPA_SRCDIR)/$*.c
 
-$(RPA_LIB): $(RPA_OBJECTS)
+$(TARGET_RPA_LIB): $(RPA_OBJECTS)
 	$(AR) -cr $@ $^
 
-$(RPA_SO): $(RPA_OBJECTS)
-	$(CC) $(LDFLAGS) -shared -Wl,-soname,librpa.so -o $@ $^
+$(TARGET_RPA_SO): $(RPA_OBJECTS)
+	$(CC) $(LDFLAGS) -shared -Wl,-soname,$(RPA_SO_NAME) -o $@ $^
 
 $(OUTDIR):
 	@mkdir $(OUTDIR)
@@ -39,9 +45,16 @@ distclean: clean
 	@rm -rf $(OUTDIR)
 
 clean:
-	@rm -f $(RPA_LIB)
-	@rm -f $(RPA_SO)
+	@rm -f $(TARGET_RPA_LIB)
+	@rm -f $(TARGET_RPA_SO)
 	@rm -f $(RPA_OBJECTS)
 	@rm -f *~
 	@rm -f $(SRCDIR)/*~
 
+install:
+	cp $(TARGET_RPA_SO) $(RTK_LIB_INSTALL)
+	cp $(TARGET_RPA_LIB) $(RTK_LIB_INSTALL)
+
+uninstall:
+	rm $(RTK_LIB_INSTALL)/$(RPA_LIB)
+	rm $(RTK_LIB_INSTALL)/$(RPA_SO)

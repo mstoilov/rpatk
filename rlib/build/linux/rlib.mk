@@ -1,7 +1,10 @@
 RTK_LIB_INSTALL=/usr/lib
 RLIB_SRCDIR = $(SRCDIR)/rlib
+RLIB_SO_VERSION = 2.0
+RLIB_SO_NAME = librlib.so
 RLIB_LIB = librlib.a
-RLIB_SO = librlib.so.1.0
+RLIB_SO = $(RLIB_SO_NAME).$(RLIB_SO_VERSION)
+RLIB_LIB = librlib.a
 TARGET_RLIB_LIB = $(OUTDIR)/$(RLIB_LIB)
 TARGET_RLIB_SO = $(OUTDIR)/$(RLIB_SO)
 
@@ -38,7 +41,7 @@ $(TARGET_RLIB_LIB): $(RLIB_OBJECTS)
 	$(AR) -cr $@ $^
 
 $(TARGET_RLIB_SO): $(RLIB_OBJECTS)
-	$(CC) $(LDFLAGS) -shared -Wl,-soname,librlib.so -o $@ $^
+	$(CC) $(LDFLAGS) -shared -Wl,-soname,$(RLIB_SO_NAME) -o $@ $^
 
 $(OUTDIR):
 	@mkdir $(OUTDIR)

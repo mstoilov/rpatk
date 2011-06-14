@@ -43,25 +43,24 @@ typedef struct _php_rpa_dbex {
 #define PHP_RPA_DBEX_RES_NAME "php rpa dbex"
 
 
-typedef struct _php_rpa_pattern {
-	rlong hPattern;
-} php_rpa_pattern;
+typedef struct _php_rpa_stat {
+	rpastat_t* stat;
+	zval *zinput;
+#ifdef ZTS
+	TSRMLS_D;
+#endif
+} php_rpa_stat;
 
-#define PHP_RPA_PATTERN_RES_NAME "php rpa pattern"
+#define PHP_RPA_STAT_RES_NAME "php rpa stat"
 
-
-typedef struct _php_cbinfo {
-	php_rpa_dbex *pPhpDbex;
-	char *php_callback;
-	zval *userdata;
-} php_cbinfo;
 
 
 static int le_rpa;
 static int le_rpa_dbex;
+static int le_rpa_stat;
 static int le_rpa_pattern;
 static void php_rpa_dbex_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC);
-static void php_rpa_pattern_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC);
+static void php_rpa_stat_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC);
 
 /* If you declare any globals in php_prpa.h uncomment this:
 ZEND_DECLARE_MODULE_GLOBALS(prpa)
@@ -76,13 +75,14 @@ static int le_prpa;
  */
 zend_function_entry prpa_functions[] = {
     PHP_FE(rpa_dbex_version, NULL)
-#if 0
-    PHP_FE(rpa_dbex_strmatch, NULL)
     PHP_FE(rpa_dbex_create, NULL)
-    PHP_FE(rpa_dbex_load_string, NULL)
-    PHP_FE(rpa_dbex_load, NULL)
     PHP_FE(rpa_dbex_open, NULL)
     PHP_FE(rpa_dbex_close, NULL)
+    PHP_FE(rpa_dbex_load, NULL)
+    PHP_FE(rpa_dbex_compile, NULL)
+
+#if 0
+    PHP_FE(rpa_dbex_strmatch, NULL)
     PHP_FE(rpa_dbex_set_encoding, NULL)
     PHP_FE(rpa_dbex_match, NULL)
     PHP_FE(rpa_dbex_parse, NULL)
@@ -153,8 +153,8 @@ PHP_MINIT_FUNCTION(prpa)
 	/* If you have INI entries, uncomment these lines 
 	REGISTER_INI_ENTRIES();
 	*/
-//    le_rpa_dbex = zend_register_list_destructors_ex(php_rpa_dbex_dtor, NULL, PHP_RPA_DBEX_RES_NAME, module_number);
-//    le_rpa_pattern = zend_register_list_destructors_ex(php_rpa_pattern_dtor, NULL, PHP_RPA_PATTERN_RES_NAME, module_number);
+    le_rpa_dbex = zend_register_list_destructors_ex(php_rpa_dbex_dtor, NULL, PHP_RPA_DBEX_RES_NAME, module_number);
+    le_rpa_stat = zend_register_list_destructors_ex(php_rpa_stat_dtor, NULL, PHP_RPA_STAT_RES_NAME, module_number);
     REGISTER_LONG_CONSTANT("RPA_ENCODING_BYTE", RPA_ENCODING_BYTE, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("RPA_ENCODING_UTF8", RPA_ENCODING_UTF8, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("RPA_ENCODING_ICASE_UTF8", RPA_ENCODING_ICASE_UTF8, CONST_CS | CONST_PERSISTENT);
@@ -214,6 +214,131 @@ PHP_FUNCTION(rpa_dbex_version)
 {
     RETURN_STRING(rpa_dbex_version(), 1);
 }
+
+
+static void php_rpa_stat_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC)
+{
+    php_rpa_stat *phpstat = (php_rpa_stat*)rsrc->ptr;
+
+    if (phpstat) {
+    	rpa_stat_destroy(phpstat->stat);
+        efree(phpstat);
+    }
+}
+
+
+static void php_rpa_dbex_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC)
+{
+    php_rpa_dbex *pPhpDbex = (php_rpa_dbex*)rsrc->ptr;
+
+    if (pPhpDbex) {
+		rpa_dbex_destroy(pPhpDbex->hDbex);
+/*
+		zval_dtor(pPhpDbex->zcallbacks);
+		Z_DELREF_P(pPhpDbex->zcallbacks);
+		Z_DELREF_P(pPhpDbex->zcallbacks);
+		php_printf("refcnt: %d\n", Z_REFCOUNT_P(pPhpDbex->zcallbacks));
+		efree(pPhpDbex->zcallbacks);
+*/
+		efree(pPhpDbex);
+    }
+}
+
+
+PHP_FUNCTION(rpa_dbex_create)
+{
+    php_rpa_dbex *pPhpDbex;
+
+/*
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sl", &name, &name_len, &age) == FAILURE) {
+		RETURN_FALSE;
+    }
+*/
+
+    pPhpDbex = emalloc(sizeof(php_rpa_dbex));
+    pPhpDbex->hDbex = rpa_dbex_create();
+
+/*
+	ALLOC_INIT_ZVAL(pPhpDbex->zcallbacks);
+	Z_ADDREF_P(pPhpDbex->zcallbacks);
+	array_init(pPhpDbex->zcallbacks);
+*/
+    ZEND_REGISTER_RESOURCE(return_value, pPhpDbex, le_rpa_dbex);
+}
+
+
+PHP_FUNCTION(rpa_dbex_open)
+{
+	zval *zres;
+    php_rpa_dbex *pPhpDbex;
+	int ret;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &zres) == FAILURE) {
+		RETURN_LONG(-1);
+    }
+
+    ZEND_FETCH_RESOURCE(pPhpDbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
+
+	ret = rpa_dbex_open(pPhpDbex->hDbex);
+	RETURN_LONG(ret);
+}
+
+
+PHP_FUNCTION(rpa_dbex_close)
+{
+	zval *zres;
+    php_rpa_dbex *pPhpDbex;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &zres) == FAILURE) {
+		RETURN_LONG(-1);
+    }
+
+    ZEND_FETCH_RESOURCE(pPhpDbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
+
+	rpa_dbex_close(pPhpDbex->hDbex);
+	RETURN_LONG(0);
+}
+
+
+PHP_FUNCTION(rpa_dbex_load)
+{
+	zval *zres;
+    php_rpa_dbex *pPhpDbex;
+	char *patterns;
+	int patterns_len;
+	int ret;
+
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs", &zres, &patterns, &patterns_len) == FAILURE) {
+		RETURN_LONG(-1);
+    }
+
+    ZEND_FETCH_RESOURCE(pPhpDbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
+
+    ret = rpa_dbex_load(pPhpDbex->hDbex, patterns, patterns_len);
+	RETURN_LONG(ret);
+}
+
+
+PHP_FUNCTION(rpa_dbex_compile)
+{
+	zval *zres;
+    php_rpa_dbex *pPhpDbex;
+	char *patterns;
+	int patterns_len;
+	int ret;
+
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &zres) == FAILURE) {
+		RETURN_LONG(-1);
+    }
+
+    ZEND_FETCH_RESOURCE(pPhpDbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
+
+    ret = rpa_dbex_compile(pPhpDbex->hDbex);
+	RETURN_LONG(ret);
+}
+
 
 #if 0
 static php_cbinfo *php_cbinfo_create(php_rpa_dbex *pPhpDbex, const char *php_callback, zval *userdata)
@@ -302,116 +427,8 @@ PHP_FUNCTION(rpa_dbex_greetme)
 }
 
 
-static void php_rpa_pattern_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC)
-{
-    php_rpa_pattern *pPhpPattern = (php_rpa_pattern*)rsrc->ptr;
-
-    if (pPhpPattern) {
-        efree(pPhpPattern);
-    }
-}
 
 
-static void php_rpa_dbex_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC)
-{
-    php_rpa_dbex *pPhpDbex = (php_rpa_dbex*)rsrc->ptr;
-	rpa_callback_handle hCallback;
-	php_cbinfo *pCbInfo;
-
-    if (pPhpDbex) {
-		if (pPhpDbex->hDbex) {
-			for (hCallback = rpa_dbex_first_callback(pPhpDbex->hDbex); hCallback; hCallback = rpa_dbex_next_callback(pPhpDbex->hDbex, hCallback)) {
-				pCbInfo = (php_cbinfo*)rpa_dbex_callback_userdata(pPhpDbex->hDbex, hCallback);
-				php_cbinfo_destroy(pCbInfo);
-			}
-		}
-
-		rpa_dbex_destroy(pPhpDbex->hDbex);
-/*
-		zval_dtor(pPhpDbex->zcallbacks);
-		Z_DELREF_P(pPhpDbex->zcallbacks);
-		Z_DELREF_P(pPhpDbex->zcallbacks);
-		php_printf("refcnt: %d\n", Z_REFCOUNT_P(pPhpDbex->zcallbacks));
-		efree(pPhpDbex->zcallbacks);
-*/
-		efree(pPhpDbex);
-    }
-}
-
-
-PHP_FUNCTION(rpa_dbex_create)
-{
-    php_rpa_dbex *pPhpDbex;
-
-/*
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sl", &name, &name_len, &age) == FAILURE) {
-		RETURN_FALSE;
-    }
-*/
-
-    pPhpDbex = emalloc(sizeof(php_rpa_dbex));
-    pPhpDbex->hDbex = rpa_dbex_create();
-
-/*	
-	ALLOC_INIT_ZVAL(pPhpDbex->zcallbacks);
-	Z_ADDREF_P(pPhpDbex->zcallbacks);
-	array_init(pPhpDbex->zcallbacks);
-*/
-    ZEND_REGISTER_RESOURCE(return_value, pPhpDbex, le_rpa_dbex);
-}
-
-
-PHP_FUNCTION(rpa_dbex_open)
-{
-	zval *zres;
-    php_rpa_dbex *pPhpDbex;
-	int ret;
-
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &zres) == FAILURE) {
-		RETURN_LONG(-1);
-    }
-
-    ZEND_FETCH_RESOURCE(pPhpDbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
-
-	ret = rpa_dbex_open(pPhpDbex->hDbex);
-	RETURN_LONG(ret);
-}
-
-
-PHP_FUNCTION(rpa_dbex_close)
-{
-	zval *zres;
-    php_rpa_dbex *pPhpDbex;
-
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &zres) == FAILURE) {
-		RETURN_LONG(-1);
-    }
-
-    ZEND_FETCH_RESOURCE(pPhpDbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
-
-	rpa_dbex_close(pPhpDbex->hDbex);
-	RETURN_LONG(0);
-}
-
-
-PHP_FUNCTION(rpa_dbex_load)
-{
-	zval *zres;
-    php_rpa_dbex *pPhpDbex;
-	char *patterns;
-	int patterns_len;
-	int ret;
-
-
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs", &zres, &patterns, &patterns_len) == FAILURE) {
-		RETURN_LONG(-1);
-    }
-
-    ZEND_FETCH_RESOURCE(pPhpDbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
-
-    ret = rpa_dbex_load(pPhpDbex->hDbex, patterns, patterns_len);
-	RETURN_LONG(ret);
-}
 
 
 PHP_FUNCTION(rpa_dbex_load_string)

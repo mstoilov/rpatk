@@ -27,3 +27,13 @@ clean:
 	+make -C $(SRCDIR)/tests/testrpa/build/$(OS)/$(ARCHDIR) clean
 	+make -C $(SRCDIR)/tests/testrjs/build/$(OS)/$(ARCHDIR) clean
 	+make -C $(SRCDIR)/rgrep/build/$(OS)/$(ARCHDIR) clean
+
+install:
+	+make -C $(SRCDIR)/rlib/build/$(OS)/$(ARCHDIR) install
+	+make -C $(SRCDIR)/rpa/build/$(OS)/$(ARCHDIR) install
+	+make -C $(SRCDIR)/rvm/build/$(OS)/$(ARCHDIR) install
+
+uninstall:
+	+make -C $(SRCDIR)/rlib/build/$(OS)/$(ARCHDIR) uninstall
+	+make -C $(SRCDIR)/rpa/build/$(OS)/$(ARCHDIR) uninstall
+	+make -C $(SRCDIR)/rvm/build/$(OS)/$(ARCHDIR) uninstall

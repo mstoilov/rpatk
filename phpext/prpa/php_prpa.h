@@ -42,14 +42,13 @@ PHP_RINIT_FUNCTION(prpa);
 PHP_RSHUTDOWN_FUNCTION(prpa);
 PHP_MINFO_FUNCTION(prpa);
 PHP_FUNCTION(rpa_dbex_version);
-
-#if 0
-PHP_FUNCTION(rpa_dbex_strmatch);
 PHP_FUNCTION(rpa_dbex_create);
 PHP_FUNCTION(rpa_dbex_open);
 PHP_FUNCTION(rpa_dbex_close);
 PHP_FUNCTION(rpa_dbex_load);
-PHP_FUNCTION(rpa_dbex_load_string);
+PHP_FUNCTION(rpa_dbex_compile);
+#if 0
+PHP_FUNCTION(rpa_dbex_strmatch);
 PHP_FUNCTION(rpa_dbex_set_encoding);
 PHP_FUNCTION(rpa_dbex_match);
 PHP_FUNCTION(rpa_dbex_parse);

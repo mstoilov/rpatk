@@ -94,8 +94,8 @@ if test "$PHP_PRPA" != "no"; then
   dnl fi
 
   dnl # --with-rtk -> check for lib and symbol presence
-  LIBNAME=rlib # you may want to change this
-  LIBSYMBOL=r_utf8_mbtowc # you most likely want to change this 
+  LIBNAME=rpa # you may want to change this
+  LIBSYMBOL=rpa_dbex_version #r_utf8_mbtowc # you most likely want to change this 
 
   PRPA_SHARED_LIBADD=""
   PHP_CHECK_LIBRARY($LIBNAME,$LIBSYMBOL,
@@ -108,9 +108,10 @@ if test "$PHP_PRPA" != "no"; then
     -L$RPA_LIBDIR  -L$RVM_LIBDIR -L$RLIB_LIBDIR -lrvm -lrlib  -lrpa  -lm
   ])
 
-  PHP_ADD_LIBRARY_WITH_PATH(rpa, $RPA_LIBDIR, PRPA_SHARED_LIBADD)
-  PHP_ADD_LIBRARY_WITH_PATH(rvm, $RVM_LIBDIR, PRPA_SHARED_LIBADD)
   PHP_ADD_LIBRARY_WITH_PATH(rlib, $RLIB_LIBDIR, PRPA_SHARED_LIBADD)
+  PHP_ADD_LIBRARY_WITH_PATH(rvm, $RVM_LIBDIR, PRPA_SHARED_LIBADD)
+  PHP_ADD_LIBRARY_WITH_PATH(rpa, $RPA_LIBDIR, PRPA_SHARED_LIBADD)
+
   PHP_SUBST(PRPA_SHARED_LIBADD)
 
 

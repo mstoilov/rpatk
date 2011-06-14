@@ -1,6 +1,11 @@
+RTK_LIB_INSTALL=/usr/lib
 RVM_SRCDIR = $(SRCDIR)/rvm
-RVM_LIB = $(OUTDIR)/librvm.a
-RVM_SO = $(OUTDIR)/librvm.so.1.0
+RVM_SO_VERSION = 2.0
+RVM_SO_NAME = librvm.so
+RVM_LIB = librvm.a
+RVM_SO = $(RVM_SO_NAME).$(RVM_SO_VERSION)
+TARGET_RVM_LIB = $(OUTDIR)/$(RVM_LIB)
+TARGET_RVM_SO = $(OUTDIR)/$(RVM_SO)
 
 CFLAGS += -I$(RVM_SRCDIR)/config -I$(SRCDIR)/rlib
 
@@ -41,20 +46,20 @@ RVM_OBJECTS +=	$(OUTDIR)/rvmoperatornot.o
 
 
 ifeq ($(OS), linux)
-all: $(OUTDIR) $(RVM_LIB) $(RVM_SO)
+all: $(OUTDIR) $(TARGET_RVM_LIB) $(TARGET_RVM_SO)
 else
-all: $(OUTDIR) $(RVM_LIB)
+all: $(OUTDIR) $(TARGET_RVM_LIB)
 endif
 
 
 $(OUTDIR)/%.o: $(RVM_SRCDIR)/%.c
 	+ $(CC) $(CFLAGS) -o $(OUTDIR)/$*.o -c $(RVM_SRCDIR)/$*.c
 
-$(RVM_LIB): $(RVM_OBJECTS)
+$(TARGET_RVM_LIB): $(RVM_OBJECTS)
 	$(AR) -cr $@ $^
 
-$(RVM_SO): $(RVM_OBJECTS)
-	$(CC) $(LDFLAGS) -shared -Wl,-soname,librvm.so -o $@ $^
+$(TARGET_RVM_SO): $(RVM_OBJECTS)
+	$(CC) $(LDFLAGS) -shared -Wl,-soname,$(RVM_SO_NAME) -o $@ $^
 
 $(OUTDIR):
 	@mkdir $(OUTDIR)
@@ -64,9 +69,16 @@ distclean: clean
 	@rm -rf $(OUTDIR)
 
 clean:
-	@rm -f $(RVM_LIB)
-	@rm -f $(RVM_SO)
+	@rm -f $(TARGET_RVM_LIB)
+	@rm -f $(TARGET_RVM_SO)
 	@rm -f $(RVM_OBJECTS)
 	@rm -f *~
 	@rm -f $(SRCDIR)/*~
 
+install:
+	cp $(TARGET_RVM_SO) $(RTK_LIB_INSTALL)
+	cp $(TARGET_RVM_LIB) $(RTK_LIB_INSTALL)
+
+uninstall:
+	rm $(RTK_LIB_INSTALL)/$(RVM_LIB)
+	rm $(RTK_LIB_INSTALL)/$(RVM_SO)
