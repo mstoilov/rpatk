@@ -129,7 +129,7 @@ void rpa_compiler_reference_mop_s(rpa_compiler_t *co, const rchar *name)
 }
 
 
-void rpa_compiler_index_reference(rpa_compiler_t *co, rulong index, ruint qflag)
+void rpa_compiler_index_reference(rpa_compiler_t *co, rulong index, ruinteger qflag)
 {
 	if (qflag == RPA_MATCH_OPTIONAL) {
 		rpa_compiler_index_reference_opt(co, index);
@@ -143,13 +143,13 @@ void rpa_compiler_index_reference(rpa_compiler_t *co, rulong index, ruint qflag)
 }
 
 
-void rpa_compiler_reference(rpa_compiler_t *co, const rchar *name, rsize_t namesize, ruint qflag)
+void rpa_compiler_reference(rpa_compiler_t *co, const rchar *name, rsize_t namesize, ruinteger qflag)
 {
 	rpa_compiler_index_reference(co, rvm_codemap_lookupadd(co->cg->codemap, name, namesize), qflag);
 }
 
 
-void rpa_compiler_reference_s(rpa_compiler_t *co, const rchar *name, ruint qflag)
+void rpa_compiler_reference_s(rpa_compiler_t *co, const rchar *name, ruinteger qflag)
 {
 	rpa_compiler_reference(co, name, r_strlen(name), qflag);
 }
@@ -181,7 +181,7 @@ void rpa_compiler_destroy(rpa_compiler_t *co)
 }
 
 
-rpa_rulepref_t *rpa_compiler_rulepref_lookup(rpa_compiler_t *co, const rchar *name, ruint namesize)
+rpa_rulepref_t *rpa_compiler_rulepref_lookup(rpa_compiler_t *co, const rchar *name, ruinteger namesize)
 {
 	rlong index = r_harray_lookup(co->ruleprefs, name, namesize);
 	if (index < 0)
@@ -196,7 +196,7 @@ rpa_rulepref_t *rpa_compiler_rulepref_lookup_s(rpa_compiler_t *co, const rchar *
 }
 
 
-rpa_rulepref_t *rpa_compiler_rulepref(rpa_compiler_t *co, const rchar *name, ruint namesize)
+rpa_rulepref_t *rpa_compiler_rulepref(rpa_compiler_t *co, const rchar *name, ruinteger namesize)
 {
 	rlong index = r_harray_lookup(co->ruleprefs, name, namesize);
 	if (index < 0)
@@ -211,7 +211,7 @@ rpa_rulepref_t *rpa_compiler_rulepref_s(rpa_compiler_t *co, const rchar *name)
 }
 
 
-void rpa_compiler_rulepref_set_ruleuid(rpa_compiler_t *co, const rchar *name, ruint namesize, rlong ruleuid)
+void rpa_compiler_rulepref_set_ruleuid(rpa_compiler_t *co, const rchar *name, ruinteger namesize, rlong ruleuid)
 {
 	rpa_rulepref_t *rulepref = rpa_compiler_rulepref(co, name, namesize);
 
@@ -226,7 +226,7 @@ void rpa_compiler_rulepref_set_ruleuid_s(rpa_compiler_t *co, const rchar *name, 
 }
 
 
-void rpa_compiler_rulepref_set_flag(rpa_compiler_t *co, const rchar *name, ruint namesize, rulong flag)
+void rpa_compiler_rulepref_set_flag(rpa_compiler_t *co, const rchar *name, ruinteger namesize, rulong flag)
 {
 	rpa_rulepref_t *rulepref = rpa_compiler_rulepref(co, name, namesize);
 
@@ -241,7 +241,7 @@ void rpa_compiler_rulepref_set_flag_s(rpa_compiler_t *co, const rchar *name, rul
 }
 
 
-void rpa_compiler_rulepref_clear_flag(rpa_compiler_t *co, const rchar *name, ruint namesize, rulong flag)
+void rpa_compiler_rulepref_clear_flag(rpa_compiler_t *co, const rchar *name, ruinteger namesize, rulong flag)
 {
 	rpa_rulepref_t *rulepref = rpa_compiler_rulepref(co, name, namesize);
 
@@ -256,7 +256,7 @@ void rpa_compiler_rulepref_clear_flag_s(rpa_compiler_t *co, const rchar *name, r
 }
 
 
-void rpa_compiler_rulepref_set_ruleuid_flags(rpa_compiler_t *co, const rchar *name, ruint namesize, rlong ruleuid, rulong flags)
+void rpa_compiler_rulepref_set_ruleuid_flags(rpa_compiler_t *co, const rchar *name, ruinteger namesize, rlong ruleuid, rulong flags)
 {
 	rpa_rulepref_t *rulepref = rpa_compiler_rulepref(co, name, namesize);
 
@@ -302,7 +302,7 @@ rlong rpa_compiler_addblob_s(rpa_compiler_t *co, rlong ruleid, rlong ruleuid, ru
 }
 
 
-rint rpa_compiler_loop_begin(rpa_compiler_t *co, const rchar *name, ruint namesize)
+rinteger rpa_compiler_loop_begin(rpa_compiler_t *co, const rchar *name, ruinteger namesize)
 {
 	rpa_ruledef_t exp;
 	rlong ruleuid = RPA_RECORD_INVALID_UID;
@@ -336,13 +336,13 @@ rint rpa_compiler_loop_begin(rpa_compiler_t *co, const rchar *name, ruint namesi
 }
 
 
-rint rpa_compiler_loop_begin_s(rpa_compiler_t *co, const rchar *name)
+rinteger rpa_compiler_loop_begin_s(rpa_compiler_t *co, const rchar *name)
 {
 	return rpa_compiler_loop_begin(co, name, r_strlen(name));
 }
 
 
-rint rpa_compiler_loop_end(rpa_compiler_t *co)
+rinteger rpa_compiler_loop_end(rpa_compiler_t *co)
 {
 	rpa_ruledef_t exp = r_array_pop(co->expressions, rpa_ruledef_t);
 
@@ -383,7 +383,7 @@ rint rpa_compiler_loop_end(rpa_compiler_t *co)
 }
 
 
-rint rpa_compiler_rule_begin(rpa_compiler_t *co, const rchar *name, ruint namesize)
+rinteger rpa_compiler_rule_begin(rpa_compiler_t *co, const rchar *name, ruinteger namesize)
 {
 	rpa_ruledef_t exp;
 	rlong ruleuid = RPA_RECORD_INVALID_UID;
@@ -414,13 +414,13 @@ rint rpa_compiler_rule_begin(rpa_compiler_t *co, const rchar *name, ruint namesi
 }
 
 
-rint rpa_compiler_rule_begin_s(rpa_compiler_t *co, const rchar *name)
+rinteger rpa_compiler_rule_begin_s(rpa_compiler_t *co, const rchar *name)
 {
 	return rpa_compiler_rule_begin(co, name, r_strlen(name));
 }
 
 
-rint rpa_compiler_rule_end(rpa_compiler_t *co)
+rinteger rpa_compiler_rule_end(rpa_compiler_t *co)
 {
 	rpa_ruledef_t exp = r_array_pop(co->expressions, rpa_ruledef_t);
 
@@ -458,7 +458,7 @@ rint rpa_compiler_rule_end(rpa_compiler_t *co)
 }
 
 
-rint rpa_compiler_inlinerule_begin(rpa_compiler_t *co, const rchar *name, ruint namesize, ruint flags)
+rinteger rpa_compiler_inlinerule_begin(rpa_compiler_t *co, const rchar *name, ruinteger namesize, ruinteger flags)
 {
 	rpa_ruledef_t exp;
 	rlong ruleuid = RPA_RECORD_INVALID_UID;
@@ -488,13 +488,13 @@ rint rpa_compiler_inlinerule_begin(rpa_compiler_t *co, const rchar *name, ruint 
 }
 
 
-rint rpa_compiler_inlinerule_begin_s(rpa_compiler_t *co, const rchar *name, ruint flags)
+rinteger rpa_compiler_inlinerule_begin_s(rpa_compiler_t *co, const rchar *name, ruinteger flags)
 {
 	return rpa_compiler_inlinerule_begin(co, name, r_strlen(name), flags);
 }
 
 
-rint rpa_compiler_inlinerule_end(rpa_compiler_t *co)
+rinteger rpa_compiler_inlinerule_end(rpa_compiler_t *co)
 {
 	rpa_ruledef_t exp = r_array_pop(co->expressions, rpa_ruledef_t);
 
@@ -525,7 +525,7 @@ rint rpa_compiler_inlinerule_end(rpa_compiler_t *co)
 }
 
 
-rint rpa_compiler_exp_begin(rpa_compiler_t *co, ruint flags)
+rinteger rpa_compiler_exp_begin(rpa_compiler_t *co, ruinteger flags)
 {
 	rpa_ruledef_t exp;
 
@@ -542,7 +542,7 @@ rint rpa_compiler_exp_begin(rpa_compiler_t *co, ruint flags)
 }
 
 
-rint rpa_compiler_exp_end(rpa_compiler_t *co)
+rinteger rpa_compiler_exp_end(rpa_compiler_t *co)
 {
 	rpa_ruledef_t exp = r_array_pop(co->expressions, rpa_ruledef_t);
 
@@ -563,7 +563,7 @@ rint rpa_compiler_exp_end(rpa_compiler_t *co)
 }
 
 
-rint rpa_compiler_altexp_begin(rpa_compiler_t *co, ruint flags)
+rinteger rpa_compiler_altexp_begin(rpa_compiler_t *co, ruinteger flags)
 {
 	rpa_ruledef_t exp;
 
@@ -580,7 +580,7 @@ rint rpa_compiler_altexp_begin(rpa_compiler_t *co, ruint flags)
 }
 
 
-rint rpa_compiler_altexp_end(rpa_compiler_t *co)
+rinteger rpa_compiler_altexp_end(rpa_compiler_t *co)
 {
 	rpa_ruledef_t exp = r_array_pop(co->expressions, rpa_ruledef_t);
 
@@ -601,7 +601,7 @@ rint rpa_compiler_altexp_end(rpa_compiler_t *co)
 }
 
 
-rint rpa_compiler_branch_begin(rpa_compiler_t *co, ruint flags)
+rinteger rpa_compiler_branch_begin(rpa_compiler_t *co, ruinteger flags)
 {
 	rpa_ruledef_t exp;
 
@@ -619,7 +619,7 @@ rint rpa_compiler_branch_begin(rpa_compiler_t *co, ruint flags)
 }
 
 
-rint rpa_compiler_branch_end(rpa_compiler_t *co)
+rinteger rpa_compiler_branch_end(rpa_compiler_t *co)
 {
 	rpa_ruledef_t exp = r_array_pop(co->expressions, rpa_ruledef_t);
 
@@ -642,7 +642,7 @@ rint rpa_compiler_branch_end(rpa_compiler_t *co)
 }
 
 
-rint rpa_compiler_nonloopybranch_begin(rpa_compiler_t *co, ruint flags)
+rinteger rpa_compiler_nonloopybranch_begin(rpa_compiler_t *co, ruinteger flags)
 {
 	rpa_ruledef_t exp;
 
@@ -662,7 +662,7 @@ rint rpa_compiler_nonloopybranch_begin(rpa_compiler_t *co, ruint flags)
 }
 
 
-rint rpa_compiler_nonloopybranch_end(rpa_compiler_t *co)
+rinteger rpa_compiler_nonloopybranch_end(rpa_compiler_t *co)
 {
 	rpa_ruledef_t exp = r_array_pop(co->expressions, rpa_ruledef_t);
 
@@ -686,7 +686,7 @@ rint rpa_compiler_nonloopybranch_end(rpa_compiler_t *co)
 }
 
 
-rint rpa_compiler_class_begin(rpa_compiler_t *co, ruint flags)
+rinteger rpa_compiler_class_begin(rpa_compiler_t *co, ruinteger flags)
 {
 	rpa_ruledef_t exp;
 
@@ -703,7 +703,7 @@ rint rpa_compiler_class_begin(rpa_compiler_t *co, ruint flags)
 }
 
 
-rint rpa_compiler_class_end(rpa_compiler_t *co)
+rinteger rpa_compiler_class_end(rpa_compiler_t *co)
 {
 	rpa_ruledef_t exp = r_array_pop(co->expressions, rpa_ruledef_t);
 
@@ -723,7 +723,7 @@ rint rpa_compiler_class_end(rpa_compiler_t *co)
 }
 
 
-rint rpa_compiler_notexp_begin(rpa_compiler_t *co, ruint flags)
+rinteger rpa_compiler_notexp_begin(rpa_compiler_t *co, ruinteger flags)
 {
 	rpa_ruledef_t exp;
 
@@ -741,7 +741,7 @@ rint rpa_compiler_notexp_begin(rpa_compiler_t *co, ruint flags)
 }
 
 
-rint rpa_compiler_notexp_end(rpa_compiler_t *co)
+rinteger rpa_compiler_notexp_end(rpa_compiler_t *co)
 {
 	rpa_ruledef_t exp = r_array_pop(co->expressions, rpa_ruledef_t);
 
@@ -763,7 +763,7 @@ rint rpa_compiler_notexp_end(rpa_compiler_t *co)
 }
 
 
-rint rpa_compiler_negexp_begin(rpa_compiler_t *co, ruint flags)
+rinteger rpa_compiler_negexp_begin(rpa_compiler_t *co, ruinteger flags)
 {
 	rpa_ruledef_t exp;
 
@@ -782,7 +782,7 @@ rint rpa_compiler_negexp_begin(rpa_compiler_t *co, ruint flags)
 }
 
 
-rint rpa_compiler_negexp_end(rpa_compiler_t *co)
+rinteger rpa_compiler_negexp_end(rpa_compiler_t *co)
 {
 	rpa_ruledef_t exp = r_array_pop(co->expressions, rpa_ruledef_t);
 

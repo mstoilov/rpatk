@@ -38,8 +38,8 @@ struct rcarray_s {
 robject_t *r_carray_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, rsize_t elt_size);
 rcarray_t *r_carray_create(rsize_t elt_size);
 void r_carray_destroy(rcarray_t *array);
-rint r_carray_replace(rcarray_t *carray, rsize_t index, rconstpointer data);
-rint r_carray_add(rcarray_t *carray, rconstpointer data);
+rinteger r_carray_replace(rcarray_t *carray, rsize_t index, rconstpointer data);
+rinteger r_carray_add(rcarray_t *carray, rconstpointer data);
 void r_carray_setlength(rcarray_t *carray, rsize_t len);
 void r_carray_inclength(rcarray_t *carray);
 void r_carray_inclength(rcarray_t *carray);

@@ -36,13 +36,13 @@ void rpa_stat_destroy(rpastat_t *stat)
 }
 
 
-void rpa_stat_cachedisable(rpastat_t *stat, ruint disable)
+void rpa_stat_cachedisable(rpastat_t *stat, ruinteger disable)
 {
 	rpa_cache_disable(stat->cache, disable);
 }
 
 
-rint rpa_stat_init(rpastat_t *stat, ruint encoding, const rchar *input, const rchar *start, const rchar *end, rarray_t *records)
+rinteger rpa_stat_init(rpastat_t *stat, ruinteger encoding, const rchar *input, const rchar *start, const rchar *end, rarray_t *records)
 {
 	rulong size;
 
@@ -89,7 +89,7 @@ void rpa_stat_cacheinvalidate(rpastat_t *stat)
 }
 
 
-rlong rpa_stat_exec(rpastat_t *stat, rvm_asmins_t *prog, rword off, ruint encoding, const rchar *input, const rchar *start, const rchar *end, rarray_t *records)
+rlong rpa_stat_exec(rpastat_t *stat, rvm_asmins_t *prog, rword off, ruinteger encoding, const rchar *input, const rchar *start, const rchar *end, rarray_t *records)
 {
 	rlong ret;
 
@@ -126,7 +126,7 @@ rlong rpa_stat_exec(rpastat_t *stat, rvm_asmins_t *prog, rword off, ruint encodi
 }
 
 
-static rlong rpa_stat_exec_rid(rpastat_t *stat, rparule_t rid, ruint encoding, const rchar *input, const rchar *start, const rchar *end, rarray_t *records)
+static rlong rpa_stat_exec_rid(rpastat_t *stat, rparule_t rid, ruinteger encoding, const rchar *input, const rchar *start, const rchar *end, rarray_t *records)
 {
 	rlong topsiz = 0;
 	rpainput_t *ptp;
@@ -141,7 +141,7 @@ static rlong rpa_stat_exec_rid(rpastat_t *stat, rparule_t rid, ruint encoding, c
 }
 
 
-rlong rpa_stat_scan(rpastat_t *stat, rparule_t rid, ruint encoding, const rchar *input, const rchar *start, const rchar *end, const rchar **where)
+rlong rpa_stat_scan(rpastat_t *stat, rparule_t rid, ruinteger encoding, const rchar *input, const rchar *start, const rchar *end, const rchar **where)
 {
 	rlong ret;
 
@@ -159,19 +159,19 @@ rlong rpa_stat_scan(rpastat_t *stat, rparule_t rid, ruint encoding, const rchar 
 }
 
 
-rlong rpa_stat_match(rpastat_t *stat, rparule_t rid, ruint encoding, const rchar *input, const rchar *start, const rchar *end)
+rlong rpa_stat_match(rpastat_t *stat, rparule_t rid, ruinteger encoding, const rchar *input, const rchar *start, const rchar *end)
 {
 	return rpa_stat_exec_rid(stat, rid, encoding, input, start, end, NULL);
 }
 
 
-rlong rpa_stat_parse(rpastat_t *stat, rparule_t rid, ruint encoding, const rchar *input, const rchar *start, const rchar *end, rarray_t *records)
+rlong rpa_stat_parse(rpastat_t *stat, rparule_t rid, ruinteger encoding, const rchar *input, const rchar *start, const rchar *end, rarray_t *records)
 {
 	return rpa_stat_exec_rid(stat, rid, encoding, input, start, end, records);
 }
 
 
-rint rpa_stat_abort(rpastat_t *stat)
+rinteger rpa_stat_abort(rpastat_t *stat)
 {
 	if (!stat) {
 		return -1;
@@ -182,9 +182,9 @@ rint rpa_stat_abort(rpastat_t *stat)
 }
 
 
-rint rpa_stat_matchchr(rpastat_t *stat, rssize_t top, rulong wc)
+rinteger rpa_stat_matchchr(rpastat_t *stat, rssize_t top, rulong wc)
 {
-	rint ret = 0;
+	rinteger ret = 0;
 	rpainput_t *in = &stat->instack[top];
 
 	if (in->eof)
@@ -198,9 +198,9 @@ rint rpa_stat_matchchr(rpastat_t *stat, rssize_t top, rulong wc)
 }
 
 
-rint rpa_stat_matchspchr(rpastat_t *stat, rssize_t top, rulong wc)
+rinteger rpa_stat_matchspchr(rpastat_t *stat, rssize_t top, rulong wc)
 {
-	rint ret = 0;
+	rinteger ret = 0;
 	rpainput_t *in = &stat->instack[top];
 
 	if (in->eof)
@@ -228,9 +228,9 @@ rint rpa_stat_matchspchr(rpastat_t *stat, rssize_t top, rulong wc)
 }
 
 
-rint rpa_stat_matchrng(rpastat_t *stat, rssize_t top, rulong wc1, rulong wc2)
+rinteger rpa_stat_matchrng(rpastat_t *stat, rssize_t top, rulong wc1, rulong wc2)
 {
-	rint ret = 0;
+	rinteger ret = 0;
 	rpainput_t *in = &stat->instack[top];
 
 	if (in->eof)
@@ -244,13 +244,13 @@ rint rpa_stat_matchrng(rpastat_t *stat, rssize_t top, rulong wc1, rulong wc2)
 }
 
 
-static rint rpa_stat_utf8_getchar(ruint32 *pwc, rpastat_t *stat, const rchar *input)
+static rinteger rpa_stat_utf8_getchar(ruint32 *pwc, rpastat_t *stat, const rchar *input)
 {
 	return r_utf8_mbtowc(pwc, (const ruchar*)input, (const ruchar*)stat->end);
 }
 
 
-static rint rpa_stat_byte_getchar(ruint32 *pwc, rpastat_t *stat, const rchar *input)
+static rinteger rpa_stat_byte_getchar(ruint32 *pwc, rpastat_t *stat, const rchar *input)
 {
 	if (input >= stat->end) {
 		*pwc = (unsigned int)0;
@@ -276,7 +276,7 @@ rlong rpa_stat_shift(rpastat_t *stat, rssize_t top)
 	ptp++;
 	top++;
 	if (top >= (rlong)stat->ip.serial) {
-		rint inc = 0;
+		rinteger inc = 0;
 		ptp->input = stat->ip.input;
 		if (ptp->input < stat->end) {
 			switch (stat->encoding & RPA_ENCODING_MASK) {

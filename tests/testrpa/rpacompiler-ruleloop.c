@@ -113,8 +113,8 @@ int main(int argc, char *argv[])
 	rvm_codelabel_t *err;
 	rpa_compiler_t *co;
 	rpastat_t *stat;
-	ruint mainoff;
-	rint i;
+	ruinteger mainoff;
+	rinteger i;
 	char teststr[] = "XYZabcabcabcXXXabcabcXXXabcabcabcabcZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
 
 	co = rpa_compiler_create();

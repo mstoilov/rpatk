@@ -24,17 +24,17 @@ typedef unsigned int ratomic_t;
  * Common types. These types should be the same for most of the architectures.
  */
 typedef long rlong;
-typedef int rint;
+typedef int rinteger;
 typedef short rshort;
 typedef char rchar;
 typedef unsigned long rulong;
-typedef unsigned int ruint;
+typedef unsigned int ruinteger;
 typedef unsigned short rushort;
 typedef unsigned char ruchar;
 typedef ruchar rbyte;
 typedef double rdouble;
 typedef float rfloat;
-typedef rint rboolean;
+typedef rinteger rboolean;
 typedef void *rpointer;
 typedef const void *rconstpointer;
 typedef struct {ruint32 p1; ruint32 p2;} rpair_t;

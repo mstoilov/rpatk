@@ -21,9 +21,9 @@
 #include "rutf.h"
 
 
-rint r_utf8_mbtowc(ruint32 *pwc, const ruchar *input, const ruchar *end)
+rinteger r_utf8_mbtowc(ruint32 *pwc, const ruchar *input, const ruchar *end)
 {
-	rint n;
+	rinteger n;
 	ruchar c;
 
 	if (input >= end) {
@@ -35,7 +35,7 @@ rint r_utf8_mbtowc(ruint32 *pwc, const ruchar *input, const ruchar *end)
 		*pwc = c;
 		return 1;
 	}
-	n = (rint)(end - input);
+	n = (rinteger)(end - input);
 	if (c == 0xC0 || c == 0xC1 || (c >= 0xF5 && c <= 0xFF))
 		goto error;
 	if ((c >> 5) == 6) {
@@ -64,7 +64,7 @@ error:
 }
 
 
-rint r_utf8_wctomb(ruint32 wc, ruchar *output, ruint32 size)
+rinteger r_utf8_wctomb(ruint32 wc, ruchar *output, ruint32 size)
 {
 	ruint32 count;
 	if (wc <= 0x007F)
@@ -99,9 +99,9 @@ rint r_utf8_wctomb(ruint32 wc, ruchar *output, ruint32 size)
 }
 
 
-rint r_utf16_mbtowc(ruint32 *pwc, const ruchar *s, const ruchar *end)
+rinteger r_utf16_mbtowc(ruint32 *pwc, const ruchar *s, const ruchar *end)
 {
-	rint n = (rint)(end - s);
+	rinteger n = (rinteger)(end - s);
 	ruint32 wc1, wc2;
 
 	if (s >= end) {
@@ -134,7 +134,7 @@ error:
 }
 
 
-rint r_utf16_wctomb(ruint32 wc, ruchar *output, ruint32 size)
+rinteger r_utf16_wctomb(ruint32 wc, ruchar *output, ruint32 size)
 {
 	ruint32 wc1, wc2;
 

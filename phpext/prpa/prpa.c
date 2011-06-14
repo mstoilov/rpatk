@@ -28,10 +28,12 @@
 #include "php_prpa.h"
 #include "TSRM/TSRM.h"
 #include "rpadbex.h"
-
+#include "rpastat.h"
+#include "rpaerror.h"
+#include "rparecord.h"
 
 typedef struct _php_rpa_dbex {
-	rpa_dbex_handle hDbex;
+	rpadbex_t* hDbex;
 	zval *zinput;
 #ifdef ZTS
 	TSRMLS_D;	
@@ -42,7 +44,7 @@ typedef struct _php_rpa_dbex {
 
 
 typedef struct _php_rpa_pattern {
-	rpa_pattern_handle hPattern;
+	rlong hPattern;
 } php_rpa_pattern;
 
 #define PHP_RPA_PATTERN_RES_NAME "php rpa pattern"
@@ -73,7 +75,6 @@ static int le_prpa;
  * Every user visible function must have an entry in prpa_functions[].
  */
 zend_function_entry prpa_functions[] = {
-	PHP_FE(confirm_prpa_compiled,	NULL)		/* For testing, remove later. */
     PHP_FE(rpa_dbex_version, NULL)
 #if 0
     PHP_FE(rpa_dbex_strmatch, NULL)
@@ -152,21 +153,15 @@ PHP_MINIT_FUNCTION(prpa)
 	/* If you have INI entries, uncomment these lines 
 	REGISTER_INI_ENTRIES();
 	*/
-    le_rpa_dbex = zend_register_list_destructors_ex(php_rpa_dbex_dtor, NULL, PHP_RPA_DBEX_RES_NAME, module_number);
-    le_rpa_pattern = zend_register_list_destructors_ex(php_rpa_pattern_dtor, NULL, PHP_RPA_PATTERN_RES_NAME, module_number);
+//    le_rpa_dbex = zend_register_list_destructors_ex(php_rpa_dbex_dtor, NULL, PHP_RPA_DBEX_RES_NAME, module_number);
+//    le_rpa_pattern = zend_register_list_destructors_ex(php_rpa_pattern_dtor, NULL, PHP_RPA_PATTERN_RES_NAME, module_number);
     REGISTER_LONG_CONSTANT("RPA_ENCODING_BYTE", RPA_ENCODING_BYTE, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("RPA_ENCODING_UTF8", RPA_ENCODING_UTF8, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("RPA_ENCODING_ICASE_UTF8", RPA_ENCODING_ICASE_UTF8, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("RPA_ENCODING_UTF16LE", RPA_ENCODING_UTF16LE, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("RPA_ENCODING_ICASE_UTF16LE", RPA_ENCODING_ICASE_UTF16LE, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("RPA_PATTERN_SINGLE", RPA_PATTERN_SINGLE, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("RPA_PATTERN_BEST", RPA_PATTERN_BEST, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("RPA_PATTERN_OR", RPA_PATTERN_OR, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("RPA_REASON_START", RPA_REASON_START, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("RPA_REASON_END", RPA_REASON_END, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("RPA_REASON_MATCHED", RPA_REASON_MATCHED, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("RPA_REASON_ALL", RPA_REASON_ALL, CONST_CS | CONST_PERSISTENT);
-
+    REGISTER_LONG_CONSTANT("RPA_RECORD_START", RPA_RECORD_START, CONST_CS | CONST_PERSISTENT);
+    REGISTER_LONG_CONSTANT("RPA_RECORD_END", RPA_RECORD_END, CONST_CS | CONST_PERSISTENT);
 	return SUCCESS;
 }
 /* }}} */

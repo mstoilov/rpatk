@@ -13,13 +13,13 @@ extern "C" {
 typedef struct rhash_node_s rhash_node_t;
 typedef struct rhash_s rhash_t;
 typedef rboolean (*r_hash_equalfunc)(rconstpointer key1, rconstpointer key2);
-typedef ruint (*r_hash_hashfun)(rconstpointer key);
+typedef ruinteger (*r_hash_hashfun)(rconstpointer key);
 
 
 struct rhash_s {
 	robject_t obj;
 	rlist_t *buckets;
-	ruint nbits;
+	ruinteger nbits;
 	r_hash_equalfunc eqfunc;
 	r_hash_hashfun hfunc;
 };
@@ -29,10 +29,10 @@ struct rhash_s {
 
 #define r_hash_size(__h__) (1 << (__h__)->nbits)
 #define r_hash_mask(__h__) (r_hash_size(__h__) - 1)
-rhash_t *r_hash_create(ruint nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfunc);
+rhash_t *r_hash_create(ruinteger nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfunc);
 void r_hash_destroy(rhash_t* hash);
 robject_t *r_hash_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy,
-						ruint nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfunc);
+						ruinteger nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfunc);
 
 void r_hash_insert(rhash_t* hash, rconstpointer key, rpointer value);
 void r_hash_remove(rhash_t* hash, rconstpointer key);
@@ -46,9 +46,9 @@ rhash_node_t *r_hash_nodetaillookup(rhash_t* hash, rhash_node_t *cur, rconstpoin
 rpointer r_hash_value(rhash_node_t *node);
 rulong r_hash_indexval(rhash_node_t *node);
 
-ruint r_hash_strhash(rconstpointer key);
+ruinteger r_hash_strhash(rconstpointer key);
 rboolean r_hash_strequal(rconstpointer key1, rconstpointer key2);
-ruint r_hash_rstrhash(rconstpointer key);
+ruinteger r_hash_rstrhash(rconstpointer key);
 rboolean r_hash_rstrequal(rconstpointer key1, rconstpointer key2);
 
 

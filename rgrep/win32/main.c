@@ -15,7 +15,7 @@ int usage(int argc, const wchar_t *argv[])
 		fwprintf(stderr, L" OPTIONS:\n");
 		fwprintf(stderr, L"\t-e patterns         execute pattern\n");
 		fwprintf(stderr, L"\t-f patternfile      read the patterns from a file, the last pattern will be executed\n");
-		fwprintf(stderr, L"\t-c printpatterns    print these patterns when there is a match.\n");
+		fwprintf(stderr, L"\t-c printpatterns    printeger these patterns when there is a match.\n");
 		fwprintf(stderr, L"\t-i                  ignore case.\n");		
 		fwprintf(stderr, L"\t-m                  match only from the beginning.\n");		
 		fwprintf(stderr, L"\t-p                  parse the stream.\n");		

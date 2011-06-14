@@ -4,7 +4,7 @@
 #include "rmem.h"
 
 
-static void r_carray_replaceint(rcarray_t *carray, ruint index, rint elt)
+static void r_carray_replaceint(rcarray_t *carray, ruinteger index, rinteger elt)
 {
 	r_carray_replace(carray, index, &elt);
 }

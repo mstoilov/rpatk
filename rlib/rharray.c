@@ -35,7 +35,7 @@
  */
 static void r_array_oncopy_rstr(rarray_t *array)
 {
-	ruint index;
+	ruinteger index;
 	rstr_t *src, *dst;
 
 	for (index = 0; index < r_array_length(array); index++) {
@@ -51,7 +51,7 @@ static void r_array_oncopy_rstr(rarray_t *array)
  */
 static void r_array_oncleanup_rstr(rarray_t *array)
 {
-	ruint index;
+	ruinteger index;
 	rstr_t *src;
 
 	for (index = 0; index < r_array_length(array); index++) {
@@ -62,7 +62,7 @@ static void r_array_oncleanup_rstr(rarray_t *array)
 }
 
 
-robject_t *r_harray_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, ruint elt_size)
+robject_t *r_harray_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, ruinteger elt_size)
 {
 	rharray_t *harray = (rharray_t*)obj;
 	r_object_init(obj, type, cleanup, copy);
@@ -74,7 +74,7 @@ robject_t *r_harray_init(robject_t *obj, ruint32 type, r_object_cleanupfun clean
 	return obj;
 }
 
-rharray_t *r_harray_create(ruint elt_size)
+rharray_t *r_harray_create(ruinteger elt_size)
 {
 	rharray_t *harray;
 
@@ -224,7 +224,7 @@ rhash_node_t* r_harray_nodetaillookup_s(rharray_t *harray, rhash_node_t *cur, co
 }
 
 
-rint r_harray_set(rharray_t *harray, rlong index, rconstpointer pval)
+rinteger r_harray_set(rharray_t *harray, rlong index, rconstpointer pval)
 {
 	if (index < 0)
 		return -1;

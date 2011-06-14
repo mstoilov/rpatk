@@ -54,7 +54,7 @@ rlong rvm_codegen_getsource(rvm_codegen_t *cg, rsize_t codeidx)
 }
 
 
-rvm_asmins_t *rvm_codegen_getcode(rvm_codegen_t *cg, ruint index)
+rvm_asmins_t *rvm_codegen_getcode(rvm_codegen_t *cg, ruinteger index)
 {
 	return (rvm_asmins_t *)r_array_slot(cg->code, index);
 }
@@ -65,7 +65,7 @@ rsize_t rvm_codegen_getcodesize(rvm_codegen_t *cg)
 	return r_array_length(cg->code);
 }
 
-void rvm_codegen_setcodesize(rvm_codegen_t *cg, ruint size)
+void rvm_codegen_setcodesize(rvm_codegen_t *cg, ruinteger size)
 {
 	r_array_setlength(cg->code, size);
 }
@@ -117,7 +117,7 @@ rlong rvm_codegen_redefinepointer(rvm_codegen_t *cg, rlong index, rpointer data)
 }
 
 
-rlong rvm_codegen_addlabel(rvm_codegen_t *cg, const rchar* name, ruint namesize, rulong offset)
+rlong rvm_codegen_addlabel(rvm_codegen_t *cg, const rchar* name, ruinteger namesize, rulong offset)
 {
 	return rvm_codemap_addoffset(cg->codemap, name, namesize, rvm_codemap_lookupadd_s(cg->codemap, ".code"), RVM_CODE2BYTE_OFFSET(offset));
 }
@@ -129,7 +129,7 @@ rlong rvm_codegen_addlabel_s(rvm_codegen_t *cg, const rchar* name, rulong offset
 }
 
 
-rlong rvm_codegen_addlabel_default(rvm_codegen_t *cg, const rchar* name, ruint namesize)
+rlong rvm_codegen_addlabel_default(rvm_codegen_t *cg, const rchar* name, ruinteger namesize)
 {
 	return rvm_codegen_addlabel(cg, name, namesize, rvm_codegen_getcodesize(cg));
 }
@@ -141,7 +141,7 @@ rlong rvm_codegen_addlabel_default_s(rvm_codegen_t *cg, const rchar* name)
 }
 
 
-rlong rvm_codegen_invalid_addlabel(rvm_codegen_t *cg, const rchar* name, ruint namesize)
+rlong rvm_codegen_invalid_addlabel(rvm_codegen_t *cg, const rchar* name, ruinteger namesize)
 {
 	return rvm_codemap_invalid_add(cg->codemap, name, namesize);
 }
@@ -153,7 +153,7 @@ rlong rvm_codegen_invalid_addlabel_s(rvm_codegen_t *cg, const rchar* name)
 }
 
 
-rsize_t rvm_codegen_addlabelins(rvm_codegen_t *cg, const rchar* name, ruint namesize, rvm_asmins_t ins)
+rsize_t rvm_codegen_addlabelins(rvm_codegen_t *cg, const rchar* name, ruinteger namesize, rvm_asmins_t ins)
 {
 	rvm_codemap_addoffset(cg->codemap, name, namesize, rvm_codemap_lookupadd_s(cg->codemap, ".code"), RVM_CODE2BYTE_OFFSET(rvm_codegen_getcodesize(cg)));
 	return rvm_codegen_addins(cg, ins);
@@ -173,7 +173,7 @@ rsize_t rvm_codegen_index_addrelocins(rvm_codegen_t *cg, rvm_reloctype_t type, r
 }
 
 
-rsize_t rvm_codegen_addrelocins(rvm_codegen_t *cg, rvm_reloctype_t type, const rchar* name, ruint namesize, rvm_asmins_t ins)
+rsize_t rvm_codegen_addrelocins(rvm_codegen_t *cg, rvm_reloctype_t type, const rchar* name, ruinteger namesize, rvm_asmins_t ins)
 {
 	return rvm_codegen_index_addrelocins(cg, type, rvm_codemap_lookupadd(cg->codemap, name, namesize), ins);
 }
@@ -185,7 +185,7 @@ rsize_t rvm_codegen_addrelocins_s(rvm_codegen_t *cg, rvm_reloctype_t type, const
 }
 
 
-rint rvm_codegen_relocate(rvm_codegen_t *cg, rvm_codelabel_t **err)
+rinteger rvm_codegen_relocate(rvm_codegen_t *cg, rvm_codelabel_t **err)
 {
 	rvm_codemap_addpointer_s(cg->codemap, ".code", r_array_slot(cg->code, 0));
 	rvm_codemap_addpointer_s(cg->codemap, ".data", r_array_slot(cg->data, 0));
@@ -193,22 +193,22 @@ rint rvm_codegen_relocate(rvm_codegen_t *cg, rvm_codelabel_t **err)
 }
 
 
-rsize_t rvm_codegen_insertins(rvm_codegen_t *cg, ruint index, rvm_asmins_t ins)
+rsize_t rvm_codegen_insertins(rvm_codegen_t *cg, ruinteger index, rvm_asmins_t ins)
 {
 	return r_array_insert(cg->code, index, &ins);
 }
 
 
-rsize_t rvm_codegen_replaceins(rvm_codegen_t *cg, ruint index, rvm_asmins_t ins)
+rsize_t rvm_codegen_replaceins(rvm_codegen_t *cg, ruinteger index, rvm_asmins_t ins)
 {
 	return r_array_replace(cg->code, index, &ins);
 
 }
 
 
-ruint rvm_codegen_funcstart(rvm_codegen_t *cg, const rchar* name, ruint namesize, ruint args)
+ruinteger rvm_codegen_funcstart(rvm_codegen_t *cg, const rchar* name, ruinteger namesize, ruinteger args)
 {
-	ruint start;
+	ruinteger start;
 	rvm_codegen_addins(cg, rvm_asm(RVM_NOP, XX, XX, XX, 0));
 	start = rvm_codegen_addlabelins(cg, name, namesize, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(FP)|BIT(SP)|BIT(LR)));
 	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, FP, SP, XX, 0));
@@ -218,15 +218,15 @@ ruint rvm_codegen_funcstart(rvm_codegen_t *cg, const rchar* name, ruint namesize
 }
 
 
-ruint rvm_codegen_funcstart_s(rvm_codegen_t *cg, const rchar* name, ruint args)
+ruinteger rvm_codegen_funcstart_s(rvm_codegen_t *cg, const rchar* name, ruinteger args)
 {
 	return rvm_codegen_funcstart(cg, name, r_strlen(name), args);
 }
 
 
-ruint rvm_codegen_vargs_funcstart(rvm_codegen_t *cg, const rchar* name, ruint namesize)
+ruinteger rvm_codegen_vargs_funcstart(rvm_codegen_t *cg, const rchar* name, ruinteger namesize)
 {
-	ruint start;
+	ruinteger start;
 	rvm_codegen_addins(cg, rvm_asm(RVM_NOP, XX, XX, XX, 0));
 	start = rvm_codegen_addlabelins(cg, name, namesize, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(FP)|BIT(SP)|BIT(LR)));
 	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, FP, SP, XX, 0));
@@ -236,7 +236,7 @@ ruint rvm_codegen_vargs_funcstart(rvm_codegen_t *cg, const rchar* name, ruint na
 }
 
 
-ruint rvm_codegen_vargs_funcstart_s(rvm_codegen_t *cg, const rchar* name)
+ruinteger rvm_codegen_vargs_funcstart_s(rvm_codegen_t *cg, const rchar* name)
 {
 	return rvm_codegen_vargs_funcstart(cg, name, r_strlen(name));
 }
@@ -249,7 +249,7 @@ void rvm_codegen_funcend(rvm_codegen_t *cg)
 	rvm_codegen_addins(cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 }
 
-rlong rvm_codegen_adddata(rvm_codegen_t *cg, const rchar *name, ruint namesize, rconstpointer data, rsize_t size)
+rlong rvm_codegen_adddata(rvm_codegen_t *cg, const rchar *name, ruinteger namesize, rconstpointer data, rsize_t size)
 {
 	rpointer buffer;
 	rulong cursize = R_SIZE_ALIGN(r_array_length(cg->data), sizeof(rword));
@@ -268,7 +268,7 @@ rlong rvm_codegen_adddata_s(rvm_codegen_t *cg, const rchar *name, rconstpointer 
 }
 
 
-rlong rvm_codegen_addstring(rvm_codegen_t *cg, const rchar *name, ruint namesize, const rchar* data)
+rlong rvm_codegen_addstring(rvm_codegen_t *cg, const rchar *name, ruinteger namesize, const rchar* data)
 {
 	return rvm_codegen_adddata(cg, name, namesize, data, r_strlen(data) + 1);
 }

@@ -160,7 +160,7 @@ void *r_array_slot_expand(rarray_t *array, rsize_t index)
 }
 
 
-rint r_array_move(rarray_t *array, rlong dest, rlong src, rlong size)
+rinteger r_array_move(rarray_t *array, rlong dest, rlong src, rlong size)
 {
 	rlong i;
 	if (src == dest)

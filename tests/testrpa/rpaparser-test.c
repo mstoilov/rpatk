@@ -21,7 +21,7 @@ typedef struct rpa_buffer_s {
 
 int main(int argc, char *argv[])
 {
-	rint ret = 0, i;
+	rinteger ret = 0, i;
 	rpadbex_t *dbex = rpa_dbex_create();
 
 //	rpa_parser_t *pa = rpa_parser_create();

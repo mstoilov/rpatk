@@ -4,7 +4,7 @@
 #include "rpaparser.h"
 #include "rpastatpriv.h"
 
-static rint rpa_parser_init(rpa_parser_t *pa);
+static rinteger rpa_parser_init(rpa_parser_t *pa);
 
 
 rpa_parser_t *rpa_parser_create()
@@ -1434,7 +1434,7 @@ static void rpa_production_orexp(rpa_parser_t *pa)
 }
 
 
-static rint rpa_parser_init(rpa_parser_t *pa)
+static rinteger rpa_parser_init(rpa_parser_t *pa)
 {
 	rvm_codelabel_t *err;
 	rpa_compiler_t *co = pa->co;

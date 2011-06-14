@@ -32,8 +32,8 @@ int main(int argc, char *argv[])
 {
 	rvmcpu_t *cpu;
 	rvm_asmins_t code[1024];
-	ruint off = 0;
-	ruint ntable;
+	ruinteger off = 0;
+	ruinteger ntable;
 
 	cpu = rvm_cpu_create_default();
 	ntable = rvm_cpu_addswitable(cpu, "switable", switable);

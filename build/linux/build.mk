@@ -27,4 +27,3 @@ clean:
 	+make -C $(SRCDIR)/tests/testrpa/build/$(OS)/$(ARCHDIR) clean
 	+make -C $(SRCDIR)/tests/testrjs/build/$(OS)/$(ARCHDIR) clean
 	+make -C $(SRCDIR)/rgrep/build/$(OS)/$(ARCHDIR) clean
-

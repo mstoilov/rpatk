@@ -95,7 +95,7 @@ void rpa_stat_destroy(rpastat_t *stat);
  * \return If successful return the size of the matched string in bytes, if no match was found
  * 			return 0, return negative in case of error.
  */
-rlong rpa_stat_scan(rpastat_t *stat, rparule_t rid, ruint encoding, const rchar *input, const rchar *start, const rchar *end, const rchar **where);
+rlong rpa_stat_scan(rpastat_t *stat, rparule_t rid, ruinteger encoding, const rchar *input, const rchar *start, const rchar *end, const rchar **where);
 
 /**
  * \brief Parse an input stream
@@ -120,7 +120,7 @@ rlong rpa_stat_scan(rpastat_t *stat, rparule_t rid, ruint encoding, const rchar 
  * \return If successful return the size of the matched string in bytes, if the input stream cannot be matched against the BNF
  * 			return 0, return negative in case of error.
  */
-rlong rpa_stat_parse(rpastat_t *stat, rparule_t rid, ruint encoding, const rchar *input, const rchar *start, const rchar *end, rarray_t *records);
+rlong rpa_stat_parse(rpastat_t *stat, rparule_t rid, ruinteger encoding, const rchar *input, const rchar *start, const rchar *end, rarray_t *records);
 
 /**
  * \brief Match an input stream
@@ -143,7 +143,7 @@ rlong rpa_stat_parse(rpastat_t *stat, rparule_t rid, ruint encoding, const rchar
  * \return If successful return the size of the matched string in bytes, if the input stream cannot be matched against the BNF
  * 			return 0, return negative in case of error.
  */
-rlong rpa_stat_match(rpastat_t *stat, rparule_t rid, ruint encoding, const rchar *input, const rchar *start, const rchar *end);
+rlong rpa_stat_match(rpastat_t *stat, rparule_t rid, ruinteger encoding, const rchar *input, const rchar *start, const rchar *end);
 
 
 /**
@@ -171,7 +171,7 @@ rlong rpa_stat_match(rpastat_t *stat, rparule_t rid, ruint encoding, const rchar
  * \return If successful return the size of the matched string in bytes, if the input stream cannot be matched against the BNF
  * 			return 0, return negative in case of error.
  */
-rlong rpa_stat_exec(rpastat_t *stat, rvm_asmins_t *prog, rword off, ruint encoding, const rchar *input, const rchar *start, const rchar *end, rarray_t *records);
+rlong rpa_stat_exec(rpastat_t *stat, rvm_asmins_t *prog, rword off, ruinteger encoding, const rchar *input, const rchar *start, const rchar *end, rarray_t *records);
 
 
 /**
@@ -181,7 +181,7 @@ rlong rpa_stat_exec(rpastat_t *stat, rvm_asmins_t *prog, rword off, ruint encodi
  * \param stat Pointer to object of type \ref rpastat_t
  * \return If sucessful return 0, otherwise return negative.
  */
-rint rpa_stat_abort(rpastat_t *stat);
+rinteger rpa_stat_abort(rpastat_t *stat);
 
 
 /**

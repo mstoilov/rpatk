@@ -87,13 +87,13 @@ rlong rpa_recordtree_size(rarray_t *records, rlong rec);					/* Size of the tree
 rlong rpa_recordtree_copy(rarray_t *dst, rarray_t *src, rlong rec);
 rparecord_t *rpa_record_get(rarray_t *records, rlong rec);
 
-void rpa_record_dumpindented(rarray_t *records, rlong rec, rint level);
+void rpa_record_dumpindented(rarray_t *records, rlong rec, rinteger level);
 void rpa_record_dump(rarray_t *records, rlong rec);
 rlong rpa_record_getruleuid(rarray_t *records, rlong rec);
 void rpa_record_setusertype(rarray_t *records, rlong rec, ruint32 usertype, rvalset_t op);
 rlong rpa_record_getusertype(rarray_t *records, rlong rec);
-rint rpa_record_optchar(rparecord_t *prec, rint defc);
-rint rpa_record_loopchar(rparecord_t *prec, rint defc);
+rinteger rpa_record_optchar(rparecord_t *prec, rinteger defc);
+rinteger rpa_record_loopchar(rparecord_t *prec, rinteger defc);
 rarray_t *rpa_records_create();
 void rpa_records_destroy(rarray_t *records);
 rlong rpa_records_length(rarray_t *records);

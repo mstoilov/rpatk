@@ -93,7 +93,7 @@ void r_map_cleanup(robject_t *obj)
 }
 
 
-robject_t *r_map_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, ruint elt_size, ruint nbits)
+robject_t *r_map_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, ruinteger elt_size, ruinteger nbits)
 {
 	rsize_t elt_realsize = R_SIZE_ALIGN(elt_size + sizeof(r_mapnode_t), sizeof(rword));
 	rsize_t hashsize, i;
@@ -118,7 +118,7 @@ robject_t *r_map_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup,
 	return obj;
 }
 
-rmap_t *r_map_create(ruint elt_size, ruint nbits)
+rmap_t *r_map_create(ruinteger elt_size, ruinteger nbits)
 {
 	rmap_t *map;
 	map = (rmap_t*)r_object_create(sizeof(*map));
@@ -238,7 +238,7 @@ rlong r_map_setvalue(rmap_t *map, rlong index, rconstpointer pval)
 }
 
 
-rint r_map_delete(rmap_t *map, rulong index)
+rinteger r_map_delete(rmap_t *map, rulong index)
 {
 	r_mapnode_t *node = r_map_node(map, index);
 	if (!node)

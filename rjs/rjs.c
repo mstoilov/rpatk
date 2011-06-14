@@ -68,19 +68,19 @@ void rjs_engine_destroy(rjs_engine_t *jse)
 }
 
 
-rint rjs_engine_open(rjs_engine_t *jse)
+rinteger rjs_engine_open(rjs_engine_t *jse)
 {
 	return 0;
 }
 
 
-rint rjs_engine_addswitable(rjs_engine_t *jse, const rchar *tabname, rvm_switable_t *switalbe)
+rinteger rjs_engine_addswitable(rjs_engine_t *jse, const rchar *tabname, rvm_switable_t *switalbe)
 {
 	return rvm_cpu_addswitable(jse->cpu, tabname, switalbe);
 }
 
 
-static rint rjs_engine_parse(rjs_engine_t *jse, const rchar *script, rsize_t size, rarray_t *records, rjs_error_t *error)
+static rinteger rjs_engine_parse(rjs_engine_t *jse, const rchar *script, rsize_t size, rarray_t *records, rjs_error_t *error)
 {
 	rlong res = 0;
 
@@ -89,7 +89,7 @@ static rint rjs_engine_parse(rjs_engine_t *jse, const rchar *script, rsize_t siz
 }
 
 
-rint rjs_engine_compile(rjs_engine_t *jse, const rchar *script, rsize_t size)
+rinteger rjs_engine_compile(rjs_engine_t *jse, const rchar *script, rsize_t size)
 {
 	rvm_codegen_t *topcg = NULL;
 	rarray_t *records = rpa_records_create();
@@ -125,7 +125,7 @@ err:
 }
 
 
-rint rjs_engine_dumpast(rjs_engine_t *jse, const rchar *script, rsize_t size)
+rinteger rjs_engine_dumpast(rjs_engine_t *jse, const rchar *script, rsize_t size)
 {
 	rjs_error_t error;
 	rarray_t *records = rpa_records_create();
@@ -147,22 +147,22 @@ rint rjs_engine_dumpast(rjs_engine_t *jse, const rchar *script, rsize_t size)
 }
 
 
-rint rjs_engine_compile_s(rjs_engine_t *jse, const rchar *script)
+rinteger rjs_engine_compile_s(rjs_engine_t *jse, const rchar *script)
 {
 	return rjs_engine_compile(jse, script, r_strlen(script));
 }
 
 
-rint rjs_engine_close(rjs_engine_t *jse)
+rinteger rjs_engine_close(rjs_engine_t *jse)
 {
 
 	return 0;
 }
 
 
-rint rjs_engine_run(rjs_engine_t *jse)
+rinteger rjs_engine_run(rjs_engine_t *jse)
 {
-	rint res = 0;
+	rinteger res = 0;
 	rvm_codegen_t *cg = r_array_empty(jse->cgs) ? NULL : r_array_last(jse->cgs, rvm_codegen_t*);
 
 	if (!cg) {
@@ -204,7 +204,7 @@ rvmreg_t *rjs_engine_exec_s(rjs_engine_t *jse, const rchar *script)
 }
 
 
-static rint rjs_compiler_argarray_setup(rjs_compiler_t *co)
+static rinteger rjs_compiler_argarray_setup(rjs_compiler_t *co)
 {
 	rvm_varmap_t *v;
 	rvmreg_t count = rvm_reg_create_long(0);
@@ -222,7 +222,7 @@ static rint rjs_compiler_argarray_setup(rjs_compiler_t *co)
 }
 
 
-static rint rjs_compiler_addarg(rjs_compiler_t *co, rvmreg_t *arg)
+static rinteger rjs_compiler_addarg(rjs_compiler_t *co, rvmreg_t *arg)
 {
 	rvm_varmap_t *v;
 	rmap_t *a;

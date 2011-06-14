@@ -273,7 +273,7 @@ void rjs_display_errors(rjs_engine_t *jse, rstr_t *script)
 
 int main(int argc, char *argv[])
 {
-	rint i;
+	rinteger i;
 	rstr_t *script = NULL, *unmapscript = NULL;
 	rstr_t line;
 	rjs_engine_t *jse;

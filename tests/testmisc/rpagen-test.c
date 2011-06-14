@@ -24,9 +24,9 @@ static int compileonly = 0;
 
 typedef struct rvm_vardeclaration_s {
 	const rchar *varname;
-	ruint varnamesiz;
+	ruinteger varnamesiz;
 	const rchar *val;
-	ruint valsiz;
+	ruinteger valsiz;
 } rvm_vardeclaration_t;
 
 
@@ -66,10 +66,10 @@ typedef struct rvm_codespan_s {
 typedef struct rvm_costat_s rvm_costat_t;
 
 struct rvm_costat_s {
-	ruint binaryop;
-	ruint level;
-	ruint dirty;
-	ruint funcalls;
+	ruinteger binaryop;
+	ruinteger level;
+	ruinteger dirty;
+	ruinteger funcalls;
 	rvm_costat_t *root;
 };
 
@@ -103,12 +103,12 @@ rvm_costat_t *rvm_costat_current(rvm_compiler_t *co)
 }
 
 
-ruint rvm_costat_getdebth(rvm_compiler_t *co)
+ruinteger rvm_costat_getdebth(rvm_compiler_t *co)
 {
 	return r_array_length(co->stat);
 }
 
-ruint rvm_costat_getlevel(rvm_compiler_t *co)
+ruinteger rvm_costat_getlevel(rvm_compiler_t *co)
 {
 	if (!rvm_costat_current(co))
 		return 0;
@@ -129,7 +129,7 @@ void rvm_costat_declevel(rvm_compiler_t *co)
 }
 
 
-ruint rvm_costat_getbinaryop(rvm_compiler_t *co)
+ruinteger rvm_costat_getbinaryop(rvm_compiler_t *co)
 {
 	if (!rvm_costat_current(co))
 		return 0;
@@ -148,7 +148,7 @@ void rvm_costat_decbinaryop(rvm_compiler_t *co)
 	rvm_costat_current(co)->binaryop -= 1;
 }
 
-ruint rvm_costat_getdirty(rvm_compiler_t *co)
+ruinteger rvm_costat_getdirty(rvm_compiler_t *co)
 {
 	if (!rvm_costat_current(co))
 		return 0;
@@ -187,7 +187,7 @@ rvm_compiler_t *rvm_compiler_create(rpa_dbex_handle dbex)
 	r_memset(co, 0, sizeof(*co));
 	co->cg = rvm_codegen_create();
 	co->scope = rvm_scope_create();
-	co->opcodes = r_array_create(sizeof(ruint));
+	co->opcodes = r_array_create(sizeof(ruinteger));
 	co->fp = r_array_create(sizeof(rword));
 	co->funcall = r_array_create(sizeof(rvm_funcall_t));
 	co->stat = r_array_create(sizeof(rvm_costat_t));
@@ -339,21 +339,21 @@ int codegen_opcode_unary_callback(rpa_stat_handle stat, const char *name, void *
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 
 	if (r_stringncmp("-", input, size))
-		r_array_push(co->opcodes, RVM_OPSWI(rvm_cpu_swilookup_s(co->cpu, NULL, "RVM_SWI_NEG")), ruint);
+		r_array_push(co->opcodes, RVM_OPSWI(rvm_cpu_swilookup_s(co->cpu, NULL, "RVM_SWI_NEG")), ruinteger);
 	else if (r_stringncmp("+", input, size))
-		r_array_push(co->opcodes, RVM_NOP, ruint);
+		r_array_push(co->opcodes, RVM_NOP, ruinteger);
 	else if (r_stringncmp("!", input, size))
-		r_array_push(co->opcodes, RVM_ELNOT, ruint);
+		r_array_push(co->opcodes, RVM_ELNOT, ruinteger);
 	else if (r_stringncmp("~", input, size))
-		r_array_push(co->opcodes, RVM_ENOT, ruint);
+		r_array_push(co->opcodes, RVM_ENOT, ruinteger);
 	else if (r_stringncmp("delete", input, size))
-		r_array_push(co->opcodes, RVM_NOP, ruint);
+		r_array_push(co->opcodes, RVM_NOP, ruinteger);
 	else if (r_stringncmp("void", input, size))
-		r_array_push(co->opcodes, RVM_NOP, ruint);
+		r_array_push(co->opcodes, RVM_NOP, ruinteger);
 	else if (r_stringncmp("typeof", input, size))
-		r_array_push(co->opcodes, RVM_NOP, ruint);
+		r_array_push(co->opcodes, RVM_NOP, ruinteger);
 	else
-		r_array_push(co->opcodes, RVM_ABORT, ruint);
+		r_array_push(co->opcodes, RVM_ABORT, ruinteger);
 
 	codegen_print_callback(stat, name, userdata, input, size, reason);
 	return size;
@@ -365,81 +365,81 @@ int codegen_opcode_callback(rpa_stat_handle stat, const char *name, void *userda
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 
 	if (r_stringncmp("++", input,  size))
-		r_array_push(co->opcodes, RVM_EADD, ruint);
+		r_array_push(co->opcodes, RVM_EADD, ruinteger);
 	else if (r_stringncmp("+", input,  size))
-		r_array_push(co->opcodes, RVM_EADD, ruint);
+		r_array_push(co->opcodes, RVM_EADD, ruinteger);
 	else if (r_stringncmp("+=", input,  size))
-		r_array_push(co->opcodes, RVM_EADD, ruint);
+		r_array_push(co->opcodes, RVM_EADD, ruinteger);
 	else if (r_stringncmp("--", input,  size))
-		r_array_push(co->opcodes, RVM_ESUB, ruint);
+		r_array_push(co->opcodes, RVM_ESUB, ruinteger);
 	else if (r_stringncmp("-", input,  size))
-		r_array_push(co->opcodes, RVM_ESUB, ruint);
+		r_array_push(co->opcodes, RVM_ESUB, ruinteger);
 	else if (r_stringncmp("-=", input,  size))
-		r_array_push(co->opcodes, RVM_ESUB, ruint);
+		r_array_push(co->opcodes, RVM_ESUB, ruinteger);
 	else if (r_stringncmp("*", input,  size))
-		r_array_push(co->opcodes, RVM_EMUL, ruint);
+		r_array_push(co->opcodes, RVM_EMUL, ruinteger);
 	else if (r_stringncmp("*=", input,  size))
-		r_array_push(co->opcodes, RVM_EMUL, ruint);
+		r_array_push(co->opcodes, RVM_EMUL, ruinteger);
 	else if (r_stringncmp("/", input,  size))
-		r_array_push(co->opcodes, RVM_EDIV, ruint);
+		r_array_push(co->opcodes, RVM_EDIV, ruinteger);
 	else if (r_stringncmp("/=", input,  size))
-		r_array_push(co->opcodes, RVM_EDIV, ruint);
+		r_array_push(co->opcodes, RVM_EDIV, ruinteger);
 	else if (r_stringncmp("%", input,  size))
-		r_array_push(co->opcodes, RVM_EMOD, ruint);
+		r_array_push(co->opcodes, RVM_EMOD, ruinteger);
 	else if (r_stringncmp("%=", input,  size))
-		r_array_push(co->opcodes, RVM_EMOD, ruint);
+		r_array_push(co->opcodes, RVM_EMOD, ruinteger);
 	else if (r_stringncmp("&&", input,  size))
-		r_array_push(co->opcodes, RVM_ELAND, ruint);
+		r_array_push(co->opcodes, RVM_ELAND, ruinteger);
 	else if (r_stringncmp("||", input,  size))
-		r_array_push(co->opcodes, RVM_ELOR, ruint);
+		r_array_push(co->opcodes, RVM_ELOR, ruinteger);
 	else if (r_stringncmp("&", input,  size))
-		r_array_push(co->opcodes, RVM_EAND, ruint);
+		r_array_push(co->opcodes, RVM_EAND, ruinteger);
 	else if (r_stringncmp("&=", input,  size))
-		r_array_push(co->opcodes, RVM_EAND, ruint);
+		r_array_push(co->opcodes, RVM_EAND, ruinteger);
 	else if (r_stringncmp("|", input,  size))
-		r_array_push(co->opcodes, RVM_EORR, ruint);
+		r_array_push(co->opcodes, RVM_EORR, ruinteger);
 	else if (r_stringncmp("|=", input,  size))
-		r_array_push(co->opcodes, RVM_EORR, ruint);
+		r_array_push(co->opcodes, RVM_EORR, ruinteger);
 	else if (r_stringncmp("^", input,  size))
-		r_array_push(co->opcodes, RVM_EXOR, ruint);
+		r_array_push(co->opcodes, RVM_EXOR, ruinteger);
 	else if (r_stringncmp("^=", input,  size))
-		r_array_push(co->opcodes, RVM_EXOR, ruint);
+		r_array_push(co->opcodes, RVM_EXOR, ruinteger);
 	else if (r_stringncmp(">>", input,  size))
-		r_array_push(co->opcodes, RVM_ELSR, ruint);
+		r_array_push(co->opcodes, RVM_ELSR, ruinteger);
 	else if (r_stringncmp(">>=", input,  size))
-		r_array_push(co->opcodes, RVM_ELSR, ruint);
+		r_array_push(co->opcodes, RVM_ELSR, ruinteger);
 	else if (r_stringncmp("<<", input,  size))
-		r_array_push(co->opcodes, RVM_ELSL, ruint);
+		r_array_push(co->opcodes, RVM_ELSL, ruinteger);
 	else if (r_stringncmp("<<=", input,  size))
-		r_array_push(co->opcodes, RVM_ELSL, ruint);
+		r_array_push(co->opcodes, RVM_ELSL, ruinteger);
 	else if (r_stringncmp(">>>", input,  size))
-		r_array_push(co->opcodes, RVM_ELSRU, ruint);
+		r_array_push(co->opcodes, RVM_ELSRU, ruinteger);
 	else if (r_stringncmp(">>>=", input,  size))
-		r_array_push(co->opcodes, RVM_ELSRU, ruint);
+		r_array_push(co->opcodes, RVM_ELSRU, ruinteger);
 	else if (r_stringncmp("<=", input,  size))
-		r_array_push(co->opcodes, RVM_ELESSEQ, ruint);
+		r_array_push(co->opcodes, RVM_ELESSEQ, ruinteger);
 	else if (r_stringncmp(">=", input,  size))
-		r_array_push(co->opcodes, RVM_EGREATEQ, ruint);
+		r_array_push(co->opcodes, RVM_EGREATEQ, ruinteger);
 	else if (r_stringncmp("<", input,  size))
-		r_array_push(co->opcodes, RVM_ELESS, ruint);
+		r_array_push(co->opcodes, RVM_ELESS, ruinteger);
 	else if (r_stringncmp(">", input,  size))
-		r_array_push(co->opcodes, RVM_EGREAT, ruint);
+		r_array_push(co->opcodes, RVM_EGREAT, ruinteger);
 	else if (r_stringncmp("===", input,  size))
-		r_array_push(co->opcodes, RVM_EEQ, ruint);
+		r_array_push(co->opcodes, RVM_EEQ, ruinteger);
 	else if (r_stringncmp("==", input,  size))
-		r_array_push(co->opcodes, RVM_EEQ, ruint);
+		r_array_push(co->opcodes, RVM_EEQ, ruinteger);
 	else if (r_stringncmp("!==", input,  size))
-		r_array_push(co->opcodes, RVM_ENOTEQ, ruint);
+		r_array_push(co->opcodes, RVM_ENOTEQ, ruinteger);
 	else if (r_stringncmp("!=", input,  size))
-		r_array_push(co->opcodes, RVM_ENOTEQ, ruint);
+		r_array_push(co->opcodes, RVM_ENOTEQ, ruinteger);
 	else if (r_stringncmp("!", input,  size))
-		r_array_push(co->opcodes, RVM_ELNOT, ruint);
+		r_array_push(co->opcodes, RVM_ELNOT, ruinteger);
 	else if (r_stringncmp("~", input,  size))
-		r_array_push(co->opcodes, RVM_ENOT, ruint);
+		r_array_push(co->opcodes, RVM_ENOT, ruinteger);
 	else if (r_stringncmp("=", input,  size))
-		r_array_push(co->opcodes, RVM_NOP, ruint);
+		r_array_push(co->opcodes, RVM_NOP, ruinteger);
 	else
-		r_array_push(co->opcodes, RVM_ABORT, ruint);
+		r_array_push(co->opcodes, RVM_ABORT, ruinteger);
 
 	codegen_print_callback(stat, name, userdata, input, size, reason);
 	return size;
@@ -455,8 +455,8 @@ int codegen_binary_asmop_callback(rpa_stat_handle stat, const char *name, void *
 		rvm_costat_inclevel(co);
 		rvm_costat_incbinaryop(co);
 	} else if (reason & RPA_REASON_MATCHED) {
-		ruint op1;
-		ruint opcode = r_array_pop(co->opcodes, ruint);
+		ruinteger op1;
+		ruinteger opcode = r_array_pop(co->opcodes, ruinteger);
 
 		if (rvm_costat_getlevel(co) < RVM_SAVEDREGS_MAX) {
 			op1 = rvm_costat_getlevel(co) + RVM_SAVEDREGS_FIRST - 1;
@@ -527,13 +527,13 @@ int codegen_unary_asmop_callback(rpa_stat_handle stat, const char *name, void *u
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
-	ruint op1 = rvm_costat_getlevel(co) ? RVM_SAVEDREGS_FIRST - 1 + rvm_costat_getlevel(co) : R0;
+	ruinteger op1 = rvm_costat_getlevel(co) ? RVM_SAVEDREGS_FIRST - 1 + rvm_costat_getlevel(co) : R0;
 
 	if (reason & RPA_REASON_START) {
 	}
 
 	if (reason & RPA_REASON_MATCHED) {
-		ruint opcode = r_array_pop(co->opcodes, ruint);
+		ruinteger opcode = r_array_pop(co->opcodes, ruinteger);
 		rvm_codegen_addins(co->cg, rvm_asm(opcode, op1, op1, XX, 0));
 	}
 
@@ -640,7 +640,7 @@ int codegen_string_callback(rpa_stat_handle stat, const char *name, void *userda
 int codegen_program_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	ruint off;
+	ruinteger off;
 
 	if (reason & RPA_REASON_START) {
 		off = rvm_codegen_getcodesize(co->cg);
@@ -688,7 +688,7 @@ int codegen_opassign_callback(rpa_stat_handle stat, const char *name, void *user
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
-	ruint opcode = r_array_pop(co->opcodes, ruint);
+	ruinteger opcode = r_array_pop(co->opcodes, ruinteger);
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0));
 	if (opcode != RVM_NOP) {
@@ -708,7 +708,7 @@ int codegen_oppostfix_callback(rpa_stat_handle stat, const char *name, void *use
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
-	ruint opcode = r_array_pop(co->opcodes, ruint);
+	ruinteger opcode = r_array_pop(co->opcodes, ruinteger);
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R1, R0, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDRR, R0, R1, XX, 0));
@@ -727,7 +727,7 @@ int codegen_opprefix_callback(rpa_stat_handle stat, const char *name, void *user
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
-	ruint opcode = r_array_pop(co->opcodes, ruint);
+	ruinteger opcode = r_array_pop(co->opcodes, ruinteger);
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R1, R0, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDRR, R0, R1, XX, 0));
@@ -826,7 +826,7 @@ int codegen_h_arrayelementvalue_callback(rpa_stat_handle stat, const char *name,
 int codegen_swiidexist_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rint swi = rvm_cpu_swilookup(co->cpu, NULL, input, size);
+	rinteger swi = rvm_cpu_swilookup(co->cpu, NULL, input, size);
 
 	if (swi < 0)
 		return 0;
@@ -840,7 +840,7 @@ int codegen_swiid_callback(rpa_stat_handle stat, const char *name, void *userdat
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 	rulong off = rvm_codegen_getcodesize(co->cg);
-	rint swi = rvm_cpu_swilookup(co->cpu, NULL, input, size);
+	rinteger swi = rvm_cpu_swilookup(co->cpu, NULL, input, size);
 
 	if (swi < 0)
 		return 0;
@@ -1831,7 +1831,7 @@ int main(int argc, char *argv[])
 	rstr_t *script = NULL, *unmapscript = NULL;
 	rvmcpu_t *cpu;
 	rvmreg_t *thisptr;
-	ruint ntable;
+	ruinteger ntable;
 	rpa_dbex_handle dbex = rpa_dbex_create();
 	rvm_compiler_t *co = rvm_compiler_create(dbex);
 

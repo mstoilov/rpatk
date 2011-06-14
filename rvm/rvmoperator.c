@@ -56,10 +56,10 @@ void rvm_opmap_add_unary_operator(rvm_opmap_t *opmap, rushort opid)
 }
 
 
-rint rvm_opmap_set_binary_handler(rvm_opmap_t *opmap, rushort opid, rvm_binaryop_handler func, ruchar firstType, ruchar secondType)
+rinteger rvm_opmap_set_binary_handler(rvm_opmap_t *opmap, rushort opid, rvm_binaryop_handler func, ruchar firstType, ruchar secondType)
 {
 	rvm_ophandler_t *h;
-	ruint index = RVM_OP_HANDLER(firstType, secondType);
+	ruinteger index = RVM_OP_HANDLER(firstType, secondType);
 	rvm_opinfo_t *opinfo = ((rvm_opinfo_t*)r_array_slot(opmap->operators, opid));
 	if (!opinfo->handlers)
 		return -1;
@@ -69,7 +69,7 @@ rint rvm_opmap_set_binary_handler(rvm_opmap_t *opmap, rushort opid, rvm_binaryop
 }
 
 
-rint rvm_opmap_set_unary_handler(rvm_opmap_t *opmap, rushort opid, rvm_unaryop_handler func, ruchar type)
+rinteger rvm_opmap_set_unary_handler(rvm_opmap_t *opmap, rushort opid, rvm_unaryop_handler func, ruchar type)
 {
 	rvm_ophandler_t *h;
 	rvm_opinfo_t *opinfo = ((rvm_opinfo_t*)r_array_slot(opmap->operators, opid));
@@ -85,7 +85,7 @@ void rvm_opmap_invoke_binary_handler(rvm_opmap_t *opmap, rushort opid, rvmcpu_t 
 {
 	rvm_ophandler_t *h;
 	rvm_opinfo_t *opinfo;
-	ruint index;
+	ruinteger index;
 	rstring_t tempstr1, tempstr2;
 	rvmreg_t temparg1, temparg2;
 
@@ -131,7 +131,7 @@ void rvm_opmap_invoke_unary_handler(rvm_opmap_t *opmap, rushort opid, rvmcpu_t *
 {
 	rvm_ophandler_t *h;
 	rvm_opinfo_t *opinfo;
-	ruint index;
+	ruinteger index;
 	rstring_t tempstr;
 	rvmreg_t temparg;
 

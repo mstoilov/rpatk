@@ -5,7 +5,7 @@
 
 #include "rtypes.h"
 
-typedef ruint rvm_error_t;
+typedef ruinteger rvm_error_t;
 
 #define RVM_ERROR_BITS 16
 #define RVM_ERROR_MASK ((1 << RVM_ERROR_BITS) - 1)

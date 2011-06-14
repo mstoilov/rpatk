@@ -106,8 +106,8 @@ rvm_opmap_t *rvm_opmap_create();
 void rvm_opmap_destroy(rvm_opmap_t *opmap);
 void rvm_opmap_add_binary_operator(rvm_opmap_t *opmap, rushort opid);
 void rvm_opmap_add_unary_operator(rvm_opmap_t *opmap, rushort opid);
-rint rvm_opmap_set_binary_handler(rvm_opmap_t *opmap, rushort opid, rvm_binaryop_handler func, ruchar firstType, ruchar secondType);
-rint rvm_opmap_set_unary_handler(rvm_opmap_t *opmap, rushort opid, rvm_unaryop_handler func, ruchar type);
+rinteger rvm_opmap_set_binary_handler(rvm_opmap_t *opmap, rushort opid, rvm_binaryop_handler func, ruchar firstType, ruchar secondType);
+rinteger rvm_opmap_set_unary_handler(rvm_opmap_t *opmap, rushort opid, rvm_unaryop_handler func, ruchar type);
 void rvm_opmap_invoke_binary_handler(rvm_opmap_t *opmap, rushort opid, rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2);
 void rvm_opmap_invoke_unary_handler(rvm_opmap_t *opmap, rushort opid, rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg);
 

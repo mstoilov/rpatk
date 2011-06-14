@@ -12,7 +12,7 @@ extern "C" {
 typedef struct rgc_s {
 	robject_t obj;
 	rhead_t head[2];
-	ruint active;
+	ruinteger active;
 } rgc_t;
 
 

@@ -30,8 +30,8 @@ static rvm_switable_t calltable[] = {
 int main(int argc, char *argv[])
 {
 	rlong i, iter = 1;
-	ruint ret = 0;
-	ruint off = 0;
+	ruinteger ret = 0;
+	ruinteger off = 0;
 	rvm_asmins_t vmcode[256];
 	rvmcpu_t *vm = rvm_cpu_create_default();
 

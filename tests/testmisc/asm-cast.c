@@ -30,8 +30,8 @@ static rvm_switable_t switable[] = {
 	
 int main(int argc, char *argv[])
 {
-	ruint ret = 0;
-	ruint off = 0;
+	ruinteger ret = 0;
+	ruinteger off = 0;
 	rvmreg_t d1 = rvm_reg_create_double(1.0);
 	rvmreg_t d2 = rvm_reg_create_double(-1.0);
 	rvmreg_t ds = rvm_reg_create_string_ansi("-3.5785");

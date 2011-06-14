@@ -24,9 +24,9 @@ static rvm_switable_t calltable[] = {
 	
 int main(int argc, char *argv[])
 {
-	rint table1, table2, table3;
-	ruint ret = 0;
-	ruint off = 0;
+	rinteger table1, table2, table3;
+	ruinteger ret = 0;
+	ruinteger off = 0;
 	rvm_asmins_t vmcode[256];
 	rvmcpu_t *vm = rvm_cpu_create_default();
 

@@ -3,9 +3,9 @@
 #include "rjsparser.h"
 
 
-rint rjs_compiler_playreversechildrecords(rjs_compiler_t *co, rarray_t *records, rlong rec);
-static rint rjs_compiler_playrecord(rjs_compiler_t *co, rarray_t *records, rlong rec);
-static rint rjs_compiler_playchildrecords(rjs_compiler_t *co, rarray_t *records, rlong rec);
+rinteger rjs_compiler_playreversechildrecords(rjs_compiler_t *co, rarray_t *records, rlong rec);
+static rinteger rjs_compiler_playrecord(rjs_compiler_t *co, rarray_t *records, rlong rec);
+static rinteger rjs_compiler_playchildrecords(rjs_compiler_t *co, rarray_t *records, rlong rec);
 
 
 void rjs_compiler_debughead(rjs_compiler_t *co, rarray_t *records, rlong rec)
@@ -264,7 +264,7 @@ rlong rjs_compiler_record2unaryopcode(rparecord_t *prec)
 }
 
 
-static rint rjs_compiler_internalvars_setup(rjs_compiler_t *co)
+static rinteger rjs_compiler_internalvars_setup(rjs_compiler_t *co)
 {
 	rvm_varmap_t *v;
 
@@ -281,7 +281,7 @@ static rint rjs_compiler_internalvars_setup(rjs_compiler_t *co)
 }
 
 
-rint rjs_compiler_rh_program(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_program(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rjs_coctx_global_t ctx;
 	rparecord_t *prec;
@@ -322,7 +322,7 @@ error:
 }
 
 
-rint rjs_compiler_rh_varalloc(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_varalloc(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	prec = (rparecord_t *)r_array_slot(records, rec);
@@ -342,7 +342,7 @@ rint rjs_compiler_rh_varalloc(rjs_compiler_t *co, rarray_t *records, rlong rec)
 }
 
 
-rint rjs_compiler_rh_varallocinit(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_varallocinit(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	prec = (rparecord_t *)r_array_slot(records, rec);
@@ -363,7 +363,7 @@ rint rjs_compiler_rh_varallocinit(rjs_compiler_t *co, rarray_t *records, rlong r
 }
 
 
-rint rjs_compiler_rh_initializer(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_initializer(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	prec = (rparecord_t *)r_array_slot(records, rec);
@@ -383,7 +383,7 @@ rint rjs_compiler_rh_initializer(rjs_compiler_t *co, rarray_t *records, rlong re
 }
 
 
-rint rjs_compiler_rh_identifier(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_identifier(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rvm_varmap_t *v;
 	rparecord_t *prec;
@@ -435,7 +435,7 @@ end:
 }
 
 
-rint rjs_compiler_rh_expression(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_expression(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	prec = (rparecord_t *)r_array_slot(records, rec);
@@ -453,7 +453,7 @@ rint rjs_compiler_rh_expression(rjs_compiler_t *co, rarray_t *records, rlong rec
 }
 
 
-rint rjs_compiler_rh_lefthandsideexpression(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_lefthandsideexpression(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	prec = (rparecord_t *)r_array_slot(records, rec);
@@ -471,7 +471,7 @@ rint rjs_compiler_rh_lefthandsideexpression(rjs_compiler_t *co, rarray_t *record
 }
 
 
-rint rjs_compiler_rh_lefthandsideexpressionaddr(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_lefthandsideexpressionaddr(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	prec = (rparecord_t *)r_array_slot(records, rec);
@@ -490,7 +490,7 @@ rint rjs_compiler_rh_lefthandsideexpressionaddr(rjs_compiler_t *co, rarray_t *re
 }
 
 
-rint rjs_compiler_rh_decimalintegerliteral(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_decimalintegerliteral(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	prec = (rparecord_t *)r_array_slot(records, rec);
@@ -509,7 +509,7 @@ rint rjs_compiler_rh_decimalintegerliteral(rjs_compiler_t *co, rarray_t *records
 }
 
 
-rint rjs_compiler_rh_decimalnonintegerliteral(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_decimalnonintegerliteral(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	prec = (rparecord_t *)r_array_slot(records, rec);
@@ -529,7 +529,7 @@ rint rjs_compiler_rh_decimalnonintegerliteral(rjs_compiler_t *co, rarray_t *reco
 }
 
 
-rint rjs_compiler_rh_stringcharacters(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_stringcharacters(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	prec = (rparecord_t *)r_array_slot(records, rec);
@@ -550,7 +550,7 @@ rint rjs_compiler_rh_stringcharacters(rjs_compiler_t *co, rarray_t *records, rlo
 }
 
 
-rint rjs_compiler_rh_stringliteral(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_stringliteral(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	prec = (rparecord_t *)r_array_slot(records, rec);
@@ -574,7 +574,7 @@ rint rjs_compiler_rh_stringliteral(rjs_compiler_t *co, rarray_t *records, rlong 
 }
 
 
-rint rjs_compiler_rh_binaryexpressionop(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_binaryexpressionop(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	rjs_coctx_operation_t ctx;
@@ -604,7 +604,7 @@ error:
 }
 
 
-rint rjs_compiler_rh_unaryexpressionop(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_unaryexpressionop(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	rjs_coctx_operation_t ctx;
@@ -632,7 +632,7 @@ error:
 }
 
 
-rint rjs_compiler_rh_assignmentexpressionop(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_assignmentexpressionop(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	rjs_coctx_operation_t ctx;
@@ -664,7 +664,7 @@ error:
 }
 
 
-rint rjs_compiler_rh_newarrayexpression(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_newarrayexpression(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	prec = (rparecord_t *)r_array_slot(records, rec);
@@ -681,7 +681,7 @@ rint rjs_compiler_rh_newarrayexpression(rjs_compiler_t *co, rarray_t *records, r
 }
 
 
-rint rjs_compiler_rh_memberexpressiondotop(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_memberexpressiondotop(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rjs_coctx_t *ctx = rjs_compiler_gettopctx(co);
 	rparecord_t *prec;
@@ -710,7 +710,7 @@ rint rjs_compiler_rh_memberexpressiondotop(rjs_compiler_t *co, rarray_t *records
 }
 
 
-rint rjs_compiler_rh_memberexpressionindexop(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_memberexpressionindexop(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rjs_coctx_t *ctx = rjs_compiler_gettopctx(co);
 	rparecord_t *prec;
@@ -741,7 +741,7 @@ rint rjs_compiler_rh_memberexpressionindexop(rjs_compiler_t *co, rarray_t *recor
 }
 
 
-rint rjs_compiler_rh_functiondeclaration(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_functiondeclaration(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rjs_coctx_function_t ctx;
 	rparecord_t *prec;
@@ -798,7 +798,7 @@ error:
 }
 
 
-rint rjs_compiler_rh_functionparameter(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_functionparameter(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rjs_coctx_t *ctx = NULL;
 	rjs_coctx_function_t *functx = NULL;
@@ -844,7 +844,7 @@ rint rjs_compiler_rh_functionparameter(rjs_compiler_t *co, rarray_t *records, rl
 }
 
 
-rint rjs_compiler_rh_functioncall(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_functioncall(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	rjs_coctx_functioncall_t ctx;
@@ -886,7 +886,7 @@ error:
 }
 
 
-rint rjs_compiler_rh_argument(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_argument(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	rjs_coctx_functioncall_t *ctx = (rjs_coctx_functioncall_t *)rjs_compiler_getctx(co, RJS_COCTX_FUNCTIONCALL);
@@ -913,7 +913,7 @@ rint rjs_compiler_rh_argument(rjs_compiler_t *co, rarray_t *records, rlong rec)
 }
 
 
-rint rjs_compiler_rh_arguments(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_arguments(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	rjs_coctx_functioncall_t *ctx = (rjs_coctx_functioncall_t *)rjs_compiler_getctx(co, RJS_COCTX_FUNCTIONCALL);
@@ -938,7 +938,7 @@ rint rjs_compiler_rh_arguments(rjs_compiler_t *co, rarray_t *records, rlong rec)
 }
 
 
-rint rjs_compiler_rh_returnstatement(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_returnstatement(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	prec = (rparecord_t *)r_array_slot(records, rec);
@@ -957,7 +957,7 @@ rint rjs_compiler_rh_returnstatement(rjs_compiler_t *co, rarray_t *records, rlon
 }
 
 
-rint rjs_compiler_rh_ifstatement(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_ifstatement(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	rjs_coctx_ifstatement_t ctx;
@@ -990,7 +990,7 @@ error:
 }
 
 
-rint rjs_compiler_rh_ifconditionop(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_ifconditionop(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	rjs_coctx_ifstatement_t *ctx = (rjs_coctx_ifstatement_t *)rjs_compiler_getctx(co, RJS_COCTX_IFSTATEMENT);
@@ -1014,7 +1014,7 @@ rint rjs_compiler_rh_ifconditionop(rjs_compiler_t *co, rarray_t *records, rlong 
 }
 
 
-rint rjs_compiler_rh_iftruestatement(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_iftruestatement(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	rjs_coctx_ifstatement_t *ctx = (rjs_coctx_ifstatement_t *)rjs_compiler_getctx(co, RJS_COCTX_IFSTATEMENT);
@@ -1040,7 +1040,7 @@ rint rjs_compiler_rh_iftruestatement(rjs_compiler_t *co, rarray_t *records, rlon
 }
 
 
-rint rjs_compiler_rh_iffalsestatement(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_iffalsestatement(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	rjs_coctx_ifstatement_t *ctx = (rjs_coctx_ifstatement_t *)rjs_compiler_getctx(co, RJS_COCTX_IFSTATEMENT);
@@ -1066,7 +1066,7 @@ rint rjs_compiler_rh_iffalsestatement(rjs_compiler_t *co, rarray_t *records, rlo
 }
 
 
-rint rjs_compiler_rh_iterationfor(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_iterationfor(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rlong childrec;
 	rparecord_t *prec;
@@ -1129,7 +1129,7 @@ error:
 }
 
 
-rint rjs_compiler_rh_iterationwhile(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_iterationwhile(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	rjs_coctx_iteration_t ctx;
@@ -1166,7 +1166,7 @@ error:
 }
 
 
-rint rjs_compiler_rh_iterationdo(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_iterationdo(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	rjs_coctx_iteration_t ctx;
@@ -1202,7 +1202,7 @@ error:
 }
 
 
-rint rjs_compiler_rh_dowhileexpressioncompare(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_dowhileexpressioncompare(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	rjs_coctx_iteration_t *ctx = (rjs_coctx_iteration_t *)rjs_compiler_getctx(co, RJS_COCTX_ITERATION);
@@ -1229,7 +1229,7 @@ rint rjs_compiler_rh_dowhileexpressioncompare(rjs_compiler_t *co, rarray_t *reco
 }
 
 
-rint rjs_compiler_rh_forexpressioncompare(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_forexpressioncompare(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	rjs_coctx_iteration_t *ctx = (rjs_coctx_iteration_t *)rjs_compiler_getctx(co, RJS_COCTX_ITERATION);
@@ -1255,7 +1255,7 @@ rint rjs_compiler_rh_forexpressioncompare(rjs_compiler_t *co, rarray_t *records,
 }
 
 
-rint rjs_compiler_rh_forexpressionincrement(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_forexpressionincrement(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	rjs_coctx_iteration_t *ctx = (rjs_coctx_iteration_t *)rjs_compiler_getctx(co, RJS_COCTX_ITERATION);
@@ -1281,7 +1281,7 @@ rint rjs_compiler_rh_forexpressionincrement(rjs_compiler_t *co, rarray_t *record
 }
 
 
-rint rjs_compiler_rh_postfixexpressionop(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_postfixexpressionop(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	rlong opcode;
@@ -1310,7 +1310,7 @@ rint rjs_compiler_rh_postfixexpressionop(rjs_compiler_t *co, rarray_t *records, 
 }
 
 
-rint rjs_compiler_rh_prefixexpressionop(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_prefixexpressionop(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	rlong opcode;
@@ -1340,7 +1340,7 @@ rint rjs_compiler_rh_prefixexpressionop(rjs_compiler_t *co, rarray_t *records, r
 }
 
 
-rint rjs_compiler_rh_newexpressioncall(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_newexpressioncall(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	rjs_coctx_functioncall_t ctx;
@@ -1382,7 +1382,7 @@ error:
 }
 
 
-rint rjs_compiler_rh_this(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_this(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	prec = (rparecord_t *)r_array_slot(records, rec);
@@ -1401,7 +1401,7 @@ rint rjs_compiler_rh_this(rjs_compiler_t *co, rarray_t *records, rlong rec)
 }
 
 
-rint rjs_compiler_rh_binaryoperator(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_binaryoperator(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	rjs_coctx_t *ctx = rjs_compiler_gettopctx(co);
@@ -1423,7 +1423,7 @@ rint rjs_compiler_rh_binaryoperator(rjs_compiler_t *co, rarray_t *records, rlong
 }
 
 
-rint rjs_compiler_rh_unaryoperator(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_unaryoperator(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	rjs_coctx_t *ctx = rjs_compiler_gettopctx(co);
@@ -1445,7 +1445,7 @@ rint rjs_compiler_rh_unaryoperator(rjs_compiler_t *co, rarray_t *records, rlong 
 }
 
 
-rint rjs_compiler_rh_identifiername(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_identifiername(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	prec = (rparecord_t *)r_array_slot(records, rec);
@@ -1465,7 +1465,7 @@ rint rjs_compiler_rh_identifiername(rjs_compiler_t *co, rarray_t *records, rlong
 }
 
 
-rint rjs_compiler_rh_continue(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_continue(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	rjs_coctx_t *ctx;
@@ -1494,7 +1494,7 @@ rint rjs_compiler_rh_continue(rjs_compiler_t *co, rarray_t *records, rlong rec)
 }
 
 
-rint rjs_compiler_rh_break(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_break(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	rjs_coctx_t *ctx;
@@ -1524,7 +1524,7 @@ rint rjs_compiler_rh_break(rjs_compiler_t *co, rarray_t *records, rlong rec)
 }
 
 
-rint rjs_compiler_rh_syntaxerror(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_syntaxerror(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	prec = (rparecord_t *)r_array_slot(records, rec);
@@ -1543,7 +1543,7 @@ rint rjs_compiler_rh_syntaxerror(rjs_compiler_t *co, rarray_t *records, rlong re
 }
 
 
-rint rjs_compiler_rh_block(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_block(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	prec = (rparecord_t *)r_array_slot(records, rec);
@@ -1565,7 +1565,7 @@ rint rjs_compiler_rh_block(rjs_compiler_t *co, rarray_t *records, rlong rec)
 }
 
 
-rint rjs_compiler_rh_(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_rh_(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	prec = (rparecord_t *)r_array_slot(records, rec);
@@ -1666,7 +1666,7 @@ void rjs_compiler_destroy(rjs_compiler_t *co)
 }
 
 
-static rint rjs_compiler_rh_default(rjs_compiler_t *co, rarray_t *records, rlong rec)
+static rinteger rjs_compiler_rh_default(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 
@@ -1686,7 +1686,7 @@ static rint rjs_compiler_rh_default(rjs_compiler_t *co, rarray_t *records, rlong
 }
 
 
-static rint rjs_compiler_playchildrecords(rjs_compiler_t *co, rarray_t *records, rlong rec)
+static rinteger rjs_compiler_playchildrecords(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rlong child;
 
@@ -1699,7 +1699,7 @@ static rint rjs_compiler_playchildrecords(rjs_compiler_t *co, rarray_t *records,
 }
 
 
-rint rjs_compiler_playreversechildrecords(rjs_compiler_t *co, rarray_t *records, rlong rec)
+rinteger rjs_compiler_playreversechildrecords(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rlong child;
 
@@ -1712,7 +1712,7 @@ rint rjs_compiler_playreversechildrecords(rjs_compiler_t *co, rarray_t *records,
 }
 
 
-static rint rjs_compiler_playrecord(rjs_compiler_t *co, rarray_t *records, rlong rec)
+static rinteger rjs_compiler_playrecord(rjs_compiler_t *co, rarray_t *records, rlong rec)
 {
 	rparecord_t *prec;
 	prec = (rparecord_t *)r_array_slot(records, rec);
@@ -1723,7 +1723,7 @@ static rint rjs_compiler_playrecord(rjs_compiler_t *co, rarray_t *records, rlong
 }
 
 
-rint rjs_compiler_compile(rjs_compiler_t *co, const rchar *script, rsize_t scriptsize, rarray_t *records, rvm_codegen_t *cg, rjs_error_t *error)
+rinteger rjs_compiler_compile(rjs_compiler_t *co, const rchar *script, rsize_t scriptsize, rarray_t *records, rvm_codegen_t *cg, rjs_error_t *error)
 {
 	rlong i;
 	rvm_codelabel_t *labelerr;

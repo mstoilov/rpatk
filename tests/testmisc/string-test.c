@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 	rvm_codelabel_t *err;
 	rvmcpu_t *cpu;
 	rvm_opmap_t *opmap;
-	ruint ntable;
+	ruinteger ntable;
 
 	ctx.opmap = opmap = rvm_opmap_create();
 	cpu = rvm_cpu_create_default();

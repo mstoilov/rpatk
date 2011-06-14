@@ -7,13 +7,13 @@
 #include "rmem.h"
 
 
-rint r_strcmp(const rchar *s1, const rchar *s2)
+rinteger r_strcmp(const rchar *s1, const rchar *s2)
 {
 	return strcmp(s1, s2);
 }
 
 
-rint r_strncmp(const rchar *s1, const rchar *s2, rsize_t n)
+rinteger r_strncmp(const rchar *s1, const rchar *s2, rsize_t n)
 {
 	int ret = strncmp(s1, s2, (size_t)n);
 	return ret;
@@ -40,7 +40,7 @@ rchar *r_strstr(const rchar *haystack, const rchar *needle)
 }
 
 
-rchar *r_strchr(const rchar *s, rint c)
+rchar *r_strchr(const rchar *s, rinteger c)
 {
 	return strchr(s, c);
 }
@@ -90,7 +90,7 @@ rchar *r_strndup(const rchar *s, rsize_t size)
 }
 
 
-rstr_t *r_rstrdup(const rchar *s, ruint size)
+rstr_t *r_rstrdup(const rchar *s, ruinteger size)
 {
 	rsize_t allocsize = sizeof(rstr_t) + size + sizeof(rchar);
 	rstr_t *d = (rstr_t*)r_malloc(allocsize);
@@ -105,7 +105,7 @@ rstr_t *r_rstrdup(const rchar *s, ruint size)
 }
 
 
-rint r_vsnprintf(rchar *str, ruint size, const rchar *format, va_list ap)
+rinteger r_vsnprintf(rchar *str, ruinteger size, const rchar *format, va_list ap)
 {
 	return vsnprintf(str, size, format, ap);
 }
@@ -117,13 +117,13 @@ rchar *r_strcat(rchar *dest, const rchar *src)
 }
 
 
-rchar *r_strncat(rchar *dest, const rchar *src, ruint n)
+rchar *r_strncat(rchar *dest, const rchar *src, ruinteger n)
 {
 	return strncat(dest, src, n);
 }
 
 
-rint r_snprintf(rchar *str, ruint size, const rchar *format, ...)
+rinteger r_snprintf(rchar *str, ruinteger size, const rchar *format, ...)
 {
 	va_list ap;
 	int ret;
@@ -135,7 +135,7 @@ rint r_snprintf(rchar *str, ruint size, const rchar *format, ...)
 }
 
 
-rint r_printf(const rchar *format, ...)
+rinteger r_printf(const rchar *format, ...)
 {
 	va_list ap;
 	int ret;
@@ -147,13 +147,13 @@ rint r_printf(const rchar *format, ...)
 }
 
 
-rulong r_strtoul(const rchar *nptr, rchar **endptr, rint base)
+rulong r_strtoul(const rchar *nptr, rchar **endptr, rinteger base)
 {
 	return strtoul(nptr, endptr,base);
 }
 
 
-rlong r_strtol(const rchar *s, rchar **endptr, rint base)
+rlong r_strtol(const rchar *s, rchar **endptr, rinteger base)
 {
 	return strtol(s, endptr, base);
 }
@@ -264,7 +264,7 @@ rstring_t *r_string_create_from_ansistr(const rchar *str)
 rstring_t *r_string_create_from_double(rdouble d)
 {
 	char temp[128];
-	rint size;
+	rinteger size;
 
 	r_memset(temp, 0, sizeof(temp));
 	size = r_snprintf(temp, sizeof(temp) - 1, "%f", d);
@@ -279,7 +279,7 @@ rstring_t *r_string_create_from_double(rdouble d)
 rstring_t *r_string_create_from_long(rlong l)
 {
 	char temp[128];
-	rint size;
+	rinteger size;
 
 	r_memset(temp, 0, sizeof(temp));
 	size = r_snprintf(temp, sizeof(temp) - 1, "%ld", l);
@@ -290,7 +290,7 @@ rstring_t *r_string_create_from_long(rlong l)
 }
 
 
-rstring_t *r_string_create_strsize(const rchar *str, ruint size)
+rstring_t *r_string_create_strsize(const rchar *str, ruinteger size)
 {
 	rstr_t rstr;
 

@@ -55,14 +55,14 @@ rvm_codelabel_t *rvm_codemap_label(rvm_codemap_t *codemap, rlong index)
 }
 
 
-static rlong rvm_codemap_dolookup(rvm_codemap_t *codemap, const rchar *name, ruint namesize)
+static rlong rvm_codemap_dolookup(rvm_codemap_t *codemap, const rchar *name, ruinteger namesize)
 {
 	rstr_t lookupstr = {(char*)name, namesize};
 	return r_hash_lookup_indexval(codemap->hash, &lookupstr);
 }
 
 
-static rlong rvm_codemap_add(rvm_codemap_t *codemap, const rchar *name, ruint namesize)
+static rlong rvm_codemap_add(rvm_codemap_t *codemap, const rchar *name, ruinteger namesize)
 {
 	rvm_codelabel_t *label = NULL;
 	rlong labelidx = -1;
@@ -104,7 +104,7 @@ void rvm_codelabel_setinvalid(rvm_codelabel_t *label)
 }
 
 
-rlong rvm_codemap_addoffset(rvm_codemap_t *codemap, const rchar *name, ruint namesize, rulong base, rulong offset)
+rlong rvm_codemap_addoffset(rvm_codemap_t *codemap, const rchar *name, ruinteger namesize, rulong base, rulong offset)
 {
 	rlong labelidx = rvm_codemap_add(codemap, name, namesize);
 	rvm_codelabel_t *label = rvm_codemap_label(codemap, labelidx);
@@ -120,7 +120,7 @@ rlong rvm_codemap_addoffset_s(rvm_codemap_t *codemap, const rchar *name, rulong 
 }
 
 
-rlong rvm_codemap_addpointer(rvm_codemap_t *codemap, const rchar *name, ruint namesize, rpointer ptr)
+rlong rvm_codemap_addpointer(rvm_codemap_t *codemap, const rchar *name, ruinteger namesize, rpointer ptr)
 {
 	rlong labelidx = rvm_codemap_add(codemap, name, namesize);
 	rvm_codelabel_t *label = rvm_codemap_label(codemap, labelidx);
@@ -138,7 +138,7 @@ rlong rvm_codemap_addpointer_s(rvm_codemap_t *codemap, const rchar *name, rpoint
 }
 
 
-rlong rvm_codemap_invalid_add(rvm_codemap_t *codemap, const rchar *name, ruint namesize)
+rlong rvm_codemap_invalid_add(rvm_codemap_t *codemap, const rchar *name, ruinteger namesize)
 {
 	rlong labelidx = rvm_codemap_add(codemap, name, namesize);
 	rvm_codelabel_t *label = rvm_codemap_label(codemap, labelidx);
@@ -172,7 +172,7 @@ rlong rvm_codemap_lastlabel(rvm_codemap_t *codemap)
 }
 
 
-rlong rvm_codemap_lookupadd(rvm_codemap_t *codemap, const rchar *name, ruint namesize)
+rlong rvm_codemap_lookupadd(rvm_codemap_t *codemap, const rchar *name, ruinteger namesize)
 {
 	rstr_t lookupstr = {(char*)name, namesize};
 	rlong labelidx = r_hash_lookup_indexval(codemap->hash, &lookupstr);
@@ -189,7 +189,7 @@ rlong rvm_codemap_lookupadd_s(rvm_codemap_t *codemap, const rchar *name)
 }
 
 
-rlong rvm_codemap_lookup(rvm_codemap_t *codemap, const rchar *name, ruint namesize)
+rlong rvm_codemap_lookup(rvm_codemap_t *codemap, const rchar *name, ruinteger namesize)
 {
 	rstr_t lookupstr = {(char*)name, namesize};
 	rlong labelidx = r_hash_lookup_indexval(codemap->hash, &lookupstr);
@@ -227,7 +227,7 @@ rword rvm_codemap_resolve(rvm_codemap_t *codemap, rlong index, rvm_codelabel_t *
 
 void rvm_codemap_dump(rvm_codemap_t *codemap)
 {
-	rint i = 0;
+	rinteger i = 0;
 
 	for (i = 0; i < r_array_length(codemap->labels); i++) {
 		rvm_codelabel_t *label = rvm_codemap_label(codemap, i);

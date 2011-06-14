@@ -21,7 +21,7 @@ rparecord_t *rpa_record_get(rarray_t *records, rlong rec)
 rlong rpa_recordtree_get(rarray_t *records, rlong rec, rulong type)
 {
 	rlong i, s = 0;
-	ruint startrec = (type & RPA_RECORD_START) ? 1 : 0;
+	ruinteger startrec = (type & RPA_RECORD_START) ? 1 : 0;
 	rparecord_t *prec;
 
 	if (rec < 0 || rec >= r_array_length(records))
@@ -309,9 +309,9 @@ rlong rpa_record_getusertype(rarray_t *records, rlong rec)
 }
 
 
-rint rpa_record_optchar(rparecord_t *prec, rint defc)
+rinteger rpa_record_optchar(rparecord_t *prec, rinteger defc)
 {
-	rint optc = defc;
+	rinteger optc = defc;
 
 	if ((prec->usertype & RPA_MATCH_MASK) == RPA_MATCH_OPTIONAL)
 		optc = '?';
@@ -325,9 +325,9 @@ rint rpa_record_optchar(rparecord_t *prec, rint defc)
 }
 
 
-rint rpa_record_loopchar(rparecord_t *prec, rint defc)
+rinteger rpa_record_loopchar(rparecord_t *prec, rinteger defc)
 {
-	rint loopc = defc;
+	rinteger loopc = defc;
 
 	if ((prec->usertype & RPA_LOOP_PATH) && (prec->usertype & RPA_NONLOOP_PATH)) {
 		/*
@@ -350,8 +350,8 @@ void rpa_record_dump(rarray_t *records, rlong rec)
 	rparecord_t *prec;
 	rlong start, end, first, last, next, prev, parent;
 	rchar buf[240];
-	rint bufsize = sizeof(buf) - 1;
-	rint n = 0, size;
+	rinteger bufsize = sizeof(buf) - 1;
+	rinteger n = 0, size;
 	rchar optc = ' ';
 
 	if (rec < 0 || rec >= r_array_length(records))
@@ -409,11 +409,11 @@ void rpa_record_dump(rarray_t *records, rlong rec)
 }
 
 
-void rpa_record_dumpindented(rarray_t *records, rlong rec, rint level)
+void rpa_record_dumpindented(rarray_t *records, rlong rec, rinteger level)
 {
 	rchar buffer[1024];
 	rparecord_t *prec;
-	rint i, size;
+	rinteger i, size;
 
 	if (rec < 0 || rec >= r_array_length(records))
 		return;

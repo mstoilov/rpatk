@@ -335,12 +335,12 @@ struct rvmcpu_s {
 rvmcpu_t *rvm_cpu_create_default();
 rvmcpu_t *rvm_cpu_create(rulong stacksize);
 void rvm_cpu_destroy(rvmcpu_t * vm);
-rint rvm_cpu_abort(rvmcpu_t *cpu);
-rint rvm_cpu_exec(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off);
-rint rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off);
-rint rvm_cpu_swilookup(rvmcpu_t *cpu, const rchar *tabname, const rchar *swiname, rsize_t size);
-rint rvm_cpu_swilookup_s(rvmcpu_t *cpu, const rchar *tabname, const rchar *swiname);
-rint rvm_cpu_addswitable(rvmcpu_t * cpu, const rchar *tabname, rvm_switable_t *switalbe);
+rinteger rvm_cpu_abort(rvmcpu_t *cpu);
+rinteger rvm_cpu_exec(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off);
+rinteger rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off);
+rinteger rvm_cpu_swilookup(rvmcpu_t *cpu, const rchar *tabname, const rchar *swiname, rsize_t size);
+rinteger rvm_cpu_swilookup_s(rvmcpu_t *cpu, const rchar *tabname, const rchar *swiname);
+rinteger rvm_cpu_addswitable(rvmcpu_t * cpu, const rchar *tabname, rvm_switable_t *switalbe);
 rvmreg_t *rvm_cpu_alloc_global(rvmcpu_t *cpu);
 int rvm_cpu_setreg(rvmcpu_t *cpu, rword regnum, const rvmreg_t *src);
 rvmreg_t *rvm_cpu_getreg(rvmcpu_t *cpu, rword regnum);
@@ -348,7 +348,7 @@ void rvm_cpu_dumpregs( rvmcpu_t *cpu, rvm_asmins_t *pi);
 rvm_asmins_t rvm_asm(rword opcode, rword op1, rword op2, rword op3, rword data);
 rvm_asmins_t rvm_asma(rword opcode, rword op1, rword op2, rword op3, rchar *data, rulong size);
 rvm_asmins_t rvm_asml(rword opcode, rword op1, rword op2, rword op3, rlong data);
-rvm_asmins_t rvm_asmb(rword opcode, rword op1, rword op2, rword op3, ruint data);
+rvm_asmins_t rvm_asmb(rword opcode, rword op1, rword op2, rword op3, ruinteger data);
 rvm_asmins_t rvm_asmd(rword opcode, rword op1, rword op2, rword op3, rdouble data);
 rvm_asmins_t rvm_asmp(rword opcode, rword op1, rword op2, rword op3, rpointer data);
 rvm_asmins_t rvm_asms(rword opcode, rword op1, rword op2, rword op3, rword data);
@@ -358,7 +358,7 @@ rvm_asmins_t rvm_asm2(rword opcode, rword op1, rword op2, rword op3, ruint32 p1,
 rvm_asmins_t rvm_cond_asm(rword cond, rword opcode, rword op1, rword op2, rword op3, rword data);
 rvm_asmins_t rvm_cond_asma(rword cond, rword opcode, rword op1, rword op2, rword op3, rchar *data, rulong size);
 rvm_asmins_t rvm_cond_asml(rword cond, rword opcode, rword op1, rword op2, rword op3, rlong data);
-rvm_asmins_t rvm_cond_asmb(rword cond, rword opcode, rword op1, rword op2, rword op3, ruint data);
+rvm_asmins_t rvm_cond_asmb(rword cond, rword opcode, rword op1, rword op2, rword op3, ruinteger data);
 rvm_asmins_t rvm_cond_asmp(rword cond, rword opcode, rword op1, rword op2, rword op3, rpointer data);
 rvm_asmins_t rvm_cond_asms(rword cond, rword opcode, rword op1, rword op2, rword op3, rword data);
 rvm_asmins_t rvm_cond_asmd(rword cond, rword opcode, rword op1, rword op2, rword op3, rdouble data);
@@ -366,7 +366,7 @@ rvm_asmins_t rvm_cond_asmf(rword cond, rword opcode, rword op1, rword op2, rword
 rvm_asmins_t rvm_cond_asm2(rword cond, rword opcode, rword op1, rword op2, rword op3, ruint32 p1, ruint32 p2);
 
 
-void rvm_asm_dump(rvm_asmins_t *pi, ruint count);
+void rvm_asm_dump(rvm_asmins_t *pi, ruinteger count);
 
 
 #ifdef __cplusplus

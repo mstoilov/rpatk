@@ -1,6 +1,9 @@
+RTK_LIB_INSTALL=/usr/lib
 RLIB_SRCDIR = $(SRCDIR)/rlib
-RLIB_LIB = $(OUTDIR)/librlib.a
-RLIB_SO = $(OUTDIR)/librlib.so.1.0
+RLIB_LIB = librlib.a
+RLIB_SO = librlib.so.1.0
+TARGET_RLIB_LIB = $(OUTDIR)/$(RLIB_LIB)
+TARGET_RLIB_SO = $(OUTDIR)/$(RLIB_SO)
 
 
 RLIB_OBJECTS +=	$(OUTDIR)/rref.o
@@ -22,19 +25,19 @@ RLIB_OBJECTS +=	$(OUTDIR)/rutf.o
 
 
 ifeq ($(OS), linux)
-all: $(OUTDIR) $(RLIB_LIB) $(RLIB_SO)
+all: $(OUTDIR) $(TARGET_RLIB_LIB) $(TARGET_RLIB_SO)
 else
-all: $(OUTDIR) $(RLIB_LIB)
+all: $(OUTDIR) $(TARGET_RLIB_LIB)
 endif
 
 
 $(OUTDIR)/%.o: $(RLIB_SRCDIR)/%.c
 	+ $(CC) $(CFLAGS) -o $(OUTDIR)/$*.o -c $(RLIB_SRCDIR)/$*.c
 
-$(RLIB_LIB): $(RLIB_OBJECTS)
+$(TARGET_RLIB_LIB): $(RLIB_OBJECTS)
 	$(AR) -cr $@ $^
 
-$(RLIB_SO): $(RLIB_OBJECTS)
+$(TARGET_RLIB_SO): $(RLIB_OBJECTS)
 	$(CC) $(LDFLAGS) -shared -Wl,-soname,librlib.so -o $@ $^
 
 $(OUTDIR):
@@ -45,9 +48,16 @@ distclean: clean
 	@rm -rf $(OUTDIR)
 
 clean:
-	@rm -f $(RLIB_LIB)
-	@rm -f $(RLIB_SO)
+	@rm -f $(TARGET_RLIB_LIB)
+	@rm -f $(TARGET_RLIB_SO)
 	@rm -f $(RLIB_OBJECTS)
 	@rm -f *~
 	@rm -f $(SRCDIR)/*~
 
+install:
+	cp $(TARGET_RLIB_SO) $(RTK_LIB_INSTALL)
+	cp $(TARGET_RLIB_LIB) $(RTK_LIB_INSTALL)
+
+uninstall:
+	rm $(RTK_LIB_INSTALL)/$(RLIB_LIB)
+	rm $(RTK_LIB_INSTALL)/$(RLIB_SO)

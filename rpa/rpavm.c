@@ -415,7 +415,7 @@ static rvm_switable_t rpavm_swi_table[] = {
 rvmcpu_t *rpavm_cpu_create(rulong stacksize)
 {
 	rvmcpu_t *cpu = rvm_cpu_create(stacksize);
-	rint tableid = rvm_cpu_addswitable(cpu, "rpavm_swi_table", rpavm_swi_table);
+	rinteger tableid = rvm_cpu_addswitable(cpu, "rpavm_swi_table", rpavm_swi_table);
 
 	if (tableid != RPAVM_SWI_TABLEID) {
 		rpavm_cpu_destroy(cpu);
