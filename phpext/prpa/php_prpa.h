@@ -47,6 +47,10 @@ PHP_FUNCTION(rpa_dbex_open);
 PHP_FUNCTION(rpa_dbex_close);
 PHP_FUNCTION(rpa_dbex_load);
 PHP_FUNCTION(rpa_dbex_compile);
+PHP_FUNCTION(rpa_dbex_lookup);
+PHP_FUNCTION(rpa_stat_create);
+PHP_FUNCTION(rpa_stat_scan);
+PHP_FUNCTION(rpa_stat_match);
 #if 0
 PHP_FUNCTION(rpa_dbex_strmatch);
 PHP_FUNCTION(rpa_dbex_set_encoding);

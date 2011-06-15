@@ -80,6 +80,9 @@ zend_function_entry prpa_functions[] = {
     PHP_FE(rpa_dbex_close, NULL)
     PHP_FE(rpa_dbex_load, NULL)
     PHP_FE(rpa_dbex_compile, NULL)
+    PHP_FE(rpa_dbex_lookup, NULL)
+    PHP_FE(rpa_stat_create, NULL)
+    PHP_FE(rpa_stat_match, NULL)
 
 #if 0
     PHP_FE(rpa_dbex_strmatch, NULL)
@@ -320,6 +323,25 @@ PHP_FUNCTION(rpa_dbex_load)
 }
 
 
+PHP_FUNCTION(rpa_dbex_lookup)
+{
+	zval *zres;
+    php_rpa_dbex *pPhpDbex;
+	char *name;
+	int name_len;
+	long ret;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs", &zres, &name, &name_len) == FAILURE) {
+		RETURN_LONG(-1);
+    }
+
+    ZEND_FETCH_RESOURCE(pPhpDbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
+
+    ret = rpa_dbex_lookup(pPhpDbex->hDbex, name, name_len);
+	RETURN_LONG(ret);
+}
+
+
 PHP_FUNCTION(rpa_dbex_compile)
 {
 	zval *zres;
@@ -339,6 +361,44 @@ PHP_FUNCTION(rpa_dbex_compile)
 	RETURN_LONG(ret);
 }
 
+
+PHP_FUNCTION(rpa_stat_create)
+{
+	zval *zres;
+    php_rpa_dbex *pPhpDbex;
+    php_rpa_stat *phpstat;
+	int ret;
+	long stackSize = 0L;
+
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rl", &zres, &stackSize) == FAILURE) {
+		RETURN_LONG(-1);
+    }
+
+    ZEND_FETCH_RESOURCE(pPhpDbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
+    phpstat = emalloc(sizeof(php_rpa_stat));
+    phpstat->stat = rpa_stat_create(pPhpDbex->hDbex, stackSize);
+    ZEND_REGISTER_RESOURCE(return_value, phpstat, le_rpa_stat);
+}
+
+
+PHP_FUNCTION(rpa_stat_match)
+{
+	zval *zstat;
+    php_rpa_stat *phpstat;
+	long rid;
+	long encoding;
+	long ret;
+	char *input;
+	int input_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rlls", &zstat, &rid, &encoding, &input, &input_len) == FAILURE) {
+		RETURN_LONG(-1);
+    }
+    ZEND_FETCH_RESOURCE(phpstat, php_rpa_stat*, &zstat, -1, PHP_RPA_STAT_RES_NAME, le_rpa_stat);
+    ret = rpa_stat_match(phpstat->stat, rid, encoding, input, input, input + input_len);
+	RETURN_LONG(ret);
+}
 
 #if 0
 static php_cbinfo *php_cbinfo_create(php_rpa_dbex *pPhpDbex, const char *php_callback, zval *userdata)
