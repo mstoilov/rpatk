@@ -16,6 +16,7 @@ rpa_dbex_match($hDbex, $pattern, $myname)
       $pattern = rpa_dbex_lookup($hDbex, "name");
       $myname = "Martin Stoilov";
       $stat = rpa_stat_create($hDbex, 0);
+      $pattern = rpa_dbex_first($hDbex);
       $ret = rpa_stat_match($stat, $pattern, RPA_ENCODING_ICASE_UTF8, $myname);
       $matched = "matched: " . substr($myname, 0, $ret) . "\n";
       echo($matched);

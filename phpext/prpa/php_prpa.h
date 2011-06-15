@@ -48,6 +48,8 @@ PHP_FUNCTION(rpa_dbex_close);
 PHP_FUNCTION(rpa_dbex_load);
 PHP_FUNCTION(rpa_dbex_compile);
 PHP_FUNCTION(rpa_dbex_lookup);
+PHP_FUNCTION(rpa_dbex_first);
+PHP_FUNCTION(rpa_dbex_last);
 PHP_FUNCTION(rpa_stat_create);
 PHP_FUNCTION(rpa_stat_scan);
 PHP_FUNCTION(rpa_stat_match);
