@@ -29,6 +29,7 @@
 #include "TSRM/TSRM.h"
 #include "rpadbex.h"
 #include "rpastat.h"
+#include "rpastatpriv.h"
 #include "rpaerror.h"
 #include "rparecord.h"
 
@@ -83,8 +84,11 @@ zend_function_entry prpa_functions[] = {
     PHP_FE(rpa_dbex_lookup, NULL)
     PHP_FE(rpa_dbex_first, NULL)
     PHP_FE(rpa_dbex_last, NULL)
+    PHP_FE(rpa_dbex_cfgset, NULL)
+    PHP_FE(rpa_dbex_dumpproductions, NULL)
     PHP_FE(rpa_stat_create, NULL)
     PHP_FE(rpa_stat_match, NULL)
+    PHP_FE(rpa_stat_scan, NULL)
 
 #if 0
     PHP_FE(rpa_dbex_strmatch, NULL)
@@ -167,6 +171,9 @@ PHP_MINIT_FUNCTION(prpa)
     REGISTER_LONG_CONSTANT("RPA_ENCODING_ICASE_UTF16LE", RPA_ENCODING_ICASE_UTF16LE, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("RPA_RECORD_START", RPA_RECORD_START, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("RPA_RECORD_END", RPA_RECORD_END, CONST_CS | CONST_PERSISTENT);
+    REGISTER_LONG_CONSTANT("RPA_DBEXCFG_DEBUG", RPA_DBEXCFG_DEBUG, CONST_CS | CONST_PERSISTENT);
+    REGISTER_LONG_CONSTANT("RPA_DBEXCFG_OPTIMIZATIONS", RPA_DBEXCFG_OPTIMIZATIONS, CONST_CS | CONST_PERSISTENT);
+
 	return SUCCESS;
 }
 /* }}} */
@@ -320,7 +327,7 @@ PHP_FUNCTION(rpa_dbex_load)
 
     ZEND_FETCH_RESOURCE(pPhpDbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
 
-    ret = rpa_dbex_load(pPhpDbex->hDbex, patterns, patterns_len);
+    ret = rpa_dbex_load_s(pPhpDbex->hDbex, patterns);
 	RETURN_LONG(ret);
 }
 
@@ -398,6 +405,41 @@ PHP_FUNCTION(rpa_dbex_compile)
 }
 
 
+PHP_FUNCTION(rpa_dbex_dumpproductions)
+{
+	zval *zres;
+    php_rpa_dbex *pPhpDbex;
+	long ret;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &zres) == FAILURE) {
+		RETURN_LONG(-1);
+    }
+
+    ZEND_FETCH_RESOURCE(pPhpDbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
+
+    ret = rpa_dbex_dumpproductions(pPhpDbex->hDbex);
+	RETURN_LONG(ret);
+}
+
+
+PHP_FUNCTION(rpa_dbex_cfgset)
+{
+	zval *zres;
+    php_rpa_dbex *pPhpDbex;
+    long cfg, val;
+	long ret;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rll", &zres, cfg, val) == FAILURE) {
+		RETURN_LONG(-1);
+    }
+
+    ZEND_FETCH_RESOURCE(pPhpDbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
+
+    ret = rpa_dbex_cfgset(pPhpDbex->hDbex, cfg, val);
+	RETURN_LONG(ret);
+}
+
+
 PHP_FUNCTION(rpa_stat_create)
 {
 	zval *zres;
@@ -435,6 +477,34 @@ PHP_FUNCTION(rpa_stat_match)
     ret = rpa_stat_match(phpstat->stat, rid, encoding, input, input, input + input_len);
 	RETURN_LONG(ret);
 }
+
+
+PHP_FUNCTION(rpa_stat_scan)
+{
+	zval *zstat;
+    php_rpa_stat *phpstat;
+	long rid;
+	long encoding;
+	long ret;
+	char *input;
+	int input_len;
+	zval *zwhere;
+	const char *where = NULL;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rllsz", &zstat, &rid, &encoding, &input, &input_len, &zwhere) == FAILURE) {
+		RETURN_LONG(-1);
+    }
+    ZEND_FETCH_RESOURCE(phpstat, php_rpa_stat*, &zstat, -1, PHP_RPA_STAT_RES_NAME, le_rpa_stat);
+    ret = rpa_stat_scan(phpstat->stat, rid, encoding, input, input, input + input_len, &where);
+	if (ret) {
+		ZVAL_LONG(zwhere, where - input);
+	} else {
+		ZVAL_NULL(zwhere);
+	}
+
+	RETURN_LONG(ret);
+}
+
 
 #if 0
 static php_cbinfo *php_cbinfo_create(php_rpa_dbex *pPhpDbex, const char *php_callback, zval *userdata)
