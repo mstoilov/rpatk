@@ -27,7 +27,7 @@ rpastat_t *rpa_stat_create(rpadbex_t *dbex, rulong stacksize)
 void rpa_stat_destroy(rpastat_t *stat)
 {
 	if (stat) {
-		if (stat->instack)
+		if (stat->instackbuffer)
 			r_free(stat->instackbuffer);
 		rpavm_cpu_destroy(stat->cpu);
 		rpa_cache_destroy(stat->cache);
@@ -65,9 +65,10 @@ rinteger rpa_stat_init(rpastat_t *stat, ruinteger encoding, const rchar *input, 
 	stat->records = records;
 	if (stat->instacksize < size) {
 		stat->instackbuffer = r_realloc(stat->instackbuffer, (size + 2) * sizeof(rpainput_t));
-		stat->instacksize = size + 1;
+		stat->instacksize = size;
 		stat->instack = &stat->instackbuffer[1];
 		r_memset(stat->instackbuffer, 0, sizeof(rpainput_t) * 2);
+
 	}
 	stat->ip.input = input;
 	stat->ip.serial = 0;

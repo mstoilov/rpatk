@@ -43,6 +43,7 @@ struct rpadbex_s {
 	rharray_t *rules;
 	rarray_t *recstack;
 	rarray_t *inlinestack;
+	rarray_t *text;
 	rpa_dbex_recordhandler *handlers;
 	rpa_errinfo_t err;
 	rulong headoff;
@@ -1328,6 +1329,7 @@ rpadbex_t *rpa_dbex_create(void)
 
 	dbex->co = rpa_compiler_create();
 	dbex->pa = rpa_parser_create();
+	dbex->text = r_array_create(sizeof(rchar *));
 	dbex->records = r_array_create(sizeof(rparecord_t));
 	dbex->temprecords = r_array_create(sizeof(rparecord_t));
 	dbex->rules = r_harray_create(sizeof(rpa_ruleinfo_t));
@@ -1371,7 +1373,10 @@ rpadbex_t *rpa_dbex_create(void)
 
 void rpa_dbex_destroy(rpadbex_t *dbex)
 {
+	int i;
 	if (dbex) {
+		for (i = 0; i < r_array_length(dbex->text); i++)
+			r_free(r_array_index(dbex->text, i, rchar*));
 		rpa_compiler_destroy(dbex->co);
 		rpa_parser_destroy(dbex->pa);
 		r_harray_destroy(dbex->rules);
@@ -1379,6 +1384,7 @@ void rpa_dbex_destroy(rpadbex_t *dbex)
 		r_array_destroy(dbex->temprecords);
 		r_array_destroy(dbex->recstack);
 		r_array_destroy(dbex->inlinestack);
+		r_array_destroy(dbex->text);
 		r_free(dbex->handlers);
 		r_free(dbex);
 	}
@@ -1694,6 +1700,7 @@ void rpa_dbex_close(rpadbex_t *dbex)
 rlong rpa_dbex_load(rpadbex_t *dbex, const rchar *rules, rsize_t size)
 {
 	rlong ret;
+	rchar *text;
 
 	if (!dbex)
 		return -1;
@@ -1704,8 +1711,12 @@ rlong rpa_dbex_load(rpadbex_t *dbex, const rchar *rules, rsize_t size)
 		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_NOTOPEN);
 		return -1;
 	}
+
+	text = r_strndup(rules, size);
+	R_ASSERT(text);
+	r_array_add(dbex->text, &text);
 	r_array_setlength(dbex->temprecords, 0);
-	if ((ret = rpa_parser_load(dbex->pa, rules, size, dbex->temprecords)) < 0) {
+	if ((ret = rpa_parser_load(dbex->pa, text, size, dbex->temprecords)) < 0) {
 
 		return -1;
 	}
