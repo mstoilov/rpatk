@@ -86,6 +86,7 @@ static int le_prpa;
  * Every user visible function must have an entry in prpa_functions[].
  */
 zend_function_entry prpa_functions[] = {
+    PHP_FE(rpaparse, NULL)
     PHP_FE(rpa_dbex_version, NULL)
     PHP_FE(rpa_dbex_create, NULL)
     PHP_FE(rpa_dbex_open, NULL)
@@ -239,6 +240,57 @@ PHP_MINFO_FUNCTION(prpa)
 	*/
 }
 /* }}} */
+
+
+PHP_FUNCTION(rpaparse)
+{
+	rpadbex_t *dbex;
+	rpastat_t *stat;
+	long rid;
+	long encoding;
+	long ret, i;
+	char *bnf;
+	int bnf_len;
+	char *input;
+	int input_len;
+	zval *error = NULL;
+	zval *zrecords = NULL;
+	rarray_t *records = rpa_records_create();
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sls|zz", &bnf, &bnf_len, &encoding, &input, &input_len, &zrecords, &error) == FAILURE) {
+		RETURN_LONG(-1);
+    }
+    dbex = rpa_dbex_create();
+    rpa_dbex_open(dbex);
+    rpa_dbex_load(dbex, bnf, bnf_len);
+    rpa_dbex_close(dbex);
+    rpa_dbex_compile(dbex);
+    stat = rpa_stat_create(dbex, 16000);
+    ret = rpa_stat_parse(stat, rpa_dbex_last(dbex), encoding, input, input, input + input_len, records);
+    if (ret <= 0)
+    	goto error;
+    if (zrecords) {
+    	rparecord_t *record;
+    	array_init(zrecords);
+    	for (i = 0; i < rpa_records_length(records); i++) {
+    		zval *zrecord;
+    		record = rpa_records_slot(records, i);
+    		ALLOC_INIT_ZVAL(zrecord);
+    		array_init(zrecord);
+    		add_assoc_stringl(zrecord, "input", (char*)record->input, record->inputsiz, 1);
+    		add_assoc_string(zrecord, "rule", (char*)record->rule, 1);
+    		add_assoc_long(zrecord, "type", record->type);
+    		add_assoc_long(zrecord, "uid", record->ruleuid);
+    		add_next_index_zval(zrecords, zrecord);
+    	}
+    }
+
+error:
+	rpa_records_destroy(records);
+	rpa_stat_destroy(stat);
+	rpa_dbex_destroy(dbex);
+	RETURN_LONG(ret);
+}
 
 
 PHP_FUNCTION(rpa_dbex_version)

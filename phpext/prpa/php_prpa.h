@@ -41,6 +41,7 @@ PHP_MSHUTDOWN_FUNCTION(prpa);
 PHP_RINIT_FUNCTION(prpa);
 PHP_RSHUTDOWN_FUNCTION(prpa);
 PHP_MINFO_FUNCTION(prpa);
+PHP_FUNCTION(rpaparse);
 PHP_FUNCTION(rpa_dbex_version);
 PHP_FUNCTION(rpa_dbex_create);
 PHP_FUNCTION(rpa_dbex_open);
