@@ -55,13 +55,24 @@ typedef struct _php_rpa_stat {
 #define PHP_RPA_STAT_RES_NAME "php rpa stat"
 
 
+typedef struct _php_rpa_records {
+	rarray_t* records;
+#ifdef ZTS
+	TSRMLS_D;
+#endif
+} php_rpa_records;
+
+#define PHP_RPA_RECORDS_RES_NAME "php rpa records"
+
 
 static int le_rpa;
 static int le_rpa_dbex;
 static int le_rpa_stat;
-static int le_rpa_pattern;
+//static int le_rpa_records;
 static void php_rpa_dbex_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC);
 static void php_rpa_stat_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC);
+static void php_rpa_records_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC);
+
 
 /* If you declare any globals in php_prpa.h uncomment this:
 ZEND_DECLARE_MODULE_GLOBALS(prpa)
@@ -89,8 +100,14 @@ zend_function_entry prpa_functions[] = {
     PHP_FE(rpa_stat_create, NULL)
     PHP_FE(rpa_stat_match, NULL)
     PHP_FE(rpa_stat_scan, NULL)
+    PHP_FE(rpa_stat_parse, NULL)
+
 
 #if 0
+    PHP_FE(rpa_records_create, NULL)
+    PHP_FE(rpa_records_length, NULL)
+    PHP_FE(rpa_records_get, NULL)
+
     PHP_FE(rpa_dbex_strmatch, NULL)
     PHP_FE(rpa_dbex_set_encoding, NULL)
     PHP_FE(rpa_dbex_match, NULL)
@@ -164,6 +181,8 @@ PHP_MINIT_FUNCTION(prpa)
 	*/
     le_rpa_dbex = zend_register_list_destructors_ex(php_rpa_dbex_dtor, NULL, PHP_RPA_DBEX_RES_NAME, module_number);
     le_rpa_stat = zend_register_list_destructors_ex(php_rpa_stat_dtor, NULL, PHP_RPA_STAT_RES_NAME, module_number);
+//    le_rpa_records = zend_register_list_destructors_ex(php_rpa_records_dtor, NULL, PHP_RPA_RECORDS_RES_NAME, module_number);
+
     REGISTER_LONG_CONSTANT("RPA_ENCODING_BYTE", RPA_ENCODING_BYTE, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("RPA_ENCODING_UTF8", RPA_ENCODING_UTF8, CONST_CS | CONST_PERSISTENT);
     REGISTER_LONG_CONSTANT("RPA_ENCODING_ICASE_UTF8", RPA_ENCODING_ICASE_UTF8, CONST_CS | CONST_PERSISTENT);
@@ -224,7 +243,7 @@ PHP_MINFO_FUNCTION(prpa)
 
 PHP_FUNCTION(rpa_dbex_version)
 {
-    RETURN_STRING(rpa_dbex_version(), 1);
+    RETURN_STRING((char*)rpa_dbex_version(), 1);
 }
 
 
@@ -253,6 +272,17 @@ static void php_rpa_dbex_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 		efree(pPhpDbex->zcallbacks);
 */
 		efree(pPhpDbex);
+    }
+}
+
+
+static void php_rpa_records_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC)
+{
+    php_rpa_records *phprecords = (php_rpa_records*)rsrc->ptr;
+
+    if (phprecords) {
+    	rpa_records_destroy(phprecords->records);
+        efree(phprecords);
     }
 }
 
@@ -449,7 +479,7 @@ PHP_FUNCTION(rpa_stat_create)
 	long stackSize = 0L;
 
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rl", &zres, &stackSize) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r|l", &zres, &stackSize) == FAILURE) {
 		RETURN_LONG(-1);
     }
 
@@ -503,6 +533,58 @@ PHP_FUNCTION(rpa_stat_scan)
 	}
 
 	RETURN_LONG(ret);
+}
+
+
+PHP_FUNCTION(rpa_stat_parse)
+{
+	zval *zstat;
+    php_rpa_stat *phpstat;
+	long rid;
+	long encoding;
+	long ret, i;
+	char *input;
+	int input_len;
+	zval *zrecords = NULL;
+	rarray_t *records = rpa_records_create();
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rlls|z", &zstat, &rid, &encoding, &input, &input_len, &zrecords) == FAILURE) {
+		RETURN_LONG(-1);
+    }
+    ZEND_FETCH_RESOURCE(phpstat, php_rpa_stat*, &zstat, -1, PHP_RPA_STAT_RES_NAME, le_rpa_stat);
+    ret = rpa_stat_parse(phpstat->stat, rid, encoding, input, input, input + input_len, records);
+    if (ret <= 0)
+    	goto error;
+    if (zrecords) {
+    	rparecord_t *record;
+    	array_init(zrecords);
+    	for (i = 0; i < rpa_records_length(records); i++) {
+    		zval *zrecord;
+    		record = rpa_records_slot(records, i);
+    		ALLOC_INIT_ZVAL(zrecord);
+    		array_init(zrecord);
+    		add_assoc_stringl(zrecord, "input", (char*)record->input, record->inputsiz, 1);
+    		add_assoc_string(zrecord, "rule", (char*)record->rule, 1);
+    		add_assoc_long(zrecord, "type", record->type);
+    		add_assoc_long(zrecord, "uid", record->ruleuid);
+    		add_next_index_zval(zrecords, zrecord);
+    	}
+    }
+
+error:
+	rpa_records_destroy(records);
+	RETURN_LONG(ret);
+}
+
+
+PHP_FUNCTION(rpa_records_create)
+{
+    php_rpa_records *phprecords;
+
+    phprecords = emalloc(sizeof(php_rpa_records));
+    phprecords->records = rpa_records_create();
+
+    ZEND_REGISTER_RESOURCE(return_value, phprecords, le_rpa_dbex);
 }
 
 

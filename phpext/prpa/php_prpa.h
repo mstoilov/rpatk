@@ -56,7 +56,13 @@ PHP_FUNCTION(rpa_dbex_dumpproductions);
 PHP_FUNCTION(rpa_stat_create);
 PHP_FUNCTION(rpa_stat_scan);
 PHP_FUNCTION(rpa_stat_match);
+PHP_FUNCTION(rpa_stat_parse);
+
 #if 0
+PHP_FUNCTION(rpa_records_create);
+PHP_FUNCTION(rpa_records_length);
+PHP_FUNCTION(rpa_records_get);
+
 PHP_FUNCTION(rpa_dbex_strmatch);
 PHP_FUNCTION(rpa_dbex_set_encoding);
 PHP_FUNCTION(rpa_dbex_match);
