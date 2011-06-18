@@ -304,10 +304,6 @@ static void rpavm_swi_emitend(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rec->next = 0;
 	startrec->size = tplen;
 	startrec->inputsiz = rec->inputsiz;
-
-	if (tplen) {
-		rec->type |= RPA_RECORD_MATCH;
-	}
 }
 
 

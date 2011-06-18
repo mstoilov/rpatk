@@ -1582,7 +1582,7 @@ static rlong rpa_dbex_copy_handler(rarray_t *records, rlong rec, rpointer userda
 		/*
 		 * Ignore it
 		 */
-	} else if (prec->ruleuid == RPA_PRODUCTION_OCCURENCE && (prec->type & (RPA_RECORD_MATCH | RPA_RECORD_END))) {
+	} else if (prec->ruleuid == RPA_PRODUCTION_OCCURENCE && (prec->type & (RPA_RECORD_END))) {
 		ruint32 usertype = RPA_MATCH_NONE;
 		rlong lastrec = 0;
 		/*
