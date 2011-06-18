@@ -108,8 +108,6 @@ int main(int argc, char *argv[])
 		r_printf("%3d : ", i);
 		if (rec->type & RPA_RECORD_START)
 			r_printf("START ");
-		if (rec->type & RPA_RECORD_MATCH)
-			r_printf("MATCH ");
 		if (rec->type & RPA_RECORD_END)
 			r_printf("END ");
 		r_printf("%s(%d) %d, %d\n", rec->rule, rec->type, rec->top, rec->size);
