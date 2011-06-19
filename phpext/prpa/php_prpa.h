@@ -53,11 +53,14 @@ PHP_FUNCTION(rpa_dbex_first);
 PHP_FUNCTION(rpa_dbex_last);
 PHP_FUNCTION(rpa_dbex_cfgset);
 PHP_FUNCTION(rpa_dbex_dumpproductions);
+PHP_FUNCTION(rpa_dbex_error);
 
 PHP_FUNCTION(rpa_stat_create);
 PHP_FUNCTION(rpa_stat_scan);
 PHP_FUNCTION(rpa_stat_match);
 PHP_FUNCTION(rpa_stat_parse);
+PHP_FUNCTION(rpa_stat_error);
+
 
 #if 0
 PHP_FUNCTION(rpa_records_create);

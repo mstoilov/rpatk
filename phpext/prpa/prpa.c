@@ -98,10 +98,12 @@ zend_function_entry prpa_functions[] = {
     PHP_FE(rpa_dbex_last, NULL)
     PHP_FE(rpa_dbex_cfgset, NULL)
     PHP_FE(rpa_dbex_dumpproductions, NULL)
+    PHP_FE(rpa_dbex_error, NULL)
     PHP_FE(rpa_stat_create, NULL)
     PHP_FE(rpa_stat_match, NULL)
     PHP_FE(rpa_stat_scan, NULL)
     PHP_FE(rpa_stat_parse, NULL)
+    PHP_FE(rpa_stat_error, NULL)
 
 
 #if 0
@@ -519,6 +521,134 @@ PHP_FUNCTION(rpa_dbex_cfgset)
 
     ret = rpa_dbex_cfgset(pPhpDbex->hDbex, cfg, val);
 	RETURN_LONG(ret);
+}
+
+
+static rchar *dbexmsg[] = {
+	"OK",
+	"Out of memory",
+	"Invalid input.",
+	"Expression database is not open.",
+	"Expression database is not closed.",
+	"Expression name is not found.",
+	"Syntax error.",
+	"Unresolved expression name.",
+	"Invalid parameter.",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+};
+
+
+static rchar *statmsg[] = {
+	"OK",
+	"Execution error.",
+	"Execution aborted by user.",
+	"Aborted on expression.",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+	"Unknown",
+};
+
+
+static void rpa_dbex_getdbexerrorstr(rpadbex_t *dbex, char *buffer, size_t size)
+{
+	long n = 0;
+	char *ptr = buffer;
+	rpa_errinfo_t errorinfo;
+
+	memset(&errorinfo, 0, sizeof(errorinfo));
+    rpa_dbex_lasterrorinfo(dbex, &errorinfo);
+
+    if (errorinfo.mask & RPA_ERRINFO_CODE) {
+        n += snprintf(ptr + n, size - n, "%s Code: %ld. ", dbexmsg[errorinfo.code - 1000], errorinfo.code);
+    }
+    if (errorinfo.mask & RPA_ERRINFO_LINE) {
+        n += snprintf(ptr + n, size - n, "Line: %ld. ", errorinfo.line);
+    }
+    if (errorinfo.mask & RPA_ERRINFO_OFFSET) {
+        n += snprintf(ptr + n, size - n, "Offset: %ld. ", errorinfo.offset);
+    }
+    if (errorinfo.mask & RPA_ERRINFO_RULEID) {
+        n += snprintf(ptr + n, size - n, "RuleId: %ld. ", errorinfo.ruleid);
+    }
+    if (errorinfo.mask & RPA_ERRINFO_NAME) {
+        n += snprintf(ptr + n, size - n, "Name: %s. ", errorinfo.name);
+    }
+
+}
+
+
+PHP_FUNCTION(rpa_dbex_error)
+{
+	zval *zres;
+	char buffer[2000];
+    php_rpa_dbex *pPhpDbex;
+
+	memset(buffer, 0, sizeof(buffer));
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &zres) == FAILURE) {
+		RETURN_LONG(-1);
+    }
+
+    ZEND_FETCH_RESOURCE(pPhpDbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
+    rpa_dbex_getdbexerrorstr(pPhpDbex->hDbex, buffer, sizeof(buffer));
+
+	RETURN_STRING(buffer, 1);
+}
+
+
+static void rpa_dbex_getstaterrorstr(rpastat_t *stat, char *buffer, size_t size)
+{
+	long n = 0;
+	char *ptr = buffer;
+	rpa_errinfo_t errorinfo;
+
+	memset(&errorinfo, 0, sizeof(errorinfo));
+    rpa_stat_lasterrorinfo(stat, &errorinfo);
+
+    if (errorinfo.mask & RPA_ERRINFO_CODE) {
+        n += snprintf(ptr + n, size - n, "%s Code: %ld. ", dbexmsg[errorinfo.code - 2000], errorinfo.code);
+    }
+    if (errorinfo.mask & RPA_ERRINFO_LINE) {
+        n += snprintf(ptr + n, size - n, "Line: %ld. ", errorinfo.line);
+    }
+    if (errorinfo.mask & RPA_ERRINFO_OFFSET) {
+        n += snprintf(ptr + n, size - n, "Offset: %ld. ", errorinfo.offset);
+    }
+    if (errorinfo.mask & RPA_ERRINFO_RULEID) {
+        n += snprintf(ptr + n, size - n, "RuleId: %ld. ", errorinfo.ruleid);
+    }
+    if (errorinfo.mask & RPA_ERRINFO_NAME) {
+        n += snprintf(ptr + n, size - n, "Name: %s. ", errorinfo.name);
+    }
+
+}
+
+
+PHP_FUNCTION(rpa_stat_error)
+{
+	zval *zres;
+	char buffer[2000];
+    php_rpa_stat *phpstat;
+
+	memset(buffer, 0, sizeof(buffer));
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &zres) == FAILURE) {
+		RETURN_LONG(-1);
+    }
+
+    ZEND_FETCH_RESOURCE(phpstat, php_rpa_stat*, &zres, -1, PHP_RPA_STAT_RES_NAME, le_rpa_stat);
+    rpa_stat_geterrorstr(phpstat->stat, buffer, sizeof(buffer));
+
+	RETURN_STRING(buffer, 1);
 }
 
 

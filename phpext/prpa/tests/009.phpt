@@ -7,16 +7,24 @@ rpa_dbex_parse($hDbex, $pattern, $myname)
 	$hDbex = rpa_dbex_create();
 	$records = 0;
 	rpa_dbex_open($hDbex);
-	rpa_dbex_load($hDbex, "#!emitid first 1");
-	rpa_dbex_load($hDbex, "#!emitid last 2");
-	rpa_dbex_load($hDbex, "#!emitid name 3");	
-	rpa_dbex_load($hDbex, "first ::= [a-z]+");	
-	rpa_dbex_load($hDbex, "last ::= [a-z]+");	
-	rpa_dbex_load($hDbex, "name ::= <first> ' '+ <last>");	
+
+	$bnf = "#!emitid first 1\n" .
+	"#!emitid last 2\n" .
+	"#!emitid name 3\n" .
+	"first ::= [a-z]+\n" .
+	"last ::= [a-z]+\n" .
+	"name ::= <first> ' '+ <last>\n";
+	if (rpa_dbex_load($hDbex, $bnf) < 0) {
+		echo("rpa_dbex_load failed.\n");
+		echo(rpa_dbex_error($hDbex) . "\n");
+	}
 	
-	rpa_dbex_close($hDbex);
+//	rpa_dbex_close($hDbex);
 	rpa_dbex_compile($hDbex);
 	$pattern = rpa_dbex_lookup($hDbex, "name");
+	if ($pattern == -1) {
+		die(rpa_dbex_error($hDbex). "\n");
+	}
 	$myname = "Kosko Stoilov";
 	$stat = rpa_stat_create($hDbex, 0);
 	
