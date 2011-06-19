@@ -35,8 +35,9 @@
 #define RPA_ERRINFO_NONE 0
 #define RPA_ERRINFO_CODE (1<<0)
 #define RPA_ERRINFO_OFFSET (1<<1)
-#define RPA_ERRINFO_RULEID (1<<2)
-#define RPA_ERRINFO_NAME (1<<3)
+#define RPA_ERRINFO_LINE (1<<2)
+#define RPA_ERRINFO_RULEID (1<<3)
+#define RPA_ERRINFO_NAME (1<<4)
 
 
 #define RPA_E_NONE 0
@@ -62,6 +63,7 @@ struct rpa_errinfo_s {
 	rulong mask;
 	rlong code;
 	rlong offset;
+	rlong line;
 	rlong ruleid;
 	rchar name[128];
 };

@@ -19,6 +19,7 @@ typedef rinteger (*rpa_dbex_recordhandler)(rpadbex_t *dbex, rlong rec);
 
 #define RPA_DBEX_SETERRINFO_CODE(__d__, __e__) do { (__d__)->err.code = __e__; (__d__)->err.mask |= RPA_ERRINFO_CODE; } while (0)
 #define RPA_DBEX_SETERRINFO_OFFSET(__d__, __o__) do { (__d__)->err.offset = __o__; (__d__)->err.mask |= RPA_ERRINFO_OFFSET; } while (0)
+#define RPA_DBEX_SETERRINFO_LINE(__d__, __l__) do { (__d__)->err.line = __l__; (__d__)->err.mask |= RPA_ERRINFO_LINE; } while (0)
 #define RPA_DBEX_SETERRINFO_RULEID(__d__, __r__) do { (__d__)->err.ruleid = __r__; (__d__)->err.mask |= RPA_ERRINFO_RULEID; } while (0)
 #define RPA_DBEX_SETERRINFO_NAME(__d__, __n__, __s__) do { \
 	(__d__)->err.mask |= RPA_ERRINFO_NAME; \
@@ -1721,8 +1722,16 @@ rlong rpa_dbex_load(rpadbex_t *dbex, const rchar *rules, rsize_t size)
 		return -1;
 	}
 	if (ret != size) {
+		rlong line = 1;
+		rchar *ptext = text;
+		ptext += ret;
+		for (line = 1; ptext >= text; --ptext) {
+			if (*ptext == '\n')
+				line += 1;
+		}
 		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_SYNTAX_ERROR);
 		RPA_DBEX_SETERRINFO_OFFSET(dbex, ret);
+		RPA_DBEX_SETERRINFO_LINE(dbex, line);
 		return -1;
 	}
 	rpa_dbex_copyrecords(dbex);
@@ -2028,8 +2037,12 @@ rsize_t rpa_dbex_strncpy(rpadbex_t *dbex, rchar *dst, rparule_t rid, rsize_t n)
 
 rparule_t rpa_dbex_first(rpadbex_t *dbex)
 {
-	if (!dbex || !dbex->rules)
+	if (!dbex)
 		return -1;
+	if (!dbex->rules) {
+		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_NOTCLOSED);
+		return -1;
+	}
 
 	if (r_array_length(dbex->rules->members) > 0)
 		return 0;
@@ -2039,8 +2052,12 @@ rparule_t rpa_dbex_first(rpadbex_t *dbex)
 
 rparule_t rpa_dbex_last(rpadbex_t *dbex)
 {
-	if (!dbex || !dbex->rules)
+	if (!dbex)
 		return -1;
+	if (!dbex->rules) {
+		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_NOTCLOSED);
+		return -1;
+	}
 
 	if (r_array_length(dbex->rules->members) > 0)
 		return r_array_length(dbex->rules->members) - 1;
@@ -2051,6 +2068,10 @@ rparule_t rpa_dbex_last(rpadbex_t *dbex)
 rparule_t rpa_dbex_lookup(rpadbex_t *dbex, const rchar *name, rsize_t namesize)
 {
 	if (!dbex) {
+		return -1;
+	}
+	if (!dbex->rules) {
+		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_NOTCLOSED);
 		return -1;
 	}
 
@@ -2066,8 +2087,13 @@ rparule_t rpa_dbex_lookup_s(rpadbex_t *dbex, const rchar *name)
 
 rparule_t rpa_dbex_next(rpadbex_t *dbex, rparule_t rid)
 {
-	if (!dbex || !dbex->rules)
+	if (!dbex)
 		return -1;
+	if (!dbex->rules) {
+		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_NOTCLOSED);
+		return -1;
+	}
+
 	++rid;
 	if (rid < r_array_length(dbex->rules->members))
 		return rid;
@@ -2077,8 +2103,12 @@ rparule_t rpa_dbex_next(rpadbex_t *dbex, rparule_t rid)
 
 rparule_t rpa_dbex_prev(rpadbex_t *dbex, rparule_t rid)
 {
-	if (!dbex || !dbex->rules)
+	if (!dbex)
 		return -1;
+	if (!dbex->rules) {
+		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_NOTCLOSED);
+		return -1;
+	}
 	--rid;
 	if (rid >= 0)
 		return rid;
