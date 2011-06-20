@@ -2044,9 +2044,11 @@ rparule_t rpa_dbex_first(rpadbex_t *dbex)
 		return -1;
 	}
 
-	if (r_array_length(dbex->rules->members) > 0)
-		return 0;
-	return -1;
+	if (r_array_length(dbex->rules->members) <= 0) {
+		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_NOTFOUND);
+		return -1;
+	}
+	return 0;
 }
 
 
@@ -2059,14 +2061,18 @@ rparule_t rpa_dbex_last(rpadbex_t *dbex)
 		return -1;
 	}
 
-	if (r_array_length(dbex->rules->members) > 0)
-		return r_array_length(dbex->rules->members) - 1;
-	return -1;
+	if (r_array_length(dbex->rules->members) <= 0) {
+		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_NOTFOUND);
+		return -1;
+	}
+	return r_array_length(dbex->rules->members) - 1;
 }
 
 
 rparule_t rpa_dbex_lookup(rpadbex_t *dbex, const rchar *name, rsize_t namesize)
 {
+	rparule_t ret;
+
 	if (!dbex) {
 		return -1;
 	}
@@ -2075,7 +2081,11 @@ rparule_t rpa_dbex_lookup(rpadbex_t *dbex, const rchar *name, rsize_t namesize)
 		return -1;
 	}
 
-	return r_harray_taillookup(dbex->rules, name, namesize);
+	ret = (rparule_t) r_harray_taillookup(dbex->rules, name, namesize);
+	if (ret < 0) {
+		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_NOTFOUND);
+	}
+	return ret;
 }
 
 
@@ -2177,6 +2187,7 @@ rinteger rpa_dbex_compile(rpadbex_t *dbex)
 
 	for (rid = rpa_dbex_first(dbex); rid >= 0; rid = rpa_dbex_next(dbex, rid)) {
 		if (rpa_dbex_compile_rule(dbex, rid) < 0) {
+			RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_COMPILE);
 			return -1;
 		}
 	}
