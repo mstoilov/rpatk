@@ -50,6 +50,7 @@ struct rpadbex_s {
 	rulong headoff;
 	rulong optimizations:1;
 	rulong debug:1;
+	rulong compiled:1;
 };
 
 static rparecord_t *rpa_dbex_rulerecord(rpadbex_t *dbex, rparule_t rid);
@@ -1685,6 +1686,7 @@ rinteger rpa_dbex_open(rpadbex_t *dbex)
 		r_object_destroy((robject_t *)dbex->rules);
 		dbex->rules = NULL;
 	}
+	dbex->compiled = 0;
 	return 0;
 }
 
@@ -2161,7 +2163,6 @@ static rinteger rpa_dbex_compile_rule(rpadbex_t *dbex, rparule_t rid)
 		return -1;
 	info->codeoff = codeoff;
 	info->codesiz = rvm_codegen_getcodesize(dbex->co->cg) - codeoff;
-
 	return 0;
 }
 
@@ -2197,7 +2198,7 @@ rinteger rpa_dbex_compile(rpadbex_t *dbex)
 		RPA_DBEX_SETERRINFO_NAME(dbex, labelerr->name->str, labelerr->name->size);
 		return -1;
 	}
-
+	dbex->compiled = 1;
 	return 0;
 }
 
@@ -2208,6 +2209,10 @@ rvm_asmins_t *rpa_dbex_executable(rpadbex_t *dbex)
 		return NULL;
 	if (!dbex->rules) {
 		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_NOTCLOSED);
+		return NULL;
+	}
+	if (!dbex->compiled || rvm_codegen_getcodesize(dbex->co->cg) == 0) {
+		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_NOTCOMPILED);
 		return NULL;
 	}
 	return rvm_codegen_getcode(dbex->co->cg, 0);
@@ -2222,6 +2227,10 @@ rlong rpa_dbex_executableoffset(rpadbex_t *dbex, rparule_t rid)
 		return -1;
 	if (!dbex->rules) {
 		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_NOTCLOSED);
+		return -1;
+	}
+	if (!dbex->compiled) {
+		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_NOTCOMPILED);
 		return -1;
 	}
 	info = (rpa_ruleinfo_t *)r_harray_get(dbex->rules, rid);

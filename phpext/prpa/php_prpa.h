@@ -42,6 +42,8 @@ PHP_RINIT_FUNCTION(prpa);
 PHP_RSHUTDOWN_FUNCTION(prpa);
 PHP_MINFO_FUNCTION(prpa);
 PHP_FUNCTION(rpaparse);
+PHP_FUNCTION(rpascan);
+PHP_FUNCTION(rpamatch);
 PHP_FUNCTION(rpa_dbex_version);
 PHP_FUNCTION(rpa_dbex_create);
 PHP_FUNCTION(rpa_dbex_open);
@@ -54,34 +56,11 @@ PHP_FUNCTION(rpa_dbex_last);
 PHP_FUNCTION(rpa_dbex_cfgset);
 PHP_FUNCTION(rpa_dbex_dumpproductions);
 PHP_FUNCTION(rpa_dbex_error);
-
 PHP_FUNCTION(rpa_stat_create);
 PHP_FUNCTION(rpa_stat_scan);
 PHP_FUNCTION(rpa_stat_match);
 PHP_FUNCTION(rpa_stat_parse);
 PHP_FUNCTION(rpa_stat_error);
-
-
-#if 0
-PHP_FUNCTION(rpa_records_create);
-PHP_FUNCTION(rpa_records_length);
-PHP_FUNCTION(rpa_records_get);
-
-PHP_FUNCTION(rpa_dbex_strmatch);
-PHP_FUNCTION(rpa_dbex_set_encoding);
-PHP_FUNCTION(rpa_dbex_match);
-PHP_FUNCTION(rpa_dbex_parse);
-PHP_FUNCTION(rpa_dbex_scan);
-PHP_FUNCTION(rpa_dbex_get_pattern);
-PHP_FUNCTION(rpa_dbex_default_pattern);
-PHP_FUNCTION(rpa_dbex_first_pattern);
-PHP_FUNCTION(rpa_dbex_last_pattern);
-PHP_FUNCTION(rpa_dbex_next_pattern);
-PHP_FUNCTION(rpa_dbex_prev_pattern);
-PHP_FUNCTION(rpa_dbex_pattern_name);
-PHP_FUNCTION(rpa_dbex_pattern_regex);
-PHP_FUNCTION(rpa_dbex_add_callback);
-#endif
 
 
 /* 

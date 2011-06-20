@@ -12,8 +12,10 @@ rpaparse($bnf, $input, $records, $error);
 	"first ::= [a-z]+\n" .
 	"last ::= [a-z]+\n" .
 	"name ::= <first> ' '+ <last>\n";
-	$myname = "Kosko Stoilov";	
-	$ret = rpaparse($bnf, RPA_ENCODING_ICASE_UTF8, $myname, $records);
+	$myname = "John Smith";	
+	$ret = rpaparse($bnf, RPA_ENCODING_ICASE_UTF8, $myname, $records, $error);
+	if ($ret < 0)
+		die($error . "\n");
 	$matched = "matched: " . substr($myname, 0, $ret) . "\n";
 	echo($matched);
 	
@@ -26,7 +28,12 @@ rpaparse($bnf, $input, $records, $error);
 			echo("UNKNOWN");
 		echo ($record['uid'] . ", " . $record['rule'] . ": " . $record['input'] . "\n");
 	}
-      
 ?>
 --EXPECT--
-matched: Martin Stoilov
+matched: John Smith
+START 3, name: John Smith
+START 1, first: John
+END   1, first: John
+START 2, last: Smith
+END   2, last: Smith
+END   3, name: John Smith

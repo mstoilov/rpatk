@@ -27,10 +27,13 @@ rpa_dbex_parse($hDbex, $pattern, $myname)
 	if ($pattern == -1) {
 		die(rpa_dbex_error($hDbex). "\n");
 	}
-	$myname = "Kosko Stoilov";
+	$myname = "John Smith";
 	$stat = rpa_stat_create($hDbex, 0);
 	
 	$ret = rpa_stat_parse($stat, $pattern, RPA_ENCODING_ICASE_UTF8, $myname, $records);
+	if ($ret < 0) {
+		die(rpa_stat_error($stat). "\n");	
+	}
 	$matched = "matched: " . substr($myname, 0, $ret) . "\n";
 	echo($matched);
 	
@@ -41,11 +44,17 @@ rpa_dbex_parse($hDbex, $pattern, $myname)
 			echo("END   ");
 		else
 			echo("UNKNOWN");
-		echo ($record['uid'] . ", " . $record['rule'] . ": " . $record['input'] . "\n");
+		echo ("(" . $record['offset'] . ", " . $record['size'] . ") " . $record['uid'] . ", " . $record['rule'] . ": " . $record['input'] . "\n");
 	}
 	unset($stat);
 	unset($hDbex);
       
 ?>
 --EXPECT--
-matched: Martin Stoilov
+matched: John Smith
+START (0, 10) 3, name: John Smith
+START (0, 4) 1, first: John
+END   (0, 4) 1, first: John
+START (5, 5) 2, last: Smith
+END   (5, 5) 2, last: Smith
+END   (0, 10) 3, name: John Smith

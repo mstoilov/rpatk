@@ -131,8 +131,21 @@ static rlong rpa_stat_exec_rid(rpastat_t *stat, rparule_t rid, ruinteger encodin
 {
 	rlong topsiz = 0;
 	rpainput_t *ptp;
+	rlong offset;
+	rvm_asmins_t *exec;
 
-	if ((topsiz = rpa_stat_exec(stat, rpa_dbex_executable(stat->dbex), rpa_dbex_executableoffset(stat->dbex, rid), encoding, input, start, end, records)) < 0) {
+
+	exec = rpa_dbex_executable(stat->dbex);
+	if (!exec) {
+		RPA_STAT_SETERROR_CODE(stat, RPA_E_EXECUTION);
+		return -1;
+	}
+	offset = rpa_dbex_executableoffset(stat->dbex, rid);
+	if (offset < 0) {
+		RPA_STAT_SETERROR_CODE(stat, RPA_E_EXECUTION);
+		return -1;
+	}
+	if ((topsiz = rpa_stat_exec(stat, exec, offset, encoding, input, start, end, records)) < 0) {
 		return -1;
 	}
 	if (topsiz <= 0)
