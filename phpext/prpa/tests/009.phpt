@@ -19,8 +19,10 @@ rpa_dbex_parse($hDbex, $pattern, $myname)
 		echo(rpa_dbex_error($hDbex) . "\n");
 	}
 	
-//	rpa_dbex_close($hDbex);
-	rpa_dbex_compile($hDbex);
+	rpa_dbex_close($hDbex);
+	if (rpa_dbex_compile($hDbex) < 0) {
+		die(rpa_dbex_error($hDbex). "\n");	
+	}
 	$pattern = rpa_dbex_lookup($hDbex, "name");
 	if ($pattern == -1) {
 		die(rpa_dbex_error($hDbex). "\n");

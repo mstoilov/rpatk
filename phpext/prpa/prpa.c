@@ -534,7 +534,7 @@ static rchar *dbexmsg[] = {
 	"Syntax error.",
 	"Unresolved expression name.",
 	"Invalid parameter.",
-	"Unknown",
+	"Failed to compile rule.",
 	"Unknown",
 	"Unknown",
 	"Unknown",
