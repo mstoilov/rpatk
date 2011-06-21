@@ -63,7 +63,7 @@ rinteger rpa_stat_init(rpastat_t *stat, ruinteger encoding, const rchar *input, 
 	stat->input = input;
 	stat->cache->hit = 0;
 	stat->records = records;
-	if (stat->instacksize < size) {
+	if (stat->instacksize == 0 || stat->instacksize < size) {
 		stat->instackbuffer = r_realloc(stat->instackbuffer, (size + 2) * sizeof(rpainput_t));
 		stat->instacksize = size;
 		stat->instack = &stat->instackbuffer[1];
