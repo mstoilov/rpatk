@@ -19,14 +19,16 @@ rpaparse($bnf, $input, $records, $error);
 	$matched = "matched: " . substr($myname, 0, $ret) . "\n";
 	echo($matched);
 	
-	foreach ($records as $record) {
-		if ($record['type'] & RPA_RECORD_START)
-			echo("START ");
-		else if ($record['type'] & RPA_RECORD_END)
-			echo("END   ");
-		else
-			echo("UNKNOWN");
-		echo ($record['uid'] . ", " . $record['rule'] . ": " . $record['input'] . "\n");
+	if (is_array($records)) {
+		foreach ($records as $record) {
+			if ($record['type'] & RPA_RECORD_START)
+				echo("START ");
+			else if ($record['type'] & RPA_RECORD_END)
+				echo("END   ");
+			else
+				echo("UNKNOWN");
+			echo ($record['uid'] . ", " . $record['rule'] . ": " . $record['input'] . "\n");
+		}
 	}
 ?>
 --EXPECT--

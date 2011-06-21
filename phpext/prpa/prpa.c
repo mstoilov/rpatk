@@ -625,13 +625,15 @@ PHP_FUNCTION(rpa_stat_parse)
     }
     ZEND_FETCH_RESOURCE(phpstat, php_rpa_stat*, &zstat, -1, PHP_RPA_STAT_RES_NAME, le_rpa_stat);
     ret = rpa_stat_parse(phpstat->stat, rid, encoding, input, input, input + input_len, records);
-    if (ret <= 0)
-    	goto error;
+    if (ret <= 0) {
+    	if (zrecords)
+    		ZVAL_NULL(zrecords);
+    	rpa_records_destroy(records);
+    	RETURN_LONG(ret);
+    }
     if (zrecords) {
     	rpa_records2array(input, records, zrecords);
     }
-
-error:
 	rpa_records_destroy(records);
 	RETURN_LONG(ret);
 }
@@ -686,6 +688,8 @@ dbexerror:
 		rpa_dbex_geterrorstr(dbex, buffer, sizeof(buffer) - 1);
 		ZVAL_STRING(zerror, buffer, 1);
 	}
+//	if (zrecords)
+//		ZVAL_NULL(zrecords);
 	rpa_records_destroy(records);
 	rpa_stat_destroy(stat);
 	rpa_dbex_destroy(dbex);
@@ -696,6 +700,8 @@ staterror:
 		rpa_stat_geterrorstr(stat, buffer, sizeof(buffer) - 1);
 		ZVAL_STRING(zerror, buffer, 1);
 	}
+//	if (zrecords)
+//		ZVAL_NULL(zrecords);
 	rpa_records_destroy(records);
 	rpa_stat_destroy(stat);
 	rpa_dbex_destroy(dbex);
