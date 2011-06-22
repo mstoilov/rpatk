@@ -145,7 +145,7 @@ int rpa_grep_load_pattern(rpa_grep_t *pGrep, rpa_buffer_t *buf)
 	if (ret < 0) {
 		rpa_errinfo_t errinfo;
 		rpa_dbex_lasterrorinfo(pGrep->hDbex, &errinfo);
-		if (errinfo.code == RPA_E_SYNTAX_ERROR) {
+		if (errinfo.code == RPA_E_SYNTAXERROR) {
 			pattern += errinfo.offset;
 			for (line = 1; pattern >= buf->s; --pattern) {
 				if (*pattern == '\n')

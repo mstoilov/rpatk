@@ -2089,7 +2089,7 @@ void rpagen_load_rules(rpa_dbex_handle dbex, rvm_compiler_t *co)
 			if (*pattern == '\n')
 				line += 1;
 		}
-		fprintf(stdout, "Line: %d, RPA LOAD ERROR: %s\n", line, (rpa_dbex_get_error(dbex) == RPA_E_SYNTAX_ERROR) ? "Syntax Error." : "Pattern Loading failed.");
+		fprintf(stdout, "Line: %d, RPA LOAD ERROR: %s\n", line, (rpa_dbex_get_error(dbex) == RPA_E_SYNTAXERROR) ? "Syntax Error." : "Pattern Loading failed.");
 		goto error;
 	}
 

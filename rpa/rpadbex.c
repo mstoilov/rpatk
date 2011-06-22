@@ -226,16 +226,16 @@ static rinteger rpa_dbex_rh_uid(rpadbex_t *dbex, rlong rec)
 
 	if (prec->type & RPA_RECORD_START) {
 		if (rpa_dbex_rulename(dbex, rec, &name, &namesize) < 0) {
-			RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_SYNTAX_ERROR);
+			RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_SYNTAXERROR);
 			return -1;
 		}
 		pnumrec = rpa_dbex_record(dbex, rpa_recordtree_lastchild(dbex->records, rec, RPA_RECORD_END));
 		if (!pnumrec) {
-			RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_SYNTAX_ERROR);
+			RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_SYNTAXERROR);
 			return -1;
 		}
 		if (rpa_record2long(pnumrec, &uid) < 0) {
-			RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_SYNTAX_ERROR);
+			RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_SYNTAXERROR);
 			return -1;
 		}
 		rpa_compiler_rulepref_set_ruleuid(dbex->co, name, namesize, uid);
@@ -258,16 +258,16 @@ static rinteger rpa_dbex_rh_uid(rpadbex_t *dbex, rlong rec)
 	R_ASSERT(prec);
 	rpa_dbex_debug_recordhead(dbex, rec);
 	if (rpa_dbex_rulename(dbex, rec, &name, &namesize) < 0) {
-		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_SYNTAX_ERROR);
+		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_SYNTAXERROR);
 		return -1;
 	}
 	pnumrec = rpa_dbex_record(dbex, rpa_recordtree_lastchild(dbex->records, rec, RPA_RECORD_END));
 	if (!pnumrec) {
-		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_SYNTAX_ERROR);
+		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_SYNTAXERROR);
 		return -1;
 	}
 	if (rpa_record2long(pnumrec, &uid) < 0) {
-		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_SYNTAX_ERROR);
+		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_SYNTAXERROR);
 		return -1;
 	}
 	rpa_compiler_rulepref_set_ruleuid(dbex->co, name, namesize, uid);
@@ -1232,7 +1232,7 @@ static rinteger rpa_dbex_rh_aref(rpadbex_t *dbex, rlong rec)
 	if ((prec->usertype & RPA_LOOP_PATH) && rpa_parseinfo_loopdetect(dbex, rec, rpa_dbex_firstinlined(dbex))) {
 		info = (rpa_ruleinfo_t *) r_harray_get(dbex->rules, rpa_dbex_lookup(dbex, name, namesize));
 		if (!info) {
-			RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_UNRESOLVED_SYMBOL);
+			RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_UNRESOLVEDSYMBOL);
 			RPA_DBEX_SETERRINFO_NAME(dbex, name, namesize);
 			return -1;
 		}
@@ -1287,7 +1287,7 @@ static rinteger rpa_dbex_rh_aref(rpadbex_t *dbex, rlong rec)
 		if ((prec->usertype & RPA_LOOP_PATH) && rpa_parseinfo_loopdetect(dbex, rec, rpa_dbex_firstinlined(dbex))) {
 			info = (rpa_ruleinfo_t *) r_harray_get(dbex->rules, rpa_dbex_lookup(dbex, name, namesize));
 			if (!info) {
-				RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_UNRESOLVED_SYMBOL);
+				RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_UNRESOLVEDSYMBOL);
 				RPA_DBEX_SETERRINFO_NAME(dbex, name, namesize);
 				return -1;
 			}
@@ -1731,7 +1731,7 @@ rlong rpa_dbex_load(rpadbex_t *dbex, const rchar *rules, rsize_t size)
 			if (*ptext == '\n')
 				line += 1;
 		}
-		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_SYNTAX_ERROR);
+		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_SYNTAXERROR);
 		RPA_DBEX_SETERRINFO_OFFSET(dbex, ret);
 		RPA_DBEX_SETERRINFO_LINE(dbex, line);
 		return -1;
@@ -2194,7 +2194,7 @@ rinteger rpa_dbex_compile(rpadbex_t *dbex)
 	}
 
 	if (rvm_codegen_relocate(dbex->co->cg, &labelerr) < 0) {
-		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_UNRESOLVED_SYMBOL);
+		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_UNRESOLVEDSYMBOL);
 		RPA_DBEX_SETERRINFO_NAME(dbex, labelerr->name->str, labelerr->name->size);
 		return -1;
 	}
