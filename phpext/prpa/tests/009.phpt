@@ -16,12 +16,14 @@ rpa_dbex_parse($hDbex, $pattern, $myname)
 	"name ::= <first> ' '+ <last>\n";
 	if (rpa_dbex_load($hDbex, $bnf) < 0) {
 		echo("rpa_dbex_load failed.\n");
-		echo(rpa_dbex_error($hDbex) . "\n");
+		$error = rpa_dbex_error($hDbex);
+		die($error['message'] . "LINE: " . $error['line'] . "\n");
 	}
 	
 	rpa_dbex_close($hDbex);
 	if (rpa_dbex_compile($hDbex) < 0) {
-		die(rpa_dbex_error($hDbex). "\n");	
+		$error = rpa_dbex_error($hDbex);
+		die($error['message'] . "LINE: " . $error['line'] . "\n");	
 	}
 	$pattern = rpa_dbex_lookup($hDbex, "name");
 	if ($pattern == -1) {

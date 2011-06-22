@@ -432,79 +432,81 @@ static rchar *statmsg[] = {
 };
 
 
-static void rpa_dbex_geterrorstr(rpadbex_t *dbex, char *buffer, size_t size)
+static zval *rpa_zvalerror(rpa_errinfo_t *errorinfo)
 {
 	long n = 0;
+	char buffer[1000];
 	char *ptr = buffer;
-	rpa_errinfo_t errorinfo;
+	size_t size = sizeof(buffer) - 1;
+	zval *zerror = NULL;
 
-	memset(&errorinfo, 0, sizeof(errorinfo));
-    rpa_dbex_lasterrorinfo(dbex, &errorinfo);
-    if (!errorinfo.code)
-    	return;
-    if (errorinfo.mask & RPA_ERRINFO_CODE) {
-    	if (errorinfo.code >= 1000 && errorinfo.code < 1010)
-    		n += snprintf(ptr + n, size - n, "%s Code: %ld. ", dbexmsg[errorinfo.code - 1000], errorinfo.code);
+	memset(buffer, 0, sizeof(buffer));
+	ALLOC_INIT_ZVAL(zerror);
+	array_init(zerror);
+    if (errorinfo->mask & RPA_ERRINFO_CODE) {
+    	if (errorinfo->code >= 1000 && errorinfo->code < 1010)
+    		n += snprintf(ptr + n, size - n, "%s Code: %ld. ", dbexmsg[errorinfo->code - 1000], errorinfo->code);
+    	else if (errorinfo->code >= 2000 && errorinfo->code < 2010)
+    		n += snprintf(ptr + n, size - n, "%s Code: %ld. ", statmsg[errorinfo->code - 2000], errorinfo->code);
+    	else
+    		n += snprintf(ptr + n, size - n, "Error Code: %ld. ", errorinfo->code);
+    	add_assoc_long(zerror, "code", errorinfo->code);
     }
-    if (errorinfo.mask & RPA_ERRINFO_LINE) {
-        n += snprintf(ptr + n, size - n, "Line: %ld. ", errorinfo.line);
+    if (errorinfo->mask & RPA_ERRINFO_LINE) {
+        n += snprintf(ptr + n, size - n, "Line: %ld. ", errorinfo->line);
+    	add_assoc_long(zerror, "line", errorinfo->line);
     }
-    if (errorinfo.mask & RPA_ERRINFO_OFFSET) {
-        n += snprintf(ptr + n, size - n, "Offset: %ld. ", errorinfo.offset);
+    if (errorinfo->mask & RPA_ERRINFO_OFFSET) {
+        n += snprintf(ptr + n, size - n, "Offset: %ld. ", errorinfo->offset);
+    	add_assoc_long(zerror, "offset", errorinfo->offset);
     }
-    if (errorinfo.mask & RPA_ERRINFO_RULEID) {
-        n += snprintf(ptr + n, size - n, "RuleId: %ld. ", errorinfo.ruleid);
+    if (errorinfo->mask & RPA_ERRINFO_RULEID) {
+        n += snprintf(ptr + n, size - n, "RuleId: %ld. ", errorinfo->ruleid);
+    	add_assoc_long(zerror, "rid", errorinfo->ruleid);
     }
-    if (errorinfo.mask & RPA_ERRINFO_NAME) {
-        n += snprintf(ptr + n, size - n, "Name: %s. ", errorinfo.name);
+    if (errorinfo->mask & RPA_ERRINFO_NAME) {
+        n += snprintf(ptr + n, size - n, "Name: %s. ", errorinfo->name);
+    	add_assoc_string(zerror, "name", errorinfo->name, 1);
     }
-
+	add_assoc_stringl(zerror, "message", buffer, n, 1);
+    return zerror;
 }
 
 
 PHP_FUNCTION(rpa_dbex_error)
 {
 	zval *zres;
-	char buffer[1000];
     php_rpa_dbex *phpdbex;
+    zval *zerror = NULL;
+    rpa_errinfo_t errorinfo;
 
-	memset(buffer, 0, sizeof(buffer));
+	memset(&errorinfo, 0, sizeof(errorinfo));
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &zres) == FAILURE) {
 		RETURN_LONG(-1);
     }
     ZEND_FETCH_RESOURCE(phpdbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
-    rpa_dbex_geterrorstr(phpdbex->dbex, buffer, sizeof(buffer) - 1);
-	RETURN_STRING(buffer, 1);
+    rpa_dbex_lasterrorinfo(phpdbex->dbex, &errorinfo);
+    zerror = rpa_zvalerror(&errorinfo);
+	RETURN_ZVAL(zerror, 1, 0);
 }
 
 
-static void rpa_stat_geterrorstr(rpastat_t *stat, char *buffer, size_t size)
+PHP_FUNCTION(rpa_stat_error)
 {
-	long n = 0;
-	char *ptr = buffer;
-	rpa_errinfo_t errorinfo;
+	zval *zres;
+	char buffer[1000];
+    php_rpa_stat *phpstat;
+    zval *zerror = NULL;
+    rpa_errinfo_t errorinfo;
 
 	memset(&errorinfo, 0, sizeof(errorinfo));
-    rpa_stat_lasterrorinfo(stat, &errorinfo);
-    if (!errorinfo.code)
-    	return;
-    if (errorinfo.mask & RPA_ERRINFO_CODE) {
-    	if (errorinfo.code >= 2000 && errorinfo.code < 2010)
-    		n += snprintf(ptr + n, size - n, "%s Code: %ld. ", statmsg[errorinfo.code - 2000], errorinfo.code);
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &zres) == FAILURE) {
+		RETURN_LONG(-1);
     }
-    if (errorinfo.mask & RPA_ERRINFO_LINE) {
-        n += snprintf(ptr + n, size - n, "Line: %ld. ", errorinfo.line);
-    }
-    if (errorinfo.mask & RPA_ERRINFO_OFFSET) {
-        n += snprintf(ptr + n, size - n, "Offset: %ld. ", errorinfo.offset);
-    }
-    if (errorinfo.mask & RPA_ERRINFO_RULEID) {
-        n += snprintf(ptr + n, size - n, "RuleId: %ld. ", errorinfo.ruleid);
-    }
-    if (errorinfo.mask & RPA_ERRINFO_NAME) {
-        n += snprintf(ptr + n, size - n, "Name: %s. ", errorinfo.name);
-    }
-
+    ZEND_FETCH_RESOURCE(phpstat, php_rpa_stat*, &zres, -1, PHP_RPA_STAT_RES_NAME, le_rpa_stat);
+    rpa_stat_lasterrorinfo(phpstat->stat, &errorinfo);
+    zerror = rpa_zvalerror(&errorinfo);
+	RETURN_ZVAL(zerror, 1, 0);
 }
 
 
@@ -527,21 +529,6 @@ static void rpa_records2array(const rchar *input, rarray_t *records, zval *zreco
 		add_assoc_long(zrecord, "size", record->inputsiz);
 		add_next_index_zval(zrecords, zrecord);
 	}
-}
-
-PHP_FUNCTION(rpa_stat_error)
-{
-	zval *zres;
-	char buffer[1000];
-    php_rpa_stat *phpstat;
-
-	memset(buffer, 0, sizeof(buffer));
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &zres) == FAILURE) {
-		RETURN_LONG(-1);
-    }
-    ZEND_FETCH_RESOURCE(phpstat, php_rpa_stat*, &zres, -1, PHP_RPA_STAT_RES_NAME, le_rpa_stat);
-    rpa_stat_geterrorstr(phpstat->stat, buffer, sizeof(buffer) - 1);
-	RETURN_STRING(buffer, 1);
 }
 
 
@@ -641,7 +628,6 @@ PHP_FUNCTION(rpa_stat_parse)
 
 PHP_FUNCTION(rpaparse)
 {
-	char buffer[1000];
 	rpadbex_t *dbex = NULL;
 	rpastat_t *stat = NULL;
 	long rid;
@@ -658,7 +644,6 @@ PHP_FUNCTION(rpaparse)
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sls|zz", &bnf, &bnf_len, &encoding, &input, &input_len, &zrecords, &zerror) == FAILURE) {
 		RETURN_LONG(-1);
     }
-    memset(buffer, 0, sizeof(buffer));
     dbex = rpa_dbex_create();
     if (rpa_dbex_open(dbex) < 0)
     	goto dbexerror;
@@ -685,8 +670,11 @@ PHP_FUNCTION(rpaparse)
 
 dbexerror:
 	if (zerror) {
-		rpa_dbex_geterrorstr(dbex, buffer, sizeof(buffer) - 1);
-		ZVAL_STRING(zerror, buffer, 1);
+		rpa_errinfo_t errorinfo;
+		memset(&errorinfo, 0, sizeof(errorinfo));
+		rpa_dbex_lasterrorinfo(dbex, &errorinfo);
+		zval *temp = rpa_zvalerror(&errorinfo);
+		ZVAL_ZVAL(zerror, temp, 0, 1);
 	}
 //	if (zrecords)
 //		ZVAL_NULL(zrecords);
@@ -697,8 +685,11 @@ dbexerror:
 
 staterror:
 	if (zerror) {
-		rpa_stat_geterrorstr(stat, buffer, sizeof(buffer) - 1);
-		ZVAL_STRING(zerror, buffer, 1);
+		rpa_errinfo_t errorinfo;
+		memset(&errorinfo, 0, sizeof(errorinfo));
+		rpa_stat_lasterrorinfo(stat, &errorinfo);
+		zval *temp = rpa_zvalerror(&errorinfo);
+		ZVAL_ZVAL(zerror, temp, 0, 1);
 	}
 //	if (zrecords)
 //		ZVAL_NULL(zrecords);
@@ -711,7 +702,6 @@ staterror:
 
 PHP_FUNCTION(rpascan)
 {
-	char buffer[1000];
 	rpadbex_t *dbex = NULL;
 	rpastat_t *stat = NULL;
 	long rid;
@@ -728,7 +718,6 @@ PHP_FUNCTION(rpascan)
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sls|zz", &bnf, &bnf_len, &encoding, &input, &input_len, &zwhere, &zerror) == FAILURE) {
 		RETURN_LONG(-1);
     }
-    memset(buffer, 0, sizeof(buffer));
     dbex = rpa_dbex_create();
     if (rpa_dbex_open(dbex) < 0)
     	goto dbexerror;
@@ -757,8 +746,11 @@ PHP_FUNCTION(rpascan)
 
 dbexerror:
 	if (zerror) {
-		rpa_dbex_geterrorstr(dbex, buffer, sizeof(buffer) - 1);
-		ZVAL_STRING(zerror, buffer, 1);
+		rpa_errinfo_t errorinfo;
+		memset(&errorinfo, 0, sizeof(errorinfo));
+		rpa_dbex_lasterrorinfo(dbex, &errorinfo);
+		zval *temp = rpa_zvalerror(&errorinfo);
+		ZVAL_ZVAL(zerror, temp, 0, 1);
 	}
 	rpa_stat_destroy(stat);
 	rpa_dbex_destroy(dbex);
@@ -766,19 +758,20 @@ dbexerror:
 
 staterror:
 	if (zerror) {
-		rpa_stat_geterrorstr(stat, buffer, sizeof(buffer) - 1);
-		ZVAL_STRING(zerror, buffer, 1);
+		rpa_errinfo_t errorinfo;
+		memset(&errorinfo, 0, sizeof(errorinfo));
+		rpa_stat_lasterrorinfo(stat, &errorinfo);
+		zval *temp = rpa_zvalerror(&errorinfo);
+		ZVAL_ZVAL(zerror, temp, 0, 1);
 	}
 	rpa_stat_destroy(stat);
 	rpa_dbex_destroy(dbex);
 	RETURN_LONG(-1);
-
 }
 
 
 PHP_FUNCTION(rpamatch)
 {
-	char buffer[1000];
 	rpadbex_t *dbex = NULL;
 	rpastat_t *stat = NULL;
 	long rid;
@@ -793,7 +786,6 @@ PHP_FUNCTION(rpamatch)
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sls|z", &bnf, &bnf_len, &encoding, &input, &input_len, &zerror) == FAILURE) {
 		RETURN_LONG(-1);
     }
-    memset(buffer, 0, sizeof(buffer));
     dbex = rpa_dbex_create();
     if (rpa_dbex_open(dbex) < 0)
     	goto dbexerror;
@@ -815,8 +807,11 @@ PHP_FUNCTION(rpamatch)
 
 dbexerror:
 	if (zerror) {
-		rpa_dbex_geterrorstr(dbex, buffer, sizeof(buffer) - 1);
-		ZVAL_STRING(zerror, buffer, 1);
+		rpa_errinfo_t errorinfo;
+		memset(&errorinfo, 0, sizeof(errorinfo));
+		rpa_dbex_lasterrorinfo(dbex, &errorinfo);
+		zval *temp = rpa_zvalerror(&errorinfo);
+		ZVAL_ZVAL(zerror, temp, 0, 1);
 	}
 	rpa_stat_destroy(stat);
 	rpa_dbex_destroy(dbex);
@@ -824,12 +819,14 @@ dbexerror:
 
 staterror:
 	if (zerror) {
-		rpa_stat_geterrorstr(stat, buffer, sizeof(buffer) - 1);
-		ZVAL_STRING(zerror, buffer, 1);
+		rpa_errinfo_t errorinfo;
+		memset(&errorinfo, 0, sizeof(errorinfo));
+		rpa_stat_lasterrorinfo(stat, &errorinfo);
+		zval *temp = rpa_zvalerror(&errorinfo);
+		ZVAL_ZVAL(zerror, temp, 0, 1);
 	}
 	rpa_stat_destroy(stat);
 	rpa_dbex_destroy(dbex);
 	RETURN_LONG(-1);
-
 }
 

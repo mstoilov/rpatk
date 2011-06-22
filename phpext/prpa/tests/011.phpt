@@ -14,7 +14,7 @@ rpascan($bnf, $input, $where, $error);
 	"name ::= <first> ' '+ <last>\n";
 	$myname = "     : John Smith";	
 	if (($ret = rpascan($bnf, RPA_ENCODING_ICASE_UTF8, $myname, $where, $error)) < 0)
-		die($error . "\n");
+		die($error['message'] . "\n");
 	echo("matched: " . substr($myname, $where, $ret) . " @ " . $where . "\n");
 ?>
 --EXPECT--

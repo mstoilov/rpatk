@@ -14,8 +14,12 @@ rpaparse($bnf, $input, $records, $error);
 	"name ::= <first> ' '+ <last>\n";
 	$myname = "John Smith";	
 	$ret = rpaparse($bnf, RPA_ENCODING_ICASE_UTF8, $myname, $records, $error);
-	if ($ret < 0)
-		die($error . "\n");
+	if ($ret < 0) {
+		if (is_array($error)) 
+			die($error['message'] . "\n");
+		else
+			die("praparse error.\n");
+	}
 	$matched = "matched: " . substr($myname, 0, $ret) . "\n";
 	echo($matched);
 	
