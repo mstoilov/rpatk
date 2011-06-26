@@ -70,26 +70,26 @@ static int le_prpa;
  * Every user visible function must have an entry in prpa_functions[].
  */
 zend_function_entry prpa_functions[] = {
-    PHP_FE(rpaparse, NULL)
-    PHP_FE(rpascan, NULL)
-    PHP_FE(rpamatch, NULL)
-    PHP_FE(rpa_dbex_version, NULL)
-    PHP_FE(rpa_dbex_create, NULL)
-    PHP_FE(rpa_dbex_open, NULL)
-    PHP_FE(rpa_dbex_close, NULL)
-    PHP_FE(rpa_dbex_load, NULL)
-    PHP_FE(rpa_dbex_compile, NULL)
-    PHP_FE(rpa_dbex_lookup, NULL)
-    PHP_FE(rpa_dbex_first, NULL)
-    PHP_FE(rpa_dbex_last, NULL)
-    PHP_FE(rpa_dbex_cfgset, NULL)
-    PHP_FE(rpa_dbex_dumpproductions, NULL)
-    PHP_FE(rpa_dbex_error, NULL)
-    PHP_FE(rpa_stat_create, NULL)
-    PHP_FE(rpa_stat_match, NULL)
-    PHP_FE(rpa_stat_scan, NULL)
-    PHP_FE(rpa_stat_parse, NULL)
-    PHP_FE(rpa_stat_error, NULL)
+	PHP_FE(rpaparse, NULL)
+	PHP_FE(rpascan, NULL)
+	PHP_FE(rpamatch, NULL)
+	PHP_FE(rpa_dbex_version, NULL)
+	PHP_FE(rpa_dbex_create, NULL)
+	PHP_FE(rpa_dbex_open, NULL)
+	PHP_FE(rpa_dbex_close, NULL)
+	PHP_FE(rpa_dbex_load, NULL)
+	PHP_FE(rpa_dbex_compile, NULL)
+	PHP_FE(rpa_dbex_lookup, NULL)
+	PHP_FE(rpa_dbex_first, NULL)
+	PHP_FE(rpa_dbex_last, NULL)
+	PHP_FE(rpa_dbex_cfgset, NULL)
+	PHP_FE(rpa_dbex_dumpproductions, NULL)
+	PHP_FE(rpa_dbex_error, NULL)
+	PHP_FE(rpa_stat_create, NULL)
+	PHP_FE(rpa_stat_match, NULL)
+	PHP_FE(rpa_stat_scan, NULL)
+	PHP_FE(rpa_stat_parse, NULL)
+	PHP_FE(rpa_stat_error, NULL)
 	{NULL, NULL, NULL}	/* Must be the last line in prpa_functions[] */
 };
 /* }}} */
@@ -122,8 +122,8 @@ ZEND_GET_MODULE(prpa)
  */
 /* Remove comments and fill if you need to have entries in php.ini
 PHP_INI_BEGIN()
-    STD_PHP_INI_ENTRY("prpa.global_value",      "42", PHP_INI_ALL, OnUpdateLong, global_value, zend_prpa_globals, prpa_globals)
-    STD_PHP_INI_ENTRY("prpa.global_string", "foobar", PHP_INI_ALL, OnUpdateString, global_string, zend_prpa_globals, prpa_globals)
+	STD_PHP_INI_ENTRY("prpa.global_value",		"42", PHP_INI_ALL, OnUpdateLong, global_value, zend_prpa_globals, prpa_globals)
+	STD_PHP_INI_ENTRY("prpa.global_string", "foobar", PHP_INI_ALL, OnUpdateString, global_string, zend_prpa_globals, prpa_globals)
 PHP_INI_END()
 */
 /* }}} */
@@ -146,31 +146,31 @@ PHP_MINIT_FUNCTION(prpa)
 	/* If you have INI entries, uncomment these lines 
 	REGISTER_INI_ENTRIES();
 	*/
-    le_rpa_dbex = zend_register_list_destructors_ex(php_rpa_dbex_dtor, NULL, PHP_RPA_DBEX_RES_NAME, module_number);
-    le_rpa_stat = zend_register_list_destructors_ex(php_rpa_stat_dtor, NULL, PHP_RPA_STAT_RES_NAME, module_number);
-    REGISTER_LONG_CONSTANT("RPA_ENCODING_BYTE", RPA_ENCODING_BYTE, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("RPA_ENCODING_UTF8", RPA_ENCODING_UTF8, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("RPA_ENCODING_ICASE_UTF8", RPA_ENCODING_ICASE_UTF8, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("RPA_ENCODING_UTF16LE", RPA_ENCODING_UTF16LE, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("RPA_ENCODING_ICASE_UTF16LE", RPA_ENCODING_ICASE_UTF16LE, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("RPA_RECORD_START", RPA_RECORD_START, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("RPA_RECORD_END", RPA_RECORD_END, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("RPA_DBEXCFG_DEBUG", RPA_DBEXCFG_DEBUG, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("RPA_DBEXCFG_OPTIMIZATIONS", RPA_DBEXCFG_OPTIMIZATIONS, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("RPA_E_NONE", RPA_E_NONE, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("RPA_E_OUTOFMEM", RPA_E_OUTOFMEM, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("RPA_E_NOTCOMPILED", RPA_E_NOTCOMPILED, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("RPA_E_NOTOPEN", RPA_E_NOTOPEN, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("RPA_E_NOTCLOSED", RPA_E_NOTCLOSED, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("RPA_E_NOTFOUND", RPA_E_NOTFOUND, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("RPA_E_SYNTAXERROR", RPA_E_SYNTAXERROR, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("RPA_E_UNRESOLVEDSYMBOL", RPA_E_UNRESOLVEDSYMBOL, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("RPA_E_PARAM", RPA_E_PARAM, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("RPA_E_COMPILE", RPA_E_COMPILE, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("RPA_E_EXECUTION", RPA_E_EXECUTION, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("RPA_E_USERABORT", RPA_E_USERABORT, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("RPA_E_RULEABORT", RPA_E_RULEABORT, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("RPA_E_INVALIDINPUT", RPA_E_INVALIDINPUT, CONST_CS | CONST_PERSISTENT);
+	le_rpa_dbex = zend_register_list_destructors_ex(php_rpa_dbex_dtor, NULL, PHP_RPA_DBEX_RES_NAME, module_number);
+	le_rpa_stat = zend_register_list_destructors_ex(php_rpa_stat_dtor, NULL, PHP_RPA_STAT_RES_NAME, module_number);
+	REGISTER_LONG_CONSTANT("RPA_ENCODING_BYTE", RPA_ENCODING_BYTE, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("RPA_ENCODING_UTF8", RPA_ENCODING_UTF8, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("RPA_ENCODING_ICASE_UTF8", RPA_ENCODING_ICASE_UTF8, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("RPA_ENCODING_UTF16LE", RPA_ENCODING_UTF16LE, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("RPA_ENCODING_ICASE_UTF16LE", RPA_ENCODING_ICASE_UTF16LE, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("RPA_RECORD_START", RPA_RECORD_START, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("RPA_RECORD_END", RPA_RECORD_END, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("RPA_DBEXCFG_DEBUG", RPA_DBEXCFG_DEBUG, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("RPA_DBEXCFG_OPTIMIZATIONS", RPA_DBEXCFG_OPTIMIZATIONS, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("RPA_E_NONE", RPA_E_NONE, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("RPA_E_OUTOFMEM", RPA_E_OUTOFMEM, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("RPA_E_NOTCOMPILED", RPA_E_NOTCOMPILED, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("RPA_E_NOTOPEN", RPA_E_NOTOPEN, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("RPA_E_NOTCLOSED", RPA_E_NOTCLOSED, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("RPA_E_NOTFOUND", RPA_E_NOTFOUND, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("RPA_E_SYNTAXERROR", RPA_E_SYNTAXERROR, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("RPA_E_UNRESOLVEDSYMBOL", RPA_E_UNRESOLVEDSYMBOL, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("RPA_E_PARAM", RPA_E_PARAM, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("RPA_E_COMPILE", RPA_E_COMPILE, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("RPA_E_EXECUTION", RPA_E_EXECUTION, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("RPA_E_USERABORT", RPA_E_USERABORT, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("RPA_E_RULEABORT", RPA_E_RULEABORT, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("RPA_E_INVALIDINPUT", RPA_E_INVALIDINPUT, CONST_CS | CONST_PERSISTENT);
 
 	return SUCCESS;
 }
@@ -222,53 +222,53 @@ PHP_MINFO_FUNCTION(prpa)
 
 PHP_FUNCTION(rpa_dbex_version)
 {
-    RETURN_STRING((char*)rpa_dbex_version(), 1);
+	RETURN_STRING((char*)rpa_dbex_version(), 1);
 }
 
 
 static void php_rpa_stat_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
-    php_rpa_stat *phpstat = (php_rpa_stat*)rsrc->ptr;
+	php_rpa_stat *phpstat = (php_rpa_stat*)rsrc->ptr;
 
-    if (phpstat) {
-    	rpa_stat_destroy(phpstat->stat);
-        efree(phpstat);
-    }
+	if (phpstat) {
+		rpa_stat_destroy(phpstat->stat);
+		efree(phpstat);
+	}
 }
 
 
 static void php_rpa_dbex_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
-    php_rpa_dbex *phpdbex = (php_rpa_dbex*)rsrc->ptr;
+	php_rpa_dbex *phpdbex = (php_rpa_dbex*)rsrc->ptr;
 
-    if (phpdbex) {
+	if (phpdbex) {
 		rpa_dbex_destroy(phpdbex->dbex);
 		efree(phpdbex);
-    }
+	}
 }
 
 
 PHP_FUNCTION(rpa_dbex_create)
 {
-    php_rpa_dbex *phpdbex;
+	php_rpa_dbex *phpdbex;
 
-    phpdbex = emalloc(sizeof(php_rpa_dbex));
-    phpdbex->dbex = rpa_dbex_create();
-    ZEND_REGISTER_RESOURCE(return_value, phpdbex, le_rpa_dbex);
+	phpdbex = emalloc(sizeof(php_rpa_dbex));
+	phpdbex->dbex = rpa_dbex_create();
+	ZEND_REGISTER_RESOURCE(return_value, phpdbex, le_rpa_dbex);
 }
 
 
 PHP_FUNCTION(rpa_dbex_open)
 {
 	zval *zres;
-    php_rpa_dbex *phpdbex;
+	php_rpa_dbex *phpdbex;
 	int ret;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &zres) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &zres) == FAILURE) {
 		RETURN_LONG(-1);
-    }
+	}
 
-    ZEND_FETCH_RESOURCE(phpdbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
+	ZEND_FETCH_RESOURCE(phpdbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
 
 	ret = rpa_dbex_open(phpdbex->dbex);
 	RETURN_LONG(ret);
@@ -278,13 +278,13 @@ PHP_FUNCTION(rpa_dbex_open)
 PHP_FUNCTION(rpa_dbex_close)
 {
 	zval *zres;
-    php_rpa_dbex *phpdbex;
+	php_rpa_dbex *phpdbex;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &zres) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &zres) == FAILURE) {
 		RETURN_LONG(-1);
-    }
+	}
 
-    ZEND_FETCH_RESOURCE(phpdbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
+	ZEND_FETCH_RESOURCE(phpdbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
 
 	rpa_dbex_close(phpdbex->dbex);
 	RETURN_LONG(0);
@@ -294,19 +294,19 @@ PHP_FUNCTION(rpa_dbex_close)
 PHP_FUNCTION(rpa_dbex_load)
 {
 	zval *zres;
-    php_rpa_dbex *phpdbex;
+	php_rpa_dbex *phpdbex;
 	char *patterns;
 	int patterns_len;
 	int ret;
 
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs", &zres, &patterns, &patterns_len) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs", &zres, &patterns, &patterns_len) == FAILURE) {
 		RETURN_LONG(-1);
-    }
+	}
 
-    ZEND_FETCH_RESOURCE(phpdbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
+	ZEND_FETCH_RESOURCE(phpdbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
 
-    ret = rpa_dbex_load_s(phpdbex->dbex, patterns);
+	ret = rpa_dbex_load_s(phpdbex->dbex, patterns);
 	RETURN_LONG(ret);
 }
 
@@ -314,18 +314,18 @@ PHP_FUNCTION(rpa_dbex_load)
 PHP_FUNCTION(rpa_dbex_lookup)
 {
 	zval *zres;
-    php_rpa_dbex *phpdbex;
+	php_rpa_dbex *phpdbex;
 	char *name;
 	int name_len;
 	long ret;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs", &zres, &name, &name_len) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs", &zres, &name, &name_len) == FAILURE) {
 		RETURN_LONG(-1);
-    }
+	}
 
-    ZEND_FETCH_RESOURCE(phpdbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
+	ZEND_FETCH_RESOURCE(phpdbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
 
-    ret = rpa_dbex_lookup(phpdbex->dbex, name, name_len);
+	ret = rpa_dbex_lookup(phpdbex->dbex, name, name_len);
 	RETURN_LONG(ret);
 }
 
@@ -333,16 +333,16 @@ PHP_FUNCTION(rpa_dbex_lookup)
 PHP_FUNCTION(rpa_dbex_first)
 {
 	zval *zres;
-    php_rpa_dbex *phpdbex;
+	php_rpa_dbex *phpdbex;
 	long ret;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &zres) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &zres) == FAILURE) {
 		RETURN_LONG(-1);
-    }
+	}
 
-    ZEND_FETCH_RESOURCE(phpdbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
+	ZEND_FETCH_RESOURCE(phpdbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
 
-    ret = rpa_dbex_first(phpdbex->dbex);
+	ret = rpa_dbex_first(phpdbex->dbex);
 	RETURN_LONG(ret);
 }
 
@@ -350,14 +350,14 @@ PHP_FUNCTION(rpa_dbex_first)
 PHP_FUNCTION(rpa_dbex_last)
 {
 	zval *zres;
-    php_rpa_dbex *phpdbex;
+	php_rpa_dbex *phpdbex;
 	long ret;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &zres) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &zres) == FAILURE) {
 		RETURN_LONG(-1);
-    }
-    ZEND_FETCH_RESOURCE(phpdbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
-    ret = rpa_dbex_last(phpdbex->dbex);
+	}
+	ZEND_FETCH_RESOURCE(phpdbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
+	ret = rpa_dbex_last(phpdbex->dbex);
 	RETURN_LONG(ret);
 }
 
@@ -365,16 +365,16 @@ PHP_FUNCTION(rpa_dbex_last)
 PHP_FUNCTION(rpa_dbex_compile)
 {
 	zval *zres;
-    php_rpa_dbex *phpdbex;
+	php_rpa_dbex *phpdbex;
 	char *patterns;
 	int patterns_len;
 	int ret;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &zres) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &zres) == FAILURE) {
 		RETURN_LONG(-1);
-    }
-    ZEND_FETCH_RESOURCE(phpdbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
-    ret = rpa_dbex_compile(phpdbex->dbex);
+	}
+	ZEND_FETCH_RESOURCE(phpdbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
+	ret = rpa_dbex_compile(phpdbex->dbex);
 	RETURN_LONG(ret);
 }
 
@@ -382,14 +382,14 @@ PHP_FUNCTION(rpa_dbex_compile)
 PHP_FUNCTION(rpa_dbex_dumpproductions)
 {
 	zval *zres;
-    php_rpa_dbex *phpdbex;
+	php_rpa_dbex *phpdbex;
 	long ret;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &zres) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &zres) == FAILURE) {
 		RETURN_LONG(-1);
-    }
-    ZEND_FETCH_RESOURCE(phpdbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
-    ret = rpa_dbex_dumpproductions(phpdbex->dbex);
+	}
+	ZEND_FETCH_RESOURCE(phpdbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
+	ret = rpa_dbex_dumpproductions(phpdbex->dbex);
 	RETURN_LONG(ret);
 }
 
@@ -397,15 +397,15 @@ PHP_FUNCTION(rpa_dbex_dumpproductions)
 PHP_FUNCTION(rpa_dbex_cfgset)
 {
 	zval *zres;
-    php_rpa_dbex *phpdbex;
-    long cfg, val;
+	php_rpa_dbex *phpdbex;
+	long cfg, val;
 	long ret;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rll", &zres, cfg, val) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rll", &zres, cfg, val) == FAILURE) {
 		RETURN_LONG(-1);
-    }
-    ZEND_FETCH_RESOURCE(phpdbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
-    ret = rpa_dbex_cfgset(phpdbex->dbex, cfg, val);
+	}
+	ZEND_FETCH_RESOURCE(phpdbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
+	ret = rpa_dbex_cfgset(phpdbex->dbex, cfg, val);
 	RETURN_LONG(ret);
 }
 
@@ -458,50 +458,50 @@ static zval *rpa_zvalerror(rpa_errinfo_t *errorinfo)
 	memset(buffer, 0, sizeof(buffer));
 	ALLOC_INIT_ZVAL(zerror);
 	array_init(zerror);
-    if (errorinfo->mask & RPA_ERRINFO_CODE) {
-    	if (errorinfo->code >= 1000 && errorinfo->code < 1010)
-    		n += snprintf(ptr + n, size - n, "%s Code: %ld. ", dbexmsg[errorinfo->code - 1000], errorinfo->code);
-    	else if (errorinfo->code >= 2000 && errorinfo->code < 2010)
-    		n += snprintf(ptr + n, size - n, "%s Code: %ld. ", statmsg[errorinfo->code - 2000], errorinfo->code);
-    	else
-    		n += snprintf(ptr + n, size - n, "Error Code: %ld. ", errorinfo->code);
-    	add_assoc_long(zerror, "code", errorinfo->code);
-    }
-    if (errorinfo->mask & RPA_ERRINFO_LINE) {
-        n += snprintf(ptr + n, size - n, "Line: %ld. ", errorinfo->line);
-    	add_assoc_long(zerror, "line", errorinfo->line);
-    }
-    if (errorinfo->mask & RPA_ERRINFO_OFFSET) {
-        n += snprintf(ptr + n, size - n, "Offset: %ld. ", errorinfo->offset);
-    	add_assoc_long(zerror, "offset", errorinfo->offset);
-    }
-    if (errorinfo->mask & RPA_ERRINFO_RULEID) {
-        n += snprintf(ptr + n, size - n, "RuleId: %ld. ", errorinfo->ruleid);
-    	add_assoc_long(zerror, "rid", errorinfo->ruleid);
-    }
-    if (errorinfo->mask & RPA_ERRINFO_NAME) {
-        n += snprintf(ptr + n, size - n, "Name: %s. ", errorinfo->name);
-    	add_assoc_string(zerror, "name", errorinfo->name, 1);
-    }
+	if (errorinfo->mask & RPA_ERRINFO_CODE) {
+		if (errorinfo->code >= 1000 && errorinfo->code < 1010)
+			n += snprintf(ptr + n, size - n, "%s Code: %ld. ", dbexmsg[errorinfo->code - 1000], errorinfo->code);
+		else if (errorinfo->code >= 2000 && errorinfo->code < 2010)
+			n += snprintf(ptr + n, size - n, "%s Code: %ld. ", statmsg[errorinfo->code - 2000], errorinfo->code);
+		else
+			n += snprintf(ptr + n, size - n, "Error Code: %ld. ", errorinfo->code);
+		add_assoc_long(zerror, "code", errorinfo->code);
+	}
+	if (errorinfo->mask & RPA_ERRINFO_LINE) {
+		n += snprintf(ptr + n, size - n, "Line: %ld. ", errorinfo->line);
+		add_assoc_long(zerror, "line", errorinfo->line);
+	}
+	if (errorinfo->mask & RPA_ERRINFO_OFFSET) {
+		n += snprintf(ptr + n, size - n, "Offset: %ld. ", errorinfo->offset);
+		add_assoc_long(zerror, "offset", errorinfo->offset);
+	}
+	if (errorinfo->mask & RPA_ERRINFO_RULEID) {
+		n += snprintf(ptr + n, size - n, "RuleId: %ld. ", errorinfo->ruleid);
+		add_assoc_long(zerror, "rid", errorinfo->ruleid);
+	}
+	if (errorinfo->mask & RPA_ERRINFO_NAME) {
+		n += snprintf(ptr + n, size - n, "Name: %s. ", errorinfo->name);
+		add_assoc_string(zerror, "name", errorinfo->name, 1);
+	}
 	add_assoc_stringl(zerror, "message", buffer, n, 1);
-    return zerror;
+	return zerror;
 }
 
 
 PHP_FUNCTION(rpa_dbex_error)
 {
 	zval *zres;
-    php_rpa_dbex *phpdbex;
-    zval *zerror = NULL;
-    rpa_errinfo_t errorinfo;
+	php_rpa_dbex *phpdbex;
+	zval *zerror = NULL;
+	rpa_errinfo_t errorinfo;
 
 	memset(&errorinfo, 0, sizeof(errorinfo));
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &zres) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &zres) == FAILURE) {
 		RETURN_LONG(-1);
-    }
-    ZEND_FETCH_RESOURCE(phpdbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
-    rpa_dbex_lasterrorinfo(phpdbex->dbex, &errorinfo);
-    zerror = rpa_zvalerror(&errorinfo);
+	}
+	ZEND_FETCH_RESOURCE(phpdbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
+	rpa_dbex_lasterrorinfo(phpdbex->dbex, &errorinfo);
+	zerror = rpa_zvalerror(&errorinfo);
 	RETURN_ZVAL(zerror, 1, 0);
 }
 
@@ -510,17 +510,17 @@ PHP_FUNCTION(rpa_stat_error)
 {
 	zval *zres;
 	char buffer[1000];
-    php_rpa_stat *phpstat;
-    zval *zerror = NULL;
-    rpa_errinfo_t errorinfo;
+	php_rpa_stat *phpstat;
+	zval *zerror = NULL;
+	rpa_errinfo_t errorinfo;
 
 	memset(&errorinfo, 0, sizeof(errorinfo));
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &zres) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &zres) == FAILURE) {
 		RETURN_LONG(-1);
-    }
-    ZEND_FETCH_RESOURCE(phpstat, php_rpa_stat*, &zres, -1, PHP_RPA_STAT_RES_NAME, le_rpa_stat);
-    rpa_stat_lasterrorinfo(phpstat->stat, &errorinfo);
-    zerror = rpa_zvalerror(&errorinfo);
+	}
+	ZEND_FETCH_RESOURCE(phpstat, php_rpa_stat*, &zres, -1, PHP_RPA_STAT_RES_NAME, le_rpa_stat);
+	rpa_stat_lasterrorinfo(phpstat->stat, &errorinfo);
+	zerror = rpa_zvalerror(&errorinfo);
 	RETURN_ZVAL(zerror, 1, 0);
 }
 
@@ -550,36 +550,36 @@ static void rpa_records2array(const rchar *input, rarray_t *records, zval *zreco
 PHP_FUNCTION(rpa_stat_create)
 {
 	zval *zres;
-    php_rpa_dbex *phpdbex;
-    php_rpa_stat *phpstat;
+	php_rpa_dbex *phpdbex;
+	php_rpa_stat *phpstat;
 	int ret;
 	long stackSize = 0L;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r|l", &zres, &stackSize) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r|l", &zres, &stackSize) == FAILURE) {
 		RETURN_LONG(-1);
-    }
-    ZEND_FETCH_RESOURCE(phpdbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
-    phpstat = emalloc(sizeof(php_rpa_stat));
-    phpstat->stat = rpa_stat_create(phpdbex->dbex, stackSize);
-    ZEND_REGISTER_RESOURCE(return_value, phpstat, le_rpa_stat);
+	}
+	ZEND_FETCH_RESOURCE(phpdbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
+	phpstat = emalloc(sizeof(php_rpa_stat));
+	phpstat->stat = rpa_stat_create(phpdbex->dbex, stackSize);
+	ZEND_REGISTER_RESOURCE(return_value, phpstat, le_rpa_stat);
 }
 
 
 PHP_FUNCTION(rpa_stat_match)
 {
 	zval *zstat;
-    php_rpa_stat *phpstat;
+	php_rpa_stat *phpstat;
 	long rid;
 	long encoding;
 	long ret;
 	char *input;
 	int input_len;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rlls", &zstat, &rid, &encoding, &input, &input_len) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rlls", &zstat, &rid, &encoding, &input, &input_len) == FAILURE) {
 		RETURN_LONG(-1);
-    }
-    ZEND_FETCH_RESOURCE(phpstat, php_rpa_stat*, &zstat, -1, PHP_RPA_STAT_RES_NAME, le_rpa_stat);
-    ret = rpa_stat_match(phpstat->stat, rid, encoding, input, input, input + input_len);
+	}
+	ZEND_FETCH_RESOURCE(phpstat, php_rpa_stat*, &zstat, -1, PHP_RPA_STAT_RES_NAME, le_rpa_stat);
+	ret = rpa_stat_match(phpstat->stat, rid, encoding, input, input, input + input_len);
 	RETURN_LONG(ret);
 }
 
@@ -587,7 +587,7 @@ PHP_FUNCTION(rpa_stat_match)
 PHP_FUNCTION(rpa_stat_scan)
 {
 	zval *zstat;
-    php_rpa_stat *phpstat;
+	php_rpa_stat *phpstat;
 	long rid;
 	long encoding;
 	long ret;
@@ -596,11 +596,11 @@ PHP_FUNCTION(rpa_stat_scan)
 	zval *zwhere;
 	const char *where = NULL;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rllsz", &zstat, &rid, &encoding, &input, &input_len, &zwhere) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rllsz", &zstat, &rid, &encoding, &input, &input_len, &zwhere) == FAILURE) {
 		RETURN_LONG(-1);
-    }
-    ZEND_FETCH_RESOURCE(phpstat, php_rpa_stat*, &zstat, -1, PHP_RPA_STAT_RES_NAME, le_rpa_stat);
-    ret = rpa_stat_scan(phpstat->stat, rid, encoding, input, input, input + input_len, &where);
+	}
+	ZEND_FETCH_RESOURCE(phpstat, php_rpa_stat*, &zstat, -1, PHP_RPA_STAT_RES_NAME, le_rpa_stat);
+	ret = rpa_stat_scan(phpstat->stat, rid, encoding, input, input, input + input_len, &where);
 	if (ret > 0) {
 		ZVAL_LONG(zwhere, where - input);
 	} else {
@@ -613,7 +613,7 @@ PHP_FUNCTION(rpa_stat_scan)
 PHP_FUNCTION(rpa_stat_parse)
 {
 	zval *zstat;
-    php_rpa_stat *phpstat;
+	php_rpa_stat *phpstat;
 	long rid;
 	long encoding;
 	long ret, i;
@@ -622,20 +622,20 @@ PHP_FUNCTION(rpa_stat_parse)
 	zval *zrecords = NULL;
 	rarray_t *records = rpa_records_create();
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rlls|z", &zstat, &rid, &encoding, &input, &input_len, &zrecords) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rlls|z", &zstat, &rid, &encoding, &input, &input_len, &zrecords) == FAILURE) {
 		RETURN_LONG(-1);
-    }
-    ZEND_FETCH_RESOURCE(phpstat, php_rpa_stat*, &zstat, -1, PHP_RPA_STAT_RES_NAME, le_rpa_stat);
-    ret = rpa_stat_parse(phpstat->stat, rid, encoding, input, input, input + input_len, records);
-    if (ret <= 0) {
-    	if (zrecords)
-    		ZVAL_NULL(zrecords);
-    	rpa_records_destroy(records);
-    	RETURN_LONG(ret);
-    }
-    if (zrecords) {
-    	rpa_records2array(input, records, zrecords);
-    }
+	}
+	ZEND_FETCH_RESOURCE(phpstat, php_rpa_stat*, &zstat, -1, PHP_RPA_STAT_RES_NAME, le_rpa_stat);
+	ret = rpa_stat_parse(phpstat->stat, rid, encoding, input, input, input + input_len, records);
+	if (ret <= 0) {
+		if (zrecords)
+			ZVAL_NULL(zrecords);
+		rpa_records_destroy(records);
+		RETURN_LONG(ret);
+	}
+	if (zrecords) {
+		rpa_records2array(input, records, zrecords);
+	}
 	rpa_records_destroy(records);
 	RETURN_LONG(ret);
 }
@@ -656,24 +656,24 @@ PHP_FUNCTION(rpaparse)
 	zval *zrecords = NULL;
 	rarray_t *records = rpa_records_create();
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sls|zz", &bnf, &bnf_len, &encoding, &input, &input_len, &zrecords, &zerror) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sls|zz", &bnf, &bnf_len, &encoding, &input, &input_len, &zrecords, &zerror) == FAILURE) {
 		RETURN_LONG(-1);
-    }
-    dbex = rpa_dbex_create();
-    if (rpa_dbex_open(dbex) < 0)
-    	goto dbexerror;
-    if (rpa_dbex_load(dbex, bnf, bnf_len) < 0)
-    	goto dbexerror;
-    rpa_dbex_close(dbex);
-    if (rpa_dbex_compile(dbex) < 0)
-    	goto dbexerror;
-    stat = rpa_stat_create(dbex, 16000);
-    ret = rpa_stat_parse(stat, rpa_dbex_last(dbex), encoding, input, input, input + input_len, records);
-    if (ret < 0)
-    	goto staterror;
-    if (ret > 0 && zrecords) {
-       	rpa_records2array(input, records, zrecords);
-    }
+	}
+	dbex = rpa_dbex_create();
+	if (rpa_dbex_open(dbex) < 0)
+		goto dbexerror;
+	if (rpa_dbex_load(dbex, bnf, bnf_len) < 0)
+		goto dbexerror;
+	rpa_dbex_close(dbex);
+	if (rpa_dbex_compile(dbex) < 0)
+		goto dbexerror;
+	stat = rpa_stat_create(dbex, 16000);
+	ret = rpa_stat_parse(stat, rpa_dbex_last(dbex), encoding, input, input, input + input_len, records);
+	if (ret < 0)
+		goto staterror;
+	if (ret > 0 && zrecords) {
+		rpa_records2array(input, records, zrecords);
+	}
 
 	if (zerror) {
 		ZVAL_NULL(zerror);
@@ -730,28 +730,28 @@ PHP_FUNCTION(rpascan)
 	zval *zerror = NULL;
 	zval *zwhere = NULL;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sls|zz", &bnf, &bnf_len, &encoding, &input, &input_len, &zwhere, &zerror) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sls|zz", &bnf, &bnf_len, &encoding, &input, &input_len, &zwhere, &zerror) == FAILURE) {
 		RETURN_LONG(-1);
-    }
-    dbex = rpa_dbex_create();
-    if (rpa_dbex_open(dbex) < 0)
-    	goto dbexerror;
-    if (rpa_dbex_load(dbex, bnf, bnf_len) < 0)
-    	goto dbexerror;
-    rpa_dbex_close(dbex);
-    if (rpa_dbex_compile(dbex) < 0)
-    	goto dbexerror;
-    stat = rpa_stat_create(dbex, 16000);
-    ret = rpa_stat_scan(stat, rpa_dbex_last(dbex), encoding, input, input, input + input_len, &where);
-    if (ret < 0)
-    	goto staterror;
-    if (zwhere) {
+	}
+	dbex = rpa_dbex_create();
+	if (rpa_dbex_open(dbex) < 0)
+		goto dbexerror;
+	if (rpa_dbex_load(dbex, bnf, bnf_len) < 0)
+		goto dbexerror;
+	rpa_dbex_close(dbex);
+	if (rpa_dbex_compile(dbex) < 0)
+		goto dbexerror;
+	stat = rpa_stat_create(dbex, 16000);
+	ret = rpa_stat_scan(stat, rpa_dbex_last(dbex), encoding, input, input, input + input_len, &where);
+	if (ret < 0)
+		goto staterror;
+	if (zwhere) {
 		if (ret > 0 && where) {
 			ZVAL_LONG(zwhere, where - input);
 		} else {
 			ZVAL_NULL(zwhere);
 		}
-    }
+	}
 	if (zerror) {
 		ZVAL_NULL(zerror);
 	}
@@ -798,21 +798,21 @@ PHP_FUNCTION(rpamatch)
 	int input_len;
 	zval *zerror = NULL;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sls|z", &bnf, &bnf_len, &encoding, &input, &input_len, &zerror) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sls|z", &bnf, &bnf_len, &encoding, &input, &input_len, &zerror) == FAILURE) {
 		RETURN_LONG(-1);
-    }
-    dbex = rpa_dbex_create();
-    if (rpa_dbex_open(dbex) < 0)
-    	goto dbexerror;
-    if (rpa_dbex_load(dbex, bnf, bnf_len) < 0)
-    	goto dbexerror;
-    rpa_dbex_close(dbex);
-    if (rpa_dbex_compile(dbex) < 0)
-    	goto dbexerror;
-    stat = rpa_stat_create(dbex, 16000);
-    ret = rpa_stat_match(stat, rpa_dbex_last(dbex), encoding, input, input, input + input_len);
-    if (ret < 0)
-    	goto staterror;
+	}
+	dbex = rpa_dbex_create();
+	if (rpa_dbex_open(dbex) < 0)
+		goto dbexerror;
+	if (rpa_dbex_load(dbex, bnf, bnf_len) < 0)
+		goto dbexerror;
+	rpa_dbex_close(dbex);
+	if (rpa_dbex_compile(dbex) < 0)
+		goto dbexerror;
+	stat = rpa_stat_create(dbex, 16000);
+	ret = rpa_stat_match(stat, rpa_dbex_last(dbex), encoding, input, input, input + input_len);
+	if (ret < 0)
+		goto staterror;
 	if (zerror) {
 		ZVAL_NULL(zerror);
 	}

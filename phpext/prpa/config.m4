@@ -18,46 +18,46 @@ dnl Make sure that the comment is aligned:
 dnl [  --enable-prpa           Enable prpa support])
 
 
-PHP_ARG_WITH(rtk, path to the rtk dir,
-[  --with-rtk              Path to the RTK base dir])
+PHP_ARG_WITH(rpatk, path to the rpatk dir,
+[  --with-rpatk              Path to the RPATK base dir])
 
 if test "$PHP_PRPA" != "no"; then
   dnl Write more examples of tests here...
 
-  dnl # --with-rtk -> check with-path
+  dnl # --with-rpatk -> check with-path
   SEARCH_PATH="/usr/local /usr ../../.."     # you might want to change this
   SEARCH_FOR="rpa/rpadbex.h"       		 # you most likely want to change this
-  AC_MSG_CHECKING([for $PHP_RTK/$SEARCH_FOR files in default path])
-  if test -r $PHP_RTK/$SEARCH_FOR; then # path given as parameter
+  AC_MSG_CHECKING([for $PHP_RPATK/$SEARCH_FOR files in default path])
+  if test -r $PHP_RPATK/$SEARCH_FOR; then # path given as parameter
     AC_MSG_RESULT([found])
-    RTK_DIR=$PHP_RTK
+    RPATK_DIR=$PHP_RPATK
   else # search default path list
     AC_MSG_RESULT([not found])
-    AC_MSG_CHECKING([for rtk/$SEARCH_FOR in default path])
+    AC_MSG_CHECKING([for rpatk/$SEARCH_FOR in default path])
     for i in $SEARCH_PATH ; do
-      if test -r $i/rtk/$SEARCH_FOR; then
-        RTK_DIR=$i/rtk
+      if test -r $i/rpatk/$SEARCH_FOR; then
+        RPATK_DIR=$i/rpatk
         AC_MSG_RESULT(found in $i)
       fi
     done
   fi
-  if test -z "$RTK_DIR"; then
+  if test -z "$RPATK_DIR"; then
     AC_MSG_RESULT([not found])
-    AC_MSG_ERROR([RTK dir not found in $SEARCH_PATH])
+    AC_MSG_ERROR([RPATK dir not found in $SEARCH_PATH])
   fi
 
   OS_DIR=linux
   MACH=`uname -m`
-  ARCH_DIR=$RTK_DIR/arch/$OS_DIR/$MACH
-  RLIB_DIR=$RTK_DIR/rlib
-  RVM_DIR=$RTK_DIR/rvm
-  RPA_DIR=$RTK_DIR/rpa
-  RLIB_LIBDIR=$RTK_DIR/rlib/build/$OS_DIR/$MACH/out
-  RVM_LIBDIR=$RTK_DIR/rvm/build/$OS_DIR/$MACH/out
-  RPA_LIBDIR=$RTK_DIR/rpa/build/$OS_DIR/$MACH/out
+  ARCH_DIR=$RPATK_DIR/arch/$OS_DIR/$MACH
+  RLIB_DIR=$RPATK_DIR/rlib
+  RVM_DIR=$RPATK_DIR/rvm
+  RPA_DIR=$RPATK_DIR/rpa
+  RLIB_LIBDIR=$RPATK_DIR/rlib/build/$OS_DIR/$MACH/out
+  RVM_LIBDIR=$RPATK_DIR/rvm/build/$OS_DIR/$MACH/out
+  RPA_LIBDIR=$RPATK_DIR/rpa/build/$OS_DIR/$MACH/out
 
 
-  AC_MSG_RESULT([RTK dir is: $RTK_DIR])
+  AC_MSG_RESULT([RPATK dir is: $RPATK_DIR])
   AC_MSG_RESULT([ARCH dir is: $ARCH_DIR])
   AC_MSG_RESULT([RLIB dir is: $RLIB_DIR])
   AC_MSG_RESULT([RVM dir is: $RVM_DIR])
@@ -67,7 +67,7 @@ if test "$PHP_PRPA" != "no"; then
   AC_MSG_RESULT([RPA lib dir is: $RPA_LIBDIR])
 
 
-  # --with-rtk -> add include path
+  # --with-rpatk -> add include path
   PHP_ADD_INCLUDE($ARCH_DIR)
   PHP_ADD_INCLUDE($RLIB_DIR)
   PHP_ADD_INCLUDE($RVM_DIR)
@@ -93,7 +93,7 @@ if test "$PHP_PRPA" != "no"; then
   dnl   AC_MSG_ERROR([Please reinstall the prpa distribution])
   dnl fi
 
-  dnl # --with-rtk -> check for lib and symbol presence
+  dnl # --with-rpatk -> check for lib and symbol presence
   LIBNAME=rpa # you may want to change this
   LIBSYMBOL=rpa_dbex_version #r_utf8_mbtowc # you most likely want to change this 
 
