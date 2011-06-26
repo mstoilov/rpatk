@@ -217,35 +217,6 @@ static rinteger rpa_record2long(rparecord_t *prec, ruint32 *num)
 
 static rinteger rpa_dbex_rh_uid(rpadbex_t *dbex, rlong rec)
 {
-/*
-	const rchar *name = NULL;
-	rsize_t namesize;
-	ruint32 uid = 0;
-	rparecord_t *pnumrec;
-	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
-
-	if (prec->type & RPA_RECORD_START) {
-		if (rpa_dbex_rulename(dbex, rec, &name, &namesize) < 0) {
-			RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_SYNTAXERROR);
-			return -1;
-		}
-		pnumrec = rpa_dbex_record(dbex, rpa_recordtree_lastchild(dbex->records, rec, RPA_RECORD_END));
-		if (!pnumrec) {
-			RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_SYNTAXERROR);
-			return -1;
-		}
-		if (rpa_record2long(pnumrec, &uid) < 0) {
-			RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_SYNTAXERROR);
-			return -1;
-		}
-		rpa_compiler_rulepref_set_ruleuid(dbex->co, name, namesize, uid);
-		rpa_compiler_rulepref_set_flag(dbex->co, name, namesize, RPA_RFLAG_EMITRECORD);
-	} else if (prec->type & RPA_RECORD_END) {
-
-	}
-	return 0;
-*/
-
 	const rchar *name = NULL;
 	rsize_t namesize;
 	ruint32 uid = 0;
@@ -335,22 +306,6 @@ static rinteger rpa_dbex_rh_emit(rpadbex_t *dbex, rlong rec)
 	rpa_dbex_debug_recordhead(dbex, rec);
 	rpa_dbex_debug_recordtail(dbex, rec);
 	return 0;
-
-	/*
-	const rchar *name = NULL;
-	rsize_t namesize;
-	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
-
-	if (prec->type & RPA_RECORD_START) {
-		if (rpa_dbex_rulename(dbex, rec, &name, &namesize) < 0) {
-			return -1;
-		}
-		rpa_compiler_rulepref_set_flag(dbex->co, name, namesize, RPA_RFLAG_EMITRECORD);
-	} else if (prec->type & RPA_RECORD_END) {
-
-	}
-	return 0;
-	*/
 }
 
 
@@ -378,22 +333,6 @@ static rinteger rpa_dbex_rh_noemit(rpadbex_t *dbex, rlong rec)
 	rpa_dbex_debug_recordhead(dbex, rec);
 	rpa_dbex_debug_recordtail(dbex, rec);
 	return 0;
-
-/*
-	const rchar *name = NULL;
-	rsize_t namesize;
-	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
-
-	if (prec->type & RPA_RECORD_START) {
-		if (rpa_dbex_rulename(dbex, rec, &name, &namesize) < 0) {
-			return -1;
-		}
-		rpa_compiler_rulepref_clear_flag(dbex->co, name, namesize, RPA_RFLAG_EMITRECORD);
-	} else if (prec->type & RPA_RECORD_END) {
-
-	}
-	return 0;
-*/
 }
 
 
@@ -436,17 +375,6 @@ static rinteger rpa_dbex_rh_emitall(rpadbex_t *dbex, rlong rec)
 	rpa_dbex_debug_recordhead(dbex, rec);
 	rpa_dbex_debug_recordtail(dbex, rec);
 	return 0;
-
-/*
-	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
-
-	if (prec->type & RPA_RECORD_START) {
-		rpa_dbex_setemit(dbex, TRUE);
-	} else if (prec->type & RPA_RECORD_END) {
-
-	}
-	return 0;
-*/
 }
 
 
@@ -469,16 +397,6 @@ static rinteger rpa_dbex_rh_emitnone(rpadbex_t *dbex, rlong rec)
 	rpa_dbex_debug_recordhead(dbex, rec);
 	rpa_dbex_debug_recordtail(dbex, rec);
 	return 0;
-/*
-	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
-
-	if (prec->type & RPA_RECORD_START) {
-		rpa_dbex_setemit(dbex, FALSE);
-	} else if (prec->type & RPA_RECORD_END) {
-
-	}
-	return 0;
-*/
 }
 
 
@@ -614,23 +532,6 @@ static rinteger rpa_dbex_rh_specialchar(rpadbex_t *dbex, rlong rec)
 	rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_dbex_debug_recordtail(dbex, rec);
 	return 0;
-
-
-/*
-	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
-
-	if (prec->type & RPA_RECORD_END) {
-		ruint32 wc = 0;
-		if (r_utf8_mbtowc(&wc, (const ruchar*) prec->input, (const ruchar*)prec->input + prec->inputsiz) < 0) {
-
-			return -1;
-		}
-		rvm_codegen_addins(dbex->co->cg, rvm_asm(rpa_dbex_getmatchspecialchr(prec->usertype & RPA_MATCH_MASK), DA, XX, XX, wc));
-		rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
-	}
-
-	return 0;
-*/
 }
 
 
@@ -655,20 +556,6 @@ static rinteger rpa_dbex_rh_cls(rpadbex_t *dbex, rlong rec)
 	rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_dbex_debug_recordtail(dbex, rec);
 	return 0;
-
-/*
-	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
-
-	if (prec->type & RPA_RECORD_START) {
-		rpa_compiler_class_begin(dbex->co, prec->usertype & RPA_MATCH_MASK);
-
-	} else if (prec->type & RPA_RECORD_END) {
-		rpa_compiler_class_end(dbex->co);
-		rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
-	}
-
-	return 0;
-*/
 }
 
 
@@ -697,23 +584,6 @@ static rinteger rpa_dbex_rh_clschar(rpadbex_t *dbex, rlong rec)
 	rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BGRE, DA, XX, XX, 0));
 	rpa_dbex_debug_recordtail(dbex, rec);
 	return 0;
-
-
-/*
-	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
-
-	if (prec->type & RPA_RECORD_END) {
-		ruint32 wc = 0;
-		if (r_utf8_mbtowc(&wc, (const ruchar*) prec->input, (const ruchar*)prec->input + prec->inputsiz) < 0) {
-
-			return -1;
-		}
-		rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, wc));
-		rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BGRE, DA, XX, XX, 0));
-	}
-
-	return 0;
-*/
 }
 
 
@@ -740,6 +610,7 @@ static rinteger rpa_dbex_rh_minexp(rpadbex_t *dbex, rlong rec)
 	return 0;
 }
 
+
 static rinteger rpa_dbex_rh_exp(rpadbex_t *dbex, rlong rec)
 {
 	rarray_t *records = dbex->records;
@@ -761,21 +632,6 @@ static rinteger rpa_dbex_rh_exp(rpadbex_t *dbex, rlong rec)
 	rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_dbex_debug_recordtail(dbex, rec);
 	return 0;
-
-
-/*
-	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
-
-	if (prec->type & RPA_RECORD_START) {
-		rpa_compiler_exp_begin(dbex->co, prec->usertype & RPA_MATCH_MASK);
-
-	} else if (prec->type & RPA_RECORD_END) {
-		rpa_compiler_exp_end(dbex->co);
-		rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
-	}
-
-	return 0;
-*/
 }
 
 
@@ -800,21 +656,6 @@ static rinteger rpa_dbex_rh_orop(rpadbex_t *dbex, rlong rec)
 	rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_dbex_debug_recordtail(dbex, rec);
 	return 0;
-
-
-/*
-	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
-
-	if (prec->type & RPA_RECORD_START) {
-		rpa_compiler_altexp_begin(dbex->co, prec->usertype & RPA_MATCH_MASK);
-
-	} else if (prec->type & RPA_RECORD_END) {
-		rpa_compiler_altexp_end(dbex->co);
-		rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
-	}
-
-	return 0;
-*/
 }
 
 
@@ -839,21 +680,6 @@ static rinteger rpa_dbex_rh_norop(rpadbex_t *dbex, rlong rec)
 	rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BGRE, DA, XX, XX, 0));
 	rpa_dbex_debug_recordtail(dbex, rec);
 	return 0;
-
-
-/*
-	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
-
-	if (prec->type & RPA_RECORD_START) {
-		rpa_compiler_altexp_begin(dbex->co, prec->usertype & RPA_MATCH_MASK);
-
-	} else if (prec->type & RPA_RECORD_END) {
-		rpa_compiler_altexp_end(dbex->co);
-		rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BGRE, DA, XX, XX, 0));
-	}
-
-	return 0;
-*/
 }
 
 
@@ -878,21 +704,6 @@ static rinteger rpa_dbex_rh_notop(rpadbex_t *dbex, rlong rec)
 	rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_dbex_debug_recordtail(dbex, rec);
 	return 0;
-
-
-/*
-	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
-
-	if (prec->type & RPA_RECORD_START) {
-		rpa_compiler_notexp_begin(dbex->co, prec->usertype & RPA_MATCH_MASK);
-
-	} else if (prec->type & RPA_RECORD_END) {
-		rpa_compiler_notexp_end(dbex->co);
-		rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
-	}
-
-	return 0;
-*/
 }
 
 
@@ -921,24 +732,6 @@ static rinteger rpa_dbex_rh_range(rpadbex_t *dbex, rlong rec)
 	rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BGRE, DA, XX, XX, 0));
 	rpa_dbex_debug_recordtail(dbex, rec);
 	return 0;
-
-
-/*
-	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
-
-	if (prec->type & RPA_RECORD_START) {
-		dbex->co->currange.p1 = 0;
-		dbex->co->currange.p2 = 0;
-	} else if (prec->type & RPA_RECORD_END) {
-		if (dbex->co->currange.p1 < dbex->co->currange.p2)
-			rvm_codegen_addins(dbex->co->cg, rvm_asm2(RPA_MATCHRNG_NAN, DA, XX, XX, dbex->co->currange.p1, dbex->co->currange.p2));
-		else
-			rvm_codegen_addins(dbex->co->cg, rvm_asm2(RPA_MATCHRNG_NAN, DA, XX, XX, dbex->co->currange.p2, dbex->co->currange.p1));
-		rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BGRE, DA, XX, XX, 0));
-	}
-
-	return 0;
-*/
 }
 
 
@@ -976,32 +769,6 @@ static rinteger rpa_dbex_rh_numrange(rpadbex_t *dbex, rlong rec)
 	rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BGRE, DA, XX, XX, 0));
 	rpa_dbex_debug_recordtail(dbex, rec);
 	return 0;
-
-
-/*
-	rparecord_t *prec = (rparecord_t *) rpa_dbex_record(dbex, rec);
-
-	if (!prec)
-		return -1;
-
-	if (prec->type & RPA_RECORD_START) {
-		rparecord_t *child;
-		child = rpa_dbex_record(dbex, rpa_recordtree_firstchild(dbex->records, rec, RPA_RECORD_END));
-		if (rpa_record2long(child, &dbex->co->currange.p1) < 0)
-			return -1;
-		child = rpa_dbex_record(dbex, rpa_recordtree_lastchild(dbex->records, rec, RPA_RECORD_END));
-		if (rpa_record2long(child, &dbex->co->currange.p2) < 0)
-			return -1;
-	} else if (prec->type & RPA_RECORD_END) {
-		if (dbex->co->currange.p1 < dbex->co->currange.p2)
-			rvm_codegen_addins(dbex->co->cg, rvm_asm2(RPA_MATCHRNG_NAN, DA, XX, XX, dbex->co->currange.p1, dbex->co->currange.p2));
-		else
-			rvm_codegen_addins(dbex->co->cg, rvm_asm2(RPA_MATCHRNG_NAN, DA, XX, XX, dbex->co->currange.p2, dbex->co->currange.p1));
-		rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BGRE, DA, XX, XX, 0));
-	}
-
-	return 0;
-*/
 }
 
 
@@ -1030,26 +797,6 @@ static rinteger rpa_dbex_rh_clsnum(rpadbex_t *dbex, rlong rec)
 	rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BGRE, DA, XX, XX, 0));
 	rpa_dbex_debug_recordtail(dbex, rec);
 	return 0;
-
-/*
-	rparecord_t *prec = (rparecord_t *) rpa_dbex_record(dbex, rec);
-
-	if (!prec)
-		return -1;
-	if (prec->type & RPA_RECORD_START) {
-
-	} else if (prec->type & RPA_RECORD_END) {
-		ruint32 wc;
-		rparecord_t *child;
-		child = rpa_dbex_record(dbex, rpa_recordtree_firstchild(dbex->records, rec, RPA_RECORD_END));
-		if (rpa_record2long(child, &wc) < 0)
-			return -1;
-		rvm_codegen_addins(dbex->co->cg, rvm_asm(rpa_dbex_getmatchchr(prec->usertype & RPA_MATCH_MASK), DA, XX, XX, wc));
-		rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BGRE, DA, XX, XX, 0));
-	}
-
-	return 0;
-*/
 }
 
 
@@ -1077,23 +824,6 @@ static rinteger rpa_dbex_rh_beginchar(rpadbex_t *dbex, rlong rec)
 	dbex->co->currange.p1 = wc;
 	rpa_dbex_debug_recordtail(dbex, rec);
 	return 0;
-
-/*
-	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
-
-	if (prec->type & RPA_RECORD_START) {
-
-	} else if (prec->type & RPA_RECORD_END) {
-		ruint32 wc = 0;
-		if (r_utf8_mbtowc(&wc, (const ruchar*) prec->input, (const ruchar*)prec->input + prec->inputsiz) < 0) {
-
-			return -1;
-		}
-		dbex->co->currange.p1 = wc;
-	}
-
-	return 0;
-*/
 }
 
 
@@ -1121,22 +851,6 @@ static rinteger rpa_dbex_rh_endchar(rpadbex_t *dbex, rlong rec)
 	dbex->co->currange.p2 = wc;
 	rpa_dbex_debug_recordtail(dbex, rec);
 	return 0;
-
-/*
-	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
-
-	if (prec->type & RPA_RECORD_START) {
-
-	} else if (prec->type & RPA_RECORD_END) {
-		ruint32 wc = 0;
-		if (r_utf8_mbtowc(&wc, (const ruchar*) prec->input, (const ruchar*)prec->input + prec->inputsiz) < 0) {
-
-			return -1;
-		}
-		dbex->co->currange.p2 = wc;
-	}
-	return 0;
-*/
 }
 
 
@@ -1168,27 +882,6 @@ static rinteger rpa_dbex_rh_branch(rpadbex_t *dbex, rlong rec)
 	}
 	rpa_dbex_debug_recordtail(dbex, rec);
 	return 0;
-
-/*
-	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
-
-	if (prec->type & RPA_RECORD_START) {
-		if (prec->usertype & RPA_NONLOOP_PATH) {
-			rpa_compiler_nonloopybranch_begin(dbex->co, prec->usertype & RPA_MATCH_MASK);
-		} else {
-			rpa_compiler_branch_begin(dbex->co, prec->usertype & RPA_MATCH_MASK);
-		}
-	} else if (prec->type & RPA_RECORD_END) {
-
-		if (prec->usertype & RPA_NONLOOP_PATH) {
-			rpa_compiler_nonloopybranch_end(dbex->co);
-		} else {
-			rpa_compiler_branch_end(dbex->co);
-		}
-
-	}
-	return 0;
-*/
 }
 
 
@@ -1207,8 +900,6 @@ static void rpa_dbex_rh_loopref(rpadbex_t *dbex, rparecord_t *prec)
 	rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_MOVS, R0, R_LOO, XX, 0));
 	rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rpa_compiler_exp_end(dbex->co);
-//	rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
-
 }
 
 
@@ -1270,58 +961,6 @@ static rinteger rpa_dbex_rh_aref(rpadbex_t *dbex, rlong rec)
 	rpa_dbex_debug_recordhead(dbex, rec);
 	rpa_dbex_debug_recordtail(dbex, rec);
 	return 0;
-
-
-#if 0
-	const rchar *name = NULL;
-	rsize_t namesize;
-	rpa_ruleinfo_t *info;
-	rparecord_t *prec = (rparecord_t *) r_array_slot(dbex->records, rec);
-
-	if (prec->type & RPA_RECORD_START) {
-		if (rpa_dbex_rulename(dbex, rec, &name, &namesize) < 0) {
-
-			return -1;
-		}
-
-		if ((prec->usertype & RPA_LOOP_PATH) && rpa_parseinfo_loopdetect(dbex, rec, rpa_dbex_firstinlined(dbex))) {
-			info = (rpa_ruleinfo_t *) r_harray_get(dbex->rules, rpa_dbex_lookup(dbex, name, namesize));
-			if (!info) {
-				RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_UNRESOLVEDSYMBOL);
-				RPA_DBEX_SETERRINFO_NAME(dbex, name, namesize);
-				return -1;
-			}
-			if (rpa_dbex_findinlined(dbex, info->startrec)) {
-				rpa_dbex_rh_loopref(dbex, prec);
-			} else {
-				if (prec->usertype & RPA_MATCH_OPTIONAL) {
-					/*
-					 * Most probably this is useless case - loop refs shouldn't have quantitative modifiers
-					 * but in case they do we wrap the inlined production rule in quantitative expression.
-					 * The inlined named rule can take the quantitative argument, but I just don't have
-					 * a clean way to pass it from here - so, lets play the records inside an expression that
-					 * has the right quantitative argument.
-					 * We ignore, it doesn't make sense for loops:
-					 * RPA_MATCH_MULTIPLE
-					 */
-					rpa_compiler_exp_begin(dbex->co, RPA_MATCH_OPTIONAL);
-					rpa_dbex_play_recordhandlers(dbex, info->startrec, info->sizerecs);
-					rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
-					rpa_compiler_exp_end(dbex->co);
-				} else {
-					rpa_dbex_play_recordhandlers(dbex, info->startrec, info->sizerecs);
-				}
-			}
-		} else {
-			rpa_compiler_reference(dbex->co, name, namesize, (prec->usertype & RPA_MATCH_MASK));
-		}
-		rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
-
-	} else if (prec->type & RPA_RECORD_END) {
-
-	}
-	return 0;
-#endif
 }
 
 
