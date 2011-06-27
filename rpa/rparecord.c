@@ -165,50 +165,6 @@ rlong rpa_recordtree_size(rarray_t *records, rlong rec)
 }
 
 
-rlong rpa_recordtree_rotatedown(rarray_t *records, rlong parent)
-{
-	rlong nlastchild;
-	rlong nallrecs = r_array_length(records);
-	rlong firstchild = rpa_recordtree_firstchild(records, parent, RPA_RECORD_START);
-	rlong lastchild = rpa_recordtree_lastchild(records, parent, RPA_RECORD_START);
-	rlong copysiz;
-
-	if (firstchild < 0 || lastchild == firstchild)
-		return -1;
-	/*
-	 * Copy the last child at the end
-	 */
-	nlastchild = rpa_recordtree_size(records, lastchild);
-	r_array_move(records, nallrecs, lastchild, nlastchild);
-
-	/*
-	 * Push down all children, but the last one (overwriting the last one)
-	 */
-	copysiz = lastchild - firstchild;
-	r_array_move(records, firstchild + nlastchild, firstchild, copysiz);
-
-	/*
-	 * Copy the last child to become the first one
-	 */
-	r_array_move(records, firstchild, nallrecs, nlastchild);
-
-	/*
-	 * Restore the original size
-	 */
-	r_array_setlength(records, nallrecs);
-	return 0;
-}
-
-
-rlong rpa_recordtree_rotateup(rarray_t *records, rlong parent)
-{
-	/*
-	 * Not implemented
-	 */
-	return -1;
-}
-
-
 rlong rpa_recordtree_copy(rarray_t *dst, rarray_t *src, rlong rec)
 {
 	rparecord_t *prec;
@@ -381,10 +337,6 @@ void rpa_record_dump(rarray_t *records, rlong rec)
 		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "START ");
 	if (prec->type & RPA_RECORD_END)
 		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "END   ");
-	if (prec->type & RPA_RECORD_HEAD)
-		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "HEAD ");
-	if (prec->type & RPA_RECORD_TAIL)
-		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "TAIL ");
 	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "%s ", prec->rule);
 
 	r_memset(buf + n, ' ', bufsize - n);

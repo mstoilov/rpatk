@@ -269,7 +269,6 @@ static void rpavm_swi_emitstart(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rec->type = RPA_RECORD_START;
 	rec->input = stat->instack[tp].input;
 	rec->inputsiz = 0;
-	rec->next = 0;
 }
 
 
@@ -301,7 +300,6 @@ static void rpavm_swi_emitend(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rec->ruleuid = ruledata->ruleuid;
 	rec->input = stat->instack[tp].input;
 	rec->inputsiz = stat->instack[tp + tplen].input - stat->instack[tp].input;
-	rec->next = 0;
 	startrec->size = tplen;
 	startrec->inputsiz = rec->inputsiz;
 }

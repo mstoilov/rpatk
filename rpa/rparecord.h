@@ -20,7 +20,7 @@
 
 /**
  * \file rparecord.h
- * \brief The public interface for working with the produced Abstract Syntax Tree (AST).
+ * \brief The public interface for working with Abstract Syntax Tree (AST), produced by @ref rpa_stat_parse.
  *
  *
  * <h2>Synopsis</h2>
@@ -30,6 +30,32 @@
  * a record \ref RPA_RECORD_START followed immediately by \ref RPA_RECORD_END (no child records in between).
  * Empty branches are considered leaves.
  *
+ * Example:
+ * Consider parsing a person name:
+ * @verbatim John M. Smith @endverbatim
+ *
+ * with the following BNF:
+ * @code
+ * first  ::= [A-Za-z]+
+ * middle ::= [A-Za-z]+ '.'?
+ * last   ::= [A-Za-z]+
+ * name   ::= <first> ' ' <middle> ' ' <last>
+ * @endcode
+ *
+ * The records produced by rpa_stat_parse would look like this:
+ * @code
+ * [record offset]    [record type]       [rule name]  [input offset]  [input size]  [input]
+ *  0                  RPA_RECORD_START    name         0               13            John M. Smith
+ *  1                  RPA_RECORD_START    first        0                4            John
+ *  2                  RPA_RECORD_END      first        0                4            John
+ *  3                  RPA_RECORD_START    middle       5                2            M.
+ *  4                  RPA_RECORD_END      middle       5                2            M.
+ *  5                  RPA_RECORD_START    last         8                5            Smith
+ *  6                  RPA_RECORD_END      last         8                5            Smith
+ *  7                  RPA_RECORD_END      name         0               13            John M. Smith
+ * @endcode
+ *
+ * Note: first, middle and last are enclosed within name's RPA_RECORD_START and RPA_RECORD_END
  */
 
 
@@ -46,34 +72,38 @@
 extern "C" {
 #endif
 
-#define RPA_RECORD_NONE (0)
-#define RPA_RECORD_START (1 << 0)
-#define RPA_RECORD_END (1 << 1)
-//#define RPA_RECORD_MATCH (1 << 2)
-#define RPA_RECORD_HEAD (1 << 3)
-#define RPA_RECORD_TAIL (1 << 4)
-
+#define RPA_RECORD_NONE (0)						/**< No record type - the record type is not initialized */
+#define RPA_RECORD_START (1 << 0)				/**< Start record - the parser generates this record before evaluating the rule. */
+#define RPA_RECORD_END (1 << 1)					/**< End record - the parser generates this record after evaluating the rule and the rule matched some input. */
 #define RPA_RECORD_INVALID_UID ((ruint32)-1)
 
 /**
- * \typedef rparecord_t
+ * typedef rparecord_t
+ */
+typedef struct rparecord_s rparecord_t;
+
+/**
+ * typedef rpa_recordtree_callback
+ */
+typedef rlong (*rpa_recordtree_callback)(rarray_t *records, rlong rec, rpointer userdata);
+
+
+/**
+ * \struct rparecord_s <rparecord.h> <rparecord.h>
  * \brief Abstract Syntax Tree (AST) construction element.
  */
-typedef struct rparecord_s {
-	rlong next;
-	const rchar *rule;
-	const rchar *input;
-	rsize_t inputsiz;
-	ruint32 type;
-	ruint32 top;
-	ruint32 size;
-	ruint32 ruleuid;
-	ruint32 usertype;
-	rword userdata;
-} rparecord_t;
+struct rparecord_s {
+	ruint32 top;			/**< This is a private member, used by the engine and is not significant to the user */
+	ruint32 size;			/**< This is a private member, used by the engine and is not significant to the user */
+	const rchar *rule;		/**< Name of the rule that generated this record */
+	const rchar *input;		/**< Pointer in the input stream */
+	rsize_t inputsiz;		/**< Size of input */
+	ruint32 type;			/**< Record Type: @ref RPA_RECORD_START or @ref RPA_RECORD_END */
+	ruint32 ruleuid;		/**< User specified Rule ID. If you used directive @ref emitid for this rulename, this member will contain the specified ID */
+	ruint32 usertype;		/**< User specified type. */
+	rword userdata;			/**< Scratch area. This member can be used to associate some user specific data with this record. */
+};
 
-
-typedef rlong (*rpa_recordtree_callback)(rarray_t *records, rlong rec, rpointer userdata);
 
 rlong rpa_recordtree_walk(rarray_t *src, rlong rec, rlong level, rpa_recordtree_callback callaback, rpointer userdata);
 rlong rpa_recordtree_get(rarray_t *records, rlong rec, rulong type);
@@ -82,10 +112,16 @@ rlong rpa_recordtree_lastchild(rarray_t *records, rlong rec, rulong type);
 rlong rpa_recordtree_next(rarray_t *records, rlong rec, rulong type);
 rlong rpa_recordtree_prev(rarray_t *records, rlong rec, rulong type);
 rlong rpa_recordtree_parent(rarray_t *records, rlong rec, rulong type);
-rlong rpa_recordtree_rotatedown(rarray_t *records, rlong parent);			/* Rotate children down, the last child becomes the first */
 rlong rpa_recordtree_size(rarray_t *records, rlong rec);					/* Size of the tree */
 rlong rpa_recordtree_copy(rarray_t *dst, rarray_t *src, rlong rec);
+
+/**
+ * Return a pointer to a record at offset rec
+ * @param records An array of records populated by a @ref rpa_stat_parse operation.
+ * @param rec record offset.
+ */
 rparecord_t *rpa_record_get(rarray_t *records, rlong rec);
+
 
 void rpa_record_dumpindented(rarray_t *records, rlong rec, rinteger level);
 void rpa_record_dump(rarray_t *records, rlong rec);
