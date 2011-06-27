@@ -1,5 +1,3 @@
-/*! \mainpage Users Manual
-This manual is divided in the following sections:
+/*! \mainpage RPA Users Manual
 - \subpage intro "Introduction"
-- \subpage overview "Overview"
 */
