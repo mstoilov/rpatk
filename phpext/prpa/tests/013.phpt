@@ -61,17 +61,54 @@ City = Seattle
 State = Washington
 ZIP = 98115
 
-rid: 1, SectionName: PersonName
-rid: 2, Name: FirstName
-rid: 3, Value: John
-rid: 2, Name: LastName
-rid: 3, Value: Smith
-rid: 1, SectionName: PersonAddress
-rid: 2, Name: Street
-rid: 3, Value: NE 231
-rid: 2, Name: City
-rid: 3, Value: Seattle
-rid: 2, Name: State
-rid: 3, Value: Washington
-rid: 2, Name: ZIP
-rid: 3, Value: 98115
+START rid: 4, Section: [PersonName]
+FirstName = John
+LastName = Smith
+
+
+START rid: 1, SectionName: PersonName
+END rid: 1, SectionName: PersonName
+START rid: 2, Name: FirstName
+END rid: 2, Name: FirstName
+START rid: 3, Value: John
+END rid: 3, Value: John
+START rid: 2, Name: LastName
+END rid: 2, Name: LastName
+START rid: 3, Value: Smith
+END rid: 3, Value: Smith
+END rid: 4, Section: [PersonName]
+FirstName = John
+LastName = Smith
+
+
+START rid: 4, Section: [PersonAddress]
+Street = NE 231
+; this is a comment
+City = Seattle
+State = Washington
+ZIP = 98115
+
+START rid: 1, SectionName: PersonAddress
+END rid: 1, SectionName: PersonAddress
+START rid: 2, Name: Street
+END rid: 2, Name: Street
+START rid: 3, Value: NE 231
+END rid: 3, Value: NE 231
+START rid: 2, Name: City
+END rid: 2, Name: City
+START rid: 3, Value: Seattle
+END rid: 3, Value: Seattle
+START rid: 2, Name: State
+END rid: 2, Name: State
+START rid: 3, Value: Washington
+END rid: 3, Value: Washington
+START rid: 2, Name: ZIP
+END rid: 2, Name: ZIP
+START rid: 3, Value: 98115
+END rid: 3, Value: 98115
+END rid: 4, Section: [PersonAddress]
+Street = NE 231
+; this is a comment
+City = Seattle
+State = Washington
+ZIP = 98115
