@@ -32,8 +32,10 @@ install:
 	+make -C $(SRCDIR)/rlib/build/$(OS)/$(ARCHDIR) install
 	+make -C $(SRCDIR)/rpa/build/$(OS)/$(ARCHDIR) install
 	+make -C $(SRCDIR)/rvm/build/$(OS)/$(ARCHDIR) install
+	+make -C $(SRCDIR)/rgrep/build/$(OS)/$(ARCHDIR) install
 
 uninstall:
 	+make -C $(SRCDIR)/rlib/build/$(OS)/$(ARCHDIR) uninstall
 	+make -C $(SRCDIR)/rpa/build/$(OS)/$(ARCHDIR) uninstall
 	+make -C $(SRCDIR)/rvm/build/$(OS)/$(ARCHDIR) uninstall
+	+make -C $(SRCDIR)/rgrep/build/$(OS)/$(ARCHDIR) uninstall

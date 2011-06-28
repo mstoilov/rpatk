@@ -1,3 +1,4 @@
+RPAGREP_BIN_INSTALL = /usr/bin
 RLIB_SRCDIR = $(SRCDIR)/rlib
 RVM_SRCDIR = $(SRCDIR)/rvm
 RPA_SRCDIR = $(SRCDIR)/rpa
@@ -39,5 +40,11 @@ clean:
 	@rm -f $(SRCDIR)/*~
 	@rm -f $(OBJECTS)
 	@rm -f $(OUTDIR)/$(RPAGREP)
+
+install:
+	cp $(OUTDIR)/$(RPAGREP) $(RPAGREP_BIN_INSTALL)
+
+uninstall:
+	rm $(RPAGREP_BIN_INSTALL)/$(RPAGREP)
 
 

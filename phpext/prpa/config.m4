@@ -48,6 +48,9 @@ if test "$PHP_PRPA" != "no"; then
 
   OS_DIR=linux
   MACH=`uname -m`
+  if [[ $MACH == "i486" ]]; then MACH=i386; echo "MACH set to: $MACH"; fi
+  if [[ $MACH == "i586" ]]; then MACH=i386; echo "MACH set to: $MACH"; fi
+  if [[ $MACH == "i686" ]]; then MACH=i386; echo "MACH set to: $MACH"; fi
   ARCH_DIR=$RPATK_DIR/arch/$OS_DIR/$MACH
   RLIB_DIR=$RPATK_DIR/rlib
   RVM_DIR=$RPATK_DIR/rvm
