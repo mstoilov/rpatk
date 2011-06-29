@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "rvmcpu.h"
-#include "rvmreg.h"
-#include "rvmcodegen.h"
-#include "rvmcodemap.h"
+#include "rvm/rvmcpu.h"
+#include "rvm/rvmreg.h"
+#include "rvm/rvmcodegen.h"
+#include "rvm/rvmcodemap.h"
 
 
 static void test_swi_print_r(rvmcpu_t *cpu, rvm_asmins_t *ins)

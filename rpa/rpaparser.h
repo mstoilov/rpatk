@@ -1,8 +1,8 @@
 #ifndef _RPAPARSER_H_
 #define _RPAPARSER_H_
 
-#include "rpacompiler.h"
-#include "rpastat.h"
+#include "rpa/rpacompiler.h"
+#include "rpa/rpastat.h"
 
 #define RPA_PARSER_STACK 8196
 

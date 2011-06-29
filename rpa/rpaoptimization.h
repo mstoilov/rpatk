@@ -1,7 +1,7 @@
 #ifndef _RPAOPTIMIZATION_H_
 #define _RPAOPTIMIZATION_H_
 
-#include "rparecord.h"
+#include "rpa/rparecord.h"
 
 #ifdef __cplusplus
 extern "C" {

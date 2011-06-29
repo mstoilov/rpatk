@@ -20,17 +20,17 @@
 
 #include <stdio.h>
 #include <stdarg.h>
-#include "rvmcpu.h"
-#include "rvmoperator.h"
-#include "rvmoperatorbin.h"
-#include "rvmoperatorcast.h"
-#include "rvmoperatornot.h"
-#include "rvmoperatorlogicnot.h"
-#include "rvmcodemap.h"
-#include "rmem.h"
-#include "rstring.h"
-#include "rvmreg.h"
-#include "rmap.h"
+#include "rvm/rvmcpu.h"
+#include "rvm/rvmoperator.h"
+#include "rvm/rvmoperatorbin.h"
+#include "rvm/rvmoperatorcast.h"
+#include "rvm/rvmoperatornot.h"
+#include "rvm/rvmoperatorlogicnot.h"
+#include "rvm/rvmcodemap.h"
+#include "rlib/rmem.h"
+#include "rlib/rstring.h"
+#include "rvm/rvmreg.h"
+#include "rlib/rmap.h"
 
 #define RVM_DEFAULT_STACKSIZE (4 * 1024)
 

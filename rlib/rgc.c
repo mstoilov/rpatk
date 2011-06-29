@@ -1,4 +1,4 @@
-#include "rgc.h"
+#include "rlib/rgc.h"
 
 
 robject_t *r_gc_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy)

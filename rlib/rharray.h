@@ -2,11 +2,11 @@
 #define _RHARRAY_H_
 
 #include "rtypes.h"
-#include "rarray.h"
-#include "rcarray.h"
-#include "rhash.h"
-#include "rstring.h"
-#include "robject.h"
+#include "rlib/rarray.h"
+#include "rlib/rcarray.h"
+#include "rlib/rhash.h"
+#include "rlib/rstring.h"
+#include "rlib/robject.h"
 
 #ifdef __cplusplus
 extern "C" {

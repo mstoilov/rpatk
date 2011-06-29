@@ -19,7 +19,7 @@
  */
 
 /**
- * \file rpadbex.h
+ * \file rpa/rpadbex.h
  * \brief The public interface to BNF productions database API
  *
  *
@@ -36,8 +36,8 @@ extern "C" {
 #endif
 
 #include "rtypes.h"
-#include "rvmcpu.h"
-#include "rpaerror.h"
+#include "rvm/rvmcpu.h"
+#include "rpa/rpaerror.h"
 
 
 /**

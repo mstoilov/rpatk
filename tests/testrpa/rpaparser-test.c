@@ -6,9 +6,9 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/mman.h>
-#include "rmem.h"
-#include "rpaparser.h"
-#include "rpadbex.h"
+#include "rlib/rmem.h"
+#include "rpa/rpaparser.h"
+#include "rpa/rpadbex.h"
 
 
 typedef struct rpa_buffer_s {

@@ -18,7 +18,7 @@
  *  Martin Stoilov <martin@rpasearch.com>
  */
 
-#include "rutf.h"
+#include "rlib/rutf.h"
 
 
 rinteger r_utf8_mbtowc(ruint32 *pwc, const ruchar *input, const ruchar *end)

@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "rvmcodegen.h"
-#include "rstring.h"
-#include "rmem.h"
-#include "rvmcpu.h"
-#include "rvmreg.h"
-#include "rvmoperator.h"
+#include "rvm/rvmcodegen.h"
+#include "rlib/rstring.h"
+#include "rlib/rmem.h"
+#include "rvm/rvmcpu.h"
+#include "rvm/rvmreg.h"
+#include "rvm/rvmoperator.h"
 
 
 typedef struct rvm_testctx_s {

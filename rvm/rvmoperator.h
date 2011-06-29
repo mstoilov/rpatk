@@ -2,8 +2,8 @@
 #define _RVMOPERATOR_H_
 
 #include "rtypes.h"
-#include "rarray.h"
-#include "rvmcpu.h"
+#include "rlib/rarray.h"
+#include "rvm/rvmcpu.h"
 
 #define RVM_UNARY_HANDLER(__t__) (__t__)
 #define RVM_OP_HANDLER(__ft__, __st__) ((__ft__) * RVM_DTYPE_MAX + (__st__))

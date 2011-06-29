@@ -7,13 +7,13 @@ extern "C" {
 #endif
 
 #include "rtypes.h"
-#include "rarray.h"
-#include "rvmcodegen.h"
-#include "rvmscope.h"
-#include "rvmcpu.h"
-#include "rjsuids.h"
-#include "rparecord.h"
-#include "rjserror.h"
+#include "rlib/rarray.h"
+#include "rvm/rvmcodegen.h"
+#include "rvm/rvmscope.h"
+#include "rvm/rvmcpu.h"
+#include "rjs/rjsuids.h"
+#include "rpa/rparecord.h"
+#include "rjs/rjserror.h"
 
 #define RJS_COMPILER_NHANDLERS 128
 #define RJS_COMPILER_CODEGENKEEP (1 << 0)

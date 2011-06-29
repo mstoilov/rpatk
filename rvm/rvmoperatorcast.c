@@ -1,5 +1,5 @@
-#include "rvmoperator.h"
-#include "rvmreg.h"
+#include "rvm/rvmoperator.h"
+#include "rvm/rvmreg.h"
 
 
 void rvm_op_cast_static_static(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)

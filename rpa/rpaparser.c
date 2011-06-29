@@ -1,8 +1,8 @@
-#include "rmem.h"
-#include "rvmcodegen.h"
-#include "rstring.h"
-#include "rpaparser.h"
-#include "rpastatpriv.h"
+#include "rlib/rmem.h"
+#include "rvm/rvmcodegen.h"
+#include "rlib/rstring.h"
+#include "rpa/rpaparser.h"
+#include "rpa/rpastatpriv.h"
 
 static rinteger rpa_parser_init(rpa_parser_t *pa);
 

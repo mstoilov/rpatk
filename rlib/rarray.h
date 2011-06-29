@@ -2,7 +2,7 @@
 #define _RARRAY_H_
 
 #include "rtypes.h"
-#include "robject.h"
+#include "rlib/robject.h"
 
 
 #ifdef __cplusplus

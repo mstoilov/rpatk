@@ -1,8 +1,8 @@
 #ifndef _RASTGC_H_
 #define _RASTGC_H_
 
-#include "robject.h"
-#include "rlist.h"
+#include "rlib/robject.h"
+#include "rlib/rlist.h"
 
 #ifdef __cplusplus
 extern "C" {

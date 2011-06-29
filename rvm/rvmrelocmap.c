@@ -1,5 +1,5 @@
-#include "rvmrelocmap.h"
-#include "rmem.h"
+#include "rvm/rvmrelocmap.h"
+#include "rlib/rmem.h"
 
 rvm_relocmap_t *rvm_relocmap_create()
 {

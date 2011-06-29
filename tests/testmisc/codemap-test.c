@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "rstring.h"
-#include "rhash.h"
-#include "rmem.h"
-#include "rvmcodemap.h"
+#include "rlib/rstring.h"
+#include "rlib/rhash.h"
+#include "rlib/rmem.h"
+#include "rvm/rvmcodemap.h"
 
 
 void codelabel_print_info(rvm_codemap_t *codemap, rchar* name)

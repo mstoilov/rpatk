@@ -2,8 +2,8 @@
 #define _RVMSCOPE_H_
 
 #include "rtypes.h"
-#include "rarray.h"
-#include "rhash.h"
+#include "rlib/rarray.h"
+#include "rlib/rhash.h"
 
 
 #ifdef __cplusplus

@@ -1,5 +1,5 @@
-#include "rspinlock.h"
-#include "ratomic.h"
+#include "rlib/rspinlock.h"
+#include "rlib/ratomic.h"
 
 
 void r_spinlock_init(rspinlock_t *lock)

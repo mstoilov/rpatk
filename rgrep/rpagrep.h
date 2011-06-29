@@ -23,9 +23,9 @@
 #define _RPAGREP_H_
 
 #include <stdio.h>
-#include "rpaerror.h"
-#include "rpadbex.h"
-#include "rpastatpriv.h"
+#include "rpa/rpaerror.h"
+#include "rpa/rpadbex.h"
+#include "rpa/rpastatpriv.h"
 
 
 #ifdef __cplusplus

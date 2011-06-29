@@ -1,8 +1,8 @@
 #ifndef __RVMOPERATOREQ_H_
 #define __RVMOPERATOREQ_H_
 
-#include "rvmoperator.h"
-#include "rvmreg.h"
+#include "rvm/rvmoperator.h"
+#include "rvm/rvmreg.h"
 
 #ifdef __cplusplus
 extern "C" {

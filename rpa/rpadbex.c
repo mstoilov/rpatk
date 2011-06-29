@@ -2,13 +2,13 @@
  *\file rpadbex.c
  */
 
-#include "rpacompiler.h"
-#include "rpadbex.h"
-#include "rpastatpriv.h"
-#include "rpaparser.h"
-#include "rpaoptimization.h"
-#include "rmem.h"
-#include "rutf.h"
+#include "rpa/rpacompiler.h"
+#include "rpa/rpadbex.h"
+#include "rpa/rpastatpriv.h"
+#include "rpa/rpaparser.h"
+#include "rpa/rpaoptimization.h"
+#include "rlib/rmem.h"
+#include "rlib/rutf.h"
 
 typedef rinteger (*rpa_dbex_recordhandler)(rpadbex_t *dbex, rlong rec);
 

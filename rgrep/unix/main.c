@@ -29,9 +29,9 @@
 #include <stdlib.h>
 #include <wchar.h>
 #include <time.h>
-#include "rmem.h"
-#include "rarray.h"
-#include "rpadbex.h"
+#include "rlib/rmem.h"
+#include "rlib/rarray.h"
+#include "rpa/rpadbex.h"
 #include "rpagrep.h"
 #include "rpagrepdep.h"
 

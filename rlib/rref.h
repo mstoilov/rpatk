@@ -3,8 +3,8 @@
 
 
 #include "rtypes.h"
-#include "robject.h"
-#include "rspinlock.h"
+#include "rlib/robject.h"
+#include "rlib/rspinlock.h"
 
 #ifdef __cplusplus
 extern "C" {

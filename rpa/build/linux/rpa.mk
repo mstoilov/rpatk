@@ -8,7 +8,7 @@ TARGET_RPA_LIB = $(OUTDIR)/$(RPA_LIB)
 TARGET_RPA_SO = $(OUTDIR)/$(RPA_SO)
 
 
-CFLAGS += -I$(RVM_SRCDIR)/config -I$(SRCDIR)/rlib -I$(SRCDIR)/rvm
+CFLAGS += -I$(SRCDIR)
 
 RPA_OBJECTS =	\
 	$(OUTDIR)/rpacache.o \

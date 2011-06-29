@@ -1,9 +1,9 @@
 #ifndef _RPACOMPILER_H_
 #define _RPACOMPILER_H_
 
-#include "rvmcodegen.h"
-#include "rvmscope.h"
-#include "rpavm.h"
+#include "rvm/rvmcodegen.h"
+#include "rvm/rvmscope.h"
+#include "rpa/rpavm.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,6 +1,6 @@
-#include "rmem.h"
-#include "rvmreg.h"
-#include "rref.h"
+#include "rlib/rmem.h"
+#include "rvm/rvmreg.h"
+#include "rlib/rref.h"
 
 
 static void rvm_reg_array_oncopy(rarray_t *array)

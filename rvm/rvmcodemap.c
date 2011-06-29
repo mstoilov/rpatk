@@ -1,6 +1,6 @@
-#include "rvmcodemap.h"
-#include "rstring.h"
-#include "rmem.h"
+#include "rvm/rvmcodemap.h"
+#include "rlib/rstring.h"
+#include "rlib/rmem.h"
 
 
 rvm_codemap_t *rvm_codemap_create()

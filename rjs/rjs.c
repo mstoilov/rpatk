@@ -1,8 +1,8 @@
 #include <stdarg.h>
-#include "rmem.h"
-#include "rmap.h"
-#include "rjs.h"
-#include "rvmcodegen.h"
+#include "rlib/rmem.h"
+#include "rlib/rmap.h"
+#include "rjs/rjs.h"
+#include "rvm/rvmcodegen.h"
 
 
 static void rjs_engine_print(rvmcpu_t *cpu, rvm_asmins_t *ins);

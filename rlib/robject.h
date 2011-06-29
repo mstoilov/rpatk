@@ -2,7 +2,7 @@
 #define _ROBJECT_H_
 
 #include "rtypes.h"
-#include "rlist.h"
+#include "rlib/rlist.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -22,10 +22,10 @@
 #define _RVMCPU_H_
 
 #include "rtypes.h"
-#include "rarray.h"
-#include "rcarray.h"
-#include "rvmreg.h"
-#include "rgc.h"
+#include "rlib/rarray.h"
+#include "rlib/rcarray.h"
+#include "rvm/rvmreg.h"
+#include "rlib/rgc.h"
 
 
 #ifdef __cplusplus

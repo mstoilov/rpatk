@@ -1,8 +1,8 @@
 #ifndef _RPAVM_H_
 #define _RPAVM_H_
 
-#include "rvmcpu.h"
-#include "rparecord.h"
+#include "rvm/rvmcpu.h"
+#include "rpa/rparecord.h"
 
 
 #ifdef __cplusplus

@@ -1,7 +1,7 @@
-#include "rmem.h"
-#include "rstring.h"
-#include "rpaparser.h"
-#include "rparecord.h"
+#include "rlib/rmem.h"
+#include "rlib/rstring.h"
+#include "rpa/rpaparser.h"
+#include "rpa/rparecord.h"
 
 
 rparecord_t *rpa_record_get(rarray_t *records, rlong rec)

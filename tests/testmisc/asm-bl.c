@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "common.h"
-#include "rvmcodemap.h"
-#include "rvmrelocmap.h"
+#include "rvm/rvmcodemap.h"
+#include "rvm/rvmrelocmap.h"
 
 
 	

@@ -2,11 +2,11 @@
 #define _RVMRELOCMAP_H_
 
 #include "rtypes.h"
-#include "rarray.h"
-#include "rhash.h"
-#include "rstring.h"
-#include "rvmcpu.h"
-#include "rvmcodemap.h"
+#include "rlib/rarray.h"
+#include "rlib/rhash.h"
+#include "rlib/rstring.h"
+#include "rvm/rvmcpu.h"
+#include "rvm/rvmcodemap.h"
 
 #ifdef __cplusplus
 extern "C" {

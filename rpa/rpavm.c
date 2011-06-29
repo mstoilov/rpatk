@@ -1,7 +1,7 @@
-#include "rpavm.h"
-#include "rpastatpriv.h"
-#include "rutf.h"
-#include "rmem.h"
+#include "rpa/rpavm.h"
+#include "rpa/rpastatpriv.h"
+#include "rlib/rutf.h"
+#include "rlib/rmem.h"
 
 
 static void rpavm_swi_shift(rvmcpu_t *cpu, rvm_asmins_t *ins)

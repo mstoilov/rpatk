@@ -7,10 +7,10 @@ extern "C" {
 #endif
 
 #include "rtypes.h"
-#include "rarray.h"
-#include "rvmcpu.h"
-#include "rpa.h"
-#include "rjserror.h"
+#include "rlib/rarray.h"
+#include "rvm/rvmcpu.h"
+#include "rpa/rpa.h"
+#include "rjs/rjserror.h"
 
 
 typedef struct rjs_parser_s {

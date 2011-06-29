@@ -2,8 +2,8 @@
 #define _RPACACHE_H_
 
 #include "rtypes.h"
-#include "rarray.h"
-#include "rparecord.h"
+#include "rlib/rarray.h"
+#include "rpa/rparecord.h"
 
 #ifdef __cplusplus
 extern "C" {

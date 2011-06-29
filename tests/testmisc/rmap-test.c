@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "rmem.h"
-#include "rmap.h"
-#include "rstring.h"
+#include "rlib/rmem.h"
+#include "rlib/rmap.h"
+#include "rlib/rstring.h"
 
 
 rlong test_rmap_add(rmap_t *map, const rchar *name, rlong val)

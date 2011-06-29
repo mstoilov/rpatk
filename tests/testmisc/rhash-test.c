@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "rhash.h"
-#include "rmem.h"
+#include "rlib/rhash.h"
+#include "rlib/rmem.h"
 
 
 int main(int argc, char *argv[])

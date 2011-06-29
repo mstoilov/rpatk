@@ -8,10 +8,10 @@ extern "C" {
 
 #include <stdarg.h>
 #include "rtypes.h"
-#include "rvmcpu.h"
-#include "rjsparser.h"
-#include "rjscompiler.h"
-#include "rjserror.h"
+#include "rvm/rvmcpu.h"
+#include "rjs/rjsparser.h"
+#include "rjs/rjscompiler.h"
+#include "rjs/rjserror.h"
 
 
 typedef struct rjs_engine_s {

@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include "rstring.h"
-#include "rvmreg.h"
-#include "rvmcpu.h"
+#include "rlib/rstring.h"
+#include "rvm/rvmreg.h"
+#include "rvm/rvmcpu.h"
 #include "common.h"
 
 static void test_swi_print_r(rvmcpu_t *cpu, rvm_asmins_t *ins)

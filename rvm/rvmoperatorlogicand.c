@@ -1,6 +1,6 @@
-#include "rvmoperator.h"
-#include "rvmoperatorlogicand.h"
-#include "rvmreg.h"
+#include "rvm/rvmoperator.h"
+#include "rvm/rvmoperatorlogicand.h"
+#include "rvm/rvmreg.h"
 
 
 void rvm_op_logicand_unsigned(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, rword op1, rword op2)

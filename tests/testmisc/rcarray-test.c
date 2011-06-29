@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "rcarray.h"
-#include "rmem.h"
+#include "rlib/rcarray.h"
+#include "rlib/rmem.h"
 
 
 static void r_carray_replaceint(rcarray_t *carray, ruinteger index, rinteger elt)

@@ -1,4 +1,4 @@
-#include "rref.h"
+#include "rlib/rref.h"
 
 
 robject_t *r_ref_init(robject_t *obj, ruint32 objtype, r_object_cleanupfun cleanup, r_object_copyfun copy, ruint32 count, rref_type_t type)

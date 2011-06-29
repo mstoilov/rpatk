@@ -19,7 +19,7 @@
  */
 
 /**
- * \file rpaerror.h
+ * \file rpa/rpaerror.h
  * \brief The public interface for examining errors.
  *
  *

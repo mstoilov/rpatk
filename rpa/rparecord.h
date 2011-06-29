@@ -19,7 +19,7 @@
  */
 
 /**
- * \file rparecord.h
+ * \file rpa/rparecord.h
  * \brief The public interface for working with Abstract Syntax Tree (AST), produced by @ref rpa_stat_parse.
  *
  *
@@ -63,9 +63,9 @@
 #define _RPARECORD_H_
 
 #include "rtypes.h"
-#include "rarray.h"
-#include "rlist.h"
-#include "rpavm.h"
+#include "rlib/rarray.h"
+#include "rlib/rlist.h"
+#include "rpa/rpavm.h"
 
 
 #ifdef __cplusplus
@@ -89,7 +89,7 @@ typedef rlong (*rpa_recordtree_callback)(rarray_t *records, rlong rec, rpointer 
 
 
 /**
- * \struct rparecord_s <rparecord.h> <rparecord.h>
+ * \struct rparecord_s <rpa/rparecord.h> <rpa/rparecord.h>
  * \brief Abstract Syntax Tree (AST) construction element.
  */
 struct rparecord_s {

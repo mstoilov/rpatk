@@ -1,7 +1,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "rmem.h"
+#include "rlib/rmem.h"
 
 
 #define NUM_THREADS 10

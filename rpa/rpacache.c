@@ -1,6 +1,6 @@
-#include "rpacache.h"
-#include "rmem.h"
-#include "rparecord.h"
+#include "rpa/rpacache.h"
+#include "rlib/rmem.h"
+#include "rpa/rparecord.h"
 
 #define RPA_MCACHE_BUCKET(_top_, _ruleid_) ( ( (((rulong)(_top_))<<3) ^ ((((rulong)(_ruleid_))>>5)) ) & RPA_MCACHE_MASK)
 

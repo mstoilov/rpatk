@@ -1,5 +1,5 @@
-#include "rpaoptimization.h"
-#include "rpaparser.h"
+#include "rpa/rpaoptimization.h"
+#include "rpa/rpaparser.h"
 
 
 static rlong rpa_copy_handler(rarray_t *records, rlong rec, rpointer userdata)

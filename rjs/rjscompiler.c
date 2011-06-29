@@ -1,6 +1,6 @@
-#include "rmem.h"
-#include "rjscompiler.h"
-#include "rjsparser.h"
+#include "rlib/rmem.h"
+#include "rjs/rjscompiler.h"
+#include "rjs/rjsparser.h"
 
 
 rinteger rjs_compiler_playreversechildrecords(rjs_compiler_t *co, rarray_t *records, rlong rec);

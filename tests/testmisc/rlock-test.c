@@ -1,7 +1,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "rspinlock.h"
+#include "rlib/rspinlock.h"
 
 #define NUM_THREADS 10
 #define NUM_ITERATIONS 100000

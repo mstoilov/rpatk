@@ -2,9 +2,9 @@
 #define _RPASTAT_H_
 
 #include "rtypes.h"
-#include "rarray.h"
-#include "rvmreg.h"
-#include "rpadbex.h"
+#include "rlib/rarray.h"
+#include "rvm/rvmreg.h"
+#include "rpa/rpadbex.h"
 
 #define RPA_ENCODING_UTF8 0
 #define RPA_ENCODING_BYTE 1
@@ -21,7 +21,7 @@ extern "C" {
 #endif
 
 /**
- * \file rpastat.h
+ * \file rpa/rpastat.h
  * \brief The public interface to the execution context.
  *
  *

@@ -1,5 +1,5 @@
-#include "rcarray.h"
-#include "rmem.h"
+#include "rlib/rcarray.h"
+#include "rlib/rmem.h"
 
 
 static rpointer r_carray_allocate_chunk(rsize_t elt_size)

@@ -2,8 +2,8 @@
 #define _RCARRAY_H_
 
 #include "rtypes.h"
-#include "robject.h"
-#include "rarray.h"
+#include "rlib/robject.h"
+#include "rlib/rarray.h"
 
 #ifdef __cplusplus
 extern "C" {

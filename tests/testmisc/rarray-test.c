@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "rarray.h"
-#include "rmem.h"
+#include "rlib/rarray.h"
+#include "rlib/rmem.h"
 
 
 static void r_array_addint(rarray_t *array, int elt)

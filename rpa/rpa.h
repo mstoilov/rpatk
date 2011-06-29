@@ -21,9 +21,9 @@
 #ifndef _RPA_H_
 #define _RPA_H_
 
-#include "rpaerror.h"
-#include "rpadbex.h"
-#include "rpastat.h"
+#include "rpa/rpaerror.h"
+#include "rpa/rpadbex.h"
+#include "rpa/rpastat.h"
 
 
 #endif

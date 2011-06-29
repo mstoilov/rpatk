@@ -1,6 +1,6 @@
-#include "rvmoperator.h"
-#include "rstring.h"
-#include "rvmreg.h"
+#include "rvm/rvmoperator.h"
+#include "rlib/rstring.h"
+#include "rvm/rvmreg.h"
 
 
 void rvm_op_cat_string_string(rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)

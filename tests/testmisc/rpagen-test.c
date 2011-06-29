@@ -6,15 +6,15 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/mman.h>
-#include "rmem.h"
+#include "rlib/rmem.h"
 #include "rjsobject.h"
-#include "rvmcpu.h"
-#include "rpadbex.h"
-#include "rpaerror.h"
-#include "rvmcodegen.h"
-#include "rvmcodemap.h"
-#include "rvmscope.h"
-#include "rvmoperator.h"
+#include "rvm/rvmcpu.h"
+#include "rpa/rpadbex.h"
+#include "rpa/rpaerror.h"
+#include "rvm/rvmcodegen.h"
+#include "rvm/rvmcodemap.h"
+#include "rvm/rvmscope.h"
+#include "rvm/rvmoperator.h"
 
 #define DEBUGPRINT 1
 static int debuginfo = 0;

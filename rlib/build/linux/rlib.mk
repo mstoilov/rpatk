@@ -8,6 +8,7 @@ RLIB_LIB = librlib.a
 TARGET_RLIB_LIB = $(OUTDIR)/$(RLIB_LIB)
 TARGET_RLIB_SO = $(OUTDIR)/$(RLIB_SO)
 
+CFLAGS += -I$(SRCDIR)
 
 RLIB_OBJECTS +=	$(OUTDIR)/rref.o
 RLIB_OBJECTS +=	$(OUTDIR)/rcharconv.o

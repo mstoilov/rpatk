@@ -3,8 +3,8 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "rstring.h"
-#include "rmem.h"
+#include "rlib/rstring.h"
+#include "rlib/rmem.h"
 
 
 rinteger r_strcmp(const rchar *s1, const rchar *s2)

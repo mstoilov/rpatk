@@ -1,7 +1,7 @@
 #include "rtypes.h"
-#include "rmap.h"
-#include "rstring.h"
-#include "rmem.h"
+#include "rlib/rmap.h"
+#include "rlib/rstring.h"
+#include "rlib/rmem.h"
 
 
 typedef struct r_mapnode_s {

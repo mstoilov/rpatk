@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "robject.h"
+#include "rlib/robject.h"
 
 typedef struct _RTestStruct {
 	int i;

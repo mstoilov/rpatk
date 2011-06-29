@@ -1,7 +1,7 @@
-#include "rmem.h"
-#include "rjsrules.h"
-#include "rjsparser.h"
-#include "rjserror.h"
+#include "rlib/rmem.h"
+#include "rjs/linux/rjsrules.h"
+#include "rjs/rjsparser.h"
+#include "rjs/rjserror.h"
 
 
 void rjs_parser_dbex_error(rjs_parser_t *parser)

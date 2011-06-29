@@ -1,5 +1,5 @@
-#include "rmem.h"
-#include "rvmoperator.h"
+#include "rlib/rmem.h"
+#include "rvm/rvmoperator.h"
 
 
 rvm_opmap_t *rvm_opmap_create()

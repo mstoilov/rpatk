@@ -2,12 +2,12 @@
 #define _RPASTATPRIV_H_
 
 #include "rtypes.h"
-#include "rarray.h"
-#include "rvmreg.h"
-#include "rpavm.h"
-#include "rpadbex.h"
-#include "rpacache.h"
-#include "rpastat.h"
+#include "rlib/rarray.h"
+#include "rvm/rvmreg.h"
+#include "rpa/rpavm.h"
+#include "rpa/rpadbex.h"
+#include "rpa/rpacache.h"
+#include "rpa/rpastat.h"
 
 
 #ifdef __cplusplus

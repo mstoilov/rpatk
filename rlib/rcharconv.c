@@ -18,7 +18,7 @@
  *  Martin Stoilov <martin@rpasearch.com>
  */
 
-#include "rcharconv.h"
+#include "rlib/rcharconv.h"
 
 
 #define LOWANSICHAR(c) (((c) >= 'A' && (c) <= 'Z') ? (c) + ('a' - 'A') : (c))

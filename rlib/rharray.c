@@ -1,6 +1,6 @@
-#include "rharray.h"
-#include "rstring.h"
-#include "rmem.h"
+#include "rlib/rharray.h"
+#include "rlib/rstring.h"
+#include "rlib/rmem.h"
 
 /*
  * Hash array

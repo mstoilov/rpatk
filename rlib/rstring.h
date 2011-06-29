@@ -3,14 +3,14 @@
 
 
 #include "rtypes.h"
-#include "robject.h"
+#include "rlib/robject.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
-#include "rref.h"
+#include "rlib/rref.h"
 
 
 

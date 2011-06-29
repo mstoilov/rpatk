@@ -6,7 +6,7 @@ RJS_LIB = $(OUTDIR)/librjs.a
 RJS_SO = $(OUTDIR)/librjs.so.1.0
 RJS_EXEC = $(OUTDIR)/rjsexec
 
-CFLAGS += -I$(RVM_SRCDIR)/config -I$(SRCDIR)/rlib -I$(RVM_SRCDIR) -I$(RPA_SRCDIR) -I$(RJS_SRCDIR) -I$(RJS_SRCDIR)/linux
+CFLAGS += -I$(SRCDIR) -I$(RVM_SRCDIR)/config -I$(SRCDIR)/rlib -I$(RJS_SRCDIR)/linux
 
 LIBS = -L$(RLIB_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 
 LIBS += -L$(RVM_SRCDIR)/build/$(OS)/$(ARCHDIR)/out 

@@ -7,10 +7,10 @@
 #include <unistd.h>
 #include <sys/mman.h>
 
-#include "rstring.h"
-#include "rmem.h"
-#include "rjs.h"
-#include "rparecord.h"
+#include "rlib/rstring.h"
+#include "rlib/rmem.h"
+#include "rjs/rjs.h"
+#include "rpa/rparecord.h"
 
 
 static int debuginfo = 0;

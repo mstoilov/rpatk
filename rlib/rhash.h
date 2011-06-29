@@ -2,8 +2,8 @@
 #define _RHASH_H_
 
 #include "rtypes.h"
-#include "robject.h"
-#include "rlist.h"
+#include "rlib/robject.h"
+#include "rlib/rlist.h"
 
 #ifdef __cplusplus
 extern "C" {

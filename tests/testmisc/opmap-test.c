@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "rvmcpu.h"
-#include "rvmreg.h"
-#include "rvmoperator.h"
+#include "rvm/rvmcpu.h"
+#include "rvm/rvmreg.h"
+#include "rvm/rvmoperator.h"
 
 
 int main(int argc, char *argv[])

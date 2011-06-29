@@ -7,8 +7,8 @@
 #include <unistd.h>
 #include <sys/mman.h>
 
-#include "rstring.h"
-#include "rjs.h"
+#include "rlib/rstring.h"
+#include "rjs/rjs.h"
 
 
 int main(int argc, char *argv[])

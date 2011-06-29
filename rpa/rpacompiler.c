@@ -1,6 +1,6 @@
-#include "rmem.h"
-#include "rpacompiler.h"
-#include "rstring.h"
+#include "rlib/rmem.h"
+#include "rpa/rpacompiler.h"
+#include "rlib/rstring.h"
 
 
 static rlong rpa_codegen_add_numlabel_s(rvm_codegen_t *cg, const rchar *alphaname, rlong numname)

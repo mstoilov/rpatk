@@ -2,12 +2,12 @@
 #define _RVMCODEGEN_H_
 
 #include "rtypes.h"
-#include "rvmerror.h"
-#include "rarray.h"
-#include "rhash.h"
-#include "rvmcpu.h"
-#include "rvmcodemap.h"
-#include "rvmrelocmap.h"
+#include "rvm/rvmerror.h"
+#include "rlib/rarray.h"
+#include "rlib/rhash.h"
+#include "rvm/rvmcpu.h"
+#include "rvm/rvmcodemap.h"
+#include "rvm/rvmrelocmap.h"
 
 #ifdef __cplusplus
 extern "C" {

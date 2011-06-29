@@ -1,12 +1,12 @@
 #ifndef _RMAP_H_
 #define _RMAP_H_
 
-#include "rcarray.h"
-#include "rhash.h"
-#include "rlist.h"
-#include "rstring.h"
-#include "rgc.h"
-#include "robject.h"
+#include "rlib/rcarray.h"
+#include "rlib/rhash.h"
+#include "rlib/rlist.h"
+#include "rlib/rstring.h"
+#include "rlib/rgc.h"
+#include "rlib/robject.h"
 
 #ifdef __cplusplus
 extern "C" {

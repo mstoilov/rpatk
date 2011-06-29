@@ -1,6 +1,6 @@
-#include "rmem.h"
-#include "rvmcodegen.h"
-#include "rvmcpu.h"
+#include "rlib/rmem.h"
+#include "rvm/rvmcodegen.h"
+#include "rvm/rvmcpu.h"
 
 
 rvm_codegen_t *rvm_codegen_create()

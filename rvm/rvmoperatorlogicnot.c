@@ -1,5 +1,5 @@
-#include "rvmoperator.h"
-#include "rvmreg.h"
+#include "rvm/rvmoperator.h"
+#include "rvm/rvmreg.h"
 
 
 static void rvm_op_logicnot_unsigned(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1)

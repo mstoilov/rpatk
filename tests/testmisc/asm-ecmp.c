@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "common.h"
-#include "rvmreg.h"
+#include "rvm/rvmreg.h"
 
 	
 int main(int argc, char *argv[])

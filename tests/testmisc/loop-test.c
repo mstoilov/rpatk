@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "common.h"
-#include "rvmoperator.h"
+#include "rvm/rvmoperator.h"
 
 
 static void rvm_eadd(rvmcpu_t *cpu, rvm_asmins_t *ins)

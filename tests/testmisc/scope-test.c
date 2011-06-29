@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "rstring.h"
-#include "rhash.h"
-#include "rmem.h"
-#include "rvmscope.h"
+#include "rlib/rstring.h"
+#include "rlib/rhash.h"
+#include "rlib/rmem.h"
+#include "rvm/rvmscope.h"
 
 
 void print_var_info(rvm_scope_t *scope, rchar* varname)

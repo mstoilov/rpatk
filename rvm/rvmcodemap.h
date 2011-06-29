@@ -2,10 +2,10 @@
 #define _RVMCODEMAP_H_
 
 #include "rtypes.h"
-#include "rvmcpu.h"
-#include "rarray.h"
-#include "rhash.h"
-#include "rstring.h"
+#include "rvm/rvmcpu.h"
+#include "rlib/rarray.h"
+#include "rlib/rhash.h"
+#include "rlib/rstring.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,10 +1,10 @@
-#include "rmem.h"
-#include "rarray.h"
-#include "rpastatpriv.h"
-#include "rvmcodegen.h"
-#include "rvmcpu.h"
-#include "rutf.h"
-#include "rcharconv.h"
+#include "rlib/rmem.h"
+#include "rlib/rarray.h"
+#include "rpa/rpastatpriv.h"
+#include "rvm/rvmcodegen.h"
+#include "rvm/rvmcpu.h"
+#include "rlib/rutf.h"
+#include "rlib/rcharconv.h"
 
 
 rpastat_t *rpa_stat_create(rpadbex_t *dbex, rulong stacksize)

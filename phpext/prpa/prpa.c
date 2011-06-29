@@ -25,13 +25,13 @@
 #include "php.h"
 #include "php_ini.h"
 #include "ext/standard/info.h"
-#include "php_prpa.h"
+#include "php_prpa/rpa.h"
 #include "TSRM/TSRM.h"
-#include "rpadbex.h"
-#include "rpastat.h"
-#include "rpastatpriv.h"
-#include "rpaerror.h"
-#include "rparecord.h"
+#include "rpa/rpadbex.h"
+#include "rpa/rpastat.h"
+#include "rpa/rpastatpriv.h"
+#include "rpa/rpaerror.h"
+#include "rpa/rparecord.h"
 
 typedef struct _php_rpa_dbex {
 	rpadbex_t* dbex;
@@ -58,7 +58,7 @@ static void php_rpa_dbex_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC);
 static void php_rpa_stat_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC);
 
 
-/* If you declare any globals in php_prpa.h uncomment this:
+/* If you declare any globals in php_prpa/rpa.h uncomment this:
 ZEND_DECLARE_MODULE_GLOBALS(prpa)
 */
 

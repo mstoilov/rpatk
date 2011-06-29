@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "rspinlock.h"
-#include "rmem.h"
+#include "rlib/rspinlock.h"
+#include "rlib/rmem.h"
 
 static rspinlock_t g_lock = R_SPINLOCK_INIT;
 static rsize_t g_allocmem = 0;

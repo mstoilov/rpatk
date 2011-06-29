@@ -6,9 +6,9 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/mman.h>
-#include "rmem.h"
-#include "rpacompiler.h"
-#include "rpastatpriv.h"
+#include "rlib/rmem.h"
+#include "rpa/rpacompiler.h"
+#include "rpa/rpastatpriv.h"
 #include "common.h"
 
 /*

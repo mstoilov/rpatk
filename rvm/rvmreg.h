@@ -1,13 +1,13 @@
 #ifndef _RVMREG_H_
 #define _RVMREG_H_
 
-//#include "rvmcpu.h"
-#include "robject.h"
-#include "rarray.h"
-#include "rharray.h"
-#include "rcarray.h"
-#include "rmap.h"
-#include "rstring.h"
+//#include "rvm/rvmcpu.h"
+#include "rlib/robject.h"
+#include "rlib/rarray.h"
+#include "rlib/rharray.h"
+#include "rlib/rcarray.h"
+#include "rlib/rmap.h"
+#include "rlib/rstring.h"
 
 
 #ifdef __cplusplus

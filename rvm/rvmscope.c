@@ -1,6 +1,6 @@
-#include "rvmscope.h"
-#include "rstring.h"
-#include "rmem.h"
+#include "rvm/rvmscope.h"
+#include "rlib/rstring.h"
+#include "rlib/rmem.h"
 
 
 rvm_scope_t *rvm_scope_create()

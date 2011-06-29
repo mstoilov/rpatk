@@ -1,6 +1,6 @@
-#include "rmem.h"
-#include "rstring.h"
-#include "rhash.h"
+#include "rlib/rmem.h"
+#include "rlib/rstring.h"
+#include "rlib/rhash.h"
 
 
 typedef union rhash_value_s {
