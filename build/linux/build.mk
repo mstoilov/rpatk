@@ -29,6 +29,11 @@ clean:
 	+make -C $(SRCDIR)/rgrep/build/$(OS)/$(ARCHDIR) clean
 
 install:
+	mkdir $(RPATK_INC_INSTALL)
+	mkdir $(RPATK_INC_INSTALL)/rlib
+	mkdir $(RPATK_INC_INSTALL)/rvm
+	mkdir $(RPATK_INC_INSTALL)/rpa
+	cp $(SRCDIR)/arch/$(OS)/$(ARCHDIR)/rtypes.h $(RPATK_INC_INSTALL)
 	+make -C $(SRCDIR)/rlib/build/$(OS)/$(ARCHDIR) install
 	+make -C $(SRCDIR)/rpa/build/$(OS)/$(ARCHDIR) install
 	+make -C $(SRCDIR)/rvm/build/$(OS)/$(ARCHDIR) install
@@ -39,3 +44,7 @@ uninstall:
 	+make -C $(SRCDIR)/rpa/build/$(OS)/$(ARCHDIR) uninstall
 	+make -C $(SRCDIR)/rvm/build/$(OS)/$(ARCHDIR) uninstall
 	+make -C $(SRCDIR)/rgrep/build/$(OS)/$(ARCHDIR) uninstall
+	rm -rf $(RPATK_INC_INSTALL)/rlib
+	rm -rf $(RPATK_INC_INSTALL)/rvm
+	rm -rf $(RPATK_INC_INSTALL)/rpa
+	rm -rf $(RPATK_INC_INSTALL)

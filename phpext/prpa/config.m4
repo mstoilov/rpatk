@@ -71,6 +71,7 @@ if test "$PHP_PRPA" != "no"; then
 
 
   # --with-rpatk -> add include path
+  PHP_ADD_INCLUDE($RPATK_DIR)
   PHP_ADD_INCLUDE($ARCH_DIR)
   PHP_ADD_INCLUDE($RLIB_DIR)
   PHP_ADD_INCLUDE($RVM_DIR)

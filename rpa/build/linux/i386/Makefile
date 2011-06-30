@@ -21,5 +21,5 @@ endif
 CFLAGS += $(MACH) $(INCLUDE)
 LDFLAGS := $(MACH)
 
-
+include ../../../../build/linux/include.mk
 include ../rpa.mk

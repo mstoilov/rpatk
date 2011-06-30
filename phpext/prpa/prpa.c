@@ -25,7 +25,7 @@
 #include "php.h"
 #include "php_ini.h"
 #include "ext/standard/info.h"
-#include "php_prpa/rpa.h"
+#include "php_prpa.h"
 #include "TSRM/TSRM.h"
 #include "rpa/rpadbex.h"
 #include "rpa/rpastat.h"

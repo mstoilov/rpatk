@@ -21,6 +21,7 @@
 #ifndef _RPA_H_
 #define _RPA_H_
 
+#include "rpa/rparecord.h"
 #include "rpa/rpaerror.h"
 #include "rpa/rpadbex.h"
 #include "rpa/rpastat.h"

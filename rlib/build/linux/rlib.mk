@@ -1,4 +1,4 @@
-RTK_LIB_INSTALL=/usr/lib
+RPATK_LIB_INSTALL=/usr/lib
 RLIB_SRCDIR = $(SRCDIR)/rlib
 RLIB_SO_VERSION = 2.0
 RLIB_SO_NAME = librlib.so
@@ -59,9 +59,12 @@ clean:
 	@rm -f $(SRCDIR)/*~
 
 install:
-	cp $(TARGET_RLIB_SO) $(RTK_LIB_INSTALL)
-	cp $(TARGET_RLIB_LIB) $(RTK_LIB_INSTALL)
+	cp $(TARGET_RLIB_SO) $(RPATK_LIB_INSTALL)
+	cp $(TARGET_RLIB_LIB) $(RPATK_LIB_INSTALL)
+	cp $(RLIB_SRCDIR)/*.h $(RPATK_INC_INSTALL)/rlib
+
 
 uninstall:
-	rm $(RTK_LIB_INSTALL)/$(RLIB_LIB)
-	rm $(RTK_LIB_INSTALL)/$(RLIB_SO)
+	rm $(RPATK_LIB_INSTALL)/$(RLIB_LIB)
+	rm $(RPATK_LIB_INSTALL)/$(RLIB_SO)
+	rm $(RPATK_INC_INSTALL)/rlib/*

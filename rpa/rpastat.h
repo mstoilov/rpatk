@@ -205,6 +205,11 @@ rlong rpa_stat_lasterror(rpastat_t *stat);
 rlong rpa_stat_lasterrorinfo(rpastat_t *stat, rpa_errinfo_t *errinfo);
 
 
+/**
+ * \example personname.c
+ */
+
+
 #ifdef __cplusplus
 }
 #endif

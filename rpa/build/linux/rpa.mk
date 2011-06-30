@@ -1,4 +1,3 @@
-RTK_LIB_INSTALL=/usr/lib
 RPA_SRCDIR = $(SRCDIR)/rpa
 RPA_LIB = librpa.a
 RPA_SO_VERSION = 2.0
@@ -54,7 +53,9 @@ clean:
 install:
 	cp $(TARGET_RPA_SO) $(RTK_LIB_INSTALL)
 	cp $(TARGET_RPA_LIB) $(RTK_LIB_INSTALL)
+	cp $(RPA_SRCDIR)/*.h $(RPATK_INC_INSTALL)/rpa
 
 uninstall:
 	rm $(RTK_LIB_INSTALL)/$(RPA_LIB)
 	rm $(RTK_LIB_INSTALL)/$(RPA_SO)
+	rm $(RPATK_INC_INSTALL)/rpa/*

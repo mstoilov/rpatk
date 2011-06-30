@@ -1,5 +1,5 @@
 #include "rlib/rmem.h"
-#include "rjs/linux/rjsrules.h"
+#include "rjs/rjsrules.h"
 #include "rjs/rjsparser.h"
 #include "rjs/rjserror.h"
 

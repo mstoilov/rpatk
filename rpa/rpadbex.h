@@ -25,6 +25,10 @@
  *
  * <h2>Synopsis</h2>
  * The following APIs are used to Create, Compile, Enumerate, etc. BNF productions.
+ *
+ * \example personname.c
+ * This is an example how to use rpadbex_t APIs
+
  */
 
 #ifndef _RPADBEX_H_
@@ -45,6 +49,11 @@ extern "C" {
  * \brief Database of BNF productions (The BNF schema)
  */
 typedef struct rpadbex_s rpadbex_t;
+/**
+ * \example personname.c
+ * This is an example how to use rpadbex_t
+ */
+
 
 /**
  * \typedef rparule_t
@@ -345,7 +354,7 @@ rinteger rpa_dbex_dumptree(rpadbex_t *dbex, rparule_t rid);
 rinteger rpa_dbex_dumpcode(rpadbex_t* dbex, rparule_t rid);
 
 
-/*
+/**
  * \brief Printeger the AST of the parsed BNF productions.
  *
  * This function is a debug helper, you shouldn't need it.
@@ -356,7 +365,7 @@ rinteger rpa_dbex_dumpcode(rpadbex_t* dbex, rparule_t rid);
  */
 rinteger rpa_dbex_dumprecords(rpadbex_t *dbex);
 
-/*
+/**
  * \brief Printeger the content of BNF productions database.
  *
  * Enumerate all BNF productions and printeger them in a text format.
@@ -365,7 +374,7 @@ rinteger rpa_dbex_dumprecords(rpadbex_t *dbex);
  */
 rinteger rpa_dbex_dumpproductions(rpadbex_t *dbex);
 
-/*
+/**
  * \brief Printeger debug information about the state of the BNF productions database.
  *
  * This is a debug helper, you shouldn't need it.
@@ -374,7 +383,7 @@ rinteger rpa_dbex_dumpproductions(rpadbex_t *dbex);
  */
 rinteger rpa_dbex_dumpinfo(rpadbex_t *dbex);
 
-/*
+/**
  * \brief Printeger the production user IDs in a format suitable to be
  * included in source code.
  *
@@ -383,6 +392,9 @@ rinteger rpa_dbex_dumpinfo(rpadbex_t *dbex);
  */
 rinteger rpa_dbex_dumpuids(rpadbex_t *dbex);
 
+/**
+ * \example personname.c
+ */
 
 
 #ifdef __cplusplus

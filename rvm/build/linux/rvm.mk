@@ -8,8 +8,6 @@ TARGET_RVM_LIB = $(OUTDIR)/$(RVM_LIB)
 TARGET_RVM_SO = $(OUTDIR)/$(RVM_SO)
 
 CFLAGS += -I$(SRCDIR)
-CFLAGS += -I$(RVM_SRCDIR)/config
-
 
 RVM_OBJECTS +=	$(OUTDIR)/rvmcpu.o 
 RVM_OBJECTS +=	$(OUTDIR)/rvmoperator.o
@@ -79,7 +77,9 @@ clean:
 install:
 	cp $(TARGET_RVM_SO) $(RTK_LIB_INSTALL)
 	cp $(TARGET_RVM_LIB) $(RTK_LIB_INSTALL)
+	cp $(RVM_SRCDIR)/*.h $(RPATK_INC_INSTALL)/rvm
 
 uninstall:
 	rm $(RTK_LIB_INSTALL)/$(RVM_LIB)
 	rm $(RTK_LIB_INSTALL)/$(RVM_SO)
+	rm $(RPATK_INC_INSTALL)/rvm/*

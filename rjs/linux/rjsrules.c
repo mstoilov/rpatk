@@ -1,4 +1,4 @@
-#include "rjs/linux/rjsrules.h"
+#include "rjs/rjsrules.h"
 
 
 extern char _binary_____________rjs_ecma262_rpa_start[];
