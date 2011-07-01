@@ -26,5 +26,5 @@ endif
 CFLAGS += $(MACH) $(INCLUDE)
 LDFLAGS := $(MACH)
 
-include $(SRCDIR)/build/linux/include.mk
+include $(SRCDIR)/build/$(OS)/include.mk
 include ../rvm.mk
