@@ -1245,11 +1245,11 @@ static rlong rpa_dbex_copy_handler(rarray_t *records, rlong rec, rpointer userda
 		lastrec = r_array_length(dbex->records) - 1;
 		if (lastrec >= 0)
 			rpa_record_setusertype(dbex->records, lastrec, usertype, RVALSET_OR);
-	} else if (prec->ruleuid != RPA_RECORD_INVALID_UID) {
+	} else if (prec->ruleuid) {
 		index = r_array_add(dbex->records, prec);
 		/*
 		 * Optimizations. Lets apply the optimizations while we copy the records.
-		 * This is probably not the most clean way to apply optimizations, in the future
+		 * This is probably not the most clean way to apply optimizations. In the future
 		 * we should probably think of optimization pass right before compiling.
 		 */
 		if (dbex->optimizations) {

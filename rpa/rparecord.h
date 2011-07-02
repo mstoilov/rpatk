@@ -75,7 +75,6 @@ extern "C" {
 #define RPA_RECORD_NONE (0)						/**< No record type - the record type is not initialized */
 #define RPA_RECORD_START (1 << 0)				/**< Start record - the parser generates this record before evaluating the rule. */
 #define RPA_RECORD_END (1 << 1)					/**< End record - the parser generates this record after evaluating the rule and the rule matched some input. */
-#define RPA_RECORD_INVALID_UID ((ruint32)-1)
 
 /**
  * typedef rparecord_t
@@ -95,8 +94,10 @@ typedef rlong (*rpa_recordtree_callback)(rarray_t *records, rlong rec, rpointer 
 struct rparecord_s {
 	ruint32 top;			/**< This is a private member, used by the engine and is not significant to the user */
 	ruint32 size;			/**< This is a private member, used by the engine and is not significant to the user */
-	const rchar *rule;		/**< Name of the rule that generated this record */
-	const rchar *input;		/**< Pointer in the input stream */
+	const rchar *rule;		/**< Name of the rule that generated this record. This pointer points to memory allocated
+	 	 	 	 	 	 	 *   inside @ref rpadbex_t, so make sure rpadbex_t object is still valid while accessing this pointer. */
+	const rchar *input;		/**< Pointer in the input stream. This pointer points to memory inside the input buffer
+	 	 	 	 	 	 	 *   passed to @ref rpa_stat_parse, make sure this memory is still valid while accessing this pointer. */
 	rsize_t inputoff;		/**< Input offset, calculated from the start parameter passed to @ref rpa_stat_parse */
 	rsize_t inputsiz;		/**< Size of input */
 	ruint32 type;			/**< Record Type: @ref RPA_RECORD_START or @ref RPA_RECORD_END */

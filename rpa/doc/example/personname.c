@@ -58,8 +58,12 @@ int main(int argc, char *argv[])
 			fprintf(stdout, "RPA_RECORD_START   (UID: %d)  ", record->ruleuid);
 		if (record->type == RPA_RECORD_END)
 			fprintf(stdout, "RPA_RECORD_END     (UID: %d)  ", record->ruleuid);
-		fprintf(stdout, "%s: ", rpa_dbex_name(dbex, record->ruleid));
-		fwrite(&name[record->inputoff], 1, record->inputsiz, stdout);
+		/*
+		 * record->rule points to memory allocated by rpadbex_t,
+		 * make sure rpadbex_t object is not destroyed while accessing this pointer.
+		 */
+		fprintf(stdout, "%s: ", record->rule);
+		fwrite(record->input, 1, record->inputsiz, stdout);
 		fprintf(stdout, "\n");
 	}
 	rpa_records_destroy(records);
