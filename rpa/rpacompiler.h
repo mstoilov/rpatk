@@ -19,6 +19,7 @@ extern "C" {
  * rpa_ruledata_t and access in runtime.
  */
 typedef struct rpa_rulepref_s {
+	rlong ruleid;
 	rlong ruleuid;
 	rulong flags;
 } rpa_rulepref_t;
@@ -104,15 +105,16 @@ void rpa_compiler_reference_opt_s(rpa_compiler_t *co, const rchar *name);
 void rpa_compiler_reference_mul_s(rpa_compiler_t *co, const rchar *name);
 void rpa_compiler_reference_mop_s(rpa_compiler_t *co, const rchar *name);
 
+void rpa_compiler_rulepref_set_ruleid(rpa_compiler_t *co, const rchar *name, ruinteger namesize, rlong ruleid);
+void rpa_compiler_rulepref_set_ruleid_s(rpa_compiler_t *co, const rchar *name, rlong ruleid);
 void rpa_compiler_rulepref_set_ruleuid(rpa_compiler_t *co, const rchar *name, ruinteger namesize, rlong ruleuid);
 void rpa_compiler_rulepref_set_ruleuid_s(rpa_compiler_t *co, const rchar *name, rlong ruleuid);
 void rpa_compiler_rulepref_set_flag(rpa_compiler_t *co, const rchar *name, ruinteger namesize, rulong flag);
 void rpa_compiler_rulepref_set_flag_s(rpa_compiler_t *co, const rchar *name, rulong flag);
 void rpa_compiler_rulepref_clear_flag(rpa_compiler_t *co, const rchar *name, ruinteger namesize, rulong flag);
 void rpa_compiler_rulepref_clear_flag_s(rpa_compiler_t *co, const rchar *name, rulong flag);
-void rpa_compiler_rulepref_set_ruleuid_flags(rpa_compiler_t *co, const rchar *name, ruinteger namesize, rlong ruleuid, rulong flags);
-void rpa_compiler_rulepref_clear_flag(rpa_compiler_t *co, const rchar *name, ruinteger namesize, rulong flag);
-void rpa_compiler_rulepref_set_ruleuid_flags_s(rpa_compiler_t *co, const rchar *name, rlong ruleuid, rulong flags);
+void rpa_compiler_rulepref_set(rpa_compiler_t *co, const rchar *name, ruinteger namesize, rlong ruleid, rlong ruleuid, rulong flags);
+void rpa_compiler_rulepref_set_s(rpa_compiler_t *co, const rchar *name, rlong ruleid, rlong ruleuid, rulong flags);
 #ifdef __cplusplus
 }
 #endif

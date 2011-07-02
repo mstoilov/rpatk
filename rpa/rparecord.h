@@ -97,8 +97,10 @@ struct rparecord_s {
 	ruint32 size;			/**< This is a private member, used by the engine and is not significant to the user */
 	const rchar *rule;		/**< Name of the rule that generated this record */
 	const rchar *input;		/**< Pointer in the input stream */
+	rsize_t inputoff;		/**< Input offset, calculated from the start parameter passed to @ref rpa_stat_parse */
 	rsize_t inputsiz;		/**< Size of input */
 	ruint32 type;			/**< Record Type: @ref RPA_RECORD_START or @ref RPA_RECORD_END */
+	ruint32 ruleid;			/**< Unique ID, identifying the BNF rule that created the record */
 	ruint32 ruleuid;		/**< User specified Rule ID. If you used directive @ref emitid for this rulename, this member will contain the specified ID */
 	ruint32 usertype;		/**< User specified type. */
 	rword userdata;			/**< Scratch area. This member can be used to associate some user specific data with this record. */

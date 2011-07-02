@@ -211,6 +211,21 @@ rpa_rulepref_t *rpa_compiler_rulepref_s(rpa_compiler_t *co, const rchar *name)
 }
 
 
+void rpa_compiler_rulepref_set_ruleid(rpa_compiler_t *co, const rchar *name, ruinteger namesize, rlong ruleid)
+{
+	rpa_rulepref_t *rulepref = rpa_compiler_rulepref(co, name, namesize);
+
+	R_ASSERT(rulepref);
+	rulepref->ruleid = ruleid;
+}
+
+
+void rpa_compiler_rulepref_set_ruleid_s(rpa_compiler_t *co, const rchar *name, rlong ruleid)
+{
+	rpa_compiler_rulepref_set_ruleid(co, name, r_strlen(name), ruleid);
+}
+
+
 void rpa_compiler_rulepref_set_ruleuid(rpa_compiler_t *co, const rchar *name, ruinteger namesize, rlong ruleuid)
 {
 	rpa_rulepref_t *rulepref = rpa_compiler_rulepref(co, name, namesize);
@@ -256,19 +271,20 @@ void rpa_compiler_rulepref_clear_flag_s(rpa_compiler_t *co, const rchar *name, r
 }
 
 
-void rpa_compiler_rulepref_set_ruleuid_flags(rpa_compiler_t *co, const rchar *name, ruinteger namesize, rlong ruleuid, rulong flags)
+void rpa_compiler_rulepref_set(rpa_compiler_t *co, const rchar *name, ruinteger namesize, rlong ruleid, rlong ruleuid, rulong flags)
 {
 	rpa_rulepref_t *rulepref = rpa_compiler_rulepref(co, name, namesize);
 
 	R_ASSERT(rulepref);
+	rulepref->ruleid = ruleid;
 	rulepref->ruleuid = ruleuid;
 	rulepref->flags = flags;
 }
 
 
-void rpa_compiler_rulepref_set_ruleuid_flags_s(rpa_compiler_t *co, const rchar *name, rlong ruleuid, rulong flags)
+void rpa_compiler_rulepref_set_s(rpa_compiler_t *co, const rchar *name, rlong ruleid, rlong ruleuid, rulong flags)
 {
-	rpa_compiler_rulepref_set_ruleuid_flags(co, name, r_strlen(name), ruleuid, flags);
+	rpa_compiler_rulepref_set(co, name, r_strlen(name), ruleid, ruleuid, flags);
 }
 
 
@@ -305,7 +321,8 @@ rlong rpa_compiler_addblob_s(rpa_compiler_t *co, rlong ruleid, rlong ruleuid, ru
 rinteger rpa_compiler_loop_begin(rpa_compiler_t *co, const rchar *name, ruinteger namesize)
 {
 	rpa_ruledef_t exp;
-	rlong ruleuid = RPA_RECORD_INVALID_UID;
+	rlong ruleuid = 0;
+	rlong ruleid = 0;
 	rulong flags = 0;
 
 	r_memset(&exp, 0, sizeof(exp));
@@ -313,6 +330,7 @@ rinteger rpa_compiler_loop_begin(rpa_compiler_t *co, const rchar *name, ruintege
 	if (exp.rulepref) {
 		flags = exp.rulepref->flags;
 		ruleuid = exp.rulepref->ruleuid;
+		ruleid = exp.rulepref->ruleid;
 	}
 	exp.start = rvm_codegen_getcodesize(co->cg);
 	exp.startidx = rvm_codegen_addlabel_default(co->cg, name, namesize);
@@ -320,7 +338,7 @@ rinteger rpa_compiler_loop_begin(rpa_compiler_t *co, const rchar *name, ruintege
 	exp.successidx = rpa_codegen_invalid_add_numlabel_s(co->cg, "__success", exp.start);
 	exp.failidx = rpa_codegen_invalid_add_numlabel_s(co->cg, "__fail", exp.start);
 	exp.againidx = rpa_codegen_invalid_add_numlabel_s(co->cg, "__again", exp.start);
-	exp.dataidx = rpa_compiler_addblob(co, exp.start, ruleuid, flags, name, namesize);
+	exp.dataidx = rpa_compiler_addblob(co, ruleid, ruleuid, flags, name, namesize);
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_CLR, R3, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_CLR, R0, XX, XX, 0));
@@ -386,7 +404,8 @@ rinteger rpa_compiler_loop_end(rpa_compiler_t *co)
 rinteger rpa_compiler_rule_begin(rpa_compiler_t *co, const rchar *name, ruinteger namesize)
 {
 	rpa_ruledef_t exp;
-	rlong ruleuid = RPA_RECORD_INVALID_UID;
+	rlong ruleuid = 0;
+	rlong ruleid = 0;
 	rulong flags = 0;
 
 	r_memset(&exp, 0, sizeof(exp));
@@ -394,11 +413,12 @@ rinteger rpa_compiler_rule_begin(rpa_compiler_t *co, const rchar *name, ruintege
 	if (exp.rulepref) {
 		flags = exp.rulepref->flags;
 		ruleuid = exp.rulepref->ruleuid;
+		ruleid = exp.rulepref->ruleid;
 	}
 	exp.start = rvm_codegen_getcodesize(co->cg);
 	exp.startidx = rvm_codegen_addlabel_default(co->cg, name, namesize);
 	exp.endidx = rpa_codegen_invalid_add_numlabel_s(co->cg, "__end", exp.start);
-	exp.dataidx = rpa_compiler_addblob(co, exp.start, ruleuid, flags, name, namesize);
+	exp.dataidx = rpa_compiler_addblob(co, ruleid, ruleuid, flags, name, namesize);
 
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_CHECKCACHE, DA, R_TOP, XX, exp.start));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BXNEQ, LR, XX, XX, 0));
@@ -461,7 +481,8 @@ rinteger rpa_compiler_rule_end(rpa_compiler_t *co)
 rinteger rpa_compiler_inlinerule_begin(rpa_compiler_t *co, const rchar *name, ruinteger namesize, ruinteger flags)
 {
 	rpa_ruledef_t exp;
-	rlong ruleuid = RPA_RECORD_INVALID_UID;
+	rlong ruleuid = 0;
+	rlong ruleid = 0;
 	rulong ruleflags = 0;
 
 	r_memset(&exp, 0, sizeof(exp));
@@ -469,13 +490,14 @@ rinteger rpa_compiler_inlinerule_begin(rpa_compiler_t *co, const rchar *name, ru
 	if (exp.rulepref) {
 		ruleflags = exp.rulepref->flags;
 		ruleuid = exp.rulepref->ruleuid;
+		ruleid = exp.rulepref->ruleid;
 	}
 
 	exp.branch = rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, 0));
 	exp.start = rvm_codegen_getcodesize(co->cg);
 	exp.startidx = rpa_codegen_add_numlabel_s(co->cg, "__inlined", exp.start);
 	exp.endidx = rpa_codegen_invalid_add_numlabel_s(co->cg, "__end", exp.start);
-	exp.dataidx = rpa_compiler_addblob(co, exp.start, ruleuid, ruleflags, name, namesize);
+	exp.dataidx = rpa_compiler_addblob(co, ruleid, ruleuid, ruleflags, name, namesize);
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R_REC, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R_TOP, XX, XX, 0));

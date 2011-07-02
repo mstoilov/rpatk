@@ -1676,6 +1676,23 @@ rsize_t rpa_dbex_strncpy(rpadbex_t *dbex, rchar *dst, rparule_t rid, rsize_t n)
 }
 
 
+const rchar *rpa_dbex_name(rpadbex_t *dbex, rparule_t rid)
+{
+	rstr_t *name;
+
+	if (!dbex)
+		return NULL;
+	if (!dbex->rules) {
+		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_NOTCLOSED);
+		return NULL;
+	}
+	if (rid >= r_array_length(dbex->rules->members))
+		return NULL;
+	name = r_array_index(dbex->rules->names, rid, rstr_t*);
+	return name->str;
+}
+
+
 rparule_t rpa_dbex_first(rpadbex_t *dbex)
 {
 	if (!dbex)
@@ -1798,6 +1815,11 @@ static rinteger rpa_dbex_compile_rule(rpadbex_t *dbex, rparule_t rid)
 	if (!info)
 		return -1;
 	codeoff = rvm_codegen_getcodesize(dbex->co->cg);
+	/*
+	 * Set the rid in the rulepref, so the compiler associates this rule
+	 * with the correct rid.
+	 */
+	rpa_compiler_rulepref_set_ruleid_s(dbex->co, rpa_dbex_name(dbex, rid), rid);
 	if (rpa_dbex_playrecord(dbex, info->startrec) < 0)
 		return -1;
 	info->codeoff = codeoff;

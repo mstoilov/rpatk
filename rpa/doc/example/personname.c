@@ -44,6 +44,7 @@ int main(int argc, char *argv[])
 		"middle ::= [A-Za-z]+ '.'?\n"
 		"last   ::= [A-Za-z]+\n"
 		"name   ::= <first> ' ' <middle> ' ' <last>\n";
+
 	dbex = rpa_dbex_create();
 	rpa_dbex_open(dbex);
 	rpa_dbex_load(dbex, bnf, strlen(bnf));
@@ -51,18 +52,18 @@ int main(int argc, char *argv[])
 	rpa_dbex_compile(dbex);
 	stat = rpa_stat_create(dbex, RPA_DEFAULT_STACKSIZE);
 	rpa_stat_parse(stat, rpa_dbex_last(dbex), RPA_ENCODING_UTF8, name, name, name+sizeof(name), records);
-	rpa_stat_destroy(stat);
-	rpa_dbex_destroy(dbex);
 	for (i = 0; i < rpa_records_length(records); i++) {
 		record = rpa_records_slot(records, i);
 		if (record->type == RPA_RECORD_START)
-			fprintf(stdout, "RPA_RECORD_START   (ID: %d)  ", record->ruleuid);
+			fprintf(stdout, "RPA_RECORD_START   (UID: %d)  ", record->ruleuid);
 		if (record->type == RPA_RECORD_END)
-			fprintf(stdout, "RPA_RECORD_END     (ID: %d)  ", record->ruleuid);
-		fprintf(stdout, "%s: ", record->rule);
-		fwrite(record->input, 1, record->inputsiz, stdout);
+			fprintf(stdout, "RPA_RECORD_END     (UID: %d)  ", record->ruleuid);
+		fprintf(stdout, "%s: ", rpa_dbex_name(dbex, record->ruleid));
+		fwrite(&name[record->inputoff], 1, record->inputsiz, stdout);
 		fprintf(stdout, "\n");
 	}
 	rpa_records_destroy(records);
+	rpa_stat_destroy(stat);
+	rpa_dbex_destroy(dbex);
 	return 0;
 }

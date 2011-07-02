@@ -236,6 +236,20 @@ rparule_t rpa_dbex_lookup_s(rpadbex_t *dbex, const rchar *name);
 
 
 /**
+ * @brief Return the name of the specified rule ID.
+ *
+ * If rid is a valid rule, this function will return a pointer to the rule name.
+ * The returned points directly in the database structures, if you need
+ * to preserved name, you will have to make a copy.
+ *
+ * @param dbex Pointer to \ref rpadbex_t object.
+ * @param rid Rule id
+ * @return Returns the name of the specified ID or NULL in case of error.
+ */
+const rchar *rpa_dbex_name(rpadbex_t *dbex, rparule_t rid);
+
+
+/**
  * \brief Return the first production ID in the database.
  *
  * Depending on how the BNF schema is structured, if the first production is also the
