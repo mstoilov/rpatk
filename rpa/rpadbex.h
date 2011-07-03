@@ -19,9 +19,14 @@
  */
 
 /**
+ * @addtogroup rpa Regular Pattern Analyser (RPA)
+ * @{
+ *
+ */
+
+/**
  * \file rpa/rpadbex.h
  * \brief The public interface to BNF productions database API
- *
  *
  * <h2>Synopsis</h2>
  * The following APIs are used to Create, Compile, Enumerate, etc. BNF productions.
@@ -408,6 +413,10 @@ rinteger rpa_dbex_dumpuids(rpadbex_t *dbex);
 
 /**
  * \example personname.c
+ */
+
+/**
+ * @}
  */
 
 

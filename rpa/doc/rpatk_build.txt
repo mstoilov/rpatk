@@ -1,0 +1,45 @@
+/** @page rpatk_build Build from source
+
+<h2>Linux</h2>
+To build the source tree and install on Linux:
+@code
+# cd rpatk/build/linux/ARCH_DIR
+# make BLDCFG=release
+# sudo make install
+@endcode
+
+Add the path to Rpa/Tk headers:
+@code
+-I/usr/include/rpatk
+@endcode
+
+To link to the Rpa/Tk libraries on Linux add the following link options:
+@code
+-lrpa -lrvm -lrlib -lm
+@endcode
+
+RVM library uses some math functions from the system math library, 
+that is why you must include '-lm' to include the math library to your project
+in addition to the Rpa/Tk built libraries:
+- librpa
+- librvm
+- librlib
+
+ 
+To build the PHP extension prpa.so on Linux:
+@code
+# cd rpatk/phpext/prpa
+# phpize
+# ./configure
+# make
+# sudo make install
+@endcode
+
+Add the prpa.so PHP extension to your php.ini
+
+@code
+extension=prpa.so
+@endcode
+
+
+*/

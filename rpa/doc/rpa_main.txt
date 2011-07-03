@@ -1,0 +1,4 @@
+/** \page rpa_main "Regular Pattern Analyzer (RPA)"
+Regular Pattern Analyzer (RPA) is a bottom-up, recursive parser. 
+
+*/

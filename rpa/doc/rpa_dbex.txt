@@ -1,0 +1,11 @@
+/** \page rpa_dbex Loading and compiling BNF productions.
+To use a BNF schema for parsing, searching or matching you must first load and
+compile the BNF schema using the @ref rpadbex_t API.
+
+- 1. Create an BNF expression database (rpadbex_t object), using @ref rpa_dbex_create.
+- 2. Open the expression database, using @ref rpa_dbex_open.
+- 3. Load the BNF productions into the databse, using @ref rpa_dbex_load or @ref rpa_dbex_load_s.
+- 4. Close the database, using @ref rpa_dbex_close.
+- 5. Compile the BNF productions in the database to byte code, using @ref rpa_dbex_compile.
+
+*/
