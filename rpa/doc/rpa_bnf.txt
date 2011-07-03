@@ -1,3 +1,25 @@
 /** \page rpa_bnf BNF Syntax.
 
+@section intro Introduction
+A BNF specification or schema is a set of derivation rules, written as:
+
+@code
+rulename ::= __expression__
+@endcode
+
+where rulename is a nonterminal, and the __expression__ consists of one or more sequences of rulenames or terminals.
+This is an example BNF specification of a postal address:
+
+@code
+name_part      ::= <personal_part> <last_name> <opt_jr_part> | <personal_part> <name_part>
+personal_part  ::= <first_name> | <initial> "." 
+street_address ::= <house_num> <street_name> <opt_apt_num>
+zip_part       ::= <town_name> "," <state_code> <ZIP_code>
+opt_jr_part    ::= "Sr." | "Jr." | <roman_numeral> | ""
+postal_address ::= <name_part> <street_address> <zip_part>
+@endcode
+
+This example is not complete, because there still some nonterminals that are not specified. It should just give you an idea
+how to create a sequence of rulenames to build a full BNF specification.
+
 */

@@ -4,7 +4,6 @@
 @mainpage Rpa/Tk Documentation
 - @subpage rpatk_build
 - @subpage rpa_main "Regular Pattern Analyzer"
-	- @subpage rpa_intro
 	- @subpage rpa_bnf	
 	- @subpage rpa_dbex
 */
