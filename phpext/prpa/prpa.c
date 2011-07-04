@@ -84,6 +84,7 @@ zend_function_entry prpa_functions[] = {
 	PHP_FE(rpa_dbex_last, NULL)
 	PHP_FE(rpa_dbex_cfgset, NULL)
 	PHP_FE(rpa_dbex_dumpproductions, NULL)
+	PHP_FE(rpa_dbex_dumptree, NULL)
 	PHP_FE(rpa_dbex_error, NULL)
 	PHP_FE(rpa_stat_create, NULL)
 	PHP_FE(rpa_stat_match, NULL)
@@ -390,6 +391,22 @@ PHP_FUNCTION(rpa_dbex_dumpproductions)
 	}
 	ZEND_FETCH_RESOURCE(phpdbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
 	ret = rpa_dbex_dumpproductions(phpdbex->dbex);
+	RETURN_LONG(ret);
+}
+
+
+PHP_FUNCTION(rpa_dbex_dumptree)
+{
+	zval *zres;
+	php_rpa_dbex *phpdbex;
+	long rid = 0;
+	long ret;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rl", &zres, &rid) == FAILURE) {
+		RETURN_LONG(-1);
+	}
+	ZEND_FETCH_RESOURCE(phpdbex, php_rpa_dbex*, &zres, -1, PHP_RPA_DBEX_RES_NAME, le_rpa_dbex);
+	ret = rpa_dbex_dumptree(phpdbex->dbex, rid);
 	RETURN_LONG(ret);
 }
 

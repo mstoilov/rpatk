@@ -55,6 +55,7 @@ PHP_FUNCTION(rpa_dbex_first);
 PHP_FUNCTION(rpa_dbex_last);
 PHP_FUNCTION(rpa_dbex_cfgset);
 PHP_FUNCTION(rpa_dbex_dumpproductions);
+PHP_FUNCTION(rpa_dbex_dumptree);
 PHP_FUNCTION(rpa_dbex_error);
 PHP_FUNCTION(rpa_stat_create);
 PHP_FUNCTION(rpa_stat_scan);
