@@ -35,7 +35,7 @@ static void rpavm_swi_matchchr_opt(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rword wc = RVM_CPUREG_GETU(cpu, ins->op1);
 	rword matched = 0;
 
-	if (rpa_stat_matchspchr(stat, RVM_CPUREG_GETL(cpu, R_TOP), wc) > 0) {
+	if (rpa_stat_matchchr(stat, RVM_CPUREG_GETL(cpu, R_TOP), wc) > 0) {
 		rpavm_swi_shift(cpu, ins);
 		matched = 1;
 	}
@@ -50,7 +50,7 @@ static void rpavm_swi_matchchr_mul(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rword wc = RVM_CPUREG_GETU(cpu, ins->op1);
 	rword matched = 0;
 
-	while (rpa_stat_matchspchr(stat, RVM_CPUREG_GETL(cpu, R_TOP), wc) > 0) {
+	while (rpa_stat_matchchr(stat, RVM_CPUREG_GETL(cpu, R_TOP), wc) > 0) {
 		rpavm_swi_shift(cpu, ins);
 		matched += 1;
 	}

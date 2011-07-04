@@ -11,15 +11,24 @@ where rulename is a nonterminal, and the __expression__ consists of one or more 
 This is an example BNF specification of a postal address:
 
 @code
-name_part      ::= <personal_part> <last_name> <opt_jr_part> | <personal_part> <name_part>
-personal_part  ::= <first_name> | <initial> "." 
-street_address ::= <house_num> <street_name> <apt_num>?
-zip_part       ::= <town_name> "," <state_code> <ZIP_code>
-opt_jr_part    ::= "Sr." | "Jr." | <roman_numeral> | ""
-postal_address ::= <name_part> <street_address> <zip_part>
+S              ::= ( [#x20] | [#x9] | [#xD] | [#xA] )+        # Space characters
+last_name      ::= [A-Za-z]+
+first_name     ::= [A-Za-z]+
+house_num      ::= [0-9]+
+apt_num        ::= '#' <S>? [0-9]+
+street_name    ::= ([A-Za-z0-9] | ' ' | '.')+
+town_name      ::= ([A-Za-z] | ' ')+
+ZIP_code       ::= [0-9][0-9][0-9][0-9][0-9]
+state_code     ::= [A-Z][A-Z]
+initial        ::= [A-Z]
+name_part      ::= <first_name> <S> (<initial> "."? <S> )? <last_name> (<S> <jr>)?
+street_address ::= <house_num> <S> <street_name> <apt_num>?
+zip_part       ::= <town_name> <S>? "," <S>? <state_code> <S>? <ZIP_code>
+jr             ::= "Sr." | "Jr."
+postal_address ::= <name_part> <S> <street_address> <S> <zip_part>
 @endcode
 
-This example is not complete, because there still some nonterminals that are not specified. It should just give you an idea
-how to create a sequence of rulenames to build a full BNF specification.
+
+
 
 */
