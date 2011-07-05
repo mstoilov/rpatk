@@ -1,0 +1,10 @@
+/** \page rpa_stat rpastat_t - Parsing, searching or matching.
+To parse, search or match you must use @ref rpastat_t API.
+- 1. Create @ref rpastat_t object with @rpa_stat_create.
+- 2. To parse, search or match use:
+	- @ref rpa_stat_parse
+	- @ref rpa_stat_scan
+	- @ref rpa_stat_match
+	
+	
+*/

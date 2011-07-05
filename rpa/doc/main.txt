@@ -6,5 +6,7 @@
 - @subpage rpa_main "Regular Pattern Analyzer"
 	- @subpage rpa_bnf	
 	- @subpage rpa_dbex
+	- @subpage rpa_stat
+	- @subpage rpa_record
 */
 

@@ -1,4 +1,4 @@
-/** \page rpa_dbex Loading and compiling BNF productions.
+/** \page rpa_dbex rpadbex_t - Loading and compiling BNF rules.
 To use a BNF schema for parsing, searching or matching you must first load and
 compile the BNF schema using the @ref rpadbex_t API.
 

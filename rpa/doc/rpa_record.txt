@@ -1,0 +1,13 @@
+/** \page rpa_record rparecord_t - Parse results.
+The rpa_stat_parse populates an array(@ref rarray_t) with @ref rparecord_t 
+structures. The parser generates starting and ending record of 
+type @ref RPA_RECORD_START and @ref RPA_RECORD_END for every matching rule. 
+If a rule A contains other rules B, C, D the records generated 
+for B, C, D will appear between the starting and ending records of A. If B, C or D 
+contain other rules, their records will be placed between the starting and ending 
+records of B, C or D. If a rule doesn't contain any other rules, it will 
+generate a start record immediately followed by an end record. The whole 
+array of records forms an Abstract Syntax Tree (AST).
+
+
+*/
