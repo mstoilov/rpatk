@@ -19,7 +19,7 @@
  */
 
 /**
- *\file rpadbex.c
+ *@file rpadbex.c
  */
 
 #include "rpa/rpacompiler.h"

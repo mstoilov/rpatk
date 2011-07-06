@@ -248,8 +248,8 @@ int rpa_grep_parse(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 			r_snprintf(location, sizeof(location), "Parse Error: Code: %ld", err.code);
 			rpa_grep_output_utf8_string(pGrep, location);
 		}
-		if (err.ruleid) {
-			r_snprintf(location, sizeof(location), ", Rule UID: %ld", err.ruleid);
+		if (err.ruleuid) {
+			r_snprintf(location, sizeof(location), ", Rule UID: %ld", err.ruleuid);
 			rpa_grep_output_utf8_string(pGrep, location);
 		}
 		if (*err.name) {

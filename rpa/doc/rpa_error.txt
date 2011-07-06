@@ -1,0 +1,5 @@
+/** \page rpa_error rpa_error_t - Check the error in case of error.
+
+Use @ref rpa_dbex_lasterrorinfo or @ref rpa_dbex_lasterror to check the error if an error occurs.
+
+*/

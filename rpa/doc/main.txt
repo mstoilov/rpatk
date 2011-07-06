@@ -8,5 +8,6 @@
 	- @subpage rpa_dbex
 	- @subpage rpa_stat
 	- @subpage rpa_record
+	- @subpage rpa_error	
 */
 

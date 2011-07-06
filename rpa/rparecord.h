@@ -19,15 +19,15 @@
  */
 
 /**
- * \file rpa/rparecord.h
- * \brief The public interface for working with Abstract Syntax Tree (AST), produced by @ref rpa_stat_parse.
+ * @file rpa/rparecord.h
+ * @brief The public interface for working with Abstract Syntax Tree (AST), produced by @ref rpa_stat_parse.
  *
  *
  * <h2>Synopsis</h2>
- * Upon a successful call to \ref rpa_stat_parse, the parser produces a stack of \ref rparecord_t records.
- * There are two kinds of records: \ref RPA_RECORD_START and \ref RPA_RECORD_END. \ref RPA_RECORD_START marks
- * the beginning of a branch and \ref RPA_RECORD_END marks the end of that branch. Empty branches are specified by
- * a record \ref RPA_RECORD_START followed immediately by \ref RPA_RECORD_END (no child records in between).
+ * Upon a successful call to @ref rpa_stat_parse, the parser produces a stack of @ref rparecord_t records.
+ * There are two kinds of records: @ref RPA_RECORD_START and @ref RPA_RECORD_END. @ref RPA_RECORD_START marks
+ * the beginning of a branch and @ref RPA_RECORD_END marks the end of that branch. Empty branches are specified by
+ * a record @ref RPA_RECORD_START followed immediately by @ref RPA_RECORD_END (no child records in between).
  * Empty branches are considered leaves.
  *
  * Example:
@@ -77,19 +77,19 @@ extern "C" {
 #define RPA_RECORD_END (1 << 1)					/**< End record - the parser generates this record after evaluating the rule and the rule matched some input. */
 
 /**
- * typedef rparecord_t
+ * Abstract Syntax Tree (AST) construction element
  */
 typedef struct rparecord_s rparecord_t;
 
 /**
- * typedef rpa_recordtree_callback
+ * Tree walk callback
  */
 typedef rlong (*rpa_recordtree_callback)(rarray_t *records, rlong rec, rpointer userdata);
 
 
 /**
  * \struct rparecord_s <rpa/rparecord.h> <rpa/rparecord.h>
- * \brief Abstract Syntax Tree (AST) construction element.
+ * Abstract Syntax Tree (AST) construction element.
  */
 struct rparecord_s {
 	ruint32 top;			/**< This is a private member, used by the engine and is not significant to the user */

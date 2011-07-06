@@ -19,8 +19,8 @@
  */
 
 /**
- * \file rpa/rpaerror.h
- * \brief The public interface for examining errors.
+ * @file rpa/rpaerror.h
+ * @brief The public interface for examining errors.
  *
  *
  * <h2>Synopsis</h2>
@@ -32,41 +32,77 @@
 
 #include "rtypes.h"
 
-#define RPA_ERRINFO_NONE 0
-#define RPA_ERRINFO_CODE (1<<0)
-#define RPA_ERRINFO_OFFSET (1<<1)
-#define RPA_ERRINFO_LINE (1<<2)
-#define RPA_ERRINFO_RULEID (1<<3)
-#define RPA_ERRINFO_NAME (1<<4)
+#define RPA_ERRINFO_NONE 0				/**< No error fields are set */
+#define RPA_ERRINFO_CODE (1<<0)			/**< The code field is set */
+#define RPA_ERRINFO_OFFSET (1<<1)		/**< The offset field is set */
+#define RPA_ERRINFO_LINE (1<<2)			/**< The line field is set */
+#define RPA_ERRINFO_RULEID (1<<3)		/**< The ruleid is set */
+#define RPA_ERRINFO_NAME (1<<4)			/**< The name field is set */
 
 
-#define RPA_E_NONE 0
-#define RPA_E_OUTOFMEM 1001
-#define RPA_E_NOTCOMPILED 1002
-#define RPA_E_NOTOPEN 1003
-#define RPA_E_NOTCLOSED 1004
-#define RPA_E_NOTFOUND 1005
-#define RPA_E_SYNTAXERROR 1006
-#define RPA_E_UNRESOLVEDSYMBOL 1007
-#define RPA_E_PARAM 1008
-#define RPA_E_COMPILE 1009
+#define RPA_E_NONE 0					/**< No error */
+#define RPA_E_OUTOFMEM 1001				/**< Not enough memory */
+#define RPA_E_NOTCOMPILED 1002			/**< The database is not yet compiled to byte code. Some of the operations are not possible until the call to @ref rpa_dbex_compile is made. */
+#define RPA_E_NOTOPEN 1003				/**< The database is not open. Use @ref rpa_dbex_open to open it. */
+#define RPA_E_NOTCLOSED 1004			/**< The database is not closed. Use @ref rpa_dbex_close to close it. */
+#define RPA_E_NOTFOUND 1005				/**< The specified rule cannot be found */
+#define RPA_E_SYNTAXERROR 1006			/**< Syntax Error. Check the BNF syntax. */
+#define RPA_E_UNRESOLVEDSYMBOL 1007		/**< A rule name is used in the BNF specification, but it is not defined */
+#define RPA_E_PARAM 1008				/**< Invalid parameter */
+#define RPA_E_COMPILE 1009				/**< Compile error */
 
-#define RPA_E_EXECUTION 2001
-#define RPA_E_USERABORT 2002
-#define RPA_E_RULEABORT 2003
-#define RPA_E_INVALIDINPUT 2004
+#define RPA_E_EXECUTION 2001			/**< Execution error */
+#define RPA_E_USERABORT 2002			/**< Operation is interrupted by user */
+#define RPA_E_RULEABORT 2003			/**< If a rule is set to abort with the directive #!abort, if it cannot be matched the engine will generate this error */
+#define RPA_E_INVALIDINPUT 2004			/**< Invalid input was specified */
 
 /**
- * \typedef rpaerror_t
- * \brief RPA error description.
+ * @brief RPA error description.
  */
 typedef struct rpa_errinfo_s rpa_errinfo_t;
+
+/**
+ * \struct rpa_errinfo_s <rpa/rpaerror.h> <rpa/rpaerror.h>
+ * @brief Error description.
+ */
 struct rpa_errinfo_s {
+	/**
+	 * Mask of valid fields
+	 * - @ref RPA_ERRINFO_CODE
+	 * - @ref RPA_ERRINFO_OFFSET
+	 * - @ref RPA_ERRINFO_LINE
+	 * - @ref RPA_ERRINFO_RULEID
+	 * - @ref RPA_ERRINFO_NAME
+	 */
 	rulong mask;
+
+	/**
+	 * Error code:
+	 * - @ref RPA_E_NONE
+	 * - @ref RPA_E_OUTOFMEM
+	 * - ...
+	 */
 	rlong code;
+
+	/**
+	 * Error offset in the BNF schema
+	 */
 	rlong offset;
+
+	/**
+	 * Error line in the BNF schema
+	 */
 	rlong line;
-	rlong ruleid;
+
+	/**
+	 * Error rule user ID. If the engine can determine the ruleuid of the rule generating the error,
+	 * this field will be set accordingly
+	 */
+	rlong ruleuid;
+
+	/**
+	 * Error rule name
+	 */
 	rchar name[128];
 };
 
