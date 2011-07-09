@@ -87,7 +87,7 @@ rpadbex_t *rpa_dbex_create(void);
 
 
 /**
- * @brief Destoies an object of type rpadbex_t, created by @ref rpa_dbex_create.
+ * @brief Destroy an object of type rpadbex_t, created by @ref rpa_dbex_create.
  *
  * Use this function to destroy the object. After this call the pointer to dbex should never be used again.
  *

@@ -66,19 +66,19 @@ static void rvm_op_abort_double(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, rdou
 }
 
 
-inline void rvm_op_binary_unsigned(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, rword op1, rword op2)
+static void rvm_op_binary_unsigned(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, rword op1, rword op2)
 {
 	binary_operations[opid].unsigned_binop_fun(cpu, opid, res, op1, op2);
 }
 
 
-inline void rvm_op_binary_long(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, rlong op1, rlong op2)
+static void rvm_op_binary_long(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, rlong op1, rlong op2)
 {
 	binary_operations[opid].long_binop_fun(cpu, opid, res, op1, op2);
 }
 
 
-inline void rvm_op_binary_double(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, rdouble op1, rdouble op2)
+static void rvm_op_binary_double(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, rdouble op1, rdouble op2)
 {
 	binary_operations[opid].double_binop_fun(cpu, opid, res, op1, op2);
 }

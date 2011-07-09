@@ -65,7 +65,7 @@ extern "C" {
 #define RVM_CPUREG_R_PTR(__cpu__, __r__) (&(__cpu__)->r[(__r__)])
 #define RVM_CPUREG_PTR(__cpu__, __r__) RVM_CPUREG_R_PTR(__cpu__, __r__)
 #define RVM_CPUREG_GET(__cpu__, __r__) *(RVM_CPUREG_PTR(__cpu__, __r__))
-#define RVM_CPUREG_SET(__cpu__, __r__, __val__) do { *(RVM_CPUREG_PTR(__cpu__, __r__)) = (rvmreg_t)(__val__); } while (0)
+#define RVM_CPUREG_SET(__cpu__, __r__, __val__) do { *(RVM_CPUREG_PTR(__cpu__, __r__)) = (__val__); } while (0)
 
 #define RVM_REG_GETTYPE(__r__) (__r__)->type
 #define RVM_REG_SETTYPE(__r__, __val__) do { (__r__)->type = (__val__); } while(0);
@@ -135,7 +135,7 @@ extern "C" {
 
 
 
-#define RVM_MIN_REGSIZE (sizeof(rword)/8)
+#define RVM_MIN_REGSIZE (sizeof(rword))
 
 typedef ruint16 rvmreg_type_t;
 typedef ruint16 rvmreg_flags_t;
