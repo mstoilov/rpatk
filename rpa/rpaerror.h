@@ -36,7 +36,7 @@
 #define RPA_ERRINFO_CODE (1<<0)			/**< The code field is set */
 #define RPA_ERRINFO_OFFSET (1<<1)		/**< The offset field is set */
 #define RPA_ERRINFO_LINE (1<<2)			/**< The line field is set */
-#define RPA_ERRINFO_RULEID (1<<3)		/**< The ruleid is set */
+#define RPA_ERRINFO_RULEUID (1<<3)		/**< The ruleid is set */
 #define RPA_ERRINFO_NAME (1<<4)			/**< The name field is set */
 
 
@@ -71,7 +71,7 @@ struct rpa_errinfo_s {
 	 * - @ref RPA_ERRINFO_CODE
 	 * - @ref RPA_ERRINFO_OFFSET
 	 * - @ref RPA_ERRINFO_LINE
-	 * - @ref RPA_ERRINFO_RULEID
+	 * - @ref RPA_ERRINFO_RULEUID
 	 * - @ref RPA_ERRINFO_NAME
 	 */
 	rulong mask;

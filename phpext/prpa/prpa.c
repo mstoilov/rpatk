@@ -492,9 +492,9 @@ static zval *rpa_zvalerror(rpa_errinfo_t *errorinfo)
 		n += snprintf(ptr + n, size - n, "Offset: %ld. ", errorinfo->offset);
 		add_assoc_long(zerror, "offset", errorinfo->offset);
 	}
-	if (errorinfo->mask & RPA_ERRINFO_RULEID) {
-		n += snprintf(ptr + n, size - n, "RuleId: %ld. ", errorinfo->ruleid);
-		add_assoc_long(zerror, "rid", errorinfo->ruleid);
+	if (errorinfo->mask & RPA_ERRINFO_RULEUID) {
+		n += snprintf(ptr + n, size - n, "RuleId: %ld. ", errorinfo->ruleuid);
+		add_assoc_long(zerror, "rid", errorinfo->ruleuid);
 	}
 	if (errorinfo->mask & RPA_ERRINFO_NAME) {
 		n += snprintf(ptr + n, size - n, "Name: %s. ", errorinfo->name);
