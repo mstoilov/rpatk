@@ -77,7 +77,7 @@ typedef struct rpastat_s rpastat_t;
  *
  * @param dbex BNF productions database created with @ref rpa_dbex_create.
  * @param stacksize Execution stack size. The size is specified in byts.
- * @return Returns a pointer to newly created @ref rpastat_t object or NULL if error occured.
+ * @return Returns a pointer to newly created @ref rpastat_t object or NULL if error occurred.
  */
 rpastat_t *rpa_stat_create(rpadbex_t *dbex, rulong stacksize);
 

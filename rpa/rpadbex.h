@@ -353,7 +353,7 @@ rlong rpa_dbex_cfgget(rpadbex_t *dbex, rulong cfg);
 
 
 /**
- * @brief Printeger a BNF production in a tree format
+ * @brief Print a BNF production in a tree format
  *
  * Use @ref rpa_dbex_lookup to find the ID of a BNF production
  * @param dbex Pointer to @ref rpadbex_t object.
@@ -374,7 +374,7 @@ rinteger rpa_dbex_dumpcode(rpadbex_t* dbex, rparule_t rid);
 
 
 /**
- * @brief Printeger the AST of the parsed BNF productions.
+ * @brief Print the AST of the parsed BNF productions.
  *
  * This function is a debug helper, you shouldn't need it.
  * unless you are debugging this library.
@@ -385,16 +385,16 @@ rinteger rpa_dbex_dumpcode(rpadbex_t* dbex, rparule_t rid);
 rinteger rpa_dbex_dumprecords(rpadbex_t *dbex);
 
 /**
- * @brief Printeger the content of BNF productions database.
+ * @brief Print the content of BNF productions database.
  *
- * Enumerate all BNF productions and printeger them in a text format.
+ * Enumerate all BNF productions and print them in a text format.
  * @param dbex Pointer to @ref rpadbex_t object.
  * @return Return 0 on success or negative if error occurred.
  */
 rinteger rpa_dbex_dumpproductions(rpadbex_t *dbex);
 
 /**
- * @brief Printeger debug information about the state of the BNF productions database.
+ * @brief Print debug information about the state of the BNF productions database.
  *
  * This is a debug helper, you shouldn't need it.
  * @param dbex Pointer to @ref rpadbex_t object.
@@ -403,7 +403,7 @@ rinteger rpa_dbex_dumpproductions(rpadbex_t *dbex);
 rinteger rpa_dbex_dumpinfo(rpadbex_t *dbex);
 
 /**
- * @brief Printeger the production user IDs in a format suitable to be
+ * @brief Print the production user IDs in a format suitable to be
  * included in source code.
  *
  * If you define user IDs for your productions you can dump all user IDs
