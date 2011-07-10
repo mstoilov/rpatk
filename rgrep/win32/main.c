@@ -21,6 +21,9 @@
 
 #include <wchar.h>
 #include <windows.h>
+#include "rlib/rmem.h"
+#include "rlib/rarray.h"
+#include "rpa/rpadbex.h"
 #include "rpagrep.h"
 #include "rpagrepdep.h"
 
@@ -29,21 +32,32 @@ rpa_buffer_t * rpa_buffer_from_wchar(const wchar_t *wstr);
 
 int usage(int argc, const wchar_t *argv[])
 {
+	    fwprintf(stderr, L"RPA Grep with RPA Engine: %s \n", rpa_dbex_version());
+		fwprintf(stderr, L"Copyright (C) 2010 Martin Stoilov\n\n");
+
 		fwprintf(stderr, L"Usage: \n %s [OPTIONS] <filename>\n", argv[0]);
 		fwprintf(stderr, L" OPTIONS:\n");
-		fwprintf(stderr, L"\t-e patterns         execute pattern\n");
-		fwprintf(stderr, L"\t-f patternfile      read the patterns from a file, the last pattern will be executed\n");
-		fwprintf(stderr, L"\t-c printpatterns    printeger these patterns when there is a match.\n");
-		fwprintf(stderr, L"\t-i                  ignore case.\n");		
-		fwprintf(stderr, L"\t-m                  match only from the beginning.\n");		
-		fwprintf(stderr, L"\t-p                  parse the stream.\n");		
-		fwprintf(stderr, L"\t-l                  line mode.\n");
-		fwprintf(stderr, L"\t-16                 force UTF16 encoding.\n");
-		fwprintf(stderr, L"\t-d                  dump the pattern tree.\n");
-		fwprintf(stderr, L"\t-t                  display time elapsed.\n");
-		fwprintf(stderr, L"\t-L                  List all patterns.\n");
-		fwprintf(stderr, L"\t-h, --help          Display this help.\n");
-
+		fwprintf(stderr, L"\t-e patterns              BNF Expression.\n");
+		fwprintf(stderr, L"\t-f patternfile           Read the BNF rules from a file, the last pattern will be executed.\n");
+		fwprintf(stderr, L"\t-i                       Ignore case.\n");
+		fwprintf(stderr, L"\t-m                       Match.\n");
+		fwprintf(stderr, L"\t-p                       Parse.\n");
+		fwprintf(stderr, L"\t-l                       Line mode.\n");
+		fwprintf(stderr, L"\t-16                      Force UTF16 encoding.\n");
+		fwprintf(stderr, L"\t-b                       Force byte encoding.\n");
+		fwprintf(stderr, L"\t-d                       Dump a production in a tree format.\n");
+		fwprintf(stderr, L"\t-t                       Display time elapsed.\n");
+		fwprintf(stderr, L"\t-L, --list-rules         List all patterns.\n");
+		fwprintf(stderr, L"\t-v                       Display version information.\n");
+		fwprintf(stderr, L"\t-h, --help               Display this help.\n");
+		fwprintf(stderr, L"\t    --debug-compile      Display debug compilation information.\n");
+		fwprintf(stderr, L"\t    --dump-info          Display rules info.\n");
+		fwprintf(stderr, L"\t    --dump-alias         Display alias info.\n");
+		fwprintf(stderr, L"\t    --dump-records       Display rules parsing records.\n");
+		fwprintf(stderr, L"\t    --no-optimizations   Disable optimizations.\n");
+		fwprintf(stderr, L"\t    --exec-debug         Execute in debug mode.\n");
+		fwprintf(stderr, L"\t    --dissable-cache     Dissable execution cache.\n");
+	
 		return 0;
 }
 
@@ -54,13 +68,22 @@ int wmain(int argc, const wchar_t* argv[])
 	int ret, scanned = 0, i;
 	rpa_grep_t *pGrep = NULL;
 	DWORD eticks, bticks = GetTickCount();
+	rarray_t *buffers;
 
+	buffers = r_array_create(sizeof(rpa_buffer_t *));
 	pGrep = rpa_grep_create();
 
 	if (argc <= 1) {
 		usage(argc, argv);
 		goto end;
 	}
+
+	for (i = 1; i < argc; i++) {
+		if (wcscmp(argv[i], L"-t") == 0) {
+			pGrep->showtime = 1;
+		}
+	}
+
 	for (i = 1; i < argc; i++) {
 		if (wcscmp(argv[i], L"--help") == 0 || wcscmp(argv[i], L"-help") == 0 || wcscmp(argv[i], L"/?") == 0 || wcscmp(argv[i], L"-h") == 0) {
 			usage(argc, argv);
@@ -80,20 +103,19 @@ int wmain(int argc, const wchar_t* argv[])
 		}
 	}
 
+
 	for (i = 1; i < argc; i++) {
 		if (wcscmp(argv[i], L"-f") == 0) {
 			if (++i < argc) {
 				rpa_buffer_t *pattern = rpa_buffer_map_file(argv[i]);
-				if (!pattern) {
-					goto error;
-				}
-				ret = rpa_grep_load_pattern(pGrep, pattern);
-				if (!pattern) {
-					goto error;
+				if (pattern) {
+					ret = rpa_grep_load_pattern(pGrep, pattern);
+					r_array_add(buffers, &pattern);
+				} else {
+					ret = -1;
 				}
 				if (ret < 0)
 					goto error;
-
 			}
 		}
 	}
@@ -116,6 +138,72 @@ int wmain(int argc, const wchar_t* argv[])
 
 
 	for (i = 1; i < argc; i++) {
+		if (wcscmp(argv[i], L"--dump-code") == 0) {
+			if (rpa_dbex_compile(pGrep->hDbex) == 0) {
+				if (++i < argc) {
+					rpa_dbex_dumpcode(pGrep->hDbex, rpa_dbex_lookup_s(pGrep->hDbex, argv[i]));
+				}
+			}
+			goto end;
+		}
+	}
+
+
+	for (i = 1; i < argc; i++) {
+		if (wcscmp(argv[i], L"--dump-info") == 0) {
+			rpa_grep_dump_pattern_info(pGrep);
+			goto end;
+		}
+	}
+
+	for (i = 1; i < argc; i++) {
+		if (wcscmp(argv[i], L"--debug-compile") == 0) {
+			rpa_grep_debug_compile(pGrep);
+			goto end;
+		}
+	}
+
+
+	for (i = 1; i < argc; i++) {
+		if (wcscmp(argv[i], L"--dump-alias") == 0) {
+			rpa_grep_dump_alias_info(pGrep);
+			goto end;
+		}
+	}
+
+	for (i = 1; i < argc; i++) {
+		if (wcscmp(argv[i], L"--dump-records") == 0) {
+			rpa_grep_dump_pattern_records(pGrep);
+			goto end;
+		}
+	}
+
+	for (i = 1; i < argc; i++) {
+		if (wcscmp(argv[i], L"--exec-debug") == 0) {
+			pGrep->execdebug = 1;
+		}
+	}
+
+	for (i = 1; i < argc; i++) {
+		if (wcscmp(argv[i], L"--dissable-cache") == 0) {
+			pGrep->disablecache = 1;
+		}
+	}
+
+
+	if (rpa_dbex_compile(pGrep->hDbex) < 0) {
+		rpa_errinfo_t errinfo;
+		rpa_dbex_lasterrorinfo(pGrep->hDbex, &errinfo);
+		if (errinfo.code == RPA_E_UNRESOLVEDSYMBOL) {
+			fprintf(stdout, "ERROR: Unresolved Symbol: %s\n", errinfo.name);
+		} else {
+			fprintf(stdout, "ERROR %ld: Compilation failed.\n", errinfo.code);
+		}
+		goto end;
+	}
+
+
+	for (i = 1; i < argc; i++) {
 		if (wcscmp(argv[i], L"-L") == 0) {
 			rpa_grep_list_patterns(pGrep);
 			goto end;
@@ -132,20 +220,52 @@ int wmain(int argc, const wchar_t* argv[])
 		} else if (wcscmp(argv[i], L"-i") == 0) {
 			pGrep->icase = 1;
 		} else if (wcscmp(argv[i], L"-l") == 0) {
-			pGrep->linemode = 1;
+			pGrep->greptype = RPA_GREPTYPE_SCANLINES;
+		} else if (wcscmp(argv[i], L"-m") == 0) {
+			pGrep->greptype = RPA_GREPTYPE_MATCH;
+		} else if (wcscmp(argv[i], L"-p") == 0) {
+			pGrep->greptype = RPA_GREPTYPE_PARSE;
+		} else if (wcscmp(argv[i], L"-a") == 0) {
+			pGrep->greptype = RPA_GREPTYPE_PARSEAST;
 		} else if (wcscmp(argv[i], L"-16") == 0) {
 			pGrep->forceEncoding = RPA_GREP_FORCE_UTF16;
 		} else if (wcscmp(argv[i], L"-b") == 0) {
 			pGrep->forceEncoding = RPA_GREP_FORCE_BYTE;
-		} else if (wcscmp(argv[i], L"-m") == 0) {
-			pGrep->matchonly = 1;
-		} else if (wcscmp(argv[i], L"-p") == 0) {
-			pGrep->matchonly = 2;
-		} else if (wcscmp(argv[i], L"-t") == 0) {
-			pGrep->showtime = 1;
 		}
 		
 	}
+
+
+	for (i = 1; i < argc; i++) {
+		if (wcscmp(argv[i], L"-s") == 0) {
+			if (++i < argc) {
+				rpa_buffer_t *buf = rpa_buffer_from_wchar(argv[i]);
+				rpa_grep_scan_buffer(pGrep, buf);
+				rpa_buffer_destroy(buf);
+				++scanned;
+			}
+		}
+	}
+
+	/* scan files */
+	for (i = 1; i < argc; i++) {
+		if (argv[i][0] != L'-') {
+			++scanned;
+			rpa_grep_scan_path(pGrep, argv[i]);
+		} else if (argv[i][1] == L'e' || argv[i][1] == L'f' || argv[i][1] == L'c' || argv[i][1] == L'C'){
+			++i;
+		}
+		
+	}
+
+	if (!scanned) {
+		rpa_buffer_t *buf = rpa_buffer_loadfile(stdin);
+		if (buf) {
+			rpa_grep_scan_buffer(pGrep, buf);
+			rpa_buffer_destroy(buf);
+		}
+	}
+
 
 	/* scan files */
 	for (i = 1; i < argc; i++) {
@@ -167,6 +287,13 @@ int wmain(int argc, const wchar_t* argv[])
 	}
 
 end:
+	for (i = 0; i < r_array_length(buffers); i++) {
+		rpa_buffer_destroy(r_array_index(buffers, i, rpa_buffer_t*));
+	}
+	r_object_destroy((robject_t*)buffers);
+	rpa_grep_close(pGrep);
+
+
 	rpa_grep_close(pGrep);
 	sckb = (unsigned long)(pGrep->scsize/1024);
 
@@ -179,27 +306,13 @@ end:
 			milsec = 1;
 		minutes = milsec/60000;
 		sec = (milsec%60000)/1000.0;
-		fwprintf(stdout, L"\ntime: %0ldm%1.3fs, %ld KB (%ld KB/sec), stack: %ld KB, fp = %ld\n", 
-				minutes, sec, sckb, 1000*sckb/milsec, pGrep->usedstack / 1000, (unsigned long)pGrep->ud0);
+		fwprintf(stdout, L"\ntime: %0ldm%1.3fs, %ld KB (%ld KB/sec), stack: %ld KB, memory: %ld KB (leaked %ld Bytes), cachehit: %ld \n", 
+				minutes, sec, sckb, 1000*sckb/milsec, pGrep->usedstack / 1000, (rlong)r_debug_get_maxmem()/1000, (rlong)r_debug_get_allocmem(),
+				pGrep->cachehit);
 	}
 
 	rpa_grep_destroy(pGrep);
 	return 0;
-
-
-/*
-	if (pGrep->showtime) {
-		unsigned long sec;
-		unsigned long sckb = (unsigned long)(pGrep->scsize/1024);
-		eticks = GetTickCount();
-		sec = (eticks - bticks)/1000;
-		fwprintf(stdout, L"\n\ntime: %02ld:%02ld, %ld KB (%ld KB/sec), stack: %ld KB\n", 
-			sec/60, sec%60, sckb, sckb/(sec ? sec : 1), pGrep->usedstack / 1000);
-	}
-end:
-	rpa_grep_destroy(pGrep);
-	return 0;
-*/
 
 error:
 	rpa_grep_destroy(pGrep);

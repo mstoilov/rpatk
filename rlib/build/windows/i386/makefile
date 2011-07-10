@@ -41,11 +41,11 @@ CPP_FLAGS=/nologo $(INCLUDE_DIRS) /Zp1 /W3 /EHsc /O2 /D "WIN32" /D "NDEBUG" /D "
 !ELSEIF  "$(CFG)" == "debug"
 
 OUTDIR=.\out
-CPP_FLAGS=/nologo $(INCLUDE_DIRS) /Zp1 /Zi /W3 /EHsc  /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /Fo"$(OUTDIR)\\" /FD  /c
+CPP_FLAGS=/nologo $(INCLUDE_DIRS) /Zp1 /Zi /W3 /EHsc  /Od /D "WIN32" /D "_DEBUG" /D "DEBUG" /D "_CONSOLE" /Fo"$(OUTDIR)\\" /FD  /c
 
 !ENDIF
 
-CPP_FLAGS=$(CPP_FLAGS) $(MCS_CFLAGS)
+CPP_FLAGS=$(CPP_FLAGS)
 
 !IF "$(DBG_CONSOLE)" == "shut"
 CPP_FLAGS=$(CPP_FLAGS) /D "_SHUT_CONSOLE"
