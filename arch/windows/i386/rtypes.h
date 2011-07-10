@@ -1,5 +1,6 @@
 #ifndef _RTYPES_H_
 #define _RTYPES_H_
+#include <windows.h>
 
 /* 
  * Architecture dependent types. These types have to be redifined 
@@ -15,7 +16,7 @@ typedef signed long long rint64;
 typedef unsigned long long ruint64;
 typedef unsigned long rsize_t;
 typedef signed long rssize_t;
-typedef unsigned int ratomic_t;
+typedef unsigned long ratomic_t;
 typedef unsigned long rword;
 typedef long rsword;
 
@@ -43,16 +44,16 @@ typedef struct {ruint32 p1; ruint32 p2;} rpair_t;
  * Atomic operations (Architecture Dependent)
  */
 #define R_ATOMIC_CMPXCHG(ptr, oldval, newval, resptr) \
-		do { } while (0)
+		do { InterlockedCompareExchange (ptr, newval, oldval); *resptr = *ptr; } while (0)
 
 #define R_ATOMIC_XCHG(ptr, val) \
-		do { } while (0)
+		do { val = InterlockedExchange (ptr, val); } while (0)
 
 #define R_ATOMIC_ADD(ptr, val) \
-		do { } while (0)
+		do { InterlockedExchangeAdd (ptr, val); } while (0)
 
 #define R_ATOMIC_SUB(ptr, val) \
-		do { } while (0)
+		do { InterlockedExchangeAdd (ptr, -val); } while (0)
 
 
 #define R_DEBUG_BRAKE do { __asm int 3 } while (0)

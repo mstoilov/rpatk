@@ -27,14 +27,18 @@ void r_spinlock_init(rspinlock_t *lock)
 	*lock = 0;
 }
 
+
 void r_spinlock_lock(rspinlock_t *lock)
 {
 	while (1)
 	{
 		if (!r_atomic_exchange(lock, R_SPINLOCK_BUSY))
 			return;
-
-		while (*lock);
+		while (*lock) {
+			/*
+			 * Spin...
+			 */
+		}
 	}
 }
 
