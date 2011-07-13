@@ -2,7 +2,7 @@
 #define _RTYPES_H_
 
 /* 
- * Architecture dependent types. These types have to be redifined 
+ * Architecture dependent types. These types have to be redefined
  * for every architecture
  */
 typedef signed char rint8;
@@ -15,9 +15,17 @@ typedef signed long rint64;
 typedef unsigned long ruint64;
 typedef unsigned long rword;
 typedef long rsword;
-typedef unsigned long rsize_t;
-typedef signed long rssize_t;
 typedef unsigned int ratomic_t;
+
+#ifndef _RSIZE_T_DEFINED
+typedef unsigned long rsize_t;
+#define _RSIZE_T_DEFINED
+#endif
+
+#ifndef _RSSIZE_T_DEFINED
+typedef signed long rssize_t;
+#define _RSSIZE_T_DEFINED
+#endif
 
 
 /*
