@@ -37,13 +37,13 @@
 
 
 typedef struct rjs_error_s {
-	rlong type;
-	rlong error;
-	rlong offset;
-	rlong size;
-	rlong line;
-	rlong lineoffset;
-	const rchar *script;
+	long type;
+	long error;
+	long offset;
+	long size;
+	long line;
+	long lineoffset;
+	const char *script;
 } rjs_error_t;
 
 

@@ -22,7 +22,7 @@
 #include "rvm/rvmreg.h"
 
 
-void rvm_op_cmn_unsigned(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, rword op1, rword op2)
+void rvm_op_cmn_unsigned(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, rword op1, rword op2)
 {
 	rword r;
 
@@ -35,15 +35,15 @@ void rvm_op_cmn_unsigned(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, rword op1, 
 }
 
 
-void rvm_op_cmn_long(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, rlong op1, rlong op2)
+void rvm_op_cmn_long(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, long op1, long op2)
 {
 	rvm_op_cmn_unsigned(cpu, opid, res, op1, op2);
 }
 
 
-void rvm_op_cmn_double(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, rdouble op1, rdouble op2)
+void rvm_op_cmn_double(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, double op1, double op2)
 {
-	rdouble r;
+	double r;
 
 	r = op1 + op2;
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, !r);

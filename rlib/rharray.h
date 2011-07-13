@@ -46,23 +46,23 @@ typedef struct rharray_s {
 } rharray_t;
 
 
-rharray_t *r_harray_create(ruinteger elt_size);
+rharray_t *r_harray_create(unsigned int elt_size);
 void r_harray_destroy(rharray_t *array);
-robject_t *r_harray_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, ruinteger elt_size);
-rlong r_harray_add(rharray_t *harray, const rchar *name, rsize_t namesize, rconstpointer pval);
-rlong r_harray_add_s(rharray_t *harray, const rchar *name, rconstpointer pval);
-rlong r_harray_replace(rharray_t *harray, const rchar *name, rsize_t namesize, rconstpointer pval);
-rlong r_harray_replace_s(rharray_t *harray, const rchar *name, rconstpointer pval);
-rlong r_harray_lookup(rharray_t *harray, const rchar *name, rsize_t namesize);
-rlong r_harray_lookup_s(rharray_t *harray, const rchar *name);
-rlong r_harray_taillookup(rharray_t *harray, const rchar *name, rsize_t namesize);
-rlong r_harray_taillookup_s(rharray_t *harray, const rchar *name);
-rhash_node_t* r_harray_nodelookup(rharray_t *harray, rhash_node_t *cur, const rchar *name, rsize_t namesize);
-rhash_node_t* r_harray_nodelookup_s(rharray_t *harray, rhash_node_t *cur, const rchar *name);
-rhash_node_t* r_harray_nodetaillookup(rharray_t *harray, rhash_node_t *cur, const rchar *name, rsize_t namesize);
-rhash_node_t* r_harray_nodetaillookup_s(rharray_t *harray, rhash_node_t *cur, const rchar *name);
+robject_t *r_harray_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, unsigned int elt_size);
+long r_harray_add(rharray_t *harray, const char *name, rsize_t namesize, rconstpointer pval);
+long r_harray_add_s(rharray_t *harray, const char *name, rconstpointer pval);
+long r_harray_replace(rharray_t *harray, const char *name, rsize_t namesize, rconstpointer pval);
+long r_harray_replace_s(rharray_t *harray, const char *name, rconstpointer pval);
+long r_harray_lookup(rharray_t *harray, const char *name, rsize_t namesize);
+long r_harray_lookup_s(rharray_t *harray, const char *name);
+long r_harray_taillookup(rharray_t *harray, const char *name, rsize_t namesize);
+long r_harray_taillookup_s(rharray_t *harray, const char *name);
+rhash_node_t* r_harray_nodelookup(rharray_t *harray, rhash_node_t *cur, const char *name, rsize_t namesize);
+rhash_node_t* r_harray_nodelookup_s(rharray_t *harray, rhash_node_t *cur, const char *name);
+rhash_node_t* r_harray_nodetaillookup(rharray_t *harray, rhash_node_t *cur, const char *name, rsize_t namesize);
+rhash_node_t* r_harray_nodetaillookup_s(rharray_t *harray, rhash_node_t *cur, const char *name);
 rpointer r_harray_get(rharray_t *harray, rsize_t index);
-rinteger r_harray_set(rharray_t *harray, rlong index, rconstpointer pval);
+int r_harray_set(rharray_t *harray, long index, rconstpointer pval);
 
 robject_t *r_harray_copy(const robject_t *obj);
 void r_harray_cleanup(robject_t *obj);

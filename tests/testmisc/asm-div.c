@@ -25,8 +25,8 @@
 	
 int main(int argc, char *argv[])
 {
-	ruinteger ret = 0;
-	ruinteger off = 0;
+	unsigned int ret = 0;
+	unsigned int off = 0;
 	rvm_asmins_t vmcode[256];
 	rvmcpu_t *vm = rvm_cpu_create_default();
 	

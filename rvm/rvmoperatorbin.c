@@ -48,73 +48,73 @@
 
 static rvm_binopmap_t binary_operations[RVM_OPID_LAST+1];
 
-static void rvm_op_abort_unsigned(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, rword op1, rword op2)
+static void rvm_op_abort_unsigned(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, rword op1, rword op2)
 {
 	RVM_ABORT(cpu, RVM_E_ILLEGAL);
 }
 
 
-static void rvm_op_abort_long(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, rlong op1, rlong op2)
+static void rvm_op_abort_long(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, long op1, long op2)
 {
 	RVM_ABORT(cpu, RVM_E_ILLEGAL);
 }
 
 
-static void rvm_op_abort_double(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, rdouble op1, rdouble op2)
+static void rvm_op_abort_double(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, double op1, double op2)
 {
 	RVM_ABORT(cpu, RVM_E_ILLEGAL);
 }
 
 
-static void rvm_op_binary_unsigned(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, rword op1, rword op2)
+static void rvm_op_binary_unsigned(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, rword op1, rword op2)
 {
 	binary_operations[opid].unsigned_binop_fun(cpu, opid, res, op1, op2);
 }
 
 
-static void rvm_op_binary_long(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, rlong op1, rlong op2)
+static void rvm_op_binary_long(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, long op1, long op2)
 {
 	binary_operations[opid].long_binop_fun(cpu, opid, res, op1, op2);
 }
 
 
-static void rvm_op_binary_double(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, rdouble op1, rdouble op2)
+static void rvm_op_binary_double(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, double op1, double op2)
 {
 	binary_operations[opid].double_binop_fun(cpu, opid, res, op1, op2);
 }
 
 
-static void rvm_op_binary_unsigned_unsigned(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+static void rvm_op_binary_unsigned_unsigned(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rvm_op_binary_unsigned(cpu, opid, res, RVM_REG_GETU(arg1), RVM_REG_GETU(arg2));
 }
 
 
-static void rvm_op_binary_long_long(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+static void rvm_op_binary_long_long(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rvm_op_binary_long(cpu, opid, res, RVM_REG_GETL(arg1), RVM_REG_GETL(arg2));
 }
 
 
-static void rvm_op_binary_double_long(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+static void rvm_op_binary_double_long(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rvm_op_binary_double(cpu, opid, res, RVM_REG_GETD(arg1), RVM_REG_GETL(arg2));
 }
 
 
-void rvm_op_binary_long_double(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rvm_op_binary_long_double(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rvm_op_binary_double(cpu, opid, res, RVM_REG_GETL(arg1), RVM_REG_GETD(arg2));
 }
 
 
-static void rvm_op_binary_double_double(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+static void rvm_op_binary_double_double(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rvm_op_binary_double(cpu, opid, res, RVM_REG_GETD(arg1), RVM_REG_GETD(arg2));
 }
 
 
-static void rvm_op_binary_string_double(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+static void rvm_op_binary_string_double(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rvmreg_t s;
 
@@ -124,7 +124,7 @@ static void rvm_op_binary_string_double(rvmcpu_t *cpu, rushort opid, rvmreg_t *r
 }
 
 
-static void rvm_op_binary_string_long(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+static void rvm_op_binary_string_long(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rvmreg_t s;
 
@@ -139,7 +139,7 @@ static void rvm_op_binary_string_long(rvmcpu_t *cpu, rushort opid, rvmreg_t *res
 }
 
 
-static void rvm_op_binary_double_string(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+static void rvm_op_binary_double_string(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rvmreg_t s;
 
@@ -149,7 +149,7 @@ static void rvm_op_binary_double_string(rvmcpu_t *cpu, rushort opid, rvmreg_t *r
 }
 
 
-static void rvm_op_binary_long_string(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+static void rvm_op_binary_long_string(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rvmreg_t s;
 
@@ -163,14 +163,14 @@ static void rvm_op_binary_long_string(rvmcpu_t *cpu, rushort opid, rvmreg_t *res
 }
 
 
-static void rvm_op_binary_nan(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+static void rvm_op_binary_nan(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rvm_reg_cleanup(res);
 	RVM_REG_SETTYPE(res, RVM_DTYPE_NAN);
 }
 
 
-void rvm_op_binary_insert(rvm_opmap_t *opmap, rushort opid, rvm_binop_unsigned u, rvm_binop_long l, rvm_binop_double d)
+void rvm_op_binary_insert(rvm_opmap_t *opmap, unsigned short opid, rvm_binop_unsigned u, rvm_binop_long l, rvm_binop_double d)
 {
 	int i;
 

@@ -23,14 +23,14 @@
 #include "rlib/rstring.h"
 
 
-static rlong rpa_codegen_add_numlabel_s(rvm_codegen_t *cg, const rchar *alphaname, rlong numname)
+static long rpa_codegen_add_numlabel_s(rvm_codegen_t *cg, const char *alphaname, long numname)
 {
 #if 0
 	/*
 	 * The alphaname and numname, might be used for
 	 * debugging at some point, but not used for now
 	 */
-	rchar label[128];
+	char label[128];
 
 	r_memset(label, 0, sizeof(label));
 	r_snprintf(label, sizeof(label) - 1, "L%07ld__%s:", numname, alphaname);
@@ -41,14 +41,14 @@ static rlong rpa_codegen_add_numlabel_s(rvm_codegen_t *cg, const rchar *alphanam
 }
 
 
-static rlong rpa_codegen_invalid_add_numlabel_s(rvm_codegen_t *cg, const rchar *alphaname, rlong numname)
+static long rpa_codegen_invalid_add_numlabel_s(rvm_codegen_t *cg, const char *alphaname, long numname)
 {
 #if 0
 	/*
 	 * The alphaname and numname, might be used for
 	 * debugging at some point, but not used for now
 	 */
-	rchar label[128];
+	char label[128];
 
 	r_memset(label, 0, sizeof(label));
 	r_snprintf(label, sizeof(label) - 1, "L%07ld__%s:", numname, alphaname);
@@ -59,25 +59,25 @@ static rlong rpa_codegen_invalid_add_numlabel_s(rvm_codegen_t *cg, const rchar *
 }
 
 
-void rpa_compiler_index_reference_nan(rpa_compiler_t *co, rulong index)
+void rpa_compiler_index_reference_nan(rpa_compiler_t *co, unsigned long index)
 {
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, index, rvm_asm(RVM_BL, DA, XX, XX, 0));
 }
 
 
-void rpa_compiler_reference_nan(rpa_compiler_t *co, const rchar *name, rsize_t namesize)
+void rpa_compiler_reference_nan(rpa_compiler_t *co, const char *name, rsize_t namesize)
 {
 	rpa_compiler_index_reference_nan(co, rvm_codemap_lookupadd(co->cg->codemap, name, namesize));
 }
 
 
-void rpa_compiler_reference_nan_s(rpa_compiler_t *co, const rchar *name)
+void rpa_compiler_reference_nan_s(rpa_compiler_t *co, const char *name)
 {
 	rpa_compiler_reference_nan(co, name, r_strlen(name));
 }
 
 
-void rpa_compiler_index_reference_opt(rpa_compiler_t *co, rulong index)
+void rpa_compiler_index_reference_opt(rpa_compiler_t *co, unsigned long index)
 {
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, index, rvm_asm(RVM_BL, DA, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOVS, R0, R0, XX, 0));
@@ -86,19 +86,19 @@ void rpa_compiler_index_reference_opt(rpa_compiler_t *co, rulong index)
 }
 
 
-void rpa_compiler_reference_opt(rpa_compiler_t *co, const rchar *name, rsize_t namesize)
+void rpa_compiler_reference_opt(rpa_compiler_t *co, const char *name, rsize_t namesize)
 {
 	rpa_compiler_index_reference_opt(co, rvm_codemap_lookupadd(co->cg->codemap, name, namesize));
 }
 
 
-void rpa_compiler_reference_opt_s(rpa_compiler_t *co, const rchar *name)
+void rpa_compiler_reference_opt_s(rpa_compiler_t *co, const char *name)
 {
 	rpa_compiler_reference_opt(co, name, r_strlen(name));
 }
 
 
-void rpa_compiler_index_reference_mul(rpa_compiler_t *co, rulong index)
+void rpa_compiler_index_reference_mul(rpa_compiler_t *co, unsigned long index)
 {
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R_TOP, XX, XX, 0));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, index, rvm_asm(RVM_BL, DA, XX, XX, 0));
@@ -111,20 +111,20 @@ void rpa_compiler_index_reference_mul(rpa_compiler_t *co, rulong index)
 }
 
 
-void rpa_compiler_reference_mul(rpa_compiler_t *co, const rchar *name, rsize_t namesize)
+void rpa_compiler_reference_mul(rpa_compiler_t *co, const char *name, rsize_t namesize)
 {
 	rpa_compiler_index_reference_mul(co, rvm_codemap_lookupadd(co->cg->codemap, name, namesize));
 
 }
 
 
-void rpa_compiler_reference_mul_s(rpa_compiler_t *co, const rchar *name)
+void rpa_compiler_reference_mul_s(rpa_compiler_t *co, const char *name)
 {
 	rpa_compiler_reference_mul(co, name, r_strlen(name));
 }
 
 
-void rpa_compiler_index_reference_mop(rpa_compiler_t *co, rulong index)
+void rpa_compiler_index_reference_mop(rpa_compiler_t *co, unsigned long index)
 {
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R_TOP, XX, XX, 0));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, index, rvm_asm(RVM_BL, DA, XX, XX, 0));
@@ -137,19 +137,19 @@ void rpa_compiler_index_reference_mop(rpa_compiler_t *co, rulong index)
 }
 
 
-void rpa_compiler_reference_mop(rpa_compiler_t *co, const rchar *name, rsize_t namesize)
+void rpa_compiler_reference_mop(rpa_compiler_t *co, const char *name, rsize_t namesize)
 {
 	rpa_compiler_index_reference_mop(co, rvm_codemap_lookupadd(co->cg->codemap, name, namesize));
 }
 
 
-void rpa_compiler_reference_mop_s(rpa_compiler_t *co, const rchar *name)
+void rpa_compiler_reference_mop_s(rpa_compiler_t *co, const char *name)
 {
 	rpa_compiler_reference_mop(co, name, r_strlen(name));
 }
 
 
-void rpa_compiler_index_reference(rpa_compiler_t *co, rulong index, ruinteger qflag)
+void rpa_compiler_index_reference(rpa_compiler_t *co, unsigned long index, unsigned int qflag)
 {
 	if (qflag == RPA_MATCH_OPTIONAL) {
 		rpa_compiler_index_reference_opt(co, index);
@@ -163,13 +163,13 @@ void rpa_compiler_index_reference(rpa_compiler_t *co, rulong index, ruinteger qf
 }
 
 
-void rpa_compiler_reference(rpa_compiler_t *co, const rchar *name, rsize_t namesize, ruinteger qflag)
+void rpa_compiler_reference(rpa_compiler_t *co, const char *name, rsize_t namesize, unsigned int qflag)
 {
 	rpa_compiler_index_reference(co, rvm_codemap_lookupadd(co->cg->codemap, name, namesize), qflag);
 }
 
 
-void rpa_compiler_reference_s(rpa_compiler_t *co, const rchar *name, ruinteger qflag)
+void rpa_compiler_reference_s(rpa_compiler_t *co, const char *name, unsigned int qflag)
 {
 	rpa_compiler_reference(co, name, r_strlen(name), qflag);
 }
@@ -201,37 +201,37 @@ void rpa_compiler_destroy(rpa_compiler_t *co)
 }
 
 
-rpa_rulepref_t *rpa_compiler_rulepref_lookup(rpa_compiler_t *co, const rchar *name, ruinteger namesize)
+rpa_rulepref_t *rpa_compiler_rulepref_lookup(rpa_compiler_t *co, const char *name, unsigned int namesize)
 {
-	rlong index = r_harray_lookup(co->ruleprefs, name, namesize);
+	long index = r_harray_lookup(co->ruleprefs, name, namesize);
 	if (index < 0)
 		return NULL;
 	return (rpa_rulepref_t *)r_harray_slot(co->ruleprefs, index);
 }
 
 
-rpa_rulepref_t *rpa_compiler_rulepref_lookup_s(rpa_compiler_t *co, const rchar *name)
+rpa_rulepref_t *rpa_compiler_rulepref_lookup_s(rpa_compiler_t *co, const char *name)
 {
 	return rpa_compiler_rulepref_lookup(co, name, r_strlen(name));
 }
 
 
-rpa_rulepref_t *rpa_compiler_rulepref(rpa_compiler_t *co, const rchar *name, ruinteger namesize)
+rpa_rulepref_t *rpa_compiler_rulepref(rpa_compiler_t *co, const char *name, unsigned int namesize)
 {
-	rlong index = r_harray_lookup(co->ruleprefs, name, namesize);
+	long index = r_harray_lookup(co->ruleprefs, name, namesize);
 	if (index < 0)
 		index = r_harray_add(co->ruleprefs, name, namesize, NULL);
 	return (rpa_rulepref_t *)r_harray_slot(co->ruleprefs, index);
 }
 
 
-rpa_rulepref_t *rpa_compiler_rulepref_s(rpa_compiler_t *co, const rchar *name)
+rpa_rulepref_t *rpa_compiler_rulepref_s(rpa_compiler_t *co, const char *name)
 {
 	return rpa_compiler_rulepref(co, name, r_strlen(name));
 }
 
 
-void rpa_compiler_rulepref_set_ruleid(rpa_compiler_t *co, const rchar *name, ruinteger namesize, rlong ruleid)
+void rpa_compiler_rulepref_set_ruleid(rpa_compiler_t *co, const char *name, unsigned int namesize, long ruleid)
 {
 	rpa_rulepref_t *rulepref = rpa_compiler_rulepref(co, name, namesize);
 
@@ -240,13 +240,13 @@ void rpa_compiler_rulepref_set_ruleid(rpa_compiler_t *co, const rchar *name, rui
 }
 
 
-void rpa_compiler_rulepref_set_ruleid_s(rpa_compiler_t *co, const rchar *name, rlong ruleid)
+void rpa_compiler_rulepref_set_ruleid_s(rpa_compiler_t *co, const char *name, long ruleid)
 {
 	rpa_compiler_rulepref_set_ruleid(co, name, r_strlen(name), ruleid);
 }
 
 
-void rpa_compiler_rulepref_set_ruleuid(rpa_compiler_t *co, const rchar *name, ruinteger namesize, rlong ruleuid)
+void rpa_compiler_rulepref_set_ruleuid(rpa_compiler_t *co, const char *name, unsigned int namesize, long ruleuid)
 {
 	rpa_rulepref_t *rulepref = rpa_compiler_rulepref(co, name, namesize);
 
@@ -255,13 +255,13 @@ void rpa_compiler_rulepref_set_ruleuid(rpa_compiler_t *co, const rchar *name, ru
 }
 
 
-void rpa_compiler_rulepref_set_ruleuid_s(rpa_compiler_t *co, const rchar *name, rlong ruleuid)
+void rpa_compiler_rulepref_set_ruleuid_s(rpa_compiler_t *co, const char *name, long ruleuid)
 {
 	rpa_compiler_rulepref_set_ruleuid(co, name, r_strlen(name), ruleuid);
 }
 
 
-void rpa_compiler_rulepref_set_flag(rpa_compiler_t *co, const rchar *name, ruinteger namesize, rulong flag)
+void rpa_compiler_rulepref_set_flag(rpa_compiler_t *co, const char *name, unsigned int namesize, unsigned long flag)
 {
 	rpa_rulepref_t *rulepref = rpa_compiler_rulepref(co, name, namesize);
 
@@ -270,13 +270,13 @@ void rpa_compiler_rulepref_set_flag(rpa_compiler_t *co, const rchar *name, ruint
 }
 
 
-void rpa_compiler_rulepref_set_flag_s(rpa_compiler_t *co, const rchar *name, rulong flag)
+void rpa_compiler_rulepref_set_flag_s(rpa_compiler_t *co, const char *name, unsigned long flag)
 {
 	rpa_compiler_rulepref_set_flag(co, name, r_strlen(name), flag);
 }
 
 
-void rpa_compiler_rulepref_clear_flag(rpa_compiler_t *co, const rchar *name, ruinteger namesize, rulong flag)
+void rpa_compiler_rulepref_clear_flag(rpa_compiler_t *co, const char *name, unsigned int namesize, unsigned long flag)
 {
 	rpa_rulepref_t *rulepref = rpa_compiler_rulepref(co, name, namesize);
 
@@ -285,13 +285,13 @@ void rpa_compiler_rulepref_clear_flag(rpa_compiler_t *co, const rchar *name, rui
 }
 
 
-void rpa_compiler_rulepref_clear_flag_s(rpa_compiler_t *co, const rchar *name, rulong flag)
+void rpa_compiler_rulepref_clear_flag_s(rpa_compiler_t *co, const char *name, unsigned long flag)
 {
 	rpa_compiler_rulepref_clear_flag(co, name, r_strlen(name), flag);
 }
 
 
-void rpa_compiler_rulepref_set(rpa_compiler_t *co, const rchar *name, ruinteger namesize, rlong ruleid, rlong ruleuid, rulong flags)
+void rpa_compiler_rulepref_set(rpa_compiler_t *co, const char *name, unsigned int namesize, long ruleid, long ruleuid, unsigned long flags)
 {
 	rpa_rulepref_t *rulepref = rpa_compiler_rulepref(co, name, namesize);
 
@@ -302,18 +302,18 @@ void rpa_compiler_rulepref_set(rpa_compiler_t *co, const rchar *name, ruinteger 
 }
 
 
-void rpa_compiler_rulepref_set_s(rpa_compiler_t *co, const rchar *name, rlong ruleid, rlong ruleuid, rulong flags)
+void rpa_compiler_rulepref_set_s(rpa_compiler_t *co, const char *name, long ruleid, long ruleuid, unsigned long flags)
 {
 	rpa_compiler_rulepref_set(co, name, r_strlen(name), ruleid, ruleuid, flags);
 }
 
 
-#define RPA_RULEBLOB_SIZE (RPA_RULENAME_MAXSIZE + sizeof(rpa_ruledata_t) + 2*sizeof(rulong))
+#define RPA_RULEBLOB_SIZE (RPA_RULENAME_MAXSIZE + sizeof(rpa_ruledata_t) + 2*sizeof(unsigned long))
 
-rlong rpa_compiler_addblob(rpa_compiler_t *co, rlong ruleid, rlong ruleuid, rulong flags, const rchar *name, rulong namesize)
+long rpa_compiler_addblob(rpa_compiler_t *co, long ruleid, long ruleuid, unsigned long flags, const char *name, unsigned long namesize)
 {
-	rchar blob[RPA_RULEBLOB_SIZE];
-	rchar *ptr;
+	char blob[RPA_RULEBLOB_SIZE];
+	char *ptr;
 	rpa_ruledata_t *pblob = (rpa_ruledata_t *)blob;
 
 	if (namesize >= RPA_RULENAME_MAXSIZE)
@@ -332,18 +332,18 @@ rlong rpa_compiler_addblob(rpa_compiler_t *co, rlong ruleid, rlong ruleuid, rulo
 }
 
 
-rlong rpa_compiler_addblob_s(rpa_compiler_t *co, rlong ruleid, rlong ruleuid, rulong flags, const rchar *name)
+long rpa_compiler_addblob_s(rpa_compiler_t *co, long ruleid, long ruleuid, unsigned long flags, const char *name)
 {
 	return 0;
 }
 
 
-rinteger rpa_compiler_loop_begin(rpa_compiler_t *co, const rchar *name, ruinteger namesize)
+int rpa_compiler_loop_begin(rpa_compiler_t *co, const char *name, unsigned int namesize)
 {
 	rpa_ruledef_t exp;
-	rlong ruleuid = 0;
-	rlong ruleid = 0;
-	rulong flags = 0;
+	long ruleuid = 0;
+	long ruleid = 0;
+	unsigned long flags = 0;
 
 	r_memset(&exp, 0, sizeof(exp));
 	exp.rulepref = rpa_compiler_rulepref_lookup(co, name, namesize);
@@ -374,13 +374,13 @@ rinteger rpa_compiler_loop_begin(rpa_compiler_t *co, const rchar *name, ruintege
 }
 
 
-rinteger rpa_compiler_loop_begin_s(rpa_compiler_t *co, const rchar *name)
+int rpa_compiler_loop_begin_s(rpa_compiler_t *co, const char *name)
 {
 	return rpa_compiler_loop_begin(co, name, r_strlen(name));
 }
 
 
-rinteger rpa_compiler_loop_end(rpa_compiler_t *co)
+int rpa_compiler_loop_end(rpa_compiler_t *co)
 {
 	rpa_ruledef_t exp = r_array_pop(co->expressions, rpa_ruledef_t);
 
@@ -421,12 +421,12 @@ rinteger rpa_compiler_loop_end(rpa_compiler_t *co)
 }
 
 
-rinteger rpa_compiler_rule_begin(rpa_compiler_t *co, const rchar *name, ruinteger namesize)
+int rpa_compiler_rule_begin(rpa_compiler_t *co, const char *name, unsigned int namesize)
 {
 	rpa_ruledef_t exp;
-	rlong ruleuid = 0;
-	rlong ruleid = 0;
-	rulong flags = 0;
+	long ruleuid = 0;
+	long ruleid = 0;
+	unsigned long flags = 0;
 
 	r_memset(&exp, 0, sizeof(exp));
 	exp.rulepref = rpa_compiler_rulepref_lookup(co, name, namesize);
@@ -454,13 +454,13 @@ rinteger rpa_compiler_rule_begin(rpa_compiler_t *co, const rchar *name, ruintege
 }
 
 
-rinteger rpa_compiler_rule_begin_s(rpa_compiler_t *co, const rchar *name)
+int rpa_compiler_rule_begin_s(rpa_compiler_t *co, const char *name)
 {
 	return rpa_compiler_rule_begin(co, name, r_strlen(name));
 }
 
 
-rinteger rpa_compiler_rule_end(rpa_compiler_t *co)
+int rpa_compiler_rule_end(rpa_compiler_t *co)
 {
 	rpa_ruledef_t exp = r_array_pop(co->expressions, rpa_ruledef_t);
 
@@ -498,12 +498,12 @@ rinteger rpa_compiler_rule_end(rpa_compiler_t *co)
 }
 
 
-rinteger rpa_compiler_inlinerule_begin(rpa_compiler_t *co, const rchar *name, ruinteger namesize, ruinteger flags)
+int rpa_compiler_inlinerule_begin(rpa_compiler_t *co, const char *name, unsigned int namesize, unsigned int flags)
 {
 	rpa_ruledef_t exp;
-	rlong ruleuid = 0;
-	rlong ruleid = 0;
-	rulong ruleflags = 0;
+	long ruleuid = 0;
+	long ruleid = 0;
+	unsigned long ruleflags = 0;
 
 	r_memset(&exp, 0, sizeof(exp));
 	exp.rulepref = rpa_compiler_rulepref_lookup(co, name, namesize);
@@ -530,13 +530,13 @@ rinteger rpa_compiler_inlinerule_begin(rpa_compiler_t *co, const rchar *name, ru
 }
 
 
-rinteger rpa_compiler_inlinerule_begin_s(rpa_compiler_t *co, const rchar *name, ruinteger flags)
+int rpa_compiler_inlinerule_begin_s(rpa_compiler_t *co, const char *name, unsigned int flags)
 {
 	return rpa_compiler_inlinerule_begin(co, name, r_strlen(name), flags);
 }
 
 
-rinteger rpa_compiler_inlinerule_end(rpa_compiler_t *co)
+int rpa_compiler_inlinerule_end(rpa_compiler_t *co)
 {
 	rpa_ruledef_t exp = r_array_pop(co->expressions, rpa_ruledef_t);
 
@@ -567,7 +567,7 @@ rinteger rpa_compiler_inlinerule_end(rpa_compiler_t *co)
 }
 
 
-rinteger rpa_compiler_exp_begin(rpa_compiler_t *co, ruinteger flags)
+int rpa_compiler_exp_begin(rpa_compiler_t *co, unsigned int flags)
 {
 	rpa_ruledef_t exp;
 
@@ -584,7 +584,7 @@ rinteger rpa_compiler_exp_begin(rpa_compiler_t *co, ruinteger flags)
 }
 
 
-rinteger rpa_compiler_exp_end(rpa_compiler_t *co)
+int rpa_compiler_exp_end(rpa_compiler_t *co)
 {
 	rpa_ruledef_t exp = r_array_pop(co->expressions, rpa_ruledef_t);
 
@@ -605,7 +605,7 @@ rinteger rpa_compiler_exp_end(rpa_compiler_t *co)
 }
 
 
-rinteger rpa_compiler_altexp_begin(rpa_compiler_t *co, ruinteger flags)
+int rpa_compiler_altexp_begin(rpa_compiler_t *co, unsigned int flags)
 {
 	rpa_ruledef_t exp;
 
@@ -622,7 +622,7 @@ rinteger rpa_compiler_altexp_begin(rpa_compiler_t *co, ruinteger flags)
 }
 
 
-rinteger rpa_compiler_altexp_end(rpa_compiler_t *co)
+int rpa_compiler_altexp_end(rpa_compiler_t *co)
 {
 	rpa_ruledef_t exp = r_array_pop(co->expressions, rpa_ruledef_t);
 
@@ -643,7 +643,7 @@ rinteger rpa_compiler_altexp_end(rpa_compiler_t *co)
 }
 
 
-rinteger rpa_compiler_branch_begin(rpa_compiler_t *co, ruinteger flags)
+int rpa_compiler_branch_begin(rpa_compiler_t *co, unsigned int flags)
 {
 	rpa_ruledef_t exp;
 
@@ -661,7 +661,7 @@ rinteger rpa_compiler_branch_begin(rpa_compiler_t *co, ruinteger flags)
 }
 
 
-rinteger rpa_compiler_branch_end(rpa_compiler_t *co)
+int rpa_compiler_branch_end(rpa_compiler_t *co)
 {
 	rpa_ruledef_t exp = r_array_pop(co->expressions, rpa_ruledef_t);
 
@@ -684,7 +684,7 @@ rinteger rpa_compiler_branch_end(rpa_compiler_t *co)
 }
 
 
-rinteger rpa_compiler_nonloopybranch_begin(rpa_compiler_t *co, ruinteger flags)
+int rpa_compiler_nonloopybranch_begin(rpa_compiler_t *co, unsigned int flags)
 {
 	rpa_ruledef_t exp;
 
@@ -704,7 +704,7 @@ rinteger rpa_compiler_nonloopybranch_begin(rpa_compiler_t *co, ruinteger flags)
 }
 
 
-rinteger rpa_compiler_nonloopybranch_end(rpa_compiler_t *co)
+int rpa_compiler_nonloopybranch_end(rpa_compiler_t *co)
 {
 	rpa_ruledef_t exp = r_array_pop(co->expressions, rpa_ruledef_t);
 
@@ -728,7 +728,7 @@ rinteger rpa_compiler_nonloopybranch_end(rpa_compiler_t *co)
 }
 
 
-rinteger rpa_compiler_class_begin(rpa_compiler_t *co, ruinteger flags)
+int rpa_compiler_class_begin(rpa_compiler_t *co, unsigned int flags)
 {
 	rpa_ruledef_t exp;
 
@@ -745,7 +745,7 @@ rinteger rpa_compiler_class_begin(rpa_compiler_t *co, ruinteger flags)
 }
 
 
-rinteger rpa_compiler_class_end(rpa_compiler_t *co)
+int rpa_compiler_class_end(rpa_compiler_t *co)
 {
 	rpa_ruledef_t exp = r_array_pop(co->expressions, rpa_ruledef_t);
 
@@ -765,7 +765,7 @@ rinteger rpa_compiler_class_end(rpa_compiler_t *co)
 }
 
 
-rinteger rpa_compiler_notexp_begin(rpa_compiler_t *co, ruinteger flags)
+int rpa_compiler_notexp_begin(rpa_compiler_t *co, unsigned int flags)
 {
 	rpa_ruledef_t exp;
 
@@ -783,7 +783,7 @@ rinteger rpa_compiler_notexp_begin(rpa_compiler_t *co, ruinteger flags)
 }
 
 
-rinteger rpa_compiler_notexp_end(rpa_compiler_t *co)
+int rpa_compiler_notexp_end(rpa_compiler_t *co)
 {
 	rpa_ruledef_t exp = r_array_pop(co->expressions, rpa_ruledef_t);
 
@@ -805,7 +805,7 @@ rinteger rpa_compiler_notexp_end(rpa_compiler_t *co)
 }
 
 
-rinteger rpa_compiler_negexp_begin(rpa_compiler_t *co, ruinteger flags)
+int rpa_compiler_negexp_begin(rpa_compiler_t *co, unsigned int flags)
 {
 	rpa_ruledef_t exp;
 
@@ -824,7 +824,7 @@ rinteger rpa_compiler_negexp_begin(rpa_compiler_t *co, ruinteger flags)
 }
 
 
-rinteger rpa_compiler_negexp_end(rpa_compiler_t *co)
+int rpa_compiler_negexp_end(rpa_compiler_t *co)
 {
 	rpa_ruledef_t exp = r_array_pop(co->expressions, rpa_ruledef_t);
 

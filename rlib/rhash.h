@@ -33,42 +33,42 @@ extern "C" {
 typedef struct rhash_node_s rhash_node_t;
 typedef struct rhash_s rhash_t;
 typedef rboolean (*r_hash_equalfunc)(rconstpointer key1, rconstpointer key2);
-typedef ruinteger (*r_hash_hashfun)(rconstpointer key);
+typedef unsigned int (*r_hash_hashfun)(rconstpointer key);
 
 
 struct rhash_s {
 	robject_t obj;
 	rlist_t *buckets;
-	ruinteger nbits;
+	unsigned int nbits;
 	r_hash_equalfunc eqfunc;
 	r_hash_hashfun hfunc;
 };
 
 
-#define R_HASH_INVALID_INDEXVAL ((rulong)-1)
+#define R_HASH_INVALID_INDEXVAL ((unsigned long)-1)
 
 #define r_hash_size(__h__) (1 << (__h__)->nbits)
 #define r_hash_mask(__h__) (r_hash_size(__h__) - 1)
-rhash_t *r_hash_create(ruinteger nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfunc);
+rhash_t *r_hash_create(unsigned int nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfunc);
 void r_hash_destroy(rhash_t* hash);
 robject_t *r_hash_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy,
-						ruinteger nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfunc);
+						unsigned int nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfunc);
 
 void r_hash_insert(rhash_t* hash, rconstpointer key, rpointer value);
 void r_hash_remove(rhash_t* hash, rconstpointer key);
 void r_hash_removeall(rhash_t* hash);
 rpointer r_hash_lookup(rhash_t* hash, rconstpointer key);
-void r_hash_insert_indexval(rhash_t* hash, rconstpointer key, rulong index);
-rulong r_hash_lookup_indexval(rhash_t* hash, rconstpointer key);
-rulong r_hash_taillookup_indexval(rhash_t* hash, rconstpointer key);
+void r_hash_insert_indexval(rhash_t* hash, rconstpointer key, unsigned long index);
+unsigned long r_hash_lookup_indexval(rhash_t* hash, rconstpointer key);
+unsigned long r_hash_taillookup_indexval(rhash_t* hash, rconstpointer key);
 rhash_node_t *r_hash_nodelookup(rhash_t* hash, rhash_node_t *cur, rconstpointer key);
 rhash_node_t *r_hash_nodetaillookup(rhash_t* hash, rhash_node_t *cur, rconstpointer key);
 rpointer r_hash_value(rhash_node_t *node);
-rulong r_hash_indexval(rhash_node_t *node);
+unsigned long r_hash_indexval(rhash_node_t *node);
 
-ruinteger r_hash_strhash(rconstpointer key);
+unsigned int r_hash_strhash(rconstpointer key);
 rboolean r_hash_strequal(rconstpointer key1, rconstpointer key2);
-ruinteger r_hash_rstrhash(rconstpointer key);
+unsigned int r_hash_rstrhash(rconstpointer key);
 rboolean r_hash_rstrequal(rconstpointer key1, rconstpointer key2);
 
 

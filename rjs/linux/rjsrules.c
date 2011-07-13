@@ -6,9 +6,9 @@ extern char _binary_____________rjs_ecma262_rpa_end[];
 extern unsigned long *_binary_____________rjs_ecma262_rpa_size;
 
 
-const rchar *rjs_rules_get()
+const char *rjs_rules_get()
 {
-	const rchar *rules = _binary_____________rjs_ecma262_rpa_start;
+	const char *rules = _binary_____________rjs_ecma262_rpa_start;
 	return rules;
 }
 

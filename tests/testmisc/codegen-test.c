@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 	rvmcpu_t *cpu;
 	rvm_codegen_t *cg;
 	rvm_codelabel_t *err;
-	ruinteger ntable;
+	unsigned int ntable;
 
 	cg = rvm_codegen_create();
 	cpu = rvm_cpu_create_default();

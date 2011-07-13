@@ -41,9 +41,9 @@ typedef struct rjs_parser_s {
 
 rjs_parser_t *rjs_parser_create();
 void rjs_parser_destroy(rjs_parser_t *parser);
-rlong rjs_parser_exec(rjs_parser_t *parser, const rchar *script, rsize_t size, rarray_t *ast, rjs_error_t *error);
-rlong rjs_parser_offset2line(const rchar *script, rlong offset);
-rlong rjs_parser_offset2lineoffset(const rchar *script, rlong offset);
+long rjs_parser_exec(rjs_parser_t *parser, const char *script, rsize_t size, rarray_t *ast, rjs_error_t *error);
+long rjs_parser_offset2line(const char *script, long offset);
+long rjs_parser_offset2lineoffset(const char *script, long offset);
 
 
 #ifdef __cplusplus

@@ -44,28 +44,28 @@ extern "C" {
 
 struct rpastat_s {
 	rpadbex_t *dbex;
-	const rchar *input;
-	const rchar *start;
-	const rchar *end;
+	const char *input;
+	const char *start;
+	const char *end;
 	rpa_errinfo_t err;
-	ruinteger encoding;
-	ruinteger debug;
+	unsigned int encoding;
+	unsigned int debug;
 	rarray_t *records;
 	rpainput_t *instackbuffer;
 	rpainput_t *instack;			/* instack = &instackbuffer[1]; This allows R_TOP = -1, without any additional checks */
-	rulong instacksize;
+	unsigned long instacksize;
 	rpacache_t *cache;
 	rpainmap_t ip;
 	rvmcpu_t *cpu;
 };
 
-rinteger rpa_stat_init(rpastat_t *stat, ruinteger encoding, const rchar *input, const rchar *start, const rchar *end, rarray_t *records);
-void rpa_stat_cachedisable(rpastat_t *stat, ruinteger disable);
+int rpa_stat_init(rpastat_t *stat, unsigned int encoding, const char *input, const char *start, const char *end, rarray_t *records);
+void rpa_stat_cachedisable(rpastat_t *stat, unsigned int disable);
 void rpa_stat_cacheinvalidate(rpastat_t *stat);
-rinteger rpa_stat_matchchr(rpastat_t *stat, rssize_t top, rulong wc);
-rinteger rpa_stat_matchspchr(rpastat_t *stat, rssize_t top, rulong wc);
-rinteger rpa_stat_matchrng(rpastat_t *stat, rssize_t top, rulong wc1, rulong wc2);
-rlong rpa_stat_shift(rpastat_t *stat, rssize_t top);
+int rpa_stat_matchchr(rpastat_t *stat, rssize_t top, unsigned long wc);
+int rpa_stat_matchspchr(rpastat_t *stat, rssize_t top, unsigned long wc);
+int rpa_stat_matchrng(rpastat_t *stat, rssize_t top, unsigned long wc1, unsigned long wc2);
+long rpa_stat_shift(rpastat_t *stat, rssize_t top);
 
 
 #ifdef __cplusplus

@@ -25,7 +25,7 @@
 
 static void rvm_reg_array_oncopy(rarray_t *array)
 {
-	ruinteger index;
+	unsigned int index;
 	rvmreg_t *r;
 
 	for (index = 0; index < r_array_length(array); index++) {
@@ -37,7 +37,7 @@ static void rvm_reg_array_oncopy(rarray_t *array)
 
 static void rvm_reg_array_oncleanup(rarray_t *array)
 {
-	ruinteger index;
+	unsigned int index;
 	rvmreg_t *r;
 
 	for (index = 0; index < r_array_length(array); index++) {
@@ -49,9 +49,9 @@ static void rvm_reg_array_oncleanup(rarray_t *array)
 
 static void rvm_reg_carray_oncopy(rcarray_t *array)
 {
-	ruinteger index;
+	unsigned int index;
 	rvmreg_t *r;
-	ruinteger len = r_carray_length(array);
+	unsigned int len = r_carray_length(array);
 
 
 	for (index = 0; index < len; index++) {
@@ -63,9 +63,9 @@ static void rvm_reg_carray_oncopy(rcarray_t *array)
 
 static void rvm_reg_carray_oncleanup(rcarray_t *array)
 {
-	ruinteger index;
+	unsigned int index;
 	rvmreg_t *r;
-	ruinteger len = r_carray_length(array);
+	unsigned int len = r_carray_length(array);
 
 
 	for (index = 0; index < len; index++) {
@@ -86,7 +86,7 @@ static void rvm_reg_carray_oncleanup(rcarray_t *array)
  */
 void rvm_reg_array_unref_gcdata(robject_t *obj)
 {
-	ruinteger size;
+	unsigned int size;
 	int i;
 	rvmreg_t *r;
 
@@ -186,7 +186,7 @@ rharray_t *r_harray_create_rvmreg()
 }
 
 
-rvmreg_t rvm_reg_create_string_ansi(const rchar *s)
+rvmreg_t rvm_reg_create_string_ansi(const char *s)
 {
 	rvmreg_t r;
 	r_memset(&r, 0, sizeof(r));
@@ -234,7 +234,7 @@ void rvm_reg_setstring(rvmreg_t *r, rstring_t *ptr)
 }
 
 
-void rvm_reg_setpair(rvmreg_t *r, ruinteger p1, ruinteger p2)
+void rvm_reg_setpair(rvmreg_t *r, unsigned int p1, unsigned int p2)
 {
 
 	RVM_REG_SETPAIR(r, p1, p2);
@@ -243,7 +243,7 @@ void rvm_reg_setpair(rvmreg_t *r, ruinteger p1, ruinteger p2)
 }
 
 
-void rvm_reg_setstrptr(rvmreg_t *r, rchar *s, ruinteger size)
+void rvm_reg_setstrptr(rvmreg_t *r, char *s, unsigned int size)
 {
 	RVM_REG_SETSTR(r, s, size);
 	RVM_REG_SETTYPE(r, RVM_DTYPE_STRPTR);
@@ -274,7 +274,7 @@ void rvm_reg_setharray(rvmreg_t *r, robject_t *ptr)
 	RVM_REG_SETFLAG(r, RVM_INFOBIT_ROBJECT);
 }
 
-rvmreg_t rvm_reg_create_pair(ruinteger p1, ruinteger p2)
+rvmreg_t rvm_reg_create_pair(unsigned int p1, unsigned int p2)
 {
 	rvmreg_t r;
 	r_memset(&r, 0, sizeof(r));
@@ -283,7 +283,7 @@ rvmreg_t rvm_reg_create_pair(ruinteger p1, ruinteger p2)
 }
 
 
-rvmreg_t rvm_reg_create_strptr(rchar *s, ruinteger size)
+rvmreg_t rvm_reg_create_strptr(char *s, unsigned int size)
 {
 	rvmreg_t r;
 	r_memset(&r, 0, sizeof(r));
@@ -292,7 +292,7 @@ rvmreg_t rvm_reg_create_strptr(rchar *s, ruinteger size)
 }
 
 
-rvmreg_t rvm_reg_create_double(rdouble d)
+rvmreg_t rvm_reg_create_double(double d)
 {
 	rvmreg_t r;
 	r_memset(&r, 0, sizeof(r));
@@ -302,7 +302,7 @@ rvmreg_t rvm_reg_create_double(rdouble d)
 }
 
 
-rvmreg_t rvm_reg_create_long(rlong l)
+rvmreg_t rvm_reg_create_long(long l)
 {
 	rvmreg_t r;
 	r_memset(&r, 0, sizeof(r));
@@ -336,15 +336,15 @@ rvmreg_t *rvm_reg_copy(rvmreg_t *dst, const rvmreg_t *src)
 }
 
 
-void rvm_reg_settype(rvmreg_t *r, ruinteger type)
+void rvm_reg_settype(rvmreg_t *r, unsigned int type)
 {
 	RVM_REG_SETTYPE(r, type);
 }
 
 
-ruinteger rvm_reg_gettype(const rvmreg_t *r)
+unsigned int rvm_reg_gettype(const rvmreg_t *r)
 {
-	rulong type = RVM_REG_GETTYPE(r);
+	unsigned long type = RVM_REG_GETTYPE(r);
 	return type;
 }
 
@@ -382,7 +382,7 @@ void rvm_reg_setunsigned(rvmreg_t *r, rword u)
 }
 
 
-void rvm_reg_setlong(rvmreg_t *r, rlong l)
+void rvm_reg_setlong(rvmreg_t *r, long l)
 {
 	RVM_REG_SETL(r, l);
 	RVM_REG_SETTYPE(r, RVM_DTYPE_LONG);
@@ -390,7 +390,7 @@ void rvm_reg_setlong(rvmreg_t *r, rlong l)
 }
 
 
-void rvm_reg_setboolean(rvmreg_t *r, ruinteger b)
+void rvm_reg_setboolean(rvmreg_t *r, unsigned int b)
 {
 	RVM_REG_SETU(r, b ? 1 : 0);
 	RVM_REG_SETTYPE(r, RVM_DTYPE_BOOLEAN);
@@ -398,7 +398,7 @@ void rvm_reg_setboolean(rvmreg_t *r, ruinteger b)
 }
 
 
-void rvm_reg_setdouble(rvmreg_t *r, rdouble d)
+void rvm_reg_setdouble(rvmreg_t *r, double d)
 {
 	RVM_REG_SETD(r, d);
 	RVM_REG_SETTYPE(r, RVM_DTYPE_DOUBLE);
@@ -416,9 +416,9 @@ void rvm_reg_setpointer(rvmreg_t *r, rpointer p)
 
 int rvm_reg_str2num(rvmreg_t *dst, const rvmreg_t *src)
 {
-	rchar *dptr, *lptr;
-	rdouble d;
-	rlong l;
+	char *dptr, *lptr;
+	double d;
+	long l;
 
 	l = r_strtol(R_STRING2ANSI(RVM_REG_GETP(src)), &lptr, 10);
 	if (!lptr)
@@ -437,8 +437,8 @@ int rvm_reg_str2num(rvmreg_t *dst, const rvmreg_t *src)
 
 int rvm_reg_str2long(rvmreg_t *dst, const rvmreg_t *src)
 {
-	rchar *dptr;
-	rdouble d;
+	char *dptr;
+	double d;
 
 	d = r_strtod(R_STRING2ANSI(RVM_REG_GETP(src)), &dptr);
 	if (!dptr)
@@ -450,8 +450,8 @@ int rvm_reg_str2long(rvmreg_t *dst, const rvmreg_t *src)
 
 int rvm_reg_str2double(rvmreg_t *dst, const rvmreg_t *src)
 {
-	rchar *dptr;
-	rdouble d;
+	char *dptr;
+	double d;
 
 	d = r_strtod(R_STRING2ANSI(RVM_REG_GETP(src)), &dptr);
 	if (!dptr)
@@ -461,31 +461,31 @@ int rvm_reg_str2double(rvmreg_t *dst, const rvmreg_t *src)
 }
 
 
-rinteger rvm_reg_int(const rvmreg_t *src)
+int rvm_reg_int(const rvmreg_t *src)
 {
 	R_ASSERT(src);
 	return (int)RVM_REG_GETL(src);
 }
 
 
-rlong rvm_reg_long(const rvmreg_t *src)
+long rvm_reg_long(const rvmreg_t *src)
 {
 	R_ASSERT(src);
-	return (rlong)RVM_REG_GETL(src);
+	return (long)RVM_REG_GETL(src);
 }
 
 
-ruchar rvm_reg_boolean(const rvmreg_t *src)
+unsigned char rvm_reg_boolean(const rvmreg_t *src)
 {
 	R_ASSERT(src);
-	return (ruchar)(RVM_REG_GETL(src) ? 1 : 0);
+	return (unsigned char)(RVM_REG_GETL(src) ? 1 : 0);
 }
 
 
-rdouble rvm_reg_double(const rvmreg_t *src)
+double rvm_reg_double(const rvmreg_t *src)
 {
 	R_ASSERT(src);
-	return (rdouble)RVM_REG_GETL(src);
+	return (double)RVM_REG_GETL(src);
 }
 
 

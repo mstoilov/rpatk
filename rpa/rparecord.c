@@ -24,7 +24,7 @@
 #include "rpa/rparecord.h"
 
 
-rparecord_t *rpa_record_get(rarray_t *records, rlong rec)
+rparecord_t *rpa_record_get(rarray_t *records, long rec)
 {
 	rparecord_t *prec;
 
@@ -38,10 +38,10 @@ rparecord_t *rpa_record_get(rarray_t *records, rlong rec)
 }
 
 
-rlong rpa_recordtree_get(rarray_t *records, rlong rec, rulong type)
+long rpa_recordtree_get(rarray_t *records, long rec, unsigned long type)
 {
-	rlong i, s = 0;
-	ruinteger startrec = (type & RPA_RECORD_START) ? 1 : 0;
+	long i, s = 0;
+	unsigned int startrec = (type & RPA_RECORD_START) ? 1 : 0;
 	rparecord_t *prec;
 
 	if (rec < 0 || rec >= r_array_length(records))
@@ -79,7 +79,7 @@ rlong rpa_recordtree_get(rarray_t *records, rlong rec, rulong type)
 }
 
 
-rlong rpa_recordtree_firstchild(rarray_t *records, rlong rec, rulong type)
+long rpa_recordtree_firstchild(rarray_t *records, long rec, unsigned long type)
 {
 	rparecord_t *prec;
 
@@ -99,7 +99,7 @@ rlong rpa_recordtree_firstchild(rarray_t *records, rlong rec, rulong type)
 }
 
 
-rlong rpa_recordtree_lastchild(rarray_t *records, rlong rec, rulong type)
+long rpa_recordtree_lastchild(rarray_t *records, long rec, unsigned long type)
 {
 	rparecord_t *prec;
 
@@ -119,7 +119,7 @@ rlong rpa_recordtree_lastchild(rarray_t *records, rlong rec, rulong type)
 }
 
 
-rlong rpa_recordtree_next(rarray_t *records, rlong rec, rulong type)
+long rpa_recordtree_next(rarray_t *records, long rec, unsigned long type)
 {
 	rparecord_t *prec;
 
@@ -139,7 +139,7 @@ rlong rpa_recordtree_next(rarray_t *records, rlong rec, rulong type)
 }
 
 
-rlong rpa_recordtree_prev(rarray_t *records, rlong rec, rulong type)
+long rpa_recordtree_prev(rarray_t *records, long rec, unsigned long type)
 {
 	rparecord_t *prec;
 
@@ -159,9 +159,9 @@ rlong rpa_recordtree_prev(rarray_t *records, rlong rec, rulong type)
 }
 
 
-rlong rpa_recordtree_parent(rarray_t *records, rlong rec, rulong type)
+long rpa_recordtree_parent(rarray_t *records, long rec, unsigned long type)
 {
-	rlong last = -1, parent = -1;
+	long last = -1, parent = -1;
 
 	if (rec < 0 || rec >= r_array_length(records))
 		return -1;
@@ -175,20 +175,20 @@ rlong rpa_recordtree_parent(rarray_t *records, rlong rec, rulong type)
 }
 
 
-rlong rpa_recordtree_size(rarray_t *records, rlong rec)
+long rpa_recordtree_size(rarray_t *records, long rec)
 {
-	rlong first = rpa_recordtree_get(records, rec, RPA_RECORD_START);
-	rlong last = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	long first = rpa_recordtree_get(records, rec, RPA_RECORD_START);
+	long last = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	if (first < 0 || last < 0)
 		return -1;
 	return (last - first + 1);
 }
 
 
-rlong rpa_recordtree_copy(rarray_t *dst, rarray_t *src, rlong rec)
+long rpa_recordtree_copy(rarray_t *dst, rarray_t *src, long rec)
 {
 	rparecord_t *prec;
-	rlong size, i;
+	long size, i;
 	rec = rpa_recordtree_get(src, rec, RPA_RECORD_START);
 	size = rpa_recordtree_size(src, rec);
 
@@ -200,9 +200,9 @@ rlong rpa_recordtree_copy(rarray_t *dst, rarray_t *src, rlong rec)
 }
 
 
-rlong rpa_recordtree_walk(rarray_t *records, rlong rec, rlong level, rpa_recordtree_callback callback, rpointer userdata)
+long rpa_recordtree_walk(rarray_t *records, long rec, long level, rpa_recordtree_callback callback, rpointer userdata)
 {
-	rlong child;
+	long child;
 
 	if (level > 128)
 		return -1;
@@ -238,7 +238,7 @@ static void rpa_recordptr_setusertype(rparecord_t *prec, ruint32 usertype, rvals
 }
 
 
-rlong rpa_record_getruleuid(rarray_t *records, rlong rec)
+long rpa_record_getruleuid(rarray_t *records, long rec)
 {
 	rparecord_t *prec;
 
@@ -252,7 +252,7 @@ rlong rpa_record_getruleuid(rarray_t *records, rlong rec)
 }
 
 
-void rpa_record_setusertype(rarray_t *records, rlong rec, ruint32 usertype, rvalset_t op)
+void rpa_record_setusertype(rarray_t *records, long rec, ruint32 usertype, rvalset_t op)
 {
 	rparecord_t *prec;
 
@@ -271,7 +271,7 @@ void rpa_record_setusertype(rarray_t *records, rlong rec, ruint32 usertype, rval
 }
 
 
-rlong rpa_record_getusertype(rarray_t *records, rlong rec)
+long rpa_record_getusertype(rarray_t *records, long rec)
 {
 	rparecord_t *prec;
 
@@ -285,9 +285,9 @@ rlong rpa_record_getusertype(rarray_t *records, rlong rec)
 }
 
 
-rinteger rpa_record_optchar(rparecord_t *prec, rinteger defc)
+int rpa_record_optchar(rparecord_t *prec, int defc)
 {
-	rinteger optc = defc;
+	int optc = defc;
 
 	if ((prec->usertype & RPA_MATCH_MASK) == RPA_MATCH_OPTIONAL)
 		optc = '?';
@@ -301,9 +301,9 @@ rinteger rpa_record_optchar(rparecord_t *prec, rinteger defc)
 }
 
 
-rinteger rpa_record_loopchar(rparecord_t *prec, rinteger defc)
+int rpa_record_loopchar(rparecord_t *prec, int defc)
 {
-	rinteger loopc = defc;
+	int loopc = defc;
 
 	if ((prec->usertype & RPA_LOOP_PATH) && (prec->usertype & RPA_NONLOOP_PATH)) {
 		/*
@@ -321,14 +321,14 @@ rinteger rpa_record_loopchar(rparecord_t *prec, rinteger defc)
 }
 
 
-void rpa_record_dump(rarray_t *records, rlong rec)
+void rpa_record_dump(rarray_t *records, long rec)
 {
 	rparecord_t *prec;
-	rlong start, end, first, last, next, prev, parent;
-	rchar buf[240];
-	rinteger bufsize = sizeof(buf) - 1;
-	rinteger n = 0, size;
-	rchar optc = ' ';
+	long start, end, first, last, next, prev, parent;
+	char buf[240];
+	int bufsize = sizeof(buf) - 1;
+	int n = 0, size;
+	char optc = ' ';
 
 	if (rec < 0 || rec >= r_array_length(records))
 		return;
@@ -381,11 +381,11 @@ void rpa_record_dump(rarray_t *records, rlong rec)
 }
 
 
-void rpa_record_dumpindented(rarray_t *records, rlong rec, rinteger level)
+void rpa_record_dumpindented(rarray_t *records, long rec, int level)
 {
-	rchar buffer[1024];
+	char buffer[1024];
 	rparecord_t *prec;
-	rinteger i, size;
+	int i, size;
 
 	if (rec < 0 || rec >= r_array_length(records))
 		return;
@@ -424,13 +424,13 @@ void rpa_records_destroy(rarray_t *records)
 }
 
 
-rlong rpa_records_length(rarray_t *records)
+long rpa_records_length(rarray_t *records)
 {
 	return r_array_length(records);
 }
 
 
-rparecord_t *rpa_records_slot(rarray_t *records, rlong index)
+rparecord_t *rpa_records_slot(rarray_t *records, long index)
 {
 	if (index < 0 || index >= r_array_length(records))
 		return NULL;

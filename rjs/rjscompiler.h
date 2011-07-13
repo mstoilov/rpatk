@@ -48,7 +48,7 @@ extern "C" {
 
 
 typedef struct rjs_coctx_s {
-	rulong type;
+	unsigned long type;
 } rjs_coctx_t;
 
 
@@ -60,49 +60,49 @@ typedef struct rjs_coctx_global_s {
 
 typedef struct rjs_coctx_function_s {
 	rjs_coctx_t base;
-	rlong start;
-	rlong execidx;
-	rlong endidx;
-	rlong allocsidx;
-	rlong execoff;
+	long start;
+	long execidx;
+	long endidx;
+	long allocsidx;
+	long execoff;
 	rsize_t stackallocs;
 } rjs_coctx_function_t;
 
 
 typedef struct rjs_coctx_operation_s {
 	rjs_coctx_t base;
-	rlong opcode;
+	long opcode;
 } rjs_coctx_operation_t;
 
 
 typedef struct rjs_coctx_functioncall_s {
 	rjs_coctx_t base;
 	rsize_t arguments;
-	ruchar setthis;
+	unsigned char setthis;
 } rjs_coctx_functioncall_t;
 
 
 typedef struct rjs_coctx_ifstatement_s {
 	rjs_coctx_t base;
-	rlong start;
-	rlong trueidx;
-	rlong falseidx;
-	rlong endidx;
+	long start;
+	long trueidx;
+	long falseidx;
+	long endidx;
 } rjs_coctx_ifstatement_t;
 
 
 typedef struct rjs_coctx_iteration_s {
 	rjs_coctx_t base;
-	rlong start;
-	rlong iterationidx;
-	rlong continueidx;
-	rlong endidx;
+	long start;
+	long iterationidx;
+	long continueidx;
+	long endidx;
 } rjs_coctx_iteration_t;
 
 
 
 typedef struct rjs_compiler_s rjs_compiler_t;
-typedef rinteger (*RJS_COMPILER_RH)(rjs_compiler_t *co, rarray_t *records, rlong rec);
+typedef int (*RJS_COMPILER_RH)(rjs_compiler_t *co, rarray_t *records, long rec);
 
 struct rjs_compiler_s {
 	rvmcpu_t *cpu;
@@ -110,21 +110,21 @@ struct rjs_compiler_s {
 	rvm_scope_t *scope;
 	rjs_error_t *error;
 	rarray_t *coctx;
-	rchar *temp;
+	char *temp;
 	rstr_t stringcharacters;
-	const rchar *script;
+	const char *script;
 	rsize_t scriptsize;
-	rlong headoff;
-	rlong opcode;
-	rulong debug:1;
+	long headoff;
+	long opcode;
+	unsigned long debug:1;
 	RJS_COMPILER_RH handlers[RJS_COMPILER_NHANDLERS];
 };
 
 
 rjs_compiler_t *rjs_compiler_create(rvmcpu_t *cpu);
 void rjs_compiler_destroy(rjs_compiler_t *co);
-rinteger rjs_compiler_compile(rjs_compiler_t *co, const rchar *script, rsize_t scriptsize, rarray_t *records, rvm_codegen_t *cg, rjs_error_t *error);
-rjs_coctx_t *rjs_compiler_getctx(rjs_compiler_t *co, rulong type);
+int rjs_compiler_compile(rjs_compiler_t *co, const char *script, rsize_t scriptsize, rarray_t *records, rvm_codegen_t *cg, rjs_error_t *error);
+rjs_coctx_t *rjs_compiler_getctx(rjs_compiler_t *co, unsigned long type);
 
 #ifdef __cplusplus
 }

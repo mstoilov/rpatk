@@ -24,7 +24,7 @@
 #include "rpa/rpaparser.h"
 #include "rpa/rpastatpriv.h"
 
-static rinteger rpa_parser_init(rpa_parser_t *pa);
+static int rpa_parser_init(rpa_parser_t *pa);
 
 
 rpa_parser_t *rpa_parser_create()
@@ -53,23 +53,23 @@ void rpa_parser_destroy(rpa_parser_t *pa)
 }
 
 
-rlong rpa_parser_load(rpa_parser_t *pa, const rchar *prods, rsize_t size, rarray_t *records)
+long rpa_parser_load(rpa_parser_t *pa, const char *prods, rsize_t size, rarray_t *records)
 {
-	rlong ret = 0;
+	long ret = 0;
 	rpa_compiler_t *co = pa->co;
 	rpastat_t *stat = pa->stat;
 
 	rpa_stat_cachedisable(stat, 0);
 	if (rpa_stat_exec(stat, rvm_codegen_getcode(co->cg, 0), pa->main, RPA_ENCODING_UTF8, prods, prods, prods + size, records) < 0)
 		return -1;
-	ret = (rlong)RVM_CPUREG_GETL(stat->cpu, R0);
+	ret = (long)RVM_CPUREG_GETL(stat->cpu, R0);
 	if (ret < 0)
 		return 0;
 	return ret;
 }
 
 
-rlong rpa_parser_load_s(rpa_parser_t *pa, const rchar *prods, rarray_t *records)
+long rpa_parser_load_s(rpa_parser_t *pa, const char *prods, rarray_t *records)
 {
 	return rpa_parser_load(pa, prods, r_strlen(prods), records);
 }
@@ -1454,7 +1454,7 @@ static void rpa_production_orexp(rpa_parser_t *pa)
 }
 
 
-static rinteger rpa_parser_init(rpa_parser_t *pa)
+static int rpa_parser_init(rpa_parser_t *pa)
 {
 	rvm_codelabel_t *err;
 	rpa_compiler_t *co = pa->co;

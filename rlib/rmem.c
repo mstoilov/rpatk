@@ -187,7 +187,7 @@ rpointer r_zmalloc(rsize_t size)
 }
 
 
-rpointer r_memset(rpointer s, rinteger c, rsize_t n)
+rpointer r_memset(rpointer s, int c, rsize_t n)
 {
 	return memset((void*)s, (int)c, (size_t)n);
 }

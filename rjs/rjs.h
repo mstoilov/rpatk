@@ -40,8 +40,8 @@ typedef struct rjs_engine_s {
 	rarray_t *cgs;
 	rarray_t *errors;
 	rvmcpu_t *cpu;
-	rlong debugcompile:1;
-	rlong debugexec:1;
+	long debugcompile:1;
+	long debugexec:1;
 } rjs_engine_t;
 
 
@@ -54,22 +54,22 @@ typedef struct rjs_engine_s {
 #define RJS_SWI_ABORT(__j__, __e__) do { rjs_engine_abort((__j__), (__e__)); return; } while (0)
 
 
-const rchar *rjs_version();
+const char *rjs_version();
 
 rjs_engine_t *rjs_engine_create();
 void rjs_engine_destroy(rjs_engine_t *jse);
-rinteger rjs_engine_open(rjs_engine_t *jse);
-rinteger rjs_engine_compile(rjs_engine_t *jse, const rchar *script, rsize_t size);
-rinteger rjs_engine_compile_s(rjs_engine_t *jse, const rchar *script);
-rinteger rjs_engine_close(rjs_engine_t *jse);
-rinteger rjs_engine_run(rjs_engine_t *jse);
-rinteger rjs_engine_addswitable(rjs_engine_t *jse, const rchar *tabname, rvm_switable_t *switalbe);
-rinteger rjs_engine_dumpast(rjs_engine_t *jse, const rchar *script, rsize_t size);
-rvmreg_t *rjs_engine_exec(rjs_engine_t *jse, const rchar *script, rsize_t size);
-rvmreg_t *rjs_engine_vexec(rjs_engine_t *jse, const rchar *script, rsize_t size, rsize_t nargs, va_list args);
-rvmreg_t *rjs_engine_args_exec(rjs_engine_t *jse, const rchar *script, rsize_t size, rsize_t nargs, ...);
-rvmreg_t *rjs_engine_args_exec_s(rjs_engine_t *jse, const rchar *script, rsize_t nargs, ...);
-rvmreg_t *rjs_engine_exec_s(rjs_engine_t *jse, const rchar *script);
+int rjs_engine_open(rjs_engine_t *jse);
+int rjs_engine_compile(rjs_engine_t *jse, const char *script, rsize_t size);
+int rjs_engine_compile_s(rjs_engine_t *jse, const char *script);
+int rjs_engine_close(rjs_engine_t *jse);
+int rjs_engine_run(rjs_engine_t *jse);
+int rjs_engine_addswitable(rjs_engine_t *jse, const char *tabname, rvm_switable_t *switalbe);
+int rjs_engine_dumpast(rjs_engine_t *jse, const char *script, rsize_t size);
+rvmreg_t *rjs_engine_exec(rjs_engine_t *jse, const char *script, rsize_t size);
+rvmreg_t *rjs_engine_vexec(rjs_engine_t *jse, const char *script, rsize_t size, rsize_t nargs, va_list args);
+rvmreg_t *rjs_engine_args_exec(rjs_engine_t *jse, const char *script, rsize_t size, rsize_t nargs, ...);
+rvmreg_t *rjs_engine_args_exec_s(rjs_engine_t *jse, const char *script, rsize_t nargs, ...);
+rvmreg_t *rjs_engine_exec_s(rjs_engine_t *jse, const char *script);
 void rjs_engine_abort(rjs_engine_t *jse, rjs_error_t *error);
 rjs_engine_t *rjs_engine_get(rvmcpu_t *cpu);
 

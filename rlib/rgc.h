@@ -32,7 +32,7 @@ extern "C" {
 typedef struct rgc_s {
 	robject_t obj;
 	rhead_t head[2];
-	ruinteger active;
+	unsigned int active;
 } rgc_t;
 
 

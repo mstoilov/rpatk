@@ -21,10 +21,10 @@
 #include "rlib/rutf.h"
 
 
-rinteger r_utf8_mbtowc(ruint32 *pwc, const ruchar *input, const ruchar *end)
+int r_utf8_mbtowc(ruint32 *pwc, const unsigned char *input, const unsigned char *end)
 {
-	rinteger n;
-	ruchar c;
+	int n;
+	unsigned char c;
 
 	if (input >= end) {
 		*pwc = (ruint32)0;
@@ -35,7 +35,7 @@ rinteger r_utf8_mbtowc(ruint32 *pwc, const ruchar *input, const ruchar *end)
 		*pwc = c;
 		return 1;
 	}
-	n = (rinteger)(end - input);
+	n = (int)(end - input);
 	if (c == 0xC0 || c == 0xC1 || (c >= 0xF5 && c <= 0xFF))
 		goto error;
 	if ((c >> 5) == 6) {
@@ -64,7 +64,7 @@ error:
 }
 
 
-rinteger r_utf8_wctomb(ruint32 wc, ruchar *output, ruint32 size)
+int r_utf8_wctomb(ruint32 wc, unsigned char *output, ruint32 size)
 {
 	ruint32 count;
 	if (wc <= 0x007F)
@@ -99,9 +99,9 @@ rinteger r_utf8_wctomb(ruint32 wc, ruchar *output, ruint32 size)
 }
 
 
-rinteger r_utf16_mbtowc(ruint32 *pwc, const ruchar *s, const ruchar *end)
+int r_utf16_mbtowc(ruint32 *pwc, const unsigned char *s, const unsigned char *end)
 {
-	rinteger n = (rinteger)(end - s);
+	int n = (int)(end - s);
 	ruint32 wc1, wc2;
 
 	if (s >= end) {
@@ -134,7 +134,7 @@ error:
 }
 
 
-rinteger r_utf16_wctomb(ruint32 wc, ruchar *output, ruint32 size)
+int r_utf16_wctomb(ruint32 wc, unsigned char *output, ruint32 size)
 {
 	ruint32 wc1, wc2;
 
@@ -142,18 +142,18 @@ rinteger r_utf16_wctomb(ruint32 wc, ruchar *output, ruint32 size)
 		if (wc < 0x10000) {
 			if (size < 2)
 				return 0;
-			output[0] = (ruchar) wc;
-			output[1] = (ruchar) (wc >> 8);
+			output[0] = (unsigned char) wc;
+			output[1] = (unsigned char) (wc >> 8);
 			return 2;
 		} else if (wc <= 0x10FFFF) {
 			if (size < 4) 
 				return 0;
 			wc1 = 0xd800 + ((wc - 0x10000) >> 10);
 			wc2 = 0xdc00 + ((wc - 0x10000) & 0x3ff);
-			output[0] = (ruchar) wc1;
-			output[1] = (ruchar) (wc1 >> 8);
-			output[2] = (ruchar) wc2;
-			output[3] = (ruchar) (wc2 >> 8);
+			output[0] = (unsigned char) wc1;
+			output[1] = (unsigned char) (wc1 >> 8);
+			output[2] = (unsigned char) wc2;
+			output[3] = (unsigned char) (wc2 >> 8);
 			return 4;
 		}
 	}

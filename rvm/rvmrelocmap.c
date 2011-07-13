@@ -46,7 +46,7 @@ void rvm_relocmap_clear(rvm_relocmap_t *relocmap)
 }
 
 
-rlong rvm_relocmap_add(rvm_relocmap_t *relocmap, rvm_reloctarget_t target, rvm_reloctype_t type, rulong offset, rulong label)
+long rvm_relocmap_add(rvm_relocmap_t *relocmap, rvm_reloctarget_t target, rvm_reloctype_t type, unsigned long offset, unsigned long label)
 {
 	rvm_relocrecord_t record;
 	record.target = target;
@@ -58,7 +58,7 @@ rlong rvm_relocmap_add(rvm_relocmap_t *relocmap, rvm_reloctarget_t target, rvm_r
 }
 
 
-rvm_relocrecord_t *rvm_relocmap_get(rvm_relocmap_t *relocmap, rulong index)
+rvm_relocrecord_t *rvm_relocmap_get(rvm_relocmap_t *relocmap, unsigned long index)
 {
 	if (index >= r_array_length(relocmap->records))
 		return NULL;
@@ -66,15 +66,15 @@ rvm_relocrecord_t *rvm_relocmap_get(rvm_relocmap_t *relocmap, rulong index)
 }
 
 
-rulong rvm_relocmap_length(rvm_relocmap_t *relocmap)
+unsigned long rvm_relocmap_length(rvm_relocmap_t *relocmap)
 {
 	return r_array_length(relocmap->records);
 }
 
 
-rinteger rvm_relocmap_relocate(rvm_relocmap_t *relocmap, rvm_codemap_t *codemap, rvm_asmins_t *code, rvm_codelabel_t **err)
+int rvm_relocmap_relocate(rvm_relocmap_t *relocmap, rvm_codemap_t *codemap, rvm_asmins_t *code, rvm_codelabel_t **err)
 {
-	rlong index;
+	long index;
 	rvm_relocrecord_t *reloc;
 	rword value;
 
@@ -90,7 +90,7 @@ rinteger rvm_relocmap_relocate(rvm_relocmap_t *relocmap, rvm_codemap_t *codemap,
 				code[reloc->offset].data.v.w = value - RVM_CODE2BYTE_OFFSET(1);
 			} else if (reloc->type == RVM_RELOC_STRING) {
 				code[reloc->offset].data.v.w = value;
-				code[reloc->offset].data.size = r_strlen((rchar*)value);
+				code[reloc->offset].data.size = r_strlen((char*)value);
 			} else if (reloc->type == RVM_RELOC_BLOB) {
 				code[reloc->offset].data.v.w = value;
 			} else {

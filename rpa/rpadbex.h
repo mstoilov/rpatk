@@ -64,7 +64,7 @@ typedef struct rpadbex_s rpadbex_t;
  * @typedef rparule_t
  * @brief Unique BNF rule identifier.
  */
-typedef rlong rparule_t;
+typedef long rparule_t;
 
 #define RPA_DBEXCFG_OPTIMIZATIONS 1
 #define RPA_DBEXCFG_DEBUG 2
@@ -74,7 +74,7 @@ typedef rlong rparule_t;
  *
  * @return NULL terminated version string.
  */
-const rchar *rpa_dbex_version();
+const char *rpa_dbex_version();
 
 
 /**
@@ -103,7 +103,7 @@ void rpa_dbex_destroy(rpadbex_t *dbex);
  * @return The error code of the last occurred error. If this function fails the
  * return value is negative.
  */
-rlong rpa_dbex_lasterror(rpadbex_t *dbex);
+long rpa_dbex_lasterror(rpadbex_t *dbex);
 
 /**
  * @brief Get error information for the last occurred error.
@@ -114,7 +114,7 @@ rlong rpa_dbex_lasterror(rpadbex_t *dbex);
  * @return Return 0 if the function is successful or negative otherwise. If this function fails the
  * return value is negative.
  */
-rlong rpa_dbex_lasterrorinfo(rpadbex_t *dbex, rpa_errinfo_t *errinfo);
+long rpa_dbex_lasterrorinfo(rpadbex_t *dbex, rpa_errinfo_t *errinfo);
 
 
 /**
@@ -130,7 +130,7 @@ rlong rpa_dbex_lasterrorinfo(rpadbex_t *dbex, rpa_errinfo_t *errinfo);
  *         Use @ref rpa_dbex_lasterror or @ref rpa_dbex_lasterrorinfo to retrieve the error
  *         information.
  */
-rinteger rpa_dbex_open(rpadbex_t *dbex);
+int rpa_dbex_open(rpadbex_t *dbex);
 
 
 /**
@@ -156,7 +156,7 @@ void rpa_dbex_close(rpadbex_t *dbex);
  *         Use @ref rpa_dbex_lasterror or @ref rpa_dbex_lasterrorinfo to retrieve the error
  *         information.
  */
-rinteger rpa_dbex_compile(rpadbex_t *dbex);
+int rpa_dbex_compile(rpadbex_t *dbex);
 
 
 /**
@@ -170,7 +170,7 @@ rinteger rpa_dbex_compile(rpadbex_t *dbex);
  *         Use @ref rpa_dbex_lasterror or @ref rpa_dbex_lasterrorinfo to retrieve the error
  *         information.
  */
-rlong rpa_dbex_load(rpadbex_t *dbex, const rchar *buffer, rsize_t size);
+long rpa_dbex_load(rpadbex_t *dbex, const char *buffer, rsize_t size);
 
 
 /**
@@ -184,7 +184,7 @@ rlong rpa_dbex_load(rpadbex_t *dbex, const rchar *buffer, rsize_t size);
  *         Use @ref rpa_dbex_lasterror or @ref rpa_dbex_lasterrorinfo to retrieve the error
  *         information.
  */
-rlong rpa_dbex_load_s(rpadbex_t *dbex, const rchar *buffer);
+long rpa_dbex_load_s(rpadbex_t *dbex, const char *buffer);
 
 
 /**
@@ -213,7 +213,7 @@ rvm_asmins_t *rpa_dbex_executable(rpadbex_t *dbex);
  *         Use @ref rpa_dbex_lasterror or @ref rpa_dbex_lasterrorinfo to retrieve the error
  *         information.
  */
-rlong rpa_dbex_executableoffset(rpadbex_t *dbex, rparule_t rid);
+long rpa_dbex_executableoffset(rpadbex_t *dbex, rparule_t rid);
 
 
 /**
@@ -229,7 +229,7 @@ rlong rpa_dbex_executableoffset(rpadbex_t *dbex, rparule_t rid);
  * @param namesize The size of the buffer to be used.
  * @return Unique ID for the specified production name.
  */
-rparule_t rpa_dbex_lookup(rpadbex_t *dbex, const rchar *name, rsize_t namesize);
+rparule_t rpa_dbex_lookup(rpadbex_t *dbex, const char *name, rsize_t namesize);
 
 
 /**
@@ -237,7 +237,7 @@ rparule_t rpa_dbex_lookup(rpadbex_t *dbex, const rchar *name, rsize_t namesize);
  *
  * Same as @ref rpa_dbex_lookup, but the name parameter is NULL terminated string.
  */
-rparule_t rpa_dbex_lookup_s(rpadbex_t *dbex, const rchar *name);
+rparule_t rpa_dbex_lookup_s(rpadbex_t *dbex, const char *name);
 
 
 /**
@@ -251,7 +251,7 @@ rparule_t rpa_dbex_lookup_s(rpadbex_t *dbex, const rchar *name);
  * @param rid Rule id
  * @return Returns the name of the specified ID or NULL in case of error.
  */
-const rchar *rpa_dbex_name(rpadbex_t *dbex, rparule_t rid);
+const char *rpa_dbex_name(rpadbex_t *dbex, rparule_t rid);
 
 
 /**
@@ -317,7 +317,7 @@ rsize_t rpa_dbex_strlen(rpadbex_t *dbex, rparule_t rid);
  * @param size to be copied
  * @return Return the number of bytes written in the buffer.
  */
-rsize_t rpa_dbex_strncpy(rpadbex_t *dbex, rchar *dest, rparule_t rid, rsize_t size);
+rsize_t rpa_dbex_strncpy(rpadbex_t *dbex, char *dest, rparule_t rid, rsize_t size);
 
 
 /**
@@ -335,7 +335,7 @@ rsize_t rpa_dbex_strncpy(rpadbex_t *dbex, rchar *dest, rparule_t rid, rsize_t si
  *   - 0 Dissable debugging
  *   - 1 Enable debugging
  */
-rlong rpa_dbex_cfgset(rpadbex_t *dbex, rulong cfg, rulong val);
+long rpa_dbex_cfgset(rpadbex_t *dbex, unsigned long cfg, unsigned long val);
 
 
 /**
@@ -349,7 +349,7 @@ rlong rpa_dbex_cfgset(rpadbex_t *dbex, rulong cfg, rulong val);
  * - RPA_DBEXCFG_OPTIMIZATIONS
  * - RPA_DBEXCFG_DEBUG
  */
-rlong rpa_dbex_cfgget(rpadbex_t *dbex, rulong cfg);
+long rpa_dbex_cfgget(rpadbex_t *dbex, unsigned long cfg);
 
 
 /**
@@ -360,7 +360,7 @@ rlong rpa_dbex_cfgget(rpadbex_t *dbex, rulong cfg);
  * @param rid production ID.
  * @return Return 0 on success or negative if error occurred.
  */
-rinteger rpa_dbex_dumptree(rpadbex_t *dbex, rparule_t rid);
+int rpa_dbex_dumptree(rpadbex_t *dbex, rparule_t rid);
 
 /**
  * @brief Dump the compiled byte code for the specified production ID
@@ -370,7 +370,7 @@ rinteger rpa_dbex_dumptree(rpadbex_t *dbex, rparule_t rid);
  * @param rid production ID.
  * @return Return 0 on success or negative if error occurred.
  */
-rinteger rpa_dbex_dumpcode(rpadbex_t* dbex, rparule_t rid);
+int rpa_dbex_dumpcode(rpadbex_t* dbex, rparule_t rid);
 
 
 /**
@@ -382,7 +382,7 @@ rinteger rpa_dbex_dumpcode(rpadbex_t* dbex, rparule_t rid);
  * @param dbex Pointer to @ref rpadbex_t object.
  * @return Return 0 on success or negative if error occurred.
  */
-rinteger rpa_dbex_dumprecords(rpadbex_t *dbex);
+int rpa_dbex_dumprecords(rpadbex_t *dbex);
 
 /**
  * @brief Print the content of BNF productions database.
@@ -391,7 +391,7 @@ rinteger rpa_dbex_dumprecords(rpadbex_t *dbex);
  * @param dbex Pointer to @ref rpadbex_t object.
  * @return Return 0 on success or negative if error occurred.
  */
-rinteger rpa_dbex_dumpproductions(rpadbex_t *dbex);
+int rpa_dbex_dumpproductions(rpadbex_t *dbex);
 
 /**
  * @brief Print debug information about the state of the BNF productions database.
@@ -400,7 +400,7 @@ rinteger rpa_dbex_dumpproductions(rpadbex_t *dbex);
  * @param dbex Pointer to @ref rpadbex_t object.
  * @return Return 0 on success or negative if error occurred.
  */
-rinteger rpa_dbex_dumpinfo(rpadbex_t *dbex);
+int rpa_dbex_dumpinfo(rpadbex_t *dbex);
 
 /**
  * @brief Print the production user IDs in a format suitable to be
@@ -409,7 +409,7 @@ rinteger rpa_dbex_dumpinfo(rpadbex_t *dbex);
  * If you define user IDs for your productions you can dump all user IDs
  * in a format suitable to be included in a C/C++ source code.
  */
-rinteger rpa_dbex_dumpuids(rpadbex_t *dbex);
+int rpa_dbex_dumpuids(rpadbex_t *dbex);
 
 /**
  * @example personname.c

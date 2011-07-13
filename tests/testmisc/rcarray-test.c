@@ -24,7 +24,7 @@
 #include "rlib/rmem.h"
 
 
-static void r_carray_replaceint(rcarray_t *carray, ruinteger index, rinteger elt)
+static void r_carray_replaceint(rcarray_t *carray, unsigned int index, int elt)
 {
 	r_carray_replace(carray, index, &elt);
 }

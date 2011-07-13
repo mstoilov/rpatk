@@ -84,7 +84,7 @@ typedef struct rparecord_s rparecord_t;
 /**
  * Tree walk callback
  */
-typedef rlong (*rpa_recordtree_callback)(rarray_t *records, rlong rec, rpointer userdata);
+typedef long (*rpa_recordtree_callback)(rarray_t *records, long rec, rpointer userdata);
 
 
 /**
@@ -94,9 +94,9 @@ typedef rlong (*rpa_recordtree_callback)(rarray_t *records, rlong rec, rpointer 
 struct rparecord_s {
 	ruint32 top;			/**< This is a private member, used by the engine and is not significant to the user */
 	ruint32 size;			/**< This is a private member, used by the engine and is not significant to the user */
-	const rchar *rule;		/**< Name of the rule that generated this record. This pointer points to memory allocated
+	const char *rule;		/**< Name of the rule that generated this record. This pointer points to memory allocated
 	 	 	 	 	 	 	 *   inside @ref rpadbex_t, so make sure rpadbex_t object is still valid while accessing this pointer. */
-	const rchar *input;		/**< Pointer in the input stream. This pointer points to memory inside the input buffer
+	const char *input;		/**< Pointer in the input stream. This pointer points to memory inside the input buffer
 	 	 	 	 	 	 	 *   passed to @ref rpa_stat_parse, make sure this memory is still valid while accessing this pointer. */
 	rsize_t inputoff;		/**< Input offset, calculated from the start parameter passed to @ref rpa_stat_parse */
 	rsize_t inputsiz;		/**< Size of input */
@@ -108,35 +108,35 @@ struct rparecord_s {
 };
 
 
-rlong rpa_recordtree_walk(rarray_t *src, rlong rec, rlong level, rpa_recordtree_callback callaback, rpointer userdata);
-rlong rpa_recordtree_get(rarray_t *records, rlong rec, rulong type);
-rlong rpa_recordtree_firstchild(rarray_t *records, rlong rec, rulong type);
-rlong rpa_recordtree_lastchild(rarray_t *records, rlong rec, rulong type);
-rlong rpa_recordtree_next(rarray_t *records, rlong rec, rulong type);
-rlong rpa_recordtree_prev(rarray_t *records, rlong rec, rulong type);
-rlong rpa_recordtree_parent(rarray_t *records, rlong rec, rulong type);
-rlong rpa_recordtree_size(rarray_t *records, rlong rec);					/* Size of the tree */
-rlong rpa_recordtree_copy(rarray_t *dst, rarray_t *src, rlong rec);
+long rpa_recordtree_walk(rarray_t *src, long rec, long level, rpa_recordtree_callback callaback, rpointer userdata);
+long rpa_recordtree_get(rarray_t *records, long rec, unsigned long type);
+long rpa_recordtree_firstchild(rarray_t *records, long rec, unsigned long type);
+long rpa_recordtree_lastchild(rarray_t *records, long rec, unsigned long type);
+long rpa_recordtree_next(rarray_t *records, long rec, unsigned long type);
+long rpa_recordtree_prev(rarray_t *records, long rec, unsigned long type);
+long rpa_recordtree_parent(rarray_t *records, long rec, unsigned long type);
+long rpa_recordtree_size(rarray_t *records, long rec);					/* Size of the tree */
+long rpa_recordtree_copy(rarray_t *dst, rarray_t *src, long rec);
 
 /**
  * Return a pointer to a record at offset rec
  * @param records An array of records populated by a @ref rpa_stat_parse operation.
  * @param rec record offset.
  */
-rparecord_t *rpa_record_get(rarray_t *records, rlong rec);
+rparecord_t *rpa_record_get(rarray_t *records, long rec);
 
 
-void rpa_record_dumpindented(rarray_t *records, rlong rec, rinteger level);
-void rpa_record_dump(rarray_t *records, rlong rec);
-rlong rpa_record_getruleuid(rarray_t *records, rlong rec);
-void rpa_record_setusertype(rarray_t *records, rlong rec, ruint32 usertype, rvalset_t op);
-rlong rpa_record_getusertype(rarray_t *records, rlong rec);
-rinteger rpa_record_optchar(rparecord_t *prec, rinteger defc);
-rinteger rpa_record_loopchar(rparecord_t *prec, rinteger defc);
+void rpa_record_dumpindented(rarray_t *records, long rec, int level);
+void rpa_record_dump(rarray_t *records, long rec);
+long rpa_record_getruleuid(rarray_t *records, long rec);
+void rpa_record_setusertype(rarray_t *records, long rec, ruint32 usertype, rvalset_t op);
+long rpa_record_getusertype(rarray_t *records, long rec);
+int rpa_record_optchar(rparecord_t *prec, int defc);
+int rpa_record_loopchar(rparecord_t *prec, int defc);
 rarray_t *rpa_records_create();
 void rpa_records_destroy(rarray_t *records);
-rlong rpa_records_length(rarray_t *records);
-rparecord_t *rpa_records_slot(rarray_t *records, rlong index);
+long rpa_records_length(rarray_t *records);
+rparecord_t *rpa_records_slot(rarray_t *records, long index);
 
 #ifdef __cplusplus
 }

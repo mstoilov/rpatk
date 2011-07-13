@@ -25,8 +25,8 @@
 	
 int main(int argc, char *argv[])
 {
-	ruinteger ret = 0;
-	ruinteger off = 0;
+	unsigned int ret = 0;
+	unsigned int off = 0;
 	rvmreg_t d1 = rvm_reg_create_double(1.0);
 	rvmreg_t d1s = rvm_reg_create_string_ansi("2.0");
 	rvm_asmins_t vmcode[256];

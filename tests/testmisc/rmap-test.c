@@ -25,41 +25,41 @@
 #include "rlib/rstring.h"
 
 
-rlong test_rmap_add(rmap_t *map, const rchar *name, rlong val)
+long test_rmap_add(rmap_t *map, const char *name, long val)
 {
 	return r_map_add_s(map, name, &val);
 }
 
 
-void test_rmap_print(rmap_t * map, rulong index)
+void test_rmap_print(rmap_t * map, unsigned long index)
 {
 	if (r_map_value(map, index))
-		fprintf(stdout, "(Index: %3ld) Key: %s, Value: %ld\n", index, R_STRING2ANSI(r_map_key(map, index)), *((rlong*)r_map_value(map, index)));
+		fprintf(stdout, "(Index: %3ld) Key: %s, Value: %ld\n", index, R_STRING2ANSI(r_map_key(map, index)), *((long*)r_map_value(map, index)));
 	else
 		fprintf(stdout, "Invalid Index: %ld\n", index);
 }
 
 
-void test_rmap_lookup(rmap_t * map, const rchar *name)
+void test_rmap_lookup(rmap_t * map, const char *name)
 {
-	rlong index = -1;
+	long index = -1;
 
 	do {
 		index = r_map_lookup_s(map, index, name);
 		if (index >= 0)
-			fprintf(stdout, "(Lookup index: %3ld) Key: %s, Value: %ld\n", index, R_STRING2ANSI(r_map_key(map, index)), *((rlong*)r_map_value(map, index)));
+			fprintf(stdout, "(Lookup index: %3ld) Key: %s, Value: %ld\n", index, R_STRING2ANSI(r_map_key(map, index)), *((long*)r_map_value(map, index)));
 	} while (index >= 0);
 }
 
 
-void test_rmap_taillookup(rmap_t * map, const rchar *name)
+void test_rmap_taillookup(rmap_t * map, const char *name)
 {
-	rlong index = -1;
+	long index = -1;
 
 	do {
 		index = r_map_taillookup_s(map, index, name);
 		if (index >= 0)
-			fprintf(stdout, "(Tail Lookup index: %3ld) Key: %s, Value: %ld\n", index, R_STRING2ANSI(r_map_key(map, index)), *((rlong*)r_map_value(map, index)));
+			fprintf(stdout, "(Tail Lookup index: %3ld) Key: %s, Value: %ld\n", index, R_STRING2ANSI(r_map_key(map, index)), *((long*)r_map_value(map, index)));
 	} while (index >= 0);
 
 }
@@ -67,8 +67,8 @@ void test_rmap_taillookup(rmap_t * map, const rchar *name)
 
 int main(int argc, char *argv[])
 {
-	rlong l, val = 17;
-	rmap_t *map = r_map_create(sizeof(rlong), 7);
+	long l, val = 17;
+	rmap_t *map = r_map_create(sizeof(long), 7);
 
 	test_rmap_add(map, "one", 1);
 	test_rmap_add(map, "two", 2);

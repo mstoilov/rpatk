@@ -45,7 +45,7 @@ void rvm_scope_destroy(rvm_scope_t *scope)
 	int len = r_array_length(scope->names);
 
 	for (i = 0; i < len; i++)
-		r_free(r_array_index(scope->names, i, rchar*));
+		r_free(r_array_index(scope->names, i, char*));
 	r_object_destroy((robject_t*)scope->names);
 	r_object_destroy((robject_t*)scope->varstack);
 	r_object_destroy((robject_t*)scope->scopestack);
@@ -54,9 +54,9 @@ void rvm_scope_destroy(rvm_scope_t *scope)
 }
 
 
-rchar *rvm_scope_addname(rvm_scope_t *scope, const rchar* name, ruinteger namesize)
+char *rvm_scope_addname(rvm_scope_t *scope, const char* name, unsigned int namesize)
 {
-	rstr_t namestr = {(rchar*)name, namesize};
+	rstr_t namestr = {(char*)name, namesize};
 	rstr_t *dupname = r_hash_lookup(scope->nameshash, &namestr);
 
 	if (!dupname) {
@@ -68,13 +68,13 @@ rchar *rvm_scope_addname(rvm_scope_t *scope, const rchar* name, ruinteger namesi
 }
 
 
-rchar *rvm_scope_addstrname(rvm_scope_t *scope, const rchar *name)
+char *rvm_scope_addstrname(rvm_scope_t *scope, const char *name)
 {
 	return rvm_scope_addname(scope, name, r_strlen(name));
 }
 
 
-ruinteger rvm_scope_count(rvm_scope_t* scope)
+unsigned int rvm_scope_count(rvm_scope_t* scope)
 {
 	return r_array_length(scope->scopestack);
 }
@@ -97,7 +97,7 @@ void rvm_scope_pop(rvm_scope_t* scope)
 }
 
 
-void rvm_scope_addoffset(rvm_scope_t *scope, const rchar *name, ruinteger namesize, ruint32 off)
+void rvm_scope_addoffset(rvm_scope_t *scope, const char *name, unsigned int namesize, ruint32 off)
 {
 	rvm_varmap_t vmap;
 
@@ -108,13 +108,13 @@ void rvm_scope_addoffset(rvm_scope_t *scope, const rchar *name, ruinteger namesi
 }
 
 
-ruinteger rvm_scope_numentries(rvm_scope_t *scope)
+unsigned int rvm_scope_numentries(rvm_scope_t *scope)
 {
 	return r_array_length(scope->varstack);
 }
 
 
-void rvm_scope_addpointer(rvm_scope_t *scope, const rchar *name, ruinteger namesize, rpointer ptr)
+void rvm_scope_addpointer(rvm_scope_t *scope, const char *name, unsigned int namesize, rpointer ptr)
 {
 	rvm_varmap_t vmap;
 
@@ -125,23 +125,23 @@ void rvm_scope_addpointer(rvm_scope_t *scope, const rchar *name, ruinteger names
 }
 
 
-void rvm_scope_addoffset_s(rvm_scope_t *scope, const rchar *name, ruint32 off)
+void rvm_scope_addoffset_s(rvm_scope_t *scope, const char *name, ruint32 off)
 {
 	rvm_scope_addoffset(scope, name ,r_strlen(name), off);
 }
 
 
-void rvm_scope_addpointer_s(rvm_scope_t *scope, const rchar *name, rpointer ptr)
+void rvm_scope_addpointer_s(rvm_scope_t *scope, const char *name, rpointer ptr)
 {
 	rvm_scope_addpointer(scope, name ,r_strlen(name), ptr);
 }
 
 
-rvm_varmap_t *rvm_scope_lookup(rvm_scope_t *scope, const rchar *name, ruinteger namesize)
+rvm_varmap_t *rvm_scope_lookup(rvm_scope_t *scope, const char *name, unsigned int namesize)
 {
 	rsize_t scopelen = r_array_length(scope->varstack);
 	rvm_varmap_t *varmap;
-	rinteger i;
+	int i;
 
 	if (!scopelen)
 		return NULL;
@@ -155,16 +155,16 @@ rvm_varmap_t *rvm_scope_lookup(rvm_scope_t *scope, const rchar *name, ruinteger 
 }
 
 
-rvm_varmap_t *rvm_scope_tiplookup(rvm_scope_t *scope, const rchar *name, ruinteger namesize)
+rvm_varmap_t *rvm_scope_tiplookup(rvm_scope_t *scope, const char *name, unsigned int namesize)
 {
 	rsize_t scopelen = r_array_length(scope->varstack);
-	ruinteger tipstart = r_array_empty(scope->scopestack) ? 0 : r_array_last(scope->scopestack, ruinteger);
+	unsigned int tipstart = r_array_empty(scope->scopestack) ? 0 : r_array_last(scope->scopestack, unsigned int);
 	rvm_varmap_t *varmap;
-	rinteger i;
+	int i;
 
 	if (!scopelen)
 		return NULL;
-	for (i = scopelen - 1; i >= (rinteger)tipstart; i--) {
+	for (i = scopelen - 1; i >= (int)tipstart; i--) {
 		varmap = (rvm_varmap_t*)r_array_slot(scope->varstack, i);
 		if (r_strlen(varmap->name) == namesize && r_strncmp(varmap->name, name, namesize) == 0)
 			return varmap;
@@ -173,13 +173,13 @@ rvm_varmap_t *rvm_scope_tiplookup(rvm_scope_t *scope, const rchar *name, ruinteg
 }
 
 
-rvm_varmap_t *rvm_scope_lookup_s(rvm_scope_t *scope, const rchar *name)
+rvm_varmap_t *rvm_scope_lookup_s(rvm_scope_t *scope, const char *name)
 {
 	return rvm_scope_lookup(scope, name, r_strlen(name));
 }
 
 
-rvm_varmap_t *rvm_scope_tiplookup_s(rvm_scope_t *scope, const rchar *name)
+rvm_varmap_t *rvm_scope_tiplookup_s(rvm_scope_t *scope, const char *name)
 {
 	return rvm_scope_tiplookup(scope, name, r_strlen(name));
 }

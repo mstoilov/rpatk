@@ -15,9 +15,9 @@
 
 void code_rpa_matchabc(rpa_compiler_t *co, rpastat_t *stat)
 {
-	rulong ruleidx;
-	const rchar *rule = "rpa_matchabc";
-	const rchar *ruleend = "rpa_matchabc_end";
+	unsigned long ruleidx;
+	const char *rule = "rpa_matchabc";
+	const char *ruleend = "rpa_matchabc_end";
 
 	ruleidx = rvm_codegen_addstring_s(co->cg, NULL, rule);
 	rvm_codegen_addlabel_default_s(co->cg, rule);
@@ -45,9 +45,9 @@ void code_rpa_matchabc(rpa_compiler_t *co, rpastat_t *stat)
 
 void code_rpa_matchxyz(rpa_compiler_t *co, rpastat_t *stat)
 {
-	rulong ruleidx;
-	const rchar *rule = "rpa_matchxyz";
-	const rchar *ruleend = "rpa_matchxyz_end";
+	unsigned long ruleidx;
+	const char *rule = "rpa_matchxyz";
+	const char *ruleend = "rpa_matchxyz_end";
 
 	ruleidx = rvm_codegen_addstring_s(co->cg, NULL, rule);
 	rvm_codegen_addlabel_default_s(co->cg, rule);
@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
 	rvm_codelabel_t *err;
 	rpa_compiler_t *co;
 	rpastat_t *stat;
-	ruinteger mainoff;
+	unsigned int mainoff;
 	char teststr[] = "abcabcabcabc";
 
 	co = rpa_compiler_create();

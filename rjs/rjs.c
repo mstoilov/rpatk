@@ -38,7 +38,7 @@ static rvm_switable_t rjsswitable[] = {
 };
 
 
-const rchar *rjs_version()
+const char *rjs_version()
 {
 	return RJS_VERSION_STRING;
 }
@@ -71,7 +71,7 @@ error:
 
 void rjs_engine_destroy(rjs_engine_t *jse)
 {
-	rlong i;
+	long i;
 	if (jse) {
 		if (jse->cgs) {
 			for (i = 0; i < r_array_length(jse->cgs); i++) {
@@ -88,28 +88,28 @@ void rjs_engine_destroy(rjs_engine_t *jse)
 }
 
 
-rinteger rjs_engine_open(rjs_engine_t *jse)
+int rjs_engine_open(rjs_engine_t *jse)
 {
 	return 0;
 }
 
 
-rinteger rjs_engine_addswitable(rjs_engine_t *jse, const rchar *tabname, rvm_switable_t *switalbe)
+int rjs_engine_addswitable(rjs_engine_t *jse, const char *tabname, rvm_switable_t *switalbe)
 {
 	return rvm_cpu_addswitable(jse->cpu, tabname, switalbe);
 }
 
 
-static rinteger rjs_engine_parse(rjs_engine_t *jse, const rchar *script, rsize_t size, rarray_t *records, rjs_error_t *error)
+static int rjs_engine_parse(rjs_engine_t *jse, const char *script, rsize_t size, rarray_t *records, rjs_error_t *error)
 {
-	rlong res = 0;
+	long res = 0;
 
 	res = rjs_parser_exec(jse->pa, script, size, records, error);
 	return res;
 }
 
 
-rinteger rjs_engine_compile(rjs_engine_t *jse, const rchar *script, rsize_t size)
+int rjs_engine_compile(rjs_engine_t *jse, const char *script, rsize_t size)
 {
 	rvm_codegen_t *topcg = NULL;
 	rarray_t *records = rpa_records_create();
@@ -145,7 +145,7 @@ err:
 }
 
 
-rinteger rjs_engine_dumpast(rjs_engine_t *jse, const rchar *script, rsize_t size)
+int rjs_engine_dumpast(rjs_engine_t *jse, const char *script, rsize_t size)
 {
 	rjs_error_t error;
 	rarray_t *records = rpa_records_create();
@@ -157,7 +157,7 @@ rinteger rjs_engine_dumpast(rjs_engine_t *jse, const rchar *script, rsize_t size
 	}
 
 	if (records) {
-		rlong i;
+		long i;
 		for (i = 0; i < rpa_records_length(records); i++)
 			rpa_record_dump(records, i);
 	}
@@ -167,22 +167,22 @@ rinteger rjs_engine_dumpast(rjs_engine_t *jse, const rchar *script, rsize_t size
 }
 
 
-rinteger rjs_engine_compile_s(rjs_engine_t *jse, const rchar *script)
+int rjs_engine_compile_s(rjs_engine_t *jse, const char *script)
 {
 	return rjs_engine_compile(jse, script, r_strlen(script));
 }
 
 
-rinteger rjs_engine_close(rjs_engine_t *jse)
+int rjs_engine_close(rjs_engine_t *jse)
 {
 
 	return 0;
 }
 
 
-rinteger rjs_engine_run(rjs_engine_t *jse)
+int rjs_engine_run(rjs_engine_t *jse)
 {
-	rinteger res = 0;
+	int res = 0;
 	rvm_codegen_t *cg = r_array_empty(jse->cgs) ? NULL : r_array_last(jse->cgs, rvm_codegen_t*);
 
 	if (!cg) {
@@ -196,7 +196,7 @@ rinteger rjs_engine_run(rjs_engine_t *jse)
 	}
 
 	if (jse->cpu->error == RVM_E_USERABORT) {
-		rlong idx = RVM_CPUREG_GETIP(jse->cpu, PC) - rvm_codegen_getcode(cg, 0);
+		long idx = RVM_CPUREG_GETIP(jse->cpu, PC) - rvm_codegen_getcode(cg, 0);
 		if (idx >= 0) {
 			r_printf("Aborted at source index: %ld\n", rvm_codegen_getsource(cg, idx));
 		}
@@ -206,7 +206,7 @@ rinteger rjs_engine_run(rjs_engine_t *jse)
 }
 
 
-rvmreg_t * rjs_engine_exec(rjs_engine_t *jse, const rchar *script, rsize_t size)
+rvmreg_t * rjs_engine_exec(rjs_engine_t *jse, const char *script, rsize_t size)
 {
 	if (rjs_engine_compile(jse, script, size) < 0)
 		return NULL;
@@ -218,13 +218,13 @@ rvmreg_t * rjs_engine_exec(rjs_engine_t *jse, const rchar *script, rsize_t size)
 }
 
 
-rvmreg_t *rjs_engine_exec_s(rjs_engine_t *jse, const rchar *script)
+rvmreg_t *rjs_engine_exec_s(rjs_engine_t *jse, const char *script)
 {
 	return rjs_engine_exec(jse, script, r_strlen(script));
 }
 
 
-static rinteger rjs_compiler_argarray_setup(rjs_compiler_t *co)
+static int rjs_compiler_argarray_setup(rjs_compiler_t *co)
 {
 	rvm_varmap_t *v;
 	rvmreg_t count = rvm_reg_create_long(0);
@@ -242,12 +242,12 @@ static rinteger rjs_compiler_argarray_setup(rjs_compiler_t *co)
 }
 
 
-static rinteger rjs_compiler_addarg(rjs_compiler_t *co, rvmreg_t *arg)
+static int rjs_compiler_addarg(rjs_compiler_t *co, rvmreg_t *arg)
 {
 	rvm_varmap_t *v;
 	rmap_t *a;
 	rvmreg_t *count;
-	rlong index;
+	long index;
 
 	v = rvm_scope_tiplookup_s(co->scope, "ARGS");
 	if (!v) {
@@ -264,7 +264,7 @@ static rinteger rjs_compiler_addarg(rjs_compiler_t *co, rvmreg_t *arg)
 }
 
 
-rvmreg_t *rjs_engine_vexec(rjs_engine_t *jse, const rchar *script, rsize_t size, rsize_t nargs, va_list args)
+rvmreg_t *rjs_engine_vexec(rjs_engine_t *jse, const char *script, rsize_t size, rsize_t nargs, va_list args)
 {
 	rvmreg_t arg;
 	rsize_t i = 0;
@@ -286,7 +286,7 @@ rvmreg_t *rjs_engine_vexec(rjs_engine_t *jse, const rchar *script, rsize_t size,
 }
 
 
-rvmreg_t *rjs_engine_args_exec(rjs_engine_t *jse, const rchar *script, rsize_t size, rsize_t nargs, ...)
+rvmreg_t *rjs_engine_args_exec(rjs_engine_t *jse, const char *script, rsize_t size, rsize_t nargs, ...)
 {
 	rvmreg_t *ret;
 	va_list args;
@@ -297,7 +297,7 @@ rvmreg_t *rjs_engine_args_exec(rjs_engine_t *jse, const rchar *script, rsize_t s
 }
 
 
-rvmreg_t *rjs_engine_args_exec_s(rjs_engine_t *jse, const rchar *script, rsize_t nargs, ...)
+rvmreg_t *rjs_engine_args_exec_s(rjs_engine_t *jse, const char *script, rsize_t nargs, ...)
 {
 	rvmreg_t *ret;
 	va_list args;

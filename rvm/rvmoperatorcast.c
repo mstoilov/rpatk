@@ -22,13 +22,13 @@
 #include "rvm/rvmreg.h"
 
 
-void rvm_op_cast_static_static(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rvm_op_cast_static_static(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	*res = *arg1;
 }
 
 
-void rvm_op_cast_double_unsigned(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rvm_op_cast_double_unsigned(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rword r = (rword)RVM_REG_GETD(arg1);
 
@@ -37,9 +37,9 @@ void rvm_op_cast_double_unsigned(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, con
 	RVM_REG_SETL(res, r);
 }
 
-void rvm_op_cast_double_long(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rvm_op_cast_double_long(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
-	rlong r = (rlong)RVM_REG_GETD(arg1);
+	long r = (long)RVM_REG_GETD(arg1);
 
 	RVM_REG_CLEAR(res);
 	RVM_REG_SETTYPE(res, RVM_DTYPE_LONG);
@@ -47,7 +47,7 @@ void rvm_op_cast_double_long(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const r
 }
 
 
-void rvm_op_cast_long_unsigned(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rvm_op_cast_long_unsigned(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rword r = (rword)RVM_REG_GETL(arg1);
 
@@ -57,9 +57,9 @@ void rvm_op_cast_long_unsigned(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const
 }
 
 
-void rvm_op_cast_long_double(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rvm_op_cast_long_double(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
-	rdouble r = (rdouble)RVM_REG_GETL(arg1);
+	double r = (double)RVM_REG_GETL(arg1);
 
 	RVM_REG_CLEAR(res);
 	RVM_REG_SETTYPE(res, RVM_DTYPE_DOUBLE);
@@ -67,7 +67,7 @@ void rvm_op_cast_long_double(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const r
 }
 
 
-void rvm_op_cast_long_boolean(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rvm_op_cast_long_boolean(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rword r = (rword)RVM_REG_GETL(arg1);
 
@@ -77,7 +77,7 @@ void rvm_op_cast_long_boolean(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const 
 }
 
 
-void rvm_op_cast_double_boolean(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rvm_op_cast_double_boolean(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rword r = (rword)RVM_REG_GETD(arg1);
 
@@ -87,7 +87,7 @@ void rvm_op_cast_double_boolean(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, cons
 }
 
 
-void rvm_op_cast_pointer_boolean(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rvm_op_cast_pointer_boolean(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rpointer r = (rpointer)RVM_REG_GETP(arg1);
 
@@ -97,9 +97,9 @@ void rvm_op_cast_pointer_boolean(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, con
 }
 
 
-void rvm_op_cast_unsigned_long(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rvm_op_cast_unsigned_long(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
-	rlong r = (rlong)RVM_REG_GETU(arg1);
+	long r = (long)RVM_REG_GETU(arg1);
 
 	RVM_REG_CLEAR(res);
 	RVM_REG_SETTYPE(res, RVM_DTYPE_LONG);
@@ -107,9 +107,9 @@ void rvm_op_cast_unsigned_long(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const
 }
 
 
-void rvm_op_cast_unsigned_double(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rvm_op_cast_unsigned_double(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
-	rdouble r = (rdouble)RVM_REG_GETU(arg1);
+	double r = (double)RVM_REG_GETU(arg1);
 
 	RVM_REG_CLEAR(res);
 	RVM_REG_SETTYPE(res, RVM_DTYPE_DOUBLE);
@@ -117,7 +117,7 @@ void rvm_op_cast_unsigned_double(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, con
 }
 
 
-void rvm_op_cast_string_unsigned(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rvm_op_cast_string_unsigned(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rvmreg_t s;
 
@@ -127,7 +127,7 @@ void rvm_op_cast_string_unsigned(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, con
 }
 
 
-void rvm_op_cast_string_long(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rvm_op_cast_string_long(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rvmreg_t s;
 
@@ -137,7 +137,7 @@ void rvm_op_cast_string_long(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const r
 }
 
 
-void rvm_op_cast_string_double(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rvm_op_cast_string_double(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rvmreg_t s;
 

@@ -34,8 +34,8 @@ void rjs_parser_dbex_error(rjs_parser_t *parser)
 		r_printf(", Error Code: %ld", err.code);
 	}
 	if (err.mask & RPA_ERRINFO_OFFSET) {
-		rlong line = 1, i;
-		const rchar *ptr = rjs_rules_get();
+		long line = 1, i;
+		const char *ptr = rjs_rules_get();
 		for (i = 0; i < err.offset; i++) {
 			if (ptr[i] == '\n')
 				line += 1;
@@ -83,10 +83,10 @@ void rjs_parser_destroy(rjs_parser_t *parser)
 }
 
 
-rlong rjs_parser_offset2line(const rchar *script, rlong offset)
+long rjs_parser_offset2line(const char *script, long offset)
 {
-	rlong line = 1;
-	const rchar *ptr;
+	long line = 1;
+	const char *ptr;
 
 	for (line = 1, ptr = script + offset; ptr >= script; --ptr) {
 		if (*ptr == '\n' && ptr != script + offset)
@@ -97,10 +97,10 @@ rlong rjs_parser_offset2line(const rchar *script, rlong offset)
 }
 
 
-rlong rjs_parser_offset2lineoffset(const rchar *script, rlong offset)
+long rjs_parser_offset2lineoffset(const char *script, long offset)
 {
-	rlong lineoffset = 0;
-	const rchar *ptr;
+	long lineoffset = 0;
+	const char *ptr;
 
 	for (lineoffset = 0, ptr = script + offset; ptr > script; --ptr) {
 		if (*ptr == '\n' && ptr != script + offset)
@@ -111,9 +111,9 @@ rlong rjs_parser_offset2lineoffset(const rchar *script, rlong offset)
 }
 
 
-rlong rjs_parser_exec(rjs_parser_t *parser, const rchar *script, rsize_t size, rarray_t *ast, rjs_error_t *error)
+long rjs_parser_exec(rjs_parser_t *parser, const char *script, rsize_t size, rarray_t *ast, rjs_error_t *error)
 {
-	rlong res = 0;
+	long res = 0;
 	rpastat_t *stat = rpa_stat_create(parser->dbex, 4096);
 	res = rpa_stat_parse(stat, rpa_dbex_last(parser->dbex), RPA_ENCODING_UTF8, script, script, script + size, ast);
 	if (res < 0 && error) {

@@ -22,7 +22,7 @@
 #include "rvm/rvmreg.h"
 
 
-static void rvm_op_logicnot_unsigned(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1)
+static void rvm_op_logicnot_unsigned(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1)
 {
 	rword r;
 
@@ -33,7 +33,7 @@ static void rvm_op_logicnot_unsigned(rvmcpu_t *cpu, rushort opid, rvmreg_t *res,
 }
 
 
-static void rvm_op_logicnot_long(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1)
+static void rvm_op_logicnot_long(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1)
 {
 	rword r;
 
@@ -44,7 +44,7 @@ static void rvm_op_logicnot_long(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, con
 }
 
 
-static void rvm_op_logicnot_double(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1)
+static void rvm_op_logicnot_double(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1)
 {
 	rword r;
 
@@ -55,7 +55,7 @@ static void rvm_op_logicnot_double(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, c
 }
 
 
-static void rvm_op_logicnot_string(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1)
+static void rvm_op_logicnot_string(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1)
 {
 	rword r;
 
@@ -66,7 +66,7 @@ static void rvm_op_logicnot_string(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, c
 }
 
 
-static void rvm_op_logicnot_nan(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1)
+static void rvm_op_logicnot_nan(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1)
 {
 	rvm_reg_cleanup(res);
 	RVM_REG_SETTYPE(res, RVM_DTYPE_NAN);

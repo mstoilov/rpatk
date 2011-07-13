@@ -40,7 +40,7 @@ static int debugcompileonly = 0;
 static int statinfo = 0;
 
 
-static rchar *errormsg[] = {
+static char *errormsg[] = {
 	"OK",
 	"Undefined identifier",
 	"Syntax error",
@@ -63,7 +63,7 @@ static rchar *errormsg[] = {
 
 static void rjs_exec_ltrim(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	const rchar *ptr, *list;
+	const char *ptr, *list;
 	rsize_t size;
 	rvmreg_t *r = NULL, *l = NULL;
 	rstring_t *src, *dest;
@@ -99,7 +99,7 @@ static void rjs_exec_ltrim(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rjs_exec_rtrim(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	const rchar *ptr, *list;
+	const char *ptr, *list;
 	rsize_t size;
 	rvmreg_t *r = NULL, *l = NULL;
 	rstring_t *src, *dest;
@@ -135,7 +135,7 @@ static void rjs_exec_rtrim(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rjs_exec_trim(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	const rchar *start, *ptr, *list;
+	const char *start, *ptr, *list;
 	rsize_t size;
 	rvmreg_t *r = NULL, *l = NULL;
 	rstring_t *src, *dest;
@@ -258,10 +258,10 @@ int rjs_exec_script(rjs_engine_t *jse, rstr_t  *script)
 }
 
 
-rlong jrs_offset2line(const rchar *script, rlong offset)
+long jrs_offset2line(const char *script, long offset)
 {
-	rlong line = 0;
-	const rchar *ptr;
+	long line = 0;
+	const char *ptr;
 
 	for (line = 1, ptr = script + offset; ptr >= script; --ptr) {
 		if (*ptr == '\n')
@@ -274,17 +274,17 @@ rlong jrs_offset2line(const rchar *script, rlong offset)
 
 void rjs_display_errors(rjs_engine_t *jse, rstr_t *script)
 {
-	rlong i;
+	long i;
 	rjs_error_t *err;
 
 	for (i = 0; i < r_array_length(jse->errors); i++) {
 		err = (rjs_error_t *)r_array_slot(jse->errors, i);
-		fprintf(stdout, "Line: %ld (%ld, %ld), Error Code: %ld, ", (rlong)err->line, err->offset, err->lineoffset, err->error);
+		fprintf(stdout, "Line: %ld (%ld, %ld), Error Code: %ld, ", (long)err->line, err->offset, err->lineoffset, err->error);
 		fprintf(stdout, "%s: ", errormsg[err->error]);
 		if (err->size) {
-			fwrite(script->str + err->offset, sizeof(rchar), err->size, stdout);
+			fwrite(script->str + err->offset, sizeof(char), err->size, stdout);
 		} else {
-			fwrite(script->str + err->lineoffset, sizeof(rchar), err->offset - err->lineoffset, stdout);
+			fwrite(script->str + err->lineoffset, sizeof(char), err->offset - err->lineoffset, stdout);
 		}
 		fprintf(stdout, "\n");
 	}
@@ -293,7 +293,7 @@ void rjs_display_errors(rjs_engine_t *jse, rstr_t *script)
 
 int main(int argc, char *argv[])
 {
-	rinteger i;
+	int i;
 	rstr_t *script = NULL, *unmapscript = NULL;
 	rstr_t line;
 	rjs_engine_t *jse;
@@ -353,6 +353,6 @@ end:
 	if (unmapscript)
 		rjs_unmap_file(unmapscript);
 	if (statinfo)
-		fprintf(stdout, "\nRJS Version: %s, memory: %ld Bytes (leaked %ld Bytes)\n", rjs_version(), (rlong)r_debug_get_maxmem(), (rlong)r_debug_get_allocmem());
+		fprintf(stdout, "\nRJS Version: %s, memory: %ld Bytes (leaked %ld Bytes)\n", rjs_version(), (long)r_debug_get_maxmem(), (long)r_debug_get_allocmem());
 	return 0;
 }

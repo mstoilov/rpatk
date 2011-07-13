@@ -62,7 +62,7 @@ robject_t *r_array_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanu
 rarray_t *r_array_create(rsize_t elt_size);
 void r_array_destroy(rarray_t *array);
 rsize_t r_array_add(rarray_t *array, rconstpointer data);
-rinteger r_array_move(rarray_t *array, rlong dest, rlong src, rlong size);
+int r_array_move(rarray_t *array, long dest, long src, long size);
 rsize_t r_array_removelast(rarray_t *array);
 rsize_t r_array_insert(rarray_t *array, rsize_t index, rconstpointer data);
 rsize_t r_array_replace(rarray_t *array, rsize_t index, rconstpointer data);

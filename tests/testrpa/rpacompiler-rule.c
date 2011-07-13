@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
 	rvm_codelabel_t *err;
 	rpa_compiler_t *co;
 	rpastat_t *stat;
-	ruinteger mainoff;
+	unsigned int mainoff;
 	char teststr[] = "abcabcabcabc";
 
 	co = rpa_compiler_create();

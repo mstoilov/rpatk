@@ -28,7 +28,7 @@ extern "C" {
 
 #include "rtypes.h"
 
-const rchar *rjs_rules_get();
+const char *rjs_rules_get();
 rsize_t rjs_rules_size();
 
 

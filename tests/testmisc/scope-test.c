@@ -26,7 +26,7 @@
 #include "rvm/rvmscope.h"
 
 
-void print_var_info(rvm_scope_t *scope, rchar* varname)
+void print_var_info(rvm_scope_t *scope, char* varname)
 {
 	rvm_varmap_t *vmap;
 

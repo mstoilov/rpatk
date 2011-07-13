@@ -22,12 +22,12 @@
 #include "rlib/rmem.h"
 #include "rpa/rparecord.h"
 
-#define RPA_MCACHE_BUCKET(_top_, _ruleid_) ( ( (((rulong)(_top_))<<3) ^ ((((rulong)(_ruleid_))>>5)) ) & RPA_MCACHE_MASK)
+#define RPA_MCACHE_BUCKET(_top_, _ruleid_) ( ( (((unsigned long)(_top_))<<3) ^ ((((unsigned long)(_ruleid_))>>5)) ) & RPA_MCACHE_MASK)
 
 
 rpacache_t *rpa_cache_create()
 {
-	rlong i;
+	long i;
 	rpacache_t *cache = (rpacache_t*) r_zmalloc(sizeof(*cache));
 
 	if (!cache)
@@ -41,7 +41,7 @@ rpacache_t *rpa_cache_create()
 
 void rpa_cache_destroy(rpacache_t *cache)
 {
-	rlong i;
+	long i;
 	if (!cache)
 		return;
 	for (i = 0; i < RPA_MCACHE_SIZE; i++) {
@@ -56,16 +56,16 @@ void rpa_cache_invalidate(rpacache_t *cache)
 }
 
 
-void rpa_cache_disable(rpacache_t *cache, rlong disable)
+void rpa_cache_disable(rpacache_t *cache, long disable)
 {
 	cache->disalbled = disable;
 }
 
 
-void rpa_cache_set(rpacache_t *cache, rlong top, rlong ruleid, rlong ret, rarray_t *records, rlong startrec, rlong size)
+void rpa_cache_set(rpacache_t *cache, long top, long ruleid, long ret, rarray_t *records, long startrec, long size)
 {
-	rlong i;
-	rulong bucket = RPA_MCACHE_BUCKET(top, ruleid);
+	long i;
+	unsigned long bucket = RPA_MCACHE_BUCKET(top, ruleid);
 	rarray_t *cacherecords;
 
 	if (cache->disalbled)
@@ -89,9 +89,9 @@ void rpa_cache_set(rpacache_t *cache, rlong top, rlong ruleid, rlong ret, rarray
 }
 
 
-rpacachedentry_t *rpa_cache_lookup(rpacache_t *cache, rlong top, rlong ruleid)
+rpacachedentry_t *rpa_cache_lookup(rpacache_t *cache, long top, long ruleid)
 {
-	rulong bucket = RPA_MCACHE_BUCKET(top, ruleid);
+	unsigned long bucket = RPA_MCACHE_BUCKET(top, ruleid);
 	rpacachedentry_t *entry = &cache->entry[bucket];
 
 	if (cache->disalbled)

@@ -53,7 +53,7 @@ void rvm_opmap_destroy(rvm_opmap_t *opmap)
 }
 
 
-void rvm_opmap_add_binary_operator(rvm_opmap_t *opmap, rushort opid)
+void rvm_opmap_add_binary_operator(rvm_opmap_t *opmap, unsigned short opid)
 {
 	rvm_opinfo_t opinfo;
 
@@ -64,7 +64,7 @@ void rvm_opmap_add_binary_operator(rvm_opmap_t *opmap, rushort opid)
 }
 
 
-void rvm_opmap_add_unary_operator(rvm_opmap_t *opmap, rushort opid)
+void rvm_opmap_add_unary_operator(rvm_opmap_t *opmap, unsigned short opid)
 {
 	rvm_opinfo_t opinfo;
 
@@ -76,10 +76,10 @@ void rvm_opmap_add_unary_operator(rvm_opmap_t *opmap, rushort opid)
 }
 
 
-rinteger rvm_opmap_set_binary_handler(rvm_opmap_t *opmap, rushort opid, rvm_binaryop_handler func, ruchar firstType, ruchar secondType)
+int rvm_opmap_set_binary_handler(rvm_opmap_t *opmap, unsigned short opid, rvm_binaryop_handler func, unsigned char firstType, unsigned char secondType)
 {
 	rvm_ophandler_t *h;
-	ruinteger index = RVM_OP_HANDLER(firstType, secondType);
+	unsigned int index = RVM_OP_HANDLER(firstType, secondType);
 	rvm_opinfo_t *opinfo = ((rvm_opinfo_t*)r_array_slot(opmap->operators, opid));
 	if (!opinfo->handlers)
 		return -1;
@@ -89,7 +89,7 @@ rinteger rvm_opmap_set_binary_handler(rvm_opmap_t *opmap, rushort opid, rvm_bina
 }
 
 
-rinteger rvm_opmap_set_unary_handler(rvm_opmap_t *opmap, rushort opid, rvm_unaryop_handler func, ruchar type)
+int rvm_opmap_set_unary_handler(rvm_opmap_t *opmap, unsigned short opid, rvm_unaryop_handler func, unsigned char type)
 {
 	rvm_ophandler_t *h;
 	rvm_opinfo_t *opinfo = ((rvm_opinfo_t*)r_array_slot(opmap->operators, opid));
@@ -101,11 +101,11 @@ rinteger rvm_opmap_set_unary_handler(rvm_opmap_t *opmap, rushort opid, rvm_unary
 }
 
 
-void rvm_opmap_invoke_binary_handler(rvm_opmap_t *opmap, rushort opid, rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rvm_opmap_invoke_binary_handler(rvm_opmap_t *opmap, unsigned short opid, rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rvm_ophandler_t *h;
 	rvm_opinfo_t *opinfo;
-	ruinteger index;
+	unsigned int index;
 	rstring_t tempstr1, tempstr2;
 	rvmreg_t temparg1, temparg2;
 
@@ -147,11 +147,11 @@ error:
 }
 
 
-void rvm_opmap_invoke_unary_handler(rvm_opmap_t *opmap, rushort opid, rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg)
+void rvm_opmap_invoke_unary_handler(rvm_opmap_t *opmap, unsigned short opid, rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg)
 {
 	rvm_ophandler_t *h;
 	rvm_opinfo_t *opinfo;
-	ruinteger index;
+	unsigned int index;
 	rstring_t tempstr;
 	rvmreg_t temparg;
 

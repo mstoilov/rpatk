@@ -22,7 +22,7 @@
 #include "rvm/rvmreg.h"
 
 
-static void rvm_op_not_unsigned(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1)
+static void rvm_op_not_unsigned(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1)
 {
 	rword r;
 
@@ -34,7 +34,7 @@ static void rvm_op_not_unsigned(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, cons
 }
 
 
-static void rvm_op_not_castunsigned(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1)
+static void rvm_op_not_castunsigned(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1)
 {
 	rvmreg_t uarg;
 
@@ -46,7 +46,7 @@ static void rvm_op_not_castunsigned(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, 
 }
 
 
-static void rvm_op_not_nan(rvmcpu_t *cpu, rushort opid, rvmreg_t *res, const rvmreg_t *arg1)
+static void rvm_op_not_nan(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1)
 {
 	rvm_reg_cleanup(res);
 	RVM_REG_SETTYPE(res, RVM_DTYPE_NAN);

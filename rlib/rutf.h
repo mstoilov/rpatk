@@ -28,10 +28,10 @@ extern "C" {
 #endif
 
 
-rinteger r_utf8_mbtowc(ruint32 *pwc, const ruchar *input, const ruchar *end);
-rinteger r_utf8_wctomb(ruint32 wc, ruchar *output, ruint32 size);
-rinteger r_utf16_mbtowc(ruint32 *pwc, const ruchar *s, const ruchar *end);
-rinteger r_utf16_wctomb(ruint32 wc, ruchar *output, ruint32 size);
+int r_utf8_mbtowc(ruint32 *pwc, const unsigned char *input, const unsigned char *end);
+int r_utf8_wctomb(ruint32 wc, unsigned char *output, ruint32 size);
+int r_utf16_mbtowc(ruint32 *pwc, const unsigned char *s, const unsigned char *end);
+int r_utf16_wctomb(ruint32 wc, unsigned char *output, ruint32 size);
 
 
 #ifdef __cplusplus

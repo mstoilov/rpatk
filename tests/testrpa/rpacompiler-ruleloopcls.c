@@ -295,8 +295,8 @@ int main(int argc, char *argv[])
 	rvm_codelabel_t *err;
 	rpa_compiler_t *co;
 	rpastat_t *stat;
-	ruinteger mainoff;
-	rinteger i;
+	unsigned int mainoff;
+	int i;
 	char teststr[] = "1*v23*z457/(((((((((((((89^233)))))))))*2)/33)+23)*457)/89+233*2/33*23*457/89+233*2/33*23*457/89+233*2/33*23*457/89+233*2/33*23*457/89+233*2/33|5&77^37 ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
 //	char teststr[] = "1/23+45##ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
 

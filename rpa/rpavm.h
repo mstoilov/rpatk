@@ -76,30 +76,30 @@ extern "C" {
 
 
 typedef struct rpainput_s {
-	const rchar *input;
+	const char *input;
 	ruint32 wc;
 	ruint32 iwc;
-	ruchar eof;
+	unsigned char eof;
 } rpainput_t;
 
 
 typedef struct rpainmap_s {
-	const rchar *input;
-	rulong serial;
+	const char *input;
+	unsigned long serial;
 } rpainmap_t;
 
 
 typedef struct rpa_ruledata_s {
-	rlong size;
-	rlong ruleid;
-	rlong ruleuid;
-	rulong flags;
-	rulong namesize;
-	rulong name;
+	long size;
+	long ruleid;
+	long ruleuid;
+	unsigned long flags;
+	unsigned long namesize;
+	unsigned long name;
 } rpa_ruledata_t;
 
 
-rvmcpu_t *rpavm_cpu_create(rulong stacksize);
+rvmcpu_t *rpavm_cpu_create(unsigned long stacksize);
 void rpavm_cpu_destroy(rvmcpu_t * vm);
 
 

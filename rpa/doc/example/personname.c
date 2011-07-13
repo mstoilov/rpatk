@@ -28,7 +28,7 @@
  */
 int main(int argc, char *argv[])
 {
-	rlong i;
+	long i;
 	rpadbex_t *dbex;
 	rpastat_t *stat;
 	rparecord_t *record;

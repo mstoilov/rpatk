@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 {
 	rpa_compiler_t *co;
 	rpastat_t *stat;
-	ruinteger mainoff;
+	unsigned int mainoff;
 	char teststr[] = "aaaaa";
 
 	co = rpa_compiler_create();

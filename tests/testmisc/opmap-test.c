@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 {
 	rvmcpu_t *cpu;
 	rvm_asmins_t code[1024];
-	ruinteger off = 0;
+	unsigned int off = 0;
 
 	cpu = rvm_cpu_create_default();
 

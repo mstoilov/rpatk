@@ -79,7 +79,7 @@ typedef struct rpastat_s rpastat_t;
  * @param stacksize Execution stack size. The size is specified in byts.
  * @return Returns a pointer to newly created @ref rpastat_t object or NULL if error occurred.
  */
-rpastat_t *rpa_stat_create(rpadbex_t *dbex, rulong stacksize);
+rpastat_t *rpa_stat_create(rpadbex_t *dbex, unsigned long stacksize);
 
 
 /**
@@ -115,7 +115,7 @@ void rpa_stat_destroy(rpastat_t *stat);
  * @return If successful return the size of the matched string in bytes, if no match was found
  * 			return 0, return negative in case of error.
  */
-rlong rpa_stat_scan(rpastat_t *stat, rparule_t rid, ruinteger encoding, const rchar *input, const rchar *start, const rchar *end, const rchar **where);
+long rpa_stat_scan(rpastat_t *stat, rparule_t rid, unsigned int encoding, const char *input, const char *start, const char *end, const char **where);
 
 /**
  * @brief Parse an input stream
@@ -140,7 +140,7 @@ rlong rpa_stat_scan(rpastat_t *stat, rparule_t rid, ruinteger encoding, const rc
  * @return If successful return the size of the matched string in bytes, if the input stream cannot be matched against the BNF
  * 			return 0, return negative in case of error.
  */
-rlong rpa_stat_parse(rpastat_t *stat, rparule_t rid, ruinteger encoding, const rchar *input, const rchar *start, const rchar *end, rarray_t *records);
+long rpa_stat_parse(rpastat_t *stat, rparule_t rid, unsigned int encoding, const char *input, const char *start, const char *end, rarray_t *records);
 
 /**
  * @brief Match an input stream
@@ -163,7 +163,7 @@ rlong rpa_stat_parse(rpastat_t *stat, rparule_t rid, ruinteger encoding, const r
  * @return If successful return the size of the matched string in bytes, if the input stream cannot be matched against the BNF
  * 			return 0, return negative in case of error.
  */
-rlong rpa_stat_match(rpastat_t *stat, rparule_t rid, ruinteger encoding, const rchar *input, const rchar *start, const rchar *end);
+long rpa_stat_match(rpastat_t *stat, rparule_t rid, unsigned int encoding, const char *input, const char *start, const char *end);
 
 
 /**
@@ -191,7 +191,7 @@ rlong rpa_stat_match(rpastat_t *stat, rparule_t rid, ruinteger encoding, const r
  * @return If successful return the size of the matched string in bytes, if the input stream cannot be matched against the BNF
  * 			return 0, return negative in case of error.
  */
-rlong rpa_stat_exec(rpastat_t *stat, rvm_asmins_t *prog, rword off, ruinteger encoding, const rchar *input, const rchar *start, const rchar *end, rarray_t *records);
+long rpa_stat_exec(rpastat_t *stat, rvm_asmins_t *prog, rword off, unsigned int encoding, const char *input, const char *start, const char *end, rarray_t *records);
 
 
 /**
@@ -201,7 +201,7 @@ rlong rpa_stat_exec(rpastat_t *stat, rvm_asmins_t *prog, rword off, ruinteger en
  * @param stat Pointer to object of type @ref rpastat_t
  * @return If sucessful return 0, otherwise return negative.
  */
-rinteger rpa_stat_abort(rpastat_t *stat);
+int rpa_stat_abort(rpastat_t *stat);
 
 
 /**
@@ -211,7 +211,7 @@ rinteger rpa_stat_abort(rpastat_t *stat);
  * @return The error code of the last occurred error. If this function fails the
  * return value is negative.
  */
-rlong rpa_stat_lasterror(rpastat_t *stat);
+long rpa_stat_lasterror(rpastat_t *stat);
 
 /**
  * @brief Get error information for the last occurred error.
@@ -222,7 +222,7 @@ rlong rpa_stat_lasterror(rpastat_t *stat);
  * @return Return 0 if the function is successful or negative otherwise. If this function fails the
  * return value is negative.
  */
-rlong rpa_stat_lasterrorinfo(rpastat_t *stat, rpa_errinfo_t *errinfo);
+long rpa_stat_lasterrorinfo(rpastat_t *stat, rpa_errinfo_t *errinfo);
 
 
 /**

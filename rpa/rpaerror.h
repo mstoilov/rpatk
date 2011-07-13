@@ -74,7 +74,7 @@ struct rpa_errinfo_s {
 	 * - @ref RPA_ERRINFO_RULEUID
 	 * - @ref RPA_ERRINFO_NAME
 	 */
-	rulong mask;
+	unsigned long mask;
 
 	/**
 	 * Error code:
@@ -82,28 +82,28 @@ struct rpa_errinfo_s {
 	 * - @ref RPA_E_OUTOFMEM
 	 * - ...
 	 */
-	rlong code;
+	long code;
 
 	/**
 	 * Error offset in the BNF schema
 	 */
-	rlong offset;
+	long offset;
 
 	/**
 	 * Error line in the BNF schema
 	 */
-	rlong line;
+	long line;
 
 	/**
 	 * Error rule user ID. If the engine can determine the ruleuid of the rule generating the error,
 	 * this field will be set accordingly
 	 */
-	rlong ruleuid;
+	long ruleuid;
 
 	/**
 	 * Error rule name
 	 */
-	rchar name[128];
+	char name[128];
 };
 
 

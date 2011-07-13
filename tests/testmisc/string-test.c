@@ -85,15 +85,15 @@ static rvm_switable_t switable[] = {
 
 int main(int argc, char *argv[])
 {
-	rchar *hello = "Hello World";
-	rchar *there = ", right there";
+	char *hello = "Hello World";
+	char *there = ", right there";
 
 	rvm_testctx_t ctx;
 	rvm_codegen_t *cg;
 	rvm_codelabel_t *err;
 	rvmcpu_t *cpu;
 	rvm_opmap_t *opmap;
-	ruinteger ntable;
+	unsigned int ntable;
 
 	ctx.opmap = opmap = rvm_opmap_create();
 	cpu = rvm_cpu_create_default();

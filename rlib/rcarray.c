@@ -112,7 +112,7 @@ robject_t *r_carray_copy(const robject_t *obj)
 }
 
 
-rinteger r_carray_replace(rcarray_t *carray, rsize_t index, rconstpointer data)
+int r_carray_replace(rcarray_t *carray, rsize_t index, rconstpointer data)
 {
 	if (data)
 		r_memcpy(r_carray_slot_expand(carray, index), data, carray->elt_size);
@@ -122,7 +122,7 @@ rinteger r_carray_replace(rcarray_t *carray, rsize_t index, rconstpointer data)
 }
 
 
-rinteger r_carray_add(rcarray_t *carray, rconstpointer data)
+int r_carray_add(rcarray_t *carray, rconstpointer data)
 {
 	rsize_t index = r_carray_length(carray);
 	r_carray_inclength(carray);
@@ -174,6 +174,6 @@ rpointer r_carray_slot_notused(rcarray_t *carray, rsize_t index)
 	rsize_t offset = index & R_CARRAY_CHUNKMASK;
 	rpointer chunk = r_array_index(carray->array, nchunk, rpointer);
 
-	rpointer v = (rpointer)(((rchar*)chunk) + (offset * carray->elt_size));
+	rpointer v = (rpointer)(((char*)chunk) + (offset * carray->elt_size));
 	return v;
 }

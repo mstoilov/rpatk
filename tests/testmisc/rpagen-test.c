@@ -43,15 +43,15 @@ static int verboseinfo = 0;
 static int compileonly = 0;
 
 typedef struct rvm_vardeclaration_s {
-	const rchar *varname;
-	ruinteger varnamesiz;
-	const rchar *val;
-	ruinteger valsiz;
+	const char *varname;
+	unsigned int varnamesiz;
+	const char *val;
+	unsigned int valsiz;
 } rvm_vardeclaration_t;
 
 
 typedef struct rvm_fundecl_s {
-	const rchar *funname;
+	const char *funname;
 	rword funnamesiz;
 	rword params;
 	rword codestart;
@@ -60,7 +60,7 @@ typedef struct rvm_fundecl_s {
 
 
 typedef struct rvm_funcall_s {
-	const rchar *funname;
+	const char *funname;
 	rword funnamesiz;
 	rword params;
 } rvm_funcall_t;
@@ -86,10 +86,10 @@ typedef struct rvm_codespan_s {
 typedef struct rvm_costat_s rvm_costat_t;
 
 struct rvm_costat_s {
-	ruinteger binaryop;
-	ruinteger level;
-	ruinteger dirty;
-	ruinteger funcalls;
+	unsigned int binaryop;
+	unsigned int level;
+	unsigned int dirty;
+	unsigned int funcalls;
 	rvm_costat_t *root;
 };
 
@@ -123,12 +123,12 @@ rvm_costat_t *rvm_costat_current(rvm_compiler_t *co)
 }
 
 
-ruinteger rvm_costat_getdebth(rvm_compiler_t *co)
+unsigned int rvm_costat_getdebth(rvm_compiler_t *co)
 {
 	return r_array_length(co->stat);
 }
 
-ruinteger rvm_costat_getlevel(rvm_compiler_t *co)
+unsigned int rvm_costat_getlevel(rvm_compiler_t *co)
 {
 	if (!rvm_costat_current(co))
 		return 0;
@@ -149,7 +149,7 @@ void rvm_costat_declevel(rvm_compiler_t *co)
 }
 
 
-ruinteger rvm_costat_getbinaryop(rvm_compiler_t *co)
+unsigned int rvm_costat_getbinaryop(rvm_compiler_t *co)
 {
 	if (!rvm_costat_current(co))
 		return 0;
@@ -168,7 +168,7 @@ void rvm_costat_decbinaryop(rvm_compiler_t *co)
 	rvm_costat_current(co)->binaryop -= 1;
 }
 
-ruinteger rvm_costat_getdirty(rvm_compiler_t *co)
+unsigned int rvm_costat_getdirty(rvm_compiler_t *co)
 {
 	if (!rvm_costat_current(co))
 		return 0;
@@ -207,7 +207,7 @@ rvm_compiler_t *rvm_compiler_create(rpa_dbex_handle dbex)
 	r_memset(co, 0, sizeof(*co));
 	co->cg = rvm_codegen_create();
 	co->scope = rvm_scope_create();
-	co->opcodes = r_array_create(sizeof(ruinteger));
+	co->opcodes = r_array_create(sizeof(unsigned int));
 	co->fp = r_array_create(sizeof(rword));
 	co->funcall = r_array_create(sizeof(rvm_funcall_t));
 	co->stat = r_array_create(sizeof(rvm_costat_t));
@@ -347,7 +347,7 @@ inline int codegen_print_callback(rpa_stat_handle stat, const char *name, void *
 }
 
 
-void codegen_dump_code(rvm_asmins_t *code, rulong size)
+void codegen_dump_code(rvm_asmins_t *code, unsigned long size)
 {
 	if (parseinfo)
 		rvm_asm_dump(code, size);
@@ -359,21 +359,21 @@ int codegen_opcode_unary_callback(rpa_stat_handle stat, const char *name, void *
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 
 	if (r_stringncmp("-", input, size))
-		r_array_push(co->opcodes, RVM_OPSWI(rvm_cpu_swilookup_s(co->cpu, NULL, "RVM_SWI_NEG")), ruinteger);
+		r_array_push(co->opcodes, RVM_OPSWI(rvm_cpu_swilookup_s(co->cpu, NULL, "RVM_SWI_NEG")), unsigned int);
 	else if (r_stringncmp("+", input, size))
-		r_array_push(co->opcodes, RVM_NOP, ruinteger);
+		r_array_push(co->opcodes, RVM_NOP, unsigned int);
 	else if (r_stringncmp("!", input, size))
-		r_array_push(co->opcodes, RVM_ELNOT, ruinteger);
+		r_array_push(co->opcodes, RVM_ELNOT, unsigned int);
 	else if (r_stringncmp("~", input, size))
-		r_array_push(co->opcodes, RVM_ENOT, ruinteger);
+		r_array_push(co->opcodes, RVM_ENOT, unsigned int);
 	else if (r_stringncmp("delete", input, size))
-		r_array_push(co->opcodes, RVM_NOP, ruinteger);
+		r_array_push(co->opcodes, RVM_NOP, unsigned int);
 	else if (r_stringncmp("void", input, size))
-		r_array_push(co->opcodes, RVM_NOP, ruinteger);
+		r_array_push(co->opcodes, RVM_NOP, unsigned int);
 	else if (r_stringncmp("typeof", input, size))
-		r_array_push(co->opcodes, RVM_NOP, ruinteger);
+		r_array_push(co->opcodes, RVM_NOP, unsigned int);
 	else
-		r_array_push(co->opcodes, RVM_ABORT, ruinteger);
+		r_array_push(co->opcodes, RVM_ABORT, unsigned int);
 
 	codegen_print_callback(stat, name, userdata, input, size, reason);
 	return size;
@@ -385,81 +385,81 @@ int codegen_opcode_callback(rpa_stat_handle stat, const char *name, void *userda
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
 
 	if (r_stringncmp("++", input,  size))
-		r_array_push(co->opcodes, RVM_EADD, ruinteger);
+		r_array_push(co->opcodes, RVM_EADD, unsigned int);
 	else if (r_stringncmp("+", input,  size))
-		r_array_push(co->opcodes, RVM_EADD, ruinteger);
+		r_array_push(co->opcodes, RVM_EADD, unsigned int);
 	else if (r_stringncmp("+=", input,  size))
-		r_array_push(co->opcodes, RVM_EADD, ruinteger);
+		r_array_push(co->opcodes, RVM_EADD, unsigned int);
 	else if (r_stringncmp("--", input,  size))
-		r_array_push(co->opcodes, RVM_ESUB, ruinteger);
+		r_array_push(co->opcodes, RVM_ESUB, unsigned int);
 	else if (r_stringncmp("-", input,  size))
-		r_array_push(co->opcodes, RVM_ESUB, ruinteger);
+		r_array_push(co->opcodes, RVM_ESUB, unsigned int);
 	else if (r_stringncmp("-=", input,  size))
-		r_array_push(co->opcodes, RVM_ESUB, ruinteger);
+		r_array_push(co->opcodes, RVM_ESUB, unsigned int);
 	else if (r_stringncmp("*", input,  size))
-		r_array_push(co->opcodes, RVM_EMUL, ruinteger);
+		r_array_push(co->opcodes, RVM_EMUL, unsigned int);
 	else if (r_stringncmp("*=", input,  size))
-		r_array_push(co->opcodes, RVM_EMUL, ruinteger);
+		r_array_push(co->opcodes, RVM_EMUL, unsigned int);
 	else if (r_stringncmp("/", input,  size))
-		r_array_push(co->opcodes, RVM_EDIV, ruinteger);
+		r_array_push(co->opcodes, RVM_EDIV, unsigned int);
 	else if (r_stringncmp("/=", input,  size))
-		r_array_push(co->opcodes, RVM_EDIV, ruinteger);
+		r_array_push(co->opcodes, RVM_EDIV, unsigned int);
 	else if (r_stringncmp("%", input,  size))
-		r_array_push(co->opcodes, RVM_EMOD, ruinteger);
+		r_array_push(co->opcodes, RVM_EMOD, unsigned int);
 	else if (r_stringncmp("%=", input,  size))
-		r_array_push(co->opcodes, RVM_EMOD, ruinteger);
+		r_array_push(co->opcodes, RVM_EMOD, unsigned int);
 	else if (r_stringncmp("&&", input,  size))
-		r_array_push(co->opcodes, RVM_ELAND, ruinteger);
+		r_array_push(co->opcodes, RVM_ELAND, unsigned int);
 	else if (r_stringncmp("||", input,  size))
-		r_array_push(co->opcodes, RVM_ELOR, ruinteger);
+		r_array_push(co->opcodes, RVM_ELOR, unsigned int);
 	else if (r_stringncmp("&", input,  size))
-		r_array_push(co->opcodes, RVM_EAND, ruinteger);
+		r_array_push(co->opcodes, RVM_EAND, unsigned int);
 	else if (r_stringncmp("&=", input,  size))
-		r_array_push(co->opcodes, RVM_EAND, ruinteger);
+		r_array_push(co->opcodes, RVM_EAND, unsigned int);
 	else if (r_stringncmp("|", input,  size))
-		r_array_push(co->opcodes, RVM_EORR, ruinteger);
+		r_array_push(co->opcodes, RVM_EORR, unsigned int);
 	else if (r_stringncmp("|=", input,  size))
-		r_array_push(co->opcodes, RVM_EORR, ruinteger);
+		r_array_push(co->opcodes, RVM_EORR, unsigned int);
 	else if (r_stringncmp("^", input,  size))
-		r_array_push(co->opcodes, RVM_EXOR, ruinteger);
+		r_array_push(co->opcodes, RVM_EXOR, unsigned int);
 	else if (r_stringncmp("^=", input,  size))
-		r_array_push(co->opcodes, RVM_EXOR, ruinteger);
+		r_array_push(co->opcodes, RVM_EXOR, unsigned int);
 	else if (r_stringncmp(">>", input,  size))
-		r_array_push(co->opcodes, RVM_ELSR, ruinteger);
+		r_array_push(co->opcodes, RVM_ELSR, unsigned int);
 	else if (r_stringncmp(">>=", input,  size))
-		r_array_push(co->opcodes, RVM_ELSR, ruinteger);
+		r_array_push(co->opcodes, RVM_ELSR, unsigned int);
 	else if (r_stringncmp("<<", input,  size))
-		r_array_push(co->opcodes, RVM_ELSL, ruinteger);
+		r_array_push(co->opcodes, RVM_ELSL, unsigned int);
 	else if (r_stringncmp("<<=", input,  size))
-		r_array_push(co->opcodes, RVM_ELSL, ruinteger);
+		r_array_push(co->opcodes, RVM_ELSL, unsigned int);
 	else if (r_stringncmp(">>>", input,  size))
-		r_array_push(co->opcodes, RVM_ELSRU, ruinteger);
+		r_array_push(co->opcodes, RVM_ELSRU, unsigned int);
 	else if (r_stringncmp(">>>=", input,  size))
-		r_array_push(co->opcodes, RVM_ELSRU, ruinteger);
+		r_array_push(co->opcodes, RVM_ELSRU, unsigned int);
 	else if (r_stringncmp("<=", input,  size))
-		r_array_push(co->opcodes, RVM_ELESSEQ, ruinteger);
+		r_array_push(co->opcodes, RVM_ELESSEQ, unsigned int);
 	else if (r_stringncmp(">=", input,  size))
-		r_array_push(co->opcodes, RVM_EGREATEQ, ruinteger);
+		r_array_push(co->opcodes, RVM_EGREATEQ, unsigned int);
 	else if (r_stringncmp("<", input,  size))
-		r_array_push(co->opcodes, RVM_ELESS, ruinteger);
+		r_array_push(co->opcodes, RVM_ELESS, unsigned int);
 	else if (r_stringncmp(">", input,  size))
-		r_array_push(co->opcodes, RVM_EGREAT, ruinteger);
+		r_array_push(co->opcodes, RVM_EGREAT, unsigned int);
 	else if (r_stringncmp("===", input,  size))
-		r_array_push(co->opcodes, RVM_EEQ, ruinteger);
+		r_array_push(co->opcodes, RVM_EEQ, unsigned int);
 	else if (r_stringncmp("==", input,  size))
-		r_array_push(co->opcodes, RVM_EEQ, ruinteger);
+		r_array_push(co->opcodes, RVM_EEQ, unsigned int);
 	else if (r_stringncmp("!==", input,  size))
-		r_array_push(co->opcodes, RVM_ENOTEQ, ruinteger);
+		r_array_push(co->opcodes, RVM_ENOTEQ, unsigned int);
 	else if (r_stringncmp("!=", input,  size))
-		r_array_push(co->opcodes, RVM_ENOTEQ, ruinteger);
+		r_array_push(co->opcodes, RVM_ENOTEQ, unsigned int);
 	else if (r_stringncmp("!", input,  size))
-		r_array_push(co->opcodes, RVM_ELNOT, ruinteger);
+		r_array_push(co->opcodes, RVM_ELNOT, unsigned int);
 	else if (r_stringncmp("~", input,  size))
-		r_array_push(co->opcodes, RVM_ENOT, ruinteger);
+		r_array_push(co->opcodes, RVM_ENOT, unsigned int);
 	else if (r_stringncmp("=", input,  size))
-		r_array_push(co->opcodes, RVM_NOP, ruinteger);
+		r_array_push(co->opcodes, RVM_NOP, unsigned int);
 	else
-		r_array_push(co->opcodes, RVM_ABORT, ruinteger);
+		r_array_push(co->opcodes, RVM_ABORT, unsigned int);
 
 	codegen_print_callback(stat, name, userdata, input, size, reason);
 	return size;
@@ -469,14 +469,14 @@ int codegen_opcode_callback(rpa_stat_handle stat, const char *name, void *userda
 int codegen_binary_asmop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 
 	if (reason & RPA_REASON_START) {
 		rvm_costat_inclevel(co);
 		rvm_costat_incbinaryop(co);
 	} else if (reason & RPA_REASON_MATCHED) {
-		ruinteger op1;
-		ruinteger opcode = r_array_pop(co->opcodes, ruinteger);
+		unsigned int op1;
+		unsigned int opcode = r_array_pop(co->opcodes, unsigned int);
 
 		if (rvm_costat_getlevel(co) < RVM_SAVEDREGS_MAX) {
 			op1 = rvm_costat_getlevel(co) + RVM_SAVEDREGS_FIRST - 1;
@@ -502,7 +502,7 @@ int codegen_binary_asmop_callback(rpa_stat_handle stat, const char *name, void *
 int codegen_valop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_asmins_t *last = rvm_codegen_getcode(co->cg, off - 1);
 
 	if ((reason & RPA_REASON_START) && rvm_costat_getbinaryop(co)) {
@@ -534,7 +534,7 @@ int codegen_valop_callback(rpa_stat_handle stat, const char *name, void *userdat
 int codegen_conditionalexp_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 
 	codegen_print_callback(stat, name, userdata, input, size, reason);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
@@ -546,14 +546,14 @@ int codegen_conditionalexp_callback(rpa_stat_handle stat, const char *name, void
 int codegen_unary_asmop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
-	ruinteger op1 = rvm_costat_getlevel(co) ? RVM_SAVEDREGS_FIRST - 1 + rvm_costat_getlevel(co) : R0;
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
+	unsigned int op1 = rvm_costat_getlevel(co) ? RVM_SAVEDREGS_FIRST - 1 + rvm_costat_getlevel(co) : R0;
 
 	if (reason & RPA_REASON_START) {
 	}
 
 	if (reason & RPA_REASON_MATCHED) {
-		ruinteger opcode = r_array_pop(co->opcodes, ruinteger);
+		unsigned int opcode = r_array_pop(co->opcodes, unsigned int);
 		rvm_codegen_addins(co->cg, rvm_asm(opcode, op1, op1, XX, 0));
 	}
 
@@ -569,7 +569,7 @@ int codegen_unary_asmop_callback(rpa_stat_handle stat, const char *name, void *u
 int codegen_costate_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 
 	if (reason & RPA_REASON_START) {
 		rvm_costat_push(co);
@@ -588,7 +588,7 @@ int codegen_costate_callback(rpa_stat_handle stat, const char *name, void *userd
 int codegen_push_r0_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
 
@@ -602,7 +602,7 @@ int codegen_push_r0_callback(rpa_stat_handle stat, const char *name, void *userd
 int codegen_integer_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, R0, DA, XX, r_strtol(input, NULL, 10)));
 
@@ -616,7 +616,7 @@ int codegen_integer_callback(rpa_stat_handle stat, const char *name, void *userd
 int codegen_printop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 
 	rvm_codegen_addins(co->cg, rvm_asmd(RVM_PRN, R0, DA, XX, 0));
 
@@ -630,7 +630,7 @@ int codegen_printop_callback(rpa_stat_handle stat, const char *name, void *userd
 int codegen_double_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 
 	rvm_codegen_addins(co->cg, rvm_asmd(RVM_MOV, R0, DA, XX, r_strtod(input, NULL)));
 
@@ -644,7 +644,7 @@ int codegen_double_callback(rpa_stat_handle stat, const char *name, void *userda
 int codegen_string_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 
 	rvm_codegen_addins(co->cg, rvm_asmp(RVM_MOV, R1, DA, XX, (void*)input));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R2, DA, XX, size));
@@ -660,7 +660,7 @@ int codegen_string_callback(rpa_stat_handle stat, const char *name, void *userda
 int codegen_program_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	ruinteger off;
+	unsigned int off;
 
 	if (reason & RPA_REASON_START) {
 		off = rvm_codegen_getcodesize(co->cg);
@@ -692,7 +692,7 @@ int codegen_program_callback(rpa_stat_handle stat, const char *name, void *userd
 int codegen_opinit_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_STRR, R0, R1, XX, 0));
@@ -707,8 +707,8 @@ int codegen_opinit_callback(rpa_stat_handle stat, const char *name, void *userda
 int codegen_opassign_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
-	ruinteger opcode = r_array_pop(co->opcodes, ruinteger);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
+	unsigned int opcode = r_array_pop(co->opcodes, unsigned int);
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0));
 	if (opcode != RVM_NOP) {
@@ -727,8 +727,8 @@ int codegen_opassign_callback(rpa_stat_handle stat, const char *name, void *user
 int codegen_oppostfix_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
-	ruinteger opcode = r_array_pop(co->opcodes, ruinteger);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
+	unsigned int opcode = r_array_pop(co->opcodes, unsigned int);
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R1, R0, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDRR, R0, R1, XX, 0));
@@ -746,8 +746,8 @@ int codegen_oppostfix_callback(rpa_stat_handle stat, const char *name, void *use
 int codegen_opprefix_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
-	ruinteger opcode = r_array_pop(co->opcodes, ruinteger);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
+	unsigned int opcode = r_array_pop(co->opcodes, unsigned int);
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R1, R0, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDRR, R0, R1, XX, 0));
@@ -764,7 +764,7 @@ int codegen_opprefix_callback(rpa_stat_handle stat, const char *name, void *user
 int codegen_addressoflefthandside_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_asmins_t *last = rvm_codegen_getcode(co->cg, off - 1);
 	rvm_asmins_t *lastlast = rvm_codegen_getcode(co->cg, off - 2);
 
@@ -800,7 +800,7 @@ int codegen_addressoflefthandside_callback(rpa_stat_handle stat, const char *nam
 int codegen_n_arrayelementvalue_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0)); 	// Array
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDOBJN, R0, R1, R0, 0));	// Load the value from array offset
@@ -815,7 +815,7 @@ int codegen_n_arrayelementvalue_callback(rpa_stat_handle stat, const char *name,
 int codegen_h_arraynamelookup_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0)); 	// Supposedly Array Address
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, DA, XX, size));
@@ -832,7 +832,7 @@ int codegen_h_arraynamelookup_callback(rpa_stat_handle stat, const char *name, v
 int codegen_h_arrayelementvalue_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLDR, R0, R1, R0, 0));	// Get the address of the element at offset R0
 
@@ -846,7 +846,7 @@ int codegen_h_arrayelementvalue_callback(rpa_stat_handle stat, const char *name,
 int codegen_swiidexist_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rinteger swi = rvm_cpu_swilookup(co->cpu, NULL, input, size);
+	int swi = rvm_cpu_swilookup(co->cpu, NULL, input, size);
 
 	if (swi < 0)
 		return 0;
@@ -859,8 +859,8 @@ int codegen_swiidexist_callback(rpa_stat_handle stat, const char *name, void *us
 int codegen_swiid_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
-	rinteger swi = rvm_cpu_swilookup(co->cpu, NULL, input, size);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
+	int swi = rvm_cpu_swilookup(co->cpu, NULL, input, size);
 
 	if (swi < 0)
 		return 0;
@@ -878,7 +878,7 @@ int codegen_swiid_callback(rpa_stat_handle stat, const char *name, void *userdat
 int codegen_opthis_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, TP, XX, 0));
 	codegen_print_callback(stat, name, userdata, input, size, reason);
@@ -892,7 +892,7 @@ int codegen_opthis_callback(rpa_stat_handle stat, const char *name, void *userda
 int codegen_opidentifier_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_varmap_t *v = rvm_scope_lookup(co->scope, input, size);
 
 	if (v) {
@@ -918,7 +918,7 @@ int codegen_opidentifier_callback(rpa_stat_handle stat, const char *name, void *
 int codegen_varalloc_to_ptr_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_varmap_t *v = rvm_scope_tiplookup(co->scope, input, size);
 	if (v) {
 		fprintf(stdout, "ERROR: variable already defined: ");
@@ -954,7 +954,7 @@ int codegen_varalloc_to_ptr_callback(rpa_stat_handle stat, const char *name, voi
 int codegen_varalloc_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_varmap_t *v = rvm_scope_tiplookup(co->scope, input, size);
 	if (v) {
 		fprintf(stdout, "ERROR: variable already defined: ");
@@ -990,7 +990,7 @@ int codegen_varalloc_callback(rpa_stat_handle stat, const char *name, void *user
 int codegen_opnewarray_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPALLOC, R0, DA, XX, 0));
 
@@ -1004,7 +1004,7 @@ int codegen_opnewarray_callback(rpa_stat_handle stat, const char *name, void *us
 int codegen_scopepush_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 
 	rvm_scope_push(co->scope);
 	codegen_print_callback(stat, name, userdata, input, size, reason);
@@ -1017,7 +1017,7 @@ int codegen_scopepush_callback(rpa_stat_handle stat, const char *name, void *use
 int codegen_scopepop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 
 	rvm_scope_pop(co->scope);
 	codegen_print_callback(stat, name, userdata, input, size, reason);
@@ -1039,7 +1039,7 @@ int codegen_compile_error_callback(rpa_stat_handle stat, const char *name, void 
 int codegen_funcallparameter_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_funcall_t *funcall = (rvm_funcall_t *)r_array_slot(co->funcall, r_array_length(co->funcall) - 1);
 
 	funcall->params += 1;
@@ -1054,7 +1054,7 @@ int codegen_funcallparameter_callback(rpa_stat_handle stat, const char *name, vo
 int codegen_newkeyword_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 
 
 	codegen_print_callback(stat, name, userdata, input, size, reason);
@@ -1067,7 +1067,7 @@ int codegen_newkeyword_callback(rpa_stat_handle stat, const char *name, void *us
 int codegen_newexpressioncallop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 
 	if (reason & RPA_REASON_START) {
 		rvm_funcall_t funcall = {input, size, 0};
@@ -1102,7 +1102,7 @@ int codegen_newexpressioncallop_callback(rpa_stat_handle stat, const char *name,
 int codegen_funcallname_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_asmins_t *last = rvm_codegen_getcode(co->cg, off - 1);
 
 	if (last->op1 == R0 && last->op2 == R1 && (last->opcode == RVM_LDOBJN || last->opcode == RVM_MAPLDR)) {
@@ -1124,7 +1124,7 @@ int codegen_funcallname_callback(rpa_stat_handle stat, const char *name, void *u
 int codegen_funcallexpression_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 
 	if (reason & RPA_REASON_START) {
 		rvm_funcall_t funcall = {input, size, 0};
@@ -1155,7 +1155,7 @@ int codegen_funcallexpression_callback(rpa_stat_handle stat, const char *name, v
 int codegen_fundeclparameter_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_fundecl_t *fundecl = (rvm_fundecl_t *)r_array_lastslot(co->fundecl);
 	rvm_varmap_t *v = rvm_scope_tiplookup(co->scope, input, size);
 	if (v) {
@@ -1191,7 +1191,7 @@ int codegen_funnamelookupalloc_callback(rpa_stat_handle stat, const char *name, 
 int codegen_fundeclname_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off;
+	unsigned long off;
 	rvm_fundecl_t fundecl = {input, size, 0, 0};
 	rvm_varmap_t *v = rvm_scope_tiplookup(co->scope, input, size);
 
@@ -1222,7 +1222,7 @@ int codegen_fundeclname_callback(rpa_stat_handle stat, const char *name, void *u
 int codegen_fundecl_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_fundecl_t *fundecl = (rvm_fundecl_t *)r_array_lastslot(co->fundecl);
 	rvm_varmap_t *fname;
 	rword fp = r_array_pop(co->fp, rword);
@@ -1268,7 +1268,7 @@ int codegen_fundecl_callback(rpa_stat_handle stat, const char *name, void *userd
 int codegen_opreturn_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 
 	if (rvm_costat_getdirty(co))
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BITS(RVM_SAVEDREGS_FIRST, RVM_SAVEDREGS_FIRST + rvm_costat_getdirty(co) - 1)));
@@ -1284,7 +1284,7 @@ int codegen_opreturn_callback(rpa_stat_handle stat, const char *name, void *user
 int codegen_ifconditionop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_codespan_t cs = {RVM_CODESPAN_NONE, 0, 0, 0, 0, 0, 0};
 
 	cs.codestart = rvm_codegen_getcodesize(co->cg);
@@ -1303,7 +1303,7 @@ int codegen_ifconditionop_callback(rpa_stat_handle stat, const char *name, void 
 int codegen_ifop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_codespan_t cs = r_array_pop(co->codespan, rvm_codespan_t);
 
 	cs.codesize = rvm_codegen_getcodesize(co->cg) - cs.codestart;
@@ -1319,7 +1319,7 @@ int codegen_ifop_callback(rpa_stat_handle stat, const char *name, void *userdata
 int codegen_elseop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_codespan_t cs = r_array_pop(co->codespan, rvm_codespan_t);
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, - 1)); 		// Branch to the end of the else block, has to be redefined
@@ -1341,7 +1341,7 @@ int codegen_elseop_callback(rpa_stat_handle stat, const char *name, void *userda
 int codegen_ifelseop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_codespan_t cs = r_array_pop(co->codespan, rvm_codespan_t);
 
 	cs.codesize = rvm_codegen_getcodesize(co->cg) - cs.codestart;
@@ -1357,7 +1357,7 @@ int codegen_ifelseop_callback(rpa_stat_handle stat, const char *name, void *user
 int codegen_dokeyword_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_codespan_t cs = {RVM_CODESPAN_NONE, 0, 0, 0, 0, 0, 0};
 
 	cs.codestart = rvm_codegen_getcodesize(co->cg);
@@ -1372,7 +1372,7 @@ int codegen_dokeyword_callback(rpa_stat_handle stat, const char *name, void *use
 int codegen_iterationdo_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_codespan_t cs = r_array_pop(co->codespan, rvm_codespan_t);
 	rvm_asmins_t *last = rvm_codegen_getcode(co->cg, off - 1);
 
@@ -1396,7 +1396,7 @@ int codegen_iterationdo_callback(rpa_stat_handle stat, const char *name, void *u
 int codegen_whileconditionop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_codespan_t *cs = (rvm_codespan_t*)r_array_lastslot(co->codespan);
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_CMP, R0, DA, XX, 0));
@@ -1413,7 +1413,7 @@ int codegen_whileconditionop_callback(rpa_stat_handle stat, const char *name, vo
 int codegen_iterationwhileop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 
 	if (reason & RPA_REASON_START) {
 		rvm_codespan_t cs = {RVM_CODESPAN_NONE, 0, 0, 0, 0, 0, 0};
@@ -1440,7 +1440,7 @@ int codegen_iterationwhileop_callback(rpa_stat_handle stat, const char *name, vo
 int codegen_questionmarkop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_codespan_t cs = {RVM_CODESPAN_NONE, 0, 0, 0, 0, 0, 0};
 
 	cs.codestart = rvm_codegen_getcodesize(co->cg);
@@ -1459,7 +1459,7 @@ int codegen_questionmarkop_callback(rpa_stat_handle stat, const char *name, void
 int codegen_iftrueop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_codespan_t *cs = (rvm_codespan_t*) r_array_lastslot(co->codespan);
 
 	cs->l2 = rvm_codegen_getcodesize(co->cg);
@@ -1476,7 +1476,7 @@ int codegen_iftrueop_callback(rpa_stat_handle stat, const char *name, void *user
 int codegen_iffalseop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_codespan_t cs = r_array_pop(co->codespan, rvm_codespan_t);
 
 	rvm_codegen_replaceins(co->cg, cs.l2, rvm_asm(RVM_B, DA, XX, XX, rvm_codegen_getcodesize(co->cg) - cs.l2));	// Re-writing the instruction
@@ -1491,7 +1491,7 @@ int codegen_iffalseop_callback(rpa_stat_handle stat, const char *name, void *use
 int codegen_breakkeyword_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_codespan_t *cs = NULL;
 
 	if (r_array_empty(co->loops)) {
@@ -1519,7 +1519,7 @@ int codegen_breakkeyword_callback(rpa_stat_handle stat, const char *name, void *
 int codegen_continuekeyword_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_codespan_t *cs = (rvm_codespan_t *)r_array_last(co->loops, rvm_codespan_t*);
 
 	if (cs->type != RVM_CODESPAN_LOOP) {
@@ -1538,7 +1538,7 @@ int codegen_continuekeyword_callback(rpa_stat_handle stat, const char *name, voi
 int codegen_forkeyword_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_codespan_t cs = {RVM_CODESPAN_LOOP, 0, 0, 0, 0, 0, 0};
 
 	cs.codestart = rvm_codegen_getcodesize(co->cg);
@@ -1555,7 +1555,7 @@ int codegen_forkeyword_callback(rpa_stat_handle stat, const char *name, void *us
 int codegen_forinitop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_codespan_t *cs = (rvm_codespan_t *)r_array_lastslot(co->codespan);
 
 
@@ -1578,7 +1578,7 @@ int codegen_forinitop_callback(rpa_stat_handle stat, const char *name, void *use
 int codegen_forincrementop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_codespan_t *cs = (rvm_codespan_t *)r_array_lastslot(co->codespan);
 
 	rvm_codegen_replaceins(co->cg, cs->l1, rvm_asm(RVM_B, DA, XX, XX, rvm_codegen_getcodesize(co->cg) - cs->l1));	// Re-writing the instruction
@@ -1592,7 +1592,7 @@ int codegen_forincrementop_callback(rpa_stat_handle stat, const char *name, void
 int codegen_forcompareop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_codespan_t *cs = (rvm_codespan_t *)r_array_lastslot(co->codespan);
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_CMP, R0, DA, XX, 0));
@@ -1611,7 +1611,7 @@ int codegen_forcompareop_callback(rpa_stat_handle stat, const char *name, void *
 int codegen_iterationforop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_codespan_t cs = r_array_pop(co->codespan, rvm_codespan_t);
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, -(rvm_codegen_getcodesize(co->cg) - (cs.l3))));
@@ -1631,7 +1631,7 @@ int codegen_iterationforop_callback(rpa_stat_handle stat, const char *name, void
 int codegen_switchexpressionop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_codespan_t *cs = (rvm_codespan_t *)r_array_lastslot(co->codespan);
 
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, DA, XX, XX, 0));
@@ -1655,7 +1655,7 @@ int codegen_switchexpressionop_callback(rpa_stat_handle stat, const char *name, 
 int codegen_switchstatementop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 
 	if (reason & RPA_REASON_START) {
 		rvm_codespan_t cs = {RVM_CODESPAN_SWITCH, 0, 0, 0, 0, 0, 0};
@@ -1691,7 +1691,7 @@ int codegen_switchstatementop_callback(rpa_stat_handle stat, const char *name, v
 int codegen_caseexpressionop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_codespan_t *cs = (rvm_codespan_t *)r_array_lastslot(co->codespan);
 
 	if (reason & RPA_REASON_START) {
@@ -1736,7 +1736,7 @@ int codegen_caseexpressionop_callback(rpa_stat_handle stat, const char *name, vo
 int codegen_caseclauseop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 
 	if (reason & RPA_REASON_START) {
 		rvm_codespan_t cs = {RVM_CODESPAN_NONE, 0, 0, 0, 0, 0, 0};
@@ -1760,7 +1760,7 @@ int codegen_caseclauseop_callback(rpa_stat_handle stat, const char *name, void *
 int codegen_defaultkeywordop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_codespan_t cs = {RVM_CODESPAN_NONE, 0, 0, 0, 0, 0, 0};
 	rvm_codespan_t *csSwitch = (rvm_codespan_t *)r_array_last(co->loops, rvm_codespan_t*);
 
@@ -1788,7 +1788,7 @@ int codegen_defaultkeywordop_callback(rpa_stat_handle stat, const char *name, vo
 int codegen_defaultclauseop_callback(rpa_stat_handle stat, const char *name, void *userdata, const char *input, unsigned int size, unsigned int reason)
 {
 	rvm_compiler_t *co = (rvm_compiler_t *)userdata;
-	rulong off = rvm_codegen_getcodesize(co->cg);
+	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_codespan_t cs = r_array_pop(co->codespan, rvm_codespan_t);
 	cs.codesize = rvm_codegen_getcodesize(co->cg) - cs.codestart;
 	cs.l3 = rvm_codegen_getcodesize(co->cg);
@@ -1851,7 +1851,7 @@ int main(int argc, char *argv[])
 	rstr_t *script = NULL, *unmapscript = NULL;
 	rvmcpu_t *cpu;
 	rvmreg_t *thisptr;
-	ruinteger ntable;
+	unsigned int ntable;
 	rpa_dbex_handle dbex = rpa_dbex_create();
 	rvm_compiler_t *co = rvm_compiler_create(dbex);
 

@@ -22,7 +22,7 @@
 #include "rpa/rpaparser.h"
 
 
-static rlong rpa_copy_handler(rarray_t *records, rlong rec, rpointer userdata)
+static long rpa_copy_handler(rarray_t *records, long rec, rpointer userdata)
 {
 	rarray_t *dst = (rarray_t *)userdata;
 	rparecord_t *prec = (rparecord_t *)rpa_record_get(records, rec);
@@ -31,7 +31,7 @@ static rlong rpa_copy_handler(rarray_t *records, rlong rec, rpointer userdata)
 }
 
 
-static rlong rpa_copy_singletonorop_handler(rarray_t *records, rlong rec, rpointer userdata)
+static long rpa_copy_singletonorop_handler(rarray_t *records, long rec, rpointer userdata)
 {
 	rarray_t *dst = (rarray_t *)userdata;
 	rparecord_t *prec = (rparecord_t *)rpa_record_get(records, rec);
@@ -52,9 +52,9 @@ static rlong rpa_copy_singletonorop_handler(rarray_t *records, rlong rec, rpoint
 }
 
 
-static rlong rpa_singleton_handler(rarray_t *records, rlong rec, rpointer userdata)
+static long rpa_singleton_handler(rarray_t *records, long rec, rpointer userdata)
 {
-	rlong first, last;
+	long first, last;
 	rparecord_t *prec = rpa_record_get(records, rec);
 
 	if (prec->ruleuid == RPA_PRODUCTION_ALTBRANCH && (prec->type & RPA_RECORD_START)) {
@@ -72,7 +72,7 @@ static rlong rpa_singleton_handler(rarray_t *records, rlong rec, rpointer userda
 }
 
 
-void rpa_optimiztion_orop(rarray_t *records, rlong orop)
+void rpa_optimiztion_orop(rarray_t *records, long orop)
 {
 	rarray_t *temp;
 

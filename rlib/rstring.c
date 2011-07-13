@@ -27,20 +27,20 @@
 #include "rlib/rmem.h"
 
 
-rinteger r_strcmp(const rchar *s1, const rchar *s2)
+int r_strcmp(const char *s1, const char *s2)
 {
 	return strcmp(s1, s2);
 }
 
 
-rinteger r_strncmp(const rchar *s1, const rchar *s2, rsize_t n)
+int r_strncmp(const char *s1, const char *s2, rsize_t n)
 {
 	int ret = strncmp(s1, s2, (size_t)n);
 	return ret;
 }
 
 
-rboolean r_stringncmp(const rchar *str, const rchar *s2, rsize_t n)
+rboolean r_stringncmp(const char *str, const char *s2, rsize_t n)
 {
 	if (r_strlen(str) == n && r_strncmp(str, s2, (size_t)n) == 0)
 		return 1;
@@ -48,25 +48,25 @@ rboolean r_stringncmp(const rchar *str, const rchar *s2, rsize_t n)
 }
 
 
-rsize_t r_strlen(const rchar *s)
+rsize_t r_strlen(const char *s)
 {
 	return s ? strlen(s) : 0;
 }
 
 
-rchar *r_strstr(const rchar *haystack, const rchar *needle)
+char *r_strstr(const char *haystack, const char *needle)
 {
 	return strstr(haystack, needle);
 }
 
 
-rchar *r_strchr(const rchar *s, rinteger c)
+char *r_strchr(const char *s, int c)
 {
 	return strchr(s, c);
 }
 
 
-rchar *r_strtrimr(rchar *s, const char *chrs)
+char *r_strtrimr(char *s, const char *chrs)
 {
 	int i;
 	for (i = r_strlen(s) - 1; i >= 0 && r_strchr(chrs, s[i]) != NULL; i--)
@@ -75,22 +75,22 @@ rchar *r_strtrimr(rchar *s, const char *chrs)
 }
 
 
-rchar *r_strcpy(rchar *dest, const rchar *src)
+char *r_strcpy(char *dest, const char *src)
 {
-	return (rchar*) strcpy(dest, src);
+	return (char*) strcpy(dest, src);
 }
 
 
-rchar *r_strncpy(rchar *dest, const rchar *src, rsize_t n)
+char *r_strncpy(char *dest, const char *src, rsize_t n)
 {
-	return (rchar*) strncpy(dest, src, n);
+	return (char*) strncpy(dest, src, n);
 }
 
 
-rchar *r_strdup(const rchar *s)
+char *r_strdup(const char *s)
 {
 	rsize_t size = r_strlen(s);
-	rchar *dupstr = (rchar*)r_zmalloc(size + 1);
+	char *dupstr = (char*)r_zmalloc(size + 1);
 
 	if (dupstr) {
 		r_strcpy(dupstr, s);
@@ -99,9 +99,9 @@ rchar *r_strdup(const rchar *s)
 }
 
 
-rchar *r_strndup(const rchar *s, rsize_t size)
+char *r_strndup(const char *s, rsize_t size)
 {
-	rchar *dupstr = (rchar*)r_zmalloc(size + 1);
+	char *dupstr = (char*)r_zmalloc(size + 1);
 
 	if (dupstr) {
 		r_strncpy(dupstr, s, size);
@@ -110,40 +110,40 @@ rchar *r_strndup(const rchar *s, rsize_t size)
 }
 
 
-rstr_t *r_rstrdup(const rchar *s, ruinteger size)
+rstr_t *r_rstrdup(const char *s, unsigned int size)
 {
-	rsize_t allocsize = sizeof(rstr_t) + size + sizeof(rchar);
+	rsize_t allocsize = sizeof(rstr_t) + size + sizeof(char);
 	rstr_t *d = (rstr_t*)r_malloc(allocsize);
 	if (d) {
 		r_memset(d, 0, allocsize);
 		d->size = size;
-		d->str = (rchar*)&d[1];
+		d->str = (char*)&d[1];
 		if (s)
-			r_memcpy((rchar*)d->str, s, size);
+			r_memcpy((char*)d->str, s, size);
 	}
 	return d;
 }
 
 
-rinteger r_vsnprintf(rchar *str, ruinteger size, const rchar *format, va_list ap)
+int r_vsnprintf(char *str, unsigned int size, const char *format, va_list ap)
 {
 	return vsnprintf(str, size, format, ap);
 }
 
 
-rchar *r_strcat(rchar *dest, const rchar *src)
+char *r_strcat(char *dest, const char *src)
 {
 	return strcat(dest, src);
 }
 
 
-rchar *r_strncat(rchar *dest, const rchar *src, ruinteger n)
+char *r_strncat(char *dest, const char *src, unsigned int n)
 {
 	return strncat(dest, src, n);
 }
 
 
-rinteger r_snprintf(rchar *str, ruinteger size, const rchar *format, ...)
+int r_snprintf(char *str, unsigned int size, const char *format, ...)
 {
 	va_list ap;
 	int ret;
@@ -155,7 +155,7 @@ rinteger r_snprintf(rchar *str, ruinteger size, const rchar *format, ...)
 }
 
 
-rinteger r_printf(const rchar *format, ...)
+int r_printf(const char *format, ...)
 {
 	va_list ap;
 	int ret;
@@ -167,19 +167,19 @@ rinteger r_printf(const rchar *format, ...)
 }
 
 
-rulong r_strtoul(const rchar *nptr, rchar **endptr, rinteger base)
+unsigned long r_strtoul(const char *nptr, char **endptr, int base)
 {
 	return strtoul(nptr, endptr,base);
 }
 
 
-rlong r_strtol(const rchar *s, rchar **endptr, rinteger base)
+long r_strtol(const char *s, char **endptr, int base)
 {
 	return strtol(s, endptr, base);
 }
 
 
-rdouble r_strtod(const rchar *s, rchar **endptr)
+double r_strtod(const char *s, char **endptr)
 {
 	return strtod(s, endptr);
 }
@@ -219,7 +219,7 @@ void r_string_assign(rstring_t *string, const rstr_t *str)
 {
 	if (str && str->size) {
 		r_free(string->s.str);
-		string->s.str = (rchar*)r_malloc(str->size + 1);
+		string->s.str = (char*)r_malloc(str->size + 1);
 		if (!string->s.str)
 			return;
 		r_memset(string->s.str, 0, str->size + 1);
@@ -230,7 +230,7 @@ void r_string_assign(rstring_t *string, const rstr_t *str)
 		 * Create empty string
 		 */
 		r_free(string->s.str);
-		string->s.str = (rchar*)r_malloc(1);
+		string->s.str = (char*)r_malloc(1);
 		if (!string->s.str)
 			return;
 		r_memset(string->s.str, 0, 1);
@@ -266,13 +266,13 @@ rstring_t *r_string_create_from_rstr(const rstr_t *str)
 }
 
 
-rstring_t *r_string_create_from_ansistr(const rchar *str)
+rstring_t *r_string_create_from_ansistr(const char *str)
 {
 	rstr_t rstr;
 
 	r_memset(&rstr, 0, sizeof(rstr));
 	if (str) {
-		rstr.str = (rchar*)str;
+		rstr.str = (char*)str;
 		rstr.size = r_strlen(str);
 	}
 	return r_string_create_from_rstr(&rstr);
@@ -281,10 +281,10 @@ rstring_t *r_string_create_from_ansistr(const rchar *str)
 
 
 
-rstring_t *r_string_create_from_double(rdouble d)
+rstring_t *r_string_create_from_double(double d)
 {
 	char temp[128];
-	rinteger size;
+	int size;
 
 	r_memset(temp, 0, sizeof(temp));
 	size = r_snprintf(temp, sizeof(temp) - 1, "%f", d);
@@ -296,10 +296,10 @@ rstring_t *r_string_create_from_double(rdouble d)
 }
 
 
-rstring_t *r_string_create_from_long(rlong l)
+rstring_t *r_string_create_from_long(long l)
 {
 	char temp[128];
-	rinteger size;
+	int size;
 
 	r_memset(temp, 0, sizeof(temp));
 	size = r_snprintf(temp, sizeof(temp) - 1, "%ld", l);
@@ -310,13 +310,13 @@ rstring_t *r_string_create_from_long(rlong l)
 }
 
 
-rstring_t *r_string_create_strsize(const rchar *str, ruinteger size)
+rstring_t *r_string_create_strsize(const char *str, unsigned int size)
 {
 	rstr_t rstr;
 
 	r_memset(&rstr, 0, sizeof(rstr));
 	if (str) {
-		rstr.str = (rchar*)str;
+		rstr.str = (char*)str;
 		rstr.size = size;
 	}
 	return r_string_create_from_rstr(&rstr);

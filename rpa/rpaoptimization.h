@@ -28,7 +28,7 @@ extern "C" {
 #endif
 
 
-void rpa_optimiztion_orop(rarray_t *records, rlong orop);
+void rpa_optimiztion_orop(rarray_t *records, long orop);
 
 
 #ifdef __cplusplus

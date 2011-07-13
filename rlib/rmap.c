@@ -28,27 +28,27 @@ typedef struct r_mapnode_s {
 	rlink_t active;
 	rlink_t hash;
 	rsize_t index;
-	rlong nbucket;
+	long nbucket;
 	rstring_t *key;
 	union {
 		rpointer p;
-		rchar data[0];
+		char data[0];
 	} value;
 } r_mapnode_t;
 
 
 static rboolean r_map_rstrequal(rstr_t *key1, rstr_t *key2)
 {
-	return (key1->size == key2->size && r_strncmp((const rchar*)key1->str, (const rchar*)key2->str, key1->size) == 0) ? TRUE : FALSE;
+	return (key1->size == key2->size && r_strncmp((const char*)key1->str, (const char*)key2->str, key1->size) == 0) ? TRUE : FALSE;
 }
 
 
-static rulong r_map_rstrhash(const rstr_t *key)
+static unsigned long r_map_rstrhash(const rstr_t *key)
 {
-	const rchar *str = (const rchar*) key->str;
-	rulong i;
-	rulong size = key->size;
-	rulong hash = 0;
+	const char *str = (const char*) key->str;
+	unsigned long i;
+	unsigned long size = key->size;
+	unsigned long hash = 0;
 
 	for (i = 0; i < size; i++, str++) {
 		hash = *str + (hash << 6) + (hash << 16) - hash;
@@ -56,7 +56,7 @@ static rulong r_map_rstrhash(const rstr_t *key)
 	return hash;
 }
 
-void r_mapnode_init(r_mapnode_t *node, const rchar *key, rsize_t size)
+void r_mapnode_init(r_mapnode_t *node, const char *key, rsize_t size)
 {
 //	node->key = r_rstrdup(key, size);
 	node->key = r_string_create_strsize(key, size);
@@ -65,12 +65,12 @@ void r_mapnode_init(r_mapnode_t *node, const rchar *key, rsize_t size)
 }
 
 
-r_mapnode_t *r_map_getfreenode(rmap_t *map, const rchar *key, rsize_t size)
+r_mapnode_t *r_map_getfreenode(rmap_t *map, const char *key, rsize_t size)
 {
 	r_mapnode_t *node = NULL;
 
 	if (r_list_empty(&map->inactive)) {
-		rlong index = r_carray_add(map->data, NULL);
+		long index = r_carray_add(map->data, NULL);
 		node = (r_mapnode_t*)r_carray_slot(map->data, index);
 		r_mapnode_init(node, key, size);
 		node->index = index;
@@ -113,7 +113,7 @@ void r_map_cleanup(robject_t *obj)
 }
 
 
-robject_t *r_map_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, ruinteger elt_size, ruinteger nbits)
+robject_t *r_map_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, unsigned int elt_size, unsigned int nbits)
 {
 	rsize_t elt_realsize = R_SIZE_ALIGN(elt_size + sizeof(r_mapnode_t), sizeof(rword));
 	rsize_t hashsize, i;
@@ -138,7 +138,7 @@ robject_t *r_map_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup,
 	return obj;
 }
 
-rmap_t *r_map_create(ruinteger elt_size, ruinteger nbits)
+rmap_t *r_map_create(unsigned int elt_size, unsigned int nbits)
 {
 	rmap_t *map;
 	map = (rmap_t*)r_object_create(sizeof(*map));
@@ -154,7 +154,7 @@ void r_map_destroy(rmap_t *map)
 }
 
 
-rlong r_map_gckey_add(rmap_t *map, rgc_t* gc, const rchar *name, rsize_t namesize, rconstpointer pval)
+long r_map_gckey_add(rmap_t *map, rgc_t* gc, const char *name, rsize_t namesize, rconstpointer pval)
 {
 	r_mapnode_t *node;
 
@@ -170,55 +170,55 @@ rlong r_map_gckey_add(rmap_t *map, rgc_t* gc, const rchar *name, rsize_t namesiz
 }
 
 
-rlong r_map_gckey_add_s(rmap_t *map, rgc_t* gc, const rchar *name, rconstpointer pval)
+long r_map_gckey_add_s(rmap_t *map, rgc_t* gc, const char *name, rconstpointer pval)
 {
 	return r_map_gckey_add(map, gc, name, r_strlen(name), pval);
 }
 
 
-rlong r_map_gckey_add_d(rmap_t *map, rgc_t* gc, double name, rconstpointer pval)
+long r_map_gckey_add_d(rmap_t *map, rgc_t* gc, double name, rconstpointer pval)
 {
-	rchar key[128];
+	char key[128];
 	r_memset(key, 0, sizeof(key));
 	r_snprintf(key, sizeof(key) - 1, "%.15f", name);
 	return r_map_gckey_add_s(map, gc, key, pval);
 }
 
 
-rlong r_map_gckey_add_l(rmap_t *map, rgc_t* gc, long name, rconstpointer pval)
+long r_map_gckey_add_l(rmap_t *map, rgc_t* gc, long name, rconstpointer pval)
 {
-	rchar key[128];
+	char key[128];
 	r_memset(key, 0, sizeof(key));
 	r_snprintf(key, sizeof(key) - 1, "%ld", name);
 	return r_map_gckey_add_s(map, gc, key, pval);
 }
 
 
-rlong r_map_add(rmap_t *map, const rchar *name, rsize_t namesize, rconstpointer pval)
+long r_map_add(rmap_t *map, const char *name, rsize_t namesize, rconstpointer pval)
 {
 	return r_map_gckey_add(map, NULL, name, namesize, pval);
 }
 
 
-rlong r_map_add_s(rmap_t *map, const rchar *name, rconstpointer pval)
+long r_map_add_s(rmap_t *map, const char *name, rconstpointer pval)
 {
 	return r_map_gckey_add_s(map, NULL, name, pval);
 }
 
 
-rlong r_map_add_l(rmap_t *map, long name, rconstpointer pval)
+long r_map_add_l(rmap_t *map, long name, rconstpointer pval)
 {
 	return r_map_gckey_add_l(map, NULL, name, pval);
 }
 
 
-rlong r_map_add_d(rmap_t *map, double name, rconstpointer pval)
+long r_map_add_d(rmap_t *map, double name, rconstpointer pval)
 {
 	return r_map_gckey_add_d(map, NULL, name, pval);
 }
 
 
-r_mapnode_t *r_map_node(rmap_t *map, rulong index)
+r_mapnode_t *r_map_node(rmap_t *map, unsigned long index)
 {
 	r_mapnode_t *node;
 	if (index >= r_carray_length(map->data))
@@ -230,7 +230,7 @@ r_mapnode_t *r_map_node(rmap_t *map, rulong index)
 }
 
 
-rstring_t *r_map_key(rmap_t *map, rulong index)
+rstring_t *r_map_key(rmap_t *map, unsigned long index)
 {
 	r_mapnode_t *node = r_map_node(map, index);
 	if (!node)
@@ -239,7 +239,7 @@ rstring_t *r_map_key(rmap_t *map, rulong index)
 }
 
 
-rpointer r_map_value(rmap_t *map, rulong index)
+rpointer r_map_value(rmap_t *map, unsigned long index)
 {
 	r_mapnode_t *node = r_map_node(map, index);
 	if (!node)
@@ -248,7 +248,7 @@ rpointer r_map_value(rmap_t *map, rulong index)
 }
 
 
-rlong r_map_setvalue(rmap_t *map, rlong index, rconstpointer pval)
+long r_map_setvalue(rmap_t *map, long index, rconstpointer pval)
 {
 	r_mapnode_t *node = r_map_node(map, index);
 	if (!node)
@@ -258,7 +258,7 @@ rlong r_map_setvalue(rmap_t *map, rlong index, rconstpointer pval)
 }
 
 
-rinteger r_map_delete(rmap_t *map, rulong index)
+int r_map_delete(rmap_t *map, unsigned long index)
 {
 	r_mapnode_t *node = r_map_node(map, index);
 	if (!node)
@@ -274,12 +274,12 @@ rinteger r_map_delete(rmap_t *map, rulong index)
 }
 
 
-rlong r_map_lookup(rmap_t *map, rlong current, const rchar *name, rsize_t namesize)
+long r_map_lookup(rmap_t *map, long current, const char *name, rsize_t namesize)
 {
-	rlong found = -1;
+	long found = -1;
 	r_mapnode_t *node;
 	rstr_t lookupstr = {(char*)name, namesize};
-	rulong nbucket;
+	unsigned long nbucket;
 	rhead_t *bucket;
 	rlink_t *pos;
 
@@ -303,40 +303,40 @@ rlong r_map_lookup(rmap_t *map, rlong current, const rchar *name, rsize_t namesi
 		}
 	}
 
-	return (rlong)found;
+	return (long)found;
 }
 
 
-rlong r_map_lookup_s(rmap_t *map, rlong current, const rchar *name)
+long r_map_lookup_s(rmap_t *map, long current, const char *name)
 {
 	return r_map_lookup(map, current, name, r_strlen(name));
 }
 
 
-rlong r_map_lookup_l(rmap_t *map, rlong current, long name)
+long r_map_lookup_l(rmap_t *map, long current, long name)
 {
-	rchar key[128];
+	char key[128];
 	r_memset(key, 0, sizeof(key));
 	r_snprintf(key, sizeof(key) - 1, "%ld", name);
 	return r_map_lookup_s(map, current, key);
 }
 
 
-rlong r_map_lookup_d(rmap_t *map, rlong current, double name)
+long r_map_lookup_d(rmap_t *map, long current, double name)
 {
-	rchar key[128];
+	char key[128];
 	r_memset(key, 0, sizeof(key));
 	r_snprintf(key, sizeof(key) - 1, "%.15f", name);
 	return r_map_lookup_s(map, current, key);
 }
 
 
-rlong r_map_taillookup(rmap_t *map, rlong current, const rchar *name, rsize_t namesize)
+long r_map_taillookup(rmap_t *map, long current, const char *name, rsize_t namesize)
 {
-	rlong found = -1;
+	long found = -1;
 	r_mapnode_t *node;
 	rstr_t lookupstr = {(char*)name, namesize};
-	rulong nbucket;
+	unsigned long nbucket;
 	rhead_t *bucket;
 	rlink_t *pos;
 
@@ -360,17 +360,17 @@ rlong r_map_taillookup(rmap_t *map, rlong current, const rchar *name, rsize_t na
 		}
 	}
 
-	return (rlong)found;
+	return (long)found;
 }
 
 
-rlong r_map_taillookup_s(rmap_t *map, rlong current, const rchar *name)
+long r_map_taillookup_s(rmap_t *map, long current, const char *name)
 {
 	return r_map_taillookup(map, current, name, r_strlen(name));
 }
 
 
-rlong r_map_first(rmap_t *map)
+long r_map_first(rmap_t *map)
 {
 	r_mapnode_t *node;
 	rlink_t *pos = r_list_first(&map->active);
@@ -382,7 +382,7 @@ rlong r_map_first(rmap_t *map)
 }
 
 
-rlong r_map_last(rmap_t *map)
+long r_map_last(rmap_t *map)
 {
 	r_mapnode_t *node;
 	rlink_t *pos = r_list_last(&map->active);
@@ -394,7 +394,7 @@ rlong r_map_last(rmap_t *map)
 }
 
 
-rlong r_map_next(rmap_t *map, rlong current)
+long r_map_next(rmap_t *map, long current)
 {
 	r_mapnode_t *node = r_map_node(map, current);
 	rlink_t *pos;
@@ -409,7 +409,7 @@ rlong r_map_next(rmap_t *map, rlong current)
 }
 
 
-rlong r_map_prev(rmap_t *map, rlong current)
+long r_map_prev(rmap_t *map, long current)
 {
 	r_mapnode_t *node = r_map_node(map, current);
 	rlink_t *pos;

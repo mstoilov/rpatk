@@ -427,7 +427,7 @@ PHP_FUNCTION(rpa_dbex_cfgset)
 }
 
 
-static rchar *dbexmsg[] = {
+static char *dbexmsg[] = {
 	"OK",
 	"Out of memory",
 	"Invalid input.",
@@ -449,7 +449,7 @@ static rchar *dbexmsg[] = {
 };
 
 
-static rchar *statmsg[] = {
+static char *statmsg[] = {
 	"OK",
 	"Execution error.",
 	"Execution aborted by user.",
@@ -542,9 +542,9 @@ PHP_FUNCTION(rpa_stat_error)
 }
 
 
-static void rpa_records2array(const rchar *input, rarray_t *records, zval *zrecords)
+static void rpa_records2array(const char *input, rarray_t *records, zval *zrecords)
 {
-	rlong i;
+	long i;
 
 	rparecord_t *record;
 	array_init(zrecords);
@@ -742,7 +742,7 @@ PHP_FUNCTION(rpascan)
 	char *bnf;
 	int bnf_len;
 	char *input;
-	const rchar *where = NULL;
+	const char *where = NULL;
 	int input_len;
 	zval *zerror = NULL;
 	zval *zwhere = NULL;

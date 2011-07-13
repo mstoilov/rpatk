@@ -106,7 +106,7 @@ void rpa_grep_close(rpa_grep_t *pGrep)
 }
 
 
-void rpa_grep_optimizations(rpa_grep_t *pGrep, rulong allow)
+void rpa_grep_optimizations(rpa_grep_t *pGrep, unsigned long allow)
 {
 	rpa_dbex_cfgset(pGrep->hDbex, RPA_DBEXCFG_OPTIMIZATIONS, allow);
 }
@@ -227,9 +227,9 @@ int rpa_grep_match(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 
 int rpa_grep_parse(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 {
-	rlong ret;
-	rlong i;
-	rchar location[128];
+	long ret;
+	long i;
+	char location[128];
 	rpastat_t *hStat;
 	rarray_t *records = rpa_records_create();
 	rparecord_t *prec;
@@ -268,7 +268,7 @@ int rpa_grep_parse(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 				prec = (rparecord_t *)rpa_records_slot(records, i);
 				if (prec->type & RPA_RECORD_END) {
 					rpa_grep_output_utf8_string(pGrep, prec->rule);
-					r_snprintf(location, sizeof(location), " (%ld, %ld)", (rlong)(prec->input - input), (rlong)prec->inputsiz);
+					r_snprintf(location, sizeof(location), " (%ld, %ld)", (long)(prec->input - input), (long)prec->inputsiz);
 					rpa_grep_output_utf8_string(pGrep, location);
 					rpa_grep_output_utf8_string(pGrep, ": ");
 					rpa_grep_output(pGrep, prec->input, prec->inputsiz, pGrep->encoding);

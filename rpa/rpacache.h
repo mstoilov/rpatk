@@ -35,29 +35,29 @@ extern "C" {
 
 
 typedef struct rpacachedentry_s {
-	rlong ruleid;
-	rlong top;
-	rlong ret;
-	rlong startrec;
-	rlong recsize;
-	rulong serial;
+	long ruleid;
+	long top;
+	long ret;
+	long startrec;
+	long recsize;
+	unsigned long serial;
 	rarray_t *records;
 } rpacachedentry_t;
 
 typedef struct rpacache_s {
 	rpacachedentry_t entry[RPA_MCACHE_SIZE];
-	rlong hit;
-	rlong disalbled;
-	rulong serial;
+	long hit;
+	long disalbled;
+	unsigned long serial;
 } rpacache_t;
 
 
 rpacache_t *rpa_cache_create();
 void rpa_cache_destroy(rpacache_t *cache);
-void rpa_cache_disable(rpacache_t *cache, rlong disable);
+void rpa_cache_disable(rpacache_t *cache, long disable);
 void rpa_cache_invalidate(rpacache_t *cache);
-void rpa_cache_set(rpacache_t *cache, rlong top, rlong ruleid, rlong ret, rarray_t *records, rlong startrec, rlong size);
-rpacachedentry_t *rpa_cache_lookup(rpacache_t *cache, rlong top, rlong ruleid);
+void rpa_cache_set(rpacache_t *cache, long top, long ruleid, long ret, rarray_t *records, long startrec, long size);
+rpacachedentry_t *rpa_cache_lookup(rpacache_t *cache, long top, long ruleid);
 #ifdef __cplusplus
 }
 #endif

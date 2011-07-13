@@ -25,7 +25,7 @@
 
 typedef union rhash_value_s {
 	rpointer ptr;
-	rulong index;
+	unsigned long index;
 } rhash_value_t;
 
 struct rhash_node_s {
@@ -51,7 +51,7 @@ static void r_hash_node_destroy(rhash_node_t *node)
 
 rhash_node_t *r_hash_nodetaillookup(rhash_t* hash, rhash_node_t *cur, rconstpointer key)
 {
-	ruinteger nbucket = hash->hfunc(key) & r_hash_mask(hash);
+	unsigned int nbucket = hash->hfunc(key) & r_hash_mask(hash);
 	rhead_t *bucket = &hash->buckets[nbucket];
 	rhash_node_t *node;
 	rlink_t *pos;
@@ -68,7 +68,7 @@ rhash_node_t *r_hash_nodetaillookup(rhash_t* hash, rhash_node_t *cur, rconstpoin
 
 rhash_node_t *r_hash_nodelookup(rhash_t* hash, rhash_node_t *cur, rconstpointer key)
 {
-	ruinteger nbucket = hash->hfunc(key) & r_hash_mask(hash);
+	unsigned int nbucket = hash->hfunc(key) & r_hash_mask(hash);
 	rhead_t *bucket = &hash->buckets[nbucket];
 	rhash_node_t *node;
 	rlink_t *pos;
@@ -83,10 +83,10 @@ rhash_node_t *r_hash_nodelookup(rhash_t* hash, rhash_node_t *cur, rconstpointer 
 }
 
 
-ruinteger r_hash_strhash(rconstpointer key)
+unsigned int r_hash_strhash(rconstpointer key)
 {
-	const rchar *str = (const rchar*) key;
-	ruinteger hash = 0;
+	const char *str = (const char*) key;
+	unsigned int hash = 0;
 	int c;
 
 	while ((c = *str++))
@@ -97,17 +97,17 @@ ruinteger r_hash_strhash(rconstpointer key)
 
 rboolean r_hash_strequal(rconstpointer key1, rconstpointer key2)
 {
-	return r_strcmp((const rchar*)key1, (const rchar*)key2) ? FALSE : TRUE;
+	return r_strcmp((const char*)key1, (const char*)key2) ? FALSE : TRUE;
 }
 
 
-ruinteger r_hash_rstrhash(rconstpointer key)
+unsigned int r_hash_rstrhash(rconstpointer key)
 {
 	const rstr_t *k = (const rstr_t *)key;
-	const rchar *str = (const rchar*) k->str;
-	ruinteger i;
-	ruinteger size = k->size;
-	ruinteger hash = 0;
+	const char *str = (const char*) k->str;
+	unsigned int i;
+	unsigned int size = k->size;
+	unsigned int hash = 0;
 
 	for (i = 0; i < size; i++, str++) {
 		hash = *str + (hash << 6) + (hash << 16) - hash;
@@ -121,11 +121,11 @@ rboolean r_hash_rstrequal(rconstpointer key1, rconstpointer key2)
 	const rstr_t *k1 = (const rstr_t *)key1;
 	const rstr_t *k2 = (const rstr_t *)key2;
 
-	return (k1->size == k2->size && r_strncmp((const rchar*)k1->str, (const rchar*)k2->str, k1->size) == 0) ? TRUE : FALSE;
+	return (k1->size == k2->size && r_strncmp((const char*)k1->str, (const char*)k2->str, k1->size) == 0) ? TRUE : FALSE;
 }
 
 
-rhash_t *r_hash_create(ruinteger nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfunc)
+rhash_t *r_hash_create(unsigned int nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfunc)
 {
 	rhash_t *hash;
 
@@ -142,9 +142,9 @@ void r_hash_destroy(rhash_t* hash)
 
 
 robject_t *r_hash_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy,
-						ruinteger nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfunc)
+						unsigned int nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfunc)
 {
-	ruinteger i;
+	unsigned int i;
 	rsize_t size;
 	rhash_t *hash = (rhash_t *)obj;
 
@@ -179,7 +179,7 @@ void r_hash_cleanup(robject_t *obj)
 
 void r_hash_insert(rhash_t* hash, rconstpointer key, rpointer value)
 {
-	ruinteger nbucket = hash->hfunc(key) & r_hash_mask(hash);
+	unsigned int nbucket = hash->hfunc(key) & r_hash_mask(hash);
 	rhash_node_t *node = r_hash_node_create();
 	rhead_t *buckethead = &hash->buckets[nbucket];
 	if (node) {
@@ -204,7 +204,7 @@ void r_hash_remove(rhash_t* hash, rconstpointer key)
 
 void r_hash_removeall(rhash_t* hash)
 {
-	ruinteger nbucket;
+	unsigned int nbucket;
 	rhead_t *head;
 	rhash_node_t *node;
 
@@ -228,9 +228,9 @@ rpointer r_hash_lookup(rhash_t* hash, rconstpointer key)
 }
 
 
-void r_hash_insert_indexval(rhash_t* hash, rconstpointer key, rulong index)
+void r_hash_insert_indexval(rhash_t* hash, rconstpointer key, unsigned long index)
 {
-	ruinteger nbucket = hash->hfunc(key) & r_hash_mask(hash);
+	unsigned int nbucket = hash->hfunc(key) & r_hash_mask(hash);
 	rhash_node_t *node = r_hash_node_create();
 	rhead_t *buckethead = &hash->buckets[nbucket];
 	if (node) {
@@ -242,7 +242,7 @@ void r_hash_insert_indexval(rhash_t* hash, rconstpointer key, rulong index)
 }
 
 
-rulong r_hash_lookup_indexval(rhash_t* hash, rconstpointer key)
+unsigned long r_hash_lookup_indexval(rhash_t* hash, rconstpointer key)
 {
 	rhash_node_t *node = r_hash_nodelookup(hash, NULL, key);
 	if (node)
@@ -251,7 +251,7 @@ rulong r_hash_lookup_indexval(rhash_t* hash, rconstpointer key)
 }
 
 
-rulong r_hash_taillookup_indexval(rhash_t* hash, rconstpointer key)
+unsigned long r_hash_taillookup_indexval(rhash_t* hash, rconstpointer key)
 {
 	rhash_node_t *node = r_hash_nodetaillookup(hash, NULL, key);
 	if (node)
@@ -266,7 +266,7 @@ rpointer r_hash_value(rhash_node_t *node)
 }
 
 
-rulong r_hash_indexval(rhash_node_t *node)
+unsigned long r_hash_indexval(rhash_node_t *node)
 {
 	return node->value.index;
 }

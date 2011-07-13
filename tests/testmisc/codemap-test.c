@@ -26,14 +26,14 @@
 #include "rvm/rvmcodemap.h"
 
 
-void codelabel_print_info(rvm_codemap_t *codemap, rchar* name)
+void codelabel_print_info(rvm_codemap_t *codemap, char* name)
 {
 	rvm_codelabel_t *label = rvm_codemap_label(codemap, rvm_codemap_lookup_s(codemap, name));
 
 	if (!label)
 		fprintf(stdout, "%s (not found)\n", name);
 	else
-		fprintf(stdout, "%s, asmins: 0x%lx\n", label->name->str, (rulong)label->value);
+		fprintf(stdout, "%s, asmins: 0x%lx\n", label->name->str, (unsigned long)label->value);
 }
 
 

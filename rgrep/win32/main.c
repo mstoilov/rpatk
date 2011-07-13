@@ -307,7 +307,7 @@ end:
 		minutes = milsec/60000;
 		sec = (milsec%60000)/1000.0;
 		fwprintf(stdout, L"\ntime: %0ldm%1.3fs, %ld KB (%ld KB/sec), stack: %ld KB, memory: %ld KB (leaked %ld Bytes), cachehit: %ld \n", 
-				minutes, sec, sckb, 1000*sckb/milsec, pGrep->usedstack / 1000, (rlong)r_debug_get_maxmem()/1000, (rlong)r_debug_get_allocmem(),
+				minutes, sec, sckb, 1000*sckb/milsec, pGrep->usedstack / 1000, (long)r_debug_get_maxmem()/1000, (long)r_debug_get_allocmem(),
 				pGrep->cachehit);
 	}
 

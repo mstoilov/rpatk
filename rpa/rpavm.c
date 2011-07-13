@@ -27,7 +27,7 @@
 static void rpavm_swi_shift(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
-	rlong top = RVM_CPUREG_GETL(cpu, R_TOP);
+	long top = RVM_CPUREG_GETL(cpu, R_TOP);
 
 	if ((top = rpa_stat_shift(stat, top)) >= 0)
 		RVM_CPUREG_SETL(cpu, R_TOP, top);
@@ -232,7 +232,7 @@ static void rpavm_swi_matchrng_mop(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rpavm_swi_emittail(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
-	rlong index = RVM_CPUREG_GETL(cpu, R_REC);
+	long index = RVM_CPUREG_GETL(cpu, R_REC);
 
 	if (stat->records)
 		r_array_setlength(stat->records, index + 1);
@@ -242,9 +242,9 @@ static void rpavm_swi_emittail(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rpavm_swi_abort(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpa_ruledata_t *ruledata = RVM_CPUREG_GETP(cpu, ins->op1);
-	rstr_t name = {(rchar*)ruledata + ruledata->name, ruledata->namesize};
+	rstr_t name = {(char*)ruledata + ruledata->name, ruledata->namesize};
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
-	rlong index = RVM_CPUREG_GETL(cpu, R_REC);
+	long index = RVM_CPUREG_GETL(cpu, R_REC);
 	rword tp = RVM_CPUREG_GETU(cpu, ins->op2);
 
 
@@ -267,9 +267,9 @@ static void rpavm_swi_emitstart(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rpa_ruledata_t *ruledata = RVM_CPUREG_GETP(cpu, ins->op1);
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	rparecord_t *rec;
-	rlong index = RVM_CPUREG_GETL(cpu, R_REC);
+	long index = RVM_CPUREG_GETL(cpu, R_REC);
 	rword tp = RVM_CPUREG_GETU(cpu, ins->op2);
-	rstr_t name = {(rchar*)ruledata + ruledata->name, ruledata->namesize};
+	rstr_t name = {(char*)ruledata + ruledata->name, ruledata->namesize};
 
 	if (stat->debug)
 		r_printf("%ld: %s, %s, tp = %ld\n", RVM_CPUREG_GETU(cpu, FP), "START", name.str, tp);
@@ -300,11 +300,11 @@ static void rpavm_swi_emitend(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rpa_ruledata_t *ruledata = RVM_CPUREG_GETP(cpu, ins->op1);
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	rparecord_t *rec, *startrec;
-	rlong startindex = RVM_CPUREG_GETL(cpu, R1) + 1;
-	rlong index = RVM_CPUREG_GETL(cpu, R_REC);
+	long startindex = RVM_CPUREG_GETL(cpu, R1) + 1;
+	long index = RVM_CPUREG_GETL(cpu, R_REC);
 	rword tp = RVM_CPUREG_GETU(cpu, ins->op2);
 	rword tplen = RVM_CPUREG_GETU(cpu, ins->op3);
-	rstr_t name = {(rchar*)ruledata + ruledata->name, ruledata->namesize};
+	rstr_t name = {(char*)ruledata + ruledata->name, ruledata->namesize};
 
 	if (stat->debug)
 		r_printf("%ld: %s, %s, tp = %ld, tplen = %ld\n", RVM_CPUREG_GETU(cpu, FP), "END ", name.str, tp, tplen);
@@ -339,7 +339,7 @@ static void rpavm_swi_prninfo(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	if (!stat->debug)
 		return;
 	if (ruledata) {
-		name.str = (rchar*)ruledata + ruledata->name;
+		name.str = (char*)ruledata + ruledata->name;
 		name.size = ruledata->namesize;
 	}
 
@@ -351,12 +351,12 @@ static void rpavm_swi_prninfo(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rpavm_swi_setcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
-	rlong r0 = RVM_CPUREG_GETL(cpu, R0);
-	rlong ruleid = RVM_CPUREG_GETL(cpu, ins->op1);
-	rlong prevrec = RVM_CPUREG_GETL(cpu, ins->op2);
-	rlong endrec = RVM_CPUREG_GETL(cpu, ins->op3);
-	rlong top = RVM_CPUREG_GETL(cpu, R_OTP);
-	rlong startrec = 0;
+	long r0 = RVM_CPUREG_GETL(cpu, R0);
+	long ruleid = RVM_CPUREG_GETL(cpu, ins->op1);
+	long prevrec = RVM_CPUREG_GETL(cpu, ins->op2);
+	long endrec = RVM_CPUREG_GETL(cpu, ins->op3);
+	long top = RVM_CPUREG_GETL(cpu, R_OTP);
+	long startrec = 0;
 
 	if (r0 > 0 && prevrec != endrec) {
 		startrec = prevrec + 1;
@@ -371,9 +371,9 @@ static void rpavm_swi_checkcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	rpacachedentry_t *entry;
-	rlong ruleid = RVM_CPUREG_GETL(cpu, ins->op1);
-	rlong top = RVM_CPUREG_GETL(cpu, ins->op2);
-	rlong r0 = 0;
+	long ruleid = RVM_CPUREG_GETL(cpu, ins->op1);
+	long top = RVM_CPUREG_GETL(cpu, ins->op2);
+	long r0 = 0;
 	entry = rpa_cache_lookup(stat->cache, top, ruleid);
 	if (entry) {
 		r0 = entry->ret;
@@ -430,10 +430,10 @@ static rvm_switable_t rpavm_swi_table[] = {
 };
 
 
-rvmcpu_t *rpavm_cpu_create(rulong stacksize)
+rvmcpu_t *rpavm_cpu_create(unsigned long stacksize)
 {
 	rvmcpu_t *cpu = rvm_cpu_create(stacksize);
-	rinteger tableid = rvm_cpu_addswitable(cpu, "rpavm_swi_table", rpavm_swi_table);
+	int tableid = rvm_cpu_addswitable(cpu, "rpavm_swi_table", rpavm_swi_table);
 
 	if (tableid != RPAVM_SWI_TABLEID) {
 		rpavm_cpu_destroy(cpu);
