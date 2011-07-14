@@ -52,6 +52,7 @@ int usage(int argc, const wchar_t *argv[])
 		fwprintf(stderr, L"\t-h, --help               Display this help.\n");
 		fwprintf(stderr, L"\t    --debug-compile      Display debug compilation information.\n");
 		fwprintf(stderr, L"\t    --dump-info          Display rules info.\n");
+		fwprintf(stderr, L"\t    --dump-code rule     Display compiled code for rule.\n");
 		fwprintf(stderr, L"\t    --dump-alias         Display alias info.\n");
 		fwprintf(stderr, L"\t    --dump-records       Display rules parsing records.\n");
 		fwprintf(stderr, L"\t    --no-optimizations   Disable optimizations.\n");

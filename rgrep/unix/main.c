@@ -58,6 +58,7 @@ int usage(int argc, const char *argv[])
 		fprintf(stderr, "\t-h, --help               Display this help.\n");
 		fprintf(stderr, "\t    --debug-compile      Display debug compilation information.\n");
 		fprintf(stderr, "\t    --dump-info          Display rules info.\n");
+		fprintf(stderr, "\t    --dump-code rule     Display compiled code for rule.\n");
 		fprintf(stderr, "\t    --dump-alias         Display alias info.\n");
 		fprintf(stderr, "\t    --dump-records       Display rules parsing records.\n");
 		fprintf(stderr, "\t    --no-optimizations   Disable optimizations.\n");
