@@ -8,6 +8,7 @@ LINK32_OBJS= \
 	"$(OUTDIR)\rpacompiler.obj" \
 	"$(OUTDIR)\rpaparser.obj" \
 	"$(OUTDIR)\rpaoptimization.obj" \
+	"$(OUTDIR)\rpabitmap.obj" \
 
 
 ALL : "$(OUTDIR)\$(TARGET)"
@@ -58,3 +59,8 @@ SOURCE="$(SRC_DIR)\rpaparser.c"
 SOURCE="$(SRC_DIR)\rpaoptimization.c"
 "$(OUTDIR)\rpaoptimization.obj" : $(SOURCE) $(OUTDIR)
     $(CPP) $(CPP_FLAGS) $(SOURCE)
+    
+SOURCE="$(SRC_DIR)\rpabitmap.c"
+"$(OUTDIR)\rpabitmap.obj" : $(SOURCE) $(OUTDIR)
+    $(CPP) $(CPP_FLAGS) $(SOURCE)
+ 

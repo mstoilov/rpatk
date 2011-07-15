@@ -17,6 +17,8 @@ RPA_OBJECTS =	\
 	$(OUTDIR)/rpacompiler.o \
 	$(OUTDIR)/rpaparser.o \
 	$(OUTDIR)/rpaoptimization.o \
+	$(OUTDIR)/rpabitmap.o \
+	
 
 all: $(OUTDIR) $(TARGET_RPA_LIB)
 
