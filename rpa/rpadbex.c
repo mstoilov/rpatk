@@ -22,20 +22,14 @@
  *@file rpadbex.c
  */
 
-#include "rpa/rpacompiler.h"
-#include "rpa/rpadbex.h"
-#include "rpa/rpastatpriv.h"
-#include "rpa/rpaparser.h"
-#include "rpa/rpaoptimization.h"
+
 #include "rlib/rmem.h"
 #include "rlib/rutf.h"
+#include "rpa/rpabitmap.h"
+#include "rpa/rpadbexpriv.h"
+#include "rpa/rpadbex.h"
+#include "rpa/rpastatpriv.h"
 
-typedef int (*rpa_dbex_recordhandler)(rpadbex_t *dbex, long rec);
-
-#define RPA_RULEINFO_NONE 0
-#define RPA_RULEINFO_NAMEDRULE 1
-#define RPA_RULEINFO_ANONYMOUSRULE 2
-#define RPA_RULEINFO_DIRECTIVE 3
 
 #define RPA_DBEX_SETERRINFO_CODE(__d__, __e__) do { (__d__)->err.code = __e__; (__d__)->err.mask |= RPA_ERRINFO_CODE; } while (0)
 #define RPA_DBEX_SETERRINFO_OFFSET(__d__, __o__) do { (__d__)->err.offset = __o__; (__d__)->err.mask |= RPA_ERRINFO_OFFSET; } while (0)
@@ -46,31 +40,6 @@ typedef int (*rpa_dbex_recordhandler)(rpadbex_t *dbex, long rec);
 	r_strncpy((__d__)->err.name, __n__, R_MIN(__s__, (sizeof((__d__)->err.name) - 1)));  } while (0)
 
 
-typedef struct rpa_ruleinfo_s {
-	long startrec;
-	long sizerecs;
-	long codeoff;
-	long codesiz;
-	unsigned long type;
-} rpa_ruleinfo_t;
-
-
-struct rpadbex_s {
-	rpa_compiler_t *co;
-	rpa_parser_t *pa;
-	rarray_t *records;
-	rarray_t *temprecords;
-	rharray_t *rules;
-	rarray_t *recstack;
-	rarray_t *inlinestack;
-	rarray_t *text;
-	rpa_dbex_recordhandler *handlers;
-	rpa_errinfo_t err;
-	unsigned long headoff;
-	unsigned long optimizations:1;
-	unsigned long debug:1;
-	unsigned long compiled:1;
-};
 
 static rparecord_t *rpa_dbex_rulerecord(rpadbex_t *dbex, rparule_t rid);
 static rparecord_t *rpa_dbex_record(rpadbex_t *dbex, long rec);
@@ -1355,6 +1324,7 @@ void rpa_dbex_close(rpadbex_t *dbex)
 		return;
 	rpa_dbex_buildruleinfo(dbex);
 	rpa_dbex_buildloopinfo(dbex);
+	rpa_dbex_buildbitmapinfo(dbex);
 }
 
 
