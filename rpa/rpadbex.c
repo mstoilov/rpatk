@@ -183,7 +183,7 @@ static long rpa_dbex_getmatchspecialchr(unsigned long matchtype)
 }
 
 
-static int rpa_record2long(rparecord_t *prec, ruint32 *num)
+int rpa_record2long(rparecord_t *prec, ruint32 *num)
 {
 	char *endptr = NULL;
 	char buffer[64];

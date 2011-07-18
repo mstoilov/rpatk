@@ -66,7 +66,7 @@ int rpa_stat_matchchr(rpastat_t *stat, rssize_t top, unsigned long wc);
 int rpa_stat_matchspchr(rpastat_t *stat, rssize_t top, unsigned long wc);
 int rpa_stat_matchrng(rpastat_t *stat, rssize_t top, unsigned long wc1, unsigned long wc2);
 long rpa_stat_shift(rpastat_t *stat, rssize_t top);
-
+unsigned long rpa_special_char(unsigned long special);
 
 #ifdef __cplusplus
 }

@@ -23,9 +23,10 @@
 #include "rlib/rmem.h"
 #include "rpa/rpaparser.h"
 #include "rpa/rpadbexpriv.h"
-
+#include "rpa/rpastatpriv.h"
 
 static long rpa_bitmap_set(rarray_t *records, long rec, rpointer userdata);
+
 
 void rpa_dbex_buildbitmapinfo_for_rule(rpadbex_t *dbex, rparule_t rid)
 {
@@ -35,9 +36,31 @@ void rpa_dbex_buildbitmapinfo_for_rule(rpadbex_t *dbex, rparule_t rid)
 
 	r_memset(&bc, 0, sizeof(bc));
 	bc.dbex = dbex;
-	if ((info = (rpa_ruleinfo_t *)r_harray_get(rules, rid)) != NULL)
+	if ((info = (rpa_ruleinfo_t *)r_harray_get(rules, rid)) != NULL) {
+		rparecord_t *record = rpa_record_get(dbex->records, info->startrec);
+		RPA_BITMAP_SETALL(record);
 		rpa_recordtree_walk(dbex->records, info->startrec, 0, rpa_bitmap_set, (rpointer)&bc);
+	}
 
+}
+
+
+rword rpa_dbex_getrulebitmap(rpadbex_t *dbex, rparule_t rid)
+{
+	rword bitmap = 0L;
+	rharray_t *rules = dbex->rules;
+	rpa_ruleinfo_t *info;
+
+	if ((info = (rpa_ruleinfo_t *)r_harray_get(rules, rid)) != NULL) {
+		rparecord_t *record = rpa_record_get(dbex->records, info->startrec);
+		if (record) {
+			if (!record->userdata) {
+				rpa_dbex_buildbitmapinfo_for_rule(dbex, rid);
+			}
+			bitmap = record->userdata;
+		}
+	}
+	return bitmap;
 }
 
 
@@ -47,7 +70,7 @@ void rpa_dbex_buildbitmapinfo(rpadbex_t *dbex)
 	rharray_t *rules = dbex->rules;
 
 	for (i = 0; i < r_array_length(rules->members); i++) {
-		rpa_dbex_buildbitmapinfo_for_rule(dbex, i);
+		rpa_dbex_getrulebitmap(dbex, i);
 	}
 }
 
@@ -169,6 +192,7 @@ static long rpa_bitmap_set_cls(rarray_t *records, rparecord_t *record, long rec,
 static long rpa_bitmap_set_namedrule(rarray_t *records, rparecord_t *record, long rec, rpointer userdata)
 {
 	if (record->type & RPA_RECORD_END) {
+		rparecord_t *startrecord;
 		long child;
 		child = rpa_recordtree_firstchild(records, rec, RPA_RECORD_END);
 
@@ -178,8 +202,10 @@ static long rpa_bitmap_set_namedrule(rarray_t *records, rparecord_t *record, lon
 			if (!(childrecord->usertype & RPA_MATCH_OPTIONAL))
 				break;
 		}
+		startrecord = rpa_record_get(records, rpa_recordtree_get(records, rec, RPA_RECORD_START));
+		if (startrecord)
+			startrecord->userdata = record->userdata;
 		return 0;
-
 	}
 	return 0;
 }
@@ -219,6 +245,123 @@ static long rpa_bitmap_set_orop(rarray_t *records, rparecord_t *record, long rec
 }
 
 
+static long rpa_bitmap_set_minop(rarray_t *records, rparecord_t *record, long rec, rpointer userdata)
+{
+	if (record->type & RPA_RECORD_END) {
+		long child;
+
+		child = rpa_recordtree_firstchild(records, rec, RPA_RECORD_END);
+		if (child >= 0) {
+			rparecord_t *childrecord = rpa_record_get(records, child);
+			RPA_BITMAP_SETVAL(record, RPA_BITMAP_GETVAL(childrecord));
+		}
+		return 0;
+
+	}
+	return 0;
+}
+
+
+static long rpa_bitmap_set_specialchar(rarray_t *records, rparecord_t *record, long rec, rpointer userdata)
+{
+	ruint32 wc = 0;
+
+	if (r_utf8_mbtowc(&wc, (const unsigned char*) record->input, (const unsigned char*)record->input + record->inputsiz) < 0) {
+		/*
+		 * Error
+		 */
+		return -1;
+	}
+	wc = rpa_special_char(wc);
+
+	if (wc == '.') {
+		RPA_BITMAP_SETALL(record);
+	} else {
+		RPA_BITMAP_SETBIT(record, wc % RPA_BITMAP_BITS);
+	}
+	return 0;
+}
+
+
+static long rpa_bitmap_set_clsnum(rarray_t *records, rparecord_t *record, long rec, rpointer userdata)
+{
+	if (record->type & RPA_RECORD_END) {
+		long child = rpa_recordtree_firstchild(records, rec, RPA_RECORD_END);
+		if (child >= 0) {
+			rparecord_t *childrecord = rpa_record_get(records, child);
+			RPA_BITMAP_SETBIT(record, childrecord->userdata % RPA_BITMAP_BITS);
+		}
+	}
+	return 0;
+}
+
+
+static long rpa_bitmap_set_numrng(rarray_t *records, rparecord_t *record, long rec, rpointer userdata)
+{
+	if (record->type & RPA_RECORD_END) {
+		long first = rpa_recordtree_firstchild(records, rec, RPA_RECORD_END);
+		long second = rpa_recordtree_lastchild(records, rec, RPA_RECORD_END);
+		if (first >= 0 && second >= 0) {
+			rword wc1, wc2, wc;
+			rparecord_t *firstrecord = rpa_record_get(records, first);
+			rparecord_t *secondrecord = rpa_record_get(records, second);
+			if (firstrecord->userdata < secondrecord->userdata) {
+				wc1 = firstrecord->userdata;
+				wc2 = secondrecord->userdata;
+			} else {
+				wc2 = firstrecord->userdata;
+				wc1 = secondrecord->userdata;
+			}
+			for (wc = wc1; wc <= wc2 && (wc - wc1) < RPA_BITMAP_BITS; wc++) {
+				RPA_BITMAP_SETBIT(record, (wc % RPA_BITMAP_BITS));
+			}
+		}
+	}
+	return 0;
+}
+
+
+static long rpa_bitmap_set_ref(rarray_t *records, rparecord_t *record, long rec, rpointer userdata)
+{
+	rpa_bitmapcompiler_t *bc = (rpa_bitmapcompiler_t*)userdata;
+	if ((record->type & RPA_RECORD_END) && (record->usertype & RPA_LOOP_PATH) == 0) {
+		long child = rpa_recordtree_firstchild(records, rec, RPA_RECORD_END);
+		if (child >= 0) {
+			rparecord_t *childrecord = rpa_record_get(records, child);
+			rparule_t rid = rpa_dbex_lookup(bc->dbex, childrecord->input, childrecord->inputsiz);
+			if (rid >= 0) {
+				record->userdata = rpa_dbex_getrulebitmap(bc->dbex, rid);
+			}
+
+		}
+	}
+	return 0;
+}
+
+
+static long rpa_bitmap_set_long(rarray_t *records, rparecord_t *record, long rec, rpointer userdata)
+{
+	ruint32 wc = 0;
+	if (rpa_record2long(record, &wc) < 0)
+		return -1;
+	record->userdata = wc;
+	return 0;
+}
+
+
+static long rpa_bitmap_set_notop(rarray_t *records, rparecord_t *record, long rec, rpointer userdata)
+{
+	if (record->type & RPA_RECORD_END) {
+		long child = rpa_recordtree_firstchild(records, rec, RPA_RECORD_END);
+		if (child >= 0) {
+			rparecord_t *childrecord = rpa_record_get(records, child);
+			RPA_BITMAP_SETVAL(record, ~RPA_BITMAP_GETVAL(childrecord));
+		}
+	}
+	return 0;
+}
+
+
 static long rpa_bitmap_set(rarray_t *records, long rec, rpointer userdata)
 {
 //	rpa_bitmapcompiler_t *bc = (rpa_bitmapcompiler_t*)userdata;
@@ -246,21 +389,44 @@ static long rpa_bitmap_set(rarray_t *records, long rec, rpointer userdata)
 	case RPA_PRODUCTION_NAMEDRULE:
 		rpa_bitmap_set_namedrule(records, record, rec, userdata);
 		break;
+	case RPA_PRODUCTION_REQOP:
+	case RPA_PRODUCTION_NEGBRANCH:
 	case RPA_PRODUCTION_BRACKETEXP:
 	case RPA_PRODUCTION_ALTBRANCH:
 	case RPA_PRODUCTION_ANONYMOUSRULE:
 		rpa_bitmap_set_expression(records, record, rec, userdata);
 		break;
 	case RPA_PRODUCTION_OROP:
+	case RPA_PRODUCTION_NOROP:
 		rpa_bitmap_set_orop(records, record, rec, userdata);
+		break;
+	case RPA_PRODUCTION_SPECIALCHAR:
+		rpa_bitmap_set_specialchar(records, record, rec, userdata);
+		break;
+	case RPA_PRODUCTION_HEX:
+	case RPA_PRODUCTION_DEC:
+		rpa_bitmap_set_long(records, record, rec, userdata);
+		break;
+	case RPA_PRODUCTION_CLSNUM:
+		rpa_bitmap_set_clsnum(records, record, rec, userdata);
+		break;
+	case RPA_PRODUCTION_NUMRNG:
+		rpa_bitmap_set_numrng(records, record, rec, userdata);
+		break;
+	case RPA_PRODUCTION_AREF:
+	case RPA_PRODUCTION_CREF:
+		rpa_bitmap_set_ref(records, record, rec, userdata);
+		break;
+	case RPA_PRODUCTION_NOTOP:
+		rpa_bitmap_set_notop(records, record, rec, userdata);
+		break;
+	case RPA_PRODUCTION_MINOP:
+		rpa_bitmap_set_minop(records, record, rec, userdata);
 		break;
 
 	default:
 		break;
 	};
-
-	if (record) {
-	}
 
 	return 0;
 }

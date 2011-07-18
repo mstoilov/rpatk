@@ -68,6 +68,7 @@ struct rpadbex_s {
 	unsigned long compiled:1;
 };
 
+int rpa_record2long(rparecord_t *prec, ruint32 *num);
 
 #ifdef __cplusplus
 }

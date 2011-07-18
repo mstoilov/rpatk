@@ -235,17 +235,13 @@ int rpa_stat_matchchr(rpastat_t *stat, rssize_t top, unsigned long wc)
 }
 
 
-int rpa_stat_matchspchr(rpastat_t *stat, rssize_t top, unsigned long wc)
+unsigned long rpa_special_char(unsigned long special)
 {
-	int ret = 0;
-	rpainput_t *in = &stat->instack[top];
+	unsigned long wc;
 
-	if (in->eof)
-		return 0;
-
-	switch (wc) {
+	switch (special) {
 		case '.':
-			return 1;
+			wc = '.';
 			break;
 		case 't':
 			wc = '\t';
@@ -257,9 +253,24 @@ int rpa_stat_matchspchr(rpastat_t *stat, rssize_t top, unsigned long wc)
 			wc = '\n';
 			break;
 		default:
+			wc = special;
 			break;
 	};
 
+	return wc;
+}
+
+
+int rpa_stat_matchspchr(rpastat_t *stat, rssize_t top, unsigned long wc)
+{
+	int ret = 0;
+	rpainput_t *in = &stat->instack[top];
+
+	if (in->eof)
+		return 0;
+	wc = rpa_special_char(wc);
+	if (wc == '.')
+		return 1;
 	ret = (in->wc == wc) ? 1 : 0;
 	return ret;
 }
