@@ -129,7 +129,7 @@ void rpa_grep_output_char(int c)
 	int garbage = 0;
 	unsigned char output[16];
 
-	if ((unsigned char)c < 32 && !(c == '\t' || c == '\n' || c == '\r')) {
+	if ((unsigned int)c < 32 && !(c == '\t' || c == '\n' || c == '\r')) {
 		c = garbage;
 	} else if (c >= 127 && c <= 255) {
 		c = garbage;
