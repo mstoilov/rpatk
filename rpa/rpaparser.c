@@ -56,6 +56,7 @@ void rpa_parser_destroy(rpa_parser_t *pa)
 long rpa_parser_load(rpa_parser_t *pa, const char *prods, rsize_t size, rarray_t *records)
 {
 	long ret = 0;
+	rpainput_t *ptp;
 	rpa_compiler_t *co = pa->co;
 	rpastat_t *stat = pa->stat;
 
@@ -65,7 +66,8 @@ long rpa_parser_load(rpa_parser_t *pa, const char *prods, rsize_t size, rarray_t
 	ret = (long)RVM_CPUREG_GETL(stat->cpu, R0);
 	if (ret < 0)
 		return 0;
-	return ret;
+	ptp = &stat->instack[ret];
+	return (ptp->input - prods);
 }
 
 
