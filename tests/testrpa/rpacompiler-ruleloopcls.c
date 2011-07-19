@@ -18,7 +18,7 @@
  */
 void code_rpa_match_num(rpa_compiler_t *co, rpastat_t *stat)
 {
-	rpa_compiler_rule_begin_s(co, "rpa_match_num");
+	rpa_compiler_rule_begin_s(co, "rpa_match_num", 0);
 
 	rpa_compiler_class_begin(co, RPA_MATCH_MULTIPLE);
 	rvm_codegen_addins(co->cg, rvm_asm2(RPA_MATCHRNG_NAN, DA, XX, XX, '0', '9'));
@@ -32,7 +32,7 @@ void code_rpa_match_num(rpa_compiler_t *co, rpastat_t *stat)
 
 void code_rpa_match_var(rpa_compiler_t *co, rpastat_t *stat)
 {
-	rpa_compiler_rule_begin_s(co, "rpa_match_var");
+	rpa_compiler_rule_begin_s(co, "rpa_match_var", 0);
 
 	rpa_compiler_class_begin(co, RPA_MATCH_NONE);
 	rvm_codegen_addins(co->cg, rvm_asm2(RPA_MATCHRNG_NAN, DA, XX, XX, 'a', 'z'));
@@ -57,8 +57,8 @@ void code_rpa_match_var(rpa_compiler_t *co, rpastat_t *stat)
 
 void code_rpa_match_term(rpa_compiler_t *co, rpastat_t *stat)
 {
-	rpa_compiler_rule_begin_s(co, "rpa_match_term");
-	rpa_compiler_altexp_begin(co, RPA_MATCH_NONE);
+	rpa_compiler_rule_begin_s(co, "rpa_match_term", 0);
+	rpa_compiler_altexp_begin(co, RPA_MATCH_NONE, 0);
 
 	rpa_compiler_branch_begin(co, RPA_MATCH_NONE);
 	rpa_compiler_reference_nan_s(co, "rpa_match_num");
@@ -91,7 +91,7 @@ void code_rpa_match_term(rpa_compiler_t *co, rpastat_t *stat)
 
 void code_rpa_match_mulop(rpa_compiler_t *co, rpastat_t *stat)
 {
-	rpa_compiler_rule_begin_s(co, "rpa_match_mulop");
+	rpa_compiler_rule_begin_s(co, "rpa_match_mulop", 0);
 
 	rpa_compiler_reference_nan_s(co, "rpa_match_mulexp");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
@@ -111,7 +111,7 @@ void code_rpa_match_mulop(rpa_compiler_t *co, rpastat_t *stat)
 
 void code_rpa_match_divop(rpa_compiler_t *co, rpastat_t *stat)
 {
-	rpa_compiler_rule_begin_s(co, "rpa_match_divop");
+	rpa_compiler_rule_begin_s(co, "rpa_match_divop", 0);
 
 	rpa_compiler_reference_nan_s(co, "rpa_match_mulexp");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
@@ -133,7 +133,7 @@ void code_rpa_match_divop(rpa_compiler_t *co, rpastat_t *stat)
 void code_rpa_match_mulexp(rpa_compiler_t *co, rpastat_t *stat)
 {
 	rpa_compiler_loop_begin_s(co, "rpa_match_mulexp");
-	rpa_compiler_altexp_begin(co, RPA_MATCH_NONE);
+	rpa_compiler_altexp_begin(co, RPA_MATCH_NONE, 0);
 
 	rpa_compiler_branch_begin(co, RPA_MATCH_NONE);
 	rpa_compiler_reference_nan_s(co, "rpa_match_mulop");
@@ -159,7 +159,7 @@ void code_rpa_match_mulexp(rpa_compiler_t *co, rpastat_t *stat)
 void code_rpa_match_addexp(rpa_compiler_t *co, rpastat_t *stat)
 {
 	rpa_compiler_loop_begin_s(co, "rpa_match_addexp");
-	rpa_compiler_altexp_begin(co, RPA_MATCH_NONE);
+	rpa_compiler_altexp_begin(co, RPA_MATCH_NONE, 0);
 
 	rpa_compiler_branch_begin(co, RPA_MATCH_NONE);
 	rpa_compiler_reference_nan_s(co, "rpa_match_addexp");
@@ -198,7 +198,7 @@ void code_rpa_match_addexp(rpa_compiler_t *co, rpastat_t *stat)
 void code_rpa_match_orexp(rpa_compiler_t *co, rpastat_t *stat)
 {
 	rpa_compiler_loop_begin_s(co, "rpa_match_orexp");
-	rpa_compiler_altexp_begin(co, RPA_MATCH_NONE);
+	rpa_compiler_altexp_begin(co, RPA_MATCH_NONE, 0);
 
 	rpa_compiler_branch_begin(co, RPA_MATCH_NONE);
 	rpa_compiler_reference_nan_s(co, "rpa_match_orexp");
@@ -224,7 +224,7 @@ void code_rpa_match_orexp(rpa_compiler_t *co, rpastat_t *stat)
 void code_rpa_match_andexp(rpa_compiler_t *co, rpastat_t *stat)
 {
 	rpa_compiler_loop_begin_s(co, "rpa_match_andexp");
-	rpa_compiler_altexp_begin(co, RPA_MATCH_NONE);
+	rpa_compiler_altexp_begin(co, RPA_MATCH_NONE, 0);
 
 	rpa_compiler_branch_begin(co, RPA_MATCH_NONE);
 	rpa_compiler_reference_nan_s(co, "rpa_match_andexp");
@@ -250,7 +250,7 @@ void code_rpa_match_andexp(rpa_compiler_t *co, rpastat_t *stat)
 void code_rpa_match_xorexp(rpa_compiler_t *co, rpastat_t *stat)
 {
 	rpa_compiler_loop_begin_s(co, "rpa_match_xorexp");
-	rpa_compiler_altexp_begin(co, RPA_MATCH_NONE);
+	rpa_compiler_altexp_begin(co, RPA_MATCH_NONE, 0);
 
 	rpa_compiler_branch_begin(co, RPA_MATCH_NONE);
 	rpa_compiler_reference_nan_s(co, "rpa_match_xorexp");

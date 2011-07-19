@@ -68,6 +68,7 @@ typedef long rparule_t;
 
 #define RPA_DBEXCFG_OPTIMIZATIONS 1
 #define RPA_DBEXCFG_DEBUG 2
+#define RPA_DBEXCFG_BITMAP 3
 
 /**
  * @brief Return the version string of the RPA library.
@@ -329,11 +330,14 @@ rsize_t rpa_dbex_strncpy(rpadbex_t *dbex, char *dest, rparule_t rid, rsize_t siz
  *
  * Supported configuration IDs / Values:
  * - RPA_DBEXCFG_OPTIMIZATIONS
- *   - 0 Dissable optimizations
+ *   - 0 Disable optimizations
  *   - 1 Enable optimizations
  * - RPA_DBEXCFG_DEBUG
- *   - 0 Dissable debugging
+ *   - 0 Disable debugging
  *   - 1 Enable debugging
+ * - RPA_DBEXCFG_BITMAP
+ *   - 0 Disable bitmap
+ *   - 1 Enable bitmap
  */
 long rpa_dbex_cfgset(rpadbex_t *dbex, unsigned long cfg, unsigned long val);
 
@@ -348,6 +352,7 @@ long rpa_dbex_cfgset(rpadbex_t *dbex, unsigned long cfg, unsigned long val);
  * Supported configuration IDs
  * - RPA_DBEXCFG_OPTIMIZATIONS
  * - RPA_DBEXCFG_DEBUG
+ * - RPA_DBEXCFG_BITMAP
  */
 long rpa_dbex_cfgget(rpadbex_t *dbex, unsigned long cfg);
 

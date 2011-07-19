@@ -32,17 +32,28 @@ extern "C" {
 
 typedef rword rpabitmap_t;
 
-#define RPA_BITMAP_SIZE (sizeof(rword))
-#define RPA_BITMAP_BITS (RPA_BITMAP_SIZE*8)
-#define RPA_BITMAP_SETBIT(__r__, __b__) do { (__r__)->userdata |= ((rword)1) << (__b__); } while (0)
-#define RPA_BITMAP_GETBIT(__r__, __b__) ((__r__)->userdata & (((rword)1) << (__b__)) ? 1 : 0)
-#define RPA_BITMAP_CLRBIT(__r__, __b__) do { (__r__)->userdata &= ~(((rword)1) << (__b__)); } while (0)
-#define RPA_BITMAP_CLRALL(__r__) do { (__r__)->userdata = (rword)0; } while (0)
-#define RPA_BITMAP_SETALL(__r__) do { (__r__)->userdata = (rword)-1; } while (0)
-#define RPA_BITMAP_ORBITS(__r__, __c__) do { (__r__)->userdata |= (__c__)->userdata; } while (0)
-#define RPA_BITMAP_SETVAL(__r__, __v__) do { (__r__)->userdata = __v__; } while (0)
-#define RPA_BITMAP_GETVAL(__r__) ((__r__)->userdata)
-#define RPA_BMAP_GETBIT(__bitmap__, __bit__) ((__bitmap__) & (((rpabitmap_t)1) << (__bit__)) ? 1 : 0)
+#define RPA_BITMAP_SIZE (sizeof(rpabitmap_t))
+#define RPA_BITMAP_BITS (RPA_BITMAP_SIZE * 8)
+#define RPA_RECORD2BITMAP(__r__) (&(__r__)->userdata)
+#define RPA_BITMAP_SETBIT(__pbmp__, __b__) do { *(__pbmp__) |= ((rpabitmap_t)1) << (__b__); } while (0)
+#define RPA_BITMAP_GETBIT(__pbmp__, __b__) (*(__pbmp__) & (((rpabitmap_t)1) << (__b__)) ? 1 : 0)
+#define RPA_BITMAP_CLRBIT(__pbmp__, __b__) do { *(__pbmp__) &= ~(((rpabitmap_t)1) << (__b__)); } while (0)
+#define RPA_BITMAP_CLRALL(__pbmp__) do { *(__pbmp__) = (rpabitmap_t)0; } while (0)
+#define RPA_BITMAP_SETALL(__pbmp__) do { *(__pbmp__) = (rpabitmap_t)-1; } while (0)
+#define RPA_BITMAP_ORBITS(__pbmp1__, __pbmp2__) do { *(__pbmp1__) |= *(__pbmp2__); } while (0)
+#define RPA_BITMAP_SETVAL(__pbmp__, __v__) do { *(__pbmp__) = __v__; } while (0)
+#define RPA_BITMAP_GETVAL(__pbmp__) *(__pbmp__)
+
+
+//#define RPA_BITMAP_SETBIT(__r__, __b__) do { (__r__)->userdata |= ((rword)1) << (__b__); } while (0)
+//#define RPA_BITMAP_GETBIT(__r__, __b__) ((__r__)->userdata & (((rword)1) << (__b__)) ? 1 : 0)
+//#define RPA_BITMAP_CLRBIT(__r__, __b__) do { (__r__)->userdata &= ~(((rword)1) << (__b__)); } while (0)
+//#define RPA_BITMAP_CLRALL(__r__) do { (__r__)->userdata = (rword)0; } while (0)
+//#define RPA_BITMAP_SETALL(__r__) do { (__r__)->userdata = (rword)-1; } while (0)
+//#define RPA_BITMAP_ORBITS(__r__, __c__) do { (__r__)->userdata |= (__c__)->userdata; } while (0)
+//#define RPA_BITMAP_SETVAL(__r__, __v__) do { (__r__)->userdata = __v__; } while (0)
+//#define RPA_BITMAP_GETVAL(__r__) ((__r__)->userdata)
+//#define RPA_BMAP_GETBIT(__bitmap__, __bit__) ((__bitmap__) & (((rpabitmap_t)1) << (__bit__)) ? 1 : 0)
 
 
 typedef struct rpa_bitmapcompiler_s {

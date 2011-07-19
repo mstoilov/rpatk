@@ -63,7 +63,8 @@ int usage(int argc, const char *argv[])
 		fprintf(stderr, "\t    --dump-records       Display rules parsing records.\n");
 		fprintf(stderr, "\t    --no-optimizations   Disable optimizations.\n");
 		fprintf(stderr, "\t    --exec-debug         Execute in debug mode.\n");
-		fprintf(stderr, "\t    --dissable-cache     Dissable execution cache.\n");
+		fprintf(stderr, "\t    --no-cache           Disable execution cache.\n");
+		fprintf(stderr, "\t    --no-bitmap          Disable expression bitmap use.\n");
 		
 		return 0;
 }
@@ -104,6 +105,12 @@ int main(int argc, const char *argv[])
 	}
 
 	for (i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "--no-bitmap") == 0) {
+			rpa_dbex_cfgset(pGrep->hDbex, RPA_DBEXCFG_BITMAP, 0);
+		}
+	}
+
+	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "--no-optimizations") == 0) {
 			rpa_grep_optimizations(pGrep, 0);
 		}
@@ -140,6 +147,18 @@ int main(int argc, const char *argv[])
 	}
 
 	for (i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "--exec-debug") == 0) {
+			pGrep->execdebug = 1;
+		}
+	}
+
+	for (i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "--no-cache") == 0) {
+			pGrep->disablecache = 1;
+		}
+	}
+
+	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "--dump-code") == 0) {
 			if (rpa_dbex_compile(pGrep->hDbex) == 0) {
 				if (++i < argc) {
@@ -165,7 +184,6 @@ int main(int argc, const char *argv[])
 		}
 	}
 
-
 	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "--dump-alias") == 0) {
 			rpa_grep_dump_alias_info(pGrep);
@@ -179,19 +197,6 @@ int main(int argc, const char *argv[])
 			goto end;
 		}
 	}
-
-	for (i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "--exec-debug") == 0) {
-			pGrep->execdebug = 1;
-		}
-	}
-
-	for (i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "--dissable-cache") == 0) {
-			pGrep->disablecache = 1;
-		}
-	}
-
 
 	if (rpa_dbex_compile(pGrep->hDbex) < 0) {
 		rpa_errinfo_t errinfo;

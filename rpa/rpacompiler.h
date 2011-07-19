@@ -24,6 +24,7 @@
 #include "rvm/rvmcodegen.h"
 #include "rvm/rvmscope.h"
 #include "rpa/rpavm.h"
+#include "rpa/rpabitmap.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -60,6 +61,7 @@ typedef struct rpa_ruledef_s {
 	long againidx;
 	unsigned int ruleuid;
 	unsigned int flags;
+	rpabitmap_t bitmap;
 	rpa_rulepref_t *rulepref;
 } rpa_ruledef_t;
 
@@ -83,8 +85,8 @@ int rpa_compiler_loop_begin(rpa_compiler_t *co, const char *name, unsigned int n
 int rpa_compiler_loop_begin_s(rpa_compiler_t *co, const char *name);
 int rpa_compiler_loop_end(rpa_compiler_t *co);
 
-int rpa_compiler_rule_begin(rpa_compiler_t *co, const char *name, unsigned int namesize);
-int rpa_compiler_rule_begin_s(rpa_compiler_t *co, const char *name);
+int rpa_compiler_rule_begin(rpa_compiler_t *co, const char *name, unsigned int namesize, rpabitmap_t bitmap);
+int rpa_compiler_rule_begin_s(rpa_compiler_t *co, const char *name, rpabitmap_t bitmap);
 int rpa_compiler_rule_end(rpa_compiler_t *co);
 
 int rpa_compiler_inlinerule_begin(rpa_compiler_t *co, const char *name, unsigned int namesize, unsigned int flags);
@@ -94,7 +96,7 @@ int rpa_compiler_inlinerule_end(rpa_compiler_t *co);
 int rpa_compiler_exp_begin(rpa_compiler_t *co, unsigned int flags);
 int rpa_compiler_exp_end(rpa_compiler_t *co);
 
-int rpa_compiler_altexp_begin(rpa_compiler_t *co, unsigned int flags);
+int rpa_compiler_altexp_begin(rpa_compiler_t *co, unsigned int flags, rpabitmap_t bitmap);
 int rpa_compiler_altexp_end(rpa_compiler_t *co);
 
 int rpa_compiler_branch_begin(rpa_compiler_t *co, unsigned int flags);

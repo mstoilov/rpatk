@@ -57,8 +57,9 @@ int usage(int argc, const wchar_t *argv[])
 		fwprintf(stderr, L"\t    --dump-records       Display rules parsing records.\n");
 		fwprintf(stderr, L"\t    --no-optimizations   Disable optimizations.\n");
 		fwprintf(stderr, L"\t    --exec-debug         Execute in debug mode.\n");
-		fwprintf(stderr, L"\t    --dissable-cache     Dissable execution cache.\n");
-	
+		fwprintf(stderr, L"\t    --no-cache           Disable execution cache.\n");
+		fwprintf(stderr, L"\t    --no-bitmap          Disable expression bitmap use.\n");
+
 		return 0;
 }
 
@@ -91,6 +92,19 @@ int wmain(int argc, const wchar_t* argv[])
 			goto end;
 		}
 	}
+
+	for (i = 1; i < argc; i++) {
+		if (wcscmp(argv[i], L"--no-bitmap") == 0) {
+			rpa_dbex_cfgset(pGrep->hDbex, RPA_DBEXCFG_BITMAP, 0);
+		}
+	}
+
+	for (i = 1; i < argc; i++) {
+		if (wstrcmp(argv[i], L"--no-optimizations") == 0) {
+			rpa_grep_optimizations(pGrep, 0);
+		}
+	}
+
 	for (i = 1; i < argc; i++) {
 		if (wcscmp(argv[i], L"-c") == 0) {
 			if (++i < argc) {
@@ -164,7 +178,6 @@ int wmain(int argc, const wchar_t* argv[])
 		}
 	}
 
-
 	for (i = 1; i < argc; i++) {
 		if (wcscmp(argv[i], L"--dump-alias") == 0) {
 			rpa_grep_dump_alias_info(pGrep);
@@ -186,7 +199,7 @@ int wmain(int argc, const wchar_t* argv[])
 	}
 
 	for (i = 1; i < argc; i++) {
-		if (wcscmp(argv[i], L"--dissable-cache") == 0) {
+		if (wcscmp(argv[i], L"--no-cache") == 0) {
 			pGrep->disablecache = 1;
 		}
 	}

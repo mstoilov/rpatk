@@ -414,9 +414,11 @@ static int rpa_dbex_rh_namedrule(rpadbex_t *dbex, long rec)
 		if ((prec->usertype & RPA_LOOP_PATH)) {
 			rpa_compiler_loop_begin(dbex->co, name, namesize);
 		} else {
+#if 0
 			rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_MATCHBITMAP, DA, XX, XX, prec->userdata));
 			rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_BXLES, LR, XX, XX, 0));
-			rpa_compiler_rule_begin(dbex->co, name, namesize);
+#endif
+			rpa_compiler_rule_begin(dbex->co, name, namesize, RPA_BITMAP_GETVAL(RPA_RECORD2BITMAP(prec)));
 		}
 	}
 	r_array_add(dbex->inlinestack, &rec);
@@ -634,7 +636,7 @@ static int rpa_dbex_rh_orop(rpadbex_t *dbex, long rec)
 	prec = rpa_dbex_record(dbex, rec);
 	R_ASSERT(prec);
 	rpa_dbex_debug_recordhead(dbex, rec);
-	rpa_compiler_altexp_begin(dbex->co, prec->usertype & RPA_MATCH_MASK);
+	rpa_compiler_altexp_begin(dbex->co, prec->usertype & RPA_MATCH_MASK, RPA_BITMAP_GETVAL(RPA_RECORD2BITMAP(prec)));
 	rpa_dbex_debug_recordtail(dbex, rec);
 	if (rpa_dbex_playchildrecords(dbex, rec) < 0)
 		return -1;
@@ -658,7 +660,7 @@ static int rpa_dbex_rh_norop(rpadbex_t *dbex, long rec)
 	prec = rpa_dbex_record(dbex, rec);
 	R_ASSERT(prec);
 	rpa_dbex_debug_recordhead(dbex, rec);
-	rpa_compiler_altexp_begin(dbex->co, prec->usertype & RPA_MATCH_MASK);
+	rpa_compiler_altexp_begin(dbex->co, prec->usertype & RPA_MATCH_MASK, 0);
 	rpa_dbex_debug_recordtail(dbex, rec);
 	if (rpa_dbex_playchildrecords(dbex, rec) < 0)
 		return -1;
@@ -968,6 +970,7 @@ rpadbex_t *rpa_dbex_create(void)
 	dbex->inlinestack = r_array_create(sizeof(unsigned long));
 	dbex->handlers = r_zmalloc(sizeof(rpa_dbex_recordhandler) * RPA_PRODUCTION_COUNT);
 	rpa_dbex_cfgset(dbex, RPA_DBEXCFG_OPTIMIZATIONS, 1);
+	rpa_dbex_cfgset(dbex, RPA_DBEXCFG_BITMAP, 1);
 
 	dbex->handlers[RPA_PRODUCTION_NONE] = rpa_dbex_rh_default;
 	dbex->handlers[RPA_PRODUCTION_NAMEDRULE] = rpa_dbex_rh_namedrule;
@@ -1326,7 +1329,8 @@ void rpa_dbex_close(rpadbex_t *dbex)
 		return;
 	rpa_dbex_buildruleinfo(dbex);
 	rpa_dbex_buildloopinfo(dbex);
-	rpa_dbex_buildbitmapinfo(dbex);
+	if (dbex->bitmap)
+		rpa_dbex_buildbitmapinfo(dbex);
 }
 
 
@@ -1386,6 +1390,7 @@ void rpa_dbex_dumpindented(rpadbex_t *dbex, long rec, int level, const char *rul
 	if (!prec)
 		return;
 	r_memset(buffer, 0, sizeof(buffer));
+	r_printf("[ 0x%016lx ] ", prec->userdata);
 	for (i = 0; i < level + 1; i++)
 		r_printf("   ");
 	r_printf("(");
@@ -1904,6 +1909,9 @@ long rpa_dbex_cfgset(rpadbex_t *dbex, unsigned long cfg, unsigned long val)
 	} else if(cfg == RPA_DBEXCFG_DEBUG) {
 		dbex->debug = val;
 		return 0;
+	} else if(cfg == RPA_DBEXCFG_BITMAP) {
+		dbex->bitmap = val;
+		return 0;
 	}
 	return -1;
 }
@@ -1917,6 +1925,8 @@ long rpa_dbex_cfgget(rpadbex_t *dbex, unsigned long cfg)
 		return dbex->optimizations;
 	} else if(cfg == RPA_DBEXCFG_DEBUG) {
 		return dbex->debug;
+	} else if(cfg == RPA_DBEXCFG_BITMAP) {
+		return dbex->bitmap;
 	}
 	return -1;
 }

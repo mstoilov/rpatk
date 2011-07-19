@@ -15,7 +15,7 @@
 
 void code_rpa_matchabc(rpa_compiler_t *co, rpastat_t *stat)
 {
-	rpa_compiler_rule_begin_s(co, "rpa_matchabc");
+	rpa_compiler_rule_begin_s(co, "rpa_matchabc", 0);
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, 'a'));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, 'b'));
@@ -28,7 +28,7 @@ void code_rpa_matchabc(rpa_compiler_t *co, rpastat_t *stat)
 
 void code_rpa_matchxyz(rpa_compiler_t *co, rpastat_t *stat)
 {
-	rpa_compiler_rule_begin_s(co, "rpa_matchxyz");
+	rpa_compiler_rule_begin_s(co, "rpa_matchxyz", 0);
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, 'x'));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, 'y'));

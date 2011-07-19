@@ -227,9 +227,9 @@ rboolean rpa_stat_matchbitmap(rpastat_t *stat, rssize_t top, rpabitmap_t bitmap)
 	if (in->eof)
 		return 0;
 	if (stat->encoding & RPA_ENCODING_ICASE) {
-		ret = (RPA_BMAP_GETBIT(bitmap, in->wc % RPA_BITMAP_BITS) || RPA_BMAP_GETBIT(bitmap, in->iwc % RPA_BITMAP_BITS)) ? TRUE : FALSE;
+		ret = (RPA_BITMAP_GETBIT(&bitmap, in->wc % RPA_BITMAP_BITS) || RPA_BITMAP_GETBIT(&bitmap, in->iwc % RPA_BITMAP_BITS)) ? TRUE : FALSE;
 	} else {
-		ret = (RPA_BMAP_GETBIT(bitmap, in->wc % RPA_BITMAP_BITS)) ? TRUE : FALSE;
+		ret = (RPA_BITMAP_GETBIT(&bitmap, in->wc % RPA_BITMAP_BITS)) ? TRUE : FALSE;
 	}
 	return ret;
 }

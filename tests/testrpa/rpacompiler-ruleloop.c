@@ -16,7 +16,7 @@
 void code_rpa_match_aloop(rpa_compiler_t *co, rpastat_t *stat)
 {
 	rpa_compiler_loop_begin_s(co, "rpa_match_aloop");
-	rpa_compiler_altexp_begin(co, RPA_MATCH_NONE);
+	rpa_compiler_altexp_begin(co, RPA_MATCH_NONE, 0);
 
 	rpa_compiler_branch_begin(co, RPA_MATCH_NONE);
 	rpa_compiler_reference_nan_s(co, "rpa_match_aloop");
@@ -48,7 +48,7 @@ void code_rpa_match_aloop(rpa_compiler_t *co, rpastat_t *stat)
 void code_rpa_match_xloop(rpa_compiler_t *co, rpastat_t *stat)
 {
 	rpa_compiler_loop_begin_s(co, "rpa_match_xloop");
-	rpa_compiler_altexp_begin(co, RPA_MATCH_NONE);
+	rpa_compiler_altexp_begin(co, RPA_MATCH_NONE, 0);
 
 	rpa_compiler_branch_begin(co, RPA_MATCH_NONE);
 	rpa_compiler_reference_nan_s(co, "rpa_match_xloop");

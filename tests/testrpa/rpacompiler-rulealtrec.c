@@ -14,7 +14,7 @@
 
 void code_rpa_match_num(rpa_compiler_t *co, rpastat_t *stat)
 {
-	rpa_compiler_rule_begin_s(co, "rpa_match_num");
+	rpa_compiler_rule_begin_s(co, "rpa_match_num", 0);
 
 	rpa_compiler_class_begin(co, RPA_MATCH_MULTIPLE);
 	rvm_codegen_addins(co->cg, rvm_asm2(RPA_MATCHRNG_NAN, DA, XX, XX, '0', '9'));
@@ -29,7 +29,7 @@ void code_rpa_match_num(rpa_compiler_t *co, rpastat_t *stat)
 void code_rpa_match_loopnum(rpa_compiler_t *co, rpastat_t *stat)
 {
 	rpa_compiler_loop_begin_s(co, "rpa_match_loopnum");
-	rpa_compiler_altexp_begin(co, RPA_MATCH_NONE);
+	rpa_compiler_altexp_begin(co, RPA_MATCH_NONE, 0);
 
 	rpa_compiler_branch_begin(co, RPA_MATCH_NONE);
 	rpa_compiler_reference_nan_s(co, "rpa_match_loopnum");
@@ -60,9 +60,9 @@ void code_rpa_match_loopnum(rpa_compiler_t *co, rpastat_t *stat)
 
 void code_rpa_match_mathop(rpa_compiler_t *co, rpastat_t *stat)
 {
-	rpa_compiler_rule_begin_s(co, "rpa_match_mathop");
+	rpa_compiler_rule_begin_s(co, "rpa_match_mathop", 0);
 
-	rpa_compiler_altexp_begin(co, RPA_MATCH_NONE);
+	rpa_compiler_altexp_begin(co, RPA_MATCH_NONE, 0);
 
 	rpa_compiler_branch_begin(co, RPA_MATCH_NONE);
 	rpa_compiler_reference_nan_s(co, "rpa_match_num");

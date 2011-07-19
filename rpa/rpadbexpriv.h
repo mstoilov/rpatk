@@ -66,6 +66,7 @@ struct rpadbex_s {
 	unsigned long optimizations:1;
 	unsigned long debug:1;
 	unsigned long compiled:1;
+	unsigned long bitmap:1;
 };
 
 int rpa_record2long(rparecord_t *prec, ruint32 *num);

@@ -48,6 +48,21 @@ static void rpavm_swi_matchbitmap(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static void rpavm_swi_verifybitmap(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
+	rpabitmap_t bitmap = RVM_CPUREG_GETU(cpu, ins->op1);
+	long r0 = RVM_CPUREG_GETU(cpu, R0);
+
+	if (bitmap && r0 > 0) {
+		if (!rpa_stat_matchbitmap(stat, RVM_CPUREG_GETL(cpu, R_TOP) - r0, bitmap)) {
+			if ((cpu->status & RVM_STATUS_N) == 0)
+				rvm_cpu_abort(cpu);
+		}
+	}
+}
+
+
 static void rpavm_swi_matchchr_nan(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
@@ -441,6 +456,7 @@ static rvm_switable_t rpavm_swi_table[] = {
 		{"RPA_ABORT", rpavm_swi_abort},
 		{"RPA_PRNINFO", rpavm_swi_prninfo},
 		{"RPA_MATCHBITMAP", rpavm_swi_matchbitmap},
+		{"RPA_VERIFYBITMAP", rpavm_swi_verifybitmap},
 		{NULL, NULL},
 };
 

@@ -421,7 +421,7 @@ int rpa_compiler_loop_end(rpa_compiler_t *co)
 }
 
 
-int rpa_compiler_rule_begin(rpa_compiler_t *co, const char *name, unsigned int namesize)
+int rpa_compiler_rule_begin(rpa_compiler_t *co, const char *name, unsigned int namesize, rpabitmap_t bitmap)
 {
 	rpa_ruledef_t exp;
 	long ruleuid = 0;
@@ -439,7 +439,11 @@ int rpa_compiler_rule_begin(rpa_compiler_t *co, const char *name, unsigned int n
 	exp.startidx = rvm_codegen_addlabel_default(co->cg, name, namesize);
 	exp.endidx = rpa_codegen_invalid_add_numlabel_s(co->cg, "__end", exp.start);
 	exp.dataidx = rpa_compiler_addblob(co, ruleid, ruleuid, flags, name, namesize);
-
+	exp.bitmap = bitmap;
+	if (exp.bitmap) {
+		rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHBITMAP, DA, XX, XX, exp.bitmap));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_BXLES, LR, XX, XX, 0));
+	}
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_CHECKCACHE, DA, R_TOP, XX, exp.start));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BXNEQ, LR, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R_REC, XX, XX, 0));
@@ -454,9 +458,9 @@ int rpa_compiler_rule_begin(rpa_compiler_t *co, const char *name, unsigned int n
 }
 
 
-int rpa_compiler_rule_begin_s(rpa_compiler_t *co, const char *name)
+int rpa_compiler_rule_begin_s(rpa_compiler_t *co, const char *name, rpabitmap_t bitmap)
 {
-	return rpa_compiler_rule_begin(co, name, r_strlen(name));
+	return rpa_compiler_rule_begin(co, name, r_strlen(name), bitmap);
 }
 
 
@@ -605,8 +609,9 @@ int rpa_compiler_exp_end(rpa_compiler_t *co)
 }
 
 
-int rpa_compiler_altexp_begin(rpa_compiler_t *co, unsigned int flags)
+int rpa_compiler_altexp_begin(rpa_compiler_t *co, unsigned int flags, rpabitmap_t bitmap)
 {
+
 	rpa_ruledef_t exp;
 
 	exp.flags = flags;
@@ -614,6 +619,11 @@ int rpa_compiler_altexp_begin(rpa_compiler_t *co, unsigned int flags)
 	exp.start = rvm_codegen_getcodesize(co->cg);
 	exp.startidx = rpa_codegen_add_numlabel_s(co->cg, "__begin", exp.start);
 	exp.endidx = rpa_codegen_invalid_add_numlabel_s(co->cg, "__end", exp.start);
+	exp.bitmap = bitmap;
+	if (exp.bitmap) {
+		rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHBITMAP, DA, XX, XX, exp.bitmap));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_BXLES, LR, XX, XX, 0));
+	}
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R_TOP, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, LR, XX, XX, 0));
 
@@ -633,12 +643,12 @@ int rpa_compiler_altexp_end(rpa_compiler_t *co)
 	rvm_codegen_redefinelabel_default(co->cg, exp.endidx);
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, LR, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0));
-
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_SUBS, R0, R_TOP, R1, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 
 	rvm_codegen_replaceins(co->cg, exp.branch, rvm_asm(RVM_B, DA, XX, XX, rvm_codegen_getcodesize(co->cg) - exp.branch));
 	rpa_compiler_index_reference(co, exp.startidx, (exp.flags & RPA_MATCH_MASK));
+//	rvm_codegen_addins(co->cg, rvm_asm(RPA_VERIFYBITMAP, DA, XX, XX, exp.bitmap));
 	return 0;
 }
 
