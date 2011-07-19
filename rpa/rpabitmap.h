@@ -30,6 +30,7 @@ extern "C" {
 #include "rpa/rpadbex.h"
 #include "rpa/rparecord.h"
 
+typedef rword rpabitmap_t;
 
 #define RPA_BITMAP_SIZE (sizeof(rword))
 #define RPA_BITMAP_BITS (RPA_BITMAP_SIZE*8)
@@ -41,6 +42,7 @@ extern "C" {
 #define RPA_BITMAP_ORBITS(__r__, __c__) do { (__r__)->userdata |= (__c__)->userdata; } while (0)
 #define RPA_BITMAP_SETVAL(__r__, __v__) do { (__r__)->userdata = __v__; } while (0)
 #define RPA_BITMAP_GETVAL(__r__) ((__r__)->userdata)
+#define RPA_BMAP_GETBIT(__bitmap__, __bit__) ((__bitmap__) & (((rpabitmap_t)1) << (__bit__)) ? 1 : 0)
 
 
 typedef struct rpa_bitmapcompiler_s {

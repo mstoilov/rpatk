@@ -414,6 +414,8 @@ static int rpa_dbex_rh_namedrule(rpadbex_t *dbex, long rec)
 		if ((prec->usertype & RPA_LOOP_PATH)) {
 			rpa_compiler_loop_begin(dbex->co, name, namesize);
 		} else {
+			rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_MATCHBITMAP, DA, XX, XX, prec->userdata));
+			rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_BXLES, LR, XX, XX, 0));
 			rpa_compiler_rule_begin(dbex->co, name, namesize);
 		}
 	}

@@ -28,6 +28,7 @@
 #include "rpa/rpadbex.h"
 #include "rpa/rpacache.h"
 #include "rpa/rpastat.h"
+#include "rpa/rpabitmap.h"
 
 
 #ifdef __cplusplus
@@ -62,6 +63,7 @@ struct rpastat_s {
 int rpa_stat_init(rpastat_t *stat, unsigned int encoding, const char *input, const char *start, const char *end, rarray_t *records);
 void rpa_stat_cachedisable(rpastat_t *stat, unsigned int disable);
 void rpa_stat_cacheinvalidate(rpastat_t *stat);
+rboolean rpa_stat_matchbitmap(rpastat_t *stat, rssize_t top, rpabitmap_t bitmap);
 int rpa_stat_matchchr(rpastat_t *stat, rssize_t top, unsigned long wc);
 int rpa_stat_matchspchr(rpastat_t *stat, rssize_t top, unsigned long wc);
 int rpa_stat_matchrng(rpastat_t *stat, rssize_t top, unsigned long wc1, unsigned long wc2);
