@@ -316,7 +316,7 @@ again:
 		rpa_grep_output(pGrep, matched, ret, pGrep->encoding);
 		rpa_grep_output_utf8_string(pGrep, "\n");
 	}
-	if (ret && matched + ret < end) {
+	if (ret > 0 && matched + ret < end) {
 		input = matched + ret;
 		goto again;
 	}

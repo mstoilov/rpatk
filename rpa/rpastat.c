@@ -181,8 +181,11 @@ long rpa_stat_scan(rpastat_t *stat, rparule_t rid, unsigned int encoding, const 
 
 	while (input < end) {
 		ret = rpa_stat_exec_rid(stat, rid, encoding, input, start, end, NULL);
-		if (ret < 0)
-			return -1;
+		if (ret < 0) {
+			if (rpa_stat_lasterror(stat) != RPA_E_RULEABORT) {
+				return -1;
+			}
+		}
 		if (ret > 0) {
 			*where = input;
 			return ret;
