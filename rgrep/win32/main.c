@@ -100,7 +100,7 @@ int wmain(int argc, const wchar_t* argv[])
 	}
 
 	for (i = 1; i < argc; i++) {
-		if (wstrcmp(argv[i], L"--no-optimizations") == 0) {
+		if (wcscmp(argv[i], L"--no-optimizations") == 0) {
 			rpa_grep_optimizations(pGrep, 0);
 		}
 	}
