@@ -218,27 +218,6 @@ long rpa_stat_scan(rpastat_t *stat, rparule_t rid, unsigned int encoding, const 
 }
 
 
-//long rpa_stat_scan(rpastat_t *stat, rparule_t rid, unsigned int encoding, const char *input, const char *start, const char *end, const char **where)
-//{
-//	long ret;
-//
-//	while (input < end) {
-//		ret = rpa_stat_exec_rid(stat, rid, encoding, input, start, end, NULL);
-//		if (ret < 0) {
-//			if (rpa_stat_lasterror(stat) != RPA_E_RULEABORT) {
-//				return -1;
-//			}
-//		}
-//		if (ret > 0) {
-//			*where = input;
-//			return ret;
-//		}
-//		input += 1;
-//	}
-//	return ret;
-//}
-
-
 long rpa_stat_match(rpastat_t *stat, rparule_t rid, unsigned int encoding, const char *input, const char *start, const char *end)
 {
 	return rpa_stat_exec_rid(stat, rid, encoding, input, start, end, NULL);
