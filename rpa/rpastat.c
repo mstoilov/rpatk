@@ -178,22 +178,65 @@ static long rpa_stat_exec_rid(rpastat_t *stat, rparule_t rid, unsigned int encod
 long rpa_stat_scan(rpastat_t *stat, rparule_t rid, unsigned int encoding, const char *input, const char *start, const char *end, const char **where)
 {
 	long ret;
+	long topsiz = 0;
+	rpainput_t *ptp;
+	long offset;
+	rvm_asmins_t *exec;
+
+	exec = rpa_dbex_executable(stat->dbex);
+	if (!exec) {
+		RPA_STAT_SETERROR_CODE(stat, RPA_E_EXECUTION);
+		return -1;
+	}
+	offset = rpa_dbex_executableoffset(stat->dbex, rid);
+	if (offset < 0) {
+		RPA_STAT_SETERROR_CODE(stat, RPA_E_EXECUTION);
+		return -1;
+	}
 
 	while (input < end) {
-		ret = rpa_stat_exec_rid(stat, rid, encoding, input, start, end, NULL);
-		if (ret < 0) {
+		topsiz = rpa_stat_exec(stat, exec, offset, encoding, input, start, end, NULL);
+		if (topsiz < 0) {
 			if (rpa_stat_lasterror(stat) != RPA_E_RULEABORT) {
 				return -1;
 			}
 		}
-		if (ret > 0) {
+		if (topsiz > 0) {
+			ptp = &stat->instack[topsiz];
+			ret = (ptp->input - input);
 			*where = input;
 			return ret;
 		}
-		input += 1;
+		if (topsiz == 0) {
+			ptp = &stat->instack[0];
+			input += stat->ip.input - ptp->input;
+		} else {
+			input += 1;
+		}
 	}
-	return ret;
+	return 0;
 }
+
+
+//long rpa_stat_scan(rpastat_t *stat, rparule_t rid, unsigned int encoding, const char *input, const char *start, const char *end, const char **where)
+//{
+//	long ret;
+//
+//	while (input < end) {
+//		ret = rpa_stat_exec_rid(stat, rid, encoding, input, start, end, NULL);
+//		if (ret < 0) {
+//			if (rpa_stat_lasterror(stat) != RPA_E_RULEABORT) {
+//				return -1;
+//			}
+//		}
+//		if (ret > 0) {
+//			*where = input;
+//			return ret;
+//		}
+//		input += 1;
+//	}
+//	return ret;
+//}
 
 
 long rpa_stat_match(rpastat_t *stat, rparule_t rid, unsigned int encoding, const char *input, const char *start, const char *end)

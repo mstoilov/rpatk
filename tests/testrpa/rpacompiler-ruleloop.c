@@ -18,7 +18,7 @@ void code_rpa_match_aloop(rpa_compiler_t *co, rpastat_t *stat)
 	rpa_compiler_loop_begin_s(co, "rpa_match_aloop");
 	rpa_compiler_altexp_begin(co, RPA_MATCH_NONE, 0);
 
-	rpa_compiler_branch_begin(co, RPA_MATCH_NONE);
+	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
 	rpa_compiler_reference_nan_s(co, "rpa_match_aloop");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
@@ -50,7 +50,7 @@ void code_rpa_match_xloop(rpa_compiler_t *co, rpastat_t *stat)
 	rpa_compiler_loop_begin_s(co, "rpa_match_xloop");
 	rpa_compiler_altexp_begin(co, RPA_MATCH_NONE, 0);
 
-	rpa_compiler_branch_begin(co, RPA_MATCH_NONE);
+	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
 	rpa_compiler_reference_nan_s(co, "rpa_match_xloop");
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 
@@ -82,7 +82,7 @@ void code_rpa_matchmnode(rpa_compiler_t *co, rpastat_t *stat)
 {
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R_TOP, DA, XX, 0));
 
-	rpa_compiler_exp_begin(co, RPA_MATCH_NONE);
+	rpa_compiler_exp_begin(co, RPA_MATCH_NONE, 0);
 
 	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, 'X'));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));

@@ -571,7 +571,7 @@ int rpa_compiler_inlinerule_end(rpa_compiler_t *co)
 }
 
 
-int rpa_compiler_exp_begin(rpa_compiler_t *co, unsigned int flags)
+int rpa_compiler_exp_begin(rpa_compiler_t *co, unsigned int flags, rpabitmap_t bitmap)
 {
 	rpa_ruledef_t exp;
 
@@ -580,6 +580,11 @@ int rpa_compiler_exp_begin(rpa_compiler_t *co, unsigned int flags)
 	exp.start = rvm_codegen_getcodesize(co->cg);
 	exp.startidx = rpa_codegen_add_numlabel_s(co->cg, "__begin", exp.start);
 	exp.endidx = rpa_codegen_invalid_add_numlabel_s(co->cg, "__end", exp.start);
+	exp.bitmap = bitmap;
+	if (exp.bitmap) {
+		rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHBITMAP, DA, XX, XX, exp.bitmap));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_BXLES, LR, XX, XX, 0));
+	}
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R_REC, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R_TOP, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, LR, XX, XX, 0));
@@ -653,7 +658,7 @@ int rpa_compiler_altexp_end(rpa_compiler_t *co)
 }
 
 
-int rpa_compiler_branch_begin(rpa_compiler_t *co, unsigned int flags)
+int rpa_compiler_branch_begin(rpa_compiler_t *co, unsigned int flags, rpabitmap_t bitmap)
 {
 	rpa_ruledef_t exp;
 
@@ -662,6 +667,11 @@ int rpa_compiler_branch_begin(rpa_compiler_t *co, unsigned int flags)
 	exp.start = rvm_codegen_getcodesize(co->cg);
 	exp.startidx = rpa_codegen_add_numlabel_s(co->cg, "__begin", exp.start);
 	exp.endidx = rpa_codegen_invalid_add_numlabel_s(co->cg, "__end", exp.start);
+	exp.bitmap = bitmap;
+	if (exp.bitmap) {
+		rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHBITMAP, DA, XX, XX, exp.bitmap));
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_BXLES, LR, XX, XX, 0));
+	}
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R_REC, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R_TOP, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, LR, XX, XX, 0));

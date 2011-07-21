@@ -93,13 +93,13 @@ int rpa_compiler_inlinerule_begin(rpa_compiler_t *co, const char *name, unsigned
 int rpa_compiler_inlinerule_begin_s(rpa_compiler_t *co, const char *name, unsigned int flags);
 int rpa_compiler_inlinerule_end(rpa_compiler_t *co);
 
-int rpa_compiler_exp_begin(rpa_compiler_t *co, unsigned int flags);
+int rpa_compiler_exp_begin(rpa_compiler_t *co, unsigned int flags, rpabitmap_t bitmap);
 int rpa_compiler_exp_end(rpa_compiler_t *co);
 
 int rpa_compiler_altexp_begin(rpa_compiler_t *co, unsigned int flags, rpabitmap_t bitmap);
 int rpa_compiler_altexp_end(rpa_compiler_t *co);
 
-int rpa_compiler_branch_begin(rpa_compiler_t *co, unsigned int flags);
+int rpa_compiler_branch_begin(rpa_compiler_t *co, unsigned int flags, rpabitmap_t bitmap);
 int rpa_compiler_branch_end(rpa_compiler_t *co);
 
 int rpa_compiler_nonloopybranch_begin(rpa_compiler_t *co, unsigned int flags);

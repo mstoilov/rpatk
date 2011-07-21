@@ -407,6 +407,9 @@ static int rpa_dbex_rh_namedrule(rpadbex_t *dbex, long rec)
 		rpa_compiler_inlinerule_begin(dbex->co, name, namesize, 0);
 	} else {
 		rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_SHIFT, XX, XX, XX, 0));
+		if (RPA_BITMAP_GETVAL(RPA_RECORD2BITMAP(prec))) {
+			rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_EXITONBITMAP, DA, XX, XX, RPA_BITMAP_GETVAL(RPA_RECORD2BITMAP(prec))));
+		}
 		rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_BL, DA, XX, XX, 3));
 		rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_EMITTAIL, XX, XX, XX, 0));
 		rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
@@ -414,10 +417,6 @@ static int rpa_dbex_rh_namedrule(rpadbex_t *dbex, long rec)
 		if ((prec->usertype & RPA_LOOP_PATH)) {
 			rpa_compiler_loop_begin(dbex->co, name, namesize);
 		} else {
-#if 0
-			rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_MATCHBITMAP, DA, XX, XX, prec->userdata));
-			rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_BXLES, LR, XX, XX, 0));
-#endif
 			rpa_compiler_rule_begin(dbex->co, name, namesize, RPA_BITMAP_GETVAL(RPA_RECORD2BITMAP(prec)));
 		}
 	}
@@ -454,7 +453,10 @@ static int rpa_dbex_rh_anonymousrule(rpadbex_t *dbex, long rec)
 	R_ASSERT(prec);
 	rpa_dbex_debug_recordhead(dbex, rec);
 	rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_SHIFT, XX, XX, XX, 0));
-	rpa_compiler_exp_begin(dbex->co, RPA_MATCH_NONE);
+	if (RPA_BITMAP_GETVAL(RPA_RECORD2BITMAP(prec))) {
+		rvm_codegen_addins(dbex->co->cg, rvm_asm(RPA_EXITONBITMAP, DA, XX, XX, RPA_BITMAP_GETVAL(RPA_RECORD2BITMAP(prec))));
+	}
+	rpa_compiler_exp_begin(dbex->co, RPA_MATCH_NONE, RPA_BITMAP_GETVAL(RPA_RECORD2BITMAP(prec)));
 	rpa_dbex_debug_recordtail(dbex, rec);
 	if (rpa_dbex_playchildrecords(dbex, rec) < 0)
 		return -1;
@@ -588,7 +590,7 @@ static int rpa_dbex_rh_minexp(rpadbex_t *dbex, long rec)
 	prec = rpa_dbex_record(dbex, rec);
 	R_ASSERT(prec);
 	rpa_dbex_debug_recordhead(dbex, rec);
-	rpa_compiler_exp_begin(dbex->co, prec->usertype & RPA_MATCH_MASK);
+	rpa_compiler_exp_begin(dbex->co, prec->usertype & RPA_MATCH_MASK, RPA_BITMAP_GETVAL(RPA_RECORD2BITMAP(prec)));
 	rpa_dbex_debug_recordtail(dbex, rec);
 	if (rpa_dbex_playreversechildrecords(dbex, rec) < 0)
 		return -1;
@@ -612,7 +614,7 @@ static int rpa_dbex_rh_exp(rpadbex_t *dbex, long rec)
 	prec = rpa_dbex_record(dbex, rec);
 	R_ASSERT(prec);
 	rpa_dbex_debug_recordhead(dbex, rec);
-	rpa_compiler_exp_begin(dbex->co, prec->usertype & RPA_MATCH_MASK);
+	rpa_compiler_exp_begin(dbex->co, (prec->usertype & RPA_MATCH_MASK), 0);
 	rpa_dbex_debug_recordtail(dbex, rec);
 	if (rpa_dbex_playchildrecords(dbex, rec) < 0)
 		return -1;
@@ -636,7 +638,7 @@ static int rpa_dbex_rh_orop(rpadbex_t *dbex, long rec)
 	prec = rpa_dbex_record(dbex, rec);
 	R_ASSERT(prec);
 	rpa_dbex_debug_recordhead(dbex, rec);
-	rpa_compiler_altexp_begin(dbex->co, prec->usertype & RPA_MATCH_MASK, RPA_BITMAP_GETVAL(RPA_RECORD2BITMAP(prec)));
+	rpa_compiler_altexp_begin(dbex->co, (prec->usertype & RPA_MATCH_MASK), RPA_BITMAP_GETVAL(RPA_RECORD2BITMAP(prec)));
 	rpa_dbex_debug_recordtail(dbex, rec);
 	if (rpa_dbex_playchildrecords(dbex, rec) < 0)
 		return -1;
@@ -856,9 +858,9 @@ static int rpa_dbex_rh_branch(rpadbex_t *dbex, long rec)
 	R_ASSERT(prec);
 	rpa_dbex_debug_recordhead(dbex, rec);
 	if (prec->usertype & RPA_NONLOOP_PATH) {
-		rpa_compiler_nonloopybranch_begin(dbex->co, prec->usertype & RPA_MATCH_MASK);
+		rpa_compiler_nonloopybranch_begin(dbex->co, (prec->usertype & RPA_MATCH_MASK));
 	} else {
-		rpa_compiler_branch_begin(dbex->co, prec->usertype & RPA_MATCH_MASK);
+		rpa_compiler_branch_begin(dbex->co, (prec->usertype & RPA_MATCH_MASK), RPA_BITMAP_GETVAL(RPA_RECORD2BITMAP(prec)));
 	}
 	rpa_dbex_debug_recordtail(dbex, rec);
 	if (rpa_dbex_playchildrecords(dbex, rec) < 0)
@@ -883,7 +885,7 @@ static void rpa_dbex_rh_loopref(rpadbex_t *dbex, rparecord_t *prec)
 	 * We ignore, it doesn't make sense for loops:
 	 * RPA_MATCH_MULTIPLE
 	 */
-	rpa_compiler_exp_begin(dbex->co, (prec->usertype & RPA_MATCH_OPTIONAL));
+	rpa_compiler_exp_begin(dbex->co, (prec->usertype & RPA_MATCH_OPTIONAL), 0);
 	rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_CMP, R_LOO, DA, XX, 0));
 	rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_BGRE, DA, XX, XX, 3));
 	rvm_codegen_addins(dbex->co->cg, rvm_asm(RVM_MOVS, R0, DA, XX, -1));
@@ -932,7 +934,7 @@ static int rpa_dbex_rh_aref(rpadbex_t *dbex, long rec)
 				 * We ignore, it doesn't make sense for loops:
 				 * RPA_MATCH_MULTIPLE
 				 */
-				rpa_compiler_exp_begin(dbex->co, RPA_MATCH_OPTIONAL);
+				rpa_compiler_exp_begin(dbex->co, RPA_MATCH_OPTIONAL, 0);
 				rpa_dbex_playrecord(dbex, info->startrec);
 				rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 				rpa_compiler_exp_end(dbex->co);
