@@ -30,8 +30,7 @@ static long rpa_bitmap_set(rarray_t *records, long rec, rpointer userdata);
 static long rpa_bitmap_set_startrec(rarray_t *records, long rec, rpabitmap_t bitmap)
 {
 	rparecord_t *record = rpa_record_get(records, rpa_recordtree_get(records, rec, RPA_RECORD_START));
-	record->userdata = bitmap;
-
+	RPA_BITMAP_SETVAL(RPA_RECORD2BITMAP(record), bitmap);
 	return 0;
 }
 
@@ -94,7 +93,6 @@ static long rpa_bitmap_set_char(rarray_t *records, rparecord_t *record, long rec
 		 */
 		return -1;
 	}
-
 	RPA_BITMAP_SETBIT(RPA_RECORD2BITMAP(record), wc % RPA_BITMAP_BITS);
 	return 0;
 }
@@ -188,8 +186,6 @@ static long rpa_bitmap_set_cls(rarray_t *records, rparecord_t *record, long rec,
 			rparecord_t *childrecord = rpa_record_get(records, child);
 			RPA_BITMAP_ORBITS(RPA_RECORD2BITMAP(record), RPA_RECORD2BITMAP(childrecord));
 		}
-		return 0;
-
 	}
 	return 0;
 }
@@ -223,8 +219,6 @@ static long rpa_bitmap_set_expression(rarray_t *records, rparecord_t *record, lo
 			if (!(childrecord->usertype & RPA_MATCH_OPTIONAL))
 				break;
 		}
-		return 0;
-
 	}
 	return 0;
 }
@@ -239,8 +233,6 @@ static long rpa_bitmap_set_orop(rarray_t *records, rparecord_t *record, long rec
 			rparecord_t *childrecord = rpa_record_get(records, child);
 			RPA_BITMAP_ORBITS(RPA_RECORD2BITMAP(record), RPA_RECORD2BITMAP(childrecord));
 		}
-		return 0;
-
 	}
 	return 0;
 }
@@ -256,8 +248,6 @@ static long rpa_bitmap_set_minop(rarray_t *records, rparecord_t *record, long re
 			rparecord_t *childrecord = rpa_record_get(records, child);
 			RPA_BITMAP_SETVAL(RPA_RECORD2BITMAP(record), RPA_BITMAP_GETVAL(RPA_RECORD2BITMAP(childrecord)));
 		}
-		return 0;
-
 	}
 	return 0;
 }
@@ -425,6 +415,10 @@ static long rpa_bitmap_set(rarray_t *records, long rec, rpointer userdata)
 		break;
 
 	default:
+		/*
+		 * We should never get here!
+		 */
+		RPA_BITMAP_SETALL(RPA_RECORD2BITMAP(record));
 		break;
 	};
 
