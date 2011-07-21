@@ -363,10 +363,11 @@ void rpa_record_dump(rarray_t *records, long rec)
 	n = 90;
 	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, " %5d, %4d", prec->top, prec->size);
 
+#if 0
 	r_memset(buf + n, ' ', bufsize - n);
 	n = 105;
 	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "[ 0x%016lx ]", prec->userdata);
-
+#endif
 	r_memset(buf + n, ' ', bufsize - n);
 	n = 130;
 	n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, " %c %c %c", optc,

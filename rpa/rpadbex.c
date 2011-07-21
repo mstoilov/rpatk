@@ -1392,7 +1392,8 @@ void rpa_dbex_dumpindented(rpadbex_t *dbex, long rec, int level, const char *rul
 	if (!prec)
 		return;
 	r_memset(buffer, 0, sizeof(buffer));
-	r_printf("[ 0x%016lx ] ", prec->userdata);
+	if (dbex->bitmap)
+		r_printf("[ 0x%016lx ] ", prec->userdata);
 	for (i = 0; i < level + 1; i++)
 		r_printf("   ");
 	r_printf("(");
