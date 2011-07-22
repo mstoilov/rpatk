@@ -109,21 +109,115 @@ struct rparecord_s {
 
 
 long rpa_recordtree_walk(rarray_t *src, long rec, long level, rpa_recordtree_callback callaback, rpointer userdata);
-long rpa_recordtree_get(rarray_t *records, long rec, unsigned long type);
-long rpa_recordtree_firstchild(rarray_t *records, long rec, unsigned long type);
-long rpa_recordtree_lastchild(rarray_t *records, long rec, unsigned long type);
-long rpa_recordtree_next(rarray_t *records, long rec, unsigned long type);
-long rpa_recordtree_prev(rarray_t *records, long rec, unsigned long type);
-long rpa_recordtree_parent(rarray_t *records, long rec, unsigned long type);
-long rpa_recordtree_size(rarray_t *records, long rec);					/* Size of the tree */
-long rpa_recordtree_copy(rarray_t *dst, rarray_t *src, long rec);
 
 /**
- * Return a pointer to a record at offset rec
+ * Return record offset for the corresponding type. Use this function to
+ * locate the start or end record for a given record. For example if you
+ * have a record r1 (of type RPA_RECORD_START) marking the beginning of a
+ * branch and you need to locate its counterpart, you can do it with this
+ * function by specifying RPA_RECORD_END for type parameter. If the rec type
+ * is the same as the specified type parameter this function will return rec.
+ * In the example above: rpa_recordtree_get(records, 0, RPA_RECORD_END) will
+ * return 7. rpa_recordtree_get(records, 7, RPA_RECORD_START) will return 0.
+ * rpa_recordtree_get(records, 1, RPA_RECORD_END) will return 2.
+ * rpa_recordtree_get(records, 1, RPA_RECORD_START) will return 1.
+ * @param records array of AST records (populated by @ref rpa_stat_parse in most cases).
+ * @param rec record offset in the records array.
+ * @param type The type of the requested record.
+ * @return Return the counterpart record of rec if type is different than the rec type,
+ * or the specified rec if the type is the same as the rec type.
+ */
+long rpa_recordtree_get(rarray_t *records, long rec, unsigned long type);
+
+
+/**
+ * Return the first child.
+ * @param records array of AST records.
+ * @param rec record offset in the records array.
+ * @param type The type of the requested record.
+ * @return first child record of the specified type. If there are no children return -1.
+ */
+long rpa_recordtree_firstchild(rarray_t *records, long rec, unsigned long type);
+
+
+/**
+ * Return the last child.
+ * @param records array of AST records.
+ * @param rec record offset in the records array.
+ * @param type The type of the requested record.
+ * @return last child record of the specified type. If there are no children return -1.
+ */
+long rpa_recordtree_lastchild(rarray_t *records, long rec, unsigned long type);
+
+
+/**
+ * Return the next sibling.
+ * @param records array of AST records.
+ * @param rec record offset in the records array.
+ * @param type The type of the requested record.
+ * @return next sibling record of the specified type. If rec is the last sibling, return -1.
+ */
+long rpa_recordtree_next(rarray_t *records, long rec, unsigned long type);
+
+
+/**
+ * Return the prev sibling.
+ * @param records array of AST records.
+ * @param rec record offset in the records array.
+ * @param type The type of the requested record.
+ * @return previous sibling record of the specified type. If rec is the first sibling, return -1.
+ */
+long rpa_recordtree_prev(rarray_t *records, long rec, unsigned long type);
+
+
+/**
+ * Return the parent node.
+ * @param records array of AST records.
+ * @param rec record offset in the records array.
+ * @param type The type of the requested record.
+ * @return Return the parent of rec. If rec has no parent return -1.
+ */
+long rpa_recordtree_parent(rarray_t *records, long rec, unsigned long type);
+
+
+/**
+ * Return the number of records in the branch specified by rec.
+ * @param records array of AST records.
+ * @param rec record offset in the records array.
+ * @return Return the records count in the specified branch.
+ */
+long rpa_recordtree_size(rarray_t *records, long rec);					/* Size of the tree */
+
+
+/**
+ * Copy a branch to another array.
+ * @param dst Destination array.
+ * @param src Source array.
+ * @param rec Source branch.
+ * @return Return the number of records copied.
+ */
+long rpa_recordtree_copy(rarray_t *dst, rarray_t *src, long rec);
+
+
+/**
+ * Return a pointer to a record at offset rec from the records array.
  * @param records An array of records populated by a @ref rpa_stat_parse operation.
  * @param rec record offset.
  */
 rparecord_t *rpa_record_get(rarray_t *records, long rec);
+
+
+/**
+ * Create array for rparecord_t elements.
+ * @return Return empty array or NULL if creation failed.
+ */
+rarray_t *rpa_records_create();
+
+/**
+ * Destroy array created with @ref rpa_records_create
+ * @param records Specifies the records array to be destroyed.
+ */
+void rpa_records_destroy(rarray_t *records);
 
 
 void rpa_record_dumpindented(rarray_t *records, long rec, int level);
@@ -133,8 +227,6 @@ void rpa_record_setusertype(rarray_t *records, long rec, ruint32 usertype, rvals
 long rpa_record_getusertype(rarray_t *records, long rec);
 int rpa_record_optchar(rparecord_t *prec, int defc);
 int rpa_record_loopchar(rparecord_t *prec, int defc);
-rarray_t *rpa_records_create();
-void rpa_records_destroy(rarray_t *records);
 long rpa_records_length(rarray_t *records);
 rparecord_t *rpa_records_slot(rarray_t *records, long index);
 

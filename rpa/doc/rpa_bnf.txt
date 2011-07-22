@@ -28,7 +28,81 @@ jr             ::= "Sr." | "Jr."
 postal_address ::= <name_part> <S> <street_address> <S> <zip_part>
 @endcode
 
+@section directives RPA Directives
+All directives start with '#!'
+The following directives are supported:
+- #!emitall
+  - All rules will emit recors.
+- #!emitnone
+  - No records will be emited.
+- #!emit rulename
+  - rulename will emit records
+- #!noemit rulename
+  - rulename will not emit records
+- #!emitid rulename alias num (example: #emitid ETag ETAG 7), alias is optional (example: #emitid ETag 7) is also valid.
+  - rulename will emit records and the ruleuid field in the record will be set to num
+- #!abort rulename
+  - If the evaluation of rulename fails, the parsing will be aborted.
+
+@section operator_oc Occurance operators
+@code
+* ? - Optional
+* + - Multiple
+* * - Optional/Multiple
+@endcode
+
+@section range_chars Char Ranges
+Example:
+@code
+v::=[a-zA-Z12345-9]
+@endcode
+
+@section strings Strings
+Single quoted or double quoted strings.
+Example:
+
+@code
+v::='This is a single quoted string.'
+v::="This is a single quoted string."
+@endcode
+
+@section brackets Brackets '(' ')'
+To change the default precedence or to group expressions you can use brackets.
+Examples:
+@code
+v::= (abc)+ | [a-z]+
+w::= (abc|xyz)+ - abcxyz
+@endcode
+
+@section operator_or OR operator '|'
+One of the choices specified with the operator OR('|') must match for the whole OR expression to match.
+
+Examples:
+@code
+v ::= abc | xyz
+w ::= dev | <v> | [a-z]
+@endcode
+
+The first of the choices that matches will be used, rest of the list is skipped. That means you have to be careful how you 
+order the list.
+Example:
+@code
+v ::= abc | abcd | abcde
+@endcode
+Choices 'abcd' and 'abcde' will never be evaluated, because they are masked by 'abc'. If you reorder the choices
+like this:
+@code
+v ::= abcde | abcdc | abc
+@endcode
+This would fix the masking problem.
 
 
+@section operator_min MINUS operator '-'
+The first expression must match and none of the expressions behind the operator MINUS ('-') for the whole expression to match.
+Examples:
+@code
+word ::= [a-zA-Z]+
+v ::= <word> - "Sun" - "Mon" - "Tue"
+@endcode
 
 */
