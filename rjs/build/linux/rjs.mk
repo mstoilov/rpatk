@@ -19,6 +19,7 @@ RJS_OBJECTS =	\
 	$(OUTDIR)/rjsparser.o \
 	$(OUTDIR)/rjscompiler.o \
 	$(OUTDIR)/rjsrules.o \
+	$(OUTDIR)/rjsfile.o \
 	$(OUTDIR)/ecma262.o \
 
 

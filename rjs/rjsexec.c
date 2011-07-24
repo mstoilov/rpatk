@@ -20,16 +20,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/mman.h>
 
-#include "rlib/rstring.h"
 #include "rlib/rmem.h"
 #include "rjs/rjs.h"
+#include "rjs/rjsfile.h"
 #include "rpa/rparecord.h"
 
 
@@ -186,51 +180,6 @@ static rvm_switable_t swistring[] = {
 };
 
 
-void rjs_unmap_file(rstr_t *buf)
-{
-	if (buf) {
-		munmap(buf->str, buf->size);
-		r_free(buf);
-	}
-}
-
-
-rstr_t *rjs_map_file(const char *filename)
-{
-	struct stat st;
-	rstr_t *str;
-	char *buffer;
-
-
-	int fd = open(filename, O_RDONLY);
-	if (fd < 0) {
-		return (void*)0;
-	}
-	if (fstat(fd, &st) < 0) {
-		close(fd);
-		return (void*)0;
-	}
-	buffer = (char*)mmap(NULL, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
-	if (buffer == (void*)-1) {
-		close(fd);
-		return (void*)0;
-	}
-	str = (rstr_t *)r_malloc(sizeof(*str));
-	if (!str)
-		goto error;
-	r_memset(str, 0, sizeof(*str));
-	str->str = buffer;
-	str->size = st.st_size;
-	close(fd);
-	return str;
-
-error:
-	munmap(buffer, st.st_size);
-	close(fd);
-	return str;
-}
-
-
 int rjs_exec_script(rjs_engine_t *jse, rstr_t  *script)
 {
 	if (!script)
@@ -336,7 +285,7 @@ int main(int argc, char *argv[])
 	for (i = 1; i < argc; i++) {
 		if (r_strcmp(argv[i], "-f") == 0) {
 			if (++i < argc) {
-				script = rjs_map_file(argv[i]);
+				script = rjs_file_map(argv[i]);
 				if (script) {
 					unmapscript = script;
 				}
@@ -351,7 +300,7 @@ end:
 		rjs_display_errors(jse, script);
 	rjs_engine_destroy(jse);
 	if (unmapscript)
-		rjs_unmap_file(unmapscript);
+		rjs_file_unmap(unmapscript);
 	if (statinfo)
 		fprintf(stdout, "\nRJS Version: %s, memory: %ld Bytes (leaked %ld Bytes)\n", rjs_version(), (long)r_debug_get_maxmem(), (long)r_debug_get_allocmem());
 	return 0;
