@@ -38,8 +38,8 @@ $(RJS_EXEC) : $(RJSEXEC_OBJECTS) $(RJS_LIB) $(RJS_OBJECTS)
 $(OUTDIR)/%.o: $(RJS_SRCDIR)/%.c
 	$(CC) $(CFLAGS) -o $(OUTDIR)/$*.o -c $(RJS_SRCDIR)/$*.c
 
-$(OUTDIR)/%.o: $(RJS_SRCDIR)/linux/%.c
-	$(CC) $(CFLAGS) -o $(OUTDIR)/$*.o -c $(RJS_SRCDIR)/linux/$*.c
+$(OUTDIR)/%.o: $(RJS_SRCDIR)/unix/%.c
+	$(CC) $(CFLAGS) -o $(OUTDIR)/$*.o -c $(RJS_SRCDIR)/unix/$*.c
 
 $(RJS_LIB): $(RJS_OBJECTS)
 	$(AR) -cr $@ $^
