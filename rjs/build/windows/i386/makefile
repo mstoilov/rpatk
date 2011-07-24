@@ -39,13 +39,13 @@ INCLUDE_DIRS=/I"$(SRC_DIR)" /I"$(SRC_DIR)\win32" /I"$(RPATK_DIR)" /I"$(RPATK_DIR
 !IF "$(CFG)" == "release"
 
 OUTDIR=.\out
-CPP_FLAGS=/nologo $(INCLUDE_DIRS) /Zp1 /ML /W3 /EHsc /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_UNICODE" /D "UNICODE" /YX /Fo"$(OUTDIR)\\" /FD /c
+CPP_FLAGS=/nologo $(INCLUDE_DIRS) /Zp1 /ML /W3 /EHsc /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /YX /Fo"$(OUTDIR)\\" /FD /c
 LINK_DEBUG=
 
 !ELSEIF  "$(CFG)" == "debug"
 
 OUTDIR=.\out
-CPP_FLAGS=/nologo $(INCLUDE_DIRS) /Zp1 /MLd  /Zi /W3  /EHsc  /Od /D "WIN32" /D "_DEBUG" /D "DEBUG" /D "_CONSOLE" /D "_UNICODE" /D "UNICODE" /YX /Fo"$(OUTDIR)\\" /FD  /c
+CPP_FLAGS=/nologo $(INCLUDE_DIRS) /Zp1 /MLd  /Zi /W3  /EHsc  /Od /D "WIN32" /D "_DEBUG" /D "DEBUG" /D "_CONSOLE" /YX /Fo"$(OUTDIR)\\" /FD  /c
 LINK_DEBUG=/DEBUG
 
 !ENDIF
@@ -53,6 +53,7 @@ LINK_DEBUG=/DEBUG
 CPP_FLAGS=$(CPP_FLAGS)
 LIBS=$(RPA_LIB) $(RVM_LIB) $(RLIB_LIB)
 
+RC=rc.exe
 CPP=cl.exe
 # LINK32=lib.exe
 # LINK32_FLAGS=/nologo /machine:I386 /out:"$(OUTDIR)\$(TARGET)"
@@ -60,9 +61,11 @@ LINK32=link.exe
 LINK32_FLAGS=$(LIBS) kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ws2_32.lib /nologo /subsystem:console /incremental:no /machine:I386 $(LINK_DEBUG)
 
 RJS_OBJECTS= \
+	"$(OUTDIR)/rjs.res" \
 	"$(OUTDIR)/rjs.obj" \
 	"$(OUTDIR)/rjsparser.obj" \
 	"$(OUTDIR)/rjscompiler.obj" \
+	"$(OUTDIR)/rjsfile.obj" \
 	"$(OUTDIR)/rjsrules.obj"
 
 	
@@ -87,7 +90,7 @@ CLEAN :
 	$(LINK32_FLAGS) /out:"$(OUTDIR)\$(RJSEXEC)" $(RJSEXEC_OBJECTS) $(RJS_OBJECTS)
 <<
 
-SOURCE="$(DEPSRC_DIR)\rjsexec.c"
+SOURCE="$(SRC_DIR)\rjsexec.c"
 "$(OUTDIR)\rjsexec.obj" : $(SOURCE) "$(OUTDIR)"
 	$(CPP) $(CPP_FLAGS) $(SOURCE)
 
@@ -103,6 +106,14 @@ SOURCE="$(SRC_DIR)\rjscompiler.c"
 "$(OUTDIR)\rjscompiler.obj" : $(SOURCE) "$(OUTDIR)"
 	$(CPP) $(CPP_FLAGS) $(SOURCE)
 
+SOURCE="$(DEPSRC_DIR)\rjsfile.c"
+"$(OUTDIR)\rjsfile.obj" : $(SOURCE) "$(OUTDIR)"
+	$(CPP) $(CPP_FLAGS) $(SOURCE)
+
 SOURCE="$(DEPSRC_DIR)\rjsrules.c"
 "$(OUTDIR)\rjsrules.obj" : $(SOURCE) "$(OUTDIR)"
 	$(CPP) $(CPP_FLAGS) $(SOURCE)
+
+SOURCE="$(DEPSRC_DIR)\rjs.rc"
+"$(OUTDIR)\rjs.res" : $(SOURCE) "$(OUTDIR)"
+	$(RC) $(RC_FLAGS) /r /fo "$(OUTDIR)\rjs.res" $(SOURCE)

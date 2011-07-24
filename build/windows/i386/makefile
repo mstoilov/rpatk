@@ -27,6 +27,7 @@ SUBPROJECTS= \
 	$(RPATK_DIR)\rvm\build\$(PORT)\$(ARCH)+ \
 	$(RPATK_DIR)\rpa\build\$(PORT)\$(ARCH)+ \
 	$(RPATK_DIR)\rgrep\build\$(PORT)\$(ARCH)+ \
+	$(RPATK_DIR)\rjs\build\$(PORT)\$(ARCH)+ \
 
 
 ALL : $(SUBPROJECTS)
