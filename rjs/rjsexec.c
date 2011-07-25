@@ -240,12 +240,35 @@ void rjs_display_errors(rjs_engine_t *jse, rstr_t *script)
 }
 
 
+int usage(int argc, const char *argv[])
+{
+	    fprintf(stderr, "RJS with RPA Engine: %s \n", rpa_dbex_version());
+		fprintf(stderr, "Copyright (C) 2010 Martin Stoilov\n\n");
+
+		fprintf(stderr, "\t-e <script_expression>   Run the script supplied on the command line.\n");
+		fprintf(stderr, "\t-f <script_file>         Run the script file.\n");
+		fprintf(stderr, "\t-p                       Display rules parsing records.\n");
+		fprintf(stderr, "\t-d                       Execute in debug mode.\n");
+		fprintf(stderr, "\t-c                       Compile the script, without running it.\n");
+		fprintf(stderr, "\t-C                       Compile the script, showing the compile info, without running it.\n");
+		fprintf(stderr, "\t-h, --help               Display this help.\n");
+		return 0;
+}
+
+
 int main(int argc, char *argv[])
 {
 	int i;
 	rstr_t *script = NULL, *unmapscript = NULL;
 	rstr_t line;
 	rjs_engine_t *jse;
+
+	for (i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-help") == 0 || strcmp(argv[i], "/?") == 0 || strcmp(argv[i], "-h") == 0) {
+			usage(argc, argv);
+			return 1;
+		}
+	}
 
 	jse = rjs_engine_create();
 	if (!jse)
