@@ -1,14 +1,14 @@
 
-!IF "$(CFG)" == ""
-CFG=debug
+!IF "$(BLDCFG)" == ""
+BLDCFG=debug
 !ENDIF 
 
-!IF "$(CFG)" != "release" && "$(CFG)" != "debug"
-!MESSAGE Invalid configuration "$(CFG)" specified.
+!IF "$(BLDCFG)" != "release" && "$(BLDCFG)" != "debug"
+!MESSAGE Invalid configuration "$(BLDCFG)" specified.
 !MESSAGE You can specify a configuration when running NMAKE
-!MESSAGE by defining the macro CFG on the command line. For example:
+!MESSAGE by defining the macro BLDCFG on the command line. For example:
 !MESSAGE 
-!MESSAGE nmake /f makefile CFG=debug
+!MESSAGE nmake /f makefile BLDCFG=debug
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
@@ -32,12 +32,12 @@ RPATK_DIR=..\..\..\..
 INCLUDE_DIRS=/I"$(RPATK_DIR)" /I"$(RPATK_DIR)\arch\$(PORT)\$(ARCH)"
 
 
-!IF "$(CFG)" == "release"
+!IF "$(BLDCFG)" == "release"
 
 OUTDIR=.\out
 CPP_FLAGS=/nologo $(INCLUDE_DIRS) /Zp1 /W3 /EHsc /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /Fo"$(OUTDIR)\\" /FD /c 
 
-!ELSEIF  "$(CFG)" == "debug"
+!ELSEIF  "$(BLDCFG)" == "debug"
 
 OUTDIR=.\out
 CPP_FLAGS=/nologo $(INCLUDE_DIRS) /Zp1 /Zi /W3 /EHsc  /Od /D "WIN32" /D "_DEBUG" /D "DEBUG" /D "R_DEBUG_MEMALLOC" /D "_CONSOLE" /Fo"$(OUTDIR)\\" /FD  /c

@@ -1,13 +1,13 @@
-!IF "$(CFG)" == ""
-CFG=debug
+!IF "$(BLDCFG)" == ""
+BLDCFG=debug
 !ENDIF 
 
-!IF "$(CFG)" != "release" && "$(CFG)" != "debug"
-!MESSAGE Invalid configuration "$(CFG)" specified.
+!IF "$(BLDCFG)" != "release" && "$(BLDCFG)" != "debug"
+!MESSAGE Invalid configuration "$(BLDCFG)" specified.
 !MESSAGE You can specify a configuration when running NMAKE
-!MESSAGE by defining the macro CFG on the command line. For example:
+!MESSAGE by defining the macro BLDCFG on the command line. For example:
 !MESSAGE 
-!MESSAGE nmake /f makefile CFG=debug
+!MESSAGE nmake /f makefile BLDCFG=debug
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
