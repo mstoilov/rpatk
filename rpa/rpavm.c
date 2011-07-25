@@ -424,7 +424,7 @@ static void rpavm_swi_checkcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 		if (r0 > 0) {
 			if (entry->recsize) {
-				long i;
+				rsize_t i;
 				if (stat->records) {
 					r_array_setlength(stat->records, RVM_CPUREG_GETL(cpu, R_REC) + 1);
 					for (i = 0; i < r_array_length(entry->records); i++) {

@@ -71,7 +71,7 @@ error:
 
 void rjs_engine_destroy(rjs_engine_t *jse)
 {
-	long i;
+	rsize_t i;
 	if (jse) {
 		if (jse->cgs) {
 			for (i = 0; i < r_array_length(jse->cgs); i++) {

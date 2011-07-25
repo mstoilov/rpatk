@@ -36,10 +36,10 @@ rstr_t *rjs_file_map(const char *filename)
 	if (NULL == pMappedView)
 		goto error;
 	buf->size = (rsize_t)fileSize;
-	buf->str = (char*)r_zmalloc(fileSize + 1);
+	buf->str = (char*)r_zmalloc((rsize_t)fileSize + 1);
 	if (!buf->str)
 		goto error;
-	r_memcpy(buf->str, pMappedView, fileSize);
+	r_memcpy(buf->str, pMappedView, (rsize_t)fileSize);
 	if (hMapping)
 		CloseHandle(hMapping);
 	if (hFile != INVALID_HANDLE_VALUE)

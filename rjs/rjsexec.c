@@ -223,7 +223,7 @@ long jrs_offset2line(const char *script, long offset)
 
 void rjs_display_errors(rjs_engine_t *jse, rstr_t *script)
 {
-	long i;
+	rsize_t i;
 	rjs_error_t *err;
 
 	for (i = 0; i < r_array_length(jse->errors); i++) {

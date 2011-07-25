@@ -55,7 +55,7 @@ void rvm_codemap_destroy(rvm_codemap_t *codemap)
 
 void rvm_codemap_clear(rvm_codemap_t *codemap)
 {
-	long i;
+	rsize_t i;
 	rvm_codelabel_t *label;
 
 	for (i = 0; i < r_array_length(codemap->labels); i++) {
@@ -69,7 +69,7 @@ void rvm_codemap_clear(rvm_codemap_t *codemap)
 
 rvm_codelabel_t *rvm_codemap_label(rvm_codemap_t *codemap, long index)
 {
-	if (index < 0 || index >= r_array_length(codemap->labels))
+	if (index < 0 || index >= (long)r_array_length(codemap->labels))
 		return NULL;
 	return (rvm_codelabel_t*)r_array_slot(codemap->labels, index);
 }
@@ -247,7 +247,7 @@ rword rvm_codemap_resolve(rvm_codemap_t *codemap, long index, rvm_codelabel_t **
 
 void rvm_codemap_dump(rvm_codemap_t *codemap)
 {
-	int i = 0;
+	rsize_t i = 0;
 
 	for (i = 0; i < r_array_length(codemap->labels); i++) {
 		rvm_codelabel_t *label = rvm_codemap_label(codemap, i);

@@ -74,7 +74,7 @@ unsigned long rvm_relocmap_length(rvm_relocmap_t *relocmap)
 
 int rvm_relocmap_relocate(rvm_relocmap_t *relocmap, rvm_codemap_t *codemap, rvm_asmins_t *code, rvm_codelabel_t **err)
 {
-	long index;
+	rsize_t index;
 	rvm_relocrecord_t *reloc;
 	rword value;
 

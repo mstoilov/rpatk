@@ -30,7 +30,7 @@ rparecord_t *rpa_record_get(rarray_t *records, long rec)
 
 	if (!records)
 		return NULL;
-	if (rec < 0 || rec >= r_array_length(records))
+	if (rec < 0 || rec >= (long) r_array_length(records))
 		return NULL;
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	return prec;
@@ -44,13 +44,13 @@ long rpa_recordtree_get(rarray_t *records, long rec, unsigned long type)
 	unsigned int startrec = (type & RPA_RECORD_START) ? 1 : 0;
 	rparecord_t *prec;
 
-	if (rec < 0 || rec >= r_array_length(records))
+	if (rec < 0 || rec >= (long)r_array_length(records))
 		return -1;
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	if ((prec->type & RPA_RECORD_START)) {
 		if (startrec)
 			return rec;
-		for (s = 0, i = rec; i < r_array_length(records); i++) {
+		for (s = 0, i = rec; i < (long)r_array_length(records); i++) {
 			prec = (rparecord_t *)r_array_slot(records, i);
 			if (prec->type & RPA_RECORD_START)
 				++s;
@@ -83,14 +83,14 @@ long rpa_recordtree_firstchild(rarray_t *records, long rec, unsigned long type)
 {
 	rparecord_t *prec;
 
-	if (rec < 0 || rec >= r_array_length(records))
+	if (rec < 0 || rec >= (long)r_array_length(records))
 		return -1;
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	if (prec->type & RPA_RECORD_END) {
 		if ((rec = rpa_recordtree_get(records, rec, RPA_RECORD_START)) < 0)
 			return -1;
 	}
-	if (++rec >= r_array_length(records))
+	if (++rec >= (long)r_array_length(records))
 		return -1;
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	if (prec->type & RPA_RECORD_START)
@@ -103,7 +103,7 @@ long rpa_recordtree_lastchild(rarray_t *records, long rec, unsigned long type)
 {
 	rparecord_t *prec;
 
-	if (rec < 0 || rec >= r_array_length(records))
+	if (rec < 0 || rec >= (long)r_array_length(records))
 		return -1;
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	if (prec->type & RPA_RECORD_START) {
@@ -123,14 +123,14 @@ long rpa_recordtree_next(rarray_t *records, long rec, unsigned long type)
 {
 	rparecord_t *prec;
 
-	if (rec < 0 || rec >= r_array_length(records))
+	if (rec < 0 || rec >= (long)r_array_length(records))
 		return -1;
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	if (prec->type & RPA_RECORD_START) {
 		if ((rec = rpa_recordtree_get(records, rec, RPA_RECORD_END)) < 0)
 			return -1;
 	}
-	if (++rec >= r_array_length(records))
+	if (++rec >= (long)r_array_length(records))
 		return -1;
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	if (prec->type & RPA_RECORD_START)
@@ -143,7 +143,7 @@ long rpa_recordtree_prev(rarray_t *records, long rec, unsigned long type)
 {
 	rparecord_t *prec;
 
-	if (rec < 0 || rec >= r_array_length(records))
+	if (rec < 0 || rec >= (long)r_array_length(records))
 		return -1;
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	if (prec->type & RPA_RECORD_END) {
@@ -163,13 +163,13 @@ long rpa_recordtree_parent(rarray_t *records, long rec, unsigned long type)
 {
 	long last = -1, parent = -1;
 
-	if (rec < 0 || rec >= r_array_length(records))
+	if (rec < 0 || rec >= (long)r_array_length(records))
 		return -1;
 	for ( ;rec >= 0; rec = rpa_recordtree_next(records, last, RPA_RECORD_END)) {
 		last = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	}
 	parent = last + 1;
-	if (parent >= r_array_length(records))
+	if (parent >= (long)r_array_length(records))
 		return -1;
 	return rpa_recordtree_get(records, parent, type);
 }
@@ -245,7 +245,7 @@ long rpa_record_getruleuid(rarray_t *records, long rec)
 	if (rec < 0)
 		return -1;
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_START);
-	if (rec >= r_array_length(records))
+	if (rec >= (long)r_array_length(records))
 		return -1;
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	return prec->ruleuid;
@@ -259,12 +259,12 @@ void rpa_record_setusertype(rarray_t *records, long rec, ruint32 usertype, rvals
 	if (rec < 0)
 		return;
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_START);
-	if (rec >= r_array_length(records))
+	if (rec >= (long)r_array_length(records))
 		return;
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rpa_recordptr_setusertype(prec, usertype, op);
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
-	if (rec >= r_array_length(records))
+	if (rec >= (long)r_array_length(records))
 		return;
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rpa_recordptr_setusertype(prec, usertype, op);
@@ -278,7 +278,7 @@ long rpa_record_getusertype(rarray_t *records, long rec)
 	if (rec < 0)
 		return -1;
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_START);
-	if (rec >= r_array_length(records))
+	if (rec >= (long)r_array_length(records))
 		return -1;
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	return prec->usertype;
@@ -330,7 +330,7 @@ void rpa_record_dump(rarray_t *records, long rec)
 	int n = 0, size;
 	char optc = ' ';
 
-	if (rec < 0 || rec >= r_array_length(records))
+	if (rec < 0 || rec >= (long)r_array_length(records))
 		return;
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	if (prec->type & RPA_RECORD_END) {
@@ -392,7 +392,7 @@ void rpa_record_dumpindented(rarray_t *records, long rec, int level)
 	rparecord_t *prec;
 	int i, size;
 
-	if (rec < 0 || rec >= r_array_length(records))
+	if (rec < 0 || rec >= (long)r_array_length(records))
 		return;
 	r_memset(buffer, 0, sizeof(buffer));
 	prec = (rparecord_t *)r_array_slot(records, rec);
@@ -431,13 +431,13 @@ void rpa_records_destroy(rarray_t *records)
 
 long rpa_records_length(rarray_t *records)
 {
-	return r_array_length(records);
+	return (long)r_array_length(records);
 }
 
 
 rparecord_t *rpa_records_slot(rarray_t *records, long index)
 {
-	if (index < 0 || index >= r_array_length(records))
+	if (index < 0 || index >= (long)r_array_length(records))
 		return NULL;
 	return (rparecord_t *)r_array_slot(records, index);
 }

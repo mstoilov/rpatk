@@ -204,7 +204,7 @@ void r_hash_remove(rhash_t* hash, rconstpointer key)
 
 void r_hash_removeall(rhash_t* hash)
 {
-	unsigned int nbucket;
+	rsize_t nbucket;
 	rhead_t *head;
 	rhash_node_t *node;
 

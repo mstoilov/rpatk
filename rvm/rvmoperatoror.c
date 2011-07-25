@@ -48,5 +48,5 @@ void rvm_op_or_long(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, long op1,
 
 void rvm_op_or_double(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, double op1, double op2)
 {
-	rvm_op_or_long(cpu, opid, res, op1, op2);
+	rvm_op_or_long(cpu, opid, res, (long)op1, (long)op2);
 }

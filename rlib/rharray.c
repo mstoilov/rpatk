@@ -113,7 +113,7 @@ void r_harray_destroy(rharray_t *array)
 robject_t *r_harray_copy(const robject_t *obj)
 {
 	rharray_t *harray;
-	int i;
+	unsigned long i;
 	rstr_t *n;
 	const rharray_t *src = (const rharray_t *)obj;
 

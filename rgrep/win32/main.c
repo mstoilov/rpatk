@@ -67,9 +67,9 @@ int usage(int argc, const wchar_t *argv[])
 int wmain(int argc, const wchar_t* argv[])
 {
 	unsigned long sckb;
-	int ret, scanned = 0, i;
+	int ret, scanned = 0;
+	long i;
 	rpa_grep_t *pGrep = NULL;
-	DWORD eticks, bticks = GetTickCount();
 	rarray_t *buffers;
 
 	buffers = r_array_create(sizeof(rpa_buffer_t *));
@@ -156,7 +156,9 @@ int wmain(int argc, const wchar_t* argv[])
 		if (wcscmp(argv[i], L"--dump-code") == 0) {
 			if (rpa_dbex_compile(pGrep->hDbex) == 0) {
 				if (++i < argc) {
-					rpa_dbex_dumpcode(pGrep->hDbex, rpa_dbex_lookup_s(pGrep->hDbex, argv[i]));
+					rpa_buffer_t *code = rpa_buffer_from_wchar(argv[i]);
+					rpa_dbex_dumpcode(pGrep->hDbex, rpa_dbex_lookup_s(pGrep->hDbex, code->s));
+					rpa_buffer_destroy(code);
 				}
 			}
 			goto end;
@@ -301,7 +303,7 @@ int wmain(int argc, const wchar_t* argv[])
 	}
 
 end:
-	for (i = 0; i < r_array_length(buffers); i++) {
+	for (i = 0; i < (long)r_array_length(buffers); i++) {
 		rpa_buffer_destroy(r_array_index(buffers, i, rpa_buffer_t*));
 	}
 	r_object_destroy((robject_t*)buffers);
@@ -314,7 +316,7 @@ end:
 	if (pGrep->showtime) {
 		unsigned long milsec;
 		unsigned long minutes;
-		float sec;
+		double sec;
 		milsec = pGrep->scanmilisec;
 		if (milsec == 0)
 			milsec = 1;

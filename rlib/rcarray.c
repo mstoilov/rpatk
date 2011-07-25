@@ -49,7 +49,7 @@ static void r_carray_add_chunks(rcarray_t *carray, rsize_t nchunks)
 
 void r_carray_cleanup(robject_t *obj)
 {
-	int i;
+	rsize_t i;
 	rcarray_t *carray = (rcarray_t *)obj;
 	if (carray->oncleanup)
 		carray->oncleanup(carray);

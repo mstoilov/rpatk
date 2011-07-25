@@ -180,9 +180,9 @@ void *r_array_slot_expand(rarray_t *array, rsize_t index)
 }
 
 
-int r_array_move(rarray_t *array, long dest, long src, long size)
+int r_array_move(rarray_t *array, rsize_t dest, rsize_t src, rsize_t size)
 {
-	long i;
+	rsize_t i;
 	if (src == dest)
 		return 0;
 	if (r_array_length(array) <= src || size <= 0)

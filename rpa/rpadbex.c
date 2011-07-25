@@ -326,7 +326,7 @@ static int rpa_dbex_rh_noemit(rpadbex_t *dbex, long rec)
 
 static int rpa_dbex_setemit(rpadbex_t *dbex, rboolean emit)
 {
-	long i;
+	rsize_t i;
 	rpa_ruleinfo_t *info;
 
 	for (i = 0; i < r_array_length(dbex->rules->names); i++) {
@@ -1009,7 +1009,7 @@ rpadbex_t *rpa_dbex_create(void)
 
 void rpa_dbex_destroy(rpadbex_t *dbex)
 {
-	int i;
+	rsize_t i;
 	if (dbex) {
 		for (i = 0; i < r_array_length(dbex->text); i++)
 			r_free(r_array_index(dbex->text, i, char*));
@@ -1037,7 +1037,7 @@ static int rpa_parseinfo_loopdetect_do(rpadbex_t *dbex, long parent, long loopto
 
 	if (parent == loopto && inderction > 0)
 		return 1;
-	for (i = 0; i < r_array_length(dbex->recstack); i++) {
+	for (i = 0; i < (long)r_array_length(dbex->recstack); i++) {
 		if (parent == r_array_index(dbex->recstack, i, long))
 			return 0;
 	}
@@ -1157,9 +1157,9 @@ static void rpa_dbex_buildruleinfo(rpadbex_t *dbex)
 	rparecord_t *rec;
 	rpa_ruleinfo_t info;
 	unsigned int nrecords;
-	long i;
 	const char *name = NULL;
 	rsize_t namesize = 0;
+	rsize_t i;
 
 	if (dbex->rules) {
 		r_object_destroy((robject_t *)dbex->rules);
@@ -1270,15 +1270,9 @@ static void rpa_dbex_copyrecords(rpadbex_t *dbex)
 
 static rparecord_t *rpa_dbex_record(rpadbex_t *dbex, long rec)
 {
-	rparecord_t *prec;
-
 	if (!dbex || !dbex->rules)
 		return NULL;
-	if (rec < 0 || rec >= r_array_length(dbex->records))
-		return NULL;
-	prec = (rparecord_t *)r_array_slot(dbex->records, rec);
-	return prec;
-
+	return rpa_record_get(dbex->records, rec);
 }
 
 
@@ -1294,7 +1288,7 @@ static rparecord_t *rpa_dbex_rulerecord(rpadbex_t *dbex, rparule_t rid)
 	if (!info)
 		return NULL;
 	rec = info->startrec + info->sizerecs - 1;
-	if (rec < 0 || rec >= r_array_length(dbex->records))
+	if (rec < 0 || rec >= (rparule_t)r_array_length(dbex->records))
 		return NULL;
 	prec = (rparecord_t *)r_array_slot(dbex->records, rec);
 	return prec;
@@ -1419,7 +1413,7 @@ static long rpa_dbex_firstinlined(rpadbex_t *dbex)
 
 static int rpa_dbex_findinlined(rpadbex_t *dbex, long startrec)
 {
-	long i;
+	rsize_t i;
 	for (i = 0; i < r_array_length(dbex->inlinestack); i++) {
 		if (r_array_index(dbex->inlinestack, i, long) == startrec)
 			return 1;
@@ -1528,7 +1522,7 @@ int rpa_dbex_dumpproductions(rpadbex_t *dbex)
 
 int rpa_dbex_dumprecords(rpadbex_t *dbex)
 {
-	long i;
+	rsize_t i;
 
 	if (!dbex)
 		return -1;
@@ -1545,7 +1539,7 @@ int rpa_dbex_dumprecords(rpadbex_t *dbex)
 
 int rpa_dbex_dumpinfo(rpadbex_t *dbex)
 {
-	long i;
+	rsize_t i;
 	rpa_ruleinfo_t *info;
 
 	if (!dbex)
@@ -1579,7 +1573,7 @@ int rpa_dbex_dumpinfo(rpadbex_t *dbex)
 
 int rpa_dbex_dumpuids(rpadbex_t *dbex)
 {
-	long i;
+	rsize_t i;
 	long rec;
 	rpa_ruleinfo_t *info;
 	char *buffer = r_zmalloc(32 * sizeof(char));
@@ -1685,7 +1679,7 @@ const char *rpa_dbex_name(rpadbex_t *dbex, rparule_t rid)
 		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_NOTCLOSED);
 		return NULL;
 	}
-	if (rid >= r_array_length(dbex->rules->members))
+	if (rid >= (rparule_t)r_array_length(dbex->rules->members))
 		return NULL;
 	name = r_array_index(dbex->rules->names, rid, rstr_t*);
 	return name->str;
@@ -1762,7 +1756,7 @@ rparule_t rpa_dbex_next(rpadbex_t *dbex, rparule_t rid)
 	}
 
 	++rid;
-	if (rid < r_array_length(dbex->rules->members))
+	if (rid < (rparule_t)r_array_length(dbex->rules->members))
 		return rid;
 	return -1;
 }
