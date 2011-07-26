@@ -166,7 +166,7 @@ enum {
 
 
 #define RVM_REGISTER_BITS (8 * sizeof(rword))
-#define RVM_SIGN_BIT (1LU << (RVM_REGISTER_BITS - 1))
+#define RVM_SIGN_BIT (((rword)1) << (RVM_REGISTER_BITS - 1))
 #define RVM_STATUS_Z (1 << 0)
 #define RVM_STATUS_N (1 << 1)
 #define RVM_STATUS_C (1 << 2)

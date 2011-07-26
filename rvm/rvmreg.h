@@ -90,7 +90,7 @@ extern "C" {
 #define RVM_CPUREG_SETU(__cpu__, __r__, __val__) RVM_REG_SETU(RVM_CPUREG_PTR(__cpu__, __r__), __val__)
 
 #define RVM_REG_GETL(__r__) (__r__)->v.l
-#define RVM_REG_SETL(__r__, __val__) do { (__r__)->v.l = (long)(__val__); } while (0)
+#define RVM_REG_SETL(__r__, __val__) do { (__r__)->v.l = (rsword)(__val__); } while (0)
 #define RVM_CPUREG_GETL(__cpu__, __r__) RVM_CPUREG_PTR(__cpu__, __r__)->v.l
 #define RVM_CPUREG_SETL(__cpu__, __r__, __val__) RVM_REG_SETL(RVM_CPUREG_PTR(__cpu__, __r__), __val__)
 

@@ -117,7 +117,7 @@ static rpointer r_dbg_realloc(rpointer ptr, rsize_t size)
 	r_spinlock_lock(&g_lock);
 	g_allocmem -= csize;
 	r_spinlock_unlock(&g_lock);
-	size += sizeof(long);
+	size += sizeof(rword);
 	mem = (rword*)realloc((void*)mem, (size_t)(size));
 	*mem = size;
 	r_spinlock_lock(&g_lock);
