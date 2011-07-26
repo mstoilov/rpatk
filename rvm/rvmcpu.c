@@ -2006,7 +2006,6 @@ int rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off)
 		if (pi->da) {
 			*regda = pi->data;
 		}
-		R_DEBUG_BRAKE;
 #if RVM_CONDITIONAL_INSTRUCTIONS
 		if (pi->cond) {
 			switch (pi->cond) {

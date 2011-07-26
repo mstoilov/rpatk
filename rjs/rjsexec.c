@@ -240,7 +240,7 @@ void rjs_display_errors(rjs_engine_t *jse, rstr_t *script)
 }
 
 
-int usage(int argc, const char *argv[])
+int usage(int argc, char *argv[])
 {
 	    fprintf(stderr, "RJS with RPA Engine: %s \n", rpa_dbex_version());
 		fprintf(stderr, "Copyright (C) 2010 Martin Stoilov\n\n");
@@ -264,7 +264,7 @@ int main(int argc, char *argv[])
 	rjs_engine_t *jse;
 
 	for (i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-help") == 0 || strcmp(argv[i], "/?") == 0 || strcmp(argv[i], "-h") == 0) {
+		if (r_strcmp(argv[i], "--help") == 0 || r_strcmp(argv[i], "-help") == 0 || r_strcmp(argv[i], "/?") == 0 || r_strcmp(argv[i], "-h") == 0) {
 			usage(argc, argv);
 			return 1;
 		}
