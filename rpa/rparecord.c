@@ -234,6 +234,7 @@ static void rpa_recordptr_setusertype(rparecord_t *prec, ruint32 usertype, rvals
 		break;
 	default:
 		prec->usertype = usertype;
+		break;
 	}
 }
 

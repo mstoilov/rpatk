@@ -1236,6 +1236,7 @@ static long rpa_dbex_copy_handler(rarray_t *records, long rec, rpointer userdata
 			break;
 		default:
 			usertype = RPA_MATCH_NONE;
+			break;
 		};
 		lastrec = r_array_length(dbex->records) - 1;
 		if (lastrec >= 0)

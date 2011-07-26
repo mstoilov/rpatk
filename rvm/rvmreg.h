@@ -144,7 +144,7 @@ typedef struct rvmreg_s {
 	union {
 		ruint64 u64;
 		rword w;
-		long l;
+		rsword l;
 		rpointer p;
 		double d;
 		char *s;
