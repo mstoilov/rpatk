@@ -37,7 +37,7 @@ rvm_opmap_t *rvm_opmap_create()
 
 void rvm_opmap_destroy(rvm_opmap_t *opmap)
 {
-	rsize_t i;
+	unsigned long i;
 	rvm_opinfo_t *opinfo;
 
 	if (!opmap)

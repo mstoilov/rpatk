@@ -71,7 +71,7 @@ error:
 
 void rjs_engine_destroy(rjs_engine_t *jse)
 {
-	rsize_t i;
+	unsigned long i;
 	if (jse) {
 		if (jse->cgs) {
 			for (i = 0; i < r_array_length(jse->cgs); i++) {
@@ -100,7 +100,7 @@ int rjs_engine_addswitable(rjs_engine_t *jse, const char *tabname, rvm_switable_
 }
 
 
-static int rjs_engine_parse(rjs_engine_t *jse, const char *script, rsize_t size, rarray_t *records, rjs_error_t *error)
+static int rjs_engine_parse(rjs_engine_t *jse, const char *script, unsigned long size, rarray_t *records, rjs_error_t *error)
 {
 	long res = 0;
 
@@ -109,7 +109,7 @@ static int rjs_engine_parse(rjs_engine_t *jse, const char *script, rsize_t size,
 }
 
 
-int rjs_engine_compile(rjs_engine_t *jse, const char *script, rsize_t size)
+int rjs_engine_compile(rjs_engine_t *jse, const char *script, unsigned long size)
 {
 	rvm_codegen_t *topcg = NULL;
 	rarray_t *records = rpa_records_create();
@@ -145,7 +145,7 @@ err:
 }
 
 
-int rjs_engine_dumpast(rjs_engine_t *jse, const char *script, rsize_t size)
+int rjs_engine_dumpast(rjs_engine_t *jse, const char *script, unsigned long size)
 {
 	rjs_error_t error;
 	rarray_t *records = rpa_records_create();
@@ -196,17 +196,16 @@ int rjs_engine_run(rjs_engine_t *jse)
 	}
 
 	if (jse->cpu->error == RVM_E_USERABORT) {
-		long idx = RVM_CPUREG_GETIP(jse->cpu, PC) - rvm_codegen_getcode(cg, 0);
+		rword idx = RVM_CPUREG_GETIP(jse->cpu, PC) - rvm_codegen_getcode(cg, 0);
 		if (idx >= 0) {
-			r_printf("Aborted at source index: %ld\n", rvm_codegen_getsource(cg, idx));
+			r_printf("Aborted at source index: %ld\n", rvm_codegen_getsource(cg, (unsigned long)idx));
 		}
 	}
-
 	return res;
 }
 
 
-rvmreg_t * rjs_engine_exec(rjs_engine_t *jse, const char *script, rsize_t size)
+rvmreg_t * rjs_engine_exec(rjs_engine_t *jse, const char *script, unsigned long size)
 {
 	if (rjs_engine_compile(jse, script, size) < 0)
 		return NULL;
@@ -257,17 +256,17 @@ static int rjs_compiler_addarg(rjs_compiler_t *co, rvmreg_t *arg)
 	index = r_map_lookup_s(a, -1, "count");
 	R_ASSERT(index >= 0);
 	count = (rvmreg_t *)r_map_value(a, index);
-	r_map_add_l(a, RVM_REG_GETL(count), arg);
+	r_map_add_l(a, (long)RVM_REG_GETL(count), arg);
 	rvm_reg_setsigned(count, RVM_REG_GETL(count) + 1);
 
 	return 0;
 }
 
 
-rvmreg_t *rjs_engine_vexec(rjs_engine_t *jse, const char *script, rsize_t size, rsize_t nargs, va_list args)
+rvmreg_t *rjs_engine_vexec(rjs_engine_t *jse, const char *script, unsigned long size, unsigned long nargs, va_list args)
 {
 	rvmreg_t arg;
-	rsize_t i = 0;
+	unsigned long i = 0;
 
 	if (rjs_engine_compile(jse, script, size) < 0)
 		return NULL;
@@ -286,7 +285,7 @@ rvmreg_t *rjs_engine_vexec(rjs_engine_t *jse, const char *script, rsize_t size, 
 }
 
 
-rvmreg_t *rjs_engine_args_exec(rjs_engine_t *jse, const char *script, rsize_t size, rsize_t nargs, ...)
+rvmreg_t *rjs_engine_args_exec(rjs_engine_t *jse, const char *script, unsigned long size, unsigned long nargs, ...)
 {
 	rvmreg_t *ret;
 	va_list args;
@@ -297,7 +296,7 @@ rvmreg_t *rjs_engine_args_exec(rjs_engine_t *jse, const char *script, rsize_t si
 }
 
 
-rvmreg_t *rjs_engine_args_exec_s(rjs_engine_t *jse, const char *script, rsize_t nargs, ...)
+rvmreg_t *rjs_engine_args_exec_s(rjs_engine_t *jse, const char *script, unsigned long nargs, ...)
 {
 	rvmreg_t *ret;
 	va_list args;

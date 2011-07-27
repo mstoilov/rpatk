@@ -64,7 +64,7 @@ void rpa_stat_cachedisable(rpastat_t *stat, unsigned int disable)
 
 int rpa_stat_init(rpastat_t *stat, unsigned int encoding, const char *input, const char *start, const char *end, rarray_t *records)
 {
-	long size;
+	unsigned long size;
 
 	if (!stat) {
 		return -1;
@@ -171,7 +171,7 @@ static long rpa_stat_exec_rid(rpastat_t *stat, rparule_t rid, unsigned int encod
 	if (topsiz <= 0)
 		return 0;
 	ptp = &stat->instack[topsiz];
-	return (ptp->input - input);
+	return (long)(ptp->input - input);
 }
 
 
@@ -241,7 +241,7 @@ int rpa_stat_abort(rpastat_t *stat)
 }
 
 
-rboolean rpa_stat_matchbitmap(rpastat_t *stat, rssize_t top, rpabitmap_t bitmap)
+rboolean rpa_stat_matchbitmap(rpastat_t *stat, long top, rpabitmap_t bitmap)
 {
 	int ret = FALSE;
 	rpainput_t *in = &stat->instack[top];
@@ -257,7 +257,7 @@ rboolean rpa_stat_matchbitmap(rpastat_t *stat, rssize_t top, rpabitmap_t bitmap)
 }
 
 
-int rpa_stat_matchchr(rpastat_t *stat, rssize_t top, unsigned long wc)
+int rpa_stat_matchchr(rpastat_t *stat, long top, unsigned long wc)
 {
 	int ret = 0;
 	rpainput_t *in = &stat->instack[top];
@@ -299,7 +299,7 @@ unsigned long rpa_special_char(unsigned long special)
 }
 
 
-int rpa_stat_matchspchr(rpastat_t *stat, rssize_t top, unsigned long wc)
+int rpa_stat_matchspchr(rpastat_t *stat, long top, unsigned long wc)
 {
 	int ret = 0;
 	rpainput_t *in = &stat->instack[top];
@@ -314,7 +314,7 @@ int rpa_stat_matchspchr(rpastat_t *stat, rssize_t top, unsigned long wc)
 }
 
 
-int rpa_stat_matchrng(rpastat_t *stat, rssize_t top, unsigned long wc1, unsigned long wc2)
+int rpa_stat_matchrng(rpastat_t *stat, long top, unsigned long wc1, unsigned long wc2)
 {
 	int ret = 0;
 	rpainput_t *in = &stat->instack[top];
@@ -353,7 +353,7 @@ static int rpa_stat_utf16_getchar(ruint32 *pwc, rpastat_t *stat, const char *inp
 }
 
 
-long rpa_stat_shift(rpastat_t *stat, rssize_t top)
+long rpa_stat_shift(rpastat_t *stat, long top)
 {
 	rpainput_t * ptp = &stat->instack[top];
 

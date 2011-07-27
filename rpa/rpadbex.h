@@ -171,7 +171,7 @@ int rpa_dbex_compile(rpadbex_t *dbex);
  *         Use @ref rpa_dbex_lasterror or @ref rpa_dbex_lasterrorinfo to retrieve the error
  *         information.
  */
-long rpa_dbex_load(rpadbex_t *dbex, const char *buffer, rsize_t size);
+long rpa_dbex_load(rpadbex_t *dbex, const char *buffer, unsigned long size);
 
 
 /**
@@ -306,7 +306,7 @@ rparule_t rpa_dbex_prev(rpadbex_t *dbex, rparule_t rid);
  * @param rid production ID.
  * @return the string length of the specified production
  */
-rsize_t rpa_dbex_strlen(rpadbex_t *dbex, rparule_t rid);
+unsigned long rpa_dbex_strlen(rpadbex_t *dbex, rparule_t rid);
 
 
 /**
@@ -318,7 +318,7 @@ rsize_t rpa_dbex_strlen(rpadbex_t *dbex, rparule_t rid);
  * @param size to be copied
  * @return Return the number of bytes written in the buffer.
  */
-rsize_t rpa_dbex_strncpy(rpadbex_t *dbex, char *dest, rparule_t rid, rsize_t size);
+unsigned long rpa_dbex_strncpy(rpadbex_t *dbex, char *dest, rparule_t rid, unsigned long size);
 
 
 /**

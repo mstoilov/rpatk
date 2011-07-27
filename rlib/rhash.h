@@ -47,7 +47,7 @@ struct rhash_s {
 
 #define R_HASH_INVALID_INDEXVAL ((unsigned long)-1)
 
-#define r_hash_size(__h__) (((rsize_t)1) << (__h__)->nbits)
+#define r_hash_size(__h__) (((unsigned long)1) << (__h__)->nbits)
 #define r_hash_mask(__h__) (r_hash_size(__h__) - 1)
 rhash_t *r_hash_create(unsigned int nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfunc);
 void r_hash_destroy(rhash_t* hash);

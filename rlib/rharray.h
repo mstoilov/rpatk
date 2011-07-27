@@ -61,7 +61,7 @@ rhash_node_t* r_harray_nodelookup(rharray_t *harray, rhash_node_t *cur, const ch
 rhash_node_t* r_harray_nodelookup_s(rharray_t *harray, rhash_node_t *cur, const char *name);
 rhash_node_t* r_harray_nodetaillookup(rharray_t *harray, rhash_node_t *cur, const char *name, unsigned int namesize);
 rhash_node_t* r_harray_nodetaillookup_s(rharray_t *harray, rhash_node_t *cur, const char *name);
-rpointer r_harray_get(rharray_t *harray, rsize_t index);
+rpointer r_harray_get(rharray_t *harray, unsigned long index);
 int r_harray_set(rharray_t *harray, long index, rconstpointer pval);
 
 robject_t *r_harray_copy(const robject_t *obj);

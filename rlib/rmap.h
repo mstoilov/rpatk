@@ -33,13 +33,13 @@ extern "C" {
 #endif
 
 
-#define r_map_hashsize(__m__) (1 << (__m__)->nbits)
+#define r_map_hashsize(__m__) ((unsigned long)((unsigned long)1 << (__m__)->nbits))
 #define r_map_hashmask(__m__) (r_map_hashsize(__m__) - 1)
 
 typedef struct rmap_s {
 	robject_t obj;
-	unsigned int nbits;
-	unsigned int elt_size;
+	unsigned long nbits;
+	unsigned long elt_size;
 	rcarray_t *data;
 	rlist_t *hash;
 	rlist_t active;

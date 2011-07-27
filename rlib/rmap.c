@@ -27,9 +27,9 @@
 typedef struct r_mapnode_s {
 	rlink_t active;
 	rlink_t hash;
-	rsize_t index;
-	long nbucket;
 	rstring_t *key;
+	unsigned long index;
+	unsigned long nbucket;
 	union {
 		rpointer p;
 		char data[0];
@@ -56,7 +56,7 @@ static unsigned long r_map_rstrhash(const rstr_t *key)
 	return hash;
 }
 
-void r_mapnode_init(r_mapnode_t *node, const char *key, rsize_t size)
+void r_mapnode_init(r_mapnode_t *node, const char *key, unsigned long size)
 {
 //	node->key = r_rstrdup(key, size);
 	node->key = r_string_create_strsize(key, size);
@@ -65,7 +65,7 @@ void r_mapnode_init(r_mapnode_t *node, const char *key, rsize_t size)
 }
 
 
-r_mapnode_t *r_map_getfreenode(rmap_t *map, const char *key, rsize_t size)
+r_mapnode_t *r_map_getfreenode(rmap_t *map, const char *key, unsigned long size)
 {
 	r_mapnode_t *node = NULL;
 
@@ -115,8 +115,8 @@ void r_map_cleanup(robject_t *obj)
 
 robject_t *r_map_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, unsigned int elt_size, unsigned int nbits)
 {
-	rsize_t elt_realsize = R_SIZE_ALIGN(elt_size + sizeof(r_mapnode_t), sizeof(ruword));
-	rsize_t hashsize, i;
+	unsigned long elt_realsize = R_SIZE_ALIGN(elt_size + sizeof(r_mapnode_t), sizeof(ruword));
+	unsigned long hashsize, i;
 	rmap_t *map = (rmap_t*)obj;
 	if (nbits == 0 || nbits > 16) {
 		R_ASSERT(0);
@@ -134,7 +134,6 @@ robject_t *r_map_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup,
 	for (i = 0; i < hashsize; i++) {
 		r_list_init(&map->hash[i]);
 	}
-
 	return obj;
 }
 

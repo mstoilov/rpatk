@@ -89,7 +89,7 @@ void rpa_grep_debug_compile(rpa_grep_t *pGrep);
 void rpa_grep_optimizations(rpa_grep_t *pGrep, unsigned long allow);
 
 void rpa_buffer_destroy(rpa_buffer_t *str);
-rpa_buffer_t * rpa_buffer_alloc(unsigned int size);
+rpa_buffer_t * rpa_buffer_alloc(unsigned long size);
 rpa_buffer_t *rpa_buffer_loadfile(FILE *pFile);
 
 rpa_buffer_t * rpa_buffer_load_file_utf8(const char *filename);

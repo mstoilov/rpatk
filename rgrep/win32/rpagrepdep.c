@@ -93,8 +93,8 @@ rpa_buffer_t * rpa_buffer_from_wchar(const wchar_t *wstr)
 {
 	rpa_buffer_t *buf;
 	int ret;
-	size_t wideLen = wcslen(wstr) + 1;
-	size_t sizeNeeded = WideCharToMultiByte(
+	int wideLen = (int)wcslen(wstr) + 1;
+	int sizeNeeded = WideCharToMultiByte(
 		CP_UTF8,
 		0,
 		wstr,

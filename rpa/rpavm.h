@@ -94,12 +94,12 @@ typedef struct rpainmap_s {
 
 
 typedef struct rpa_ruledata_s {
-	ruword size;
-	ruword ruleid;
-	ruword ruleuid;
-	ruword flags;
-	ruword namesize;
-	ruword name;
+	unsigned long size;
+	unsigned long ruleid;
+	unsigned long ruleuid;
+	unsigned long flags;
+	unsigned long namesize;
+	unsigned long name;
 } rpa_ruledata_t;
 
 

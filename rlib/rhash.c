@@ -144,8 +144,8 @@ void r_hash_destroy(rhash_t* hash)
 robject_t *r_hash_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy,
 						unsigned int nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfunc)
 {
-	unsigned int i;
-	rsize_t size;
+	unsigned long i;
+	unsigned long size;
 	rhash_t *hash = (rhash_t *)obj;
 
 	hash->nbits = nbits;
@@ -204,7 +204,7 @@ void r_hash_remove(rhash_t* hash, rconstpointer key)
 
 void r_hash_removeall(rhash_t* hash)
 {
-	rsize_t nbucket;
+	unsigned long nbucket;
 	rhead_t *head;
 	rhash_node_t *node;
 

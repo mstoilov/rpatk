@@ -13,8 +13,8 @@ const char *rjs_rules_get()
 }
 
 
-rsize_t rjs_rules_size()
+unsigned long rjs_rules_size()
 {
-	rsize_t size = _binary_____________rjs_ecma262_rpa_end - _binary_____________rjs_ecma262_rpa_start;
+	unsigned long size = _binary_____________rjs_ecma262_rpa_end - _binary_____________rjs_ecma262_rpa_start;
 	return size;
 }

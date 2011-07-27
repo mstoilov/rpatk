@@ -24,7 +24,7 @@ const char *rjs_rules_get()
 }
 
 
-rsize_t rjs_rules_size()
+unsigned long rjs_rules_size()
 {
 	if (!rules)
 		LoadRulesFromResource(IDR_ECMA262, TEXTFILE, &rules_size, &rules);

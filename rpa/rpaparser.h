@@ -86,7 +86,7 @@ typedef struct rpa_parser_s {
 
 rpa_parser_t *rpa_parser_create();
 void rpa_parser_destroy(rpa_parser_t *pa);
-long rpa_parser_load(rpa_parser_t *pa, const char *prods, rsize_t size, rarray_t *records);
+long rpa_parser_load(rpa_parser_t *pa, const char *prods, unsigned long size, rarray_t *records);
 long rpa_parser_load_s(rpa_parser_t *pa, const char *prods, rarray_t *records);
 
 #ifdef __cplusplus

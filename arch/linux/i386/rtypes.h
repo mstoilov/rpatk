@@ -17,16 +17,6 @@ typedef unsigned int ratomic_t;
 typedef unsigned long ruword;
 typedef long rword;
 
-#ifndef _RSIZE_T_DEFINED
-typedef unsigned long rsize_t;
-#define _RSIZE_T_DEFINED
-#endif
-
-#ifndef _RSSIZE_T_DEFINED
-typedef signed long rssize_t;
-#define _RSSIZE_T_DEFINED
-#endif
-
 
 /*
  * Common types. These types should be the same for most of the architectures.

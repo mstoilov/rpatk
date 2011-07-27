@@ -58,7 +58,7 @@ struct robject_s {
 	r_object_copyfun copy;
 };
 
-robject_t *r_object_create(rsize_t size);
+robject_t *r_object_create(unsigned long size);
 robject_t *r_object_copy(const robject_t *obj);
 void r_object_destroy(robject_t *obj);
 void r_object_cleanup(robject_t *obj);

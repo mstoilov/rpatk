@@ -58,7 +58,7 @@ static char *errormsg[] = {
 static void rjs_exec_ltrim(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	const char *ptr, *list;
-	rsize_t size;
+	unsigned long size;
 	rvmreg_t *r = NULL, *l = NULL;
 	rstring_t *src, *dest;
 
@@ -94,7 +94,7 @@ static void rjs_exec_ltrim(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rjs_exec_rtrim(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	const char *ptr, *list;
-	rsize_t size;
+	unsigned long size;
 	rvmreg_t *r = NULL, *l = NULL;
 	rstring_t *src, *dest;
 
@@ -130,7 +130,7 @@ static void rjs_exec_rtrim(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rjs_exec_trim(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	const char *start, *ptr, *list;
-	rsize_t size;
+	unsigned long size;
 	rvmreg_t *r = NULL, *l = NULL;
 	rstring_t *src, *dest;
 
@@ -223,7 +223,7 @@ long jrs_offset2line(const char *script, long offset)
 
 void rjs_display_errors(rjs_engine_t *jse, rstr_t *script)
 {
-	rsize_t i;
+	unsigned long i;
 	rjs_error_t *err;
 
 	for (i = 0; i < r_array_length(jse->errors); i++) {

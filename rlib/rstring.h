@@ -36,20 +36,20 @@ extern "C" {
 
 typedef struct rstr_s {
 	char *str;
-	rsize_t size;
+	unsigned long size;
 } rstr_t;
 
 
 int r_strcmp(const char *s1, const char *s2);
-int r_strncmp(const char *s1, const char *s2, rsize_t n);
-rboolean r_stringncmp(const char *str, const char *s2, rsize_t n);
-rsize_t r_strlen(const char *s);
+int r_strncmp(const char *s1, const char *s2, unsigned long n);
+rboolean r_stringncmp(const char *str, const char *s2, unsigned long n);
+unsigned long r_strlen(const char *s);
 char *r_strstr(const char *haystack, const char *needle);
 char *r_strchr(const char *s, int c);
 char *r_strdup(const char *s);
-char *r_strndup(const char *s, rsize_t size);
+char *r_strndup(const char *s, unsigned long size);
 char *r_strcpy(char *dest, const char *src);
-char *r_strncpy(char *dest, const char *src, rsize_t n);
+char *r_strncpy(char *dest, const char *src, unsigned long n);
 char *r_strcat(char *dest, const char *src);
 char *r_strncat(char *dest, const char *src, unsigned int n);
 int r_snprintf(char *str, unsigned int size, const char *format, ...);
@@ -74,7 +74,7 @@ rstring_t *r_string_create();
 rstring_t *r_string_create_from_ansistr(const char *str);
 rstring_t *r_string_create_from_double(double d);
 rstring_t *r_string_create_from_signed(rword l);
-rstring_t *r_string_create_strsize(const char *str, unsigned int size);
+rstring_t *r_string_create_strsize(const char *str, unsigned long size);
 rstring_t *r_string_create_from_rstr(const rstr_t *str);
 void r_string_destroy(rstring_t *string);
 robject_t *r_string_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy);

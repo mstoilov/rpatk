@@ -111,7 +111,7 @@ long rjs_parser_offset2lineoffset(const char *script, long offset)
 }
 
 
-long rjs_parser_exec(rjs_parser_t *parser, const char *script, rsize_t size, rarray_t *ast, rjs_error_t *error)
+long rjs_parser_exec(rjs_parser_t *parser, const char *script, unsigned long size, rarray_t *ast, rjs_error_t *error)
 {
 	long res = 0;
 	rpastat_t *stat = rpa_stat_create(parser->dbex, 4096);

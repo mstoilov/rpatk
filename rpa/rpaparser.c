@@ -53,7 +53,7 @@ void rpa_parser_destroy(rpa_parser_t *pa)
 }
 
 
-long rpa_parser_load(rpa_parser_t *pa, const char *prods, rsize_t size, rarray_t *records)
+long rpa_parser_load(rpa_parser_t *pa, const char *prods, unsigned long size, rarray_t *records)
 {
 	long ret = 0;
 	rpainput_t *ptp;
@@ -67,7 +67,7 @@ long rpa_parser_load(rpa_parser_t *pa, const char *prods, rsize_t size, rarray_t
 	if (ret < 0)
 		return 0;
 	ptp = &stat->instack[ret];
-	return (ptp->input - prods);
+	return (long)(ptp->input - prods);
 }
 
 

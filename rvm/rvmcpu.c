@@ -1501,9 +1501,8 @@ static void rvm_op_ecmn(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_allocstr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
-	rstring_t *s = r_string_create_strsize((const char*)RVM_CPUREG_GETP(cpu, ins->op2), RVM_CPUREG_GETU(cpu, ins->op3));
+	rstring_t *s = r_string_create_strsize((const char*)RVM_CPUREG_GETP(cpu, ins->op2), (unsigned long)RVM_CPUREG_GETU(cpu, ins->op3));
 	if (!s) {
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	}
@@ -1527,12 +1526,12 @@ static void rvm_op_mapalloc(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rvm_op_allocarr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
-	unsigned int size = RVM_CPUREG_GETU(cpu, ins->op2);
+	ruword size = RVM_CPUREG_GETU(cpu, ins->op2);
 	rcarray_t *a = r_carray_create_rvmreg();
 	if (!a) {
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	}
-	r_carray_setlength(a, size);
+	r_carray_setlength(a, (unsigned long)size);
 	r_gc_add(cpu->gc, (robject_t*)a);
 	rvm_reg_setarray(arg1, (robject_t*)a);
 }
@@ -1550,13 +1549,13 @@ static void rvm_op_maplookup(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	}
 	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_SINGED || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
-		index = r_map_lookup_l(a, -1, RVM_REG_GETL(arg3));
+		index = r_map_lookup_l(a, -1, (long)RVM_REG_GETL(arg3));
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_DOUBLE) {
 		index = r_map_lookup_d(a, -1, RVM_REG_GETD(arg3));
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_STRING) {
 		index = r_map_lookup(a, -1, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.size);
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_POINTER) {
-		index = r_map_lookup(a, -1, (char*)RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1));
+		index = r_map_lookup(a, -1, (char*)RVM_CPUREG_GETP(cpu, ins->op3), (unsigned int)RVM_CPUREG_GETL(cpu, ins->op1));
 	} else {
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	}
@@ -1579,13 +1578,13 @@ static void rvm_op_mapadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	}
 	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_SINGED || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
-		index = r_map_gckey_add_l(a, cpu->gc, RVM_REG_GETL(arg3), NULL);
+		index = r_map_gckey_add_l(a, cpu->gc, (long)RVM_REG_GETL(arg3), NULL);
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_DOUBLE) {
 		index = r_map_gckey_add_d(a, cpu->gc, RVM_REG_GETD(arg3), NULL);
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_STRING) {
 		index = r_map_gckey_add(a, cpu->gc, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.size, NULL);
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_POINTER) {
-		index = r_map_gckey_add(a, cpu->gc, (char*)RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1), NULL);
+		index = r_map_gckey_add(a, cpu->gc, (char*)RVM_CPUREG_GETP(cpu, ins->op3), (unsigned int)RVM_CPUREG_GETL(cpu, ins->op1), NULL);
 	} else {
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	}
@@ -1608,9 +1607,9 @@ static void rvm_op_maplookupadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	}
 	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_SINGED || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
-		index = r_map_lookup_l(a, -1, RVM_REG_GETL(arg3));
+		index = r_map_lookup_l(a, -1, (long)RVM_REG_GETL(arg3));
 		if (index < 0)
-			index = r_map_gckey_add_l(a, cpu->gc, RVM_REG_GETL(arg3), NULL);
+			index = r_map_gckey_add_l(a, cpu->gc, (long)RVM_REG_GETL(arg3), NULL);
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_DOUBLE) {
 		index = r_map_lookup_d(a, -1, RVM_REG_GETD(arg3));
 		if (index < 0)
@@ -1620,9 +1619,9 @@ static void rvm_op_maplookupadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		if (index < 0)
 			index = r_map_gckey_add(a, cpu->gc, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.size, NULL);
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_POINTER) {
-		index = r_map_lookup(a, -1, (char*)RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1));
+		index = r_map_lookup(a, -1, (char*)RVM_CPUREG_GETP(cpu, ins->op3), (unsigned int)RVM_CPUREG_GETL(cpu, ins->op1));
 		if (index < 0)
-			index = r_map_gckey_add(a, cpu->gc, (char*)RVM_CPUREG_GETP(cpu, ins->op3), RVM_CPUREG_GETL(cpu, ins->op1), NULL);
+			index = r_map_gckey_add(a, cpu->gc, (char*)RVM_CPUREG_GETP(cpu, ins->op3), (unsigned int)RVM_CPUREG_GETL(cpu, ins->op1), NULL);
 	} else {
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	}
@@ -1724,13 +1723,13 @@ static void rvm_op_lda(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	unsigned int index = RVM_CPUREG_GETU(cpu, ins->op3);
+	ruword index = RVM_CPUREG_GETU(cpu, ins->op3);
 	rcarray_t *a = RVM_REG_GETP(arg2);
 
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_ARRAY) {
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	}
-	*arg1 = *((rvmreg_t*)r_carray_slot_expand(a, index));
+	*arg1 = *((rvmreg_t*)r_carray_slot_expand(a, (unsigned long)index));
 }
 
 
@@ -1738,13 +1737,13 @@ static void rvm_op_sta(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	unsigned int index = RVM_CPUREG_GETU(cpu, ins->op3);
+	ruword index = RVM_CPUREG_GETU(cpu, ins->op3);
 	rcarray_t *a = RVM_REG_GETP(arg2);
 
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_ARRAY) {
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	}
-	r_carray_replace(a, index, arg1);
+	r_carray_replace(a, (unsigned long)index, arg1);
 }
 
 
@@ -2052,11 +2051,11 @@ skipexec:
 }
 
 
-int rvm_cpu_global_swilookup(rvmcpu_t *cpu, const char *swiname, rsize_t size)
+int rvm_cpu_global_swilookup(rvmcpu_t *cpu, const char *swiname, unsigned long size)
 {
 	int nswi;
 	rvm_switable_t *swientry;
-	rsize_t ntable;
+	unsigned long ntable;
 
 	for (ntable = 0; ntable < r_harray_length(cpu->switables); ntable++) {
 		swientry = r_harray_index(cpu->switables, ntable, rvm_switable_t*);
@@ -2071,7 +2070,7 @@ int rvm_cpu_global_swilookup(rvmcpu_t *cpu, const char *swiname, rsize_t size)
 }
 
 
-int rvm_cpu_table_swilookup(rvmcpu_t *cpu, const char *tabname, const char *swiname, rsize_t size)
+int rvm_cpu_table_swilookup(rvmcpu_t *cpu, const char *tabname, const char *swiname, unsigned long size)
 {
 	int nswi;
 	rvm_switable_t *swientry;
@@ -2090,7 +2089,7 @@ int rvm_cpu_table_swilookup(rvmcpu_t *cpu, const char *tabname, const char *swin
 }
 
 
-int rvm_cpu_swilookup(rvmcpu_t *cpu, const char *tabname, const char *swiname, rsize_t size)
+int rvm_cpu_swilookup(rvmcpu_t *cpu, const char *tabname, const char *swiname, unsigned long size)
 {
 	return tabname ? rvm_cpu_table_swilookup(cpu, tabname, swiname, size) : rvm_cpu_global_swilookup(cpu, swiname, size);
 }

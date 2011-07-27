@@ -47,7 +47,7 @@ void rpa_buffer_free(rpa_buffer_t *str)
 }
 
 
-rpa_buffer_t * rpa_buffer_alloc(unsigned int size)
+rpa_buffer_t * rpa_buffer_alloc(unsigned long size)
 {
 	rpa_buffer_t * str;
 
@@ -365,7 +365,7 @@ again:
 			displayed = 1;
 			rpa_grep_print_filename(pGrep);
 		}
-		rpa_grep_output(pGrep, lstart, lend - lstart, pGrep->encoding);
+		rpa_grep_output(pGrep, lstart, (unsigned long)(lend - lstart), pGrep->encoding);
 	}
 	if (lend < end) {
 		lstart = lend;
@@ -433,8 +433,8 @@ void rpa_grep_scan_buffer(rpa_grep_t *pGrep, rpa_buffer_t *buf)
 
 rpa_buffer_t *rpa_buffer_loadfile(FILE *pFile)
 {
-	unsigned int memchunk = 256;
-	int ret = 0, inputsize = 0;
+	unsigned long memchunk = 256;
+	long ret = 0, inputsize = 0;
 	rpa_buffer_t *buf;
 	
 	buf = rpa_buffer_alloc(2 * memchunk);
@@ -448,7 +448,7 @@ rpa_buffer_t *rpa_buffer_loadfile(FILE *pFile)
 				exit(1);
 			}
 		}
-		ret = fread(&buf->s[inputsize], 1, memchunk - 1, pFile);
+		ret = (long)fread(&buf->s[inputsize], 1, memchunk - 1, pFile);
 		if ((ret <= 0) && ferror(pFile)) {
 			rpa_buffer_destroy(buf);
 			return (void*)0;
@@ -523,7 +523,7 @@ void rpa_grep_output(rpa_grep_t *pGrep, const char *s, unsigned long size, unsig
 
 void rpa_grep_output_utf8_string(rpa_grep_t *pGrep, const char *s)
 {
-	rpa_grep_output(pGrep, s, strlen(s), RPA_ENCODING_UTF8);
+	rpa_grep_output(pGrep, s, r_strlen(s), RPA_ENCODING_UTF8);
 }
 
 

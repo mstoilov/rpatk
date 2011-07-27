@@ -33,14 +33,14 @@ int r_strcmp(const char *s1, const char *s2)
 }
 
 
-int r_strncmp(const char *s1, const char *s2, rsize_t n)
+int r_strncmp(const char *s1, const char *s2, unsigned long n)
 {
 	int ret = strncmp(s1, s2, (size_t)n);
 	return ret;
 }
 
 
-rboolean r_stringncmp(const char *str, const char *s2, rsize_t n)
+rboolean r_stringncmp(const char *str, const char *s2, unsigned long n)
 {
 	if (r_strlen(str) == n && r_strncmp(str, s2, (size_t)n) == 0)
 		return 1;
@@ -48,9 +48,9 @@ rboolean r_stringncmp(const char *str, const char *s2, rsize_t n)
 }
 
 
-rsize_t r_strlen(const char *s)
+unsigned long r_strlen(const char *s)
 {
-	return s ? strlen(s) : 0;
+	return s ? (unsigned long)strlen(s) : 0;
 }
 
 
@@ -81,7 +81,7 @@ char *r_strcpy(char *dest, const char *src)
 }
 
 
-char *r_strncpy(char *dest, const char *src, rsize_t n)
+char *r_strncpy(char *dest, const char *src, unsigned long n)
 {
 	return (char*) strncpy(dest, src, n);
 }
@@ -89,7 +89,7 @@ char *r_strncpy(char *dest, const char *src, rsize_t n)
 
 char *r_strdup(const char *s)
 {
-	rsize_t size = r_strlen(s);
+	unsigned long size = r_strlen(s);
 	char *dupstr = (char*)r_zmalloc(size + 1);
 
 	if (dupstr) {
@@ -99,7 +99,7 @@ char *r_strdup(const char *s)
 }
 
 
-char *r_strndup(const char *s, rsize_t size)
+char *r_strndup(const char *s, unsigned long size)
 {
 	char *dupstr = (char*)r_zmalloc(size + 1);
 
@@ -112,7 +112,7 @@ char *r_strndup(const char *s, rsize_t size)
 
 rstr_t *r_rstrdup(const char *s, unsigned int size)
 {
-	rsize_t allocsize = sizeof(rstr_t) + size + sizeof(char);
+	unsigned long allocsize = sizeof(rstr_t) + size + sizeof(char);
 	rstr_t *d = (rstr_t*)r_malloc(allocsize);
 	if (d) {
 		r_memset(d, 0, allocsize);
@@ -310,7 +310,7 @@ rstring_t *r_string_create_from_signed(rword l)
 }
 
 
-rstring_t *r_string_create_strsize(const char *str, unsigned int size)
+rstring_t *r_string_create_strsize(const char *str, unsigned long size)
 {
 	rstr_t rstr;
 

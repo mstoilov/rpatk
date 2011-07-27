@@ -54,7 +54,7 @@ typedef struct rjs_coctx_s {
 
 typedef struct rjs_coctx_global_s {
 	rjs_coctx_t base;
-	rsize_t stackallocs;
+	unsigned long stackallocs;
 } rjs_coctx_global_t;
 
 
@@ -65,7 +65,7 @@ typedef struct rjs_coctx_function_s {
 	long endidx;
 	long allocsidx;
 	long execoff;
-	rsize_t stackallocs;
+	unsigned long stackallocs;
 } rjs_coctx_function_t;
 
 
@@ -77,7 +77,7 @@ typedef struct rjs_coctx_operation_s {
 
 typedef struct rjs_coctx_functioncall_s {
 	rjs_coctx_t base;
-	rsize_t arguments;
+	unsigned long arguments;
 	unsigned char setthis;
 } rjs_coctx_functioncall_t;
 
@@ -113,7 +113,7 @@ struct rjs_compiler_s {
 	char *temp;
 	rstr_t stringcharacters;
 	const char *script;
-	rsize_t scriptsize;
+	unsigned long scriptsize;
 	long headoff;
 	long opcode;
 	unsigned long debug:1;
@@ -123,7 +123,7 @@ struct rjs_compiler_s {
 
 rjs_compiler_t *rjs_compiler_create(rvmcpu_t *cpu);
 void rjs_compiler_destroy(rjs_compiler_t *co);
-int rjs_compiler_compile(rjs_compiler_t *co, const char *script, rsize_t scriptsize, rarray_t *records, rvm_codegen_t *cg, rjs_error_t *error);
+int rjs_compiler_compile(rjs_compiler_t *co, const char *script, unsigned long scriptsize, rarray_t *records, rvm_codegen_t *cg, rjs_error_t *error);
 rjs_coctx_t *rjs_compiler_getctx(rjs_compiler_t *co, unsigned long type);
 
 #ifdef __cplusplus

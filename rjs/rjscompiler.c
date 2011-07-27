@@ -72,7 +72,7 @@ void rjs_compiler_adderror(rjs_compiler_t *co, long code, rparecord_t *prec)
 static const char *rjs_compiler_record2str(rjs_compiler_t *co, rarray_t *records, long rec)
 {
 	rparecord_t *prec = (rparecord_t *)r_array_slot(records, rpa_recordtree_get(records, rec, RPA_RECORD_END));
-	rsize_t size = 16; /* Min size */
+	unsigned long size = 16; /* Min size */
 
 	if (prec && prec->inputsiz) {
 		size = prec->inputsiz + 1;
@@ -185,7 +185,7 @@ rjs_coctx_t *rjs_compiler_gettopctx(rjs_compiler_t *co)
 long rjs_compiler_record2opcode(rparecord_t *prec)
 {
 	const char *input = prec->input;
-	rsize_t size = prec->inputsiz;
+	unsigned long size = prec->inputsiz;
 
 	if (r_stringncmp("++", input,  size))
 		return RVM_EADD;
@@ -269,7 +269,7 @@ long rjs_compiler_record2opcode(rparecord_t *prec)
 long rjs_compiler_record2unaryopcode(rparecord_t *prec)
 {
 	const char *input = prec->input;
-	rsize_t size = prec->inputsiz;
+	unsigned long size = prec->inputsiz;
 
 	if (r_stringncmp("+", input,  size))
 		return RVM_NOP;
@@ -330,7 +330,7 @@ int rjs_compiler_rh_program(rjs_compiler_t *co, rarray_t *records, long rec)
 	rjs_compiler_debughead(co, records, rec);
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_BX, LR, XX, XX, 0));
 	rvm_codegen_redefinelabel_default(co->cg, mainidx);
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_BL, DA, XX, XX, start - rvm_codegen_getcodesize(co->cg)));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_BL, DA, XX, XX, start - (long)rvm_codegen_getcodesize(co->cg)));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_EXT, XX, XX, XX, 0));
 	rjs_compiler_debugtail(co, records, rec);
 	r_array_removelast(co->coctx);
@@ -1743,7 +1743,7 @@ static int rjs_compiler_playrecord(rjs_compiler_t *co, rarray_t *records, long r
 }
 
 
-int rjs_compiler_compile(rjs_compiler_t *co, const char *script, rsize_t scriptsize, rarray_t *records, rvm_codegen_t *cg, rjs_error_t *error)
+int rjs_compiler_compile(rjs_compiler_t *co, const char *script, unsigned long scriptsize, rarray_t *records, rvm_codegen_t *cg, rjs_error_t *error)
 {
 	long i;
 	rvm_codelabel_t *labelerr;

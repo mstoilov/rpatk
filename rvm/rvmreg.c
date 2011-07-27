@@ -86,7 +86,7 @@ static void rvm_reg_carray_oncleanup(rcarray_t *array)
  */
 void rvm_reg_array_unref_gcdata(robject_t *obj)
 {
-	rsize_t i, size;
+	unsigned long i, size;
 	rvmreg_t *r;
 
 	if (obj->type == R_OBJECT_ARRAY) {

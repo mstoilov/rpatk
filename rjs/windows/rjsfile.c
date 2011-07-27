@@ -35,11 +35,11 @@ rstr_t *rjs_file_map(const char *filename)
 	pMappedView = (char*)MapViewOfFile(hMapping, FILE_MAP_READ, 0, 0, 0);
 	if (NULL == pMappedView)
 		goto error;
-	buf->size = (rsize_t)fileSize;
-	buf->str = (char*)r_zmalloc((rsize_t)fileSize + 1);
+	buf->size = (unsigned long)fileSize;
+	buf->str = (char*)r_zmalloc((unsigned long)fileSize + 1);
 	if (!buf->str)
 		goto error;
-	r_memcpy(buf->str, pMappedView, (rsize_t)fileSize);
+	r_memcpy(buf->str, pMappedView, (unsigned long)fileSize);
 	if (hMapping)
 		CloseHandle(hMapping);
 	if (hFile != INVALID_HANDLE_VALUE)

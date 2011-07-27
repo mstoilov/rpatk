@@ -98,8 +98,8 @@ struct rparecord_s {
 	 	 	 	 	 	 	 *   inside @ref rpadbex_t, so make sure rpadbex_t object is still valid while accessing this pointer. */
 	const char *input;		/**< Pointer in the input stream. This pointer points to memory inside the input buffer
 	 	 	 	 	 	 	 *   passed to @ref rpa_stat_parse, make sure this memory is still valid while accessing this pointer. */
-	rsize_t inputoff;		/**< Input offset, calculated from the start parameter passed to @ref rpa_stat_parse */
-	rsize_t inputsiz;		/**< Size of input */
+	unsigned long inputoff;		/**< Input offset, calculated from the start parameter passed to @ref rpa_stat_parse */
+	unsigned long inputsiz;		/**< Size of input */
 	ruint32 type;			/**< Record Type: @ref RPA_RECORD_START or @ref RPA_RECORD_END */
 	ruint32 ruleid;			/**< Unique ID, identifying the BNF rule that created the record */
 	ruint32 ruleuid;		/**< User specified Rule ID. If you used directive @ref emitid for this rulename, this member will contain the specified ID */

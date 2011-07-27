@@ -320,7 +320,7 @@ long rpa_compiler_addblob(rpa_compiler_t *co, long ruleid, long ruleuid, unsigne
 		return -1;
 	r_memset(pblob, 0, RPA_RULEBLOB_SIZE);
 	ptr = blob + sizeof(rpa_ruledata_t);
-	pblob->name = ptr - blob;
+	pblob->name = (unsigned long)(ptr - blob);
 	pblob->ruleid = ruleid;
 	pblob->ruleuid = ruleuid;
 	pblob->flags = flags;

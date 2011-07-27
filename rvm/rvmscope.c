@@ -82,7 +82,7 @@ unsigned int rvm_scope_count(rvm_scope_t* scope)
 
 void rvm_scope_push(rvm_scope_t* scope)
 {
-	rsize_t scopelen = r_array_length(scope->varstack);
+	unsigned long scopelen = r_array_length(scope->varstack);
 //	r_printf("SCOPE FRAME: %d, PUSH: %d\n", r_array_length(scope->scopestack), scopelen);
 	r_array_add(scope->scopestack, &scopelen);
 }
@@ -90,7 +90,7 @@ void rvm_scope_push(rvm_scope_t* scope)
 
 void rvm_scope_pop(rvm_scope_t* scope)
 {
-	rsize_t scopelen = r_array_index(scope->scopestack, r_array_length(scope->scopestack) - 1, rsize_t);
+	unsigned long scopelen = r_array_index(scope->scopestack, r_array_length(scope->scopestack) - 1, unsigned long);
 	r_array_removelast(scope->scopestack);
 	r_array_setlength(scope->varstack, scopelen);
 //	r_printf("SCOPE FRAME: %d, POP: %d\n", r_array_length(scope->scopestack), scopelen);
@@ -139,7 +139,7 @@ void rvm_scope_addpointer_s(rvm_scope_t *scope, const char *name, rpointer ptr)
 
 rvm_varmap_t *rvm_scope_lookup(rvm_scope_t *scope, const char *name, unsigned int namesize)
 {
-	rsize_t scopelen = r_array_length(scope->varstack);
+	unsigned long scopelen = r_array_length(scope->varstack);
 	rvm_varmap_t *varmap;
 	int i;
 
@@ -157,7 +157,7 @@ rvm_varmap_t *rvm_scope_lookup(rvm_scope_t *scope, const char *name, unsigned in
 
 rvm_varmap_t *rvm_scope_tiplookup(rvm_scope_t *scope, const char *name, unsigned int namesize)
 {
-	rsize_t scopelen = r_array_length(scope->varstack);
+	unsigned long scopelen = r_array_length(scope->varstack);
 	unsigned int tipstart = r_array_empty(scope->scopestack) ? 0 : r_array_last(scope->scopestack, unsigned int);
 	rvm_varmap_t *varmap;
 	int i;

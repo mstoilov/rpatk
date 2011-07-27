@@ -183,7 +183,7 @@ long r_harray_replace_s(rharray_t *harray, const char *name, rconstpointer pval)
 
 long r_harray_lookup(rharray_t *harray, const char *name, unsigned int namesize)
 {
-	rsize_t found;
+	unsigned long found;
 
 	rstr_t lookupstr = {(char*)name, namesize};
 	found = r_hash_lookup_indexval(harray->hash, &lookupstr);
@@ -201,7 +201,7 @@ long r_harray_lookup_s(rharray_t *harray, const char *name)
 
 long r_harray_taillookup(rharray_t *harray, const char *name, unsigned int namesize)
 {
-	rsize_t found;
+	unsigned long found;
 
 	rstr_t lookupstr = {(char*)name, namesize};
 	found = r_hash_taillookup_indexval(harray->hash, &lookupstr);
@@ -253,7 +253,7 @@ int r_harray_set(rharray_t *harray, long index, rconstpointer pval)
 }
 
 
-rpointer r_harray_get(rharray_t *harray, rsize_t index)
+rpointer r_harray_get(rharray_t *harray, unsigned long index)
 {
 	if (index >= r_carray_length(harray->members) || index < 0)
 		return NULL;

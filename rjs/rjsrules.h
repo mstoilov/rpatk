@@ -29,7 +29,7 @@ extern "C" {
 #include "rtypes.h"
 
 const char *rjs_rules_get();
-rsize_t rjs_rules_size();
+unsigned long rjs_rules_size();
 
 
 #ifdef __cplusplus

@@ -18,16 +18,6 @@ typedef long ratomic_t;
 typedef ruint64 ruword;
 typedef rint64 rword;
 
-#ifndef _RSIZE_T_DEFINED
-typedef unsigned long rsize_t;
-#define _RSIZE_T_DEFINED
-#endif
-
-#ifndef _RSSIZE_T_DEFINED
-typedef long rssize_t;
-#define _RSSIZE_T_DEFINED
-#endif
-
 /*
  * Common types. These types should be the same for most of the architectures.
  */
@@ -35,6 +25,7 @@ typedef int rboolean;
 typedef void *rpointer;
 typedef const void *rconstpointer;
 typedef struct {ruint32 p1; ruint32 p2;} rpair_t;
+
 
 /*
  * Atomic operations (Architecture Dependent)

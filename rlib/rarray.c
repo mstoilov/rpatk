@@ -24,7 +24,7 @@
 
 #define MIN_ARRAY_LEN 2
 
-static void r_array_checkexpand(rarray_t *array, rsize_t index);
+static void r_array_checkexpand(rarray_t *array, unsigned long index);
 
 
 void r_array_cleanup(robject_t *obj)
@@ -37,7 +37,7 @@ void r_array_cleanup(robject_t *obj)
 }
 
 
-robject_t *r_array_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, rsize_t elt_size)
+robject_t *r_array_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, unsigned long elt_size)
 {
 	rarray_t *array = (rarray_t*)obj;
 
@@ -49,7 +49,7 @@ robject_t *r_array_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanu
 }
 
 
-rarray_t *r_array_create(rsize_t elt_size)
+rarray_t *r_array_create(unsigned long elt_size)
 {
 	rarray_t *array;
 	array = (rarray_t*)r_object_create(sizeof(*array));
@@ -66,7 +66,7 @@ void r_array_destroy(rarray_t *array)
 
 robject_t *r_array_copy(const robject_t *obj)
 {
-	rsize_t i;
+	unsigned long i;
 	rarray_t *dst;
 	const rarray_t *array = (const rarray_t *)obj;
 
@@ -85,7 +85,7 @@ robject_t *r_array_copy(const robject_t *obj)
 }
 
 
-static void r_array_exist_replace(rarray_t *array, rsize_t index, rconstpointer data)
+static void r_array_exist_replace(rarray_t *array, unsigned long index, rconstpointer data)
 {
 	if (data)
 		r_memcpy(r_array_slot(array, index), data, array->elt_size);
@@ -94,9 +94,9 @@ static void r_array_exist_replace(rarray_t *array, rsize_t index, rconstpointer 
 }
 
 
-rsize_t r_array_add(rarray_t *array, rconstpointer data)
+unsigned long r_array_add(rarray_t *array, rconstpointer data)
 {
-	rsize_t index = r_array_length(array);
+	unsigned long index = r_array_length(array);
 
 	r_array_setlength(array, index + 1);
 	r_array_exist_replace(array, index, data);
@@ -104,7 +104,7 @@ rsize_t r_array_add(rarray_t *array, rconstpointer data)
 }
 
 
-rsize_t r_array_removelast(rarray_t *array)
+unsigned long r_array_removelast(rarray_t *array)
 {
 	if (!r_array_empty(array))
 		r_array_setlength(array, r_array_length(array) - 1);
@@ -112,11 +112,11 @@ rsize_t r_array_removelast(rarray_t *array)
 }
 
 
-rsize_t r_array_insert(rarray_t *array, rsize_t index, rconstpointer data)
+unsigned long r_array_insert(rarray_t *array, unsigned long index, rconstpointer data)
 {
 	r_array_checkexpand(array, index + 1);
 	if (index < r_array_length(array)) {
-		rsize_t curlen = r_array_length(array);
+		unsigned long curlen = r_array_length(array);
 		r_array_setlength(array, r_array_length(array) + 1);
 		r_memmove(r_array_slot(array, index + 1), r_array_slot(array, index), (curlen - index) * array->elt_size);
 	} else {
@@ -127,7 +127,7 @@ rsize_t r_array_insert(rarray_t *array, rsize_t index, rconstpointer data)
 }
 
 
-rsize_t r_array_replace(rarray_t *array, rsize_t index, rconstpointer data)
+unsigned long r_array_replace(rarray_t *array, unsigned long index, rconstpointer data)
 {
 	if (index >= r_array_length(array))
 		return r_array_insert(array, index, data);
@@ -136,7 +136,7 @@ rsize_t r_array_replace(rarray_t *array, rsize_t index, rconstpointer data)
 }
 
 
-rsize_t r_array_setlength(rarray_t *array, rsize_t len)
+unsigned long r_array_setlength(rarray_t *array, unsigned long len)
 {
 	r_array_checkexpand(array, len);
 	r_array_length(array) = len;
@@ -144,15 +144,15 @@ rsize_t r_array_setlength(rarray_t *array, rsize_t len)
 }
 
 
-rsize_t r_array_expand(rarray_t *array, rsize_t len)
+unsigned long r_array_expand(rarray_t *array, unsigned long len)
 {
 	return r_array_setlength(array, r_array_length(array) + len);
 }
 
 
-static void r_array_checkexpand(rarray_t *array, rsize_t len)
+static void r_array_checkexpand(rarray_t *array, unsigned long len)
 {
-	rsize_t nalloc_size;
+	unsigned long nalloc_size;
 	rpointer data;
 
 	if (array->alloc_size < len) {
@@ -160,7 +160,7 @@ static void r_array_checkexpand(rarray_t *array, rsize_t len)
 			nalloc_size = 2 * nalloc_size + 1;
 		data = r_realloc(array->data, nalloc_size * array->elt_size);
 		if (data) {
-			rsize_t old_len = array->alloc_size;
+			unsigned long old_len = array->alloc_size;
 			array->data = data;
 			array->alloc_size = nalloc_size;
 
@@ -173,16 +173,16 @@ static void r_array_checkexpand(rarray_t *array, rsize_t len)
 }
 
 
-void *r_array_slot_expand(rarray_t *array, rsize_t index)
+void *r_array_slot_expand(rarray_t *array, unsigned long index)
 {
 	r_array_checkexpand(array, index+1);
 	return (void*) r_array_slot(array, index);
 }
 
 
-int r_array_move(rarray_t *array, rsize_t dest, rsize_t src, rsize_t size)
+int r_array_move(rarray_t *array, unsigned long dest, unsigned long src, unsigned long size)
 {
-	rsize_t i;
+	unsigned long i;
 	if (src == dest)
 		return 0;
 	if (r_array_length(array) <= src || size <= 0)
@@ -207,10 +207,10 @@ int r_array_move(rarray_t *array, rsize_t dest, rsize_t src, rsize_t size)
 }
 
 
-void r_array_delete(rarray_t *array, rsize_t index)
+void r_array_delete(rarray_t *array, unsigned long index)
 {
-	rsize_t movesize;
-	rsize_t moveindex;
+	unsigned long movesize;
+	unsigned long moveindex;
 
 	if (r_array_length(array) <= index)
 		return;

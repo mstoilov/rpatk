@@ -338,7 +338,7 @@ void rvm_cpu_destroy(rvmcpu_t * vm);
 int rvm_cpu_abort(rvmcpu_t *cpu);
 int rvm_cpu_exec(rvmcpu_t *cpu, rvm_asmins_t *prog, ruword off);
 int rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, ruword off);
-int rvm_cpu_swilookup(rvmcpu_t *cpu, const char *tabname, const char *swiname, rsize_t size);
+int rvm_cpu_swilookup(rvmcpu_t *cpu, const char *tabname, const char *swiname, unsigned long size);
 int rvm_cpu_swilookup_s(rvmcpu_t *cpu, const char *tabname, const char *swiname);
 int rvm_cpu_addswitable(rvmcpu_t * cpu, const char *tabname, rvm_switable_t *switalbe);
 rvmreg_t *rvm_cpu_alloc_global(rvmcpu_t *cpu);

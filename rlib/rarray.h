@@ -35,17 +35,17 @@ typedef void (*r_array_callback)(rarray_t *array);
 struct rarray_s {
 	robject_t obj;
 	rpointer *data;
-	rsize_t len;
-	rsize_t alloc_size;
-	rsize_t elt_size;
+	unsigned long len;
+	unsigned long alloc_size;
+	unsigned long elt_size;
 	r_array_callback oncleanup;
 	r_array_callback oncopy;
 	rpointer *user;
 };
 
 
-#define r_array_size(__array__) ((__array__)->alloc_size)
-#define r_array_length(__array__) ((__array__)->len)
+#define r_array_size(__array__) (__array__)->alloc_size
+#define r_array_length(__array__) (__array__)->len
 #define r_array_empty(__array__) ((r_array_length(__array__)) ? 0 : 1)
 #define r_array_last(__array__, __type__) (r_array_index(__array__, (__array__)->len - 1, __type__))
 #define r_array_inclast(__array__, __type__) (*((__type__*)(r_array_lastslot(__array__))) += 1)
@@ -58,18 +58,18 @@ struct rarray_s {
 #define r_array_push(__array__, __val__, __type__) do {__type__ __v__ = (__type__)__val__; r_array_add(__array__, &__v__); } while(0)
 #define r_array_pop(__array__, __type__) (r_array_index(__array__, (__array__)->len ? --(__array__)->len : 0, __type__))
 
-robject_t *r_array_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, rsize_t elt_size);
-rarray_t *r_array_create(rsize_t elt_size);
+robject_t *r_array_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, unsigned long elt_size);
+rarray_t *r_array_create(unsigned long elt_size);
 void r_array_destroy(rarray_t *array);
-rsize_t r_array_add(rarray_t *array, rconstpointer data);
-int r_array_move(rarray_t *array, rsize_t dest, rsize_t src, rsize_t size);
-rsize_t r_array_removelast(rarray_t *array);
-rsize_t r_array_insert(rarray_t *array, rsize_t index, rconstpointer data);
-rsize_t r_array_replace(rarray_t *array, rsize_t index, rconstpointer data);
-rsize_t r_array_setlength(rarray_t *array, rsize_t len);
-rsize_t r_array_expand(rarray_t *array, rsize_t len);
-void *r_array_slot_expand(rarray_t *array, rsize_t index);
-void r_array_delete(rarray_t *array, rsize_t index);
+unsigned long r_array_add(rarray_t *array, rconstpointer data);
+int r_array_move(rarray_t *array, unsigned long dest, unsigned long src, unsigned long size);
+unsigned long r_array_removelast(rarray_t *array);
+unsigned long r_array_insert(rarray_t *array, unsigned long index, rconstpointer data);
+unsigned long r_array_replace(rarray_t *array, unsigned long index, rconstpointer data);
+unsigned long r_array_setlength(rarray_t *array, unsigned long len);
+unsigned long r_array_expand(rarray_t *array, unsigned long len);
+void *r_array_slot_expand(rarray_t *array, unsigned long index);
+void r_array_delete(rarray_t *array, unsigned long index);
 
 /*
  * Virtual methods implementation

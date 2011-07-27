@@ -22,7 +22,7 @@
 #include "rlib/robject.h"
 
 
-robject_t *r_object_create(rsize_t size)
+robject_t *r_object_create(unsigned long size)
 {
 	robject_t *object;
 
