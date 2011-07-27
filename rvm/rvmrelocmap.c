@@ -76,16 +76,16 @@ int rvm_relocmap_relocate(rvm_relocmap_t *relocmap, rvm_codemap_t *codemap, rvm_
 {
 	rsize_t index;
 	rvm_relocrecord_t *reloc;
-	rword value;
+	ruword value;
 
 	for (index = 0; index < r_array_length(relocmap->records); index++) {
 		reloc = rvm_relocmap_get(relocmap, index);
 		value = rvm_codemap_resolve(codemap, reloc->label, err);
-		if (value == (rword)-1)
+		if (value == (ruword)-1)
 			return -1;
 		if (reloc->target == RVM_RELOC_CODE) {
 			if (reloc->type == RVM_RELOC_BRANCH) {
-				code[reloc->offset].data.v.w = RVM_BYTE2CODE_OFFSET(value - (rword)&code[reloc->offset]);
+				code[reloc->offset].data.v.w = RVM_BYTE2CODE_OFFSET(value - (ruword)&code[reloc->offset]);
 			} else if (reloc->type == RVM_RELOC_JUMP) {
 				code[reloc->offset].data.v.w = value - RVM_CODE2BYTE_OFFSET(1);
 			} else if (reloc->type == RVM_RELOC_STRING) {

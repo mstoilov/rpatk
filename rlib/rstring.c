@@ -296,13 +296,13 @@ rstring_t *r_string_create_from_double(double d)
 }
 
 
-rstring_t *r_string_create_from_long(long l)
+rstring_t *r_string_create_from_signed(rword l)
 {
 	char temp[128];
 	int size;
 
 	r_memset(temp, 0, sizeof(temp));
-	size = r_snprintf(temp, sizeof(temp) - 1, "%ld", l);
+	size = r_snprintf(temp, sizeof(temp) - 1, "%ld", (long)l);
 	if (size > 0 && size < sizeof(temp)) {
 		return r_string_create_strsize(temp, size);
 	}

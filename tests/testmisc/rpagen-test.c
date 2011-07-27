@@ -52,17 +52,17 @@ typedef struct rvm_vardeclaration_s {
 
 typedef struct rvm_fundecl_s {
 	const char *funname;
-	rword funnamesiz;
-	rword params;
-	rword codestart;
-	rword codesize;
+	ruword funnamesiz;
+	ruword params;
+	ruword codestart;
+	ruword codesize;
 } rvm_fundecl_t;
 
 
 typedef struct rvm_funcall_s {
 	const char *funname;
-	rword funnamesiz;
-	rword params;
+	ruword funnamesiz;
+	ruword params;
 } rvm_funcall_t;
 
 
@@ -74,12 +74,12 @@ typedef enum {
 
 typedef struct rvm_codespan_s {
 	rvm_codespantype_t type;
-	rword codestart;
-	rword codesize;
-	rword l1;
-	rword l2;
-	rword l3;
-	rword l4;
+	ruword codestart;
+	ruword codesize;
+	ruword l1;
+	ruword l2;
+	ruword l3;
+	ruword l4;
 } rvm_codespan_t;
 
 
@@ -208,14 +208,14 @@ rvm_compiler_t *rvm_compiler_create(rpa_dbex_handle dbex)
 	co->cg = rvm_codegen_create();
 	co->scope = rvm_scope_create();
 	co->opcodes = r_array_create(sizeof(unsigned int));
-	co->fp = r_array_create(sizeof(rword));
+	co->fp = r_array_create(sizeof(ruword));
 	co->funcall = r_array_create(sizeof(rvm_funcall_t));
 	co->stat = r_array_create(sizeof(rvm_costat_t));
 	co->fundecl = r_array_create(sizeof(rvm_fundecl_t));
 	co->codespan = r_array_create(sizeof(rvm_codespan_t));
 	co->loops = r_array_create(sizeof(rvm_codespan_t*));
 	co->varmap = r_array_create(sizeof(rvm_varmap_t*));
-	r_array_push(co->fp, 0, rword);
+	r_array_push(co->fp, 0, ruword);
 	co->dbex = dbex;
 	return co;
 }
@@ -296,7 +296,7 @@ static void rvm_js_print(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		r_printf("%s\n", RVM_REG_GETU(r) ? "true" : "false");
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_POINTER)
 		r_printf("%p\n", RVM_REG_GETP(r));
-	else if (rvm_reg_gettype(r) == RVM_DTYPE_LONG)
+	else if (rvm_reg_gettype(r) == RVM_DTYPE_SINGED)
 		r_printf("%ld\n", RVM_REG_GETL(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_DOUBLE)
 		r_printf("%f\n", RVM_REG_GETD(r));
@@ -671,7 +671,7 @@ int codegen_program_callback(rpa_stat_handle stat, const char *name, void *userd
 //		rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, TP, R8, XX, 0));
 	} else {
 		rvm_codegen_replaceins(co->cg, 0, rvm_asm(RVM_MOV, FP, SP, XX, 0));
-		rvm_codegen_replaceins(co->cg, 1, rvm_asm(RVM_ADD, SP, SP, DA, r_array_pop(co->fp, rword)));
+		rvm_codegen_replaceins(co->cg, 1, rvm_asm(RVM_ADD, SP, SP, DA, r_array_pop(co->fp, ruword)));
 		off = rvm_codegen_getcodesize(co->cg);
 		if (debuginfo)
 			rvm_codegen_addins(co->cg, rvm_asm(RVM_PRN, R0, XX, XX, 0));
@@ -929,8 +929,8 @@ int codegen_varalloc_to_ptr_callback(rpa_stat_handle stat, const char *name, voi
 	}
 
 	if (rvm_scope_count(co->scope)) {
-		r_array_inclast(co->fp, rword);
-		rvm_scope_addoffset(co->scope, input, size, r_array_last(co->fp, rword));
+		r_array_inclast(co->fp, ruword);
+		rvm_scope_addoffset(co->scope, input, size, r_array_last(co->fp, ruword));
 	} else {
 		rvm_scope_addpointer(co->scope, input, size, r_carray_slot_expand(co->cpu->data, r_carray_length(co->cpu->data)));
 		r_carray_inclength(co->cpu->data);
@@ -965,8 +965,8 @@ int codegen_varalloc_callback(rpa_stat_handle stat, const char *name, void *user
 	}
 
 	if (rvm_scope_count(co->scope)) {
-		r_array_inclast(co->fp, rword);
-		rvm_scope_addoffset(co->scope, input, size, r_array_last(co->fp, rword));
+		r_array_inclast(co->fp, ruword);
+		rvm_scope_addoffset(co->scope, input, size, r_array_last(co->fp, ruword));
 	} else {
 		rvm_scope_addpointer(co->scope, input, size, r_carray_slot_expand(co->cpu->data, r_carray_length(co->cpu->data)));
 		r_carray_inclength(co->cpu->data);
@@ -1167,8 +1167,8 @@ int codegen_fundeclparameter_callback(rpa_stat_handle stat, const char *name, vo
 	}
 
 	fundecl->params += 1;
-	r_array_inclast(co->fp, rword);
-	rvm_scope_addoffset(co->scope, input, size, r_array_last(co->fp, rword));
+	r_array_inclast(co->fp, ruword);
+	rvm_scope_addoffset(co->scope, input, size, r_array_last(co->fp, ruword));
 	codegen_print_callback(stat, name, userdata, input, size, reason);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);
 	return size;
@@ -1209,7 +1209,7 @@ int codegen_fundeclname_callback(rpa_stat_handle stat, const char *name, void *u
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_ADD, SP, FP, DA, 0)); 	/* Will be re-written later */
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_NOP, XX, XX, XX, 0xffffffff));
 
-	r_array_push(co->fp, 0, rword);
+	r_array_push(co->fp, 0, ruword);
 	r_array_add(co->fundecl, &fundecl);
 	rvm_scope_push(co->scope);
 	rvm_costat_pushroot(co);
@@ -1225,7 +1225,7 @@ int codegen_fundecl_callback(rpa_stat_handle stat, const char *name, void *userd
 	unsigned long off = rvm_codegen_getcodesize(co->cg);
 	rvm_fundecl_t *fundecl = (rvm_fundecl_t *)r_array_lastslot(co->fundecl);
 	rvm_varmap_t *fname;
-	rword fp = r_array_pop(co->fp, rword);
+	ruword fp = r_array_pop(co->fp, ruword);
 	rvm_scope_pop(co->scope);
 	fname = rvm_scope_tiplookup(co->scope, fundecl->funname, fundecl->funnamesiz);
 
@@ -1254,7 +1254,7 @@ int codegen_fundecl_callback(rpa_stat_handle stat, const char *name, void *userd
 		rvm_codegen_replaceins(co->cg, fundecl->codestart + 6, rvm_asm(RVM_PUSHM, DA, XX, XX, BITS(RVM_SAVEDREGS_FIRST, RVM_SAVEDREGS_FIRST + rvm_costat_getdirty(co) - 1)));
 
 	fundecl->codesize = rvm_codegen_getcodesize(co->cg) - fundecl->codestart;
-	fundecl->params = r_array_last(co->fp, rword);
+	fundecl->params = r_array_last(co->fp, ruword);
 
 	r_array_removelast(co->fundecl);
 	rvm_costat_pop(co);

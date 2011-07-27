@@ -174,7 +174,7 @@ static const char *stropcalls[] = {
 
 static void rvm_op_b(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword pc = 0;
+	ruword pc = 0;
 
 //	if (ins->op1 != XX)
 //		pc += RVM_CPUREG_GETU(cpu, ins->op1);
@@ -189,7 +189,7 @@ static void rvm_op_b(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_beq(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword pc = 0;
+	ruword pc = 0;
 
 	if ((cpu->status & RVM_STATUS_Z)) {
 //		if (ins->op1 != XX)
@@ -206,7 +206,7 @@ static void rvm_op_beq(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_bneq(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword pc = 0;
+	ruword pc = 0;
 
 	if ((cpu->status & RVM_STATUS_Z) == 0) {
 //		if (ins->op1 != XX)
@@ -223,7 +223,7 @@ static void rvm_op_bneq(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_bleq(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword pc = 0;
+	ruword pc = 0;
 
 	if ((cpu->status & RVM_STATUS_N) || (cpu->status & RVM_STATUS_Z)) {
 //		if (ins->op1 != XX)
@@ -239,7 +239,7 @@ static void rvm_op_bleq(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_bgeq(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword pc = 0;
+	ruword pc = 0;
 
 	if ((cpu->status & RVM_STATUS_N) == 0 || (cpu->status & RVM_STATUS_Z) == 1) {
 //		if (ins->op1 != XX)
@@ -256,7 +256,7 @@ static void rvm_op_bgeq(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_bles(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword pc = 0;
+	ruword pc = 0;
 
 
 	if ((cpu->status & RVM_STATUS_N)) {
@@ -274,7 +274,7 @@ static void rvm_op_bles(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_bgre(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword pc = 0;
+	ruword pc = 0;
 
 	if ((cpu->status & RVM_STATUS_N) == 0 && (cpu->status & RVM_STATUS_Z) == 0) {
 //		if (ins->op1 != XX)
@@ -352,7 +352,7 @@ static void rvm_op_bxl(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_bl(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword pc = 0;
+	ruword pc = 0;
 
 //	if (ins->op1 != XX)
 //		pc += RVM_CPUREG_GETU(cpu, ins->op1);
@@ -380,7 +380,7 @@ static void rvm_op_mov(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_movs(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword op2 = RVM_CPUREG_GETU(cpu, ins->op2);;
+	ruword op2 = RVM_CPUREG_GETU(cpu, ins->op2);;
 
 	RVM_CPUREG_SETU(cpu, ins->op1, op2);
 	RVM_STATUS_CLRALL(cpu);
@@ -399,7 +399,7 @@ static void rvm_op_swp(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_ldr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	RVM_CPUREG_SETU(cpu, ins->op1, *((rword*)RVM_CPUREG_GETU(cpu, ins->op2)));
+	RVM_CPUREG_SETU(cpu, ins->op1, *((ruword*)RVM_CPUREG_GETU(cpu, ins->op2)));
 	
 }
 
@@ -443,7 +443,7 @@ static void rvm_op_clr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_cflag(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword op1 = RVM_CPUREG_GETU(cpu, ins->op1);
+	ruword op1 = RVM_CPUREG_GETU(cpu, ins->op1);
 	RVM_STATUS_CLRBIT(cpu, op1);
 }
 
@@ -457,7 +457,7 @@ static void rvm_op_clrr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_str(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	*((rword*)RVM_CPUREG_GETP(cpu, ins->op2)) = RVM_CPUREG_GETU(cpu, ins->op1);
+	*((ruword*)RVM_CPUREG_GETP(cpu, ins->op2)) = RVM_CPUREG_GETU(cpu, ins->op1);
 }
 
 
@@ -499,7 +499,7 @@ static void rvm_op_strr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_adds(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
+	ruword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
 
 	res = op2 + op3;
 	RVM_CPUREG_SETU(cpu, ins->op1, res);
@@ -513,7 +513,7 @@ static void rvm_op_adds(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_adc(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
+	ruword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
 	
 	res = op2 + op3 + (RVM_STATUS_GETBIT(cpu, RVM_STATUS_C) ? 1 : 0);
 	RVM_CPUREG_SETU(cpu, ins->op1, res);
@@ -527,7 +527,7 @@ static void rvm_op_adc(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_and(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
+	ruword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
 	
 	res = op2 & op3;
 	RVM_CPUREG_SETU(cpu, ins->op1, res);
@@ -539,7 +539,7 @@ static void rvm_op_and(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_orr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
+	ruword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
 	
 	res = op2 | op3;
 	RVM_CPUREG_SETU(cpu, ins->op1, res);
@@ -551,7 +551,7 @@ static void rvm_op_orr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_lsl(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
+	ruword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
 	
 	res = op2 << op3;
 	RVM_CPUREG_SETU(cpu, ins->op1, res);
@@ -563,7 +563,7 @@ static void rvm_op_lsl(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_lsr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
+	ruword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
 	
 	res = op2 >> op3;
 	RVM_CPUREG_SETU(cpu, ins->op1, res);
@@ -574,9 +574,9 @@ static void rvm_op_lsr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_lsrs(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rsword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
+	rword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
 
-	res = ((rsword)op2) >> op3;
+	res = ((rword)op2) >> op3;
 	RVM_CPUREG_SETU(cpu, ins->op1, res);
 	RVM_STATUS_CLRALL(cpu);
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, !res);
@@ -585,7 +585,7 @@ static void rvm_op_lsrs(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_asr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
+	ruword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
 	
 	res = op2 >> op3;
 	res |= op2 & RVM_SIGN_BIT;
@@ -599,7 +599,7 @@ static void rvm_op_asr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rvm_op_ror(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	unsigned int i;
-	rword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
+	ruword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
 	
 	res = op2;
 	for (i = 0; i < op3; i++) {
@@ -620,7 +620,7 @@ static void rvm_op_ror(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_tst(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword res, op1 = RVM_CPUREG_GETU(cpu, ins->op1), op2 = RVM_CPUREG_GETU(cpu, ins->op2);
+	ruword res, op1 = RVM_CPUREG_GETU(cpu, ins->op1), op2 = RVM_CPUREG_GETU(cpu, ins->op2);
 	
 	res = op1 & op2;
 	RVM_STATUS_CLRALL(cpu);
@@ -631,7 +631,7 @@ static void rvm_op_tst(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_xor(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
+	ruword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
 	
 	res = op2 ^ op3;
 	RVM_CPUREG_SETU(cpu, ins->op1, res);
@@ -643,7 +643,7 @@ static void rvm_op_xor(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_not(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2);
+	ruword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2);
 	
 	res = ~op2;
 	RVM_CPUREG_SETU(cpu, ins->op1, res);
@@ -655,7 +655,7 @@ static void rvm_op_not(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_teq(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
+	ruword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
 	
 	res = op2 ^ op3;
 	RVM_STATUS_CLRALL(cpu);
@@ -666,7 +666,7 @@ static void rvm_op_teq(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_bic(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
+	ruword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
 	
 	res = op2 & ~op3;
 	RVM_CPUREG_SETU(cpu, ins->op1, res);
@@ -678,7 +678,7 @@ static void rvm_op_bic(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_clz(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2);
+	ruword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2);
 	
 	for (res = RVM_REGISTER_BITS; op2; ) {
 		op2 >>= 1;
@@ -759,7 +759,7 @@ static void rvm_op_sub(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_subs(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
+	ruword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
 	
 	res = op2 - op3;
 	RVM_CPUREG_SETU(cpu, ins->op1, res);
@@ -773,7 +773,7 @@ static void rvm_op_subs(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_sbc(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
+	ruword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
 
 	res = op2 - op3 + (RVM_STATUS_GETBIT(cpu, RVM_STATUS_C) ? 0 : -1);
 	RVM_CPUREG_SETU(cpu, ins->op1, res);
@@ -793,10 +793,10 @@ static void rvm_op_mul(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_mls(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rsword res;
-	rsword op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
+	rword res;
+	rword op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
 
-	res = (rsword)(op2 * op3);
+	res = (rword)(op2 * op3);
 	RVM_CPUREG_SETU(cpu, ins->op1, res);
 	/* TBD: Not sure how to update the RVM_STATUS_C */
 	RVM_STATUS_CLRALL(cpu);
@@ -807,7 +807,7 @@ static void rvm_op_mls(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_muls(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
+	ruword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
 	
 	res = op2 * op3;
 	RVM_CPUREG_SETU(cpu, ins->op1, res);
@@ -829,7 +829,7 @@ static void rvm_op_div(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_divs(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
+	ruword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
 
 	if (!op3)
 		RVM_ABORT(cpu, RVM_E_DIVZERO);
@@ -852,7 +852,7 @@ static void rvm_op_mod(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_mods(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rsword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
+	rword res, op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
 
 	if (!op3)
 		RVM_ABORT(cpu, RVM_E_DIVZERO);
@@ -867,12 +867,12 @@ static void rvm_op_mods(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_dvs(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rsword res;
-	rsword op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
+	rword res;
+	rword op2 = RVM_CPUREG_GETU(cpu, ins->op2), op3 = RVM_CPUREG_GETU(cpu, ins->op3);
 
 	if (!op3)
 		RVM_ABORT(cpu, RVM_E_DIVZERO);
-	res = (rsword)(op2 / op3);
+	res = (rword)(op2 / op3);
 	RVM_CPUREG_SETU(cpu, ins->op1, res);
 	RVM_STATUS_CLRALL(cpu);
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, !res);
@@ -882,7 +882,7 @@ static void rvm_op_dvs(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_push(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword sp = RVM_CPUREG_GETU(cpu, SP) + 1;
+	ruword sp = RVM_CPUREG_GETU(cpu, SP) + 1;
 
 	if (!RVM_STACK_CHECKSIZE(cpu, cpu->stack, sp))
 		RVM_ABORT(cpu, RVM_E_NOMEM);
@@ -893,7 +893,7 @@ static void rvm_op_push(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_lds(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword sp = ((ins->op2 != XX) ? RVM_CPUREG_GETU(cpu, ins->op2) : 0) + ((ins->op3 != XX) ? RVM_CPUREG_GETU(cpu, ins->op3) : 0);
+	ruword sp = ((ins->op2 != XX) ? RVM_CPUREG_GETU(cpu, ins->op2) : 0) + ((ins->op3 != XX) ? RVM_CPUREG_GETU(cpu, ins->op3) : 0);
 
 	RVM_CPUREG_SET(cpu, ins->op1, RVM_STACK_READ(cpu->stack, sp));
 }
@@ -901,7 +901,7 @@ static void rvm_op_lds(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_sts(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword sp = ((ins->op2 != XX) ? RVM_CPUREG_GETU(cpu, ins->op2) : 0) + ((ins->op3 != XX) ? RVM_CPUREG_GETU(cpu, ins->op3) : 0);
+	ruword sp = ((ins->op2 != XX) ? RVM_CPUREG_GETU(cpu, ins->op2) : 0) + ((ins->op3 != XX) ? RVM_CPUREG_GETU(cpu, ins->op3) : 0);
 
 	if (!RVM_STACK_CHECKSIZE(cpu, cpu->stack, sp))
 		RVM_ABORT(cpu, RVM_E_NOMEM);
@@ -911,9 +911,9 @@ static void rvm_op_sts(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_pushm(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword n, i = 0;
-	rword bits = RVM_CPUREG_GETU(cpu, ins->op1);
-	rword sp = RVM_CPUREG_GETU(cpu, SP);
+	ruword n, i = 0;
+	ruword bits = RVM_CPUREG_GETU(cpu, ins->op1);
+	ruword sp = RVM_CPUREG_GETU(cpu, SP);
 
 	if (!RVM_STACK_CHECKSIZE(cpu, cpu->stack, sp + RVM_REGS_NUM))
 		RVM_ABORT(cpu, RVM_E_NOMEM);
@@ -935,9 +935,9 @@ static void rvm_op_pushm(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rvm_op_popm(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	int n, i = RLST - 1;
-	rword bits = RVM_CPUREG_GETU(cpu, ins->op1);
-	rword savedbits = bits;
-	rword sp = RVM_CPUREG_GETU(cpu, SP);
+	ruword bits = RVM_CPUREG_GETU(cpu, ins->op1);
+	ruword savedbits = bits;
+	ruword sp = RVM_CPUREG_GETU(cpu, SP);
 
 	if (!(bits & ~((1 << (RVM_REGS_NUM / 2)) - 1)))
 		i = RVM_REGS_NUM / 2 - 1;
@@ -949,14 +949,14 @@ static void rvm_op_popm(rvmcpu_t *cpu, rvm_asmins_t *ins)
 			bits &= ~n;
 		}
 	}
-	if (!(((rword)(1 << SP)) & savedbits))
+	if (!(((ruword)(1 << SP)) & savedbits))
 		RVM_CPUREG_SETU(cpu, SP, sp);
 }
 
 
 static void rvm_op_pop(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword sp = RVM_CPUREG_GETU(cpu, SP);
+	ruword sp = RVM_CPUREG_GETU(cpu, SP);
 
 	RVM_CPUREG_SET(cpu, ins->op1, RVM_STACK_READ(cpu->stack, sp));
 	if (ins->op1 != SP)
@@ -966,7 +966,7 @@ static void rvm_op_pop(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_addrs(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword sp = ((ins->op2 != XX) ? RVM_CPUREG_GETU(cpu, ins->op2) : 0) + ((ins->op3 != XX) ? RVM_CPUREG_GETU(cpu, ins->op3) : 0);
+	ruword sp = ((ins->op2 != XX) ? RVM_CPUREG_GETU(cpu, ins->op2) : 0) + ((ins->op3 != XX) ? RVM_CPUREG_GETU(cpu, ins->op3) : 0);
 
 	if (!RVM_STACK_CHECKSIZE(cpu, cpu->stack, sp))
 		RVM_ABORT(cpu, RVM_E_NOMEM);
@@ -980,11 +980,11 @@ static void rvm_op_addrs(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rvm_op_stm(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	int n;
-	rword *dst = (rword*)	RVM_CPUREG_GETU(cpu, ins->op1);
-	rword bits = RVM_CPUREG_GETU(cpu, ins->op2);
+	ruword *dst = (ruword*)	RVM_CPUREG_GETU(cpu, ins->op1);
+	ruword bits = RVM_CPUREG_GETU(cpu, ins->op2);
 	
 	for (n = 0; bits && n < RLST; n++) {
-		if (((rword)(1 << n)) & bits) {
+		if (((ruword)(1 << n)) & bits) {
 			*dst = RVM_CPUREG_GETU(cpu, n);
 			dst += 1;
 			bits &= ~(1<<n);
@@ -996,11 +996,11 @@ static void rvm_op_stm(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rvm_op_ldm(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	int n;
-	rword *src = (rword*)RVM_CPUREG_GETU(cpu, ins->op1);
-	rword bits = RVM_CPUREG_GETU(cpu, ins->op2);
+	ruword *src = (ruword*)RVM_CPUREG_GETU(cpu, ins->op1);
+	ruword bits = RVM_CPUREG_GETU(cpu, ins->op2);
 
 	for (n = 0; bits && n < RLST; n++) {
-		if (((rword)(1 << n)) & bits) {
+		if (((ruword)(1 << n)) & bits) {
 			RVM_CPUREG_CLEAR(cpu, n);
 			RVM_CPUREG_SETU(cpu, n, *src);
 			src += 1;
@@ -1012,8 +1012,8 @@ static void rvm_op_ldm(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_cmp(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword op1 = RVM_CPUREG_GETU(cpu, ins->op1), op2 = RVM_CPUREG_GETU(cpu, ins->op2);
-	rword res = (rword)(op1 - op2);
+	ruword op1 = RVM_CPUREG_GETU(cpu, ins->op1), op2 = RVM_CPUREG_GETU(cpu, ins->op2);
+	ruword res = (ruword)(op1 - op2);
 	
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_C, op1 < op2);
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, !res);
@@ -1025,8 +1025,8 @@ static void rvm_op_cmp(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void rvm_op_cmn(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword op1 = RVM_CPUREG_GETU(cpu, ins->op1), op2 = RVM_CPUREG_GETU(cpu, ins->op2);
-	rword res = (rword)(op1 + op2);
+	ruword op1 = RVM_CPUREG_GETU(cpu, ins->op1), op2 = RVM_CPUREG_GETU(cpu, ins->op2);
+	ruword res = (ruword)(op1 + op2);
 	
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_C, res < op1 || res < op2);
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, !res);
@@ -1116,7 +1116,7 @@ static void rvm_op_prn(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		rvm_printf("(UNSIGNED) R%d = %lu(0x%lx)\n", ins->op1, RVM_REG_GETU(r), RVM_REG_GETU(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_POINTER)
 		rvm_printf("(POINTER) R%d = %p\n", ins->op1, RVM_REG_GETP(r));
-	else if (rvm_reg_gettype(r) == RVM_DTYPE_LONG)
+	else if (rvm_reg_gettype(r) == RVM_DTYPE_SINGED)
 		rvm_printf("(LONG) R%d = %ld\n", ins->op1, RVM_REG_GETL(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_DOUBLE)
 		rvm_printf("(DOUBLE) R%d = %0.2f\n", ins->op1, RVM_REG_GETD(r));
@@ -1197,7 +1197,7 @@ int rvm_asm_dump_pi_to_str(rvmcpu_t *vm, rvm_asmins_t *pi, char *str, unsigned i
 	if (RVM_REG_GETTYPE(&pi->data) == RVM_DTYPE_DOUBLE) {
 		if ((ret = rvm_snprintf(str, sz, "%f  ", RVM_REG_GETD(&pi->data))) < 0)
 			return ret;
-	} else if (RVM_REG_GETTYPE(&pi->data) == RVM_DTYPE_LONG) {
+	} else if (RVM_REG_GETTYPE(&pi->data) == RVM_DTYPE_SINGED) {
 		if ((ret = rvm_snprintf(str, sz, "%ld  ", RVM_REG_GETL(&pi->data))) < 0)
 			return ret;
 	} else {
@@ -1549,7 +1549,7 @@ static void rvm_op_maplookup(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT) {
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	}
-	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_LONG || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
+	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_SINGED || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
 		index = r_map_lookup_l(a, -1, RVM_REG_GETL(arg3));
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_DOUBLE) {
 		index = r_map_lookup_d(a, -1, RVM_REG_GETD(arg3));
@@ -1562,7 +1562,7 @@ static void rvm_op_maplookup(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	}
 
 	RVM_REG_CLEAR(arg1);
-	RVM_REG_SETTYPE(arg1, RVM_DTYPE_LONG);
+	RVM_REG_SETTYPE(arg1, RVM_DTYPE_SINGED);
 	RVM_REG_SETL(arg1, index);
 }
 
@@ -1578,7 +1578,7 @@ static void rvm_op_mapadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT) {
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	}
-	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_LONG || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
+	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_SINGED || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
 		index = r_map_gckey_add_l(a, cpu->gc, RVM_REG_GETL(arg3), NULL);
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_DOUBLE) {
 		index = r_map_gckey_add_d(a, cpu->gc, RVM_REG_GETD(arg3), NULL);
@@ -1591,7 +1591,7 @@ static void rvm_op_mapadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	}
 
 	RVM_REG_CLEAR(arg1);
-	RVM_REG_SETTYPE(arg1, RVM_DTYPE_LONG);
+	RVM_REG_SETTYPE(arg1, RVM_DTYPE_SINGED);
 	RVM_REG_SETL(arg1, index);
 }
 
@@ -1607,7 +1607,7 @@ static void rvm_op_maplookupadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT) {
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	}
-	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_LONG || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
+	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_SINGED || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
 		index = r_map_lookup_l(a, -1, RVM_REG_GETL(arg3));
 		if (index < 0)
 			index = r_map_gckey_add_l(a, cpu->gc, RVM_REG_GETL(arg3), NULL);
@@ -1627,7 +1627,7 @@ static void rvm_op_maplookupadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	}
 	RVM_REG_CLEAR(arg1);
-	RVM_REG_SETTYPE(arg1, RVM_DTYPE_LONG);
+	RVM_REG_SETTYPE(arg1, RVM_DTYPE_SINGED);
 	RVM_REG_SETL(arg1, index);
 }
 
@@ -1636,7 +1636,7 @@ static void rvm_op_mapaddr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t tmp = rvm_reg_create_long(0);
+	rvmreg_t tmp = rvm_reg_create_signed(0);
 	rmap_t *a;
 	rpointer value;
 	long index;
@@ -1659,7 +1659,7 @@ static void rvm_op_mapldr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t tmp = rvm_reg_create_long(0);
+	rvmreg_t tmp = rvm_reg_create_signed(0);
 	rmap_t *a = NULL;
 	rpointer value;
 	long index;
@@ -1683,7 +1683,7 @@ static void rvm_op_mapstr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t tmp = rvm_reg_create_long(0);
+	rvmreg_t tmp = rvm_reg_create_signed(0);
 	rmap_t *a = NULL;
 	rpointer value;
 	long index;
@@ -1704,7 +1704,7 @@ static void rvm_op_addra(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t tmp = rvm_reg_create_long(0);
+	rvmreg_t tmp = rvm_reg_create_signed(0);
 	rcarray_t *a = RVM_REG_GETP(arg2);
 	long index;
 
@@ -1933,7 +1933,7 @@ void rvm_cpu_destroy(rvmcpu_t *cpu)
 }
 
 
-int rvm_cpu_exec(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off)
+int rvm_cpu_exec(rvmcpu_t *cpu, rvm_asmins_t *prog, ruword off)
 {
 	rvm_asmins_t *pi;
 	rvmreg_t *regda = RVM_CPUREG_PTR(cpu, DA);
@@ -1991,7 +1991,7 @@ skipexec:
 }
 
 
-int rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off)
+int rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, ruword off)
 {
 	long line = 0;
 	rvm_asmins_t *pi;
@@ -2118,7 +2118,7 @@ int rvm_cpu_abort(rvmcpu_t *cpu)
 }
 
 
-rvm_asmins_t rvm_cond_asma(rword cond, rword opcode, rword op1, rword op2, rword op3, char *data, unsigned long size)
+rvm_asmins_t rvm_cond_asma(ruword cond, ruword opcode, ruword op1, ruword op2, ruword op3, char *data, unsigned long size)
 {
 	rvm_asmins_t a;
 
@@ -2136,13 +2136,13 @@ rvm_asmins_t rvm_cond_asma(rword cond, rword opcode, rword op1, rword op2, rword
 }
 
 
-rvm_asmins_t rvm_asma(rword opcode, rword op1, rword op2, rword op3, char *data, unsigned long size)
+rvm_asmins_t rvm_asma(ruword opcode, ruword op1, ruword op2, ruword op3, char *data, unsigned long size)
 {
 	return rvm_cond_asma(0, opcode, op1, op2, op3, data, size);
 }
 
 
-rvm_asmins_t rvm_cond_asmp(rword cond, rword opcode, rword op1, rword op2, rword op3, rpointer data)
+rvm_asmins_t rvm_cond_asmp(ruword cond, ruword opcode, ruword op1, ruword op2, ruword op3, rpointer data)
 {
 	rvm_asmins_t a;
 
@@ -2160,13 +2160,13 @@ rvm_asmins_t rvm_cond_asmp(rword cond, rword opcode, rword op1, rword op2, rword
 }
 
 
-rvm_asmins_t rvm_asmp(rword opcode, rword op1, rword op2, rword op3, rpointer data)
+rvm_asmins_t rvm_asmp(ruword opcode, ruword op1, ruword op2, ruword op3, rpointer data)
 {
 	return rvm_cond_asmp(0, opcode, op1, op2, op3, data);
 }
 
 
-rvm_asmins_t rvm_cond_asms(rword cond, rword opcode, rword op1, rword op2, rword op3, rword data)
+rvm_asmins_t rvm_cond_asms(ruword cond, ruword opcode, ruword op1, ruword op2, ruword op3, ruword data)
 {
 	rvm_asmins_t a;
 
@@ -2185,13 +2185,13 @@ rvm_asmins_t rvm_cond_asms(rword cond, rword opcode, rword op1, rword op2, rword
 }
 
 
-rvm_asmins_t rvm_asms(rword opcode, rword op1, rword op2, rword op3, rword data)
+rvm_asmins_t rvm_asms(ruword opcode, ruword op1, ruword op2, ruword op3, ruword data)
 {
 	return rvm_cond_asms(0, opcode, op1, op2, op3, data);
 }
 
 
-rvm_asmins_t rvm_cond_asmf(rword cond, rword opcode, rword op1, rword op2, rword op3, rword data)
+rvm_asmins_t rvm_cond_asmf(ruword cond, ruword opcode, ruword op1, ruword op2, ruword op3, ruword data)
 {
 	rvm_asmins_t a;
 
@@ -2209,13 +2209,13 @@ rvm_asmins_t rvm_cond_asmf(rword cond, rword opcode, rword op1, rword op2, rword
 	return a;
 }
 
-rvm_asmins_t rvm_asmf(rword opcode, rword op1, rword op2, rword op3, rword data)
+rvm_asmins_t rvm_asmf(ruword opcode, ruword op1, ruword op2, ruword op3, ruword data)
 {
 	return rvm_cond_asmf(0, opcode, op1, op2, op3, data);
 }
 
 
-rvm_asmins_t rvm_cond_asm(rword cond, rword opcode, rword op1, rword op2, rword op3, rword data)
+rvm_asmins_t rvm_cond_asm(ruword cond, ruword opcode, ruword op1, ruword op2, ruword op3, ruword data)
 {
 	rvm_asmins_t a;
 
@@ -2233,14 +2233,14 @@ rvm_asmins_t rvm_cond_asm(rword cond, rword opcode, rword op1, rword op2, rword 
 }
 
 
-rvm_asmins_t rvm_asm(rword opcode, rword op1, rword op2, rword op3, rword data)
+rvm_asmins_t rvm_asm(ruword opcode, ruword op1, ruword op2, ruword op3, ruword data)
 {
 	return rvm_cond_asm(0, opcode, op1, op2, op3, data);
 }
 
 
 
-rvm_asmins_t rvm_cond_asml(rword cond, rword opcode, rword op1, rword op2, rword op3, long data)
+rvm_asmins_t rvm_cond_asml(ruword cond, ruword opcode, ruword op1, ruword op2, ruword op3, long data)
 {
 	rvm_asmins_t a;
 
@@ -2251,20 +2251,20 @@ rvm_asmins_t rvm_cond_asml(rword cond, rword opcode, rword op1, rword op2, rword
 	a.op2 = (ruint8)op2;
 	a.op3 = (ruint8)op3;
 	a.cond = (ruint8)cond;
-	rvm_reg_setlong(&a.data, data);
+	rvm_reg_setsigned(&a.data, data);
 	if ((ruint8)op1 == DA || (ruint8)op2 == DA || (ruint8)op3 == DA)
 		a.da = 1;
 	return a;
 }
 
 
-rvm_asmins_t rvm_asml(rword opcode, rword op1, rword op2, rword op3, long data)
+rvm_asmins_t rvm_asml(ruword opcode, ruword op1, ruword op2, ruword op3, long data)
 {
 	return rvm_cond_asml(0, opcode, op1, op2, op3, data);
 }
 
 
-rvm_asmins_t rvm_cond_asmb(rword cond, rword opcode, rword op1, rword op2, rword op3, unsigned int data)
+rvm_asmins_t rvm_cond_asmb(ruword cond, ruword opcode, ruword op1, ruword op2, ruword op3, unsigned int data)
 {
 	rvm_asmins_t a;
 
@@ -2282,13 +2282,13 @@ rvm_asmins_t rvm_cond_asmb(rword cond, rword opcode, rword op1, rword op2, rword
 }
 
 
-rvm_asmins_t rvm_asmb(rword opcode, rword op1, rword op2, rword op3, unsigned int data)
+rvm_asmins_t rvm_asmb(ruword opcode, ruword op1, ruword op2, ruword op3, unsigned int data)
 {
 	return rvm_cond_asmb(0, opcode, op1, op2, op3, data);
 }
 
 
-rvm_asmins_t rvm_cond_asmd(rword cond, rword opcode, rword op1, rword op2, rword op3, double data)
+rvm_asmins_t rvm_cond_asmd(ruword cond, ruword opcode, ruword op1, ruword op2, ruword op3, double data)
 {
 	rvm_asmins_t a;
 
@@ -2305,13 +2305,13 @@ rvm_asmins_t rvm_cond_asmd(rword cond, rword opcode, rword op1, rword op2, rword
 	return a;
 }
 
-rvm_asmins_t rvm_asmd(rword opcode, rword op1, rword op2, rword op3, double data)
+rvm_asmins_t rvm_asmd(ruword opcode, ruword op1, ruword op2, ruword op3, double data)
 {
 	return rvm_cond_asmd(0, opcode, op1, op2, op3, data);
 }
 
 
-rvm_asmins_t rvm_cond_asm2(rword cond, rword opcode, rword op1, rword op2, rword op3, ruint32 p1, ruint32 p2)
+rvm_asmins_t rvm_cond_asm2(ruword cond, ruword opcode, ruword op1, ruword op2, ruword op3, ruint32 p1, ruint32 p2)
 {
 	rvm_asmins_t a;
 
@@ -2329,7 +2329,7 @@ rvm_asmins_t rvm_cond_asm2(rword cond, rword opcode, rword op1, rword op2, rword
 }
 
 
-rvm_asmins_t rvm_asm2(rword opcode, rword op1, rword op2, rword op3, ruint32 p1, ruint32 p2)
+rvm_asmins_t rvm_asm2(ruword opcode, ruword op1, ruword op2, ruword op3, ruint32 p1, ruint32 p2)
 {
 	return rvm_cond_asm2(0, opcode, op1, op2, op3, p1, p2);
 }
@@ -2346,7 +2346,7 @@ rvmreg_t *rvm_cpu_alloc_global(rvmcpu_t *cpu)
 }
 
 
-int rvm_cpu_setreg(rvmcpu_t *cpu, rword regnum, const rvmreg_t *src)
+int rvm_cpu_setreg(rvmcpu_t *cpu, ruword regnum, const rvmreg_t *src)
 {
 	if (regnum >= RLST)
 		return -1;
@@ -2355,7 +2355,7 @@ int rvm_cpu_setreg(rvmcpu_t *cpu, rword regnum, const rvmreg_t *src)
 }
 
 
-rvmreg_t *rvm_cpu_getreg(rvmcpu_t *cpu, rword regnum)
+rvmreg_t *rvm_cpu_getreg(rvmcpu_t *cpu, ruword regnum)
 {
 	if (regnum >= RLST)
 		return NULL;

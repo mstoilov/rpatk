@@ -272,11 +272,11 @@ void rvm_codegen_funcend(rvm_codegen_t *cg)
 long rvm_codegen_adddata(rvm_codegen_t *cg, const char *name, unsigned int namesize, rconstpointer data, rsize_t size)
 {
 	rpointer buffer;
-	unsigned long cursize = R_SIZE_ALIGN(r_array_length(cg->data), sizeof(rword));
+	unsigned long cursize = R_SIZE_ALIGN(r_array_length(cg->data), sizeof(ruword));
 
-	r_array_setlength(cg->data, cursize + size + sizeof(rword) + 1);
+	r_array_setlength(cg->data, cursize + size + sizeof(ruword) + 1);
 	buffer = r_array_slot(cg->data, cursize);
-	r_memset(buffer, 0, size + sizeof(rword));
+	r_memset(buffer, 0, size + sizeof(ruword));
 	r_memmove(buffer, data, size);
 	return rvm_codemap_addoffset(cg->codemap, name, namesize, rvm_codemap_lookupadd_s(cg->codemap, ".data"), cursize);
 }

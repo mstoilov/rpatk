@@ -25,7 +25,7 @@
 
 static void test_swi_sub(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword res, op2 = RVM_CPUREG_GETU(cpu, R0), op3 = RVM_CPUREG_GETU(cpu, R1);
+	ruword res, op2 = RVM_CPUREG_GETU(cpu, R0), op3 = RVM_CPUREG_GETU(cpu, R1);
 
 	res = op2 - op3;
 	RVM_CPUREG_SETU(cpu, R0, res);
@@ -34,7 +34,7 @@ static void test_swi_sub(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void test_swi_mul(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword res, op2 = RVM_CPUREG_GETU(cpu, R0), op3 = RVM_CPUREG_GETU(cpu, R1);
+	ruword res, op2 = RVM_CPUREG_GETU(cpu, R0), op3 = RVM_CPUREG_GETU(cpu, R1);
 
 	res = op2 * op3;
 	RVM_CPUREG_SETU(cpu, R0, res);

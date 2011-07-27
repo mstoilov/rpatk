@@ -110,7 +110,7 @@ void rpa_stat_cacheinvalidate(rpastat_t *stat)
 }
 
 
-long rpa_stat_exec(rpastat_t *stat, rvm_asmins_t *prog, rword off, unsigned int encoding, const char *input, const char *start, const char *end, rarray_t *records)
+long rpa_stat_exec(rpastat_t *stat, rvm_asmins_t *prog, ruword off, unsigned int encoding, const char *input, const char *start, const char *end, rarray_t *records)
 {
 	long ret;
 

@@ -35,9 +35,9 @@ extern "C" {
 #endif
 
 #define RVM_DTYPE_NONE 0
-#define RVM_DTYPE_WORD RVM_DTYPE_NONE
+#define RVM_DTYPE_UWORD RVM_DTYPE_NONE
 #define RVM_DTYPE_UNSIGNED RVM_DTYPE_NONE
-#define RVM_DTYPE_LONG 1
+#define RVM_DTYPE_SINGED 1
 #define RVM_DTYPE_POINTER 2			/* Generic pointer, it can point to any memory object */
 #define RVM_DTYPE_BOOLEAN 3
 #define RVM_DTYPE_DOUBLE 4
@@ -85,12 +85,12 @@ extern "C" {
 
 
 #define RVM_REG_GETU(__r__) (__r__)->v.w
-#define RVM_REG_SETU(__r__, __val__) do { (__r__)->v.w = (rword)(__val__); } while (0)
+#define RVM_REG_SETU(__r__, __val__) do { (__r__)->v.w = (ruword)(__val__); } while (0)
 #define RVM_CPUREG_GETU(__cpu__, __r__) RVM_CPUREG_PTR(__cpu__, __r__)->v.w
 #define RVM_CPUREG_SETU(__cpu__, __r__, __val__) RVM_REG_SETU(RVM_CPUREG_PTR(__cpu__, __r__), __val__)
 
 #define RVM_REG_GETL(__r__) (__r__)->v.l
-#define RVM_REG_SETL(__r__, __val__) do { (__r__)->v.l = (rsword)(__val__); } while (0)
+#define RVM_REG_SETL(__r__, __val__) do { (__r__)->v.l = (rword)(__val__); } while (0)
 #define RVM_CPUREG_GETL(__cpu__, __r__) RVM_CPUREG_PTR(__cpu__, __r__)->v.l
 #define RVM_CPUREG_SETL(__cpu__, __r__, __val__) RVM_REG_SETL(RVM_CPUREG_PTR(__cpu__, __r__), __val__)
 
@@ -135,7 +135,7 @@ extern "C" {
 
 
 
-#define RVM_MIN_REGSIZE (sizeof(rword))
+#define RVM_MIN_REGSIZE (sizeof(ruword))
 
 typedef ruint16 rvmreg_type_t;
 typedef ruint16 rvmreg_flags_t;
@@ -143,8 +143,8 @@ typedef ruint16 rvmreg_flags_t;
 typedef struct rvmreg_s {
 	union {
 		ruint64 u64;
-		rword w;
-		rsword l;
+		ruword w;
+		rword l;
 		rpointer p;
 		double d;
 		char *s;
@@ -168,37 +168,37 @@ rvmreg_t rvm_reg_create_string(const rstr_t *s);
 rvmreg_t rvm_reg_create_array();
 rvmreg_t rvm_reg_create_harray();
 rvmreg_t rvm_reg_create_double(double d);
-rvmreg_t rvm_reg_create_long(long l);
-rvmreg_t rvm_reg_create_pair(unsigned int p1, unsigned int p2);
+rvmreg_t rvm_reg_create_signed(rword l);
+rvmreg_t rvm_reg_create_pair(ruint32 p1, ruint32 p2);
 rvmreg_t rvm_reg_create_strptr(char *s, unsigned int size);
+rvmreg_t *rvm_reg_copy(rvmreg_t *dst, const rvmreg_t *src);
+rvmreg_type_t rvm_reg_gettype(const rvmreg_t *r);
+rboolean rvm_reg_tstflag(const rvmreg_t *r, ruint16 flag);
 void rvm_reg_init(rvmreg_t *reg);
 void rvm_reg_cleanup(rvmreg_t *reg);
-rvmreg_t *rvm_reg_copy(rvmreg_t *dst, const rvmreg_t *src);
 void rvm_reg_array_unref_gcdata(robject_t *obj);
 void rvm_reg_settype(rvmreg_t *r, unsigned int type);
-unsigned int rvm_reg_gettype(const rvmreg_t *r);
-rboolean rvm_reg_tstflag(const rvmreg_t *r, ruint16 flag);
 void rvm_reg_setflag(rvmreg_t *r, ruint16 flag);
 void rvm_reg_clrflag(rvmreg_t *r, ruint16 flag);
 void rvm_reg_setundef(rvmreg_t *r);
-void rvm_reg_setunsigned(rvmreg_t *r, rword u);
-void rvm_reg_setboolean(rvmreg_t *r, unsigned int b);
-void rvm_reg_setlong(rvmreg_t *r, long l);
+void rvm_reg_setunsigned(rvmreg_t *r, ruword u);
+void rvm_reg_setboolean(rvmreg_t *r, rboolean b);
+void rvm_reg_setsigned(rvmreg_t *r, rword l);
 void rvm_reg_setdouble(rvmreg_t *r, double d);
 void rvm_reg_setpointer(rvmreg_t *r, rpointer p);
-void rvm_reg_setpair(rvmreg_t *r, unsigned int p1, unsigned int p2);
+void rvm_reg_setpair(rvmreg_t *r, ruint32 p1, ruint32 p2);
 void rvm_reg_setstrptr(rvmreg_t *r, char *s, unsigned int size);
 void rvm_reg_setstring(rvmreg_t *r, rstring_t *ptr);
 void rvm_reg_setarray(rvmreg_t *r, robject_t *ptr);
 void rvm_reg_setharray(rvmreg_t *r, robject_t *ptr);
 void rvm_reg_setjsobject(rvmreg_t *r, robject_t *ptr);
 int rvm_reg_str2num(rvmreg_t *dst, const rvmreg_t *src);
-int rvm_reg_str2long(rvmreg_t *dst, const rvmreg_t *ssrc);
+int rvm_reg_str2signed(rvmreg_t *dst, const rvmreg_t *ssrc);
 int rvm_reg_str2double(rvmreg_t *dst, const rvmreg_t *ssrc);
 
 int rvm_reg_int(const rvmreg_t *src);
-long rvm_reg_long(const rvmreg_t *src);
-unsigned char rvm_reg_boolean(const rvmreg_t *src);
+rword rvm_reg_signed(const rvmreg_t *src);
+rboolean rvm_reg_boolean(const rvmreg_t *src);
 double rvm_reg_double(const rvmreg_t *src);
 rpointer rvm_reg_pointer(const rvmreg_t *src);
 rstring_t *rvm_reg_string(const rvmreg_t *src);

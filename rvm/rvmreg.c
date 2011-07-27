@@ -233,7 +233,7 @@ void rvm_reg_setstring(rvmreg_t *r, rstring_t *ptr)
 }
 
 
-void rvm_reg_setpair(rvmreg_t *r, unsigned int p1, unsigned int p2)
+void rvm_reg_setpair(rvmreg_t *r, ruint32 p1, ruint32 p2)
 {
 
 	RVM_REG_SETPAIR(r, p1, p2);
@@ -273,7 +273,7 @@ void rvm_reg_setharray(rvmreg_t *r, robject_t *ptr)
 	RVM_REG_SETFLAG(r, RVM_INFOBIT_ROBJECT);
 }
 
-rvmreg_t rvm_reg_create_pair(unsigned int p1, unsigned int p2)
+rvmreg_t rvm_reg_create_pair(ruint32 p1, ruint32 p2)
 {
 	rvmreg_t r;
 	r_memset(&r, 0, sizeof(r));
@@ -301,11 +301,11 @@ rvmreg_t rvm_reg_create_double(double d)
 }
 
 
-rvmreg_t rvm_reg_create_long(long l)
+rvmreg_t rvm_reg_create_signed(rword l)
 {
 	rvmreg_t r;
 	r_memset(&r, 0, sizeof(r));
-	rvm_reg_setlong(&r, l);
+	rvm_reg_setsigned(&r, l);
 	return r;
 }
 
@@ -341,9 +341,9 @@ void rvm_reg_settype(rvmreg_t *r, unsigned int type)
 }
 
 
-unsigned int rvm_reg_gettype(const rvmreg_t *r)
+rvmreg_type_t rvm_reg_gettype(const rvmreg_t *r)
 {
-	unsigned long type = RVM_REG_GETTYPE(r);
+	rvmreg_type_t type = RVM_REG_GETTYPE(r);
 	return type;
 }
 
@@ -373,7 +373,7 @@ void rvm_reg_setundef(rvmreg_t *r)
 }
 
 
-void rvm_reg_setunsigned(rvmreg_t *r, rword u)
+void rvm_reg_setunsigned(rvmreg_t *r, ruword u)
 {
 	RVM_REG_SETU(r, u);
 	RVM_REG_SETTYPE(r, RVM_DTYPE_UNSIGNED);
@@ -381,15 +381,15 @@ void rvm_reg_setunsigned(rvmreg_t *r, rword u)
 }
 
 
-void rvm_reg_setlong(rvmreg_t *r, long l)
+void rvm_reg_setsigned(rvmreg_t *r, rword l)
 {
 	RVM_REG_SETL(r, l);
-	RVM_REG_SETTYPE(r, RVM_DTYPE_LONG);
+	RVM_REG_SETTYPE(r, RVM_DTYPE_SINGED);
 	RVM_REG_CLRFLAG(r, RVM_INFOBIT_ROBJECT);
 }
 
 
-void rvm_reg_setboolean(rvmreg_t *r, unsigned int b)
+void rvm_reg_setboolean(rvmreg_t *r, rboolean b)
 {
 	RVM_REG_SETU(r, b ? 1 : 0);
 	RVM_REG_SETTYPE(r, RVM_DTYPE_BOOLEAN);
@@ -423,7 +423,7 @@ int rvm_reg_str2num(rvmreg_t *dst, const rvmreg_t *src)
 	if (!lptr)
 		return -1;
 	if (*lptr != '.') {
-		rvm_reg_setlong(dst, l);
+		rvm_reg_setsigned(dst, l);
 		return 0;
 	}
 	d = r_strtod(R_STRING2ANSI(RVM_REG_GETP(src)), &dptr);
@@ -434,7 +434,7 @@ int rvm_reg_str2num(rvmreg_t *dst, const rvmreg_t *src)
 }
 
 
-int rvm_reg_str2long(rvmreg_t *dst, const rvmreg_t *src)
+int rvm_reg_str2signed(rvmreg_t *dst, const rvmreg_t *src)
 {
 	char *dptr;
 	double d;
@@ -442,7 +442,7 @@ int rvm_reg_str2long(rvmreg_t *dst, const rvmreg_t *src)
 	d = r_strtod(R_STRING2ANSI(RVM_REG_GETP(src)), &dptr);
 	if (!dptr)
 		return -1;
-	rvm_reg_setlong(dst, (long)d);
+	rvm_reg_setsigned(dst, (rword)d);
 	return 0;
 }
 
@@ -467,17 +467,17 @@ int rvm_reg_int(const rvmreg_t *src)
 }
 
 
-long rvm_reg_long(const rvmreg_t *src)
+rword rvm_reg_signed(const rvmreg_t *src)
 {
 	R_ASSERT(src);
 	return (long)RVM_REG_GETL(src);
 }
 
 
-unsigned char rvm_reg_boolean(const rvmreg_t *src)
+rboolean rvm_reg_boolean(const rvmreg_t *src)
 {
 	R_ASSERT(src);
-	return (unsigned char)(RVM_REG_GETL(src) ? 1 : 0);
+	return (rboolean)(RVM_REG_GETL(src) ? 1 : 0);
 }
 
 

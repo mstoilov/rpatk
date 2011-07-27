@@ -165,8 +165,8 @@ enum {
 };
 
 
-#define RVM_REGISTER_BITS (8 * sizeof(rword))
-#define RVM_SIGN_BIT (((rword)1) << (RVM_REGISTER_BITS - 1))
+#define RVM_REGISTER_BITS (8 * sizeof(ruword))
+#define RVM_SIGN_BIT (((ruword)1) << (RVM_REGISTER_BITS - 1))
 #define RVM_STATUS_Z (1 << 0)
 #define RVM_STATUS_N (1 << 1)
 #define RVM_STATUS_C (1 << 2)
@@ -264,8 +264,8 @@ do { \
 #define RVM_STACK_READ(__s__, __sp__) *RVM_STACK_ADDR(__s__, __sp__)
 #define RVM_STACK_ADDR(__s__, __sp__) (((rvmreg_t*)(__s__)) + (__sp__))
 #define RVM_STACK_CHECKSIZE(__cpu__, __s__, __sp__)  ((__sp__) < (__cpu__)->stacksize ? 1 : 0)
-#define RVM_CODE2BYTE_OFFSET(__codeoff__) ((rword)(((rsword)(__codeoff__)) * ((rsword)sizeof(rvm_asmins_t))))
-#define RVM_BYTE2CODE_OFFSET(__byteoff__) ((rword)(((rsword)(__byteoff__)) / ((rsword)sizeof(rvm_asmins_t))))
+#define RVM_CODE2BYTE_OFFSET(__codeoff__) ((ruword)(((rword)(__codeoff__)) * ((rword)sizeof(rvm_asmins_t))))
+#define RVM_BYTE2CODE_OFFSET(__byteoff__) ((ruword)(((rword)(__byteoff__)) / ((rword)sizeof(rvm_asmins_t))))
 
 #define RVM_E_DIVZERO		(1)
 #define RVM_E_ILLEGAL		(2)
@@ -312,9 +312,9 @@ struct rvm_opmap_s;
 
 struct rvmcpu_s {
 	rvmreg_t r[RVM_REGS_NUM];
-	rword status;
-	rword error;
-	rword abort;
+	ruword status;
+	ruword error;
+	ruword abort;
 	rharray_t *switables;
 	unsigned long stacksize;
 	void *stack;
@@ -336,34 +336,34 @@ rvmcpu_t *rvm_cpu_create_default();
 rvmcpu_t *rvm_cpu_create(unsigned long stacksize);
 void rvm_cpu_destroy(rvmcpu_t * vm);
 int rvm_cpu_abort(rvmcpu_t *cpu);
-int rvm_cpu_exec(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off);
-int rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, rword off);
+int rvm_cpu_exec(rvmcpu_t *cpu, rvm_asmins_t *prog, ruword off);
+int rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, ruword off);
 int rvm_cpu_swilookup(rvmcpu_t *cpu, const char *tabname, const char *swiname, rsize_t size);
 int rvm_cpu_swilookup_s(rvmcpu_t *cpu, const char *tabname, const char *swiname);
 int rvm_cpu_addswitable(rvmcpu_t * cpu, const char *tabname, rvm_switable_t *switalbe);
 rvmreg_t *rvm_cpu_alloc_global(rvmcpu_t *cpu);
-int rvm_cpu_setreg(rvmcpu_t *cpu, rword regnum, const rvmreg_t *src);
-rvmreg_t *rvm_cpu_getreg(rvmcpu_t *cpu, rword regnum);
+int rvm_cpu_setreg(rvmcpu_t *cpu, ruword regnum, const rvmreg_t *src);
+rvmreg_t *rvm_cpu_getreg(rvmcpu_t *cpu, ruword regnum);
 void rvm_cpu_dumpregs( rvmcpu_t *cpu, rvm_asmins_t *pi);
-rvm_asmins_t rvm_asm(rword opcode, rword op1, rword op2, rword op3, rword data);
-rvm_asmins_t rvm_asma(rword opcode, rword op1, rword op2, rword op3, char *data, unsigned long size);
-rvm_asmins_t rvm_asml(rword opcode, rword op1, rword op2, rword op3, long data);
-rvm_asmins_t rvm_asmb(rword opcode, rword op1, rword op2, rword op3, unsigned int data);
-rvm_asmins_t rvm_asmd(rword opcode, rword op1, rword op2, rword op3, double data);
-rvm_asmins_t rvm_asmp(rword opcode, rword op1, rword op2, rword op3, rpointer data);
-rvm_asmins_t rvm_asms(rword opcode, rword op1, rword op2, rword op3, rword data);
-rvm_asmins_t rvm_asmf(rword opcode, rword op1, rword op2, rword op3, rword data);
-rvm_asmins_t rvm_asm2(rword opcode, rword op1, rword op2, rword op3, ruint32 p1, ruint32 p2);
+rvm_asmins_t rvm_asm(ruword opcode, ruword op1, ruword op2, ruword op3, ruword data);
+rvm_asmins_t rvm_asma(ruword opcode, ruword op1, ruword op2, ruword op3, char *data, unsigned long size);
+rvm_asmins_t rvm_asml(ruword opcode, ruword op1, ruword op2, ruword op3, long data);
+rvm_asmins_t rvm_asmb(ruword opcode, ruword op1, ruword op2, ruword op3, unsigned int data);
+rvm_asmins_t rvm_asmd(ruword opcode, ruword op1, ruword op2, ruword op3, double data);
+rvm_asmins_t rvm_asmp(ruword opcode, ruword op1, ruword op2, ruword op3, rpointer data);
+rvm_asmins_t rvm_asms(ruword opcode, ruword op1, ruword op2, ruword op3, ruword data);
+rvm_asmins_t rvm_asmf(ruword opcode, ruword op1, ruword op2, ruword op3, ruword data);
+rvm_asmins_t rvm_asm2(ruword opcode, ruword op1, ruword op2, ruword op3, ruint32 p1, ruint32 p2);
 
-rvm_asmins_t rvm_cond_asm(rword cond, rword opcode, rword op1, rword op2, rword op3, rword data);
-rvm_asmins_t rvm_cond_asma(rword cond, rword opcode, rword op1, rword op2, rword op3, char *data, unsigned long size);
-rvm_asmins_t rvm_cond_asml(rword cond, rword opcode, rword op1, rword op2, rword op3, long data);
-rvm_asmins_t rvm_cond_asmb(rword cond, rword opcode, rword op1, rword op2, rword op3, unsigned int data);
-rvm_asmins_t rvm_cond_asmp(rword cond, rword opcode, rword op1, rword op2, rword op3, rpointer data);
-rvm_asmins_t rvm_cond_asms(rword cond, rword opcode, rword op1, rword op2, rword op3, rword data);
-rvm_asmins_t rvm_cond_asmd(rword cond, rword opcode, rword op1, rword op2, rword op3, double data);
-rvm_asmins_t rvm_cond_asmf(rword cond, rword opcode, rword op1, rword op2, rword op3, rword data);
-rvm_asmins_t rvm_cond_asm2(rword cond, rword opcode, rword op1, rword op2, rword op3, ruint32 p1, ruint32 p2);
+rvm_asmins_t rvm_cond_asm(ruword cond, ruword opcode, ruword op1, ruword op2, ruword op3, ruword data);
+rvm_asmins_t rvm_cond_asma(ruword cond, ruword opcode, ruword op1, ruword op2, ruword op3, char *data, unsigned long size);
+rvm_asmins_t rvm_cond_asml(ruword cond, ruword opcode, ruword op1, ruword op2, ruword op3, long data);
+rvm_asmins_t rvm_cond_asmb(ruword cond, ruword opcode, ruword op1, ruword op2, ruword op3, unsigned int data);
+rvm_asmins_t rvm_cond_asmp(ruword cond, ruword opcode, ruword op1, ruword op2, ruword op3, rpointer data);
+rvm_asmins_t rvm_cond_asms(ruword cond, ruword opcode, ruword op1, ruword op2, ruword op3, ruword data);
+rvm_asmins_t rvm_cond_asmd(ruword cond, ruword opcode, ruword op1, ruword op2, ruword op3, double data);
+rvm_asmins_t rvm_cond_asmf(ruword cond, ruword opcode, ruword op1, ruword op2, ruword op3, ruword data);
+rvm_asmins_t rvm_cond_asm2(ruword cond, ruword opcode, ruword op1, ruword op2, ruword op3, ruint32 p1, ruint32 p2);
 
 
 void rvm_asm_dump(rvm_asmins_t *pi, unsigned int count);

@@ -42,7 +42,7 @@ static void test_swi_cat(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 static void test_swi_print_r(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	if (rvm_reg_gettype(RVM_CPUREG_PTR(cpu, ins->op1)) == RVM_DTYPE_LONG)
+	if (rvm_reg_gettype(RVM_CPUREG_PTR(cpu, ins->op1)) == RVM_DTYPE_SINGED)
 		fprintf(stdout, "R%d = %ld\n", ins->op1, RVM_CPUREG_GETL(cpu, ins->op1));
 	else if (rvm_reg_gettype(RVM_CPUREG_PTR(cpu, ins->op1)) == RVM_DTYPE_DOUBLE)
 		fprintf(stdout, "R%d = %5.2f\n", ins->op1, RVM_CPUREG_GETD(cpu, ins->op1));

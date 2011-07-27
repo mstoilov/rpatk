@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
 	char test_script2[] = "function person(name, age, job) {this.name = name; this.age = age; this.job = job;} var me = new person('Martin', 25, 'Slacker');";
 
 //	jse->debugexec = 1;
-	r_printf("script: %s result: %ld\n", test_script1, rvm_reg_long(rjs_engine_exec_s(jse, test_script1)));
+	r_printf("script: %s result: %ld\n", test_script1, rvm_reg_signed(rjs_engine_exec_s(jse, test_script1)));
 	rjs_engine_exec_s(jse, test_script2);
 	r_printf("Name: %s\n", r_string_ansi(rvm_reg_string(rjs_engine_exec_s(jse, "me.name;"))));
 	r_printf("Job: %s\n", r_string_ansi(rvm_reg_string(rjs_engine_exec_s(jse, "me.job;"))));

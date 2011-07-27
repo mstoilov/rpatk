@@ -15,8 +15,8 @@ typedef unsigned int ruint32;
 typedef signed long long rint64;
 typedef unsigned long long ruint64;
 typedef long ratomic_t;
-typedef ruint64 rword;
-typedef rint64 rsword;
+typedef ruint64 ruword;
+typedef rint64 rword;
 
 #ifndef _RSIZE_T_DEFINED
 typedef ruint64 rsize_t;

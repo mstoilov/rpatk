@@ -62,11 +62,11 @@ static rpointer r_std_realloc(rpointer ptr, rsize_t size)
 
 static rpointer r_dbg_calloc(rsize_t nmemb, rsize_t size)
 {
-	rword *mem = NULL;
+	ruword *mem = NULL;
 
-	nmemb += (size < sizeof(rword)) ? sizeof(rword) : 1;
-	mem = (rword*)calloc((size_t)nmemb, (size_t)size);
-	*((rword*)mem) = size * nmemb;
+	nmemb += (size < sizeof(ruword)) ? sizeof(ruword) : 1;
+	mem = (ruword*)calloc((size_t)nmemb, (size_t)size);
+	*((ruword*)mem) = size * nmemb;
 	r_spinlock_lock(&g_lock);
 	g_allocmem += size * nmemb;
 	if (g_maxmem < g_allocmem)
@@ -79,10 +79,10 @@ static rpointer r_dbg_calloc(rsize_t nmemb, rsize_t size)
 
 static rpointer r_dbg_malloc(rsize_t size)
 {
-	rword *mem = NULL;
-	size += sizeof(rword);
-	mem = (rword*)malloc((size_t)(size));
-	*((rword*)mem) = size;
+	ruword *mem = NULL;
+	size += sizeof(ruword);
+	mem = (ruword*)malloc((size_t)(size));
+	*((ruword*)mem) = size;
 	r_spinlock_lock(&g_lock);
 	g_allocmem += size;
 	if (g_maxmem < g_allocmem)
@@ -95,8 +95,8 @@ static rpointer r_dbg_malloc(rsize_t size)
 
 static void r_dbg_free(rpointer ptr)
 {
-	rword *mem = (void*)(((rword*)ptr) - 1);
-	rword size;
+	ruword *mem = (void*)(((ruword*)ptr) - 1);
+	ruword size;
 	if (!ptr)
 		return;
 	size = *mem;
@@ -109,16 +109,16 @@ static void r_dbg_free(rpointer ptr)
 
 static rpointer r_dbg_realloc(rpointer ptr, rsize_t size)
 {
-	rword *mem = (void*)(((rword*)ptr) - 1);
-	rword csize;
+	ruword *mem = (void*)(((ruword*)ptr) - 1);
+	ruword csize;
 	if (!ptr)
 		return r_malloc(size);
 	csize = *mem;
 	r_spinlock_lock(&g_lock);
 	g_allocmem -= csize;
 	r_spinlock_unlock(&g_lock);
-	size += sizeof(rword);
-	mem = (rword*)realloc((void*)mem, (size_t)(size));
+	size += sizeof(ruword);
+	mem = (ruword*)realloc((void*)mem, (size_t)(size));
 	*mem = size;
 	r_spinlock_lock(&g_lock);
 	g_allocmem += size;

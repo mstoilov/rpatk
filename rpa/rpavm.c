@@ -27,7 +27,7 @@
 static void rpavm_swi_shift(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
-	rsword top = RVM_CPUREG_GETL(cpu, R_TOP);
+	rword top = RVM_CPUREG_GETL(cpu, R_TOP);
 
 	if ((top = rpa_stat_shift(stat, top)) >= 0)
 		RVM_CPUREG_SETL(cpu, R_TOP, top);
@@ -43,7 +43,7 @@ static void rpavm_swi_matchbitmap(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		cpu->status = 0;
 	} else {
 		cpu->status = RVM_STATUS_N;
-		RVM_CPUREG_SETU(cpu, R0, (rword)-1);
+		RVM_CPUREG_SETU(cpu, R0, (ruword)-1);
 	}
 }
 
@@ -57,7 +57,7 @@ static void rpavm_swi_exitonbitmap(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		cpu->status = 0;
 	} else {
 		cpu->status = RVM_STATUS_N;
-		RVM_CPUREG_SETU(cpu, R0, (rword)-1);
+		RVM_CPUREG_SETU(cpu, R0, (ruword)-1);
 		cpu->abort = 1;
 	}
 }
@@ -67,7 +67,7 @@ static void rpavm_swi_verifybitmap(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	rpabitmap_t bitmap = RVM_CPUREG_GETU(cpu, ins->op1);
-	rword r0 = RVM_CPUREG_GETU(cpu, R0);
+	ruword r0 = RVM_CPUREG_GETU(cpu, R0);
 
 	if (bitmap && r0 > 0) {
 		if (!rpa_stat_matchbitmap(stat, RVM_CPUREG_GETL(cpu, R_TOP) - r0, bitmap)) {
@@ -81,23 +81,23 @@ static void rpavm_swi_verifybitmap(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rpavm_swi_matchchr_nan(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
-	rword wc = RVM_CPUREG_GETU(cpu, ins->op1);
-	rword matched = 0;
+	ruword wc = RVM_CPUREG_GETU(cpu, ins->op1);
+	ruword matched = 0;
 
 	if (rpa_stat_matchchr(stat, RVM_CPUREG_GETL(cpu, R_TOP), wc) > 0) {
 		rpavm_swi_shift(cpu, ins);
 		matched = 1;
 	}
 	cpu->status = matched ? 0 : RVM_STATUS_N;
-	RVM_CPUREG_SETU(cpu, R0, matched ? matched : (rword)-1);
+	RVM_CPUREG_SETU(cpu, R0, matched ? matched : (ruword)-1);
 }
 
 
 static void rpavm_swi_matchchr_opt(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
-	rword wc = RVM_CPUREG_GETU(cpu, ins->op1);
-	rword matched = 0;
+	ruword wc = RVM_CPUREG_GETU(cpu, ins->op1);
+	ruword matched = 0;
 
 	if (rpa_stat_matchchr(stat, RVM_CPUREG_GETL(cpu, R_TOP), wc) > 0) {
 		rpavm_swi_shift(cpu, ins);
@@ -111,23 +111,23 @@ static void rpavm_swi_matchchr_opt(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rpavm_swi_matchchr_mul(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
-	rword wc = RVM_CPUREG_GETU(cpu, ins->op1);
-	rword matched = 0;
+	ruword wc = RVM_CPUREG_GETU(cpu, ins->op1);
+	ruword matched = 0;
 
 	while (rpa_stat_matchchr(stat, RVM_CPUREG_GETL(cpu, R_TOP), wc) > 0) {
 		rpavm_swi_shift(cpu, ins);
 		matched += 1;
 	}
 	cpu->status = matched ? 0 : RVM_STATUS_N;
-	RVM_CPUREG_SETU(cpu, R0, matched ? matched : (rword)-1);
+	RVM_CPUREG_SETU(cpu, R0, matched ? matched : (ruword)-1);
 }
 
 
 static void rpavm_swi_matchchr_mop(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
-	rword wc = RVM_CPUREG_GETU(cpu, ins->op1);
-	rword matched = 0;
+	ruword wc = RVM_CPUREG_GETU(cpu, ins->op1);
+	ruword matched = 0;
 
 	while (rpa_stat_matchchr(stat, RVM_CPUREG_GETL(cpu, R_TOP), wc) > 0) {
 		rpavm_swi_shift(cpu, ins);
@@ -141,23 +141,23 @@ static void rpavm_swi_matchchr_mop(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rpavm_swi_matchspchr_nan(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
-	rword wc = RVM_CPUREG_GETU(cpu, ins->op1);
-	rword matched = 0;
+	ruword wc = RVM_CPUREG_GETU(cpu, ins->op1);
+	ruword matched = 0;
 
 	if (rpa_stat_matchspchr(stat, RVM_CPUREG_GETL(cpu, R_TOP), wc) > 0) {
 		rpavm_swi_shift(cpu, ins);
 		matched = 1;
 	}
 	cpu->status = matched ? 0 : RVM_STATUS_N;
-	RVM_CPUREG_SETU(cpu, R0, matched ? matched : (rword)-1);
+	RVM_CPUREG_SETU(cpu, R0, matched ? matched : (ruword)-1);
 }
 
 
 static void rpavm_swi_matchspchr_opt(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
-	rword wc = RVM_CPUREG_GETU(cpu, ins->op1);
-	rword matched = 0;
+	ruword wc = RVM_CPUREG_GETU(cpu, ins->op1);
+	ruword matched = 0;
 
 	if (rpa_stat_matchspchr(stat, RVM_CPUREG_GETL(cpu, R_TOP), wc) > 0) {
 		rpavm_swi_shift(cpu, ins);
@@ -172,15 +172,15 @@ static void rpavm_swi_matchspchr_opt(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rpavm_swi_matchspchr_mul(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
-	rword wc = RVM_CPUREG_GETU(cpu, ins->op1);
-	rword matched = 0;
+	ruword wc = RVM_CPUREG_GETU(cpu, ins->op1);
+	ruword matched = 0;
 
 	while (rpa_stat_matchspchr(stat, RVM_CPUREG_GETL(cpu, R_TOP), wc) > 0) {
 		rpavm_swi_shift(cpu, ins);
 		matched += 1;
 	}
 	cpu->status = matched ? 0 : RVM_STATUS_N;
-	RVM_CPUREG_SETU(cpu, R0, matched ? matched : (rword)-1);
+	RVM_CPUREG_SETU(cpu, R0, matched ? matched : (ruword)-1);
 
 }
 
@@ -188,8 +188,8 @@ static void rpavm_swi_matchspchr_mul(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rpavm_swi_matchspchr_mop(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
-	rword wc = RVM_CPUREG_GETU(cpu, ins->op1);
-	rword matched = 0;
+	ruword wc = RVM_CPUREG_GETU(cpu, ins->op1);
+	ruword matched = 0;
 
 	while (rpa_stat_matchspchr(stat, RVM_CPUREG_GETL(cpu, R_TOP), wc) > 0) {
 		rpavm_swi_shift(cpu, ins);
@@ -204,11 +204,11 @@ static void rpavm_swi_matchrng_peek(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	rpair_t pr = RVM_CPUREG_GETPAIR(cpu, ins->op1);
-	rword matched = 0;
+	ruword matched = 0;
 
 	if (rpa_stat_matchrng(stat, RVM_CPUREG_GETL(cpu, R_TOP), pr.p1, pr.p2) <= 0) {
 		cpu->status = matched ? 0 : RVM_STATUS_N;
-		RVM_CPUREG_SETU(cpu, R0, matched ? matched : (rword)-1);
+		RVM_CPUREG_SETU(cpu, R0, matched ? matched : (ruword)-1);
 	}
 }
 
@@ -217,14 +217,14 @@ static void rpavm_swi_matchrng_nan(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	rpair_t pr = RVM_CPUREG_GETPAIR(cpu, ins->op1);
-	rword matched = 0;
+	ruword matched = 0;
 
 	if (rpa_stat_matchrng(stat, RVM_CPUREG_GETL(cpu, R_TOP), pr.p1, pr.p2) > 0) {
 		rpavm_swi_shift(cpu, ins);
 		matched = 1;
 	}
 	cpu->status = matched ? 0 : RVM_STATUS_N;
-	RVM_CPUREG_SETU(cpu, R0, matched ? matched : (rword)-1);
+	RVM_CPUREG_SETU(cpu, R0, matched ? matched : (ruword)-1);
 }
 
 
@@ -232,7 +232,7 @@ static void rpavm_swi_matchrng_opt(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	rpair_t pr = RVM_CPUREG_GETPAIR(cpu, ins->op1);
-	rword matched = 0;
+	ruword matched = 0;
 
 	if (rpa_stat_matchrng(stat, RVM_CPUREG_GETL(cpu, R_TOP), pr.p1, pr.p2) > 0) {
 		rpavm_swi_shift(cpu, ins);
@@ -247,14 +247,14 @@ static void rpavm_swi_matchrng_mul(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	rpair_t pr = RVM_CPUREG_GETPAIR(cpu, ins->op1);
-	rword matched = 0;
+	ruword matched = 0;
 
 	while (rpa_stat_matchrng(stat, RVM_CPUREG_GETL(cpu, R_TOP), pr.p1, pr.p2) > 0) {
 		rpavm_swi_shift(cpu, ins);
 		matched += 1;
 	}
 	cpu->status = matched ? 0 : RVM_STATUS_N;
-	RVM_CPUREG_SETU(cpu, R0, matched ? matched : (rword)-1);
+	RVM_CPUREG_SETU(cpu, R0, matched ? matched : (ruword)-1);
 }
 
 
@@ -262,7 +262,7 @@ static void rpavm_swi_matchrng_mop(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	rpair_t pr = RVM_CPUREG_GETPAIR(cpu, ins->op1);
-	rword matched = 0;
+	ruword matched = 0;
 
 	while (rpa_stat_matchrng(stat, RVM_CPUREG_GETL(cpu, R_TOP), pr.p1, pr.p2) > 0) {
 		rpavm_swi_shift(cpu, ins);
@@ -276,7 +276,7 @@ static void rpavm_swi_matchrng_mop(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rpavm_swi_emittail(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
-	rsword index = RVM_CPUREG_GETL(cpu, R_REC);
+	rword index = RVM_CPUREG_GETL(cpu, R_REC);
 
 	if (stat->records)
 		r_array_setlength(stat->records, index + 1);
@@ -288,8 +288,8 @@ static void rpavm_swi_abort(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rpa_ruledata_t *ruledata = RVM_CPUREG_GETP(cpu, ins->op1);
 	rstr_t name = {(char*)ruledata + ruledata->name, ruledata->namesize};
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
-	rsword index = RVM_CPUREG_GETL(cpu, R_REC);
-	rword tp = RVM_CPUREG_GETU(cpu, ins->op2);
+	rword index = RVM_CPUREG_GETL(cpu, R_REC);
+	ruword tp = RVM_CPUREG_GETU(cpu, ins->op2);
 
 
 	if (stat->records)
@@ -311,8 +311,8 @@ static void rpavm_swi_emitstart(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rpa_ruledata_t *ruledata = RVM_CPUREG_GETP(cpu, ins->op1);
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	rparecord_t *rec;
-	rsword index = RVM_CPUREG_GETL(cpu, R_REC);
-	rword tp = RVM_CPUREG_GETU(cpu, ins->op2);
+	rword index = RVM_CPUREG_GETL(cpu, R_REC);
+	ruword tp = RVM_CPUREG_GETU(cpu, ins->op2);
 	rstr_t name = {(char*)ruledata + ruledata->name, ruledata->namesize};
 
 	if (stat->debug)
@@ -344,10 +344,10 @@ static void rpavm_swi_emitend(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rpa_ruledata_t *ruledata = RVM_CPUREG_GETP(cpu, ins->op1);
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	rparecord_t *rec, *startrec;
-	rsword startindex = RVM_CPUREG_GETL(cpu, R1) + 1;
-	rsword index = RVM_CPUREG_GETL(cpu, R_REC);
-	rword tp = RVM_CPUREG_GETU(cpu, ins->op2);
-	rword tplen = RVM_CPUREG_GETU(cpu, ins->op3);
+	rword startindex = RVM_CPUREG_GETL(cpu, R1) + 1;
+	rword index = RVM_CPUREG_GETL(cpu, R_REC);
+	ruword tp = RVM_CPUREG_GETU(cpu, ins->op2);
+	ruword tplen = RVM_CPUREG_GETU(cpu, ins->op3);
 	rstr_t name = {(char*)ruledata + ruledata->name, ruledata->namesize};
 
 	if (stat->debug)
@@ -395,12 +395,12 @@ static void rpavm_swi_prninfo(rvmcpu_t *cpu, rvm_asmins_t *ins)
 static void rpavm_swi_setcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
-	rsword r0 = RVM_CPUREG_GETL(cpu, R0);
-	rsword ruleid = RVM_CPUREG_GETL(cpu, ins->op1);
-	rsword prevrec = RVM_CPUREG_GETL(cpu, ins->op2);
-	rsword endrec = RVM_CPUREG_GETL(cpu, ins->op3);
-	rsword top = RVM_CPUREG_GETL(cpu, R_OTP);
-	rsword startrec = 0;
+	rword r0 = RVM_CPUREG_GETL(cpu, R0);
+	rword ruleid = RVM_CPUREG_GETL(cpu, ins->op1);
+	rword prevrec = RVM_CPUREG_GETL(cpu, ins->op2);
+	rword endrec = RVM_CPUREG_GETL(cpu, ins->op3);
+	rword top = RVM_CPUREG_GETL(cpu, R_OTP);
+	rword startrec = 0;
 
 	if (r0 > 0 && prevrec != endrec) {
 		startrec = prevrec + 1;
@@ -415,9 +415,9 @@ static void rpavm_swi_checkcache(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
 	rpacachedentry_t *entry;
-	rsword ruleid = RVM_CPUREG_GETL(cpu, ins->op1);
-	rsword top = RVM_CPUREG_GETL(cpu, ins->op2);
-	rsword r0 = 0;
+	rword ruleid = RVM_CPUREG_GETL(cpu, ins->op1);
+	rword top = RVM_CPUREG_GETL(cpu, ins->op2);
+	rword r0 = 0;
 	entry = rpa_cache_lookup(stat->cache, top, ruleid);
 	if (entry) {
 		r0 = entry->ret;

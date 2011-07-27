@@ -52,9 +52,9 @@ void rpa_dbex_buildbitmapinfo_for_rule(rpadbex_t *dbex, rparule_t rid)
 }
 
 
-rword rpa_dbex_getrulebitmap(rpadbex_t *dbex, rparule_t rid)
+ruword rpa_dbex_getrulebitmap(rpadbex_t *dbex, rparule_t rid)
 {
-	rword bitmap = 0L;
+	ruword bitmap = 0L;
 	rharray_t *rules = dbex->rules;
 	rpa_ruleinfo_t *info;
 
@@ -293,7 +293,7 @@ static long rpa_bitmap_set_numrng(rarray_t *records, rparecord_t *record, long r
 		long first = rpa_recordtree_firstchild(records, rec, RPA_RECORD_END);
 		long second = rpa_recordtree_lastchild(records, rec, RPA_RECORD_END);
 		if (first >= 0 && second >= 0) {
-			rword wc1, wc2, wc;
+			ruword wc1, wc2, wc;
 			rparecord_t *firstrecord = rpa_record_get(records, first);
 			rparecord_t *secondrecord = rpa_record_get(records, second);
 			if (firstrecord->userdata < secondrecord->userdata) {

@@ -39,7 +39,7 @@ typedef struct rvm_codelabel_s {
 		RVM_CODELABEL_INVALID,
 	} type;
 	unsigned long base;
-	rword value;
+	ruword value;
 	rstr_t *name;
 	unsigned long size; // Optional, used for function declarations
 } rvm_codelabel_t;
@@ -67,7 +67,7 @@ long rvm_codemap_lookup_s(rvm_codemap_t *codemap, const char *name);
 long rvm_codemap_lastlabel(rvm_codemap_t *codemap);
 rvm_codelabel_t *rvm_codemap_label(rvm_codemap_t *codemap, long index);
 long rvm_codemap_validindex(rvm_codemap_t *codemap, long labelidx);
-rword rvm_codemap_resolve(rvm_codemap_t *codemap, long index, rvm_codelabel_t **err);
+ruword rvm_codemap_resolve(rvm_codemap_t *codemap, long index, rvm_codelabel_t **err);
 void rvm_codemap_dump(rvm_codemap_t *codemap);
 void rvm_codelabel_setoffset(rvm_codelabel_t *label, unsigned long base, unsigned long offset);
 void rvm_codelabel_setpointer(rvm_codelabel_t *label, rpointer ptr);

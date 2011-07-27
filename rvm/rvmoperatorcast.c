@@ -22,34 +22,34 @@
 #include "rvm/rvmreg.h"
 
 
-void rvm_op_cast_static_static(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rvm_op_cast_static_static(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	*res = *arg1;
 }
 
 
-void rvm_op_cast_double_unsigned(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rvm_op_cast_double_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
-	rword r = (rword)RVM_REG_GETD(arg1);
+	ruword r = (ruword)RVM_REG_GETD(arg1);
 
 	RVM_REG_CLEAR(res);
 	RVM_REG_SETTYPE(res, RVM_DTYPE_UNSIGNED);
 	RVM_REG_SETL(res, r);
 }
 
-void rvm_op_cast_double_long(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rvm_op_cast_double_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	long r = (long)RVM_REG_GETD(arg1);
 
 	RVM_REG_CLEAR(res);
-	RVM_REG_SETTYPE(res, RVM_DTYPE_LONG);
+	RVM_REG_SETTYPE(res, RVM_DTYPE_SINGED);
 	RVM_REG_SETL(res, r);
 }
 
 
-void rvm_op_cast_long_unsigned(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rvm_op_cast_signed_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
-	rword r = (rword)RVM_REG_GETL(arg1);
+	ruword r = (ruword)RVM_REG_GETL(arg1);
 
 	RVM_REG_CLEAR(res);
 	RVM_REG_SETTYPE(res, RVM_DTYPE_UNSIGNED);
@@ -57,7 +57,7 @@ void rvm_op_cast_long_unsigned(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res
 }
 
 
-void rvm_op_cast_long_double(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rvm_op_cast_signed_double(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	double r = (double)RVM_REG_GETL(arg1);
 
@@ -67,9 +67,9 @@ void rvm_op_cast_long_double(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, 
 }
 
 
-void rvm_op_cast_long_boolean(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rvm_op_cast_signed_boolean(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
-	rword r = (rword)RVM_REG_GETL(arg1);
+	ruword r = (ruword)RVM_REG_GETL(arg1);
 
 	RVM_REG_CLEAR(res);
 	RVM_REG_SETTYPE(res, RVM_DTYPE_BOOLEAN);
@@ -77,9 +77,9 @@ void rvm_op_cast_long_boolean(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res,
 }
 
 
-void rvm_op_cast_double_boolean(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rvm_op_cast_double_boolean(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
-	rword r = (rword)RVM_REG_GETD(arg1);
+	ruword r = (ruword)RVM_REG_GETD(arg1);
 
 	RVM_REG_CLEAR(res);
 	RVM_REG_SETTYPE(res, RVM_DTYPE_BOOLEAN);
@@ -87,7 +87,7 @@ void rvm_op_cast_double_boolean(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *re
 }
 
 
-void rvm_op_cast_pointer_boolean(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rvm_op_cast_pointer_boolean(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rpointer r = (rpointer)RVM_REG_GETP(arg1);
 
@@ -97,17 +97,17 @@ void rvm_op_cast_pointer_boolean(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *r
 }
 
 
-void rvm_op_cast_unsigned_long(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rvm_op_cast_unsigned_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	long r = (long)RVM_REG_GETU(arg1);
 
 	RVM_REG_CLEAR(res);
-	RVM_REG_SETTYPE(res, RVM_DTYPE_LONG);
+	RVM_REG_SETTYPE(res, RVM_DTYPE_SINGED);
 	RVM_REG_SETL(res, r);
 }
 
 
-void rvm_op_cast_unsigned_double(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rvm_op_cast_unsigned_double(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	double r = (double)RVM_REG_GETU(arg1);
 
@@ -117,27 +117,27 @@ void rvm_op_cast_unsigned_double(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *r
 }
 
 
-void rvm_op_cast_string_unsigned(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rvm_op_cast_string_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rvmreg_t s;
 
-	if (rvm_reg_str2long(&s, arg1) < 0)
+	if (rvm_reg_str2signed(&s, arg1) < 0)
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	rvm_reg_setunsigned(res, RVM_REG_GETL(&s));
 }
 
 
-void rvm_op_cast_string_long(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rvm_op_cast_string_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rvmreg_t s;
 
-	if (rvm_reg_str2long(&s, arg1) < 0)
+	if (rvm_reg_str2signed(&s, arg1) < 0)
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
-	rvm_reg_setlong(res, RVM_REG_GETL(&s));
+	rvm_reg_setsigned(res, RVM_REG_GETL(&s));
 }
 
 
-void rvm_op_cast_string_double(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rvm_op_cast_string_double(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rvmreg_t s;
 
@@ -152,26 +152,26 @@ void rvm_op_cast_init(rvm_opmap_t *opmap)
 	rvm_opmap_add_binary_operator(opmap, RVM_OPID_CAST);
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_static_static, RVM_DTYPE_UNSIGNED, RVM_DTYPE_UNSIGNED);
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_static_static, RVM_DTYPE_DOUBLE, RVM_DTYPE_DOUBLE);
-	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_static_static, RVM_DTYPE_LONG, RVM_DTYPE_LONG);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_static_static, RVM_DTYPE_SINGED, RVM_DTYPE_SINGED);
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_static_static, RVM_DTYPE_STRING, RVM_DTYPE_STRING);
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_static_static, RVM_DTYPE_BOOLEAN, RVM_DTYPE_BOOLEAN);
-	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_long_boolean, RVM_DTYPE_LONG, RVM_DTYPE_BOOLEAN);
-	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_long_boolean, RVM_DTYPE_UNSIGNED, RVM_DTYPE_BOOLEAN);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_signed_boolean, RVM_DTYPE_SINGED, RVM_DTYPE_BOOLEAN);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_signed_boolean, RVM_DTYPE_UNSIGNED, RVM_DTYPE_BOOLEAN);
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_double_boolean, RVM_DTYPE_DOUBLE, RVM_DTYPE_BOOLEAN);
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_pointer_boolean, RVM_DTYPE_STRING, RVM_DTYPE_BOOLEAN);
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_pointer_boolean, RVM_DTYPE_ARRAY, RVM_DTYPE_BOOLEAN);
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_pointer_boolean, RVM_DTYPE_HARRAY, RVM_DTYPE_BOOLEAN);
-	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_unsigned_long, RVM_DTYPE_BOOLEAN, RVM_DTYPE_LONG);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_unsigned_signed, RVM_DTYPE_BOOLEAN, RVM_DTYPE_SINGED);
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_unsigned_double, RVM_DTYPE_BOOLEAN, RVM_DTYPE_DOUBLE);
 
-	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_long_double, RVM_DTYPE_LONG, RVM_DTYPE_DOUBLE);
-	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_long_unsigned, RVM_DTYPE_LONG, RVM_DTYPE_UNSIGNED);
-	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_double_long, RVM_DTYPE_DOUBLE, RVM_DTYPE_LONG);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_signed_double, RVM_DTYPE_SINGED, RVM_DTYPE_DOUBLE);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_signed_unsigned, RVM_DTYPE_SINGED, RVM_DTYPE_UNSIGNED);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_double_signed, RVM_DTYPE_DOUBLE, RVM_DTYPE_SINGED);
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_double_unsigned, RVM_DTYPE_DOUBLE, RVM_DTYPE_UNSIGNED);
-	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_unsigned_long, RVM_DTYPE_UNSIGNED, RVM_DTYPE_LONG);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_unsigned_signed, RVM_DTYPE_UNSIGNED, RVM_DTYPE_SINGED);
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_unsigned_double, RVM_DTYPE_UNSIGNED, RVM_DTYPE_DOUBLE);
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_string_unsigned, RVM_DTYPE_STRING, RVM_DTYPE_UNSIGNED);
-	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_string_long, RVM_DTYPE_STRING, RVM_DTYPE_LONG);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_string_signed, RVM_DTYPE_STRING, RVM_DTYPE_SINGED);
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rvm_op_cast_string_double, RVM_DTYPE_STRING, RVM_DTYPE_DOUBLE);
 
 }

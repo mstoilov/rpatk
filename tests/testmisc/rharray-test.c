@@ -33,7 +33,7 @@ static void test_swi_print_r(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_t *r = RVM_CPUREG_PTR(cpu, ins->op1);
 
-	if (rvm_reg_gettype(r) == RVM_DTYPE_LONG)
+	if (rvm_reg_gettype(r) == RVM_DTYPE_SINGED)
 		fprintf(stdout, "R%d = %ld\n", ins->op1, RVM_REG_GETL(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_DOUBLE)
 		fprintf(stdout, "R%d = %5.2f\n", ins->op1, RVM_REG_GETD(r));
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
 
 	ag = rvm_reg_create_double(4.55);
 	rh = rvm_reg_create_string_ansi("Hello World");
-	rt = rvm_reg_create_long(55);
+	rt = rvm_reg_create_signed(55);
 
 	na = r_harray_create_rvmreg();
 	rvm_reg_setharray(&nareg, (robject_t*)na);

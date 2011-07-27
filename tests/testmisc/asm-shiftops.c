@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 	vmcode[off++] = rvm_asm(RVM_LSL, R0, R1, DA, 3);
 	vmcode[off++] = rvm_asm(RVM_LSR, R0, R0, DA, 3);
 	vmcode[off++] = rvm_asm(RVM_ROR, R0, R0, DA, 1);
-	vmcode[off++] = rvm_asm(RVM_ROR, R0, R0, DA, sizeof(rword) * 8 - 1);
+	vmcode[off++] = rvm_asm(RVM_ROR, R0, R0, DA, sizeof(ruword) * 8 - 1);
 	VMTEST_REG(vmcode, off, 0, 1, "SHIFT");
 
 	vmcode[off++] = rvm_asm(RVM_EXT, R0, XX, XX, 0);

@@ -33,7 +33,7 @@ typedef struct rlist_s rlist_t, rlink_t, rhead_t;
 #define R_LIST_HEAD(__name__) {&(__name__), &(__name__) }
 #define r_list(__name__) rlist_t __name__ = { &(__name__), &(__name__) }
 #define r_list_empty(__head__) ((__head__)->next == ((void*)0) || (__head__)->next == __head__)
-#define r_list_entry(__ptr__, __type__, __member__) ((__type__ *)((char *)(__ptr__)-(rword)(&((__type__ *)0)->__member__)))
+#define r_list_entry(__ptr__, __type__, __member__) ((__type__ *)((char *)(__ptr__)-(ruword)(&((__type__ *)0)->__member__)))
 #define r_list_foreach(__pos__, __head__) for (__pos__ = (__head__)->next; __pos__ != (__head__); __pos__ = (__pos__)->next)
 #define r_list_foreachreverse(__pos__, __head__) for (__pos__ = (__head__)->prev; __pos__ != (__head__); __pos__ = (__pos__)->prev)
 #define r_list_fo_eachsafe(__pos__, __n__, __head__) \

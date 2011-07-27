@@ -28,9 +28,9 @@
 extern "C" {
 #endif
 
-void rvm_op_greatereq_unsigned(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, rword op1, rword op2);
-void rvm_op_greatereq_long(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, long op1, long op2);
-void rvm_op_greatereq_double(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, double op1, double op2);
+void rvm_op_greatereq_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, ruword op1, ruword op2);
+void rvm_op_greatereq_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, rword op1, rword op2);
+void rvm_op_greatereq_double(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, double op1, double op2);
 
 #ifdef __cplusplus
 }

@@ -27,7 +27,7 @@
 
 static void test_swi_print_r(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	rword res = RVM_CPUREG_GETU(cpu, ins->op1);
+	ruword res = RVM_CPUREG_GETU(cpu, ins->op1);
 	fprintf(stdout, "R%d = %d\n", ins->op1, (int)res);
 }
 

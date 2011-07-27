@@ -22,9 +22,9 @@
 #include "rvm/rvmreg.h"
 
 
-void rvm_op_mul_unsigned(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, rword op1, rword op2)
+void rvm_op_mul_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, ruword op1, ruword op2)
 {
-	rword r;
+	ruword r;
 
 	r = op1 * op2;
 	RVM_REG_SETU(res, r);
@@ -35,19 +35,19 @@ void rvm_op_mul_unsigned(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, rwor
 }
 
 
-void rvm_op_mul_long(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, long op1, long op2)
+void rvm_op_mul_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, rword op1, rword op2)
 {
 	long r;
 
 	r = op1 * op2;
 	RVM_REG_SETL(res, r);
-	RVM_REG_SETTYPE(res, RVM_DTYPE_LONG);
+	RVM_REG_SETTYPE(res, RVM_DTYPE_SINGED);
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, !r);
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_N, r & RVM_SIGN_BIT);
 }
 
 
-void rvm_op_mul_double(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, double op1, double op2)
+void rvm_op_mul_double(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, double op1, double op2)
 {
 	double r;
 

@@ -104,7 +104,7 @@ struct rparecord_s {
 	ruint32 ruleid;			/**< Unique ID, identifying the BNF rule that created the record */
 	ruint32 ruleuid;		/**< User specified Rule ID. If you used directive @ref emitid for this rulename, this member will contain the specified ID */
 	ruint32 usertype;		/**< User specified type. */
-	rword userdata;			/**< Scratch area. This member can be used to associate some user specific data with this record. */
+	ruword userdata;			/**< Scratch area. This member can be used to associate some user specific data with this record. */
 };
 
 

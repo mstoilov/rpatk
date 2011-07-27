@@ -115,7 +115,7 @@ void r_map_cleanup(robject_t *obj)
 
 robject_t *r_map_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, unsigned int elt_size, unsigned int nbits)
 {
-	rsize_t elt_realsize = R_SIZE_ALIGN(elt_size + sizeof(r_mapnode_t), sizeof(rword));
+	rsize_t elt_realsize = R_SIZE_ALIGN(elt_size + sizeof(r_mapnode_t), sizeof(ruword));
 	rsize_t hashsize, i;
 	rmap_t *map = (rmap_t*)obj;
 	if (nbits == 0 || nbits > 16) {

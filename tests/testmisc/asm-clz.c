@@ -34,23 +34,23 @@ int main(int argc, char *argv[])
 	vmcode[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_CLZ, R0, R0, XX, 0);
-	VMTEST_REG(vmcode, off, 0, sizeof(rword) * 8, "CLZ 0");
+	VMTEST_REG(vmcode, off, 0, sizeof(ruword) * 8, "CLZ 0");
 
 	vmcode[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_MOV, R1, DA, XX, 1 << 0);
 	vmcode[off++] = rvm_asm(RVM_CLZ, R0, R1, XX, 0);
-	VMTEST_REG(vmcode, off, 0, sizeof(rword) * 8 - 1, "CLZ 1");
+	VMTEST_REG(vmcode, off, 0, sizeof(ruword) * 8 - 1, "CLZ 1");
 
 	vmcode[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_MOV, R1, DA, XX, 1 << 1);
 	vmcode[off++] = rvm_asm(RVM_CLZ, R0, R1, XX, 0);
-	VMTEST_REG(vmcode, off, 0, sizeof(rword) * 8 - 2, "CLZ 2");
+	VMTEST_REG(vmcode, off, 0, sizeof(ruword) * 8 - 2, "CLZ 2");
 
 
 	vmcode[off++] = rvm_asm(RVM_MOV, R0, DA, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_MOV, R1, DA, XX, 1UL << 31);
 	vmcode[off++] = rvm_asm(RVM_CLZ, R0, R1, XX, 0);
-	VMTEST_REG(vmcode, off, 0, sizeof(rword) * 8 - 32, "CLZ (1<<31)");
+	VMTEST_REG(vmcode, off, 0, sizeof(ruword) * 8 - 32, "CLZ (1<<31)");
 
 	vmcode[off++] = rvm_asm(RVM_EXT, R0, XX, XX, 0);
 #ifdef EXECDEBUG

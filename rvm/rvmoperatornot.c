@@ -22,9 +22,9 @@
 #include "rvm/rvmreg.h"
 
 
-static void rvm_op_not_unsigned(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1)
+static void rvm_op_not_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1)
 {
-	rword r;
+	ruword r;
 
 	r = ~(RVM_REG_GETU(arg1));
 	RVM_REG_SETU(res, r);
@@ -34,7 +34,7 @@ static void rvm_op_not_unsigned(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *re
 }
 
 
-static void rvm_op_not_castunsigned(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1)
+static void rvm_op_not_castunsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1)
 {
 	rvmreg_t uarg;
 
@@ -46,7 +46,7 @@ static void rvm_op_not_castunsigned(rvmcpu_t *cpu, unsigned short opid, rvmreg_t
 }
 
 
-static void rvm_op_not_nan(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, const rvmreg_t *arg1)
+static void rvm_op_not_nan(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1)
 {
 	rvm_reg_cleanup(res);
 	RVM_REG_SETTYPE(res, RVM_DTYPE_NAN);
@@ -65,7 +65,7 @@ void rvm_op_not_init(rvm_opmap_t *opmap)
 
 	rvm_opmap_set_unary_handler(opmap, RVM_OPID_NOT, rvm_op_not_unsigned, RVM_DTYPE_UNSIGNED);
 	rvm_opmap_set_unary_handler(opmap, RVM_OPID_NOT, rvm_op_not_unsigned, RVM_DTYPE_BOOLEAN);
-	rvm_opmap_set_unary_handler(opmap, RVM_OPID_NOT, rvm_op_not_castunsigned, RVM_DTYPE_LONG);
+	rvm_opmap_set_unary_handler(opmap, RVM_OPID_NOT, rvm_op_not_castunsigned, RVM_DTYPE_SINGED);
 	rvm_opmap_set_unary_handler(opmap, RVM_OPID_NOT, rvm_op_not_castunsigned, RVM_DTYPE_DOUBLE);
 	rvm_opmap_set_unary_handler(opmap, RVM_OPID_NOT, rvm_op_not_castunsigned, RVM_DTYPE_STRING);
 }

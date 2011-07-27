@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 	char test_script1[] = "print('ARGS[0]: ' + ARGS[0]); print('ARGS[1]: ' + ARGS[1]);print('ARGS.count: ' + ARGS.count);(ARGS[0]+ARGS[1])*3;";
 
 //	jse->debugexec = 1;
-	r_printf("result: %ld\n", rvm_reg_long(rjs_engine_args_exec_s(jse, test_script1, 2, rvm_reg_create_long(2), rvm_reg_create_long(3))));
+	r_printf("result: %ld\n", rvm_reg_signed(rjs_engine_args_exec_s(jse, test_script1, 2, rvm_reg_create_signed(2), rvm_reg_create_signed(3))));
 	rjs_engine_destroy(jse);
 	return 0;
 }

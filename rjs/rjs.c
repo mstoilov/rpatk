@@ -227,7 +227,7 @@ rvmreg_t *rjs_engine_exec_s(rjs_engine_t *jse, const char *script)
 static int rjs_compiler_argarray_setup(rjs_compiler_t *co)
 {
 	rvm_varmap_t *v;
-	rvmreg_t count = rvm_reg_create_long(0);
+	rvmreg_t count = rvm_reg_create_signed(0);
 	rmap_t *a;
 
 	v = rvm_scope_tiplookup_s(co->scope, "ARGS");
@@ -258,7 +258,7 @@ static int rjs_compiler_addarg(rjs_compiler_t *co, rvmreg_t *arg)
 	R_ASSERT(index >= 0);
 	count = (rvmreg_t *)r_map_value(a, index);
 	r_map_add_l(a, RVM_REG_GETL(count), arg);
-	rvm_reg_setlong(count, RVM_REG_GETL(count) + 1);
+	rvm_reg_setsigned(count, RVM_REG_GETL(count) + 1);
 
 	return 0;
 }
@@ -322,7 +322,7 @@ static void rjs_engine_print(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		r_printf("%s\n", RVM_REG_GETU(r) ? "true" : "false");
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_POINTER)
 		r_printf("%p\n", RVM_REG_GETP(r));
-	else if (rvm_reg_gettype(r) == RVM_DTYPE_LONG)
+	else if (rvm_reg_gettype(r) == RVM_DTYPE_SINGED)
 		r_printf("%ld\n", RVM_REG_GETL(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_DOUBLE)
 		r_printf("%f\n", RVM_REG_GETD(r));
@@ -355,7 +355,7 @@ static void rjs_engine_dbgprint(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		r_printf("(BOOLEAN) %s\n", RVM_REG_GETU(r) ? "true" : "false");
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_POINTER)
 		r_printf("(POINTER) %p\n", RVM_REG_GETP(r));
-	else if (rvm_reg_gettype(r) == RVM_DTYPE_LONG)
+	else if (rvm_reg_gettype(r) == RVM_DTYPE_SINGED)
 		r_printf("(LONG) %ld\n", RVM_REG_GETL(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_DOUBLE)
 		r_printf("(DOUBLE) %f\n", RVM_REG_GETD(r));

@@ -22,9 +22,9 @@
 #include "rvm/rvmreg.h"
 
 
-void rvm_op_less_unsigned(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, rword op1, rword op2)
+void rvm_op_less_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, ruword op1, ruword op2)
 {
-	rword r;
+	ruword r;
 
 	r = (op1 < op2) ? 1 : 0;
 	RVM_REG_SETU(res, r);
@@ -33,9 +33,9 @@ void rvm_op_less_unsigned(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, rwo
 }
 
 
-void rvm_op_less_long(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, long op1, long op2)
+void rvm_op_less_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, rword op1, rword op2)
 {
-	rword r;
+	ruword r;
 
 	r = (op1 < op2) ? 1 : 0;
 	RVM_REG_SETU(res, r);
@@ -44,9 +44,9 @@ void rvm_op_less_long(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, long op
 }
 
 
-void rvm_op_less_double(rvmcpu_t *cpu, unsigned short opid, rvmreg_t *res, double op1, double op2)
+void rvm_op_less_double(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, double op1, double op2)
 {
-	rword r;
+	ruword r;
 
 	r = (op1 < op2) ? 1 : 0;
 	RVM_REG_SETU(res, r);

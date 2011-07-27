@@ -191,7 +191,7 @@ long rpa_stat_match(rpastat_t *stat, rparule_t rid, unsigned int encoding, const
  * @return If successful return the size of the matched string in bytes, if the input stream cannot be matched against the BNF
  * 			return 0, return negative in case of error.
  */
-long rpa_stat_exec(rpastat_t *stat, rvm_asmins_t *prog, rword off, unsigned int encoding, const char *input, const char *start, const char *end, rarray_t *records);
+long rpa_stat_exec(rpastat_t *stat, rvm_asmins_t *prog, ruword off, unsigned int encoding, const char *input, const char *start, const char *end, rarray_t *records);
 
 
 /**

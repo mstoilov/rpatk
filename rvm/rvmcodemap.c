@@ -111,7 +111,7 @@ void rvm_codelabel_setoffset(rvm_codelabel_t *label, unsigned long base, unsigne
 void rvm_codelabel_setpointer(rvm_codelabel_t *label, rpointer ptr)
 {
 	label->base = 0;
-	label->value = (rword)ptr;
+	label->value = (ruword)ptr;
 	label->type = RVM_CODELABEL_POINTER;
 }
 
@@ -224,10 +224,10 @@ long rvm_codemap_lookup_s(rvm_codemap_t *codemap, const char *name)
 }
 
 
-rword rvm_codemap_resolve(rvm_codemap_t *codemap, long index, rvm_codelabel_t **err)
+ruword rvm_codemap_resolve(rvm_codemap_t *codemap, long index, rvm_codelabel_t **err)
 {
 	rvm_codelabel_t *label = rvm_codemap_label(codemap, index);
-	rword value;
+	ruword value;
 
 	if (!label)
 		return 0;
@@ -235,13 +235,13 @@ rword rvm_codemap_resolve(rvm_codemap_t *codemap, long index, rvm_codelabel_t **
 		return label->value;
 	} else if (label->type == RVM_CODELABEL_OFFSET) {
 		value = rvm_codemap_resolve(codemap, label->base, err);
-		if (value == (rword)-1)
-			return (rword)-1;
+		if (value == (ruword)-1)
+			return (ruword)-1;
 		return value + label->value;
 	}
 	if (err)
 		*err = label;
-	return (rword)-1;
+	return (ruword)-1;
 }
 
 
