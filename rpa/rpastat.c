@@ -64,7 +64,7 @@ void rpa_stat_cachedisable(rpastat_t *stat, unsigned int disable)
 
 int rpa_stat_init(rpastat_t *stat, unsigned int encoding, const char *input, const char *start, const char *end, rarray_t *records)
 {
-	unsigned long size;
+	long size;
 
 	if (!stat) {
 		return -1;
@@ -76,7 +76,7 @@ int rpa_stat_init(rpastat_t *stat, unsigned int encoding, const char *input, con
 		return -1;
 	}
 	r_memset(&stat->err, 0, sizeof(stat->err));
-	size = end - start;
+	size = (long)(end - start);
 	stat->encoding = encoding;
 	stat->start = start;
 	stat->end = end;
@@ -203,7 +203,7 @@ long rpa_stat_scan(rpastat_t *stat, rparule_t rid, unsigned int encoding, const 
 		}
 		if (topsiz > 0) {
 			ptp = &stat->instack[topsiz];
-			ret = (ptp->input - input);
+			ret = (long)(ptp->input - input);
 			*where = input;
 			return ret;
 		}

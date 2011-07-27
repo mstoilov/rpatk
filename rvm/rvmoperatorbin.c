@@ -98,13 +98,13 @@ static void rvm_op_binary_signed_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *r
 
 static void rvm_op_binary_double_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
-	rvm_op_binary_double(cpu, opid, res, RVM_REG_GETD(arg1), RVM_REG_GETL(arg2));
+	rvm_op_binary_double(cpu, opid, res, RVM_REG_GETD(arg1), (double)RVM_REG_GETL(arg2));
 }
 
 
 void rvm_op_binary_signed_double(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
-	rvm_op_binary_double(cpu, opid, res, RVM_REG_GETL(arg1), RVM_REG_GETD(arg2));
+	rvm_op_binary_double(cpu, opid, res, (double)RVM_REG_GETL(arg1), RVM_REG_GETD(arg2));
 }
 
 
@@ -132,7 +132,7 @@ static void rvm_op_binary_string_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *r
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 
 	if (rvm_reg_gettype(&s) == RVM_DTYPE_DOUBLE) {
-		rvm_op_binary_double(cpu, opid, res, RVM_REG_GETD(&s), RVM_REG_GETL(arg2));
+		rvm_op_binary_double(cpu, opid, res, RVM_REG_GETD(&s), (double)RVM_REG_GETL(arg2));
 	} else {
 		rvm_op_binary_signed(cpu, opid, res, RVM_REG_GETL(&s), RVM_REG_GETL(arg2));
 	}
@@ -156,7 +156,7 @@ static void rvm_op_binary_signed_string(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *r
 	if (rvm_reg_str2num(&s, arg2) < 0)
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	if (rvm_reg_gettype(&s) == RVM_DTYPE_DOUBLE) {
-		rvm_op_binary_double(cpu, opid, res, RVM_REG_GETL(arg1), RVM_REG_GETD(&s));
+		rvm_op_binary_double(cpu, opid, res, (double)RVM_REG_GETL(arg1), RVM_REG_GETD(&s));
 	} else {
 		rvm_op_binary_signed(cpu, opid, res, RVM_REG_GETL(arg1), RVM_REG_GETL(&s));
 	}

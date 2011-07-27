@@ -39,9 +39,8 @@ rvm_codemap_t *rvm_codemap_create()
 
 void rvm_codemap_destroy(rvm_codemap_t *codemap)
 {
-	long i;
 	rvm_codelabel_t *label;
-	long len = r_array_length(codemap->labels);
+	rsize_t i, len = r_array_length(codemap->labels);
 
 	for (i = 0; i < len; i++) {
 		label = (rvm_codelabel_t*)r_array_slot(codemap->labels, i);
@@ -89,7 +88,7 @@ static long rvm_codemap_add(rvm_codemap_t *codemap, const char *name, unsigned i
 
 	labelidx = rvm_codemap_dolookup(codemap, name, namesize);
 	if (labelidx < 0) {
-		labelidx = r_array_add(codemap->labels, NULL);
+		labelidx = (long)r_array_add(codemap->labels, NULL);
 		label = rvm_codemap_label(codemap, labelidx);
 		if (name) {
 			label->name = r_rstrdup(name, namesize);
@@ -136,7 +135,7 @@ long rvm_codemap_addoffset(rvm_codemap_t *codemap, const char *name, unsigned in
 
 long rvm_codemap_addoffset_s(rvm_codemap_t *codemap, const char *name, unsigned long base, unsigned long offset)
 {
-	return rvm_codemap_addoffset(codemap, name, r_strlen(name), base, offset);
+	return rvm_codemap_addoffset(codemap, name, (unsigned int)r_strlen(name), base, offset);
 }
 
 
@@ -154,7 +153,7 @@ long rvm_codemap_addpointer(rvm_codemap_t *codemap, const char *name, unsigned i
 
 long rvm_codemap_addpointer_s(rvm_codemap_t *codemap, const char *name, rpointer ptr)
 {
-	return rvm_codemap_addpointer(codemap, name, r_strlen(name), ptr);
+	return rvm_codemap_addpointer(codemap, name, (unsigned int)r_strlen(name), ptr);
 }
 
 
@@ -182,13 +181,13 @@ long rvm_codemap_validindex(rvm_codemap_t *codemap, long labelidx)
 
 long rvm_codemap_invalid_add_s(rvm_codemap_t *codemap, const char *name)
 {
-	return rvm_codemap_invalid_add(codemap, name, r_strlen(name));
+	return rvm_codemap_invalid_add(codemap, name, (unsigned int)r_strlen(name));
 }
 
 
 long rvm_codemap_lastlabel(rvm_codemap_t *codemap)
 {
-	return r_array_length(codemap->labels) - 1;
+	return (long)(r_array_length(codemap->labels) - 1);
 }
 
 
@@ -205,7 +204,7 @@ long rvm_codemap_lookupadd(rvm_codemap_t *codemap, const char *name, unsigned in
 
 long rvm_codemap_lookupadd_s(rvm_codemap_t *codemap, const char *name)
 {
-	return rvm_codemap_lookupadd(codemap, name, r_strlen(name));
+	return rvm_codemap_lookupadd(codemap, name, (unsigned int)r_strlen(name));
 }
 
 
@@ -220,7 +219,7 @@ long rvm_codemap_lookup(rvm_codemap_t *codemap, const char *name, unsigned int n
 
 long rvm_codemap_lookup_s(rvm_codemap_t *codemap, const char *name)
 {
-	return rvm_codemap_lookup(codemap, name, r_strlen(name));
+	return rvm_codemap_lookup(codemap, name, (unsigned int)r_strlen(name));
 }
 
 
@@ -247,9 +246,9 @@ ruword rvm_codemap_resolve(rvm_codemap_t *codemap, long index, rvm_codelabel_t *
 
 void rvm_codemap_dump(rvm_codemap_t *codemap)
 {
-	rsize_t i = 0;
+	long i = 0;
 
-	for (i = 0; i < r_array_length(codemap->labels); i++) {
+	for (i = 0; i < (long)r_array_length(codemap->labels); i++) {
 		rvm_codelabel_t *label = rvm_codemap_label(codemap, i);
 		r_printf("%d: %s(%d), type: %d, base: %ld, value: %ld\n", i, label->name->str, label->name->size, label->type, label->base, label->value);
 	}

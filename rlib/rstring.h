@@ -73,7 +73,7 @@ typedef struct rstring_s {
 rstring_t *r_string_create();
 rstring_t *r_string_create_from_ansistr(const char *str);
 rstring_t *r_string_create_from_double(double d);
-rstring_t *r_string_create_from_signed(long l);
+rstring_t *r_string_create_from_signed(rword l);
 rstring_t *r_string_create_strsize(const char *str, unsigned int size);
 rstring_t *r_string_create_from_rstr(const rstr_t *str);
 void r_string_destroy(rstring_t *string);

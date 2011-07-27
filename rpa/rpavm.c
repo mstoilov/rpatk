@@ -328,9 +328,9 @@ static void rpavm_swi_emitstart(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	RVM_CPUREG_SETL(cpu, R_REC, index);
 	rec = (rparecord_t *)r_array_slot(stat->records, index);
 	rec->rule = name.str;
-	rec->top = tp;
-	rec->ruleid = ruledata->ruleid;
-	rec->ruleuid = ruledata->ruleuid;
+	rec->top = (ruint32)tp;
+	rec->ruleid = (ruint32)ruledata->ruleid;
+	rec->ruleuid = (ruint32)ruledata->ruleuid;
 	rec->type = RPA_RECORD_START;
 	rec->input = stat->instack[tp].input;
 	rec->inputoff = stat->instack[tp].input - stat->start;
@@ -360,15 +360,15 @@ static void rpavm_swi_emitend(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rec = (rparecord_t *)r_array_slot(stat->records, index);
 	startrec = (rparecord_t *)r_array_slot(stat->records, startindex);
 	rec->rule = name.str;
-	rec->top = tp;
-	rec->size = tplen;
+	rec->top = (ruint32)tp;
+	rec->size = (ruint32)tplen;
 	rec->type = RPA_RECORD_END;
-	rec->ruleid = ruledata->ruleid;
-	rec->ruleuid = ruledata->ruleuid;
+	rec->ruleid = (ruint32)ruledata->ruleid;
+	rec->ruleuid = (ruint32)ruledata->ruleuid;
 	rec->input = stat->instack[tp].input;
 	rec->inputsiz = stat->instack[tp + tplen].input - stat->instack[tp].input;
 	rec->inputoff = stat->instack[tp].input - stat->start;
-	startrec->size = tplen;
+	startrec->size = (ruint32)tplen;
 	startrec->inputsiz = rec->inputsiz;
 }
 

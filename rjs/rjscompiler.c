@@ -61,7 +61,7 @@ void rjs_compiler_adderror(rjs_compiler_t *co, long code, rparecord_t *prec)
 	co->error->type = RJS_ERRORTYPE_SYNTAX;
 	co->error->error = code;
 	co->error->script = co->script;
-	co->error->offset = prec->input - co->script;
+	co->error->offset = (long)(prec->input - co->script);
 	co->error->size = prec->inputsiz;
 	co->error->line = rjs_parser_offset2line(co->script, co->error->offset);
 	co->error->lineoffset = rjs_parser_offset2lineoffset(co->script, co->error->offset);

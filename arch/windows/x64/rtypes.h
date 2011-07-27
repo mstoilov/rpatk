@@ -19,12 +19,12 @@ typedef ruint64 ruword;
 typedef rint64 rword;
 
 #ifndef _RSIZE_T_DEFINED
-typedef ruint64 rsize_t;
+typedef unsigned long rsize_t;
 #define _RSIZE_T_DEFINED
 #endif
 
 #ifndef _RSSIZE_T_DEFINED
-typedef rint64 rssize_t;
+typedef long rssize_t;
 #define _RSSIZE_T_DEFINED
 #endif
 

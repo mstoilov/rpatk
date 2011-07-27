@@ -327,7 +327,7 @@ long rpa_compiler_addblob(rpa_compiler_t *co, long ruleid, long ruleuid, unsigne
 	pblob->namesize = namesize;
 	r_strncpy(ptr, name, namesize);
 	ptr += namesize;
-	pblob->size = ptr - blob + 1;
+	pblob->size = (long)(ptr - blob + 1);
 	return rvm_codegen_adddata_s(co->cg, NULL, pblob, pblob->size);
 }
 
