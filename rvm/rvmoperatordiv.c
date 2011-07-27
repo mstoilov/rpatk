@@ -38,7 +38,7 @@ void rvm_op_div_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, ruword op1,
 
 void rvm_op_div_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, rword op1, rword op2)
 {
-	long r;
+	rword r;
 
 	if (!op2)
 		RVM_ABORT(cpu, RVM_E_DIVZERO);

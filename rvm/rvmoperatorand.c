@@ -36,7 +36,7 @@ void rvm_op_and_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, ruword op1,
 
 void rvm_op_and_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, rword op1, rword op2)
 {
-	long r;
+	rword r;
 
 	r = op1 & op2;
 	RVM_REG_SETL(res, r);
