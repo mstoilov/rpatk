@@ -154,7 +154,7 @@ void r_map_destroy(rmap_t *map)
 }
 
 
-long r_map_gckey_add(rmap_t *map, rgc_t* gc, const char *name, rsize_t namesize, rconstpointer pval)
+long r_map_gckey_add(rmap_t *map, rgc_t* gc, const char *name, unsigned int namesize, rconstpointer pval)
 {
 	r_mapnode_t *node;
 
@@ -194,7 +194,7 @@ long r_map_gckey_add_l(rmap_t *map, rgc_t* gc, long name, rconstpointer pval)
 }
 
 
-long r_map_add(rmap_t *map, const char *name, rsize_t namesize, rconstpointer pval)
+long r_map_add(rmap_t *map, const char *name, unsigned int namesize, rconstpointer pval)
 {
 	return r_map_gckey_add(map, NULL, name, namesize, pval);
 }
@@ -274,7 +274,7 @@ int r_map_delete(rmap_t *map, unsigned long index)
 }
 
 
-long r_map_lookup(rmap_t *map, long current, const char *name, rsize_t namesize)
+long r_map_lookup(rmap_t *map, long current, const char *name, unsigned int namesize)
 {
 	long found = -1;
 	r_mapnode_t *node;
@@ -331,7 +331,7 @@ long r_map_lookup_d(rmap_t *map, long current, double name)
 }
 
 
-long r_map_taillookup(rmap_t *map, long current, const char *name, rsize_t namesize)
+long r_map_taillookup(rmap_t *map, long current, const char *name, unsigned int namesize)
 {
 	long found = -1;
 	r_mapnode_t *node;

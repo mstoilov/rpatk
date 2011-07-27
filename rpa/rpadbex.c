@@ -1112,7 +1112,7 @@ static void rpa_parseinfo_marklooppath(rpadbex_t *dbex, long parent)
 }
 
 
-static int rpa_parseinfo_rule_checkforloop(rpadbex_t *dbex, const char *name, rsize_t namesize, long loopto)
+static int rpa_parseinfo_rule_checkforloop(rpadbex_t *dbex, const char *name, unsigned int namesize, long loopto)
 {
 	rpa_ruleinfo_t *info = info = (rpa_ruleinfo_t *)r_harray_get(dbex->rules, rpa_dbex_lookup(dbex, name, namesize));
 
@@ -1721,7 +1721,7 @@ rparule_t rpa_dbex_last(rpadbex_t *dbex)
 }
 
 
-rparule_t rpa_dbex_lookup(rpadbex_t *dbex, const char *name, rsize_t namesize)
+rparule_t rpa_dbex_lookup(rpadbex_t *dbex, const char *name, unsigned int namesize)
 {
 	rparule_t ret;
 

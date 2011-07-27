@@ -921,7 +921,7 @@ static void rvm_op_pushm(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	if (!(bits & ((1<<(RVM_REGS_NUM / 2)) - 1)))
 		i = RVM_REGS_NUM / 2;
 	for (;bits && i < RLST; i++) {
-		n = 1 << i;
+		n = ((ruword)1) << i;
 		if (n & bits) {
 			sp += 1;
 			RVM_STACK_WRITE(cpu->stack, sp, &RVM_CPUREG_GET(cpu, i));

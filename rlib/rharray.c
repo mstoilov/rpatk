@@ -140,7 +140,7 @@ void r_harray_cleanup(robject_t *obj)
 }
 
 
-long r_harray_add(rharray_t *harray, const char *name, rsize_t namesize, rconstpointer pval)
+long r_harray_add(rharray_t *harray, const char *name, unsigned int namesize, rconstpointer pval)
 {
 	rstr_t *membrName;
 	long index, nameindex;
@@ -165,7 +165,7 @@ long r_harray_add_s(rharray_t *harray, const char *name, rconstpointer pval)
 }
 
 
-long r_harray_replace(rharray_t *harray, const char *name, rsize_t namesize, rconstpointer pval)
+long r_harray_replace(rharray_t *harray, const char *name, unsigned int namesize, rconstpointer pval)
 {
 	long index = r_harray_lookup(harray, name, namesize);
 
@@ -181,7 +181,7 @@ long r_harray_replace_s(rharray_t *harray, const char *name, rconstpointer pval)
 }
 
 
-long r_harray_lookup(rharray_t *harray, const char *name, rsize_t namesize)
+long r_harray_lookup(rharray_t *harray, const char *name, unsigned int namesize)
 {
 	rsize_t found;
 
@@ -199,7 +199,7 @@ long r_harray_lookup_s(rharray_t *harray, const char *name)
 }
 
 
-long r_harray_taillookup(rharray_t *harray, const char *name, rsize_t namesize)
+long r_harray_taillookup(rharray_t *harray, const char *name, unsigned int namesize)
 {
 	rsize_t found;
 
@@ -218,7 +218,7 @@ long r_harray_taillookup_s(rharray_t *harray, const char *name)
 
 
 
-rhash_node_t* r_harray_nodelookup(rharray_t *harray, rhash_node_t *cur, const char *name, rsize_t namesize)
+rhash_node_t* r_harray_nodelookup(rharray_t *harray, rhash_node_t *cur, const char *name, unsigned int namesize)
 {
 	rstr_t lookupstr = {(char*)name, namesize};
 	return r_hash_nodelookup(harray->hash, cur, &lookupstr);
@@ -231,7 +231,7 @@ rhash_node_t* r_harray_nodelookup_s(rharray_t *harray, rhash_node_t *cur, const 
 }
 
 
-rhash_node_t* r_harray_nodetaillookup(rharray_t *harray, rhash_node_t *cur, const char *name, rsize_t namesize)
+rhash_node_t* r_harray_nodetaillookup(rharray_t *harray, rhash_node_t *cur, const char *name, unsigned int namesize)
 {
 	rstr_t lookupstr = {(char*)name, namesize};
 	return r_hash_nodetaillookup(harray->hash, cur, &lookupstr);

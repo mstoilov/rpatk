@@ -49,13 +49,13 @@ typedef struct rmap_s {
 
 rmap_t *r_map_create(unsigned int elt_size, unsigned int nbits);
 void r_map_destroy(rmap_t *array);
-long r_map_lookup(rmap_t *map, long current, const char *name, rsize_t namesize);
+long r_map_lookup(rmap_t *map, long current, const char *name, unsigned int namesize);
 long r_map_lookup_s(rmap_t *map, long current, const char *name);
-long r_map_taillookup(rmap_t *map, long current, const char *name, rsize_t namesize);
+long r_map_taillookup(rmap_t *map, long current, const char *name, unsigned int namesize);
 long r_map_taillookup_s(rmap_t *map, long current, const char *name);
 long r_map_lookup_d(rmap_t *map, long current, double name);
 long r_map_lookup_l(rmap_t *map, long current, long name);
-long r_map_add(rmap_t *map, const char *name, rsize_t namesize, rconstpointer pval);
+long r_map_add(rmap_t *map, const char *name, unsigned int namesize, rconstpointer pval);
 long r_map_add_s(rmap_t *map, const char *name, rconstpointer pval);
 long r_map_add_d(rmap_t *map, double name, rconstpointer pval);
 long r_map_add_l(rmap_t *map, long name, rconstpointer pval);
@@ -67,7 +67,7 @@ long r_map_add_l(rmap_t *map, long name, rconstpointer pval);
  * GC memory management. Another possibility would be to get the key as a rstrit_t* and
  * make rmap_t completely get out of the memory management business.
  */
-long r_map_gckey_add(rmap_t *map, rgc_t* gc, const char *name, rsize_t namesize, rconstpointer pval);
+long r_map_gckey_add(rmap_t *map, rgc_t* gc, const char *name, unsigned int namesize, rconstpointer pval);
 long r_map_gckey_add_s(rmap_t *map, rgc_t* gc, const char *name, rconstpointer pval);
 long r_map_gckey_add_d(rmap_t *map, rgc_t* gc, double name, rconstpointer pval);
 long r_map_gckey_add_l(rmap_t *map, rgc_t* gc, long name, rconstpointer pval);

@@ -65,7 +65,7 @@ void rpa_compiler_index_reference_nan(rpa_compiler_t *co, unsigned long index)
 }
 
 
-void rpa_compiler_reference_nan(rpa_compiler_t *co, const char *name, rsize_t namesize)
+void rpa_compiler_reference_nan(rpa_compiler_t *co, const char *name, unsigned int namesize)
 {
 	rpa_compiler_index_reference_nan(co, rvm_codemap_lookupadd(co->cg->codemap, name, namesize));
 }
@@ -86,7 +86,7 @@ void rpa_compiler_index_reference_opt(rpa_compiler_t *co, unsigned long index)
 }
 
 
-void rpa_compiler_reference_opt(rpa_compiler_t *co, const char *name, rsize_t namesize)
+void rpa_compiler_reference_opt(rpa_compiler_t *co, const char *name, unsigned int namesize)
 {
 	rpa_compiler_index_reference_opt(co, rvm_codemap_lookupadd(co->cg->codemap, name, namesize));
 }
@@ -111,7 +111,7 @@ void rpa_compiler_index_reference_mul(rpa_compiler_t *co, unsigned long index)
 }
 
 
-void rpa_compiler_reference_mul(rpa_compiler_t *co, const char *name, rsize_t namesize)
+void rpa_compiler_reference_mul(rpa_compiler_t *co, const char *name, unsigned int namesize)
 {
 	rpa_compiler_index_reference_mul(co, rvm_codemap_lookupadd(co->cg->codemap, name, namesize));
 
@@ -137,7 +137,7 @@ void rpa_compiler_index_reference_mop(rpa_compiler_t *co, unsigned long index)
 }
 
 
-void rpa_compiler_reference_mop(rpa_compiler_t *co, const char *name, rsize_t namesize)
+void rpa_compiler_reference_mop(rpa_compiler_t *co, const char *name, unsigned int namesize)
 {
 	rpa_compiler_index_reference_mop(co, rvm_codemap_lookupadd(co->cg->codemap, name, namesize));
 }
@@ -163,7 +163,7 @@ void rpa_compiler_index_reference(rpa_compiler_t *co, unsigned long index, unsig
 }
 
 
-void rpa_compiler_reference(rpa_compiler_t *co, const char *name, rsize_t namesize, unsigned int qflag)
+void rpa_compiler_reference(rpa_compiler_t *co, const char *name, unsigned int namesize, unsigned int qflag)
 {
 	rpa_compiler_index_reference(co, rvm_codemap_lookupadd(co->cg->codemap, name, namesize), qflag);
 }

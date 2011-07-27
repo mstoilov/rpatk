@@ -230,7 +230,7 @@ long rpa_dbex_executableoffset(rpadbex_t *dbex, rparule_t rid);
  * @param namesize The size of the buffer to be used.
  * @return Unique ID for the specified production name.
  */
-rparule_t rpa_dbex_lookup(rpadbex_t *dbex, const char *name, rsize_t namesize);
+rparule_t rpa_dbex_lookup(rpadbex_t *dbex, const char *name, unsigned int namesize);
 
 
 /**
