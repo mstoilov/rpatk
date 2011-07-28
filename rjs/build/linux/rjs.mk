@@ -33,7 +33,7 @@ all: $(OUTDIR) $(RJS_LIB)
 endif
 
 $(RJS_EXEC) : $(RJSEXEC_OBJECTS) $(RJS_LIB) $(RJS_OBJECTS)
-	$(CC) $(ARCH) -o $@ $< $(LIBS)
+	$(CC) $(LDFLAGS) -o $@ $< $(LIBS)
 
 $(OUTDIR)/%.o: $(RJS_SRCDIR)/%.c
 	$(CC) $(CFLAGS) -o $(OUTDIR)/$*.o -c $(RJS_SRCDIR)/$*.c
@@ -48,7 +48,7 @@ $(RJS_SO): $(RJS_OBJECTS)
 	$(CC) $(LDFLAGS) -shared -Wl,-soname,librjs.so -o $@ $^
 
 $(OUTDIR)/%.o: $(RJS_SRCDIR)/%.rpa
-	$(LD) -r -b binary -o $(OUTDIR)/$*.o $(RJS_SRCDIR)/$*.rpa
+	$(OC) --input binary --output $(ELFARCH) --binary-architecture $(BINARCH) $(RJS_SRCDIR)/$*.rpa $(OUTDIR)/$*.o
 
 $(OUTDIR):
 	@mkdir $(OUTDIR)
@@ -61,6 +61,7 @@ clean:
 	@rm -f $(RJS_LIB)
 	@rm -f $(RJS_SO)
 	@rm -f $(RJS_OBJECTS)
+	@rm -f $(RJS_EXEC)
 	@rm -f *~
 	@rm -f $(SRCDIR)/*~
 

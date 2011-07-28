@@ -43,7 +43,7 @@ $(RJS_SO): $(RJS_OBJECTS)
 	$(CC) $(LDFLAGS) -shared -Wl,-soname,librjs.so -o $@ $^
 
 $(OUTDIR)/%.o: $(RJS_SRCDIR)/%.rpa
-	$(LD) -r -b binary -o $(OUTDIR)/$*.o $(RJS_SRCDIR)/$*.rpa
+	$(OC) --input binary --output $(ELFARCH) --binary-architecture $(BINARCH) $(RJS_SRCDIR)/$*.rpa $(OUTDIR)/$*.o
 
 $(OUTDIR):
 	@mkdir $(OUTDIR)

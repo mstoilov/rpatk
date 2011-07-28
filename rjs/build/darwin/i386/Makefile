@@ -3,10 +3,13 @@ ARCHDIR = $(shell basename $(shell pwd))
 OUTDIR = out
 OS = $(shell uname | tr "[:upper:]" "[:lower:]")
 INCLUDE = -I$(SRCDIR)/arch/$(OS)/$(ARCHDIR)
+ELFARCH = elf32-i386
+BINARCH = i386
 
 CC = gcc
 AR = ar
 LD = ld
+OC = objcopy
 
 ifeq ($(BLDCFG), release)
 CFLAGS := -fPIC -O3

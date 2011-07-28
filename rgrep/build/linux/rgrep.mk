@@ -17,7 +17,7 @@ RPAGREP	= rgrep
 all : $(OUTDIR) $(OUTDIR)/$(RPAGREP)
 
 $(OUTDIR)/$(RPAGREP) : $(OBJECTS)
-	$(CC) $(ARCH) -o $@ $^ $(LIBS)
+	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 
 $(OUTDIR)/%.o: $(RGREP_SRCDIR)/%.c
