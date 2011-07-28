@@ -45,6 +45,6 @@ install:
 	cp $(OUTDIR)/$(RPAGREP) $(RPAGREP_BIN_INSTALL)
 
 uninstall:
-	rm $(RPAGREP_BIN_INSTALL)/$(RPAGREP)
+	-rm $(RPAGREP_BIN_INSTALL)/$(RPAGREP)
 
 

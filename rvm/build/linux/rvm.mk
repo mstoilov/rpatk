@@ -80,6 +80,6 @@ install:
 	cp $(RVM_SRCDIR)/*.h $(RPATK_INC_INSTALL)/rvm
 
 uninstall:
-	rm $(RTK_LIB_INSTALL)/$(RVM_LIB)
-	rm $(RTK_LIB_INSTALL)/$(RVM_SO)
-	rm $(RPATK_INC_INSTALL)/rvm/*
+	-rm $(RTK_LIB_INSTALL)/$(RVM_LIB)
+	-rm $(RTK_LIB_INSTALL)/$(RVM_SO_NAME)*
+	-rm $(RPATK_INC_INSTALL)/rvm/*

@@ -65,6 +65,6 @@ install:
 
 
 uninstall:
-	rm $(RPATK_LIB_INSTALL)/$(RLIB_LIB)
-	rm $(RPATK_LIB_INSTALL)/$(RLIB_SO)
-	rm $(RPATK_INC_INSTALL)/rlib/*
+	-rm $(RPATK_LIB_INSTALL)/$(RLIB_LIB)
+	-rm $(RPATK_LIB_INSTALL)/$(RLIB_SO_NAME)*
+	-rm $(RPATK_INC_INSTALL)/rlib/*

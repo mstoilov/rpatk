@@ -1797,7 +1797,7 @@ long rpa_dbex_lasterrorinfo(rpadbex_t *dbex, rpa_errinfo_t *errinfo)
 
 const char *rpa_dbex_version()
 {
-	return "2.0";
+	return RPA_VERSION;
 }
 
 

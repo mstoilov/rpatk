@@ -66,6 +66,7 @@ typedef struct rpadbex_s rpadbex_t;
  */
 typedef long rparule_t;
 
+#define RPA_VERSION "2.0"
 #define RPA_DBEXCFG_OPTIMIZATIONS 1
 #define RPA_DBEXCFG_DEBUG 2
 #define RPA_DBEXCFG_BITMAP 3

@@ -46,6 +46,7 @@ install: $(RPATK_INC_INSTALL) $(RPATK_INC_INSTALL)/rlib $(RPATK_INC_INSTALL)/rvm
 	+make -C $(SRCDIR)/rpa/build/$(OS)/$(ARCHDIR) install
 	+make -C $(SRCDIR)/rvm/build/$(OS)/$(ARCHDIR) install
 	+make -C $(SRCDIR)/rgrep/build/$(OS)/$(ARCHDIR) install
+	ldconfig -n $(RTK_LIB_INSTALL)
 
 uninstall:
 	+make -C $(SRCDIR)/rlib/build/$(OS)/$(ARCHDIR) uninstall
