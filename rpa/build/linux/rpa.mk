@@ -5,20 +5,17 @@ RPA_SO_NAME = librpa.so
 RPA_SO = $(RPA_SO_NAME).$(RPA_SO_VERSION)
 TARGET_RPA_LIB = $(OUTDIR)/$(RPA_LIB)
 TARGET_RPA_SO = $(OUTDIR)/$(RPA_SO)
-
-
 CFLAGS += -I$(SRCDIR)
 
-RPA_OBJECTS =	\
-	$(OUTDIR)/rpacache.o \
-	$(OUTDIR)/rpadbex.o \
-	$(OUTDIR)/rpastat.o \
-	$(OUTDIR)/rparecord.o \
-	$(OUTDIR)/rpavm.o \
-	$(OUTDIR)/rpacompiler.o \
-	$(OUTDIR)/rpaparser.o \
-	$(OUTDIR)/rpaoptimization.o \
-	$(OUTDIR)/rpabitmap.o \
+RPA_OBJECTS += $(OUTDIR)/rpacache.o
+RPA_OBJECTS += $(OUTDIR)/rpadbex.o
+RPA_OBJECTS += $(OUTDIR)/rpastat.o
+RPA_OBJECTS += $(OUTDIR)/rparecord.o
+RPA_OBJECTS += $(OUTDIR)/rpavm.o
+RPA_OBJECTS += $(OUTDIR)/rpacompiler.o
+RPA_OBJECTS += $(OUTDIR)/rpaparser.o
+RPA_OBJECTS += $(OUTDIR)/rpaoptimization.o
+RPA_OBJECTS += $(OUTDIR)/rpabitmap.o
 
 
 ifeq ($(OS), linux)
@@ -41,15 +38,15 @@ $(OUTDIR):
 	@mkdir $(OUTDIR)
 
 distclean: clean
-	@rm -f .depend
-	@rm -rf $(OUTDIR)
+	-rm -f .depend
+	-rm -rf $(OUTDIR)
 
 clean:
-	@rm -f $(TARGET_RPA_LIB)
-	@rm -f $(TARGET_RPA_SO)
-	@rm -f $(RPA_OBJECTS)
-	@rm -f *~
-	@rm -f $(SRCDIR)/*~
+	-rm -f $(TARGET_RPA_LIB)
+	-rm -f $(TARGET_RPA_SO)
+	-rm -f $(RPA_OBJECTS)
+	-rm -f *~
+	-rm -f $(SRCDIR)/*~
 
 install:
 	cp $(TARGET_RPA_SO) $(RTK_LIB_INSTALL)
@@ -57,6 +54,6 @@ install:
 	cp $(RPA_SRCDIR)/*.h $(RPATK_INC_INSTALL)/rpa
 
 uninstall:
-	-rm $(RTK_LIB_INSTALL)/$(RPA_LIB)
-	-rm $(RTK_LIB_INSTALL)/$(RPA_SO_NAME)*
-	-rm $(RPATK_INC_INSTALL)/rpa/*
+	-rm -f $(RTK_LIB_INSTALL)/$(RPA_LIB)
+	-rm -f $(RTK_LIB_INSTALL)/$(RPA_SO_NAME)*
+	-rm -f $(RPATK_INC_INSTALL)/rpa/*

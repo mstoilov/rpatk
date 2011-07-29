@@ -18,7 +18,7 @@ RPA_OBJECTS =	\
 	$(OUTDIR)/rpaparser.o \
 	$(OUTDIR)/rpaoptimization.o \
 	$(OUTDIR)/rpabitmap.o \
-	
+
 
 all: $(OUTDIR) $(TARGET_RPA_LIB)
 
@@ -32,20 +32,20 @@ $(OUTDIR):
 	@mkdir $(OUTDIR)
 
 distclean: clean
-	@rm -f .depend
-	@rm -rf $(OUTDIR)
+	-rm -f .depend
+	-rm -rf $(OUTDIR)
 
 clean:
-	@rm -f $(TARGET_RPA_LIB)
-	@rm -f $(TARGET_RPA_SO)
-	@rm -f $(RPA_OBJECTS)
-	@rm -f *~
-	@rm -f $(SRCDIR)/*~
+	-rm -f $(TARGET_RPA_LIB)
+	-rm -f $(TARGET_RPA_SO)
+	-rm -f $(RPA_OBJECTS)
+	-rm -f *~
+	-rm -f $(SRCDIR)/*~
 
 install:
 	cp $(TARGET_RPA_LIB) $(RTK_LIB_INSTALL)
 	cp $(RPA_SRCDIR)/*.h $(RPATK_INC_INSTALL)/rpa
 
 uninstall:
-	rm $(RTK_LIB_INSTALL)/$(RPA_LIB)
-	rm $(RPATK_INC_INSTALL)/rpa/*
+	-rm -f $(RTK_LIB_INSTALL)/$(RPA_LIB)
+	-rm -f $(RPATK_INC_INSTALL)/rpa/*

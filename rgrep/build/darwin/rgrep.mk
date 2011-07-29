@@ -31,20 +31,18 @@ $(OUTDIR):
 	@mkdir $(OUTDIR)
 
 distclean: clean
-	@rm -f .depend
-	@rm -rf $(OUTDIR)
+	-rm -f .depend
+	-rm -rf $(OUTDIR)
 
 clean:
-	@rm -f $(TESTS)
-	@rm -f *~
-	@rm -f $(SRCDIR)/*~
-	@rm -f $(OBJECTS)
-	@rm -f $(OUTDIR)/$(RPAGREP)
+	-rm -f $(TESTS)
+	-rm -f *~
+	-rm -f $(SRCDIR)/*~
+	-rm -f $(OBJECTS)
+	-rm -f $(OUTDIR)/$(RPAGREP)
 
 install:
 	cp $(OUTDIR)/$(RPAGREP) $(RPAGREP_BIN_INSTALL)
 
 uninstall:
-	rm $(RPAGREP_BIN_INSTALL)/$(RPAGREP)
-
-
+	-rm -f $(RPAGREP_BIN_INSTALL)/$(RPAGREP)

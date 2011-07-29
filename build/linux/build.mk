@@ -53,7 +53,7 @@ uninstall:
 	+make -C $(SRCDIR)/rpa/build/$(OS)/$(ARCHDIR) uninstall
 	+make -C $(SRCDIR)/rvm/build/$(OS)/$(ARCHDIR) uninstall
 	+make -C $(SRCDIR)/rgrep/build/$(OS)/$(ARCHDIR) uninstall
-	rm -rf $(RPATK_INC_INSTALL)/rlib
-	rm -rf $(RPATK_INC_INSTALL)/rvm
-	rm -rf $(RPATK_INC_INSTALL)/rpa
-	rm -rf $(RPATK_INC_INSTALL)
+	-rm -rf $(RPATK_INC_INSTALL)/rlib
+	-rm -rf $(RPATK_INC_INSTALL)/rvm
+	-rm -rf $(RPATK_INC_INSTALL)/rpa
+	-rm -rf $(RPATK_INC_INSTALL)

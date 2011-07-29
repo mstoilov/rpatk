@@ -26,13 +26,13 @@ $(OUTDIR):
 	@mkdir $(OUTDIR)
 
 distclean: clean
-	@rm -f .depend
-	@rm -rf $(OUTDIR)
+	-rm -f .depend
+	-rm -rf $(OUTDIR)
 
 clean:
-	@rm -f $(ROBJECT_LIB)
-	@rm -f $(ROBJECT_SO)
-	@rm -f $(ROBJECT_OBJECTS)
-	@rm -f *~
-	@rm -f $(SRCDIR)/*~
+	-rm -f $(ROBJECT_LIB)
+	-rm -f $(ROBJECT_SO)
+	-rm -f $(ROBJECT_OBJECTS)
+	-rm -f *~
+	-rm -f $(SRCDIR)/*~
 

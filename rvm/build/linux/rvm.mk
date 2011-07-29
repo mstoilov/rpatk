@@ -6,7 +6,6 @@ RVM_LIB = librvm.a
 RVM_SO = $(RVM_SO_NAME).$(RVM_SO_VERSION)
 TARGET_RVM_LIB = $(OUTDIR)/$(RVM_LIB)
 TARGET_RVM_SO = $(OUTDIR)/$(RVM_SO)
-
 CFLAGS += -I$(SRCDIR)
 
 RVM_OBJECTS +=	$(OUTDIR)/rvmcpu.o 
@@ -43,13 +42,11 @@ RVM_OBJECTS +=	$(OUTDIR)/rvmoperatordiv.o
 RVM_OBJECTS +=	$(OUTDIR)/rvmoperatormod.o
 RVM_OBJECTS +=	$(OUTDIR)/rvmoperatornot.o
 
-
 ifeq ($(OS), linux)
 all: $(OUTDIR) $(TARGET_RVM_LIB) $(TARGET_RVM_SO)
 else
 all: $(OUTDIR) $(TARGET_RVM_LIB)
 endif
-
 
 $(OUTDIR)/%.o: $(RVM_SRCDIR)/%.c
 	+ $(CC) $(CFLAGS) -o $(OUTDIR)/$*.o -c $(RVM_SRCDIR)/$*.c
@@ -64,15 +61,15 @@ $(OUTDIR):
 	@mkdir $(OUTDIR)
 
 distclean: clean
-	@rm -f .depend
-	@rm -rf $(OUTDIR)
+	-rm -f .depend
+	-rm -rf $(OUTDIR)
 
 clean:
-	@rm -f $(TARGET_RVM_LIB)
-	@rm -f $(TARGET_RVM_SO)
-	@rm -f $(RVM_OBJECTS)
-	@rm -f *~
-	@rm -f $(SRCDIR)/*~
+	-rm -f $(TARGET_RVM_LIB)
+	-rm -f $(TARGET_RVM_SO)
+	-rm -f $(RVM_OBJECTS)
+	-rm -f *~
+	-rm -f $(SRCDIR)/*~
 
 install:
 	cp $(TARGET_RVM_SO) $(RTK_LIB_INSTALL)
@@ -80,6 +77,6 @@ install:
 	cp $(RVM_SRCDIR)/*.h $(RPATK_INC_INSTALL)/rvm
 
 uninstall:
-	-rm $(RTK_LIB_INSTALL)/$(RVM_LIB)
-	-rm $(RTK_LIB_INSTALL)/$(RVM_SO_NAME)*
-	-rm $(RPATK_INC_INSTALL)/rvm/*
+	-rm -f $(RTK_LIB_INSTALL)/$(RVM_LIB)
+	-rm -f $(RTK_LIB_INSTALL)/$(RVM_SO_NAME)*
+	-rm -f $(RPATK_INC_INSTALL)/rvm/*

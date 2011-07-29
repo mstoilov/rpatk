@@ -42,15 +42,15 @@ $(OUTDIR):
 	@mkdir $(OUTDIR)
 
 distclean: clean
-	@rm -f .depend
-	@rm -rf $(OUTDIR)
+	-rm -f .depend
+	-rm -rf $(OUTDIR)
 
 clean:
-	@rm -f $(TARGET_RLIB_LIB)
-	@rm -f $(TARGET_RLIB_SO)
-	@rm -f $(RLIB_OBJECTS)
-	@rm -f *~
-	@rm -f $(SRCDIR)/*~
+	-rm -f $(TARGET_RLIB_LIB)
+	-rm -f $(TARGET_RLIB_SO)
+	-rm -f $(RLIB_OBJECTS)
+	-rm -f *~
+	-rm -f $(SRCDIR)/*~
 
 install:
 	cp $(TARGET_RLIB_LIB) $(RPATK_LIB_INSTALL)
@@ -58,5 +58,5 @@ install:
 
 
 uninstall:
-	rm $(RPATK_LIB_INSTALL)/$(RLIB_LIB)
-	rm $(RPATK_INC_INSTALL)/rlib/*
+	-rm -f $(RPATK_LIB_INSTALL)/$(RLIB_LIB)
+	-rm -f $(RPATK_INC_INSTALL)/rlib/*

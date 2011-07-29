@@ -57,20 +57,20 @@ $(OUTDIR):
 	@mkdir $(OUTDIR)
 
 distclean: clean
-	@rm -f .depend
-	@rm -rf $(OUTDIR)
+	-rm -f .depend
+	-rm -rf $(OUTDIR)
 
 clean:
-	@rm -f $(TARGET_RVM_LIB)
-	@rm -f $(TARGET_RVM_SO)
-	@rm -f $(RVM_OBJECTS)
-	@rm -f *~
-	@rm -f $(SRCDIR)/*~
+	-rm -f $(TARGET_RVM_LIB)
+	-rm -f $(TARGET_RVM_SO)
+	-rm -f $(RVM_OBJECTS)
+	-rm -f *~
+	-rm -f $(SRCDIR)/*~
 
 install:
 	cp $(TARGET_RVM_LIB) $(RTK_LIB_INSTALL)
 	cp $(RVM_SRCDIR)/*.h $(RPATK_INC_INSTALL)/rvm
 
 uninstall:
-	rm $(RTK_LIB_INSTALL)/$(RVM_LIB)
-	rm $(RPATK_INC_INSTALL)/rvm/*
+	-rm -f $(RTK_LIB_INSTALL)/$(RVM_LIB)
+	-rm -f $(RPATK_INC_INSTALL)/rvm/*

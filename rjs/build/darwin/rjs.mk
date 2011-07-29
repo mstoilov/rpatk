@@ -52,13 +52,13 @@ $(OUTDIR):
 	@mkdir $(OUTDIR)
 
 distclean: clean
-	@rm -f .depend
-	@rm -rf $(OUTDIR)
+	-rm -f .depend
+	-rm -rf $(OUTDIR)
 
 clean:
-	@rm -f $(RJS_LIB)
-	@rm -f $(RJS_SO)
-	@rm -f $(RJS_OBJECTS)
-	@rm -f *~
-	@rm -f $(SRCDIR)/*~
+	-rm -f $(RJS_LIB)
+	-rm -f $(RJS_SO)
+	-rm -f $(RJS_OBJECTS)
+	-rm -f *~
+	-rm -f $(SRCDIR)/*~
 

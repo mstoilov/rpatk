@@ -7,7 +7,6 @@ RLIB_SO = $(RLIB_SO_NAME).$(RLIB_SO_VERSION)
 RLIB_LIB = librlib.a
 TARGET_RLIB_LIB = $(OUTDIR)/$(RLIB_LIB)
 TARGET_RLIB_SO = $(OUTDIR)/$(RLIB_SO)
-
 CFLAGS += -I$(SRCDIR)
 
 RLIB_OBJECTS +=	$(OUTDIR)/rref.o
@@ -27,13 +26,11 @@ RLIB_OBJECTS +=	$(OUTDIR)/rstring.o
 RLIB_OBJECTS +=	$(OUTDIR)/rlist.o
 RLIB_OBJECTS +=	$(OUTDIR)/rutf.o
 
-
 ifeq ($(OS), linux)
 all: $(OUTDIR) $(TARGET_RLIB_LIB) $(TARGET_RLIB_SO)
 else
 all: $(OUTDIR) $(TARGET_RLIB_LIB)
 endif
-
 
 $(OUTDIR)/%.o: $(RLIB_SRCDIR)/%.c
 	+ $(CC) $(CFLAGS) -o $(OUTDIR)/$*.o -c $(RLIB_SRCDIR)/$*.c

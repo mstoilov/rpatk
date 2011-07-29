@@ -6,6 +6,7 @@ INCLUDE = -I$(SRCDIR)/arch/$(OS)/$(ARCHDIR)
 MACH = -m64
 ELFARCH = elf64-x86-64
 BINARCH = i386:x86-64
+OCFLAGS_TXT = --input binary --output $(ELFARCH) --binary-architecture $(BINARCH)
 
 CC = gcc
 AR = ar

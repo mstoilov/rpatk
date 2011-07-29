@@ -33,11 +33,11 @@ $(OUTDIR):
 	@mkdir $(OUTDIR)
 
 distclean: clean
-	@rm -f .depend
-	@rm -rf $(OUTDIR)
+	-rm -f .depend
+	-rm -rf $(OUTDIR)
 
 clean:
-	@rm -f $(TESTS)
-	@rm -f *~
-	@rm -f $(SRCDIR)/*~
+	-rm -f $(TESTS)
+	-rm -f *~
+	-rm -f $(SRCDIR)/*~
 

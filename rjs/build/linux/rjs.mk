@@ -48,20 +48,20 @@ $(RJS_SO): $(RJS_OBJECTS)
 	$(CC) $(LDFLAGS) -shared -Wl,-soname,librjs.so -o $@ $^
 
 $(OUTDIR)/%.o: $(RJS_SRCDIR)/%.rpa
-	$(OC) --input binary --output $(ELFARCH) --binary-architecture $(BINARCH) $(RJS_SRCDIR)/$*.rpa $(OUTDIR)/$*.o
+	$(OC) $(OCFLAGS_TXT)  $(RJS_SRCDIR)/$*.rpa $(OUTDIR)/$*.o
 
 $(OUTDIR):
 	@mkdir $(OUTDIR)
 
 distclean: clean
-	@rm -f .depend
-	@rm -rf $(OUTDIR)
+	-rm -f .depend
+	-rm -rf $(OUTDIR)
 
 clean:
-	@rm -f $(RJS_LIB)
-	@rm -f $(RJS_SO)
-	@rm -f $(RJS_OBJECTS)
-	@rm -f $(RJS_EXEC)
-	@rm -f *~
-	@rm -f $(SRCDIR)/*~
+	-rm -f $(RJS_LIB)
+	-rm -f $(RJS_SO)
+	-rm -f $(RJS_OBJECTS)
+	-rm -f $(RJS_EXEC)
+	-rm -f *~
+	-rm -f $(SRCDIR)/*~
 
