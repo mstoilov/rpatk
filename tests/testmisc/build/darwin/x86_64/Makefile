@@ -2,7 +2,7 @@ ARCHDIR = $(shell basename $(shell pwd))
 OUTDIR = out
 OS = $(shell uname | tr "[:upper:]" "[:lower:]")
 SRCDIR = ../../../../..
-MACH = -m32
+MACH = -m64
 
 CC = gcc
 AR = ar

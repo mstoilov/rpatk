@@ -3,17 +3,19 @@ ARCHDIR = $(shell basename $(shell pwd))
 OUTDIR = out
 OS = $(shell uname | tr "[:upper:]" "[:lower:]")
 INCLUDE = -I$(SRCDIR)/arch/$(OS)/$(ARCHDIR)
-MACH = -m32
+MACH = -m64
+ELFARCH = mach-o-x86-64
+BINARCH = i386:x86-64
 
 CC = gcc
 AR = ar
 LD = ld
+OC = gobjcopy
 
-CFLAGS := $(MACH)
 ifeq ($(BLDCFG), release)
-CFLAGS += -fPIC -O3
+CFLAGS := $(MACH) -fPIC -O3
 else
-CFLAGS += -fPIC -O0 -g -Wall 
+CFLAGS := $(MACH) -fPIC -O0 -g -Wall 
 endif
 
 ifeq ($(CCBLD), yes)
@@ -23,5 +25,5 @@ endif
 CFLAGS += $(INCLUDE)
 LDFLAGS := $(MACH)
 
-include $(SRCDIR)/build/$(OS)/include.mk
-include ../rpa.mk
+
+include ../rjs.mk

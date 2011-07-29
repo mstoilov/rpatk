@@ -1,19 +1,21 @@
-SRCDIR = ../../../..
 ARCHDIR = $(shell basename $(shell pwd))
 OUTDIR = out
 OS = $(shell uname | tr "[:upper:]" "[:lower:]")
-INCLUDE = -I$(SRCDIR)/arch/$(OS)/$(ARCHDIR)
-MACH = -m32
+SRCDIR = ../../../..
+MACH = -m64
 
 CC = gcc
 AR = ar
-LD = ld
 
-CFLAGS := $(MACH)
+CFLAGS = $(MACH)
 ifeq ($(BLDCFG), release)
-CFLAGS += -fPIC -O3
+CFLAGS += -O3
 else
-CFLAGS += -fPIC -O0 -g -Wall 
+ifeq ($(BLDCFG), profile)
+CFLAGS += -O0 -pg
+else
+CFLAGS += -g -O0 -Wall 
+endif
 endif
 
 ifeq ($(CCBLD), yes)
@@ -21,7 +23,7 @@ CFLAGS += -fprofile-arcs -ftest-coverage
 endif
 
 CFLAGS += $(INCLUDE)
-LDFLAGS := $(MACH)
+LDFLAGS = $(MACH)
 
-include $(SRCDIR)/build/$(OS)/include.mk
-include ../rpa.mk
+
+include ../rgrep.mk

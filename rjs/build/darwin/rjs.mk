@@ -18,7 +18,7 @@ RJS_OBJECTS =	\
 	$(OUTDIR)/rjsparser.o \
 	$(OUTDIR)/rjscompiler.o \
 	$(OUTDIR)/rjsrules.o \
-	$(OUTDIR)/rjsfile.o \	
+	$(OUTDIR)/rjsfile.o \
 	$(OUTDIR)/ecma262.o \
 
 
@@ -43,7 +43,10 @@ $(RJS_SO): $(RJS_OBJECTS)
 	$(CC) $(LDFLAGS) -shared -Wl,-soname,librjs.so -o $@ $^
 
 $(OUTDIR)/%.o: $(RJS_SRCDIR)/%.rpa
-	$(OC) --input binary --output $(ELFARCH) --binary-architecture $(BINARCH) $(RJS_SRCDIR)/$*.rpa $(OUTDIR)/$*.o
+	$(OC) --input-target binary --output-target $(ELFARCH) --binary-architecture $(BINARCH) $(RJS_SRCDIR)/$*.rpa $(OUTDIR)/$*.o
+#	gobjcopy -I binary -O mach-o-x86-64 -B i386:x86-64 $(RJS_SRCDIR)/$*.rpa $(OUTDIR)/$*.o
+
+
 
 $(OUTDIR):
 	@mkdir $(OUTDIR)
