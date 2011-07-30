@@ -5,12 +5,14 @@ RPA_SRCDIR = $(SRCDIR)/rpa
 RAST_SRCDIR = $(SRCDIR)/rast
 TESTS_SRCDIR = $(SRCDIR)/tests/testmisc
 INCLUDE = -I$(SRCDIR) -I$(SRCDIR)/arch/unix/$(ARCHDIR) -I$(RPA_SRCDIR)
+ifeq ($(OS), linux)
+LDFLAGS += --static
+endif
 
-LIBS =  -L$(ROBJECT_SRCDIR)/build/unix/$(ARCHDIR)/out 
-LIBS += -L$(RLIB_SRCDIR)/build/unix/$(ARCHDIR)/out 
+LIBS = -L$(RLIB_SRCDIR)/build/unix/$(ARCHDIR)/out 
 LIBS += -L$(RVM_SRCDIR)/build/unix/$(ARCHDIR)/out 
 LIBS += -L$(RPA_SRCDIR)/build/unix/$(ARCHDIR)/out 
-LIBS += -lrpa -lrvm -lrlib -lpthread -lm --static
+LIBS += -lrpa -lrvm -lrlib -lpthread -lm
 
 
 TESTS	+= $(OUTDIR)/funcarg-test
@@ -52,7 +54,7 @@ TESTS   += $(OUTDIR)/asm-eadd
 all : $(OUTDIR) $(TESTS)
 
 $(OUTDIR)/%: $(TESTS_SRCDIR)/%.c
-	+ $(CC) $(CFLAGS) -o $(OUTDIR)/$* $(TESTS_SRCDIR)/$*.c $(LIBS) $(INCLUDE)
+	+ $(CC) $(CFLAGS) -o $(OUTDIR)/$* $(TESTS_SRCDIR)/$*.c $(LIBS) $(LDFLAGS) $(INCLUDE)
 
 
 $(OUTDIR)/%.o: $(TESTS_SRCDIR)/%.rpa

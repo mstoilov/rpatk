@@ -2,11 +2,13 @@ all:
 	+make -C $(SRCDIR)/rlib/build/unix/$(ARCHDIR) all
 	+make -C $(SRCDIR)/rpa/build/unix/$(ARCHDIR) all
 	+make -C $(SRCDIR)/rvm/build/unix/$(ARCHDIR) all
-	+make -C $(SRCDIR)/rjs/build/unix/$(ARCHDIR) all
+	+make -C $(SRCDIR)/rgrep/build/unix/$(ARCHDIR) all
 	+make -C $(SRCDIR)/tests/testmisc/build/unix/$(ARCHDIR) all
 	+make -C $(SRCDIR)/tests/testrpa/build/unix/$(ARCHDIR) all
+ifeq ($(OS), linux)
+	+make -C $(SRCDIR)/rjs/build/unix/$(ARCHDIR) all
 	+make -C $(SRCDIR)/tests/testrjs/build/unix/$(ARCHDIR) all
-	+make -C $(SRCDIR)/rgrep/build/unix/$(ARCHDIR) all
+endif
 
 distclean: clean
 	+make -C $(SRCDIR)/rlib/build/unix/$(ARCHDIR) distclean
@@ -17,16 +19,19 @@ distclean: clean
 	+make -C $(SRCDIR)/tests/testrpa/build/unix/$(ARCHDIR) distclean
 	+make -C $(SRCDIR)/tests/testrjs/build/unix/$(ARCHDIR) distclean
 	+make -C $(SRCDIR)/rgrep/build/unix/$(ARCHDIR) distclean
+	+make -C $(SRCDIR)/rjs/build/unix/$(ARCHDIR) distclean
+
 
 clean:
 	+make -C $(SRCDIR)/rlib/build/unix/$(ARCHDIR) clean
 	+make -C $(SRCDIR)/rpa/build/unix/$(ARCHDIR) clean
 	+make -C $(SRCDIR)/rvm/build/unix/$(ARCHDIR) clean
-	+make -C $(SRCDIR)/rjs/build/unix/$(ARCHDIR) clean
 	+make -C $(SRCDIR)/tests/testmisc/build/unix/$(ARCHDIR) clean
 	+make -C $(SRCDIR)/tests/testrpa/build/unix/$(ARCHDIR) clean
 	+make -C $(SRCDIR)/tests/testrjs/build/unix/$(ARCHDIR) clean
 	+make -C $(SRCDIR)/rgrep/build/unix/$(ARCHDIR) clean
+	+make -C $(SRCDIR)/rjs/build/unix/$(ARCHDIR) clean
+
 
 $(RPATK_INC_INSTALL) :
 	mkdir $(RPATK_INC_INSTALL)

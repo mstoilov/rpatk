@@ -5,13 +5,16 @@ RPA_SRCDIR = $(SRCDIR)/rpa
 RJS_SRCDIR = $(SRCDIR)/rjs
 TESTS_SRCDIR = $(SRCDIR)/tests/testrjs
 INCLUDE = -I$(SRCDIR) -I$(SRCDIR)/arch/unix/$(ARCHDIR)
+ifeq ($(OS), linux)
+LDFLAGS += --static
+endif
 
 LIBS =  -L$(ROBJECT_SRCDIR)/build/unix/$(ARCHDIR)/out 
 LIBS += -L$(RLIB_SRCDIR)/build/unix/$(ARCHDIR)/out 
 LIBS += -L$(RVM_SRCDIR)/build/unix/$(ARCHDIR)/out 
 LIBS += -L$(RJS_SRCDIR)/build/unix/$(ARCHDIR)/out 
 LIBS += -L$(RPA_SRCDIR)/build/unix/$(ARCHDIR)/out 
-LIBS += -lrjs -lrpa -lrvm -lrlib -lpthread -lm --static
+LIBS += -lrjs -lrpa -lrvm -lrlib -lpthread -lm
 
 
 TESTS   += $(OUTDIR)/rjs-simple
@@ -22,7 +25,7 @@ all : $(OUTDIR) $(TESTS)
 
 
 $(OUTDIR)/%: $(TESTS_SRCDIR)/%.c
-	+ $(CC) $(CFLAGS) -o $(OUTDIR)/$* $(TESTS_SRCDIR)/$*.c  $(LIBS) $(INCLUDE)
+	+ $(CC) $(CFLAGS) -o $(OUTDIR)/$* $(TESTS_SRCDIR)/$*.c  $(LIBS) $(LDFLAGS) $(INCLUDE)
 
 
 $(OUTDIR)/%.o: $(TESTS_SRCDIR)/%.rpa

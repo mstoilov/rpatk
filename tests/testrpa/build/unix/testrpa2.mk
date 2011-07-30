@@ -3,12 +3,14 @@ RVM_SRCDIR = $(SRCDIR)/rvm
 RPA_SRCDIR = $(SRCDIR)/rpa
 TESTS_SRCDIR = $(SRCDIR)/tests/testrpa
 INCLUDE = -I$(SRCDIR) -I$(SRCDIR)/arch/unix/$(ARCHDIR)
-
+ifeq ($(OS), linux)
+LDFLAGS += --static
+endif
 
 LIBS = -L$(RLIB_SRCDIR)/build/unix/$(ARCHDIR)/out 
 LIBS += -L$(RVM_SRCDIR)/build/unix/$(ARCHDIR)/out 
 LIBS += -L$(RPA_SRCDIR)/build/unix/$(ARCHDIR)/out 
-LIBS += -lrpa -lrvm -lrlib -lpthread -lm --static
+LIBS += -lrpa -lrvm -lrlib -lpthread -lm
 
 
 TESTS	+= $(OUTDIR)/rpavm-matchchr
@@ -32,7 +34,7 @@ all : $(OUTDIR) $(TESTS)
 
 
 $(OUTDIR)/%: $(TESTS_SRCDIR)/%.c
-	+ $(CC) $(CFLAGS) -o $(OUTDIR)/$* $(TESTS_SRCDIR)/$*.c  -lrpa $(LIBS) $(INCLUDE)
+	+ $(CC) $(CFLAGS) -o $(OUTDIR)/$* $(TESTS_SRCDIR)/$*.c  -lrpa $(LIBS) $(LDFLAGS) $(INCLUDE)
 
 
 $(OUTDIR)/%.o: $(TESTS_SRCDIR)/%.rpa
