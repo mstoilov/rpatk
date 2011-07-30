@@ -46,7 +46,7 @@ if test "$PHP_PRPA" != "no"; then
     AC_MSG_ERROR([RPATK dir not found in $SEARCH_PATH])
   fi
 
-  OS_DIR=linux
+  OS_DIR=unix
   MACH=`uname -m`
   if [[ $MACH == "i486" ]]; then MACH=i386; echo "MACH set to: $MACH"; fi
   if [[ $MACH == "i586" ]]; then MACH=i386; echo "MACH set to: $MACH"; fi
