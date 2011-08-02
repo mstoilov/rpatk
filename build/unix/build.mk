@@ -5,8 +5,8 @@ all:
 	+make -C $(SRCDIR)/rgrep/build/unix/$(ARCHDIR) all
 	+make -C $(SRCDIR)/tests/testmisc/build/unix/$(ARCHDIR) all
 	+make -C $(SRCDIR)/tests/testrpa/build/unix/$(ARCHDIR) all
-ifeq ($(OS), linux)
 	+make -C $(SRCDIR)/rjs/build/unix/$(ARCHDIR) all
+ifeq ($(OS), linux)
 	+make -C $(SRCDIR)/tests/testrjs/build/unix/$(ARCHDIR) all
 endif
 
