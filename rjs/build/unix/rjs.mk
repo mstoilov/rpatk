@@ -5,8 +5,9 @@ RJS_SRCDIR = $(SRCDIR)/rjs
 RJS_LIB = $(OUTDIR)/librjs.a
 RJS_SO = $(OUTDIR)/librjs.so.1.0
 RJS_EXEC = $(OUTDIR)/rjsexec
+LDFLAGS_RJSEXEC = $(LDFLAGS)
 ifeq ($(OS), linux)
-LDFLAGS += --static
+LDFLAGS_RJSEXEC += --static
 endif
 
 ifeq ($(OS), darwin)
@@ -42,7 +43,7 @@ all: $(OUTDIR) $(RJS_LIB) $(RJS_EXEC)
 endif
 
 $(RJS_EXEC) : $(RJSEXEC_OBJECTS) $(RJS_LIB) $(RJS_OBJECTS)
-	$(CC) -o $@ $< $(LIBS) $(LDFLAGS) $(ECMA262_SECTION)
+	$(CC) -o $@ $< $(LIBS) $(LDFLAGS_RJSEXEC) $(ECMA262_SECTION)
 
 $(OUTDIR)/%.o: $(RJS_SRCDIR)/%.c
 	$(CC) $(CFLAGS) -o $(OUTDIR)/$*.o -c $(RJS_SRCDIR)/$*.c
