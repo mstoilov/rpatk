@@ -153,12 +153,15 @@ static const char *stropcalls[] = {
 	"STA",
 	"MAPALLOC",
 	"MAPADDR",
+	"MAPKEYLDR",
 	"MAPLDR",
 	"MAPSTR",
+	"MAPDEL",
 	"MAPLKUP",
 	"MAPADD",
 	"MAPLKUPADD",
-	"UNKNOWN",
+	"MAPNEXT",
+	"MAPPREV",
 	"UNKNOWN",
 	"UNKNOWN",
 	"UNKNOWN",
@@ -1631,6 +1634,25 @@ static void rvm_op_maplookupadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static void rvm_op_mapdel(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	int ret;
+	long index;
+	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
+	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
+	rvmreg_t tmp = rvm_reg_create_signed(0);
+	rmap_t *a = NULL;
+
+	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
+	index = (long)RVM_REG_GETL(&tmp);
+	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT)
+		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
+	a = (rmap_t*)RVM_REG_GETP(arg2);
+	ret = r_map_delete(a, index);
+	rvm_reg_setboolean(arg1, ret == 0 ? 1 : 0);
+}
+
+
 static void rvm_op_mapaddr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
@@ -1675,6 +1697,76 @@ static void rvm_op_mapldr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	} else {
 		*arg1 = *((rvmreg_t*)value);
 	}
+}
+
+
+static void rvm_op_mapkeyldr(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
+	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
+	rvmreg_t tmp = rvm_reg_create_signed(0);
+	rmap_t *a = NULL;
+	rstring_t *key;
+	long index;
+
+	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
+	index = (long)RVM_REG_GETL(&tmp);
+	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT)
+		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
+	a = (rmap_t*)RVM_REG_GETP(arg2);
+	key = r_map_key(a, index);
+	if (!key) {
+		RVM_REG_CLEAR(arg1);
+		RVM_REG_SETTYPE(arg1, RVM_DTYPE_UNDEF);
+	} else {
+		rvm_reg_setstring(arg1, key);
+	}
+}
+
+
+static void rvm_op_mapnext(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
+	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
+	rvmreg_t tmp = rvm_reg_create_signed(0);
+	rmap_t *a = NULL;
+	long index;
+
+	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
+	index = (long)RVM_REG_GETL(&tmp);
+	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT)
+		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
+	a = (rmap_t*)RVM_REG_GETP(arg2);
+	if (index < 0)
+		index = r_map_first(a);
+	else
+		index = r_map_next(a, index);
+	RVM_REG_CLEAR(arg1);
+	RVM_REG_SETTYPE(arg1, RVM_DTYPE_SINGED);
+	RVM_REG_SETL(arg1, index);
+}
+
+
+static void rvm_op_mapprev(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
+	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
+	rvmreg_t tmp = rvm_reg_create_signed(0);
+	rmap_t *a = NULL;
+	long index;
+
+	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
+	index = (long)RVM_REG_GETL(&tmp);
+	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT)
+		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
+	a = (rmap_t*)RVM_REG_GETP(arg2);
+	if (index < 0)
+		index = r_map_last(a);
+	else
+		index = r_map_prev(a, index);
+	RVM_REG_CLEAR(arg1);
+	RVM_REG_SETTYPE(arg1, RVM_DTYPE_SINGED);
+	RVM_REG_SETL(arg1, index);
 }
 
 
@@ -1874,11 +1966,15 @@ static rvm_cpu_op ops[] = {
 	rvm_op_sta,			// RVM_STA
 	rvm_op_mapalloc,	// RVM_MAPALLOC
 	rvm_op_mapaddr,		// RVM_MAPADDR,
+	rvm_op_mapkeyldr,	// RVM_MAPKEYLDR,
 	rvm_op_mapldr,		// RVM_MAPLDR,
 	rvm_op_mapstr,		// RVM_MAPSTR,
+	rvm_op_mapdel,		// RVM_MAPDEL,
 	rvm_op_maplookup,	// RVM_MAPLKUP,
 	rvm_op_mapadd,		// RVM_MAPADD,
 	rvm_op_maplookupadd,// RVM_MAPLKUPADD,
+	rvm_op_mapnext,		// RVM_MAPNEXT,
+	rvm_op_mapprev,		// RVM_MAPPREV,
 	(void*) 0,
 	(void*) 0,
 	(void*) 0,

@@ -102,8 +102,6 @@ void r_map_cleanup(robject_t *obj)
 	}
 	while (!r_list_empty(&map->inactive)) {
 		node = r_list_entry(r_list_first(&map->inactive), r_mapnode_t, active);
-		if (!r_object_gcget((robject_t*)node->key))
-			r_string_destroy(node->key);
 		r_list_del(&node->active);
 	}
 

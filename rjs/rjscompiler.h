@@ -45,6 +45,7 @@ extern "C" {
 #define RJS_COCTX_IFSTATEMENT (1 << 4)
 #define RJS_COCTX_ITERATION (1 << 5)
 #define RJS_COCTX_OPERATION (1 << 5)
+#define RJS_COCTX_DELETE (1 << 6)
 
 
 typedef struct rjs_coctx_s {

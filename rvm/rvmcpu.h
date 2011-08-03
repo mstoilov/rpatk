@@ -157,11 +157,15 @@ enum {
 	RVM_STA,		/* op1 is the source, op2 is the array, op3 is the offset */
 	RVM_MAPALLOC,
 	RVM_MAPADDR,
+	RVM_MAPKEYLDR,
 	RVM_MAPLDR,
 	RVM_MAPSTR,
+	RVM_MAPDEL,
 	RVM_MAPLKUP,
 	RVM_MAPADD,
 	RVM_MAPLKUPADD,
+	RVM_MAPNEXT,
+	RVM_MAPPREV,
 };
 
 

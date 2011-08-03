@@ -89,6 +89,9 @@
 #!emitid DoWhileExpressionCompare		UID_DOWHILEEXPRESSIONCOMPARE		59
 #!emitid Program 						UID_PROGRAM 						60
 #!emitid StringLiteral					UID_STRINGLITERAL					61
+#!emitid UnaryExpressionDelete			UID_UNARYEXPRESSIONDELETE			62
+#!emitid IterationForIn					UID_ITERATIONFORIN					63
+#!emitid ForInInit						UID_FORININIT						64
 
 #!abort SC
 
@@ -252,9 +255,12 @@ PrefixExpressionOp 				::= <PrefixOperator> <LeftHandSideExpressionAddr>
 PrefixExpression 				::= <PrefixExpressionOp> | <PostfixExpression>
 
 # 11.4 Unary Operators
-UnaryOperator					::= '~' | '!' | ('+' - '++') | ('-' - '--') | 'delete' | 'void' | 'typeof'
+UnaryOperator					::= '~' | '!' | ('+' - '++') | ('-' - '--') | 'void' | 'typeof'
 UnaryExpressionOp	    		::=	<S>? <UnaryOperator> <S>? <UnaryExpression>
-UnaryExpression		    		::=	<UnaryExpressionOp> | <PrefixExpression>
+UnaryExpressionDelete    		::=	<S>? 'delete' <S>? <UnaryExpression>
+UnaryExpressionVoid				::=	<S>? 'void' <S>? <UnaryExpression>
+UnaryExpressionTypeof			::=	<S>? 'typeof' <S>? <UnaryExpression>
+UnaryExpression		    		::=	<UnaryExpressionOp> | <UnaryExpressionDelete> | <UnaryExpressionTypeof> |<UnaryExpressionVoid> | <PrefixExpression>
 
 
 # 11.5 Multiplicative Operators
@@ -355,6 +361,7 @@ VariableStatement 					::= 'var' <S>? <VariableDeclarationList> <SC>
 VariableDeclarationList 			::= <VariableDeclaration> (<COMMA> <VariableDeclaration> )*
 VariableAllocate					::= <IdentifierNoEmit>
 VariableAllocateAndInit				::= <IdentifierNoEmit>
+VariableAllocatePush				::= <IdentifierNoEmit>
 VariableDeclaration					::= <VariableAllocateAndInit> <Initialiser> | <VariableAllocate>
 Initialiser							::= <EQ> <AssignmentExpression>
 
@@ -392,9 +399,14 @@ ForExpressionIncrement				::= <Expression>
 ForIterationStatement				::= <Statement>
 IterationFor						::= 'for' <S>? '(' <S>? <ForExpressionInit>? <S>? ';' <S>? <ForExpressionCompare>? <S>? ';' <S>? <ForExpressionIncrement>? <S>? ')' <S>? <ForIterationStatement>
 
+# 12.6d Iteration for ( in )
+ForInIterator						::= ('var' <S>? <VariableAllocateAndInit>) | <LeftHandSideExpressionAddr>
+ForInInit							::= <ForInIterator> <S>? 'in' <S>? <Expression>
+IterationForIn						::= 'for' <S>? '(' <S>? <ForInInit> <S>? ')' <S>?  <Statement>
 
 IterationStatement 					::= <IterationWhile> |
 										<IterationFor> |
+										<IterationForIn> |
 	    								<IterationDo>
 
 # 12.9 The return Statement

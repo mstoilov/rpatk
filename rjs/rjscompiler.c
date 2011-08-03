@@ -279,6 +279,8 @@ long rjs_compiler_record2unaryopcode(rparecord_t *prec)
 		return RVM_ENOT;
 	else if (r_stringncmp("!", input,  size))
 		return RVM_ELNOT;
+	else
+		return RVM_NOP;
 
 	return -1;
 }
@@ -652,6 +654,33 @@ error:
 }
 
 
+int rjs_compiler_rh_unaryexpressiondelete(rjs_compiler_t *co, rarray_t *records, long rec)
+{
+	rparecord_t *prec;
+	rjs_coctx_operation_t ctx;
+
+	r_memset(&ctx, 0, sizeof(ctx));
+	ctx.base.type = RJS_COCTX_DELETE;
+	r_array_push(co->coctx, &ctx, rjs_coctx_t*);
+
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rjs_compiler_debugtail(co, records, rec);
+	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
+		goto error;
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rjs_compiler_debugtail(co, records, rec);
+	r_array_removelast(co->coctx);
+	return 0;
+
+error:
+	r_array_removelast(co->coctx);
+	return -1;
+}
+
+
 int rjs_compiler_rh_assignmentexpressionop(rjs_compiler_t *co, rarray_t *records, long rec)
 {
 	rparecord_t *prec;
@@ -723,7 +752,10 @@ int rjs_compiler_rh_memberexpressiondotop(rjs_compiler_t *co, rarray_t *records,
 
 	} else {
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLKUP, R0, R1, R2, 0));	// Get the offset of the element at offset R0
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLDR, R0, R1, R0, 0));	// Get the value of the element at offset R0
+		if (ctx && ctx->type == RJS_COCTX_DELETE)
+			rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPDEL, R0, R1, R0, 0));		// Get the result of deletion in R0
+		else
+			rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLDR, R0, R1, R0, 0));		// Get the value of the element at offset R0
 	}
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;
@@ -754,7 +786,10 @@ int rjs_compiler_rh_memberexpressionindexop(rjs_compiler_t *co, rarray_t *record
 	} else {
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0)); 	// Supposedly an Array
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLKUP, R0, R1, R0, 0));	// R1 Array
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLDR, R0, R1, R0, 0));	// Get the value of the element at offset R0
+		if (ctx && ctx->type == RJS_COCTX_DELETE)
+			rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPDEL, R0, R1, R0, 0));		// Get the result of deletion in R0
+		else
+			rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLDR, R0, R1, R0, 0));		// Get the value of the element at offset R0
 	}
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;
@@ -1145,6 +1180,82 @@ int rjs_compiler_rh_iterationfor(rjs_compiler_t *co, rarray_t *records, long rec
 error:
 	rvm_scope_pop(co->scope);
 	r_array_removelast(co->coctx);
+	return -1;
+}
+
+
+int rjs_compiler_rh_iterationforin(rjs_compiler_t *co, rarray_t *records, long rec)
+{
+	rparecord_t *prec;
+	rjs_coctx_iteration_t ctx;
+
+	r_memset(&ctx, 0, sizeof(ctx));
+	ctx.base.type = RJS_COCTX_ITERATION;
+	ctx.start = rvm_codegen_getcodesize(co->cg);
+	ctx.iterationidx = rvm_codegen_invalid_addlabel_s(co->cg, NULL);
+	ctx.continueidx = rvm_codegen_invalid_addlabel_s(co->cg, NULL);
+	ctx.endidx = rvm_codegen_invalid_addlabel_s(co->cg, NULL);
+	r_array_push(co->coctx, &ctx, rjs_coctx_t*);
+	rvm_scope_push(co->scope);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rjs_compiler_debugtail(co, records, rec);
+
+	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
+		goto error;
+
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, ctx.iterationidx, rvm_asm(RVM_B, DA, XX, XX, 0));
+	rvm_codegen_redefinelabel_default(co->cg, ctx.endidx);
+	rvm_codegen_addins(co->cg, rvm_asml(RVM_SUB, SP, SP, DA, 3));
+	rjs_compiler_debugtail(co, records, rec);
+	rvm_scope_pop(co->scope);
+	r_array_removelast(co->coctx);
+	return 0;
+
+error:
+	rvm_scope_pop(co->scope);
+	r_array_removelast(co->coctx);
+	return -1;
+}
+
+
+int rjs_compiler_rh_forininit(rjs_compiler_t *co, rarray_t *records, long rec)
+{
+	rjs_coctx_iteration_t *ctx = (rjs_coctx_iteration_t *)rjs_compiler_getctx(co, RJS_COCTX_ITERATION);
+	rparecord_t *prec;
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rvm_codegen_addins(co->cg, rvm_asml(RVM_PUSH, DA, XX, XX, -1));
+	rjs_compiler_debugtail(co, records, rec);
+
+	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
+		goto error;
+
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_TYPE, R0, R0, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asml(RVM_CMP, R0, DA, XX, RVM_DTYPE_JSOBJECT));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, ctx->endidx, rvm_asm(RVM_BNEQ, DA, XX, XX, 0));
+	rvm_codegen_redefinelabel_default(co->cg, ctx->iterationidx);
+	rvm_codegen_redefinelabel_default(co->cg, ctx->continueidx);
+	rvm_codegen_addins(co->cg, rvm_asml(RVM_LDS, R0, SP, DA, -2));
+	rvm_codegen_addins(co->cg, rvm_asml(RVM_LDS, R1, SP, DA, 0));
+	rvm_codegen_addins(co->cg, rvm_asml(RVM_LDS, R2, SP, DA, -1));
+	rvm_codegen_addins(co->cg, rvm_asml(RVM_MAPNEXT, R0, R1, R0, 0));
+	rvm_codegen_addins(co->cg, rvm_asml(RVM_CMP, R0, DA, XX, 0));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, ctx->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asml(RVM_STS, R0, SP, DA, -2));
+	rvm_codegen_addins(co->cg, rvm_asml(RVM_MAPKEYLDR, R0, R1, R0, 0));
+	rvm_codegen_addins(co->cg, rvm_asml(RVM_STRR, R0, R2, XX, 0));
+	rjs_compiler_debugtail(co, records, rec);
+	return 0;
+
+error:
 	return -1;
 }
 
@@ -1654,6 +1765,8 @@ rjs_compiler_t *rjs_compiler_create(rvmcpu_t *cpu)
 	co->handlers[UID_ITERATIONDO] = rjs_compiler_rh_iterationdo;
 	co->handlers[UID_ITERATIONWHILE] = rjs_compiler_rh_iterationwhile;
 	co->handlers[UID_ITERATIONFOR] = rjs_compiler_rh_iterationfor;
+	co->handlers[UID_ITERATIONFORIN] = rjs_compiler_rh_iterationforin;
+	co->handlers[UID_FORININIT] = rjs_compiler_rh_forininit;
 	co->handlers[UID_DOWHILEEXPRESSIONCOMPARE] = rjs_compiler_rh_dowhileexpressioncompare;
 	co->handlers[UID_WHILEEXPRESSIONCOMPARE] = rjs_compiler_rh_forexpressioncompare;
 	co->handlers[UID_FOREXPRESSIONCOMPARE] = rjs_compiler_rh_forexpressioncompare;
@@ -1663,6 +1776,7 @@ rjs_compiler_t *rjs_compiler_create(rvmcpu_t *cpu)
 	co->handlers[UID_THIS] = rjs_compiler_rh_this;
 	co->handlers[UID_NEWEXPRESSIONCALL] = rjs_compiler_rh_newexpressioncall;
 	co->handlers[UID_UNARYEXPRESSIONOP] = rjs_compiler_rh_unaryexpressionop;
+	co->handlers[UID_UNARYEXPRESSIONDELETE] = rjs_compiler_rh_unaryexpressiondelete;
 	co->handlers[UID_BINARYOPERATOR] = rjs_compiler_rh_binaryoperator;
 	co->handlers[UID_UNARYOPERATOR] = rjs_compiler_rh_unaryoperator;
 	co->handlers[UID_BREAKSTATEMENT] = rjs_compiler_rh_break;

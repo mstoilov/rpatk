@@ -64,7 +64,7 @@ long r_map_add_l(rmap_t *map, long name, rconstpointer pval);
  * The following functions allow the created keys (rstring_t objects) to be added to
  * GC list and not being destroyed by the rmap_t, but leave it to the users of rmap_t
  * to decide when to destroy those keys. These is useful for scripting languages with
- * GC memory management. Another possibility would be to get the key as a rstrit_t* and
+ * GC memory management. Another possibility would be to get the key as a rstr_t* and
  * make rmap_t completely get out of the memory management business.
  */
 long r_map_gckey_add(rmap_t *map, rgc_t* gc, const char *name, unsigned int namesize, rconstpointer pval);
