@@ -53,3 +53,27 @@ void rvm_op_eq_double(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, double op1, do
 	RVM_REG_SETTYPE(res, RVM_DTYPE_BOOLEAN);
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, !r);
 }
+
+
+void rvm_op_eq_string(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, double op1, double op2)
+{
+	ruword r;
+
+	r = (op1 == op2) ? 1 : 0;
+	RVM_REG_SETU(res, r);
+	RVM_REG_SETTYPE(res, RVM_DTYPE_BOOLEAN);
+	RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, !r);
+}
+
+
+void rvm_op_eq_string_string(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+{
+	ruword r;
+	rstring_t *s1 = (rstring_t *)RVM_REG_GETP(arg1);
+	rstring_t *s2 = (rstring_t *)RVM_REG_GETP(arg2);
+
+	r = (s1->s.size ==  s2->s.size && r_strncmp(s1->s.str, s2->s.str, s1->s.size) == 0) ? 1 : 0;
+	rvm_reg_setboolean(res, r);
+	RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, !r);
+}
+

@@ -309,7 +309,6 @@ int main(int argc, char *argv[])
 		if (r_strcmp(argv[i], "-f") == 0) {
 			if (++i < argc) {
 				script = rjs_file_map(argv[i]);
-				r_printf("%s\n", script->str);
 				if (script) {
 					unmapscript = script;
 				}
