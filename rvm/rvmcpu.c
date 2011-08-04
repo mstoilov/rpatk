@@ -1127,7 +1127,7 @@ static void rvm_op_prn(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		rvm_printf("(STRING) R%d = %s\n", ins->op1, ((rstring_t*) RVM_REG_GETP(r))->s.str);
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_ARRAY)
 		rvm_printf("(ARRAY) R%d = %p\n", ins->op1, RVM_REG_GETP(r));
-	else if (rvm_reg_gettype(r) == RVM_DTYPE_JSOBJECT)
+	else if (rvm_reg_gettype(r) == RVM_DTYPE_MAP)
 		rvm_printf("(Object) R%d = %p\n", ins->op1, RVM_REG_GETP(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_SWIID)
 		rvm_printf("(SWI) R%d = %p\n", ins->op1, RVM_REG_GETP(r));
@@ -1549,7 +1549,7 @@ static void rvm_op_maplookup(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
 	rmap_t *a = (rmap_t*)RVM_REG_GETP(arg2);
 
-	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT) {
+	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP) {
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	}
 	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_SIGNED || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
@@ -1578,7 +1578,7 @@ static void rvm_op_mapadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
 	rmap_t *a = (rmap_t*)RVM_REG_GETP(arg2);
 
-	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT) {
+	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP) {
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	}
 	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_SIGNED || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
@@ -1607,7 +1607,7 @@ static void rvm_op_maplookupadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
 	rmap_t *a = (rmap_t*)RVM_REG_GETP(arg2);
 
-	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT) {
+	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP) {
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	}
 	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_SIGNED || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
@@ -1646,7 +1646,7 @@ static void rvm_op_mapdel(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = (long)RVM_REG_GETL(&tmp);
-	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT)
+	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP)
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	a = (rmap_t*)RVM_REG_GETP(arg2);
 	ret = r_map_delete(a, index);
@@ -1665,7 +1665,7 @@ static void rvm_op_mapaddr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = (long)RVM_REG_GETL(&tmp);
-	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT)
+	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP)
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	a = (rmap_t*)RVM_REG_GETP(arg2);
 	value = r_map_value(a, index);
@@ -1688,7 +1688,7 @@ static void rvm_op_mapldr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = (long)RVM_REG_GETL(&tmp);
-	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT)
+	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP)
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	a = (rmap_t*)RVM_REG_GETP(arg2);
 	value = r_map_value(a, index);
@@ -1712,7 +1712,7 @@ static void rvm_op_mapkeyldr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = (long)RVM_REG_GETL(&tmp);
-	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT)
+	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP)
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	a = (rmap_t*)RVM_REG_GETP(arg2);
 	key = r_map_key(a, index);
@@ -1735,7 +1735,7 @@ static void rvm_op_mapnext(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = (long)RVM_REG_GETL(&tmp);
-	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT)
+	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP)
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	a = (rmap_t*)RVM_REG_GETP(arg2);
 	if (index < 0)
@@ -1758,7 +1758,7 @@ static void rvm_op_mapprev(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = (long)RVM_REG_GETL(&tmp);
-	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT)
+	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP)
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	a = (rmap_t*)RVM_REG_GETP(arg2);
 	if (index < 0)
@@ -1782,7 +1782,7 @@ static void rvm_op_mapstr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = (long)RVM_REG_GETL(&tmp);
-	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT)
+	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP)
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	a = (rmap_t*)RVM_REG_GETP(arg2);
 	value = r_map_value(a, index);

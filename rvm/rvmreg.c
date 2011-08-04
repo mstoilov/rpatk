@@ -261,7 +261,7 @@ void rvm_reg_setarray(rvmreg_t *r, robject_t *ptr)
 void rvm_reg_setjsobject(rvmreg_t *r, robject_t *ptr)
 {
 	RVM_REG_SETP(r, ptr);
-	RVM_REG_SETTYPE(r, RVM_DTYPE_JSOBJECT);
+	RVM_REG_SETTYPE(r, RVM_DTYPE_MAP);
 	RVM_REG_SETFLAG(r, RVM_INFOBIT_ROBJECT);
 }
 
@@ -504,6 +504,6 @@ rstring_t *rvm_reg_string(const rvmreg_t *src)
 
 rmap_t *rvm_reg_jsobject(const rvmreg_t *src)
 {
-	R_ASSERT(src && rvm_reg_gettype(src) == RVM_DTYPE_JSOBJECT);
+	R_ASSERT(src && rvm_reg_gettype(src) == RVM_DTYPE_MAP);
 	return (rmap_t*)RVM_REG_GETP(src);
 }

@@ -73,6 +73,7 @@ error:
 void rjs_engine_destroy(rjs_engine_t *jse)
 {
 	unsigned long i;
+
 	if (jse) {
 		if (jse->cgs) {
 			for (i = 0; i < r_array_length(jse->cgs); i++) {
@@ -88,40 +89,41 @@ void rjs_engine_destroy(rjs_engine_t *jse)
 	}
 }
 
+
+static void rjs_engine_addtypename(rjs_engine_t *jse, rmap_t *types, unsigned long type, const char *typename)
+{
+	rvmreg_t rs;
+	rstring_t *s;
+
+	s = r_string_create_from_ansistr(typename);
+	r_gc_add(jse->cpu->gc, (robject_t*)s);
+	rvm_reg_setstring(&rs, s);
+	r_map_add_l(types, type, &rs);
+}
+
+
 static void rjs_engine_inittypes(rjs_engine_t *jse)
 {
 	rmap_t *gmap = (rmap_t *)RVM_CPUREG_GETP(jse->cpu, GP);
 	rmap_t *types;
-	rvmreg_t rt, rs;
-	rstring_t *s;
+	rvmreg_t rt;
 
 	types = r_map_create(sizeof(rvmreg_t), 3);
 	r_gc_add(jse->cpu->gc, (robject_t*)types);
 	rvm_reg_setjsobject(&rt, (robject_t *)types);
 	r_map_add_l(gmap, RJS_GPKEY_TYPES, &rt);
-
-	s = r_string_create_from_ansistr("undefined");
-	r_gc_add(jse->cpu->gc, (robject_t*)s);
-	rvm_reg_setstring(&rs, s);
-	r_map_add_l(types, RVM_DTYPE_UNDEF, &rs);
-
-	s = r_string_create_from_ansistr("boolean");
-	r_gc_add(jse->cpu->gc, (robject_t*)s);
-	rvm_reg_setstring(&rs, s);
-	r_map_add_l(types, RVM_DTYPE_BOOLEAN, &rs);
-
-	s = r_string_create_from_ansistr("number");
-	r_gc_add(jse->cpu->gc, (robject_t*)s);
-	rvm_reg_setstring(&rs, s);
-	r_map_add_l(types, RVM_DTYPE_DOUBLE, &rs);
-	r_map_add_l(types, RVM_DTYPE_UNSIGNED, &rs);
-	r_map_add_l(types, RVM_DTYPE_SIGNED, &rs);
-
-	s = r_string_create_from_ansistr("string");
-	rvm_reg_setstring(&rs, s);
-	r_gc_add(jse->cpu->gc, (robject_t*)s);
-	r_map_add_l(types, RVM_DTYPE_STRING, &rs);
+	rjs_engine_addtypename(jse, types, RVM_DTYPE_UNDEF, "undefined");
+	rjs_engine_addtypename(jse, types, RVM_DTYPE_BOOLEAN, "boolean");
+	rjs_engine_addtypename(jse, types, RVM_DTYPE_DOUBLE, "number");
+	rjs_engine_addtypename(jse, types, RVM_DTYPE_UNSIGNED, "number");
+	rjs_engine_addtypename(jse, types, RVM_DTYPE_SIGNED, "number");
+	rjs_engine_addtypename(jse, types, RVM_DTYPE_STRING, "string");
+	rjs_engine_addtypename(jse, types, RVM_DTYPE_FUNCTION, "object");
+	rjs_engine_addtypename(jse, types, RVM_DTYPE_NAN, "object");
+	rjs_engine_addtypename(jse, types, RVM_DTYPE_MAP, "object");
+	rjs_engine_addtypename(jse, types, RVM_DTYPE_POINTER, "object");
 }
+
 
 static void rjs_engine_initgp(rjs_engine_t *jse)
 {
@@ -131,7 +133,6 @@ static void rjs_engine_initgp(rjs_engine_t *jse)
 	rvm_reg_init(&gp);
 	gmap = r_map_create(sizeof(rvmreg_t), 7);
 	r_gc_add(jse->cpu->gc, (robject_t*)gmap);
-
 	rvm_reg_setjsobject(RVM_CPUREG_PTR(jse->cpu, GP), (robject_t *)gmap);
 	rjs_engine_inittypes(jse);
 }
@@ -378,7 +379,7 @@ static void rjs_engine_print(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		r_printf("%s\n", ((rstring_t*) RVM_REG_GETP(r))->s.str);
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_STRPTR)
 		r_printf("(STRPTR) %s\n", (RVM_REG_GETSTR(r)));
-	else if (rvm_reg_gettype(r) == RVM_DTYPE_JSOBJECT)
+	else if (rvm_reg_gettype(r) == RVM_DTYPE_MAP)
 		r_printf("(object) %p\n",RVM_REG_GETP(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_HARRAY)
 		r_printf("(hashed array) %p\n",RVM_REG_GETP(r));
@@ -411,7 +412,7 @@ static void rjs_engine_dbgprint(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		r_printf("(STRING) %s\n", ((rstring_t*) RVM_REG_GETP(r))->s.str);
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_STRPTR)
 		r_printf("(STRPTR) %s\n", (RVM_REG_GETSTR(r)));
-	else if (rvm_reg_gettype(r) == RVM_DTYPE_JSOBJECT)
+	else if (rvm_reg_gettype(r) == RVM_DTYPE_MAP)
 		r_printf("(object) %p\n",RVM_REG_GETP(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_HARRAY)
 		r_printf("(hashed array) %p\n",RVM_REG_GETP(r));

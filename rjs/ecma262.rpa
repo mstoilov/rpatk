@@ -93,6 +93,9 @@
 #!emitid IterationForIn					UID_ITERATIONFORIN					63
 #!emitid ForInInit						UID_FORININIT						64
 #!emitid UnaryExpressionTypeof			UID_UNARYEXPRESSIONTYPEOF			65
+#!emitid SwitchStatement				UID_SWITCHSTATEMENT					66
+#!emitid CaseClause						UID_CASECLAUSE						67
+#!emitid DefaultClause					UID_DEFAULTCLAUSE					68
 
 #!abort SC
 
@@ -351,7 +354,7 @@ Statement						::= <FunctionDeclarationStatement> |
 			    					<BreakStatement> |
 			    					<ReturnStatement> |
 			    					<WithStatement> |
-			    					<SwitchStatementOp>
+			    					<SwitchStatement>
 
 # 12.1 Block
 Block								::= <S>? '{' <S>? <StatementList>? <S>? '}' <S>?
@@ -429,19 +432,18 @@ WithStatement						::= 'with' <S>? '(' <S>? <Expression> <S>? ')' <S>? <Statemen
 
 
 # 12.11 The switch Statement
-SwitchExpressionOp					::= ('switch' - 'switch' <IdentifierPart>) <S>? '(' <S>? <Expression> <S>? ')'
-SwitchStatementOp					::= <SwitchExpressionOp> <S>? <CaseBlock>
+SwitchExpression					::= ('switch' - 'switch' <IdentifierPart>) <S>? '(' <S>? <Expression> <S>? ')'
+SwitchStatement						::= <SwitchExpression> <S>? <CaseBlock>
 
-CaseBlock							::= '{' <S>? <CaseClauses>? <S>? <DefaultClauseOp>? <S>? <CaseClauses>? <S>? '}' |
+CaseBlock							::= '{' <S>? <CaseClauses>? <S>? <DefaultClause>? <S>? <CaseClauses>? <S>? '}' |
 				    					'{' <S>? <CaseClauses>? <S>? '}'
 
 
-
-CaseClauses 						::= (<S>? <CaseClauseOp>)+
-CaseExpressionOp					::= ('case' - 'case' <IdentifierPart>) <S>? <Expression> <S>? ':'
-CaseClauseOp						::= <CaseExpressionOp> <S>? <StatementList>?
-DefaultKeywordOp					::= 'default' - 'default' <IdentifierPart>
-DefaultClauseOp						::= <DefaultKeywordOp> <S>? ':' <S>? <StatementList>?
+CaseClauses 						::= (<S>? <CaseClause>)+
+CaseExpression						::= ('case' - 'case' <IdentifierPart>) <S>? <Expression> <S>? ':'
+CaseClause							::= <CaseExpression> <S>? <StatementList>?
+DefaultKeyword						::= 'default' - 'default' <IdentifierPart>
+DefaultClause						::= <DefaultKeyword> <S>? ':' <S>? <StatementList>?
 
 
 # 13 Function Definition

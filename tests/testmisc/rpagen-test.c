@@ -302,7 +302,7 @@ static void rvm_js_print(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		r_printf("%f\n", RVM_REG_GETD(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_STRING)
 		r_printf("%s\n", ((rstring_t*) RVM_REG_GETP(r))->s.str);
-	else if (rvm_reg_gettype(r) == RVM_DTYPE_JSOBJECT)
+	else if (rvm_reg_gettype(r) == RVM_DTYPE_MAP)
 		r_printf("(object) %p\n",RVM_REG_GETP(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_HARRAY)
 		r_printf("(hashed array) %p\n",RVM_REG_GETP(r));

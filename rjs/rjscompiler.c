@@ -1263,7 +1263,7 @@ int rjs_compiler_rh_forininit(rjs_compiler_t *co, rarray_t *records, long rec)
 	rjs_compiler_debughead(co, records, rec);
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_TYPE, R0, R0, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asml(RVM_CMP, R0, DA, XX, RVM_DTYPE_JSOBJECT));
+	rvm_codegen_addins(co->cg, rvm_asml(RVM_CMP, R0, DA, XX, RVM_DTYPE_MAP));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, ctx->endidx, rvm_asm(RVM_BNEQ, DA, XX, XX, 0));
 	rvm_codegen_redefinelabel_default(co->cg, ctx->iterationidx);
 	rvm_codegen_redefinelabel_default(co->cg, ctx->continueidx);
