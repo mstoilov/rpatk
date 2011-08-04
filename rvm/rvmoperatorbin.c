@@ -189,27 +189,27 @@ void rvm_op_binary_insert(rvm_opmap_t *opmap, ruint16 opid, rvm_binop_unsigned u
 
 	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_unsigned_unsigned, RVM_DTYPE_BOOLEAN, RVM_DTYPE_BOOLEAN);
 	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_unsigned_unsigned, RVM_DTYPE_BOOLEAN, RVM_DTYPE_UNSIGNED);
-	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_signed_signed, RVM_DTYPE_BOOLEAN, RVM_DTYPE_SINGED);
+	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_signed_signed, RVM_DTYPE_BOOLEAN, RVM_DTYPE_SIGNED);
 	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_signed_double, RVM_DTYPE_BOOLEAN, RVM_DTYPE_DOUBLE);
 	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_signed_string, RVM_DTYPE_BOOLEAN, RVM_DTYPE_STRING);
 	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_unsigned_unsigned, RVM_DTYPE_UNSIGNED, RVM_DTYPE_BOOLEAN);
-	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_unsigned_unsigned, RVM_DTYPE_SINGED, RVM_DTYPE_BOOLEAN);
+	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_unsigned_unsigned, RVM_DTYPE_SIGNED, RVM_DTYPE_BOOLEAN);
 	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_double_signed, RVM_DTYPE_DOUBLE, RVM_DTYPE_BOOLEAN);
 	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_string_signed, RVM_DTYPE_STRING, RVM_DTYPE_BOOLEAN);
 	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_unsigned_unsigned, RVM_DTYPE_UNSIGNED, RVM_DTYPE_UNSIGNED);
 	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_double_double, RVM_DTYPE_DOUBLE, RVM_DTYPE_DOUBLE);
-	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_signed_signed, RVM_DTYPE_SINGED, RVM_DTYPE_SINGED);
-	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_signed_signed, RVM_DTYPE_UNSIGNED, RVM_DTYPE_SINGED);
-	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_signed_signed, RVM_DTYPE_SINGED, RVM_DTYPE_UNSIGNED);
-	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_signed_double, RVM_DTYPE_SINGED, RVM_DTYPE_DOUBLE);
+	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_signed_signed, RVM_DTYPE_SIGNED, RVM_DTYPE_SIGNED);
+	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_signed_signed, RVM_DTYPE_UNSIGNED, RVM_DTYPE_SIGNED);
+	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_signed_signed, RVM_DTYPE_SIGNED, RVM_DTYPE_UNSIGNED);
+	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_signed_double, RVM_DTYPE_SIGNED, RVM_DTYPE_DOUBLE);
 	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_signed_double, RVM_DTYPE_UNSIGNED, RVM_DTYPE_DOUBLE);
-	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_double_signed, RVM_DTYPE_DOUBLE, RVM_DTYPE_SINGED);
+	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_double_signed, RVM_DTYPE_DOUBLE, RVM_DTYPE_SIGNED);
 	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_double_signed, RVM_DTYPE_DOUBLE, RVM_DTYPE_UNSIGNED);
 	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_string_signed, RVM_DTYPE_STRING, RVM_DTYPE_UNSIGNED);
-	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_string_signed, RVM_DTYPE_STRING, RVM_DTYPE_SINGED);
+	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_string_signed, RVM_DTYPE_STRING, RVM_DTYPE_SIGNED);
 	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_string_double, RVM_DTYPE_STRING, RVM_DTYPE_DOUBLE);
 	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_signed_string, RVM_DTYPE_UNSIGNED, RVM_DTYPE_STRING);
-	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_signed_string, RVM_DTYPE_SINGED, RVM_DTYPE_STRING);
+	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_signed_string, RVM_DTYPE_SIGNED, RVM_DTYPE_STRING);
 	rvm_opmap_set_binary_handler(opmap, opid, rvm_op_binary_double_string, RVM_DTYPE_DOUBLE, RVM_DTYPE_STRING);
 }
 
@@ -239,20 +239,15 @@ void rvm_op_binary_init(rvm_opmap_t *opmap)
 	rvm_op_binary_insert(opmap, RVM_OPID_MOD, rvm_op_mod_unsigned, rvm_op_mod_signed, rvm_op_mod_double);
 	rvm_op_binary_insert(opmap, RVM_OPID_LOGICOR, rvm_op_logicor_unsigned, rvm_op_logicor_signed, rvm_op_logicor_double);
 	rvm_op_binary_insert(opmap, RVM_OPID_LOGICAND, rvm_op_logicand_unsigned, rvm_op_logicand_signed, rvm_op_logicand_double);
-	rvm_op_binary_insert(opmap, RVM_OPID_NOTEQ, rvm_op_noteq_unsigned, rvm_op_noteq_signed, rvm_op_noteq_double);
-	rvm_op_binary_insert(opmap, RVM_OPID_LESS, rvm_op_less_unsigned, rvm_op_less_signed, rvm_op_less_double);
-	rvm_op_binary_insert(opmap, RVM_OPID_LESSEQ, rvm_op_lesseq_unsigned, rvm_op_lesseq_signed, rvm_op_lesseq_double);
-	rvm_op_binary_insert(opmap, RVM_OPID_GREATER, rvm_op_greater_unsigned, rvm_op_greater_signed, rvm_op_greater_double);
-	rvm_op_binary_insert(opmap, RVM_OPID_GREATEREQ, rvm_op_greatereq_unsigned, rvm_op_greatereq_signed, rvm_op_greatereq_double);
 
 	rvm_op_binary_insert(opmap, RVM_OPID_ADD, rvm_op_add_unsigned, rvm_op_add_signed, rvm_op_add_double);
 	/*
 	 * Overwrite RVM_OPID_ADD for string concatenation
 	 */
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rvm_op_concat_string_string, RVM_DTYPE_STRING, RVM_DTYPE_STRING);
-	rvm_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rvm_op_concat_string_signed, RVM_DTYPE_STRING, RVM_DTYPE_SINGED);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rvm_op_concat_string_signed, RVM_DTYPE_STRING, RVM_DTYPE_SIGNED);
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rvm_op_concat_string_signed, RVM_DTYPE_STRING, RVM_DTYPE_UNSIGNED);
-	rvm_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rvm_op_concat_signed_string, RVM_DTYPE_SINGED, RVM_DTYPE_STRING);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rvm_op_concat_signed_string, RVM_DTYPE_SIGNED, RVM_DTYPE_STRING);
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rvm_op_concat_signed_string, RVM_DTYPE_UNSIGNED, RVM_DTYPE_STRING);
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rvm_op_concat_string_double, RVM_DTYPE_STRING, RVM_DTYPE_DOUBLE);
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rvm_op_concat_double_string, RVM_DTYPE_DOUBLE, RVM_DTYPE_STRING);
@@ -262,5 +257,17 @@ void rvm_op_binary_init(rvm_opmap_t *opmap)
 
 	rvm_op_binary_insert(opmap, RVM_OPID_NOTEQ, rvm_op_noteq_unsigned, rvm_op_noteq_signed, rvm_op_noteq_double);
 	rvm_opmap_set_binary_handler(opmap, RVM_OPID_NOTEQ, rvm_op_noteq_string_string, RVM_DTYPE_STRING, RVM_DTYPE_STRING);
+
+	rvm_op_binary_insert(opmap, RVM_OPID_LESS, rvm_op_less_unsigned, rvm_op_less_signed, rvm_op_less_double);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_LESS, rvm_op_less_string_string, RVM_DTYPE_STRING, RVM_DTYPE_STRING);
+
+	rvm_op_binary_insert(opmap, RVM_OPID_LESSEQ, rvm_op_lesseq_unsigned, rvm_op_lesseq_signed, rvm_op_lesseq_double);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_LESSEQ, rvm_op_lesseq_string_string, RVM_DTYPE_STRING, RVM_DTYPE_STRING);
+
+	rvm_op_binary_insert(opmap, RVM_OPID_GREATER, rvm_op_greater_unsigned, rvm_op_greater_signed, rvm_op_greater_double);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_GREATER, rvm_op_greater_string_string, RVM_DTYPE_STRING, RVM_DTYPE_STRING);
+
+	rvm_op_binary_insert(opmap, RVM_OPID_GREATEREQ, rvm_op_greatereq_unsigned, rvm_op_greatereq_signed, rvm_op_greatereq_double);
+	rvm_opmap_set_binary_handler(opmap, RVM_OPID_GREATEREQ, rvm_op_greatereq_string_string, RVM_DTYPE_STRING, RVM_DTYPE_STRING);
 
 }

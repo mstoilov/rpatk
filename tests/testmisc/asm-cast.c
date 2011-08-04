@@ -31,7 +31,7 @@ static void test_swi_print_r(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 	if (rvm_reg_gettype(r) == RVM_DTYPE_UWORD)
 		fprintf(stdout, "R%d = %ld\n", R, RVM_REG_GETL(r));
-	else if (rvm_reg_gettype(r) == RVM_DTYPE_SINGED)
+	else if (rvm_reg_gettype(r) == RVM_DTYPE_SIGNED)
 		fprintf(stdout, "R%d = %ld\n", R, RVM_REG_GETL(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_DOUBLE)
 		fprintf(stdout, "R%d = %5.2f\n", R, RVM_REG_GETD(r));
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 	vmcode[off++] = rvm_asmp(RVM_LDRR, R0, DA, XX, &d2);
 	vmcode[off++] = rvm_asm(RVM_TYPE, R1, R0, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_OPSWI(rvm_cpu_swilookup_s(vm, "switable", "print")), R1, XX, XX, 0);
-	vmcode[off++] = rvm_asm(RVM_CAST, R0, R0, DA, RVM_DTYPE_SINGED);
+	vmcode[off++] = rvm_asm(RVM_CAST, R0, R0, DA, RVM_DTYPE_SIGNED);
 	vmcode[off++] = rvm_asm(RVM_OPSWI(rvm_cpu_swilookup_s(vm, "switable", "print")), R0, XX, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_MOV, R1, DA, XX, 2);
 	vmcode[off++] = rvm_asm(RVM_ADD, R0, R1, R0, 0);
@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
 	vmcode[off++] = rvm_asmp(RVM_PRN, R1, XX, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_CAST, R0, R1, DA, RVM_DTYPE_UNSIGNED);
 	vmcode[off++] = rvm_asmp(RVM_PRN, R0, XX, XX, 0);
-	vmcode[off++] = rvm_asm(RVM_CAST, R0, R1, DA, RVM_DTYPE_SINGED);
+	vmcode[off++] = rvm_asm(RVM_CAST, R0, R1, DA, RVM_DTYPE_SIGNED);
 	vmcode[off++] = rvm_asmp(RVM_PRN, R0, XX, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_CAST, R0, R1, DA, RVM_DTYPE_DOUBLE);
 	vmcode[off++] = rvm_asmp(RVM_PRN, R0, XX, XX, 0);

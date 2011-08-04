@@ -40,7 +40,7 @@ void rvm_op_lsl_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, rword op1, rw
 
 	r = op1 << op2;
 	RVM_REG_SETL(res, r);
-	RVM_REG_SETTYPE(res, RVM_DTYPE_SINGED);
+	RVM_REG_SETTYPE(res, RVM_DTYPE_SIGNED);
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, !r);
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_N, r & RVM_SIGN_BIT);
 }

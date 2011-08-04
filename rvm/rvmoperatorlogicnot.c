@@ -85,7 +85,7 @@ void rvm_op_logicnot_init(rvm_opmap_t *opmap)
 	rvm_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rvm_op_logicnot_unsigned, RVM_DTYPE_BOOLEAN);
 	rvm_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rvm_op_logicnot_unsigned, RVM_DTYPE_ARRAY);
 	rvm_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rvm_op_logicnot_unsigned, RVM_DTYPE_HARRAY);
-	rvm_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rvm_op_logicnot_signed, RVM_DTYPE_SINGED);
+	rvm_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rvm_op_logicnot_signed, RVM_DTYPE_SIGNED);
 	rvm_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rvm_op_logicnot_double, RVM_DTYPE_DOUBLE);
 	rvm_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rvm_op_logicnot_string, RVM_DTYPE_STRING);
 }

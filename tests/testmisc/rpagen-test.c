@@ -296,7 +296,7 @@ static void rvm_js_print(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		r_printf("%s\n", RVM_REG_GETU(r) ? "true" : "false");
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_POINTER)
 		r_printf("%p\n", RVM_REG_GETP(r));
-	else if (rvm_reg_gettype(r) == RVM_DTYPE_SINGED)
+	else if (rvm_reg_gettype(r) == RVM_DTYPE_SIGNED)
 		r_printf("%ld\n", RVM_REG_GETL(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_DOUBLE)
 		r_printf("%f\n", RVM_REG_GETD(r));

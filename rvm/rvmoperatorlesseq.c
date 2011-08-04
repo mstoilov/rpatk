@@ -53,3 +53,16 @@ void rvm_op_lesseq_double(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, double op1
 	RVM_REG_SETTYPE(res, RVM_DTYPE_BOOLEAN);
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, !r);
 }
+
+
+void rvm_op_lesseq_string_string(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+{
+	ruword r;
+	rstring_t *s1 = (rstring_t *)RVM_REG_GETP(arg1);
+	rstring_t *s2 = (rstring_t *)RVM_REG_GETP(arg2);
+
+	r = (r_strncmp(s1->s.str, s2->s.str, R_MIN(s1->s.size, s2->s.size)) <= 0) ? 1 : 0;
+	rvm_reg_setboolean(res, r);
+	RVM_STATUS_UPDATE(cpu, RVM_STATUS_Z, !r);
+}
+

@@ -1119,7 +1119,7 @@ static void rvm_op_prn(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		rvm_printf("(UNSIGNED) R%d = %lu(0x%lx)\n", ins->op1, RVM_REG_GETU(r), RVM_REG_GETU(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_POINTER)
 		rvm_printf("(POINTER) R%d = %p\n", ins->op1, RVM_REG_GETP(r));
-	else if (rvm_reg_gettype(r) == RVM_DTYPE_SINGED)
+	else if (rvm_reg_gettype(r) == RVM_DTYPE_SIGNED)
 		rvm_printf("(LONG) R%d = %ld\n", ins->op1, RVM_REG_GETL(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_DOUBLE)
 		rvm_printf("(DOUBLE) R%d = %0.2f\n", ins->op1, RVM_REG_GETD(r));
@@ -1200,7 +1200,7 @@ int rvm_asm_dump_pi_to_str(rvmcpu_t *vm, rvm_asmins_t *pi, char *str, unsigned i
 	if (RVM_REG_GETTYPE(&pi->data) == RVM_DTYPE_DOUBLE) {
 		if ((ret = rvm_snprintf(str, sz, "%f  ", RVM_REG_GETD(&pi->data))) < 0)
 			return ret;
-	} else if (RVM_REG_GETTYPE(&pi->data) == RVM_DTYPE_SINGED) {
+	} else if (RVM_REG_GETTYPE(&pi->data) == RVM_DTYPE_SIGNED) {
 		if ((ret = rvm_snprintf(str, sz, "%ld  ", RVM_REG_GETL(&pi->data))) < 0)
 			return ret;
 	} else {
@@ -1269,6 +1269,7 @@ static void rvm_op_type(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_type_t type = (rvmreg_type_t)RVM_CPUREG_GETTYPE(cpu, ins->op2);
 
 	RVM_CPUREG_SETU(cpu, ins->op1, type);
+	RVM_CPUREG_SETTYPE(cpu, ins->op1, RVM_DTYPE_UNSIGNED);
 }
 
 
@@ -1551,7 +1552,7 @@ static void rvm_op_maplookup(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT) {
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	}
-	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_SINGED || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
+	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_SIGNED || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
 		index = r_map_lookup_l(a, -1, (long)RVM_REG_GETL(arg3));
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_DOUBLE) {
 		index = r_map_lookup_d(a, -1, RVM_REG_GETD(arg3));
@@ -1564,7 +1565,7 @@ static void rvm_op_maplookup(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	}
 
 	RVM_REG_CLEAR(arg1);
-	RVM_REG_SETTYPE(arg1, RVM_DTYPE_SINGED);
+	RVM_REG_SETTYPE(arg1, RVM_DTYPE_SIGNED);
 	RVM_REG_SETL(arg1, index);
 }
 
@@ -1580,7 +1581,7 @@ static void rvm_op_mapadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT) {
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	}
-	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_SINGED || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
+	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_SIGNED || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
 		index = r_map_gckey_add_l(a, cpu->gc, (long)RVM_REG_GETL(arg3), NULL);
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_DOUBLE) {
 		index = r_map_gckey_add_d(a, cpu->gc, RVM_REG_GETD(arg3), NULL);
@@ -1593,7 +1594,7 @@ static void rvm_op_mapadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	}
 
 	RVM_REG_CLEAR(arg1);
-	RVM_REG_SETTYPE(arg1, RVM_DTYPE_SINGED);
+	RVM_REG_SETTYPE(arg1, RVM_DTYPE_SIGNED);
 	RVM_REG_SETL(arg1, index);
 }
 
@@ -1609,7 +1610,7 @@ static void rvm_op_maplookupadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_JSOBJECT) {
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
 	}
-	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_SINGED || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
+	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_SIGNED || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
 		index = r_map_lookup_l(a, -1, (long)RVM_REG_GETL(arg3));
 		if (index < 0)
 			index = r_map_gckey_add_l(a, cpu->gc, (long)RVM_REG_GETL(arg3), NULL);
@@ -1629,7 +1630,7 @@ static void rvm_op_maplookupadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	}
 	RVM_REG_CLEAR(arg1);
-	RVM_REG_SETTYPE(arg1, RVM_DTYPE_SINGED);
+	RVM_REG_SETTYPE(arg1, RVM_DTYPE_SIGNED);
 	RVM_REG_SETL(arg1, index);
 }
 
@@ -1742,7 +1743,7 @@ static void rvm_op_mapnext(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	else
 		index = r_map_next(a, index);
 	RVM_REG_CLEAR(arg1);
-	RVM_REG_SETTYPE(arg1, RVM_DTYPE_SINGED);
+	RVM_REG_SETTYPE(arg1, RVM_DTYPE_SIGNED);
 	RVM_REG_SETL(arg1, index);
 }
 
@@ -1765,7 +1766,7 @@ static void rvm_op_mapprev(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	else
 		index = r_map_prev(a, index);
 	RVM_REG_CLEAR(arg1);
-	RVM_REG_SETTYPE(arg1, RVM_DTYPE_SINGED);
+	RVM_REG_SETTYPE(arg1, RVM_DTYPE_SIGNED);
 	RVM_REG_SETL(arg1, index);
 }
 

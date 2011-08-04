@@ -92,6 +92,7 @@
 #!emitid UnaryExpressionDelete			UID_UNARYEXPRESSIONDELETE			62
 #!emitid IterationForIn					UID_ITERATIONFORIN					63
 #!emitid ForInInit						UID_FORININIT						64
+#!emitid UnaryExpressionTypeof			UID_UNARYEXPRESSIONTYPEOF			65
 
 #!abort SC
 
@@ -255,7 +256,7 @@ PrefixExpressionOp 				::= <PrefixOperator> <LeftHandSideExpressionAddr>
 PrefixExpression 				::= <PrefixExpressionOp> | <PostfixExpression>
 
 # 11.4 Unary Operators
-UnaryOperator					::= '~' | '!' | ('+' - '++') | ('-' - '--') | 'void' | 'typeof'
+UnaryOperator					::= '~' | '!' | ('+' - '++') | ('-' - '--')
 UnaryExpressionOp	    		::=	<S>? <UnaryOperator> <S>? <UnaryExpression>
 UnaryExpressionDelete    		::=	<S>? 'delete' <S>? <UnaryExpression>
 UnaryExpressionVoid				::=	<S>? 'void' <S>? <UnaryExpression>

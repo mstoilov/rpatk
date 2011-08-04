@@ -53,6 +53,8 @@ typedef struct rjs_engine_s {
 #define RJS_SWI_PARAMS(__cpu__) (RVM_CPUREG_GETU((__cpu__), SP) - RVM_CPUREG_GETU((__cpu__), FP))
 #define RJS_SWI_ABORT(__j__, __e__) do { rjs_engine_abort((__j__), (__e__)); return; } while (0)
 
+#define RJS_GPKEY_NONE 0
+#define RJS_GPKEY_TYPES 1
 
 const char *rjs_version();
 

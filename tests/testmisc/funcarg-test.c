@@ -32,7 +32,7 @@ static void test_swi_print_r(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 	if (rvm_reg_gettype(r) == RVM_DTYPE_UWORD)
 		fprintf(stdout, "R%d = %ld\n", ins->op1, RVM_REG_GETL(r));
-	else if (rvm_reg_gettype(r) == RVM_DTYPE_SINGED)
+	else if (rvm_reg_gettype(r) == RVM_DTYPE_SIGNED)
 		fprintf(stdout, "R%d = %ld\n", ins->op1, RVM_REG_GETL(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_DOUBLE)
 		fprintf(stdout, "R%d = %5.2f\n", ins->op1, RVM_REG_GETD(r));

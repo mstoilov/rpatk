@@ -21,6 +21,7 @@
 #include "rlib/rmem.h"
 #include "rjs/rjscompiler.h"
 #include "rjs/rjsparser.h"
+#include "rjs/rjs.h"
 
 
 int rjs_compiler_playreversechildrecords(rjs_compiler_t *co, rarray_t *records, long rec);
@@ -678,6 +679,29 @@ int rjs_compiler_rh_unaryexpressiondelete(rjs_compiler_t *co, rarray_t *records,
 error:
 	r_array_removelast(co->coctx);
 	return -1;
+}
+
+
+int rjs_compiler_rh_unaryexpressiontypeof(rjs_compiler_t *co, rarray_t *records, long rec)
+{
+	rparecord_t *prec;
+
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rjs_compiler_debugtail(co, records, rec);
+	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
+		return -1;
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_TYPE, R0, R0, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asml(RVM_MAPLKUP, R1, GP, DA, RJS_GPKEY_TYPES));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLDR, R1, GP, R1, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLKUP, R0, R1, R0, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLDR, R0, R1, R0, 0));
+
+	rjs_compiler_debugtail(co, records, rec);
+	return 0;
 }
 
 
@@ -1777,6 +1801,7 @@ rjs_compiler_t *rjs_compiler_create(rvmcpu_t *cpu)
 	co->handlers[UID_NEWEXPRESSIONCALL] = rjs_compiler_rh_newexpressioncall;
 	co->handlers[UID_UNARYEXPRESSIONOP] = rjs_compiler_rh_unaryexpressionop;
 	co->handlers[UID_UNARYEXPRESSIONDELETE] = rjs_compiler_rh_unaryexpressiondelete;
+	co->handlers[UID_UNARYEXPRESSIONTYPEOF] = rjs_compiler_rh_unaryexpressiontypeof;
 	co->handlers[UID_BINARYOPERATOR] = rjs_compiler_rh_binaryoperator;
 	co->handlers[UID_UNARYOPERATOR] = rjs_compiler_rh_unaryoperator;
 	co->handlers[UID_BREAKSTATEMENT] = rjs_compiler_rh_break;

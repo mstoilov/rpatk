@@ -37,7 +37,7 @@ extern "C" {
 #define RVM_DTYPE_NONE 0
 #define RVM_DTYPE_UWORD RVM_DTYPE_NONE
 #define RVM_DTYPE_UNSIGNED RVM_DTYPE_NONE
-#define RVM_DTYPE_SINGED 1
+#define RVM_DTYPE_SIGNED 1
 #define RVM_DTYPE_POINTER 2			/* Generic pointer, it can point to any memory object */
 #define RVM_DTYPE_BOOLEAN 3
 #define RVM_DTYPE_DOUBLE 4

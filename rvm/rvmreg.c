@@ -384,7 +384,7 @@ void rvm_reg_setunsigned(rvmreg_t *r, ruword u)
 void rvm_reg_setsigned(rvmreg_t *r, rword l)
 {
 	RVM_REG_SETL(r, l);
-	RVM_REG_SETTYPE(r, RVM_DTYPE_SINGED);
+	RVM_REG_SETTYPE(r, RVM_DTYPE_SIGNED);
 	RVM_REG_CLRFLAG(r, RVM_INFOBIT_ROBJECT);
 }
 

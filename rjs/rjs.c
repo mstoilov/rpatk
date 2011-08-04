@@ -24,7 +24,7 @@
 #include "rjs/rjs.h"
 #include "rvm/rvmcodegen.h"
 
-
+static void rjs_engine_initgp(rjs_engine_t *jse);
 static void rjs_engine_print(rvmcpu_t *cpu, rvm_asmins_t *ins);
 static void rjs_engine_dbgprint(rvmcpu_t *cpu, rvm_asmins_t *ins);
 static void rjs_engine_object(rvmcpu_t *cpu, rvm_asmins_t *ins);
@@ -58,6 +58,7 @@ rjs_engine_t *rjs_engine_create()
 	rvm_cpu_addswitable(jse->cpu, "rjsswitable", rjsswitable);
 	if (!jse->pa || !jse->cpu || !jse->co || !jse->cgs)
 		goto error;
+	rjs_engine_initgp(jse);
 	tp = rvm_cpu_alloc_global(jse->cpu);
 	rvm_reg_setjsobject(tp, (robject_t *)r_map_create(sizeof(rvmreg_t), 7));
 	r_gc_add(jse->cpu->gc, (robject_t*)RVM_REG_GETP(tp));
@@ -85,6 +86,54 @@ void rjs_engine_destroy(rjs_engine_t *jse)
 		rjs_compiler_destroy(jse->co);
 		r_free(jse);
 	}
+}
+
+static void rjs_engine_inittypes(rjs_engine_t *jse)
+{
+	rmap_t *gmap = (rmap_t *)RVM_CPUREG_GETP(jse->cpu, GP);
+	rmap_t *types;
+	rvmreg_t rt, rs;
+	rstring_t *s;
+
+	types = r_map_create(sizeof(rvmreg_t), 3);
+	r_gc_add(jse->cpu->gc, (robject_t*)types);
+	rvm_reg_setjsobject(&rt, (robject_t *)types);
+	r_map_add_l(gmap, RJS_GPKEY_TYPES, &rt);
+
+	s = r_string_create_from_ansistr("undefined");
+	r_gc_add(jse->cpu->gc, (robject_t*)s);
+	rvm_reg_setstring(&rs, s);
+	r_map_add_l(types, RVM_DTYPE_UNDEF, &rs);
+
+	s = r_string_create_from_ansistr("boolean");
+	r_gc_add(jse->cpu->gc, (robject_t*)s);
+	rvm_reg_setstring(&rs, s);
+	r_map_add_l(types, RVM_DTYPE_BOOLEAN, &rs);
+
+	s = r_string_create_from_ansistr("number");
+	r_gc_add(jse->cpu->gc, (robject_t*)s);
+	rvm_reg_setstring(&rs, s);
+	r_map_add_l(types, RVM_DTYPE_DOUBLE, &rs);
+	r_map_add_l(types, RVM_DTYPE_UNSIGNED, &rs);
+	r_map_add_l(types, RVM_DTYPE_SIGNED, &rs);
+
+	s = r_string_create_from_ansistr("string");
+	rvm_reg_setstring(&rs, s);
+	r_gc_add(jse->cpu->gc, (robject_t*)s);
+	r_map_add_l(types, RVM_DTYPE_STRING, &rs);
+}
+
+static void rjs_engine_initgp(rjs_engine_t *jse)
+{
+	rvmreg_t gp;
+	rmap_t *gmap;
+
+	rvm_reg_init(&gp);
+	gmap = r_map_create(sizeof(rvmreg_t), 7);
+	r_gc_add(jse->cpu->gc, (robject_t*)gmap);
+
+	rvm_reg_setjsobject(RVM_CPUREG_PTR(jse->cpu, GP), (robject_t *)gmap);
+	rjs_engine_inittypes(jse);
 }
 
 
@@ -321,7 +370,7 @@ static void rjs_engine_print(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		r_printf("%s\n", RVM_REG_GETU(r) ? "true" : "false");
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_POINTER)
 		r_printf("%p\n", RVM_REG_GETP(r));
-	else if (rvm_reg_gettype(r) == RVM_DTYPE_SINGED)
+	else if (rvm_reg_gettype(r) == RVM_DTYPE_SIGNED)
 		r_printf("%ld\n", RVM_REG_GETL(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_DOUBLE)
 		r_printf("%f\n", RVM_REG_GETD(r));
@@ -354,7 +403,7 @@ static void rjs_engine_dbgprint(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		r_printf("(BOOLEAN) %s\n", RVM_REG_GETU(r) ? "true" : "false");
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_POINTER)
 		r_printf("(POINTER) %p\n", RVM_REG_GETP(r));
-	else if (rvm_reg_gettype(r) == RVM_DTYPE_SINGED)
+	else if (rvm_reg_gettype(r) == RVM_DTYPE_SIGNED)
 		r_printf("(LONG) %ld\n", RVM_REG_GETL(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_DOUBLE)
 		r_printf("(DOUBLE) %f\n", RVM_REG_GETD(r));

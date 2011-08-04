@@ -31,6 +31,7 @@ extern "C" {
 void rvm_op_greater_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, ruword op1, ruword op2);
 void rvm_op_greater_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, rword op1, rword op2);
 void rvm_op_greater_double(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, double op1, double op2);
+void rvm_op_greater_string_string(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2);
 
 #ifdef __cplusplus
 }

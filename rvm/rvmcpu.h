@@ -234,6 +234,7 @@ do { \
 #define PC (RLST - 2)
 #define DA (RLST - 1)				/* The DA register should never be modified manually, otherwise the result is undefined */
 #define XX (RLST)
+#define GP IP
 
 
 #define RVM_STACK_CHUNK 256
