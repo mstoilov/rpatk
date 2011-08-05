@@ -245,7 +245,7 @@ int usage(int argc, char *argv[])
 	    fprintf(stderr, "RJS with RPA Engine: %s \n", rpa_dbex_version());
 		fprintf(stderr, "Copyright (C) 2010 Martin Stoilov\n\n");
 
-		fprintf(stderr, "\t-e <script_expression>   Run the script supplied on the command line.\n");
+		fprintf(stderr, "\t-e <script_expression>   Run the script supplied on the command line. Example: -e \"print('hello');\"\n");
 		fprintf(stderr, "\t-f <script_file>         Run the script file.\n");
 		fprintf(stderr, "\t-p                       Display rules parsing records.\n");
 		fprintf(stderr, "\t-d                       Execute in debug mode.\n");
@@ -262,6 +262,11 @@ int main(int argc, char *argv[])
 	rstr_t *script = NULL, *unmapscript = NULL;
 	rstr_t line;
 	rjs_engine_t *jse;
+
+	if (argc == 1) {
+		usage(argc, argv);
+		return 1;
+	}
 
 	for (i = 1; i < argc; i++) {
 		if (r_strcmp(argv[i], "--help") == 0 || r_strcmp(argv[i], "-help") == 0 || r_strcmp(argv[i], "/?") == 0 || r_strcmp(argv[i], "-h") == 0) {

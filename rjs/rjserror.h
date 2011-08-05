@@ -34,7 +34,7 @@
 #define RJS_ERROR_NOTAFUNCTIONCALL 4
 #define RJS_ERROR_NOTALOOP 5
 #define RJS_ERROR_NOTAIFSTATEMENT 6
-
+#define RJS_ERROR_NOTASWITCH 7
 
 typedef struct rjs_error_s {
 	long type;

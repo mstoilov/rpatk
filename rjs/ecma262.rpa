@@ -94,8 +94,11 @@
 #!emitid ForInInit						UID_FORININIT						64
 #!emitid UnaryExpressionTypeof			UID_UNARYEXPRESSIONTYPEOF			65
 #!emitid SwitchStatement				UID_SWITCHSTATEMENT					66
-#!emitid CaseClause						UID_CASECLAUSE						67
-#!emitid DefaultClause					UID_DEFAULTCLAUSE					68
+#!emitid SwitchExpression				UID_SWITCHEXPRESSION				67
+#!emitid CaseClause						UID_CASECLAUSE						68
+#!emitid DefaultClause					UID_DEFAULTCLAUSE					69
+#!emitid CaseCode						UID_CASECODE						70
+#!emitid CaseBlock						UID_CASEBLOCK						71
 
 #!abort SC
 
@@ -440,10 +443,11 @@ CaseBlock							::= '{' <S>? <CaseClauses>? <S>? <DefaultClause>? <S>? <CaseClau
 
 
 CaseClauses 						::= (<S>? <CaseClause>)+
-CaseExpression						::= ('case' - 'case' <IdentifierPart>) <S>? <Expression> <S>? ':'
-CaseClause							::= <CaseExpression> <S>? <StatementList>?
+CaseExpression						::= ('case' - 'case' <IdentifierPart>) <S>? <Expression> 
+CaseCode							::= <S>? ':' <S>? <StatementList>?
+CaseClause							::= <CaseExpression> <S>? <CaseCode>
 DefaultKeyword						::= 'default' - 'default' <IdentifierPart>
-DefaultClause						::= <DefaultKeyword> <S>? ':' <S>? <StatementList>?
+DefaultClause						::= <DefaultKeyword> <S>? <CaseCode>
 
 
 # 13 Function Definition

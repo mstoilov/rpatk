@@ -46,6 +46,7 @@ extern "C" {
 #define RJS_COCTX_ITERATION (1 << 5)
 #define RJS_COCTX_OPERATION (1 << 5)
 #define RJS_COCTX_DELETE (1 << 6)
+#define RJS_COCTX_SWITCH (1 << 7)
 
 
 typedef struct rjs_coctx_s {
@@ -100,6 +101,23 @@ typedef struct rjs_coctx_iteration_s {
 	long endidx;
 } rjs_coctx_iteration_t;
 
+
+typedef enum rjs_compiler_pass_s {
+	RJS_COMPILER_NONE = 0,
+	RJS_COMPILER_PASS_1,
+	RJS_COMPILER_PASS_2,
+} rjs_compiler_pass_t;
+
+
+typedef struct rjs_coctx_switch_s {
+	rjs_coctx_t base;
+	rjs_compiler_pass_t pass;
+	long start;
+	long endidx;
+	long defaultidx;
+	long casenum;
+	rarray_t *caseidx;
+} rjs_coctx_switch_t;
 
 
 typedef struct rjs_compiler_s rjs_compiler_t;
