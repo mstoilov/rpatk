@@ -575,6 +575,8 @@ int rjs_compiler_rh_stringcharacters(rjs_compiler_t *co, rarray_t *records, long
 
 int rjs_compiler_rh_stringliteral(rjs_compiler_t *co, rarray_t *records, long rec)
 {
+	rvmreg_t *strreg;
+	rstring_t *s;
 	rparecord_t *prec;
 	prec = (rparecord_t *)r_array_slot(records, rec);
 
@@ -589,9 +591,17 @@ int rjs_compiler_rh_stringliteral(rjs_compiler_t *co, rarray_t *records, long re
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
+#if 0
 	rvm_codegen_addins(co->cg, rvm_asmp(RVM_MOV, R1, DA, XX, co->stringcharacters.str));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R2, DA, XX, co->stringcharacters.size));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCSTR, R0, R1, R2, 0));
+#else
+	strreg = (rvmreg_t *)r_carray_slot(co->cg->dynamicdata, r_carray_add(co->cg->dynamicdata, NULL));
+	s = r_string_create_from_rstr(&co->stringcharacters);
+	r_gc_add(co->cpu->gc, (robject_t*)s);
+	rvm_reg_setstring(strreg, s);
+	rvm_codegen_addins(co->cg, rvm_asmp(RVM_LDRR, R0, DA, XX, strreg));
+#endif
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;
 }

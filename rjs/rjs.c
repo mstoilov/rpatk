@@ -173,7 +173,11 @@ int rjs_engine_compile(rjs_engine_t *jse, const char *script, unsigned long size
 	}
 
 	topcg =  r_array_empty(jse->cgs) ? NULL : r_array_last(jse->cgs, rvm_codegen_t*);
-	if (!topcg || (topcg->userdata & RJS_COMPILER_CODEGENKEEP) == 1) {
+	if (!topcg || (topcg->userdata & RJS_COMPILER_CODEGENKEEP)) {
+		/*
+		 * Keep this script codegen object. Allocate a new one for the
+		 * next script.
+		 */
 		topcg = rvm_codegen_create();
 		r_array_add(jse->cgs, &topcg);
 	} else {
