@@ -58,8 +58,8 @@ struct rcarray_s {
 robject_t *r_carray_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, unsigned long elt_size);
 rcarray_t *r_carray_create(unsigned long elt_size);
 void r_carray_destroy(rcarray_t *array);
-int r_carray_replace(rcarray_t *carray, unsigned long index, rconstpointer data);
-int r_carray_add(rcarray_t *carray, rconstpointer data);
+unsigned long r_carray_replace(rcarray_t *carray, unsigned long index, rconstpointer data);
+unsigned long r_carray_add(rcarray_t *carray, rconstpointer data);
 void r_carray_setlength(rcarray_t *carray, unsigned long len);
 void r_carray_inclength(rcarray_t *carray);
 void r_carray_inclength(rcarray_t *carray);

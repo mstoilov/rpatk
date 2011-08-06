@@ -112,7 +112,7 @@ robject_t *r_carray_copy(const robject_t *obj)
 }
 
 
-int r_carray_replace(rcarray_t *carray, unsigned long index, rconstpointer data)
+unsigned long r_carray_replace(rcarray_t *carray, unsigned long index, rconstpointer data)
 {
 	if (data)
 		r_memcpy(r_carray_slot_expand(carray, index), data, carray->elt_size);
@@ -122,7 +122,7 @@ int r_carray_replace(rcarray_t *carray, unsigned long index, rconstpointer data)
 }
 
 
-int r_carray_add(rcarray_t *carray, rconstpointer data)
+unsigned long r_carray_add(rcarray_t *carray, rconstpointer data)
 {
 	unsigned long index = r_carray_length(carray);
 	r_carray_inclength(carray);
