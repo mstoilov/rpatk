@@ -40,7 +40,8 @@ extern "C" {
 
 typedef struct rvm_codegen_s {
 	rarray_t *code;
-	rarray_t *data;
+	rarray_t *staticdata;
+	rcarray_t *dynamicdata;
 	unsigned int codeoff;
 	rarray_t *sourceidx;
 	rvm_codemap_t *codemap;

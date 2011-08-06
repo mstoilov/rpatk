@@ -32,7 +32,8 @@ rvm_codegen_t *rvm_codegen_create()
 		return (NULL);
 	r_memset(cg, 0, sizeof(*cg));
 	cg->code = r_array_create(sizeof(rvm_asmins_t));
-	cg->data = r_array_create(sizeof(ruint8));
+	cg->staticdata = r_array_create(sizeof(ruint8));
+	cg->dynamicdata = r_carray_create(sizeof(rvmreg_t));
 	cg->codemap = rvm_codemap_create();
 	cg->relocmap = rvm_relocmap_create();
 	cg->sourceidx = r_array_create(sizeof(unsigned long));
@@ -44,9 +45,10 @@ void rvm_codegen_destroy(rvm_codegen_t *cg)
 {
 	rvm_codemap_destroy(cg->codemap);
 	rvm_relocmap_destroy(cg->relocmap);
-	r_array_destroy(cg->data);
+	r_array_destroy(cg->staticdata);
 	r_array_destroy(cg->code);
 	r_array_destroy(cg->sourceidx);
+	r_carray_destroy(cg->dynamicdata);
 	r_free(cg);
 }
 
@@ -54,7 +56,7 @@ void rvm_codegen_destroy(rvm_codegen_t *cg)
 void rvm_codegen_clear(rvm_codegen_t *cg)
 {
 	r_array_setlength(cg->code, 0);
-	r_array_setlength(cg->data, 0);
+	r_array_setlength(cg->staticdata, 0);
 	rvm_codemap_clear(cg->codemap);
 	rvm_relocmap_clear(cg->relocmap);
 }
@@ -208,7 +210,7 @@ unsigned long rvm_codegen_addrelocins_s(rvm_codegen_t *cg, rvm_reloctype_t type,
 int rvm_codegen_relocate(rvm_codegen_t *cg, rvm_codelabel_t **err)
 {
 	rvm_codemap_addpointer_s(cg->codemap, ".code", r_array_slot(cg->code, 0));
-	rvm_codemap_addpointer_s(cg->codemap, ".data", r_array_slot(cg->data, 0));
+	rvm_codemap_addpointer_s(cg->codemap, ".data", r_array_slot(cg->staticdata, 0));
 	return rvm_relocmap_relocate(cg->relocmap, cg->codemap, (rvm_asmins_t *)r_array_slot(cg->code, 0), err);
 }
 
@@ -272,10 +274,10 @@ void rvm_codegen_funcend(rvm_codegen_t *cg)
 long rvm_codegen_adddata(rvm_codegen_t *cg, const char *name, unsigned int namesize, rconstpointer data, unsigned long size)
 {
 	rpointer buffer;
-	unsigned long cursize = R_SIZE_ALIGN(r_array_length(cg->data), sizeof(ruword));
+	unsigned long cursize = R_SIZE_ALIGN(r_array_length(cg->staticdata), sizeof(ruword));
 
-	r_array_setlength(cg->data, cursize + size + sizeof(ruword) + 1);
-	buffer = r_array_slot(cg->data, cursize);
+	r_array_setlength(cg->staticdata, cursize + size + sizeof(ruword) + 1);
+	buffer = r_array_slot(cg->staticdata, cursize);
 	r_memset(buffer, 0, size + sizeof(ruword));
 	r_memmove(buffer, data, size);
 	return rvm_codemap_addoffset(cg->codemap, name, namesize, rvm_codemap_lookupadd_s(cg->codemap, ".data"), cursize);
