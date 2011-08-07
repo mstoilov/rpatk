@@ -51,7 +51,9 @@ typedef robject_t* (*r_object_copyfun)(const robject_t *ptr);
 
 struct robject_s {
 	rlink_t lnk;
-	rpointer *gc;
+	rpointer gc;
+	rpointer gprops;
+	rpointer lprops;
 	ruint32 type;
 	ruint32 size;
 	r_object_cleanupfun cleanup;

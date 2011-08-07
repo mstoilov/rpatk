@@ -150,8 +150,10 @@ enum {
 
 	RVM_ECMP,		/* Compare: status register is updated based on the result: op1 - op2 */
 	RVM_ECMN,		/* Compare Negative: status register is updated based on the result: op1 + op2 */
-	RVM_ALLOCSTR,	/* Allocate string in op1, op2 is pointer (char*) to string, op3 is the size */
-	RVM_ALLOCARR,	/* Allocate array in op1, op2 is the size */
+	RVM_PROPLKUP,	/* Lookup r_object property */
+	RVM_PROPLDR,	/* Load r_object property */
+	RVM_STRALLOC,	/* Allocate string in op1, op2 is pointer (char*) to string, op3 is the size */
+	RVM_ARRALLOC,	/* Allocate array in op1, op2 is the size */
 	RVM_ADDRA,		/* op1 is the destination memory, op2 is the array, op3 is the offset */
 	RVM_LDA,		/* op1 is the destination, op2 is the array, op3 is the offset */
 	RVM_STA,		/* op1 is the source, op2 is the array, op3 is the offset */
@@ -281,7 +283,8 @@ do { \
 #define RVM_E_NOMEM			(7)
 #define RVM_E_NOTFUNCTION	(8)
 #define RVM_E_NOTOBJECT		(9)
-#define RVM_E_USERABORT		(10)
+#define RVM_E_NOTSTRING		(10)
+#define RVM_E_USERABORT		(11)
 
 typedef struct rvm_asmins_s rvm_asmins_t;
 typedef struct rvmcpu_s rvmcpu_t;

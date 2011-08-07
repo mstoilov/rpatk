@@ -648,7 +648,7 @@ int codegen_string_callback(rpa_stat_handle stat, const char *name, void *userda
 
 	rvm_codegen_addins(co->cg, rvm_asmp(RVM_MOV, R1, DA, XX, (void*)input));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R2, DA, XX, size));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCSTR, R0, R1, R2, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_STRALLOC, R0, R1, R2, 0));
 
 	codegen_print_callback(stat, name, userdata, input, size, reason);
 	codegen_dump_code(rvm_codegen_getcode(co->cg, off), rvm_codegen_getcodesize(co->cg) - off);

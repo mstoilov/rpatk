@@ -146,8 +146,10 @@ static const char *stropcalls[] = {
 	"ELESSEQ",
 	"ECMP",
 	"ECMN",
-	"ALLOCSTR",
-	"ALLOCARR",
+	"PROPLKUP",
+	"PROPLDR",
+	"STRALLOC",
+	"ARRALLOC",
 	"ADDRA",
 	"LDA",
 	"STA",
@@ -1503,7 +1505,7 @@ static void rvm_op_ecmn(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
-static void rvm_op_allocstr(rvmcpu_t *cpu, rvm_asmins_t *ins)
+static void rvm_op_stralloc(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rstring_t *s = r_string_create_strsize((const char*)RVM_CPUREG_GETP(cpu, ins->op2), (unsigned long)RVM_CPUREG_GETU(cpu, ins->op3));
@@ -1527,7 +1529,7 @@ static void rvm_op_mapalloc(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
-static void rvm_op_allocarr(rvmcpu_t *cpu, rvm_asmins_t *ins)
+static void rvm_op_arralloc(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	ruword size = RVM_CPUREG_GETU(cpu, ins->op2);
@@ -1538,6 +1540,41 @@ static void rvm_op_allocarr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	r_carray_setlength(a, (unsigned long)size);
 	r_gc_add(cpu->gc, (robject_t*)a);
 	rvm_reg_setarray(arg1, (robject_t*)a);
+}
+
+
+static void rvm_op_proplookup(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	long index;
+	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
+	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
+	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
+	rmap_t *a = (rmap_t*)RVM_REG_GETP(arg2);
+
+	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_STRING) {
+		index = r_map_lookup(a, -1, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.size);
+	} else {
+		index = -1;
+	}
+
+	RVM_REG_CLEAR(arg1);
+	RVM_REG_SETTYPE(arg1, RVM_DTYPE_SIGNED);
+	RVM_REG_SETL(arg1, index);
+}
+
+
+static void rvm_op_propldr(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	long index;
+	rvmreg_t tmp = rvm_reg_create_signed(0);
+	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
+//	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
+//	rmap_t *a = NULL;
+//	rpointer value;
+
+	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
+	index = (long)RVM_REG_GETL(&tmp);
+	rvm_reg_setundef(arg1);
 }
 
 
@@ -1960,8 +1997,10 @@ static rvm_cpu_op ops[] = {
 	rvm_op_elesseq,		// RVM_ELESSEQ
 	rvm_op_ecmp,		// RVM_ECMP
 	rvm_op_ecmn,		// RVM_ECMN
-	rvm_op_allocstr,	// RVM_ALLOCSTR
-	rvm_op_allocarr,	// RVM_ALLOCARR
+	rvm_op_proplookup,	// RVM_PROPLKUP
+	rvm_op_propldr,		// RVM_PROPLDR
+	rvm_op_stralloc,	// RVM_STRALLOC
+	rvm_op_arralloc,	// RVM_ARRALLOC
 	rvm_op_addra,		// RVM_ADDRA
 	rvm_op_lda,			// RVM_LDA
 	rvm_op_sta,			// RVM_STA

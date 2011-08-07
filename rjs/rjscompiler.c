@@ -594,7 +594,7 @@ int rjs_compiler_rh_stringliteral(rjs_compiler_t *co, rarray_t *records, long re
 #if 0
 	rvm_codegen_addins(co->cg, rvm_asmp(RVM_MOV, R1, DA, XX, co->stringcharacters.str));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R2, DA, XX, co->stringcharacters.size));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_ALLOCSTR, R0, R1, R2, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_STRALLOC, R0, R1, R2, 0));
 #else
 	strreg = (rvmreg_t *)r_carray_slot(co->cg->dynamicdata, r_carray_add(co->cg->dynamicdata, NULL));
 	s = r_string_create_from_rstr(&co->stringcharacters);
