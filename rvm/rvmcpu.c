@@ -146,6 +146,17 @@ static const char *stropcalls[] = {
 	"ELESSEQ",
 	"ECMP",
 	"ECMN",
+
+	"PROPLKUP",
+	"PROPLKUPADD",
+	"PROPLDR",
+	"PROPSTR",
+	"PROPADDR",
+	"PROPKEYLDR",
+	"PROPDEL",
+	"PROPNEXT",
+	"PROPPREV",
+
 	"PROPLKUP",
 	"PROPLDR",
 	"STRALLOC",
@@ -1543,38 +1554,87 @@ static void rvm_op_arralloc(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static long rvm_op_mapproplookup(rmap_t *map, rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	long index = -1;
+	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
+
+	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_SIGNED || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
+		index = r_map_lookup_l(map, -1, (long)RVM_REG_GETL(arg3));
+	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_DOUBLE) {
+		index = r_map_lookup_d(map, -1, RVM_REG_GETD(arg3));
+	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_STRING) {
+		index = r_map_lookup(map, -1, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.size);
+	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_POINTER) {
+		index = r_map_lookup(map, -1, (char*)RVM_CPUREG_GETP(cpu, ins->op3), (unsigned int)RVM_CPUREG_GETL(cpu, ins->op1));
+	}
+	return index;
+}
+
+
 static void rvm_op_proplookup(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
-	long index;
+	long index = -1;
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
-	rmap_t *a = (rmap_t*)RVM_REG_GETP(arg2);
+	rmap_t *map = (rmap_t*)RVM_REG_GETP(arg2);
 
-	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_STRING) {
-		index = r_map_lookup(a, -1, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.size);
+	if (rvm_reg_gettype(arg2) == RVM_DTYPE_MAP) {
+		index = rvm_op_mapproplookup(map, cpu, ins);
 	} else {
-		index = -1;
-	}
 
+	}
 	RVM_REG_CLEAR(arg1);
 	RVM_REG_SETTYPE(arg1, RVM_DTYPE_SIGNED);
 	RVM_REG_SETL(arg1, index);
 }
 
 
-static void rvm_op_propldr(rvmcpu_t *cpu, rvm_asmins_t *ins)
+
+static long rvm_op_mapproplookupadd(rmap_t *map, rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	long index;
-	rvmreg_t tmp = rvm_reg_create_signed(0);
-	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
-//	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-//	rmap_t *a = NULL;
-//	rpointer value;
+	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
 
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
-	index = (long)RVM_REG_GETL(&tmp);
-	rvm_reg_setundef(arg1);
+	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_SIGNED || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
+		index = r_map_lookup_l(map, -1, (long)RVM_REG_GETL(arg3));
+		if (index < 0)
+			index = r_map_gckey_add_l(map, cpu->gc, (long)RVM_REG_GETL(arg3), NULL);
+	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_DOUBLE) {
+		index = r_map_lookup_d(map, -1, RVM_REG_GETD(arg3));
+		if (index < 0)
+			index = r_map_gckey_add_d(map, cpu->gc, RVM_REG_GETD(arg3), NULL);
+	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_STRING) {
+		index = r_map_lookup(map, -1, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.size);
+		if (index < 0)
+			index = r_map_gckey_add(map, cpu->gc, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.size, NULL);
+	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_POINTER) {
+		index = r_map_lookup(map, -1, (char*)RVM_CPUREG_GETP(cpu, ins->op3), (unsigned int)RVM_CPUREG_GETL(cpu, ins->op1));
+		if (index < 0)
+			index = r_map_gckey_add(map, cpu->gc, (char*)RVM_CPUREG_GETP(cpu, ins->op3), (unsigned int)RVM_CPUREG_GETL(cpu, ins->op1), NULL);
+	} else {
+		index = -1;
+	}
+
+	return index;
+}
+
+
+static void rvm_op_proplookupadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	long index = -1;
+	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
+	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
+	rmap_t *map = (rmap_t*)RVM_REG_GETP(arg2);
+
+	if (rvm_reg_gettype(arg2) == RVM_DTYPE_MAP) {
+		index = rvm_op_mapproplookupadd(map, cpu, ins);
+	} else {
+
+	}
+	RVM_REG_CLEAR(arg1);
+	RVM_REG_SETTYPE(arg1, RVM_DTYPE_SIGNED);
+	RVM_REG_SETL(arg1, index);
 }
 
 
@@ -1665,6 +1725,165 @@ static void rvm_op_maplookupadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 			index = r_map_gckey_add(a, cpu->gc, (char*)RVM_CPUREG_GETP(cpu, ins->op3), (unsigned int)RVM_CPUREG_GETL(cpu, ins->op1), NULL);
 	} else {
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
+	}
+	RVM_REG_CLEAR(arg1);
+	RVM_REG_SETTYPE(arg1, RVM_DTYPE_SIGNED);
+	RVM_REG_SETL(arg1, index);
+}
+
+
+static void rvm_op_propstr(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
+	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
+	rvmreg_t tmp = rvm_reg_create_signed(0);
+	rmap_t *a = NULL;
+	rpointer value;
+	long index;
+
+	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
+	index = (long)RVM_REG_GETL(&tmp);
+	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP) {
+
+		return;
+	}
+	a = (rmap_t*)RVM_REG_GETP(arg2);
+	value = r_map_value(a, index);
+	if (!value)
+		RVM_ABORT(cpu, RVM_E_ILLEGAL);
+	r_map_setvalue(a, index, arg1);
+}
+
+
+static void rvm_op_propldr(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
+	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
+	rvmreg_t tmp = rvm_reg_create_signed(0);
+	rmap_t *a = NULL;
+	rpointer value;
+	long index;
+
+	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
+	index = (long)RVM_REG_GETL(&tmp);
+	rvm_reg_setundef(arg1);
+	if (rvm_reg_gettype(arg2) == RVM_DTYPE_MAP) {
+		a = (rmap_t*)RVM_REG_GETP(arg2);
+		value = r_map_value(a, index);
+		if (value) {
+			*arg1 = *((rvmreg_t*)value);
+		}
+	}
+}
+
+
+static void rvm_op_propkeyldr(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
+	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
+	rvmreg_t tmp = rvm_reg_create_signed(0);
+	rmap_t *map = NULL;
+	rstring_t *key;
+	long index;
+
+	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
+	index = (long)RVM_REG_GETL(&tmp);
+	RVM_REG_CLEAR(arg1);
+	RVM_REG_SETTYPE(arg1, RVM_DTYPE_UNDEF);
+	if (rvm_reg_gettype(arg2) == RVM_DTYPE_MAP) {
+		map = (rmap_t*)RVM_REG_GETP(arg2);
+		key = r_map_key(map, index);
+		if (key) {
+			rvm_reg_setstring(arg1, key);
+		}
+	} else if (rvm_reg_gettype(arg2) == RVM_DTYPE_STRING) {
+
+	}
+}
+
+
+static void rvm_op_propdel(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	int ret;
+	long index;
+	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
+	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
+	rvmreg_t tmp = rvm_reg_create_signed(0);
+	rmap_t *a = NULL;
+
+	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
+	index = (long)RVM_REG_GETL(&tmp);
+	rvm_reg_setboolean(arg1, 0);
+	if (rvm_reg_gettype(arg2) == RVM_DTYPE_MAP) {
+		a = (rmap_t*)RVM_REG_GETP(arg2);
+		ret = r_map_delete(a, index);
+		rvm_reg_setboolean(arg1, ret == 0 ? 1 : 0);
+	}
+}
+
+
+static void rvm_op_propaddr(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
+	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
+	rvmreg_t tmp = rvm_reg_create_signed(0);
+	rmap_t *a;
+	rpointer value;
+	long index;
+
+	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
+	index = (long)RVM_REG_GETL(&tmp);
+	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP)
+		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
+	a = (rmap_t*)RVM_REG_GETP(arg2);
+	value = r_map_value(a, index);
+	if (!value)
+		RVM_ABORT(cpu, RVM_E_ILLEGAL);
+	RVM_REG_CLEAR(arg1);
+	RVM_REG_SETTYPE(arg1, RVM_DTYPE_POINTER);
+	RVM_REG_SETP(arg1, value);
+}
+
+
+static void rvm_op_propnext(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
+	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
+	rvmreg_t tmp = rvm_reg_create_signed(0);
+	rmap_t *map = NULL;
+	long index = -1;
+
+	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
+	index = (long)RVM_REG_GETL(&tmp);
+	if (rvm_reg_gettype(arg2) == RVM_DTYPE_MAP) {
+		map = (rmap_t*)RVM_REG_GETP(arg2);
+		if (index < 0)
+			index = r_map_first(map);
+		else
+			index = r_map_next(map, index);
+	}
+	RVM_REG_CLEAR(arg1);
+	RVM_REG_SETTYPE(arg1, RVM_DTYPE_SIGNED);
+	RVM_REG_SETL(arg1, index);
+}
+
+
+static void rvm_op_propprev(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
+	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
+	rvmreg_t tmp = rvm_reg_create_signed(0);
+	rmap_t *map = NULL;
+	long index = -1;
+
+	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
+	index = (long)RVM_REG_GETL(&tmp);
+	if (rvm_reg_gettype(arg2) == RVM_DTYPE_MAP) {
+		map = (rmap_t*)RVM_REG_GETP(arg2);
+		if (index < 0)
+			index = r_map_last(map);
+		else
+			index = r_map_prev(map, index);
 	}
 	RVM_REG_CLEAR(arg1);
 	RVM_REG_SETTYPE(arg1, RVM_DTYPE_SIGNED);
@@ -1997,8 +2216,18 @@ static rvm_cpu_op ops[] = {
 	rvm_op_elesseq,		// RVM_ELESSEQ
 	rvm_op_ecmp,		// RVM_ECMP
 	rvm_op_ecmn,		// RVM_ECMN
-	rvm_op_proplookup,	// RVM_PROPLKUP
+
+	rvm_op_proplookup,  // RVM_PROPLKUP
+	rvm_op_proplookupadd, //RVM_PROPLKUPADD
 	rvm_op_propldr,		// RVM_PROPLDR
+	rvm_op_propstr,		// RVM_PROPSTR,
+	rvm_op_propaddr,	// RVM_PROPADDR
+	rvm_op_propkeyldr,	// RVM_PROPKEYLDR
+	rvm_op_propdel,		// RVM_PROPDEL
+	rvm_op_propnext,	// RVM_PROPNEXT
+	rvm_op_propprev,	// RVM_PROPPREV
+
+
 	rvm_op_stralloc,	// RVM_STRALLOC
 	rvm_op_arralloc,	// RVM_ARRALLOC
 	rvm_op_addra,		// RVM_ADDRA
@@ -2128,7 +2357,6 @@ skipexec:
 
 int rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, ruword off)
 {
-	long line = 0;
 	rvm_asmins_t *pi;
 	rvmreg_t *regda = RVM_CPUREG_PTR(cpu, DA);
 	rvmreg_t *regpc = RVM_CPUREG_PTR(cpu, PC);
@@ -2174,7 +2402,6 @@ int rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, ruword off)
 		}
 #endif
 		ops[pi->opcode](cpu, pi);
-		r_printf("%7ld :", ++line);
 		rvm_cpu_dumpregs(cpu, pi);
 #if RVM_CONDITIONAL_INSTRUCTIONS
 skipexec:

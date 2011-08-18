@@ -705,10 +705,10 @@ int rjs_compiler_rh_unaryexpressiontypeof(rjs_compiler_t *co, rarray_t *records,
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_TYPE, R0, R0, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asml(RVM_MAPLKUP, R1, GP, DA, RJS_GPKEY_TYPES));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLDR, R1, GP, R1, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLKUP, R0, R1, R0, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLDR, R0, R1, R0, 0));
+	rvm_codegen_addins(co->cg, rvm_asml(RVM_PROPLKUP, R1, GP, DA, RJS_GPKEY_TYPES));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_PROPLDR, R1, GP, R1, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_PROPLKUP, R0, R1, R0, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_PROPLDR, R0, R1, R0, 0));
 
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;
@@ -781,15 +781,15 @@ int rjs_compiler_rh_memberexpressiondotop(rjs_compiler_t *co, rarray_t *records,
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	if (rjs_compiler_record_parentuid(co, records, rec) == UID_LEFTHANDSIDEEXPRESSIONADDR && rjs_compiler_record_lastofkind(co, records, rec)) {
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLKUPADD, R0, R1, R2, 0));	// Get the offset of the element at offset R0
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPADDR, R0, R1, R0, 0));	// Get the address of the element at offset R0
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_PROPLKUPADD, R0, R1, R2, 0));	// Get the offset of the element at offset R0
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_PROPADDR, R0, R1, R0, 0));	// Get the address of the element at offset R0
 
 	} else {
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLKUP, R0, R1, R2, 0));	// Get the offset of the element at offset R0
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_PROPLKUP, R0, R1, R2, 0));	// Get the offset of the element at offset R0
 		if (ctx && ctx->type == RJS_COCTX_DELETE)
-			rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPDEL, R0, R1, R0, 0));		// Get the result of deletion in R0
+			rvm_codegen_addins(co->cg, rvm_asm(RVM_PROPDEL, R0, R1, R0, 0));		// Get the result of deletion in R0
 		else
-			rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLDR, R0, R1, R0, 0));		// Get the value of the element at offset R0
+			rvm_codegen_addins(co->cg, rvm_asm(RVM_PROPLDR, R0, R1, R0, 0));		// Get the value of the element at offset R0
 	}
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;
@@ -814,16 +814,16 @@ int rjs_compiler_rh_memberexpressionindexop(rjs_compiler_t *co, rarray_t *record
 	rjs_compiler_debughead(co, records, rec);
 	if (rjs_compiler_record_parentuid(co, records, rec) == UID_LEFTHANDSIDEEXPRESSIONADDR && rjs_compiler_record_lastofkind(co, records, rec)) {
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0)); 	// Supposedly an Array
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLKUPADD, R0, R1, R0, 0));	// R1 Array
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPADDR, R0, R1, R0, 0));	// Get the address of the element at offset R0
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_PROPLKUPADD, R0, R1, R0, 0));	// R1 Array
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_PROPADDR, R0, R1, R0, 0));	// Get the address of the element at offset R0
 
 	} else {
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0)); 	// Supposedly an Array
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLKUP, R0, R1, R0, 0));	// R1 Array
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_PROPLKUP, R0, R1, R0, 0));	// R1 Array
 		if (ctx && ctx->type == RJS_COCTX_DELETE)
-			rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPDEL, R0, R1, R0, 0));		// Get the result of deletion in R0
+			rvm_codegen_addins(co->cg, rvm_asm(RVM_PROPDEL, R0, R1, R0, 0));		// Get the result of deletion in R0
 		else
-			rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLDR, R0, R1, R0, 0));		// Get the value of the element at offset R0
+			rvm_codegen_addins(co->cg, rvm_asm(RVM_PROPLDR, R0, R1, R0, 0));		// Get the value of the element at offset R0
 	}
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;
@@ -1285,11 +1285,11 @@ int rjs_compiler_rh_forininit(rjs_compiler_t *co, rarray_t *records, long rec)
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_LDS, R0, SP, DA, -2));
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_LDS, R1, SP, DA, 0));
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_LDS, R2, SP, DA, -1));
-	rvm_codegen_addins(co->cg, rvm_asml(RVM_MAPNEXT, R0, R1, R0, 0));
+	rvm_codegen_addins(co->cg, rvm_asml(RVM_PROPNEXT, R0, R1, R0, 0));
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_CMP, R0, DA, XX, 0));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, ctx->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_STS, R0, SP, DA, -2));
-	rvm_codegen_addins(co->cg, rvm_asml(RVM_MAPKEYLDR, R0, R1, R0, 0));
+	rvm_codegen_addins(co->cg, rvm_asml(RVM_PROPKEYLDR, R0, R1, R0, 0));
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_STRR, R0, R2, XX, 0));
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;

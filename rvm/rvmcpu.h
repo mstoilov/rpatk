@@ -150,8 +150,16 @@ enum {
 
 	RVM_ECMP,		/* Compare: status register is updated based on the result: op1 - op2 */
 	RVM_ECMN,		/* Compare Negative: status register is updated based on the result: op1 + op2 */
-	RVM_PROPLKUP,	/* Lookup r_object property */
-	RVM_PROPLDR,	/* Load r_object property */
+	RVM_PROPLKUP,	/* Lookup property */
+	RVM_PROPLKUPADD,/* Lookup or add property */
+	RVM_PROPLDR,	/* Load property */
+	RVM_PROPSTR,	/* Store property */
+	RVM_PROPADDR,	/* Property Address */
+	RVM_PROPKEYLDR,	/* Load Property Key */
+	RVM_PROPDEL,	/* Delete Property */
+	RVM_PROPNEXT,
+	RVM_PROPPREV,
+
 	RVM_STRALLOC,	/* Allocate string in op1, op2 is pointer (char*) to string, op3 is the size */
 	RVM_ARRALLOC,	/* Allocate array in op1, op2 is the size */
 	RVM_ADDRA,		/* op1 is the destination memory, op2 is the array, op3 is the offset */
