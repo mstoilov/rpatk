@@ -72,7 +72,7 @@ void rpa_dbex_debug_recordtail(rpadbex_t *dbex, long rec)
 	if (dbex->debug) {
 		rarray_t *records = dbex->records;
 		rparecord_t *prec = (rparecord_t *) r_array_slot(records, rec);
-		rvm_asm_dump(rvm_codegen_getcode(dbex->co->cg, dbex->headoff), rvm_codegen_getcodesize(dbex->co->cg) - dbex->headoff);
+		rvm_asm_dump(NULL, rvm_codegen_getcode(dbex->co->cg, dbex->headoff), rvm_codegen_getcodesize(dbex->co->cg) - dbex->headoff);
 		if (prec->type & RPA_RECORD_END) {
 			rpa_record_dump(records, rec);
 		}
@@ -1629,7 +1629,7 @@ int rpa_dbex_dumpcode(rpadbex_t* dbex, rparule_t rid)
 	info = (rpa_ruleinfo_t *)r_harray_get(dbex->rules, rid);
 	if (!info)
 		return -1;
-	rvm_asm_dump(rvm_codegen_getcode(dbex->co->cg, info->codeoff), info->codesiz);
+	rvm_asm_dump(dbex->pa->stat->cpu, rvm_codegen_getcode(dbex->co->cg, info->codeoff), info->codesiz);
 	return 0;
 }
 
