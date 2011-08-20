@@ -5,7 +5,7 @@ RJS_OBJECTS= \
 	"$(OUTDIR)/rjscompiler.obj" \
 	"$(OUTDIR)/rjsfile.obj" \
 	"$(OUTDIR)/rjsrules.obj" \
-	"$(OUTDIR)\rvmoperator.obj" \	
+	"$(OUTDIR)\rvmoperator.obj" \
 	"$(OUTDIR)\rvmoperatorbin.obj" \
 	"$(OUTDIR)\rvmoperatoradd.obj" \
 	"$(OUTDIR)\rvmoperatorand.obj" \
