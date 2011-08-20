@@ -704,7 +704,7 @@ int rjs_compiler_rh_unaryexpressiontypeof(rjs_compiler_t *co, rarray_t *records,
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
-	rvm_codegen_addins(co->cg, rvm_asm(RJS_TYPE, R0, R0, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_TYPE, R0, R0, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asml(RJS_PROPLKUP, R1, GP, DA, RJS_GPKEY_TYPES));
 	rvm_codegen_addins(co->cg, rvm_asm(RJS_PROPLDR, R1, GP, R1, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RJS_PROPLKUP, R0, R1, R0, 0));
@@ -1277,7 +1277,7 @@ int rjs_compiler_rh_forininit(rjs_compiler_t *co, rarray_t *records, long rec)
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RJS_TYPE, R0, R0, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_TYPE, R0, R0, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_CMP, R0, DA, XX, RVM_DTYPE_MAP));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, ctx->endidx, rvm_asm(RVM_BNEQ, DA, XX, XX, 0));
 	rvm_codegen_redefinelabel_default(co->cg, ctx->iterationidx);

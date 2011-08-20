@@ -23,7 +23,12 @@
 #include "rlib/rmap.h"
 #include "rjs/rjs.h"
 #include "rvm/rvmcodegen.h"
-#include "rvm/rvmoperator.h"
+#include "rvmoperator.h"
+#include "rvmoperatorbin.h"
+#include "rvmoperatorcast.h"
+#include "rvmoperatornot.h"
+#include "rvmoperatorlogicnot.h"
+
 
 static void rjs_engine_initgp(rjs_engine_t *jse);
 static void rjs_engine_print(rvmcpu_t *cpu, rvm_asmins_t *ins);
@@ -37,6 +42,17 @@ static rvm_switable_t rjsswitable[] = {
 		{"Array", rjs_engine_object},
 		{NULL, NULL},
 };
+
+
+static void rjs_op_cast(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rvmreg_type_t type = (rvmreg_type_t)RVM_CPUREG_GETU(cpu, ins->op3);
+	rvmreg_t tmp;
+
+	RVM_REG_CLEAR(&tmp);
+	RVM_REG_SETTYPE(&tmp, type);
+	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, RVM_CPUREG_PTR(cpu, ins->op1), RVM_CPUREG_PTR(cpu, ins->op2), &tmp);
+}
 
 
 static void rjs_op_eadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
@@ -863,6 +879,7 @@ rjs_engine_t *rjs_engine_create()
 	r_gc_add(jse->cpu->gc, (robject_t*)RVM_REG_GETP(tp));
 	rvm_cpu_setreg(jse->cpu, TP, tp);
 
+	rvm_cpu_setophandler(cpu, RJS_CAST, "RJS_CAST", rjs_op_cast);
 	rvm_cpu_setophandler(cpu, RJS_ENEG, "RJS_ENEG", rjs_op_eneg);
 	rvm_cpu_setophandler(cpu, RJS_EADD, "RJS_EADD", rjs_op_eadd);
 	rvm_cpu_setophandler(cpu, RJS_ESUB, "RJS_ESUB", rjs_op_esub);
@@ -900,6 +917,12 @@ rjs_engine_t *rjs_engine_create()
 	rvm_cpu_setophandler(cpu, RJS_ARRALLOC, "RJS_ARRALLOC", rjs_op_arralloc);
 	rvm_cpu_setophandler(cpu, RJS_MAPALLOC, "RJS_MAPALLOC", rjs_op_mapalloc);
 
+	cpu->opmap = rvm_opmap_create();
+	rvm_op_binary_init(cpu->opmap);
+	rvm_op_cast_init(cpu->opmap);
+	rvm_op_not_init(cpu->opmap);
+	rvm_op_logicnot_init(cpu->opmap);
+
 	return jse;
 error:
 	rjs_engine_destroy(jse);
@@ -920,6 +943,7 @@ void rjs_engine_destroy(rjs_engine_t *jse)
 		r_array_destroy(jse->cgs);
 		r_array_destroy(jse->errors);
 		rjs_parser_destroy(jse->pa);
+		rvm_opmap_destroy(jse->cpu->opmap);
 		rvm_cpu_destroy(jse->cpu);
 		rjs_compiler_destroy(jse->co);
 		r_free(jse);

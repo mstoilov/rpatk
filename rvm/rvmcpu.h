@@ -180,7 +180,7 @@ enum {
 	RVM_TEQ,
 	RVM_ADDRS,		/* Memory location of the stack at offset op2 + op3 */
 	RVM_SETTYPE,	/* Type: op1.type = op2 */
-	RVM_RESERVED83,
+	RVM_TYPE,		/* Type: op1 = typeof(op2) */
 	RVM_RESERVED84,
 	RVM_RESERVED85,
 	RVM_RESERVED86,

@@ -27,6 +27,35 @@ RJS_OBJECTS += $(OUTDIR)/rjsparser.o
 RJS_OBJECTS += $(OUTDIR)/rjscompiler.o
 RJS_OBJECTS += $(OUTDIR)/rjsrules.o
 RJS_OBJECTS += $(OUTDIR)/rjsfile.o
+RJS_OBJECTS +=	$(OUTDIR)/rvmoperator.o
+RJS_OBJECTS +=	$(OUTDIR)/rvmoperatorbin.o
+RJS_OBJECTS +=	$(OUTDIR)/rvmoperatoradd.o
+RJS_OBJECTS +=	$(OUTDIR)/rvmoperatorand.o
+RJS_OBJECTS +=	$(OUTDIR)/rvmoperatoreq.o
+RJS_OBJECTS +=	$(OUTDIR)/rvmoperatornoteq.o
+RJS_OBJECTS +=	$(OUTDIR)/rvmoperatorlogicor.o
+RJS_OBJECTS +=	$(OUTDIR)/rvmoperatorlogicand.o
+RJS_OBJECTS +=	$(OUTDIR)/rvmoperatorlogicnot.o
+RJS_OBJECTS +=	$(OUTDIR)/rvmoperatorless.o
+RJS_OBJECTS +=	$(OUTDIR)/rvmoperatorlesseq.o
+RJS_OBJECTS +=	$(OUTDIR)/rvmoperatorgreater.o
+RJS_OBJECTS +=	$(OUTDIR)/rvmoperatorgreatereq.o
+RJS_OBJECTS +=	$(OUTDIR)/rvmoperatorxor.o
+RJS_OBJECTS +=	$(OUTDIR)/rvmoperatoror.o
+RJS_OBJECTS +=	$(OUTDIR)/rvmoperatorcmp.o
+RJS_OBJECTS +=	$(OUTDIR)/rvmoperatorcmn.o
+RJS_OBJECTS +=	$(OUTDIR)/rvmoperatorlsl.o
+RJS_OBJECTS +=	$(OUTDIR)/rvmoperatorlsr.o
+RJS_OBJECTS +=	$(OUTDIR)/rvmoperatorlsru.o
+RJS_OBJECTS +=	$(OUTDIR)/rvmoperatorcast.o
+RJS_OBJECTS +=	$(OUTDIR)/rvmoperatorcat.o
+RJS_OBJECTS +=	$(OUTDIR)/rvmoperatorsub.o
+RJS_OBJECTS +=	$(OUTDIR)/rvmoperatormul.o
+RJS_OBJECTS +=	$(OUTDIR)/rvmoperatordiv.o
+RJS_OBJECTS +=	$(OUTDIR)/rvmoperatormod.o
+RJS_OBJECTS +=	$(OUTDIR)/rvmoperatornot.o
+
+
 ifeq ($(OS), linux)
 RJS_OBJECTS += $(OUTDIR)/ecma262.o
 endif

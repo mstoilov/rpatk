@@ -53,8 +53,7 @@ typedef struct rjs_engine_s {
 #define RJS_SWI_PARAMS(__cpu__) (RVM_CPUREG_GETU((__cpu__), SP) - RVM_CPUREG_GETU((__cpu__), FP))
 #define RJS_SWI_ABORT(__j__, __e__) do { rjs_engine_abort((__j__), (__e__)); return; } while (0)
 
-#define RJS_CAST			RVM_USER129		/* Cast: op1 = (op3)op2 */
-#define RJS_TYPE			RVM_USER130		/* Type: op1 = typeof(op2) */
+#define RJS_CAST			RVM_USER130		/* Cast: op1 = (op3)op2 */
 #define RJS_EMOV			RVM_USER131
 #define RJS_ENEG			RVM_USER132		/* Negative: op1 = -op2, Update the status register */
 #define RJS_EADD			RVM_USER133		/* Add: op1 = op2 + op3, update the status register */

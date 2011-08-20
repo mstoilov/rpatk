@@ -21,11 +21,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include "rvm/rvmcpu.h"
-#include "rvm/rvmoperator.h"
-#include "rvm/rvmoperatorbin.h"
-#include "rvm/rvmoperatorcast.h"
-#include "rvm/rvmoperatornot.h"
-#include "rvm/rvmoperatorlogicnot.h"
 #include "rvm/rvmcodemap.h"
 #include "rlib/rmem.h"
 #include "rlib/rstring.h"
@@ -33,159 +28,6 @@
 #include "rlib/rmap.h"
 
 #define RVM_DEFAULT_STACKSIZE (4 * 1024)
-
-static const char *stropcalls[] = {
-	"EXT",
-	"ABORT",
-	"PRN",
-	"ASR",
-	"SWI",
-	"SWIID",
-	"CALL",
-	"MOV",
-	"MOVS",
-	"SWP",
-	"INC",
-	"DEC",
-	"ADD",
-	"ADDS",
-	"ADC",
-	"AND",
-	"BIC",
-	"CLZ",
-	"CMN",
-	"XOR",
-	"SUB",
-	"SUBS",
-	"SBC",
-	"MUL",
-	"MLS",
-	"MULS",
-	"NOT",
-	"DIV",
-	"DVS",
-	"DIVS",
-	"MOD",
-	"MODS",
-	"BX",
-	"BXEQ",
-	"BXNEQ",
-	"BXLEQ",
-	"BXGEQ",
-	"BXLES",
-	"BXGRE",
-	"BXL",
-	"BL",
-	"B",
-	"STR",
-	"STRP",
-	"STRB",
-	"STRH",
-	"STRW",
-	"STRR",
-	"LDR",
-	"LDRP",
-	"LDRB",
-	"LDRH",
-	"LDRW",
-	"LDRR",
-	"CFLAG",
-	"CLR",
-	"CLRR",
-	"LSL",
-	"LSR",
-	"LSRS",
-	"STM",
-	"LDM",
-	"STS",
-	"LDS",
-	"ORR",
-	"PUSH",
-	"POP",
-	"CMP",
-	"NOP",
-	"BEQ",
-	"BNEQ",
-	"BLEQ",
-	"BGEQ",
-	"BLES",
-	"BGRE",
-	"RET",
-	"ROR",
-	"PUSHM",
-	"POPM",
-	"TST",
-	"TEQ",
-	"ADDRS",
-
-	"CAST",		/* Cast: op1 = (op3)op2 */
-	"TYPE",		/* Type: op1 = typeof(op2) */
-	"SETTYPE",	/* Type: op1.type = op2 */
-	"EMOV",
-	"ENEG",
-	"EADD",
-	"ESUB",
-	"EMUL",
-	"EDIV",
-	"EMOD",
-	"ELSL",
-	"ELSR",
-	"ELSRU",
-	"EAND",
-	"EORR",
-	"EXOR",
-	"ENOT",
-	"ELAND",
-	"ELOR",
-	"ELNOT",
-	"EEQ",
-	"ENOTEQ",
-	"EGREAT",
-	"EGREATEQ",
-	"ELESS",
-	"ELESSEQ",
-	"ECMP",
-	"ECMN",
-
-	"PROPLKUP",
-	"PROPLKUPADD",
-	"PROPLDR",
-	"PROPSTR",
-	"PROPADDR",
-	"PROPKEYLDR",
-	"PROPDEL",
-	"PROPNEXT",
-	"PROPPREV",
-
-	"PROPLKUP",
-	"PROPLDR",
-	"STRALLOC",
-	"ARRALLOC",
-	"ADDRA",
-	"LDA",
-	"STA",
-	"MAPALLOC",
-	"MAPADDR",
-	"MAPKEYLDR",
-	"MAPLDR",
-	"MAPSTR",
-	"MAPDEL",
-	"MAPLKUP",
-	"MAPADD",
-	"MAPLKUPADD",
-	"MAPNEXT",
-	"MAPPREV",
-	"UNKNOWN",
-	"UNKNOWN",
-	"UNKNOWN",
-	"UNKNOWN",
-	"UNKNOWN",
-	"UNKNOWN",
-	"UNKNOWN",
-	"UNKNOWN",
-	"UNKNOWN",
-	"UNKNOWN",
-};
 
 
 static void rvm_op_b(rvmcpu_t *cpu, rvm_asmins_t *ins)
@@ -1266,17 +1108,6 @@ void rvm_cpu_dumpregs(rvmcpu_t *vm, rvm_asmins_t *pi)
 }
 
 
-static void rvm_op_cast(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_type_t type = (rvmreg_type_t)RVM_CPUREG_GETU(cpu, ins->op3);
-	rvmreg_t tmp;
-
-	RVM_REG_CLEAR(&tmp);
-	RVM_REG_SETTYPE(&tmp, type);
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, RVM_CPUREG_PTR(cpu, ins->op1), RVM_CPUREG_PTR(cpu, ins->op2), &tmp);
-}
-
-
 static void rvm_op_type(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_type_t type = (rvmreg_type_t)RVM_CPUREG_GETTYPE(cpu, ins->op2);
@@ -1477,12 +1308,7 @@ rvmcpu_t *rvm_cpu_create(unsigned long stacksize)
 	cpu->switables = r_harray_create(sizeof(rvm_switable_t*));
 	cpu->stack = r_malloc(stacksize * sizeof(rvmreg_t));
 	cpu->data = r_carray_create(sizeof(rvmreg_t));
-	cpu->opmap = rvm_opmap_create();
 	cpu->gc = r_gc_create();
-	rvm_op_binary_init(cpu->opmap);
-	rvm_op_cast_init(cpu->opmap);
-	rvm_op_not_init(cpu->opmap);
-	rvm_op_logicnot_init(cpu->opmap);
 
 	rvm_cpu_setophandler(cpu, RVM_EXT, "EXT", rvm_op_exit);
 	rvm_cpu_setophandler(cpu, RVM_ABORT, "ABORT", rvm_op_abort);
@@ -1567,6 +1393,8 @@ rvmcpu_t *rvm_cpu_create(unsigned long stacksize)
 	rvm_cpu_setophandler(cpu, RVM_TEQ, "TEQ", rvm_op_teq);
 	rvm_cpu_setophandler(cpu, RVM_ADDRS, "ADDRS", rvm_op_addrs);
 	rvm_cpu_setophandler(cpu, RVM_SETTYPE, "SETTYPE", rvm_op_settype);
+	rvm_cpu_setophandler(cpu, RVM_TYPE, "TYPE", rvm_op_type);
+
 	return cpu;
 }
 
@@ -1584,7 +1412,6 @@ void rvm_cpu_destroy(rvmcpu_t *cpu)
 	r_object_destroy((robject_t*)cpu->switables);
 	r_free(cpu->stack);
 	r_object_destroy((robject_t*)cpu->data);
-	rvm_opmap_destroy(cpu->opmap);
 	r_free(cpu);
 }
 
