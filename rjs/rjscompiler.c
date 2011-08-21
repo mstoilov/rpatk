@@ -48,7 +48,7 @@ void rjs_compiler_debugtail(rjs_compiler_t *co, rarray_t *records, long rec)
 	rvm_codegen_setsource(co->cg, rec);
 	if (co->debug) {
 		rparecord_t *prec = (rparecord_t *) r_array_slot(records, rec);
-		rvm_asm_dump(rvm_codegen_getcode(co->cg, co->headoff), rvm_codegen_getcodesize(co->cg) - co->headoff);
+		rvm_asm_dump(co->cpu, rvm_codegen_getcode(co->cg, co->headoff), rvm_codegen_getcodesize(co->cg) - co->headoff);
 		if (prec->type & RPA_RECORD_END) {
 			rpa_record_dump(records, rec);
 		}
@@ -189,77 +189,77 @@ long rjs_compiler_record2opcode(rparecord_t *prec)
 	unsigned long size = prec->inputsiz;
 
 	if (r_stringncmp("++", input,  size))
-		return RVM_EADD;
+		return RJS_EADD;
 	else if (r_stringncmp("+", input,  size))
-		return RVM_EADD;
+		return RJS_EADD;
 	else if (r_stringncmp("+=", input,  size))
-		return RVM_EADD;
+		return RJS_EADD;
 	else if (r_stringncmp("--", input,  size))
-		return RVM_ESUB;
+		return RJS_ESUB;
 	else if (r_stringncmp("-", input,  size))
-		return RVM_ESUB;
+		return RJS_ESUB;
 	else if (r_stringncmp("-=", input,  size))
-		return RVM_ESUB;
+		return RJS_ESUB;
 	else if (r_stringncmp("*", input,  size))
-		return RVM_EMUL;
+		return RJS_EMUL;
 	else if (r_stringncmp("*=", input,  size))
-		return RVM_EMUL;
+		return RJS_EMUL;
 	else if (r_stringncmp("/", input,  size))
-		return RVM_EDIV;
+		return RJS_EDIV;
 	else if (r_stringncmp("/=", input,  size))
-		return RVM_EDIV;
+		return RJS_EDIV;
 	else if (r_stringncmp("%", input,  size))
-		return RVM_EMOD;
+		return RJS_EMOD;
 	else if (r_stringncmp("%=", input,  size))
-		return RVM_EMOD;
+		return RJS_EMOD;
 	else if (r_stringncmp("&&", input,  size))
-		return RVM_ELAND;
+		return RJS_ELAND;
 	else if (r_stringncmp("||", input,  size))
-		return RVM_ELOR;
+		return RJS_ELOR;
 	else if (r_stringncmp("&", input,  size))
-		return RVM_EAND;
+		return RJS_EAND;
 	else if (r_stringncmp("&=", input,  size))
-		return RVM_EAND;
+		return RJS_EAND;
 	else if (r_stringncmp("|", input,  size))
-		return RVM_EORR;
+		return RJS_EORR;
 	else if (r_stringncmp("|=", input,  size))
-		return RVM_EORR;
+		return RJS_EORR;
 	else if (r_stringncmp("^", input,  size))
-		return RVM_EXOR;
+		return RJS_EXOR;
 	else if (r_stringncmp("^=", input,  size))
-		return RVM_EXOR;
+		return RJS_EXOR;
 	else if (r_stringncmp(">>", input,  size))
-		return RVM_ELSR;
+		return RJS_ELSR;
 	else if (r_stringncmp(">>=", input,  size))
-		return RVM_ELSR;
+		return RJS_ELSR;
 	else if (r_stringncmp("<<", input,  size))
-		return RVM_ELSL;
+		return RJS_ELSL;
 	else if (r_stringncmp("<<=", input,  size))
-		return RVM_ELSL;
+		return RJS_ELSL;
 	else if (r_stringncmp(">>>", input,  size))
-		return RVM_ELSRU;
+		return RJS_ELSRU;
 	else if (r_stringncmp(">>>=", input,  size))
-		return RVM_ELSRU;
+		return RJS_ELSRU;
 	else if (r_stringncmp("<=", input,  size))
-		return RVM_ELESSEQ;
+		return RJS_ELESSEQ;
 	else if (r_stringncmp(">=", input,  size))
-		return RVM_EGREATEQ;
+		return RJS_EGREATEQ;
 	else if (r_stringncmp("<", input,  size))
-		return RVM_ELESS;
+		return RJS_ELESS;
 	else if (r_stringncmp(">", input,  size))
-		return RVM_EGREAT;
+		return RJS_EGREAT;
 	else if (r_stringncmp("===", input,  size))
-		return RVM_EEQ;
+		return RJS_EEQ;
 	else if (r_stringncmp("==", input,  size))
-		return RVM_EEQ;
+		return RJS_EEQ;
 	else if (r_stringncmp("!==", input,  size))
-		return RVM_ENOTEQ;
+		return RJS_ENOTEQ;
 	else if (r_stringncmp("!=", input,  size))
-		return RVM_ENOTEQ;
+		return RJS_ENOTEQ;
 	else if (r_stringncmp("!", input,  size))
-		return RVM_ELNOT;
+		return RJS_ELNOT;
 	else if (r_stringncmp("~", input,  size))
-		return RVM_ENOT;
+		return RJS_ENOT;
 	else if (r_stringncmp("=", input,  size))
 		return RVM_NOP;
 
@@ -275,11 +275,11 @@ long rjs_compiler_record2unaryopcode(rparecord_t *prec)
 	if (r_stringncmp("+", input,  size))
 		return RVM_NOP;
 	else if (r_stringncmp("-", input,  size))
-		return RVM_ENEG;
+		return RJS_ENEG;
 	else if (r_stringncmp("~", input,  size))
-		return RVM_ENOT;
+		return RJS_ENOT;
 	else if (r_stringncmp("!", input,  size))
-		return RVM_ELNOT;
+		return RJS_ELNOT;
 	else
 		return RVM_NOP;
 
@@ -705,10 +705,10 @@ int rjs_compiler_rh_unaryexpressiontypeof(rjs_compiler_t *co, rarray_t *records,
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_TYPE, R0, R0, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asml(RVM_MAPLKUP, R1, GP, DA, RJS_GPKEY_TYPES));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLDR, R1, GP, R1, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLKUP, R0, R1, R0, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLDR, R0, R1, R0, 0));
+	rvm_codegen_addins(co->cg, rvm_asml(RJS_PROPLKUP, R1, GP, DA, RJS_GPKEY_TYPES));
+	rvm_codegen_addins(co->cg, rvm_asm(RJS_PROPLDR, R1, GP, R1, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RJS_PROPLKUP, R0, R1, R0, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RJS_PROPLDR, R0, R1, R0, 0));
 
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;
@@ -758,7 +758,7 @@ int rjs_compiler_rh_newarrayexpression(rjs_compiler_t *co, rarray_t *records, lo
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPALLOC, R0, DA, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RJS_MAPALLOC, R0, DA, XX, 0));
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;
 }
@@ -781,15 +781,15 @@ int rjs_compiler_rh_memberexpressiondotop(rjs_compiler_t *co, rarray_t *records,
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	if (rjs_compiler_record_parentuid(co, records, rec) == UID_LEFTHANDSIDEEXPRESSIONADDR && rjs_compiler_record_lastofkind(co, records, rec)) {
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLKUPADD, R0, R1, R2, 0));	// Get the offset of the element at offset R0
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPADDR, R0, R1, R0, 0));	// Get the address of the element at offset R0
+		rvm_codegen_addins(co->cg, rvm_asm(RJS_PROPLKUPADD, R0, R1, R2, 0));	// Get the offset of the element at offset R0
+		rvm_codegen_addins(co->cg, rvm_asm(RJS_PROPADDR, R0, R1, R0, 0));	// Get the address of the element at offset R0
 
 	} else {
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLKUP, R0, R1, R2, 0));	// Get the offset of the element at offset R0
+		rvm_codegen_addins(co->cg, rvm_asm(RJS_PROPLKUP, R0, R1, R2, 0));	// Get the offset of the element at offset R0
 		if (ctx && ctx->type == RJS_COCTX_DELETE)
-			rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPDEL, R0, R1, R0, 0));		// Get the result of deletion in R0
+			rvm_codegen_addins(co->cg, rvm_asm(RJS_PROPDEL, R0, R1, R0, 0));		// Get the result of deletion in R0
 		else
-			rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLDR, R0, R1, R0, 0));		// Get the value of the element at offset R0
+			rvm_codegen_addins(co->cg, rvm_asm(RJS_PROPLDR, R0, R1, R0, 0));		// Get the value of the element at offset R0
 	}
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;
@@ -814,16 +814,16 @@ int rjs_compiler_rh_memberexpressionindexop(rjs_compiler_t *co, rarray_t *record
 	rjs_compiler_debughead(co, records, rec);
 	if (rjs_compiler_record_parentuid(co, records, rec) == UID_LEFTHANDSIDEEXPRESSIONADDR && rjs_compiler_record_lastofkind(co, records, rec)) {
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0)); 	// Supposedly an Array
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLKUPADD, R0, R1, R0, 0));	// R1 Array
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPADDR, R0, R1, R0, 0));	// Get the address of the element at offset R0
+		rvm_codegen_addins(co->cg, rvm_asm(RJS_PROPLKUPADD, R0, R1, R0, 0));	// R1 Array
+		rvm_codegen_addins(co->cg, rvm_asm(RJS_PROPADDR, R0, R1, R0, 0));	// Get the address of the element at offset R0
 
 	} else {
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0)); 	// Supposedly an Array
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLKUP, R0, R1, R0, 0));	// R1 Array
+		rvm_codegen_addins(co->cg, rvm_asm(RJS_PROPLKUP, R0, R1, R0, 0));	// R1 Array
 		if (ctx && ctx->type == RJS_COCTX_DELETE)
-			rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPDEL, R0, R1, R0, 0));		// Get the result of deletion in R0
+			rvm_codegen_addins(co->cg, rvm_asm(RJS_PROPDEL, R0, R1, R0, 0));		// Get the result of deletion in R0
 		else
-			rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPLDR, R0, R1, R0, 0));		// Get the value of the element at offset R0
+			rvm_codegen_addins(co->cg, rvm_asm(RJS_PROPLDR, R0, R1, R0, 0));		// Get the value of the element at offset R0
 	}
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;
@@ -1285,11 +1285,11 @@ int rjs_compiler_rh_forininit(rjs_compiler_t *co, rarray_t *records, long rec)
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_LDS, R0, SP, DA, -2));
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_LDS, R1, SP, DA, 0));
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_LDS, R2, SP, DA, -1));
-	rvm_codegen_addins(co->cg, rvm_asml(RVM_MAPNEXT, R0, R1, R0, 0));
+	rvm_codegen_addins(co->cg, rvm_asml(RJS_PROPNEXT, R0, R1, R0, 0));
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_CMP, R0, DA, XX, 0));
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, ctx->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_STS, R0, SP, DA, -2));
-	rvm_codegen_addins(co->cg, rvm_asml(RVM_MAPKEYLDR, R0, R1, R0, 0));
+	rvm_codegen_addins(co->cg, rvm_asml(RJS_PROPKEYLDR, R0, R1, R0, 0));
 	rvm_codegen_addins(co->cg, rvm_asml(RVM_STRR, R0, R2, XX, 0));
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;
@@ -1442,7 +1442,7 @@ int rjs_compiler_rh_caseclause(rjs_compiler_t *co, rarray_t *records, long rec)
 			return -1;
 		rjs_compiler_debughead(co, records, rpa_recordtree_get(records, rec, RPA_RECORD_END));
 		rvm_codegen_addins(co->cg, rvm_asml(RVM_LDS, R1, SP, DA, 0));
-		rvm_codegen_addins(co->cg, rvm_asml(RVM_EEQ, R0, R0, R1, 0));
+		rvm_codegen_addins(co->cg, rvm_asml(RJS_EEQ, R0, R0, R1, 0));
 		rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, caseidx, rvm_asm(RVM_BNEQ, DA, XX, XX, 0));
 		rjs_compiler_debugtail(co, records, rpa_recordtree_get(records, rec, RPA_RECORD_END));
 
@@ -1658,7 +1658,7 @@ int rjs_compiler_rh_newexpressioncall(rjs_compiler_t *co, rarray_t *records, lon
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_MAPALLOC, TP, DA, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RJS_MAPALLOC, TP, DA, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_SUB, FP, SP, DA, ctx.arguments));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_CALL, R0, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, SP, FP, XX, 0));

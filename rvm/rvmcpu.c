@@ -21,11 +21,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include "rvm/rvmcpu.h"
-#include "rvm/rvmoperator.h"
-#include "rvm/rvmoperatorbin.h"
-#include "rvm/rvmoperatorcast.h"
-#include "rvm/rvmoperatornot.h"
-#include "rvm/rvmoperatorlogicnot.h"
 #include "rvm/rvmcodemap.h"
 #include "rlib/rmem.h"
 #include "rlib/rstring.h"
@@ -33,148 +28,6 @@
 #include "rlib/rmap.h"
 
 #define RVM_DEFAULT_STACKSIZE (4 * 1024)
-
-static const char *stropcalls[] = {
-	"EXT",
-	"ABORT",
-	"PRN",
-	"ASR",
-	"SWI",
-	"SWIID",
-	"CALL",
-	"MOV",
-	"MOVS",
-	"SWP",
-	"INC",
-	"DEC",
-	"ADD",
-	"ADDS",
-	"ADC",
-	"AND",
-	"BIC",
-	"CLZ",
-	"CMN",
-	"XOR",
-	"SUB",
-	"SUBS",
-	"SBC",
-	"MUL",
-	"MLS",
-	"MULS",
-	"NOT",
-	"DIV",
-	"DVS",
-	"DIVS",
-	"MOD",
-	"MODS",
-	"BX",
-	"BXEQ",
-	"BXNEQ",
-	"BXLEQ",
-	"BXGEQ",
-	"BXLES",
-	"BXGRE",
-	"BXL",
-	"BL",
-	"B",
-	"STR",
-	"STRP",
-	"STRB",
-	"STRH",
-	"STRW",
-	"STRR",
-	"LDR",
-	"LDRP",
-	"LDRB",
-	"LDRH",
-	"LDRW",
-	"LDRR",
-	"CFLAG",
-	"CLR",
-	"CLRR",
-	"LSL",
-	"LSR",
-	"LSRS",
-	"STM",
-	"LDM",
-	"STS",
-	"LDS",
-	"ORR",
-	"PUSH",
-	"POP",
-	"CMP",
-	"NOP",
-	"BEQ",
-	"BNEQ",
-	"BLEQ",
-	"BGEQ",
-	"BLES",
-	"BGRE",
-	"RET",
-	"ROR",
-	"PUSHM",
-	"POPM",
-	"TST",
-	"TEQ",
-	"ADDRS",
-
-	"CAST",		/* Cast: op1 = (op3)op2 */
-	"TYPE",		/* Type: op1 = typeof(op2) */
-	"SETTYPE",	/* Type: op1.type = op2 */
-	"EMOV",
-	"ENEG",
-	"EADD",
-	"ESUB",
-	"EMUL",
-	"EDIV",
-	"EMOD",
-	"ELSL",
-	"ELSR",
-	"ELSRU",
-	"EAND",
-	"EORR",
-	"EXOR",
-	"ENOT",
-	"ELAND",
-	"ELOR",
-	"ELNOT",
-	"EEQ",
-	"ENOTEQ",
-	"EGREAT",
-	"EGREATEQ",
-	"ELESS",
-	"ELESSEQ",
-	"ECMP",
-	"ECMN",
-	"PROPLKUP",
-	"PROPLDR",
-	"STRALLOC",
-	"ARRALLOC",
-	"ADDRA",
-	"LDA",
-	"STA",
-	"MAPALLOC",
-	"MAPADDR",
-	"MAPKEYLDR",
-	"MAPLDR",
-	"MAPSTR",
-	"MAPDEL",
-	"MAPLKUP",
-	"MAPADD",
-	"MAPLKUPADD",
-	"MAPNEXT",
-	"MAPPREV",
-	"UNKNOWN",
-	"UNKNOWN",
-	"UNKNOWN",
-	"UNKNOWN",
-	"UNKNOWN",
-	"UNKNOWN",
-	"UNKNOWN",
-	"UNKNOWN",
-	"UNKNOWN",
-	"UNKNOWN",
-};
 
 
 static void rvm_op_b(rvmcpu_t *cpu, rvm_asmins_t *ins)
@@ -1148,7 +1001,7 @@ int rvm_asm_dump_pi_to_str(rvmcpu_t *vm, rvm_asmins_t *pi, char *str, unsigned i
 		char szSwi[64];
 		r_memset(szSwi, 0, sizeof(szSwi));
 		if (!vm) {
-			rvm_snprintf(szSwi, sizeof(szSwi) - 1, "%s(%x)", stropcalls[pi->opcode], (ruint32)pi->swi);
+			rvm_snprintf(szSwi, sizeof(szSwi) - 1, "OPCODE(%d)", pi->opcode);
 		} else {
 			rvm_switable_t *switable;
 			unsigned int ntable = (unsigned int) RVM_SWI_TABLE(pi->swi);
@@ -1162,7 +1015,7 @@ int rvm_asm_dump_pi_to_str(rvmcpu_t *vm, rvm_asmins_t *pi, char *str, unsigned i
 		if ((ret = rvm_snprintf(str, sz, "%16s   ", szSwi)) < 0)
 			return ret;
 	} else {
-		if ((ret = rvm_snprintf(str, sz, "%16s   ", stropcalls[pi->opcode])) < 0)
+		if ((ret = rvm_snprintf(str, sz, "%16s   ", vm->ops[pi->opcode].name)) < 0)
 			return ret;
 	}
 	str += ret;
@@ -1217,11 +1070,11 @@ int rvm_asm_dump_pi_to_str(rvmcpu_t *vm, rvm_asmins_t *pi, char *str, unsigned i
 }
 
 
-void rvm_asm_dump(rvm_asmins_t *pi, unsigned int count)
+void rvm_asm_dump(rvmcpu_t *cpu, rvm_asmins_t *pi, unsigned int count)
 {
 	char buffer[256];
 	while (count) {
-		rvm_asm_dump_pi_to_str(NULL, pi, buffer, sizeof(buffer));
+		rvm_asm_dump_pi_to_str(cpu, pi, buffer, sizeof(buffer));
 		rvm_printf("%s\n", buffer);
 		++pi;
 		--count;
@@ -1255,17 +1108,6 @@ void rvm_cpu_dumpregs(rvmcpu_t *vm, rvm_asmins_t *pi)
 }
 
 
-static void rvm_op_cast(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_type_t type = (rvmreg_type_t)RVM_CPUREG_GETU(cpu, ins->op3);
-	rvmreg_t tmp;
-
-	RVM_REG_CLEAR(&tmp);
-	RVM_REG_SETTYPE(&tmp, type);
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, RVM_CPUREG_PTR(cpu, ins->op1), RVM_CPUREG_PTR(cpu, ins->op2), &tmp);
-}
-
-
 static void rvm_op_type(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_type_t type = (rvmreg_type_t)RVM_CPUREG_GETTYPE(cpu, ins->op2);
@@ -1283,607 +1125,13 @@ static void rvm_op_settype(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
-static void rvm_op_emov(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvm_op_mov(cpu, ins);
-}
-
-
-static void rvm_op_eadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_ADD, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
-}
-
-
-static void rvm_op_esub(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_SUB, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
-}
-
-
-static void rvm_op_eneg(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t zero;
-
-	rvm_reg_setunsigned(&zero, 0);
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_SUB, cpu, RVM_CPUREG_PTR(cpu, ins->op1), &zero, arg2);
-}
-
-
-
-static void rvm_op_emul(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_MUL, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
-}
-
-
-static void rvm_op_ediv(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_DIV, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
-}
-
-
-static void rvm_op_emod(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_MOD, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
-}
-
-
-static void rvm_op_elsl(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_LSL, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
-}
-
-
-static void rvm_op_elsr(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_LSR, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
-}
-
-
-static void rvm_op_elsru(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_LSRU, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
-}
-
-
-static void rvm_op_eand(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_AND, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
-}
-
-
-static void rvm_op_eorr(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_OR, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
-}
-
-
-static void rvm_op_exor(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_XOR, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
-}
-
-
-static void rvm_op_enot(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-
-	rvm_opmap_invoke_unary_handler(cpu->opmap, RVM_OPID_NOT, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2);
-}
-
-
-static void rvm_op_eland(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_LOGICAND, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
-}
-
-
-static void rvm_op_elor(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_LOGICOR, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
-}
-
-
-static void rvm_op_elnot(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-
-	rvm_opmap_invoke_unary_handler(cpu->opmap, RVM_OPID_LOGICNOT, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2);
-}
-
-
-static void rvm_op_eeq(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_EQ, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
-}
-
-
-static void rvm_op_enoteq(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_NOTEQ, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
-}
-
-
-static void rvm_op_egreat(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_GREATER, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
-}
-
-
-static void rvm_op_egreateq(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_GREATEREQ, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
-}
-
-
-static void rvm_op_elesseq(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_LESSEQ, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
-}
-
-
-static void rvm_op_eless(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_LESS, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
-}
-
-
-static void rvm_op_ecmp(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CMP, cpu, NULL, arg1, arg2);
-}
-
-
-static void rvm_op_ecmn(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CMN, cpu, NULL, arg1, arg2);
-}
-
-
-static void rvm_op_stralloc(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
-	rstring_t *s = r_string_create_strsize((const char*)RVM_CPUREG_GETP(cpu, ins->op2), (unsigned long)RVM_CPUREG_GETU(cpu, ins->op3));
-	if (!s) {
-		RVM_ABORT(cpu, RVM_E_ILLEGAL);
-	}
-	r_gc_add(cpu->gc, (robject_t*)s);
-	rvm_reg_setstring(arg1, s);
-}
-
-
-static void rvm_op_mapalloc(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
-	rmap_t *a = r_map_create(sizeof(rvmreg_t), 7);
-	if (!a) {
-		RVM_ABORT(cpu, RVM_E_ILLEGAL);
-	}
-	r_gc_add(cpu->gc, (robject_t*)a);
-	rvm_reg_setjsobject(arg1, (robject_t*)a);
-}
-
-
-static void rvm_op_arralloc(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
-	ruword size = RVM_CPUREG_GETU(cpu, ins->op2);
-	rcarray_t *a = r_carray_create_rvmreg();
-	if (!a) {
-		RVM_ABORT(cpu, RVM_E_ILLEGAL);
-	}
-	r_carray_setlength(a, (unsigned long)size);
-	r_gc_add(cpu->gc, (robject_t*)a);
-	rvm_reg_setarray(arg1, (robject_t*)a);
-}
-
-
-static void rvm_op_proplookup(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	long index;
-	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
-	rmap_t *a = (rmap_t*)RVM_REG_GETP(arg2);
-
-	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_STRING) {
-		index = r_map_lookup(a, -1, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.size);
-	} else {
-		index = -1;
-	}
-
-	RVM_REG_CLEAR(arg1);
-	RVM_REG_SETTYPE(arg1, RVM_DTYPE_SIGNED);
-	RVM_REG_SETL(arg1, index);
-}
-
-
-static void rvm_op_propldr(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	long index;
-	rvmreg_t tmp = rvm_reg_create_signed(0);
-	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
-//	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-//	rmap_t *a = NULL;
-//	rpointer value;
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
-	index = (long)RVM_REG_GETL(&tmp);
-	rvm_reg_setundef(arg1);
-}
-
-
-static void rvm_op_maplookup(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	long index;
-	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
-	rmap_t *a = (rmap_t*)RVM_REG_GETP(arg2);
-
-	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP) {
-		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
-	}
-	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_SIGNED || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
-		index = r_map_lookup_l(a, -1, (long)RVM_REG_GETL(arg3));
-	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_DOUBLE) {
-		index = r_map_lookup_d(a, -1, RVM_REG_GETD(arg3));
-	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_STRING) {
-		index = r_map_lookup(a, -1, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.size);
-	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_POINTER) {
-		index = r_map_lookup(a, -1, (char*)RVM_CPUREG_GETP(cpu, ins->op3), (unsigned int)RVM_CPUREG_GETL(cpu, ins->op1));
-	} else {
-		RVM_ABORT(cpu, RVM_E_ILLEGAL);
-	}
-
-	RVM_REG_CLEAR(arg1);
-	RVM_REG_SETTYPE(arg1, RVM_DTYPE_SIGNED);
-	RVM_REG_SETL(arg1, index);
-}
-
-
-static void rvm_op_mapadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	long index;
-	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
-	rmap_t *a = (rmap_t*)RVM_REG_GETP(arg2);
-
-	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP) {
-		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
-	}
-	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_SIGNED || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
-		index = r_map_gckey_add_l(a, cpu->gc, (long)RVM_REG_GETL(arg3), NULL);
-	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_DOUBLE) {
-		index = r_map_gckey_add_d(a, cpu->gc, RVM_REG_GETD(arg3), NULL);
-	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_STRING) {
-		index = r_map_gckey_add(a, cpu->gc, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.size, NULL);
-	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_POINTER) {
-		index = r_map_gckey_add(a, cpu->gc, (char*)RVM_CPUREG_GETP(cpu, ins->op3), (unsigned int)RVM_CPUREG_GETL(cpu, ins->op1), NULL);
-	} else {
-		RVM_ABORT(cpu, RVM_E_ILLEGAL);
-	}
-
-	RVM_REG_CLEAR(arg1);
-	RVM_REG_SETTYPE(arg1, RVM_DTYPE_SIGNED);
-	RVM_REG_SETL(arg1, index);
-}
-
-
-static void rvm_op_maplookupadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	long index;
-	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
-	rmap_t *a = (rmap_t*)RVM_REG_GETP(arg2);
-
-	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP) {
-		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
-	}
-	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_SIGNED || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
-		index = r_map_lookup_l(a, -1, (long)RVM_REG_GETL(arg3));
-		if (index < 0)
-			index = r_map_gckey_add_l(a, cpu->gc, (long)RVM_REG_GETL(arg3), NULL);
-	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_DOUBLE) {
-		index = r_map_lookup_d(a, -1, RVM_REG_GETD(arg3));
-		if (index < 0)
-			index = r_map_gckey_add_d(a, cpu->gc, RVM_REG_GETD(arg3), NULL);
-	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_STRING) {
-		index = r_map_lookup(a, -1, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.size);
-		if (index < 0)
-			index = r_map_gckey_add(a, cpu->gc, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.size, NULL);
-	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_POINTER) {
-		index = r_map_lookup(a, -1, (char*)RVM_CPUREG_GETP(cpu, ins->op3), (unsigned int)RVM_CPUREG_GETL(cpu, ins->op1));
-		if (index < 0)
-			index = r_map_gckey_add(a, cpu->gc, (char*)RVM_CPUREG_GETP(cpu, ins->op3), (unsigned int)RVM_CPUREG_GETL(cpu, ins->op1), NULL);
-	} else {
-		RVM_ABORT(cpu, RVM_E_ILLEGAL);
-	}
-	RVM_REG_CLEAR(arg1);
-	RVM_REG_SETTYPE(arg1, RVM_DTYPE_SIGNED);
-	RVM_REG_SETL(arg1, index);
-}
-
-
-static void rvm_op_mapdel(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	int ret;
-	long index;
-	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t tmp = rvm_reg_create_signed(0);
-	rmap_t *a = NULL;
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
-	index = (long)RVM_REG_GETL(&tmp);
-	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP)
-		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
-	a = (rmap_t*)RVM_REG_GETP(arg2);
-	ret = r_map_delete(a, index);
-	rvm_reg_setboolean(arg1, ret == 0 ? 1 : 0);
-}
-
-
-static void rvm_op_mapaddr(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t tmp = rvm_reg_create_signed(0);
-	rmap_t *a;
-	rpointer value;
-	long index;
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
-	index = (long)RVM_REG_GETL(&tmp);
-	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP)
-		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
-	a = (rmap_t*)RVM_REG_GETP(arg2);
-	value = r_map_value(a, index);
-	if (!value)
-		RVM_ABORT(cpu, RVM_E_ILLEGAL);
-	RVM_REG_CLEAR(arg1);
-	RVM_REG_SETTYPE(arg1, RVM_DTYPE_POINTER);
-	RVM_REG_SETP(arg1, value);
-}
-
-
-static void rvm_op_mapldr(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t tmp = rvm_reg_create_signed(0);
-	rmap_t *a = NULL;
-	rpointer value;
-	long index;
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
-	index = (long)RVM_REG_GETL(&tmp);
-	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP)
-		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
-	a = (rmap_t*)RVM_REG_GETP(arg2);
-	value = r_map_value(a, index);
-	if (!value) {
-		RVM_REG_CLEAR(arg1);
-		RVM_REG_SETTYPE(arg1, RVM_DTYPE_UNDEF);
-	} else {
-		*arg1 = *((rvmreg_t*)value);
-	}
-}
-
-
-static void rvm_op_mapkeyldr(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t tmp = rvm_reg_create_signed(0);
-	rmap_t *a = NULL;
-	rstring_t *key;
-	long index;
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
-	index = (long)RVM_REG_GETL(&tmp);
-	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP)
-		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
-	a = (rmap_t*)RVM_REG_GETP(arg2);
-	key = r_map_key(a, index);
-	if (!key) {
-		RVM_REG_CLEAR(arg1);
-		RVM_REG_SETTYPE(arg1, RVM_DTYPE_UNDEF);
-	} else {
-		rvm_reg_setstring(arg1, key);
-	}
-}
-
-
-static void rvm_op_mapnext(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t tmp = rvm_reg_create_signed(0);
-	rmap_t *a = NULL;
-	long index;
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
-	index = (long)RVM_REG_GETL(&tmp);
-	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP)
-		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
-	a = (rmap_t*)RVM_REG_GETP(arg2);
-	if (index < 0)
-		index = r_map_first(a);
-	else
-		index = r_map_next(a, index);
-	RVM_REG_CLEAR(arg1);
-	RVM_REG_SETTYPE(arg1, RVM_DTYPE_SIGNED);
-	RVM_REG_SETL(arg1, index);
-}
-
-
-static void rvm_op_mapprev(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t tmp = rvm_reg_create_signed(0);
-	rmap_t *a = NULL;
-	long index;
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
-	index = (long)RVM_REG_GETL(&tmp);
-	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP)
-		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
-	a = (rmap_t*)RVM_REG_GETP(arg2);
-	if (index < 0)
-		index = r_map_last(a);
-	else
-		index = r_map_prev(a, index);
-	RVM_REG_CLEAR(arg1);
-	RVM_REG_SETTYPE(arg1, RVM_DTYPE_SIGNED);
-	RVM_REG_SETL(arg1, index);
-}
-
-
-static void rvm_op_mapstr(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t tmp = rvm_reg_create_signed(0);
-	rmap_t *a = NULL;
-	rpointer value;
-	long index;
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
-	index = (long)RVM_REG_GETL(&tmp);
-	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP)
-		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
-	a = (rmap_t*)RVM_REG_GETP(arg2);
-	value = r_map_value(a, index);
-	if (!value)
-		RVM_ABORT(cpu, RVM_E_ILLEGAL);
-	r_map_setvalue(a, index, arg1);
-}
-
-
-static void rvm_op_addra(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t tmp = rvm_reg_create_signed(0);
-	rcarray_t *a = RVM_REG_GETP(arg2);
-	long index;
-
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
-	index = (long)RVM_REG_GETL(&tmp);
-
-	if (rvm_reg_gettype(arg2) != RVM_DTYPE_ARRAY || index < 0) {
-		RVM_ABORT(cpu, RVM_E_ILLEGAL);
-	}
-	RVM_REG_CLEAR(arg1);
-	RVM_REG_SETTYPE(arg1, RVM_DTYPE_POINTER);
-	RVM_REG_SETP(arg1, r_carray_slot_expand(a, index));
-}
-
-
-static void rvm_op_lda(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	ruword index = RVM_CPUREG_GETU(cpu, ins->op3);
-	rcarray_t *a = RVM_REG_GETP(arg2);
-
-	if (rvm_reg_gettype(arg2) != RVM_DTYPE_ARRAY) {
-		RVM_ABORT(cpu, RVM_E_ILLEGAL);
-	}
-	*arg1 = *((rvmreg_t*)r_carray_slot_expand(a, (unsigned long)index));
-}
-
-
-static void rvm_op_sta(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	ruword index = RVM_CPUREG_GETU(cpu, ins->op3);
-	rcarray_t *a = RVM_REG_GETP(arg2);
-
-	if (rvm_reg_gettype(arg2) != RVM_DTYPE_ARRAY) {
-		RVM_ABORT(cpu, RVM_E_ILLEGAL);
-	}
-	r_carray_replace(a, (unsigned long)index, arg1);
-}
-
-
 static void rvm_op_abort(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	RVM_ABORT(cpu, RVM_CPUREG_GETU(cpu, ins->op1));
 }
 
-
-static rvm_cpu_op ops[] = {
+#if 0
+static rvmcpu_op ops[] = {
 	rvm_op_exit,		// RVM_EXT
 	rvm_op_abort,		// RVM_ABORT
 	rvm_op_prn,			// RVM_PRN
@@ -1997,8 +1245,18 @@ static rvm_cpu_op ops[] = {
 	rvm_op_elesseq,		// RVM_ELESSEQ
 	rvm_op_ecmp,		// RVM_ECMP
 	rvm_op_ecmn,		// RVM_ECMN
-	rvm_op_proplookup,	// RVM_PROPLKUP
+
+	rvm_op_proplookup,  // RVM_PROPLKUP
+	rvm_op_proplookupadd, //RVM_PROPLKUPADD
 	rvm_op_propldr,		// RVM_PROPLDR
+	rvm_op_propstr,		// RVM_PROPSTR,
+	rvm_op_propaddr,	// RVM_PROPADDR
+	rvm_op_propkeyldr,	// RVM_PROPKEYLDR
+	rvm_op_propdel,		// RVM_PROPDEL
+	rvm_op_propnext,	// RVM_PROPNEXT
+	rvm_op_propprev,	// RVM_PROPPREV
+
+
 	rvm_op_stralloc,	// RVM_STRALLOC
 	rvm_op_arralloc,	// RVM_ARRALLOC
 	rvm_op_addra,		// RVM_ADDRA
@@ -2025,6 +1283,17 @@ static rvm_cpu_op ops[] = {
 	(void*) 0,
 	
 };
+#endif
+
+
+int rvm_cpu_setophandler(rvmcpu_t *cpu, unsigned int opcode, const char *opname, rvmcpu_op op)
+{
+	if (opcode >= RVM_COUNT)
+		return -1;
+	cpu->ops[opcode].name = opname;
+	cpu->ops[opcode].op = op;
+	return 0;
+}
 
 
 rvmcpu_t *rvm_cpu_create(unsigned long stacksize)
@@ -2039,12 +1308,92 @@ rvmcpu_t *rvm_cpu_create(unsigned long stacksize)
 	cpu->switables = r_harray_create(sizeof(rvm_switable_t*));
 	cpu->stack = r_malloc(stacksize * sizeof(rvmreg_t));
 	cpu->data = r_carray_create(sizeof(rvmreg_t));
-	cpu->opmap = rvm_opmap_create();
 	cpu->gc = r_gc_create();
-	rvm_op_binary_init(cpu->opmap);
-	rvm_op_cast_init(cpu->opmap);
-	rvm_op_not_init(cpu->opmap);
-	rvm_op_logicnot_init(cpu->opmap);
+
+	rvm_cpu_setophandler(cpu, RVM_EXT, "EXT", rvm_op_exit);
+	rvm_cpu_setophandler(cpu, RVM_ABORT, "ABORT", rvm_op_abort);
+	rvm_cpu_setophandler(cpu, RVM_PRN, "PRN", rvm_op_prn);
+	rvm_cpu_setophandler(cpu, RVM_ASR, "ASR", rvm_op_asr);
+	rvm_cpu_setophandler(cpu, RVM_SWI, "SWI", rvm_op_swi);
+	rvm_cpu_setophandler(cpu, RVM_SWIID, "SWIID", rvm_op_swiid);
+	rvm_cpu_setophandler(cpu, RVM_CALL, "CALL", rvm_op_call);
+	rvm_cpu_setophandler(cpu, RVM_MOV, "MOV", rvm_op_mov);
+	rvm_cpu_setophandler(cpu, RVM_MOVS, "MOVS", rvm_op_movs);
+	rvm_cpu_setophandler(cpu, RVM_SWP, "SWP", rvm_op_swp);
+	rvm_cpu_setophandler(cpu, RVM_INC, "INC", rvm_op_inc);
+	rvm_cpu_setophandler(cpu, RVM_DEC, "DEC", rvm_op_dec);
+	rvm_cpu_setophandler(cpu, RVM_ADD, "ADD", rvm_op_add);
+	rvm_cpu_setophandler(cpu, RVM_ADDS, "ADDS", rvm_op_adds);
+	rvm_cpu_setophandler(cpu, RVM_ADC, "ADC", rvm_op_adc);
+	rvm_cpu_setophandler(cpu, RVM_AND, "AND", rvm_op_and);
+	rvm_cpu_setophandler(cpu, RVM_BIC, "BIC", rvm_op_bic);
+	rvm_cpu_setophandler(cpu, RVM_CLZ, "CLZ", rvm_op_clz);
+	rvm_cpu_setophandler(cpu, RVM_CMN, "CMN", rvm_op_cmn);
+	rvm_cpu_setophandler(cpu, RVM_XOR, "XOR", rvm_op_xor);
+	rvm_cpu_setophandler(cpu, RVM_SUB, "SUB", rvm_op_sub);
+	rvm_cpu_setophandler(cpu, RVM_SUBS, "SUBS", rvm_op_subs);
+	rvm_cpu_setophandler(cpu, RVM_SBC, "SBC", rvm_op_sbc);
+	rvm_cpu_setophandler(cpu, RVM_MUL, "MUL", rvm_op_mul);
+	rvm_cpu_setophandler(cpu, RVM_MLS, "MLS", rvm_op_mls);
+	rvm_cpu_setophandler(cpu, RVM_MULS, "MULS", rvm_op_muls);
+	rvm_cpu_setophandler(cpu, RVM_NOT, "NOT", rvm_op_not);
+	rvm_cpu_setophandler(cpu, RVM_DIV, "DIV", rvm_op_div);
+	rvm_cpu_setophandler(cpu, RVM_DVS, "DVS", rvm_op_dvs);
+	rvm_cpu_setophandler(cpu, RVM_DIVS, "DIVS", rvm_op_divs);
+	rvm_cpu_setophandler(cpu, RVM_MOD, "MOD", rvm_op_mod);
+	rvm_cpu_setophandler(cpu, RVM_MODS, "MODS", rvm_op_mods);
+	rvm_cpu_setophandler(cpu, RVM_BX, "BX", rvm_op_bx);
+	rvm_cpu_setophandler(cpu, RVM_BXEQ, "BXEQ", rvm_op_bxeq);
+	rvm_cpu_setophandler(cpu, RVM_BXNEQ, "BXNEQ", rvm_op_bxneq);
+	rvm_cpu_setophandler(cpu, RVM_BXLEQ, "BXLEQ", rvm_op_bxleq);
+	rvm_cpu_setophandler(cpu, RVM_BXGEQ, "BXGEQ", rvm_op_bxgeq);
+	rvm_cpu_setophandler(cpu, RVM_BXLES, "BXLES", rvm_op_bxles);
+	rvm_cpu_setophandler(cpu, RVM_BXGRE, "BXGRE", rvm_op_bxgre);
+	rvm_cpu_setophandler(cpu, RVM_BXL, "BXL", rvm_op_bxl);
+	rvm_cpu_setophandler(cpu, RVM_BL, "BL", rvm_op_bl);
+	rvm_cpu_setophandler(cpu, RVM_B, "B", rvm_op_b);
+	rvm_cpu_setophandler(cpu, RVM_STR, "STR", rvm_op_str);
+	rvm_cpu_setophandler(cpu, RVM_STRP, "STRP", rvm_op_strp);
+	rvm_cpu_setophandler(cpu, RVM_STRB, "STRB", rvm_op_strb);
+	rvm_cpu_setophandler(cpu, RVM_STRH, "STRH", rvm_op_strh);
+	rvm_cpu_setophandler(cpu, RVM_STRW, "STRW", rvm_op_strw);
+	rvm_cpu_setophandler(cpu, RVM_STRR, "STRR", rvm_op_strr);
+	rvm_cpu_setophandler(cpu, RVM_LDR, "LDR", rvm_op_ldr);
+	rvm_cpu_setophandler(cpu, RVM_LDRP, "LDRP", rvm_op_ldrp);
+	rvm_cpu_setophandler(cpu, RVM_LDRB, "LDRB", rvm_op_ldrb);
+	rvm_cpu_setophandler(cpu, RVM_LDRH, "LDRH", rvm_op_ldrh);
+	rvm_cpu_setophandler(cpu, RVM_LDRW, "LDRW", rvm_op_ldrw);
+	rvm_cpu_setophandler(cpu, RVM_LDRR, "LDRR", rvm_op_ldrr);
+	rvm_cpu_setophandler(cpu, RVM_CFLAG, "CFLAG", rvm_op_cflag);
+	rvm_cpu_setophandler(cpu, RVM_CLR, "CLR", rvm_op_clr);
+	rvm_cpu_setophandler(cpu, RVM_CLRR, "CLRR", rvm_op_clrr);
+	rvm_cpu_setophandler(cpu, RVM_LSL, "LSL", rvm_op_lsl);
+	rvm_cpu_setophandler(cpu, RVM_LSR, "LSR", rvm_op_lsr);
+	rvm_cpu_setophandler(cpu, RVM_LSRS, "LSRS", rvm_op_lsrs);
+	rvm_cpu_setophandler(cpu, RVM_STM, "STM", rvm_op_stm);
+	rvm_cpu_setophandler(cpu, RVM_LDM, "LDM", rvm_op_ldm);
+	rvm_cpu_setophandler(cpu, RVM_STS, "STS", rvm_op_sts);
+	rvm_cpu_setophandler(cpu, RVM_LDS, "LDS", rvm_op_lds);
+	rvm_cpu_setophandler(cpu, RVM_ORR, "ORR", rvm_op_orr);
+	rvm_cpu_setophandler(cpu, RVM_PUSH, "PUSH", rvm_op_push);
+	rvm_cpu_setophandler(cpu, RVM_POP, "POP", rvm_op_pop);
+	rvm_cpu_setophandler(cpu, RVM_CMP, "CMP", rvm_op_cmp);
+	rvm_cpu_setophandler(cpu, RVM_NOP, "NOP", rvm_op_nop);
+	rvm_cpu_setophandler(cpu, RVM_BEQ, "BEQ", rvm_op_beq);
+	rvm_cpu_setophandler(cpu, RVM_BNEQ, "BNEQ", rvm_op_bneq);
+	rvm_cpu_setophandler(cpu, RVM_BLEQ, "BLEQ", rvm_op_bleq);
+	rvm_cpu_setophandler(cpu, RVM_BGEQ, "BGEQ", rvm_op_bgeq);
+	rvm_cpu_setophandler(cpu, RVM_BLES, "BLES", rvm_op_bles);
+	rvm_cpu_setophandler(cpu, RVM_BGRE, "BGRE", rvm_op_bgre);
+	rvm_cpu_setophandler(cpu, RVM_RET, "RET", rvm_op_ret);
+	rvm_cpu_setophandler(cpu, RVM_ROR, "ROR", rvm_op_ror);
+	rvm_cpu_setophandler(cpu, RVM_PUSHM, "PUSHM", rvm_op_pushm);
+	rvm_cpu_setophandler(cpu, RVM_POPM, "POPM", rvm_op_popm);
+	rvm_cpu_setophandler(cpu, RVM_TST, "TST", rvm_op_tst);
+	rvm_cpu_setophandler(cpu, RVM_TEQ, "TEQ", rvm_op_teq);
+	rvm_cpu_setophandler(cpu, RVM_ADDRS, "ADDRS", rvm_op_addrs);
+	rvm_cpu_setophandler(cpu, RVM_SETTYPE, "SETTYPE", rvm_op_settype);
+	rvm_cpu_setophandler(cpu, RVM_TYPE, "TYPE", rvm_op_type);
 
 	return cpu;
 }
@@ -2063,7 +1412,6 @@ void rvm_cpu_destroy(rvmcpu_t *cpu)
 	r_object_destroy((robject_t*)cpu->switables);
 	r_free(cpu->stack);
 	r_object_destroy((robject_t*)cpu->data);
-	rvm_opmap_destroy(cpu->opmap);
 	r_free(cpu);
 }
 
@@ -2114,7 +1462,7 @@ int rvm_cpu_exec(rvmcpu_t *cpu, rvm_asmins_t *prog, ruword off)
 			};
 		}
 #endif
-		ops[pi->opcode](cpu, pi);
+		cpu->ops[pi->opcode].op(cpu, pi);
 #if RVM_CONDITIONAL_INSTRUCTIONS
 skipexec:
 #endif
@@ -2128,7 +1476,6 @@ skipexec:
 
 int rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, ruword off)
 {
-	long line = 0;
 	rvm_asmins_t *pi;
 	rvmreg_t *regda = RVM_CPUREG_PTR(cpu, DA);
 	rvmreg_t *regpc = RVM_CPUREG_PTR(cpu, PC);
@@ -2173,8 +1520,7 @@ int rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, ruword off)
 			};
 		}
 #endif
-		ops[pi->opcode](cpu, pi);
-		r_printf("%7ld :", ++line);
+		cpu->ops[pi->opcode].op(cpu, pi);
 		rvm_cpu_dumpregs(cpu, pi);
 #if RVM_CONDITIONAL_INSTRUCTIONS
 skipexec:

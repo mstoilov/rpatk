@@ -29,7 +29,7 @@ static void rvm_eadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
 
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_ADD, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
+	rvm_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_ADD, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
 //	fprintf(stdout, "%s %ld\n", __FUNCTION__, RVM_CPUREG_GETU(cpu, ins->op1));
 }
 

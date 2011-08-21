@@ -251,7 +251,7 @@ static void rvm_swi_negative(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t zero;
 
 	RVM_REG_CLEAR(&zero);
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_SUB, cpu, res, &zero, arg);
+	rvm_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_SUB, cpu, res, &zero, arg);
 }
 
 
@@ -261,7 +261,7 @@ static void rvm_swi_eadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg1 = (rvmreg_t *)RVM_STACK_ADDR(cpu->stack, RVM_CPUREG_GETU(cpu, FP) + 1);
 	rvmreg_t *arg2 = (rvmreg_t *)RVM_STACK_ADDR(cpu->stack, RVM_CPUREG_GETU(cpu, FP) + 2);
 
-	rvm_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_ADD, cpu, res, arg1, arg2);
+	rvm_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_ADD, cpu, res, arg1, arg2);
 }
 
 

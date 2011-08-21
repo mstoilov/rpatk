@@ -27,16 +27,79 @@
 #include "rvm/rvmreg.h"
 #include "rlib/rgc.h"
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#define RVM_REGISTER_BITS (8 * sizeof(ruword))
+#define RVM_SIGN_BIT (((ruword)1) << (RVM_REGISTER_BITS - 1))
+#define RVM_STATUS_Z (1 << 0)
+#define RVM_STATUS_N (1 << 1)
+#define RVM_STATUS_C (1 << 2)
+#define RVM_STATUS_V (1 << 3)
+#define RVM_STATUS_E (1 << 4)
+#define RVM_STATUS_ALL (RVM_STATUS_Z | RVM_STATUS_N | RVM_STATUS_C | RVM_STATUS_V | RVM_STATUS_E)
+#define RVM_STATUS_GETBIT(cpu, bit) ((cpu)->status & (bit))
+#define RVM_STATUS_SETBIT(cpu, bit) do { (cpu)->status |= (bit); } while (0)
+#define RVM_STATUS_CLRBIT(cpu, bit) do { (cpu)->status &= ~(bit); } while (0)
+#define RVM_STATUS_CLRALL(cpu) RVM_STATUS_CLRBIT(cpu, RVM_STATUS_ALL)
+#define RVM_STATUS_UPDATE(cpu, b, c) \
+do { \
+    if (c) \
+        RVM_STATUS_SETBIT(cpu, b); \
+    else \
+        RVM_STATUS_CLRBIT(cpu, b); \
+} while (0)
+
+#define RVM_OPERAND_BITS 4
+#define RVM_REGS_NUM (1 << RVM_OPERAND_BITS)
+#define R0 0
+#define R1 1
+#define R2 2
+#define R3 3
+#define R4 4
+#define R5 5
+#define R6 6
+#define R7 7
+#define R8 8
+#define R9 9
+#define R10 10
+#define R11 11
+#define R12 12
+#define R13 13
+#define R14 14
+#define R15 15
+#define R16 16
+#define R17 17
+#define R18 18
+#define R19 19
+#define R20 20
+#define R21 21
+#define R22 22
+#define R23 23
+#define R24 24
+#define R25 25
+#define R26 26
+#define R27 27
+#define R28 28
+#define R29 29
+#define R30 30
+#define R31 31
+#define RLST (RVM_REGS_NUM - 1)
+#define IP (RLST - 7)
+#define TP (RLST - 6)
+#define FP (RLST - 5)
+#define SP (RLST - 4)
+#define LR (RLST - 3)
+#define PC (RLST - 2)
+#define DA (RLST - 1)				/* The DA register should never be modified manually, otherwise the result is undefined */
+#define XX (RLST)
+#define GP IP
 
 enum {
-	RVM_EXT = 0,
+	RVM_EXT = 0,	/* Exit */
 	RVM_ABORT,		/* Abort: set the error code, op1: error code */
-	RVM_PRN,
+	RVM_PRN,		/* Debug print */
 	RVM_ASR,		/* Arithmetic shift right: op1 = op2 >> op3, preserve the signed bit */
 	RVM_SWI,
 	RVM_SWIID,
@@ -69,13 +132,10 @@ enum {
 	RVM_BX,			/* Jump to op1 */
 	RVM_BXEQ,		/* Jump to op1, if equal */
 	RVM_BXNEQ,		/* Jump to op1, if not equal */
-
 	RVM_BXLEQ,		/* Branch if less or equal */
 	RVM_BXGEQ,		/* Branch if greater or equal */
 	RVM_BXLES,		/* Branch if less */
 	RVM_BXGRE,		/* Branch if greater */
-
-
 	RVM_BXL,		/* Jump to op1, link */
 	RVM_BL,			/* Branch Link */
 	RVM_B,			/* Branch */
@@ -119,7 +179,183 @@ enum {
 	RVM_TST,
 	RVM_TEQ,
 	RVM_ADDRS,		/* Memory location of the stack at offset op2 + op3 */
+	RVM_SETTYPE,	/* Type: op1.type = op2 */
+	RVM_TYPE,		/* Type: op1 = typeof(op2) */
+	RVM_RESERVED84,
+	RVM_RESERVED85,
+	RVM_RESERVED86,
+	RVM_RESERVED87,
+	RVM_RESERVED88,
+	RVM_RESERVED89,
+	RVM_RESERVED90,
+	RVM_RESERVED91,
+	RVM_RESERVED92,
+	RVM_RESERVED93,
+	RVM_RESERVED94,
+	RVM_RESERVED95,
+	RVM_RESERVED96,
+	RVM_RESERVED97,
+	RVM_RESERVED98,
+	RVM_RESERVED99,
+	RVM_RESERVED100,
+	RVM_RESERVED101,
+	RVM_RESERVED102,
+	RVM_RESERVED103,
+	RVM_RESERVED104,
+	RVM_RESERVED105,
+	RVM_RESERVED106,
+	RVM_RESERVED107,
+	RVM_RESERVED108,
+	RVM_RESERVED109,
+	RVM_RESERVED110,
+	RVM_RESERVED111,
+	RVM_RESERVED112,
+	RVM_RESERVED113,
+	RVM_RESERVED114,
+	RVM_RESERVED115,
+	RVM_RESERVED116,
+	RVM_RESERVED117,
+	RVM_RESERVED118,
+	RVM_RESERVED119,
+	RVM_RESERVED120,
+	RVM_RESERVED121,
+	RVM_RESERVED122,
+	RVM_RESERVED123,
+	RVM_RESERVED124,
+	RVM_RESERVED125,
+	RVM_RESERVED126,
+	RVM_RESERVED127,
+	RVM_USER128,
+	RVM_USER129,
+	RVM_USER130,
+	RVM_USER131,
+	RVM_USER132,
+	RVM_USER133,
+	RVM_USER134,
+	RVM_USER135,
+	RVM_USER136,
+	RVM_USER137,
+	RVM_USER138,
+	RVM_USER139,
+	RVM_USER140,
+	RVM_USER141,
+	RVM_USER142,
+	RVM_USER143,
+	RVM_USER144,
+	RVM_USER145,
+	RVM_USER146,
+	RVM_USER147,
+	RVM_USER148,
+	RVM_USER149,
+	RVM_USER150,
+	RVM_USER151,
+	RVM_USER152,
+	RVM_USER153,
+	RVM_USER154,
+	RVM_USER155,
+	RVM_USER156,
+	RVM_USER157,
+	RVM_USER158,
+	RVM_USER159,
+	RVM_USER160,
+	RVM_USER161,
+	RVM_USER162,
+	RVM_USER163,
+	RVM_USER164,
+	RVM_USER165,
+	RVM_USER166,
+	RVM_USER167,
+	RVM_USER168,
+	RVM_USER169,
+	RVM_USER170,
+	RVM_USER171,
+	RVM_USER172,
+	RVM_USER173,
+	RVM_USER174,
+	RVM_USER175,
+	RVM_USER176,
+	RVM_USER177,
+	RVM_USER178,
+	RVM_USER179,
+	RVM_USER180,
+	RVM_USER181,
+	RVM_USER182,
+	RVM_USER183,
+	RVM_USER184,
+	RVM_USER185,
+	RVM_USER186,
+	RVM_USER187,
+	RVM_USER188,
+	RVM_USER189,
+	RVM_USER190,
+	RVM_USER191,
+	RVM_USER192,
+	RVM_USER193,
+	RVM_USER194,
+	RVM_USER195,
+	RVM_USER196,
+	RVM_USER197,
+	RVM_USER198,
+	RVM_USER199,
+	RVM_USER200,
+	RVM_USER201,
+	RVM_USER202,
+	RVM_USER203,
+	RVM_USER204,
+	RVM_USER205,
+	RVM_USER206,
+	RVM_USER207,
+	RVM_USER208,
+	RVM_USER209,
+	RVM_USER210,
+	RVM_USER211,
+	RVM_USER212,
+	RVM_USER213,
+	RVM_USER214,
+	RVM_USER215,
+	RVM_USER216,
+	RVM_USER217,
+	RVM_USER218,
+	RVM_USER219,
+	RVM_USER220,
+	RVM_USER221,
+	RVM_USER222,
+	RVM_USER223,
+	RVM_USER224,
+	RVM_USER225,
+	RVM_USER226,
+	RVM_USER227,
+	RVM_USER228,
+	RVM_USER229,
+	RVM_USER230,
+	RVM_USER231,
+	RVM_USER232,
+	RVM_USER233,
+	RVM_USER234,
+	RVM_USER235,
+	RVM_USER236,
+	RVM_USER237,
+	RVM_USER238,
+	RVM_USER239,
+	RVM_USER240,
+	RVM_USER241,
+	RVM_USER242,
+	RVM_USER243,
+	RVM_USER244,
+	RVM_USER245,
+	RVM_USER246,
+	RVM_USER247,
+	RVM_USER248,
+	RVM_USER249,
+	RVM_USER250,
+	RVM_USER251,
+	RVM_USER252,
+	RVM_USER253,
+	RVM_USER254,
+	RVM_USER255,
+	RVM_COUNT,
 
+#if 0
 /* Extended VM opcodes, */
 	RVM_CAST,		/* Cast: op1 = (op3)op2 */
 	RVM_TYPE,		/* Type: op1 = typeof(op2) */
@@ -150,8 +386,16 @@ enum {
 
 	RVM_ECMP,		/* Compare: status register is updated based on the result: op1 - op2 */
 	RVM_ECMN,		/* Compare Negative: status register is updated based on the result: op1 + op2 */
-	RVM_PROPLKUP,	/* Lookup r_object property */
-	RVM_PROPLDR,	/* Load r_object property */
+	RVM_PROPLKUP,	/* Lookup property */
+	RVM_PROPLKUPADD,/* Lookup or add property */
+	RVM_PROPLDR,	/* Load property */
+	RVM_PROPSTR,	/* Store property */
+	RVM_PROPADDR,	/* Property Address */
+	RVM_PROPKEYLDR,	/* Load Property Key */
+	RVM_PROPDEL,	/* Delete Property */
+	RVM_PROPNEXT,
+	RVM_PROPPREV,
+
 	RVM_STRALLOC,	/* Allocate string in op1, op2 is pointer (char*) to string, op3 is the size */
 	RVM_ARRALLOC,	/* Allocate array in op1, op2 is the size */
 	RVM_ADDRA,		/* op1 is the destination memory, op2 is the array, op3 is the offset */
@@ -168,76 +412,9 @@ enum {
 	RVM_MAPLKUPADD,
 	RVM_MAPNEXT,
 	RVM_MAPPREV,
+
+#endif
 };
-
-
-#define RVM_REGISTER_BITS (8 * sizeof(ruword))
-#define RVM_SIGN_BIT (((ruword)1) << (RVM_REGISTER_BITS - 1))
-#define RVM_STATUS_Z (1 << 0)
-#define RVM_STATUS_N (1 << 1)
-#define RVM_STATUS_C (1 << 2)
-#define RVM_STATUS_V (1 << 3)
-#define RVM_STATUS_E (1 << 4)
-#define RVM_STATUS_ALL (RVM_STATUS_Z | RVM_STATUS_N | RVM_STATUS_C | RVM_STATUS_V | RVM_STATUS_E)
-#define RVM_STATUS_GETBIT(cpu, bit) ((cpu)->status & (bit))
-#define RVM_STATUS_SETBIT(cpu, bit) do { (cpu)->status |= (bit); } while (0)
-#define RVM_STATUS_CLRBIT(cpu, bit) do { (cpu)->status &= ~(bit); } while (0)
-#define RVM_STATUS_CLRALL(cpu) RVM_STATUS_CLRBIT(cpu, RVM_STATUS_ALL)
-
-#define RVM_STATUS_UPDATE(cpu, b, c) \
-do { \
-    if (c) \
-        RVM_STATUS_SETBIT(cpu, b); \
-    else \
-        RVM_STATUS_CLRBIT(cpu, b); \
-} while (0)
-
-#define RVM_OPERAND_BITS 4
-#define RVM_REGS_NUM (1 << RVM_OPERAND_BITS)
-#define R0 0
-#define R1 1
-#define R2 2
-#define R3 3
-#define R4 4
-#define R5 5
-#define R6 6
-#define R7 7
-#define R8 8
-#define R9 9
-#define R10 10
-#define R11 11
-#define R12 12
-#define R13 13
-#define R14 14
-#define R15 15
-#define R16 16
-#define R17 17
-#define R18 18
-#define R19 19
-#define R20 20
-#define R21 21
-#define R22 22
-#define R23 23
-#define R24 24
-#define R25 25
-#define R26 26
-#define R27 27
-#define R28 28
-#define R29 29
-#define R30 30
-#define R31 31
-
-#define RLST (RVM_REGS_NUM - 1)
-#define IP (RLST - 7)
-#define TP (RLST - 6)
-#define FP (RLST - 5)
-#define SP (RLST - 4)
-#define LR (RLST - 3)
-#define PC (RLST - 2)
-#define DA (RLST - 1)				/* The DA register should never be modified manually, otherwise the result is undefined */
-#define XX (RLST)
-#define GP IP
-
 
 #define RVM_STACK_CHUNK 256
 #define RVM_ABORT(__cpu__, __e__) do { __cpu__->error = (__e__); (__cpu__)->abort = 1; R_ASSERT(0); return; } while (0)
@@ -286,15 +463,22 @@ do { \
 #define RVM_E_NOTSTRING		(10)
 #define RVM_E_USERABORT		(11)
 
+
 typedef struct rvm_asmins_s rvm_asmins_t;
 typedef struct rvmcpu_s rvmcpu_t;
 typedef void (*rvmcpu_swi)(rvmcpu_t *cpu, rvm_asmins_t *ins);
-typedef void (*rvm_cpu_op)(rvmcpu_t *cpu, rvm_asmins_t *ins);
+typedef void (*rvmcpu_op)(rvmcpu_t *cpu, rvm_asmins_t *ins);
 
 typedef struct rvm_switable_s {
 	const char *name;
 	rvmcpu_swi op;
 } rvm_switable_t;
+
+typedef struct rvm_optable_s {
+	const char *name;
+	rvmcpu_op op;
+} rvm_optable_t;
+
 
 #define RVM_CEXEC_NAN 0
 #define RVM_CEXEC_GRE 1
@@ -316,8 +500,6 @@ struct rvm_asmins_s {
 };
 
 
-struct rvm_opmap_s;
-
 struct rvmcpu_s {
 	rvmreg_t r[RVM_REGS_NUM];
 	ruword status;
@@ -327,7 +509,7 @@ struct rvmcpu_s {
 	unsigned long stacksize;
 	void *stack;
 	rcarray_t *data;
-	struct rvm_opmap_s *opmap;
+	rvm_optable_t ops[RVM_COUNT];
 	rvmreg_t *thisptr;
 	rgc_t *gc;
 	void *userdata1;
@@ -343,6 +525,7 @@ struct rvmcpu_s {
 rvmcpu_t *rvm_cpu_create_default();
 rvmcpu_t *rvm_cpu_create(unsigned long stacksize);
 void rvm_cpu_destroy(rvmcpu_t * vm);
+int rvm_cpu_setophandler(rvmcpu_t *cpu, unsigned int opcode, const char *opname, rvmcpu_op op);
 int rvm_cpu_abort(rvmcpu_t *cpu);
 int rvm_cpu_exec(rvmcpu_t *cpu, rvm_asmins_t *prog, ruword off);
 int rvm_cpu_exec_debug(rvmcpu_t *cpu, rvm_asmins_t *prog, ruword off);
@@ -374,7 +557,7 @@ rvm_asmins_t rvm_cond_asmf(ruword cond, ruword opcode, ruword op1, ruword op2, r
 rvm_asmins_t rvm_cond_asm2(ruword cond, ruword opcode, ruword op1, ruword op2, ruword op3, ruint32 p1, ruint32 p2);
 
 
-void rvm_asm_dump(rvm_asmins_t *pi, unsigned int count);
+void rvm_asm_dump(rvmcpu_t *cpu, rvm_asmins_t *pi, unsigned int count);
 
 
 #ifdef __cplusplus
