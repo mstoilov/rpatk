@@ -500,8 +500,6 @@ struct rvm_asmins_s {
 };
 
 
-struct rjs_opmap_s;
-
 struct rvmcpu_s {
 	rvmreg_t r[RVM_REGS_NUM];
 	ruword status;
@@ -512,7 +510,6 @@ struct rvmcpu_s {
 	void *stack;
 	rcarray_t *data;
 	rvm_optable_t ops[RVM_COUNT];
-	struct rjs_opmap_s *opmap;
 	rvmreg_t *thisptr;
 	rgc_t *gc;
 	void *userdata1;

@@ -39,7 +39,7 @@ static void rjs_op_not_castunsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, 
 	rvmreg_t uarg;
 
 	RVM_REG_SETTYPE(&uarg, RVM_DTYPE_UNSIGNED);
-	rjs_opmap_invoke_binary_handler(cpu->opmap, RVM_OPID_CAST, cpu, &uarg, arg1, &uarg);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_CAST, cpu, &uarg, arg1, &uarg);
 	if (cpu->error)
 		return;
 	rjs_op_not_unsigned(cpu, opid, res, &uarg);

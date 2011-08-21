@@ -27,7 +27,7 @@
 
 #define RVM_UNARY_HANDLER(__t__) (__t__)
 #define RVM_OP_HANDLER(__ft__, __st__) ((__ft__) * RVM_DTYPE_MAX + (__st__))
-
+#define RJS_USERDATA2MAP(__ud__) ((rjs_opmap_t*)(__ud__))
 
 enum {
 	RVM_OPID_NONE = 0,
