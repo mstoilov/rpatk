@@ -149,30 +149,30 @@ void rjs_op_cast_string_double(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const
 
 void rjs_op_cast_init(rjs_opmap_t *opmap)
 {
-	rjs_opmap_add_binary_operator(opmap, RVM_OPID_CAST);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rjs_op_cast_static_static, RVM_DTYPE_UNSIGNED, RVM_DTYPE_UNSIGNED);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rjs_op_cast_static_static, RVM_DTYPE_DOUBLE, RVM_DTYPE_DOUBLE);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rjs_op_cast_static_static, RVM_DTYPE_SIGNED, RVM_DTYPE_SIGNED);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rjs_op_cast_static_static, RVM_DTYPE_STRING, RVM_DTYPE_STRING);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rjs_op_cast_static_static, RVM_DTYPE_BOOLEAN, RVM_DTYPE_BOOLEAN);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rjs_op_cast_signed_boolean, RVM_DTYPE_SIGNED, RVM_DTYPE_BOOLEAN);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rjs_op_cast_signed_boolean, RVM_DTYPE_UNSIGNED, RVM_DTYPE_BOOLEAN);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rjs_op_cast_double_boolean, RVM_DTYPE_DOUBLE, RVM_DTYPE_BOOLEAN);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rjs_op_cast_pointer_boolean, RVM_DTYPE_STRING, RVM_DTYPE_BOOLEAN);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rjs_op_cast_pointer_boolean, RVM_DTYPE_ARRAY, RVM_DTYPE_BOOLEAN);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rjs_op_cast_pointer_boolean, RVM_DTYPE_HARRAY, RVM_DTYPE_BOOLEAN);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rjs_op_cast_unsigned_signed, RVM_DTYPE_BOOLEAN, RVM_DTYPE_SIGNED);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rjs_op_cast_unsigned_double, RVM_DTYPE_BOOLEAN, RVM_DTYPE_DOUBLE);
+	rjs_opmap_add_binary_operator(opmap, RJS_OPID_CAST);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_CAST, rjs_op_cast_static_static, RVM_DTYPE_UNSIGNED, RVM_DTYPE_UNSIGNED);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_CAST, rjs_op_cast_static_static, RVM_DTYPE_DOUBLE, RVM_DTYPE_DOUBLE);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_CAST, rjs_op_cast_static_static, RVM_DTYPE_SIGNED, RVM_DTYPE_SIGNED);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_CAST, rjs_op_cast_static_static, RVM_DTYPE_STRING, RVM_DTYPE_STRING);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_CAST, rjs_op_cast_static_static, RVM_DTYPE_BOOLEAN, RVM_DTYPE_BOOLEAN);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_CAST, rjs_op_cast_signed_boolean, RVM_DTYPE_SIGNED, RVM_DTYPE_BOOLEAN);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_CAST, rjs_op_cast_signed_boolean, RVM_DTYPE_UNSIGNED, RVM_DTYPE_BOOLEAN);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_CAST, rjs_op_cast_double_boolean, RVM_DTYPE_DOUBLE, RVM_DTYPE_BOOLEAN);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_CAST, rjs_op_cast_pointer_boolean, RVM_DTYPE_STRING, RVM_DTYPE_BOOLEAN);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_CAST, rjs_op_cast_pointer_boolean, RVM_DTYPE_ARRAY, RVM_DTYPE_BOOLEAN);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_CAST, rjs_op_cast_pointer_boolean, RVM_DTYPE_HARRAY, RVM_DTYPE_BOOLEAN);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_CAST, rjs_op_cast_unsigned_signed, RVM_DTYPE_BOOLEAN, RVM_DTYPE_SIGNED);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_CAST, rjs_op_cast_unsigned_double, RVM_DTYPE_BOOLEAN, RVM_DTYPE_DOUBLE);
 
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rjs_op_cast_signed_double, RVM_DTYPE_SIGNED, RVM_DTYPE_DOUBLE);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rjs_op_cast_signed_unsigned, RVM_DTYPE_SIGNED, RVM_DTYPE_UNSIGNED);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rjs_op_cast_double_signed, RVM_DTYPE_DOUBLE, RVM_DTYPE_SIGNED);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rjs_op_cast_double_unsigned, RVM_DTYPE_DOUBLE, RVM_DTYPE_UNSIGNED);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rjs_op_cast_unsigned_signed, RVM_DTYPE_UNSIGNED, RVM_DTYPE_SIGNED);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rjs_op_cast_unsigned_double, RVM_DTYPE_UNSIGNED, RVM_DTYPE_DOUBLE);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rjs_op_cast_string_unsigned, RVM_DTYPE_STRING, RVM_DTYPE_UNSIGNED);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rjs_op_cast_string_signed, RVM_DTYPE_STRING, RVM_DTYPE_SIGNED);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_CAST, rjs_op_cast_string_double, RVM_DTYPE_STRING, RVM_DTYPE_DOUBLE);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_CAST, rjs_op_cast_signed_double, RVM_DTYPE_SIGNED, RVM_DTYPE_DOUBLE);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_CAST, rjs_op_cast_signed_unsigned, RVM_DTYPE_SIGNED, RVM_DTYPE_UNSIGNED);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_CAST, rjs_op_cast_double_signed, RVM_DTYPE_DOUBLE, RVM_DTYPE_SIGNED);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_CAST, rjs_op_cast_double_unsigned, RVM_DTYPE_DOUBLE, RVM_DTYPE_UNSIGNED);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_CAST, rjs_op_cast_unsigned_signed, RVM_DTYPE_UNSIGNED, RVM_DTYPE_SIGNED);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_CAST, rjs_op_cast_unsigned_double, RVM_DTYPE_UNSIGNED, RVM_DTYPE_DOUBLE);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_CAST, rjs_op_cast_string_unsigned, RVM_DTYPE_STRING, RVM_DTYPE_UNSIGNED);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_CAST, rjs_op_cast_string_signed, RVM_DTYPE_STRING, RVM_DTYPE_SIGNED);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_CAST, rjs_op_cast_string_double, RVM_DTYPE_STRING, RVM_DTYPE_DOUBLE);
 
 }
 

@@ -25,97 +25,75 @@
 #include "rlib/rarray.h"
 #include "rvm/rvmcpu.h"
 
-#define RVM_UNARY_HANDLER(__t__) (__t__)
-#define RVM_OP_HANDLER(__ft__, __st__) ((__ft__) * RVM_DTYPE_MAX + (__st__))
+#define RJS_UNARY_HANDLER(__t__) (__t__)
+#define RJS_BINARY_HANDLER(__ft__, __st__) ((__ft__) * RVM_DTYPE_MAX + (__st__))
 #define RJS_USERDATA2MAP(__ud__) ((rjs_opmap_t*)(__ud__))
 
 enum {
-	RVM_OPID_NONE = 0,
-	RVM_OPID_ADD,
-	RVM_OPID_SUB,
-	RVM_OPID_MUL,
-	RVM_OPID_DIV,
-	RVM_OPID_CAT,
-	RVM_OPID_CAST,
-	RVM_OPID_LSL,
-	RVM_OPID_LSR,
-	RVM_OPID_LSRU,
-	RVM_OPID_AND,
-	RVM_OPID_XOR,
-	RVM_OPID_OR,
-	RVM_OPID_NOT,
-	RVM_OPID_CMP,
-	RVM_OPID_CMN,
-	RVM_OPID_MOD,
-	RVM_OPID_LOGICAND,
-	RVM_OPID_LOGICOR,
-	RVM_OPID_LOGICNOT,
-	RVM_OPID_EQ,
-	RVM_OPID_NOTEQ,
-	RVM_OPID_LESS,
-	RVM_OPID_LESSEQ,
-	RVM_OPID_GREATER,
-	RVM_OPID_GREATEREQ,
+	RJS_OPID_NONE = 0,
+	RJS_OPID_ADD,
+	RJS_OPID_SUB,
+	RJS_OPID_MUL,
+	RJS_OPID_DIV,
+	RJS_OPID_CAT,
+	RJS_OPID_CAST,
+	RJS_OPID_LSL,
+	RJS_OPID_LSR,
+	RJS_OPID_LSRU,
+	RJS_OPID_AND,
+	RJS_OPID_XOR,
+	RJS_OPID_OR,
+	RJS_OPID_NOT,
+	RJS_OPID_CMP,
+	RJS_OPID_CMN,
+	RJS_OPID_MOD,
+	RJS_OPID_LOGICAND,
+	RJS_OPID_LOGICOR,
+	RJS_OPID_LOGICNOT,
+	RJS_OPID_EQ,
+	RJS_OPID_NOTEQ,
+	RJS_OPID_LESS,
+	RJS_OPID_LESSEQ,
+	RJS_OPID_GREATER,
+	RJS_OPID_GREATEREQ,
 
-	RVM_OPID_USER0,
-	RVM_OPID_USER1,
-	RVM_OPID_USER2,
-	RVM_OPID_USER3,
-	RVM_OPID_USER4,
-	RVM_OPID_USER5,
-	RVM_OPID_USER6,
-	RVM_OPID_USER7,
-	RVM_OPID_USER8,
-	RVM_OPID_USER9,
-	RVM_OPID_USER10,
-	RVM_OPID_USER11,
-	RVM_OPID_USER12,
-	RVM_OPID_USER13,
-	RVM_OPID_USER14,
-	RVM_OPID_USER15,
-	RVM_OPID_LAST
+	RJS_OPID_USER0,
+	RJS_OPID_USER1,
+	RJS_OPID_USER2,
+	RJS_OPID_USER3,
+	RJS_OPID_USER4,
+	RJS_OPID_USER5,
+	RJS_OPID_USER6,
+	RJS_OPID_USER7,
+	RJS_OPID_USER8,
+	RJS_OPID_USER9,
+	RJS_OPID_USER10,
+	RJS_OPID_USER11,
+	RJS_OPID_USER12,
+	RJS_OPID_USER13,
+	RJS_OPID_USER14,
+	RJS_OPID_USER15,
+	RJS_OPID_LAST
 };
 
-/*
-#define RVM_OPID_NONE 0
-#define RVM_OPID_ADD 1
-#define RVM_OPID_SUB 2
-#define RVM_OPID_MUL 3
-#define RVM_OPID_DIV 4
-#define RVM_OPID_CAT 5
-#define RVM_OPID_CAST 6
-#define RVM_OPID_LSL 7
-#define RVM_OPID_LSR 8
-#define RVM_OPID_LSRU 8
 
-#define RVM_OPID_AND 9
-#define RVM_OPID_XOR 10
-#define RVM_OPID_OR 11
-#define RVM_OPID_NOT 12
-#define RVM_OPID_CMP 13
-#define RVM_OPID_CMN 14
-#define RVM_OPID_MOD 15
-#define RVM_OPID_LESS 16
-
-#define RVM_OPID_LAST 32
-*/
 /*
  * Important: the res pointer might be the same as one of the arguments, the operator must
  * be implemented to take care of such cases.
  */
-typedef void (*rvm_unaryop_handler)(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg);
-typedef void (*rvm_binaryop_handler)(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2);
+typedef void (*rjs_unaryop_handler)(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg);
+typedef void (*rjs_binaryop_handler)(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2);
 
-typedef union rvm_ophandler_s {
-	rvm_unaryop_handler unary;
-	rvm_binaryop_handler op;
-} rvm_ophandler_t;
+typedef union rjs_ophandler_s {
+	rjs_unaryop_handler unary;
+	rjs_binaryop_handler op;
+} rjs_ophandler_t;
 
-typedef struct rvm_opinfo_s {
+typedef struct rjs_opinfo_s {
 	ruint16 opid;
 	rboolean unary;
-	rvm_ophandler_t *handlers;
-} rvm_opinfo_t;
+	rjs_ophandler_t *handlers;
+} rjs_opinfo_t;
 
 typedef struct rjs_opmap_s {
 	rarray_t *operators;
@@ -126,8 +104,8 @@ rjs_opmap_t *rjs_opmap_create();
 void rjs_opmap_destroy(rjs_opmap_t *opmap);
 void rjs_opmap_add_binary_operator(rjs_opmap_t *opmap, ruint16 opid);
 void rjs_opmap_add_unary_operator(rjs_opmap_t *opmap, ruint16 opid);
-int rjs_opmap_set_binary_handler(rjs_opmap_t *opmap, ruint16 opid, rvm_binaryop_handler func, unsigned char firstType, unsigned char secondType);
-int rjs_opmap_set_unary_handler(rjs_opmap_t *opmap, ruint16 opid, rvm_unaryop_handler func, unsigned char type);
+int rjs_opmap_set_binary_handler(rjs_opmap_t *opmap, ruint16 opid, rjs_binaryop_handler func, unsigned char firstType, unsigned char secondType);
+int rjs_opmap_set_unary_handler(rjs_opmap_t *opmap, ruint16 opid, rjs_unaryop_handler func, unsigned char type);
 void rjs_opmap_invoke_binary_handler(rjs_opmap_t *opmap, ruint16 opid, rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2);
 void rjs_opmap_invoke_unary_handler(rjs_opmap_t *opmap, ruint16 opid, rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg);
 

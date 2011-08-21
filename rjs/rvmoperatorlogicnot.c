@@ -76,16 +76,16 @@ static void rjs_op_logicnot_nan(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, cons
 void rjs_op_logicnot_init(rjs_opmap_t *opmap)
 {
 	int i;
-	rjs_opmap_add_unary_operator(opmap, RVM_OPID_LOGICNOT);
+	rjs_opmap_add_unary_operator(opmap, RJS_OPID_LOGICNOT);
 	for (i = 0; i < RVM_DTYPE_USER; i++) {
-		rjs_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rjs_op_logicnot_nan, RVM_DTYPE_NAN);
-		rjs_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rjs_op_logicnot_nan, RVM_DTYPE_UNDEF);
+		rjs_opmap_set_unary_handler(opmap, RJS_OPID_LOGICNOT, rjs_op_logicnot_nan, RVM_DTYPE_NAN);
+		rjs_opmap_set_unary_handler(opmap, RJS_OPID_LOGICNOT, rjs_op_logicnot_nan, RVM_DTYPE_UNDEF);
 	}
-	rjs_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rjs_op_logicnot_unsigned, RVM_DTYPE_UNSIGNED);
-	rjs_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rjs_op_logicnot_unsigned, RVM_DTYPE_BOOLEAN);
-	rjs_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rjs_op_logicnot_unsigned, RVM_DTYPE_ARRAY);
-	rjs_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rjs_op_logicnot_unsigned, RVM_DTYPE_HARRAY);
-	rjs_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rjs_op_logicnot_signed, RVM_DTYPE_SIGNED);
-	rjs_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rjs_op_logicnot_double, RVM_DTYPE_DOUBLE);
-	rjs_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rjs_op_logicnot_string, RVM_DTYPE_STRING);
+	rjs_opmap_set_unary_handler(opmap, RJS_OPID_LOGICNOT, rjs_op_logicnot_unsigned, RVM_DTYPE_UNSIGNED);
+	rjs_opmap_set_unary_handler(opmap, RJS_OPID_LOGICNOT, rjs_op_logicnot_unsigned, RVM_DTYPE_BOOLEAN);
+	rjs_opmap_set_unary_handler(opmap, RJS_OPID_LOGICNOT, rjs_op_logicnot_unsigned, RVM_DTYPE_ARRAY);
+	rjs_opmap_set_unary_handler(opmap, RJS_OPID_LOGICNOT, rjs_op_logicnot_unsigned, RVM_DTYPE_HARRAY);
+	rjs_opmap_set_unary_handler(opmap, RJS_OPID_LOGICNOT, rjs_op_logicnot_signed, RVM_DTYPE_SIGNED);
+	rjs_opmap_set_unary_handler(opmap, RJS_OPID_LOGICNOT, rjs_op_logicnot_double, RVM_DTYPE_DOUBLE);
+	rjs_opmap_set_unary_handler(opmap, RJS_OPID_LOGICNOT, rjs_op_logicnot_string, RVM_DTYPE_STRING);
 }

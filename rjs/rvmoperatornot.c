@@ -39,7 +39,7 @@ static void rjs_op_not_castunsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, 
 	rvmreg_t uarg;
 
 	RVM_REG_SETTYPE(&uarg, RVM_DTYPE_UNSIGNED);
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_CAST, cpu, &uarg, arg1, &uarg);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_CAST, cpu, &uarg, arg1, &uarg);
 	if (cpu->error)
 		return;
 	rjs_op_not_unsigned(cpu, opid, res, &uarg);
@@ -57,15 +57,15 @@ void rjs_op_not_init(rjs_opmap_t *opmap)
 {
 	int i;
 
-	rjs_opmap_add_unary_operator(opmap, RVM_OPID_NOT);
+	rjs_opmap_add_unary_operator(opmap, RJS_OPID_NOT);
 	for (i = 0; i < RVM_DTYPE_USER; i++) {
-		rjs_opmap_set_unary_handler(opmap, RVM_OPID_NOT, rjs_op_not_nan, RVM_DTYPE_NAN);
-		rjs_opmap_set_unary_handler(opmap, RVM_OPID_NOT, rjs_op_not_nan, RVM_DTYPE_UNDEF);
+		rjs_opmap_set_unary_handler(opmap, RJS_OPID_NOT, rjs_op_not_nan, RVM_DTYPE_NAN);
+		rjs_opmap_set_unary_handler(opmap, RJS_OPID_NOT, rjs_op_not_nan, RVM_DTYPE_UNDEF);
 	}
 
-	rjs_opmap_set_unary_handler(opmap, RVM_OPID_NOT, rjs_op_not_unsigned, RVM_DTYPE_UNSIGNED);
-	rjs_opmap_set_unary_handler(opmap, RVM_OPID_NOT, rjs_op_not_unsigned, RVM_DTYPE_BOOLEAN);
-	rjs_opmap_set_unary_handler(opmap, RVM_OPID_NOT, rjs_op_not_castunsigned, RVM_DTYPE_SIGNED);
-	rjs_opmap_set_unary_handler(opmap, RVM_OPID_NOT, rjs_op_not_castunsigned, RVM_DTYPE_DOUBLE);
-	rjs_opmap_set_unary_handler(opmap, RVM_OPID_NOT, rjs_op_not_castunsigned, RVM_DTYPE_STRING);
+	rjs_opmap_set_unary_handler(opmap, RJS_OPID_NOT, rjs_op_not_unsigned, RVM_DTYPE_UNSIGNED);
+	rjs_opmap_set_unary_handler(opmap, RJS_OPID_NOT, rjs_op_not_unsigned, RVM_DTYPE_BOOLEAN);
+	rjs_opmap_set_unary_handler(opmap, RJS_OPID_NOT, rjs_op_not_castunsigned, RVM_DTYPE_SIGNED);
+	rjs_opmap_set_unary_handler(opmap, RJS_OPID_NOT, rjs_op_not_castunsigned, RVM_DTYPE_DOUBLE);
+	rjs_opmap_set_unary_handler(opmap, RJS_OPID_NOT, rjs_op_not_castunsigned, RVM_DTYPE_STRING);
 }

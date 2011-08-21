@@ -30,7 +30,7 @@ rjs_opmap_t *rjs_opmap_create()
 	if (!opmap)
 		return NULL;
 	r_memset(opmap, 0, sizeof(*opmap));
-	opmap->operators = r_array_create(sizeof(rvm_opinfo_t));
+	opmap->operators = r_array_create(sizeof(rjs_opinfo_t));
 	return opmap;
 }
 
@@ -38,12 +38,12 @@ rjs_opmap_t *rjs_opmap_create()
 void rjs_opmap_destroy(rjs_opmap_t *opmap)
 {
 	unsigned long i;
-	rvm_opinfo_t *opinfo;
+	rjs_opinfo_t *opinfo;
 
 	if (!opmap)
 		return;
 	for (i = 0; i < r_array_length(opmap->operators); i++) {
-		opinfo = ((rvm_opinfo_t*)r_array_slot(opmap->operators, i));
+		opinfo = ((rjs_opinfo_t*)r_array_slot(opmap->operators, i));
 		if (opinfo->opid)
 			r_free(opinfo->handlers);
 	}
@@ -54,32 +54,32 @@ void rjs_opmap_destroy(rjs_opmap_t *opmap)
 
 void rjs_opmap_add_binary_operator(rjs_opmap_t *opmap, ruint16 opid)
 {
-	rvm_opinfo_t opinfo;
+	rjs_opinfo_t opinfo;
 
 	r_memset(&opinfo, 0, sizeof(opinfo));
 	opinfo.opid = opid;
-	opinfo.handlers = r_zmalloc(RVM_DTYPE_MAX * RVM_DTYPE_MAX * sizeof(rvm_ophandler_t));
+	opinfo.handlers = r_zmalloc(RVM_DTYPE_MAX * RVM_DTYPE_MAX * sizeof(rjs_ophandler_t));
 	r_array_replace(opmap->operators, opid, &opinfo);
 }
 
 
 void rjs_opmap_add_unary_operator(rjs_opmap_t *opmap, ruint16 opid)
 {
-	rvm_opinfo_t opinfo;
+	rjs_opinfo_t opinfo;
 
 	r_memset(&opinfo, 0, sizeof(opinfo));
 	opinfo.opid = opid;
 	opinfo.unary = TRUE;
-	opinfo.handlers = r_malloc(RVM_DTYPE_MAX * sizeof(rvm_ophandler_t));
+	opinfo.handlers = r_malloc(RVM_DTYPE_MAX * sizeof(rjs_ophandler_t));
 	r_array_replace(opmap->operators, opid, &opinfo);
 }
 
 
-int rjs_opmap_set_binary_handler(rjs_opmap_t *opmap, ruint16 opid, rvm_binaryop_handler func, unsigned char firstType, unsigned char secondType)
+int rjs_opmap_set_binary_handler(rjs_opmap_t *opmap, ruint16 opid, rjs_binaryop_handler func, unsigned char firstType, unsigned char secondType)
 {
-	rvm_ophandler_t *h;
-	unsigned int index = RVM_OP_HANDLER(firstType, secondType);
-	rvm_opinfo_t *opinfo = ((rvm_opinfo_t*)r_array_slot(opmap->operators, opid));
+	rjs_ophandler_t *h;
+	unsigned int index = RJS_BINARY_HANDLER(firstType, secondType);
+	rjs_opinfo_t *opinfo = ((rjs_opinfo_t*)r_array_slot(opmap->operators, opid));
 	if (!opinfo->handlers)
 		return -1;
 	h = &opinfo->handlers[index];
@@ -88,13 +88,13 @@ int rjs_opmap_set_binary_handler(rjs_opmap_t *opmap, ruint16 opid, rvm_binaryop_
 }
 
 
-int rjs_opmap_set_unary_handler(rjs_opmap_t *opmap, ruint16 opid, rvm_unaryop_handler func, unsigned char type)
+int rjs_opmap_set_unary_handler(rjs_opmap_t *opmap, ruint16 opid, rjs_unaryop_handler func, unsigned char type)
 {
-	rvm_ophandler_t *h;
-	rvm_opinfo_t *opinfo = ((rvm_opinfo_t*)r_array_slot(opmap->operators, opid));
+	rjs_ophandler_t *h;
+	rjs_opinfo_t *opinfo = ((rjs_opinfo_t*)r_array_slot(opmap->operators, opid));
 	if (!opinfo->handlers)
 		return -1;
-	h = &opinfo->handlers[RVM_UNARY_HANDLER(type)];
+	h = &opinfo->handlers[RJS_UNARY_HANDLER(type)];
 	h->unary = func;
 	return 0;
 }
@@ -102,8 +102,8 @@ int rjs_opmap_set_unary_handler(rjs_opmap_t *opmap, ruint16 opid, rvm_unaryop_ha
 
 void rjs_opmap_invoke_binary_handler(rjs_opmap_t *opmap, ruint16 opid, rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
-	rvm_ophandler_t *h;
-	rvm_opinfo_t *opinfo;
+	rjs_ophandler_t *h;
+	rjs_opinfo_t *opinfo;
 	unsigned int index;
 	rstring_t tempstr1, tempstr2;
 	rvmreg_t temparg1, temparg2;
@@ -131,10 +131,10 @@ void rjs_opmap_invoke_binary_handler(rjs_opmap_t *opmap, ruint16 opid, rvmcpu_t 
 	}
 
 
-	index = RVM_OP_HANDLER(RVM_REG_GETTYPE(arg1), RVM_REG_GETTYPE(arg2));
+	index = RJS_BINARY_HANDLER(RVM_REG_GETTYPE(arg1), RVM_REG_GETTYPE(arg2));
 	if (opid >= r_array_length(opmap->operators))
 		goto error;
-	opinfo = ((rvm_opinfo_t*)r_array_slot(opmap->operators, opid));
+	opinfo = ((rjs_opinfo_t*)r_array_slot(opmap->operators, opid));
 	h = &opinfo->handlers[index];
 	if (h->op == NULL)
 		goto error;
@@ -148,8 +148,8 @@ error:
 
 void rjs_opmap_invoke_unary_handler(rjs_opmap_t *opmap, ruint16 opid, rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg)
 {
-	rvm_ophandler_t *h;
-	rvm_opinfo_t *opinfo;
+	rjs_ophandler_t *h;
+	rjs_opinfo_t *opinfo;
 	unsigned int index;
 	rstring_t tempstr;
 	rvmreg_t temparg;
@@ -163,10 +163,10 @@ void rjs_opmap_invoke_unary_handler(rjs_opmap_t *opmap, ruint16 opid, rvmcpu_t *
 		arg = &temparg;
 	}
 
-	index = RVM_UNARY_HANDLER(RVM_REG_GETTYPE(arg));
+	index = RJS_UNARY_HANDLER(RVM_REG_GETTYPE(arg));
 	if (opid >= r_array_length(opmap->operators))
 		goto error;
-	opinfo = ((rvm_opinfo_t*)r_array_slot(opmap->operators, opid));
+	opinfo = ((rjs_opinfo_t*)r_array_slot(opmap->operators, opid));
 	h = &opinfo->handlers[index];
 	if (h->unary == NULL)
 		goto error;

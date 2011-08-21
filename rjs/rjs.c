@@ -51,7 +51,7 @@ static void rjs_op_cast(rvmcpu_t *cpu, rvm_asmins_t *ins)
 
 	RVM_REG_CLEAR(&tmp);
 	RVM_REG_SETTYPE(&tmp, type);
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_CAST, cpu, RVM_CPUREG_PTR(cpu, ins->op1), RVM_CPUREG_PTR(cpu, ins->op2), &tmp);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_CAST, cpu, RVM_CPUREG_PTR(cpu, ins->op1), RVM_CPUREG_PTR(cpu, ins->op2), &tmp);
 }
 
 
@@ -60,7 +60,7 @@ static void rjs_op_eadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_ADD, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_ADD, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
 }
 
 
@@ -69,7 +69,7 @@ static void rjs_op_esub(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_SUB, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_SUB, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
 }
 
 
@@ -79,7 +79,7 @@ static void rjs_op_eneg(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t zero;
 
 	rvm_reg_setunsigned(&zero, 0);
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_SUB, cpu, RVM_CPUREG_PTR(cpu, ins->op1), &zero, arg2);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_SUB, cpu, RVM_CPUREG_PTR(cpu, ins->op1), &zero, arg2);
 }
 
 
@@ -89,7 +89,7 @@ static void rjs_op_emul(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_MUL, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_MUL, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
 }
 
 
@@ -98,7 +98,7 @@ static void rjs_op_ediv(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_DIV, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_DIV, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
 }
 
 
@@ -107,7 +107,7 @@ static void rjs_op_emod(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_MOD, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_MOD, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
 }
 
 
@@ -116,7 +116,7 @@ static void rjs_op_elsl(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_LSL, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_LSL, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
 }
 
 
@@ -125,7 +125,7 @@ static void rjs_op_elsr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_LSR, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_LSR, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
 }
 
 
@@ -134,7 +134,7 @@ static void rjs_op_elsru(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_LSRU, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_LSRU, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
 }
 
 
@@ -143,7 +143,7 @@ static void rjs_op_eand(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_AND, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_AND, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
 }
 
 
@@ -152,7 +152,7 @@ static void rjs_op_eorr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_OR, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_OR, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
 }
 
 
@@ -161,7 +161,7 @@ static void rjs_op_exor(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_XOR, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_XOR, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
 }
 
 
@@ -169,7 +169,7 @@ static void rjs_op_enot(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 
-	rjs_opmap_invoke_unary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_NOT, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2);
+	rjs_opmap_invoke_unary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_NOT, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2);
 }
 
 
@@ -178,7 +178,7 @@ static void rjs_op_eland(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_LOGICAND, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_LOGICAND, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
 }
 
 
@@ -187,7 +187,7 @@ static void rjs_op_elor(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_LOGICOR, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_LOGICOR, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
 }
 
 
@@ -195,7 +195,7 @@ static void rjs_op_elnot(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 
-	rjs_opmap_invoke_unary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_LOGICNOT, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2);
+	rjs_opmap_invoke_unary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_LOGICNOT, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2);
 }
 
 
@@ -204,7 +204,7 @@ static void rjs_op_eeq(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_EQ, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_EQ, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
 }
 
 
@@ -213,7 +213,7 @@ static void rjs_op_enoteq(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_NOTEQ, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_NOTEQ, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
 }
 
 
@@ -222,7 +222,7 @@ static void rjs_op_egreat(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_GREATER, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_GREATER, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
 }
 
 
@@ -231,7 +231,7 @@ static void rjs_op_egreateq(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_GREATEREQ, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_GREATEREQ, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
 }
 
 
@@ -240,7 +240,7 @@ static void rjs_op_elesseq(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_LESSEQ, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_LESSEQ, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
 }
 
 
@@ -249,7 +249,7 @@ static void rjs_op_eless(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_LESS, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_LESS, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
 }
 
 
@@ -258,7 +258,7 @@ static void rjs_op_ecmp(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_CMP, cpu, NULL, arg1, arg2);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_CMP, cpu, NULL, arg1, arg2);
 }
 
 
@@ -267,7 +267,7 @@ static void rjs_op_ecmn(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_CMN, cpu, NULL, arg1, arg2);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_CMN, cpu, NULL, arg1, arg2);
 }
 
 
@@ -496,7 +496,7 @@ static void rjs_op_propstr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rpointer value;
 	long index;
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = (long)RVM_REG_GETL(&tmp);
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP) {
 
@@ -519,7 +519,7 @@ static void rjs_op_propldr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rpointer value;
 	long index;
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = (long)RVM_REG_GETL(&tmp);
 	rvm_reg_setundef(arg1);
 	if (rvm_reg_gettype(arg2) == RVM_DTYPE_MAP) {
@@ -541,7 +541,7 @@ static void rjs_op_propkeyldr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rstring_t *key;
 	long index;
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = (long)RVM_REG_GETL(&tmp);
 	RVM_REG_CLEAR(arg1);
 	RVM_REG_SETTYPE(arg1, RVM_DTYPE_UNDEF);
@@ -566,7 +566,7 @@ static void rjs_op_propdel(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t tmp = rvm_reg_create_signed(0);
 	rmap_t *a = NULL;
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = (long)RVM_REG_GETL(&tmp);
 	rvm_reg_setboolean(arg1, 0);
 	if (rvm_reg_gettype(arg2) == RVM_DTYPE_MAP) {
@@ -586,7 +586,7 @@ static void rjs_op_propaddr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rpointer value;
 	long index;
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = (long)RVM_REG_GETL(&tmp);
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP)
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
@@ -608,7 +608,7 @@ static void rjs_op_propnext(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rmap_t *map = NULL;
 	long index = -1;
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = (long)RVM_REG_GETL(&tmp);
 	if (rvm_reg_gettype(arg2) == RVM_DTYPE_MAP) {
 		map = (rmap_t*)RVM_REG_GETP(arg2);
@@ -631,7 +631,7 @@ static void rjs_op_propprev(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rmap_t *map = NULL;
 	long index = -1;
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = (long)RVM_REG_GETL(&tmp);
 	if (rvm_reg_gettype(arg2) == RVM_DTYPE_MAP) {
 		map = (rmap_t*)RVM_REG_GETP(arg2);
@@ -655,7 +655,7 @@ static void rjs_op_mapdel(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t tmp = rvm_reg_create_signed(0);
 	rmap_t *a = NULL;
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = (long)RVM_REG_GETL(&tmp);
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP)
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
@@ -674,7 +674,7 @@ static void rjs_op_mapaddr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rpointer value;
 	long index;
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = (long)RVM_REG_GETL(&tmp);
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP)
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
@@ -697,7 +697,7 @@ static void rjs_op_mapldr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rpointer value;
 	long index;
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = (long)RVM_REG_GETL(&tmp);
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP)
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
@@ -721,7 +721,7 @@ static void rjs_op_mapkeyldr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rstring_t *key;
 	long index;
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = (long)RVM_REG_GETL(&tmp);
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP)
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
@@ -744,7 +744,7 @@ static void rjs_op_mapnext(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rmap_t *a = NULL;
 	long index;
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = (long)RVM_REG_GETL(&tmp);
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP)
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
@@ -767,7 +767,7 @@ static void rjs_op_mapprev(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rmap_t *a = NULL;
 	long index;
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = (long)RVM_REG_GETL(&tmp);
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP)
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
@@ -791,7 +791,7 @@ static void rjs_op_mapstr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rpointer value;
 	long index;
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = (long)RVM_REG_GETL(&tmp);
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_MAP)
 		RVM_ABORT(cpu, RVM_E_NOTOBJECT);
@@ -811,7 +811,7 @@ static void rjs_op_addra(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rcarray_t *a = RVM_REG_GETP(arg2);
 	long index;
 
-	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
+	rjs_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RJS_OPID_CAST, cpu, &tmp, RVM_CPUREG_PTR(cpu, ins->op3), &tmp);
 	index = (long)RVM_REG_GETL(&tmp);
 
 	if (rvm_reg_gettype(arg2) != RVM_DTYPE_ARRAY || index < 0) {

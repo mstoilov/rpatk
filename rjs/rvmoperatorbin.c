@@ -46,7 +46,7 @@
 #include "rvmoperatorcat.h"
 #include "rvmoperatordiv.h"
 
-static rvm_binopmap_t binary_operations[RVM_OPID_LAST+1];
+static rvm_binopmap_t binary_operations[RJS_OPID_LAST+1];
 
 static void rjs_op_abort_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, ruword op1, ruword op2)
 {
@@ -219,55 +219,55 @@ void rjs_op_binary_init(rjs_opmap_t *opmap)
 	int i;
 
 	for (i = 0; i < sizeof(binary_operations)/sizeof(binary_operations[0]); i++) {
-		binary_operations[i].opid = RVM_OPID_NONE;
+		binary_operations[i].opid = RJS_OPID_NONE;
 		binary_operations[i].unsigned_binop_fun = rjs_op_abort_unsigned;
 		binary_operations[i].long_binop_fun = rjs_op_abort_signed;
 		binary_operations[i].double_binop_fun = rjs_op_abort_double;
 	}
 
-	rjs_op_binary_insert(opmap, RVM_OPID_SUB, rjs_op_sub_unsigned, rjs_op_sub_signed, rjs_op_sub_double);
-	rjs_op_binary_insert(opmap, RVM_OPID_MUL, rjs_op_mul_unsigned, rjs_op_mul_signed, rjs_op_mul_double);
-	rjs_op_binary_insert(opmap, RVM_OPID_DIV, rjs_op_div_unsigned, rjs_op_div_signed, rjs_op_div_double);
-	rjs_op_binary_insert(opmap, RVM_OPID_LSL, rjs_op_lsl_unsigned, rjs_op_lsl_signed, rjs_op_lsl_double);
-	rjs_op_binary_insert(opmap, RVM_OPID_LSR, rjs_op_lsr_unsigned, rjs_op_lsr_signed, rjs_op_lsr_double);
-	rjs_op_binary_insert(opmap, RVM_OPID_LSRU, rjs_op_lsru_unsigned, rjs_op_lsru_signed, rjs_op_lsru_double);
-	rjs_op_binary_insert(opmap, RVM_OPID_AND, rjs_op_and_unsigned, rjs_op_and_signed, rjs_op_and_double);
-	rjs_op_binary_insert(opmap, RVM_OPID_XOR, rjs_op_xor_unsigned, rjs_op_xor_signed, rjs_op_xor_double);
-	rjs_op_binary_insert(opmap, RVM_OPID_OR, rjs_op_or_unsigned, rjs_op_or_signed, rjs_op_or_double);
-	rjs_op_binary_insert(opmap, RVM_OPID_CMP, rjs_op_cmp_unsigned, rjs_op_cmp_signed, rjs_op_cmp_double);
-	rjs_op_binary_insert(opmap, RVM_OPID_CMN, rjs_op_cmn_unsigned, rjs_op_cmn_signed, rjs_op_cmn_double);
-	rjs_op_binary_insert(opmap, RVM_OPID_MOD, rjs_op_mod_unsigned, rjs_op_mod_signed, rjs_op_mod_double);
-	rjs_op_binary_insert(opmap, RVM_OPID_LOGICOR, rjs_op_logicor_unsigned, rjs_op_logicor_signed, rjs_op_logicor_double);
-	rjs_op_binary_insert(opmap, RVM_OPID_LOGICAND, rjs_op_logicand_unsigned, rjs_op_logicand_signed, rjs_op_logicand_double);
+	rjs_op_binary_insert(opmap, RJS_OPID_SUB, rjs_op_sub_unsigned, rjs_op_sub_signed, rjs_op_sub_double);
+	rjs_op_binary_insert(opmap, RJS_OPID_MUL, rjs_op_mul_unsigned, rjs_op_mul_signed, rjs_op_mul_double);
+	rjs_op_binary_insert(opmap, RJS_OPID_DIV, rjs_op_div_unsigned, rjs_op_div_signed, rjs_op_div_double);
+	rjs_op_binary_insert(opmap, RJS_OPID_LSL, rjs_op_lsl_unsigned, rjs_op_lsl_signed, rjs_op_lsl_double);
+	rjs_op_binary_insert(opmap, RJS_OPID_LSR, rjs_op_lsr_unsigned, rjs_op_lsr_signed, rjs_op_lsr_double);
+	rjs_op_binary_insert(opmap, RJS_OPID_LSRU, rjs_op_lsru_unsigned, rjs_op_lsru_signed, rjs_op_lsru_double);
+	rjs_op_binary_insert(opmap, RJS_OPID_AND, rjs_op_and_unsigned, rjs_op_and_signed, rjs_op_and_double);
+	rjs_op_binary_insert(opmap, RJS_OPID_XOR, rjs_op_xor_unsigned, rjs_op_xor_signed, rjs_op_xor_double);
+	rjs_op_binary_insert(opmap, RJS_OPID_OR, rjs_op_or_unsigned, rjs_op_or_signed, rjs_op_or_double);
+	rjs_op_binary_insert(opmap, RJS_OPID_CMP, rjs_op_cmp_unsigned, rjs_op_cmp_signed, rjs_op_cmp_double);
+	rjs_op_binary_insert(opmap, RJS_OPID_CMN, rjs_op_cmn_unsigned, rjs_op_cmn_signed, rjs_op_cmn_double);
+	rjs_op_binary_insert(opmap, RJS_OPID_MOD, rjs_op_mod_unsigned, rjs_op_mod_signed, rjs_op_mod_double);
+	rjs_op_binary_insert(opmap, RJS_OPID_LOGICOR, rjs_op_logicor_unsigned, rjs_op_logicor_signed, rjs_op_logicor_double);
+	rjs_op_binary_insert(opmap, RJS_OPID_LOGICAND, rjs_op_logicand_unsigned, rjs_op_logicand_signed, rjs_op_logicand_double);
 
-	rjs_op_binary_insert(opmap, RVM_OPID_ADD, rjs_op_add_unsigned, rjs_op_add_signed, rjs_op_add_double);
+	rjs_op_binary_insert(opmap, RJS_OPID_ADD, rjs_op_add_unsigned, rjs_op_add_signed, rjs_op_add_double);
 	/*
-	 * Overwrite RVM_OPID_ADD for string concatenation
+	 * Overwrite RJS_OPID_ADD for string concatenation
 	 */
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rjs_op_concat_string_string, RVM_DTYPE_STRING, RVM_DTYPE_STRING);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rjs_op_concat_string_signed, RVM_DTYPE_STRING, RVM_DTYPE_SIGNED);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rjs_op_concat_string_signed, RVM_DTYPE_STRING, RVM_DTYPE_UNSIGNED);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rjs_op_concat_signed_string, RVM_DTYPE_SIGNED, RVM_DTYPE_STRING);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rjs_op_concat_signed_string, RVM_DTYPE_UNSIGNED, RVM_DTYPE_STRING);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rjs_op_concat_string_double, RVM_DTYPE_STRING, RVM_DTYPE_DOUBLE);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_ADD, rjs_op_concat_double_string, RVM_DTYPE_DOUBLE, RVM_DTYPE_STRING);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_ADD, rjs_op_concat_string_string, RVM_DTYPE_STRING, RVM_DTYPE_STRING);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_ADD, rjs_op_concat_string_signed, RVM_DTYPE_STRING, RVM_DTYPE_SIGNED);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_ADD, rjs_op_concat_string_signed, RVM_DTYPE_STRING, RVM_DTYPE_UNSIGNED);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_ADD, rjs_op_concat_signed_string, RVM_DTYPE_SIGNED, RVM_DTYPE_STRING);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_ADD, rjs_op_concat_signed_string, RVM_DTYPE_UNSIGNED, RVM_DTYPE_STRING);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_ADD, rjs_op_concat_string_double, RVM_DTYPE_STRING, RVM_DTYPE_DOUBLE);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_ADD, rjs_op_concat_double_string, RVM_DTYPE_DOUBLE, RVM_DTYPE_STRING);
 
-	rjs_op_binary_insert(opmap, RVM_OPID_EQ, rjs_op_eq_unsigned, rjs_op_eq_signed, rjs_op_eq_double);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_EQ, rjs_op_eq_string_string, RVM_DTYPE_STRING, RVM_DTYPE_STRING);
+	rjs_op_binary_insert(opmap, RJS_OPID_EQ, rjs_op_eq_unsigned, rjs_op_eq_signed, rjs_op_eq_double);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_EQ, rjs_op_eq_string_string, RVM_DTYPE_STRING, RVM_DTYPE_STRING);
 
-	rjs_op_binary_insert(opmap, RVM_OPID_NOTEQ, rjs_op_noteq_unsigned, rjs_op_noteq_signed, rjs_op_noteq_double);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_NOTEQ, rjs_op_noteq_string_string, RVM_DTYPE_STRING, RVM_DTYPE_STRING);
+	rjs_op_binary_insert(opmap, RJS_OPID_NOTEQ, rjs_op_noteq_unsigned, rjs_op_noteq_signed, rjs_op_noteq_double);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_NOTEQ, rjs_op_noteq_string_string, RVM_DTYPE_STRING, RVM_DTYPE_STRING);
 
-	rjs_op_binary_insert(opmap, RVM_OPID_LESS, rjs_op_less_unsigned, rjs_op_less_signed, rjs_op_less_double);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_LESS, rjs_op_less_string_string, RVM_DTYPE_STRING, RVM_DTYPE_STRING);
+	rjs_op_binary_insert(opmap, RJS_OPID_LESS, rjs_op_less_unsigned, rjs_op_less_signed, rjs_op_less_double);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_LESS, rjs_op_less_string_string, RVM_DTYPE_STRING, RVM_DTYPE_STRING);
 
-	rjs_op_binary_insert(opmap, RVM_OPID_LESSEQ, rjs_op_lesseq_unsigned, rjs_op_lesseq_signed, rjs_op_lesseq_double);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_LESSEQ, rjs_op_lesseq_string_string, RVM_DTYPE_STRING, RVM_DTYPE_STRING);
+	rjs_op_binary_insert(opmap, RJS_OPID_LESSEQ, rjs_op_lesseq_unsigned, rjs_op_lesseq_signed, rjs_op_lesseq_double);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_LESSEQ, rjs_op_lesseq_string_string, RVM_DTYPE_STRING, RVM_DTYPE_STRING);
 
-	rjs_op_binary_insert(opmap, RVM_OPID_GREATER, rjs_op_greater_unsigned, rjs_op_greater_signed, rjs_op_greater_double);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_GREATER, rjs_op_greater_string_string, RVM_DTYPE_STRING, RVM_DTYPE_STRING);
+	rjs_op_binary_insert(opmap, RJS_OPID_GREATER, rjs_op_greater_unsigned, rjs_op_greater_signed, rjs_op_greater_double);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_GREATER, rjs_op_greater_string_string, RVM_DTYPE_STRING, RVM_DTYPE_STRING);
 
-	rjs_op_binary_insert(opmap, RVM_OPID_GREATEREQ, rjs_op_greatereq_unsigned, rjs_op_greatereq_signed, rjs_op_greatereq_double);
-	rjs_opmap_set_binary_handler(opmap, RVM_OPID_GREATEREQ, rjs_op_greatereq_string_string, RVM_DTYPE_STRING, RVM_DTYPE_STRING);
+	rjs_op_binary_insert(opmap, RJS_OPID_GREATEREQ, rjs_op_greatereq_unsigned, rjs_op_greatereq_signed, rjs_op_greatereq_double);
+	rjs_opmap_set_binary_handler(opmap, RJS_OPID_GREATEREQ, rjs_op_greatereq_string_string, RVM_DTYPE_STRING, RVM_DTYPE_STRING);
 
 }
