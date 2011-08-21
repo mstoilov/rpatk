@@ -22,11 +22,11 @@
 #include "rvmoperator.h"
 
 
-rvm_opmap_t *rvm_opmap_create()
+rjs_opmap_t *rjs_opmap_create()
 {
-	rvm_opmap_t *opmap;
+	rjs_opmap_t *opmap;
 
-	opmap = (rvm_opmap_t*)r_malloc(sizeof(*opmap));
+	opmap = (rjs_opmap_t*)r_malloc(sizeof(*opmap));
 	if (!opmap)
 		return NULL;
 	r_memset(opmap, 0, sizeof(*opmap));
@@ -35,7 +35,7 @@ rvm_opmap_t *rvm_opmap_create()
 }
 
 
-void rvm_opmap_destroy(rvm_opmap_t *opmap)
+void rjs_opmap_destroy(rjs_opmap_t *opmap)
 {
 	unsigned long i;
 	rvm_opinfo_t *opinfo;
@@ -52,7 +52,7 @@ void rvm_opmap_destroy(rvm_opmap_t *opmap)
 }
 
 
-void rvm_opmap_add_binary_operator(rvm_opmap_t *opmap, ruint16 opid)
+void rjs_opmap_add_binary_operator(rjs_opmap_t *opmap, ruint16 opid)
 {
 	rvm_opinfo_t opinfo;
 
@@ -63,7 +63,7 @@ void rvm_opmap_add_binary_operator(rvm_opmap_t *opmap, ruint16 opid)
 }
 
 
-void rvm_opmap_add_unary_operator(rvm_opmap_t *opmap, ruint16 opid)
+void rjs_opmap_add_unary_operator(rjs_opmap_t *opmap, ruint16 opid)
 {
 	rvm_opinfo_t opinfo;
 
@@ -75,7 +75,7 @@ void rvm_opmap_add_unary_operator(rvm_opmap_t *opmap, ruint16 opid)
 }
 
 
-int rvm_opmap_set_binary_handler(rvm_opmap_t *opmap, ruint16 opid, rvm_binaryop_handler func, unsigned char firstType, unsigned char secondType)
+int rjs_opmap_set_binary_handler(rjs_opmap_t *opmap, ruint16 opid, rvm_binaryop_handler func, unsigned char firstType, unsigned char secondType)
 {
 	rvm_ophandler_t *h;
 	unsigned int index = RVM_OP_HANDLER(firstType, secondType);
@@ -88,7 +88,7 @@ int rvm_opmap_set_binary_handler(rvm_opmap_t *opmap, ruint16 opid, rvm_binaryop_
 }
 
 
-int rvm_opmap_set_unary_handler(rvm_opmap_t *opmap, ruint16 opid, rvm_unaryop_handler func, unsigned char type)
+int rjs_opmap_set_unary_handler(rjs_opmap_t *opmap, ruint16 opid, rvm_unaryop_handler func, unsigned char type)
 {
 	rvm_ophandler_t *h;
 	rvm_opinfo_t *opinfo = ((rvm_opinfo_t*)r_array_slot(opmap->operators, opid));
@@ -100,7 +100,7 @@ int rvm_opmap_set_unary_handler(rvm_opmap_t *opmap, ruint16 opid, rvm_unaryop_ha
 }
 
 
-void rvm_opmap_invoke_binary_handler(rvm_opmap_t *opmap, ruint16 opid, rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rjs_opmap_invoke_binary_handler(rjs_opmap_t *opmap, ruint16 opid, rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rvm_ophandler_t *h;
 	rvm_opinfo_t *opinfo;
@@ -146,7 +146,7 @@ error:
 }
 
 
-void rvm_opmap_invoke_unary_handler(rvm_opmap_t *opmap, ruint16 opid, rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg)
+void rjs_opmap_invoke_unary_handler(rjs_opmap_t *opmap, ruint16 opid, rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg)
 {
 	rvm_ophandler_t *h;
 	rvm_opinfo_t *opinfo;

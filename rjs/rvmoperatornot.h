@@ -29,7 +29,7 @@ extern "C" {
 #endif
 
 
-void rvm_op_not_init(rvm_opmap_t *opmap);
+void rjs_op_not_init(rjs_opmap_t *opmap);
 
 #ifdef __cplusplus
 }

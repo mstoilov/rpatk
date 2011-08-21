@@ -22,7 +22,7 @@
 #include "rvm/rvmreg.h"
 
 
-void rvm_op_lsru_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, ruword op1, ruword op2)
+void rjs_op_lsru_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, ruword op1, ruword op2)
 {
 	ruword r;
 
@@ -34,14 +34,14 @@ void rvm_op_lsru_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, ruword op1
 }
 
 
-void rvm_op_lsru_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, rword op1, rword op2)
+void rjs_op_lsru_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, rword op1, rword op2)
 {
-	rvm_op_lsru_unsigned(cpu, opid, res, op1, op2);
+	rjs_op_lsru_unsigned(cpu, opid, res, op1, op2);
 }
 
 
-void rvm_op_lsru_double(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, double op1, double op2)
+void rjs_op_lsru_double(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, double op1, double op2)
 {
-	rvm_op_lsru_unsigned(cpu, opid, res, (ruword)((long)op1), (ruword)((long)op2));
+	rjs_op_lsru_unsigned(cpu, opid, res, (ruword)((long)op1), (ruword)((long)op2));
 }
 

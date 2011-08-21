@@ -40,8 +40,8 @@ typedef struct rvm_binopmap_s {
 	rvm_binop_double double_binop_fun;
 } rvm_binopmap_t;
 
-void rvm_op_binary_insert(rvm_opmap_t *opmap, ruint16 opid, rvm_binop_unsigned u, rvm_binop_signed l, rvm_binop_double d);
-void rvm_op_binary_init(rvm_opmap_t *opmap);
+void rjs_op_binary_insert(rjs_opmap_t *opmap, ruint16 opid, rvm_binop_unsigned u, rvm_binop_signed l, rvm_binop_double d);
+void rjs_op_binary_init(rjs_opmap_t *opmap);
 
 #ifdef __cplusplus
 }

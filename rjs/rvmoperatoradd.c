@@ -22,7 +22,7 @@
 #include "rvm/rvmreg.h"
 
 
-void rvm_op_add_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, ruword op1, ruword op2)
+void rjs_op_add_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, ruword op1, ruword op2)
 {
 	ruword r;
 	r = op1 + op2;
@@ -35,7 +35,7 @@ void rvm_op_add_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, ruword op1,
 }
 
 
-void rvm_op_add_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, rword op1, rword op2)
+void rjs_op_add_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, rword op1, rword op2)
 {
 	rword r;
 	r = op1 + op2;
@@ -45,7 +45,7 @@ void rvm_op_add_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, rword op1, rw
 	RVM_STATUS_UPDATE(cpu, RVM_STATUS_N, r & RVM_SIGN_BIT);
 }
 
-void rvm_op_add_double(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, double op1, double op2)
+void rjs_op_add_double(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, double op1, double op2)
 {
 	double r;
 	r = op1 + op2;
@@ -56,7 +56,7 @@ void rvm_op_add_double(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, double op1, d
 }
 
 
-void rvm_op_concat_string_string(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rjs_op_concat_string_string(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rstring_t *s1 = (rstring_t *)RVM_REG_GETP(arg1);
 	rstring_t *s2 = (rstring_t *)RVM_REG_GETP(arg2);
@@ -68,7 +68,7 @@ void rvm_op_concat_string_string(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, con
 }
 
 
-void rvm_op_concat_signed_string(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rjs_op_concat_signed_string(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rstring_t *s1 = r_string_create_from_signed(RVM_REG_GETL(arg1));
 	rstring_t *s2 = (rstring_t *)RVM_REG_GETP(arg2);
@@ -81,7 +81,7 @@ void rvm_op_concat_signed_string(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, con
 }
 
 
-void rvm_op_concat_string_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rjs_op_concat_string_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rstring_t *s1 = (rstring_t *)RVM_REG_GETP(arg1);
 	rstring_t *s2 = r_string_create_from_signed(RVM_REG_GETL(arg2));
@@ -94,7 +94,7 @@ void rvm_op_concat_string_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, con
 }
 
 
-void rvm_op_concat_double_string(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rjs_op_concat_double_string(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rstring_t *s1 = r_string_create_from_double(RVM_REG_GETD(arg1));
 	rstring_t *s2 = (rstring_t *)RVM_REG_GETP(arg2);
@@ -107,7 +107,7 @@ void rvm_op_concat_double_string(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, con
 }
 
 
-void rvm_op_concat_string_double(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rjs_op_concat_string_double(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rstring_t *s1 = (rstring_t *)RVM_REG_GETP(arg1);
 	rstring_t *s2 = r_string_create_from_double(RVM_REG_GETD(arg2));

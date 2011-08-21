@@ -22,7 +22,7 @@
 #include "rvm/rvmreg.h"
 
 
-void rvm_op_xor_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, ruword op1, ruword op2)
+void rjs_op_xor_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, ruword op1, ruword op2)
 {
 	ruword r;
 
@@ -34,7 +34,7 @@ void rvm_op_xor_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, ruword op1,
 }
 
 
-void rvm_op_xor_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, rword op1, rword op2)
+void rjs_op_xor_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, rword op1, rword op2)
 {
 	rword r;
 
@@ -46,7 +46,7 @@ void rvm_op_xor_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, rword op1, rw
 }
 
 
-void rvm_op_xor_double(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, double op1, double op2)
+void rjs_op_xor_double(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, double op1, double op2)
 {
-	rvm_op_xor_signed(cpu, opid, res, (long)op1, (long)op2);
+	rjs_op_xor_signed(cpu, opid, res, (long)op1, (long)op2);
 }

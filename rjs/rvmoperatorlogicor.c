@@ -23,7 +23,7 @@
 #include "rvm/rvmreg.h"
 
 
-void rvm_op_logicor_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, ruword op1, ruword op2)
+void rjs_op_logicor_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, ruword op1, ruword op2)
 {
 	ruword r;
 
@@ -34,7 +34,7 @@ void rvm_op_logicor_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, ruword 
 }
 
 
-void rvm_op_logicor_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, rword op1, rword op2)
+void rjs_op_logicor_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, rword op1, rword op2)
 {
 	ruword r;
 
@@ -45,7 +45,7 @@ void rvm_op_logicor_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, rword op1
 }
 
 
-void rvm_op_logicor_double(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, double op1, double op2)
+void rjs_op_logicor_double(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, double op1, double op2)
 {
 	ruword r;
 

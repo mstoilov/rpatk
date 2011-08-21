@@ -23,7 +23,7 @@
 #include "rvm/rvmreg.h"
 
 
-void rvm_op_cat_string_string(rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rjs_op_cat_string_string(rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	rstring_t *s1 = (rstring_t*)RVM_REG_GETP(arg1);
 	rstring_t *s2 = (rstring_t*)RVM_REG_GETP(arg2);

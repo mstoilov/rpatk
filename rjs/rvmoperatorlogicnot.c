@@ -22,7 +22,7 @@
 #include "rvm/rvmreg.h"
 
 
-static void rvm_op_logicnot_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1)
+static void rjs_op_logicnot_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1)
 {
 	ruword r;
 
@@ -33,7 +33,7 @@ static void rvm_op_logicnot_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res,
 }
 
 
-static void rvm_op_logicnot_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1)
+static void rjs_op_logicnot_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1)
 {
 	ruword r;
 
@@ -44,7 +44,7 @@ static void rvm_op_logicnot_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, c
 }
 
 
-static void rvm_op_logicnot_double(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1)
+static void rjs_op_logicnot_double(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1)
 {
 	ruword r;
 
@@ -55,7 +55,7 @@ static void rvm_op_logicnot_double(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, c
 }
 
 
-static void rvm_op_logicnot_string(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1)
+static void rjs_op_logicnot_string(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1)
 {
 	ruword r;
 
@@ -66,26 +66,26 @@ static void rvm_op_logicnot_string(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, c
 }
 
 
-static void rvm_op_logicnot_nan(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1)
+static void rjs_op_logicnot_nan(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1)
 {
 	rvm_reg_cleanup(res);
 	RVM_REG_SETTYPE(res, RVM_DTYPE_NAN);
 }
 
 
-void rvm_op_logicnot_init(rvm_opmap_t *opmap)
+void rjs_op_logicnot_init(rjs_opmap_t *opmap)
 {
 	int i;
-	rvm_opmap_add_unary_operator(opmap, RVM_OPID_LOGICNOT);
+	rjs_opmap_add_unary_operator(opmap, RVM_OPID_LOGICNOT);
 	for (i = 0; i < RVM_DTYPE_USER; i++) {
-		rvm_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rvm_op_logicnot_nan, RVM_DTYPE_NAN);
-		rvm_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rvm_op_logicnot_nan, RVM_DTYPE_UNDEF);
+		rjs_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rjs_op_logicnot_nan, RVM_DTYPE_NAN);
+		rjs_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rjs_op_logicnot_nan, RVM_DTYPE_UNDEF);
 	}
-	rvm_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rvm_op_logicnot_unsigned, RVM_DTYPE_UNSIGNED);
-	rvm_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rvm_op_logicnot_unsigned, RVM_DTYPE_BOOLEAN);
-	rvm_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rvm_op_logicnot_unsigned, RVM_DTYPE_ARRAY);
-	rvm_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rvm_op_logicnot_unsigned, RVM_DTYPE_HARRAY);
-	rvm_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rvm_op_logicnot_signed, RVM_DTYPE_SIGNED);
-	rvm_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rvm_op_logicnot_double, RVM_DTYPE_DOUBLE);
-	rvm_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rvm_op_logicnot_string, RVM_DTYPE_STRING);
+	rjs_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rjs_op_logicnot_unsigned, RVM_DTYPE_UNSIGNED);
+	rjs_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rjs_op_logicnot_unsigned, RVM_DTYPE_BOOLEAN);
+	rjs_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rjs_op_logicnot_unsigned, RVM_DTYPE_ARRAY);
+	rjs_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rjs_op_logicnot_unsigned, RVM_DTYPE_HARRAY);
+	rjs_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rjs_op_logicnot_signed, RVM_DTYPE_SIGNED);
+	rjs_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rjs_op_logicnot_double, RVM_DTYPE_DOUBLE);
+	rjs_opmap_set_unary_handler(opmap, RVM_OPID_LOGICNOT, rjs_op_logicnot_string, RVM_DTYPE_STRING);
 }

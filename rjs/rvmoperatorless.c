@@ -22,7 +22,7 @@
 #include "rvm/rvmreg.h"
 
 
-void rvm_op_less_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, ruword op1, ruword op2)
+void rjs_op_less_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, ruword op1, ruword op2)
 {
 	ruword r;
 
@@ -33,7 +33,7 @@ void rvm_op_less_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, ruword op1
 }
 
 
-void rvm_op_less_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, rword op1, rword op2)
+void rjs_op_less_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, rword op1, rword op2)
 {
 	ruword r;
 
@@ -44,7 +44,7 @@ void rvm_op_less_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, rword op1, r
 }
 
 
-void rvm_op_less_double(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, double op1, double op2)
+void rjs_op_less_double(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, double op1, double op2)
 {
 	ruword r;
 
@@ -55,7 +55,7 @@ void rvm_op_less_double(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, double op1, 
 }
 
 
-void rvm_op_less_string_string(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
+void rjs_op_less_string_string(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2)
 {
 	ruword r;
 	rstring_t *s1 = (rstring_t *)RVM_REG_GETP(arg1);

@@ -28,11 +28,11 @@
 extern "C" {
 #endif
 
-void rvm_op_cast_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, ruword op1, ruword op2);
-void rvm_op_cast_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, rword op1, rword op2);
-void rvm_op_cast_double(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, double op1, double op2);
+void rjs_op_cast_unsigned(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, ruword op1, ruword op2);
+void rjs_op_cast_signed(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, rword op1, rword op2);
+void rjs_op_cast_double(rvmcpu_t *cpu, ruint16 opid, rvmreg_t *res, double op1, double op2);
 
-void rvm_op_cast_init(rvm_opmap_t *opmap);
+void rjs_op_cast_init(rjs_opmap_t *opmap);
 
 #ifdef __cplusplus
 }

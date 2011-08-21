@@ -117,18 +117,18 @@ typedef struct rvm_opinfo_s {
 	rvm_ophandler_t *handlers;
 } rvm_opinfo_t;
 
-typedef struct rvm_opmap_s {
+typedef struct rjs_opmap_s {
 	rarray_t *operators;
-} rvm_opmap_t;
+} rjs_opmap_t;
 
 
-rvm_opmap_t *rvm_opmap_create();
-void rvm_opmap_destroy(rvm_opmap_t *opmap);
-void rvm_opmap_add_binary_operator(rvm_opmap_t *opmap, ruint16 opid);
-void rvm_opmap_add_unary_operator(rvm_opmap_t *opmap, ruint16 opid);
-int rvm_opmap_set_binary_handler(rvm_opmap_t *opmap, ruint16 opid, rvm_binaryop_handler func, unsigned char firstType, unsigned char secondType);
-int rvm_opmap_set_unary_handler(rvm_opmap_t *opmap, ruint16 opid, rvm_unaryop_handler func, unsigned char type);
-void rvm_opmap_invoke_binary_handler(rvm_opmap_t *opmap, ruint16 opid, rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2);
-void rvm_opmap_invoke_unary_handler(rvm_opmap_t *opmap, ruint16 opid, rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg);
+rjs_opmap_t *rjs_opmap_create();
+void rjs_opmap_destroy(rjs_opmap_t *opmap);
+void rjs_opmap_add_binary_operator(rjs_opmap_t *opmap, ruint16 opid);
+void rjs_opmap_add_unary_operator(rjs_opmap_t *opmap, ruint16 opid);
+int rjs_opmap_set_binary_handler(rjs_opmap_t *opmap, ruint16 opid, rvm_binaryop_handler func, unsigned char firstType, unsigned char secondType);
+int rjs_opmap_set_unary_handler(rjs_opmap_t *opmap, ruint16 opid, rvm_unaryop_handler func, unsigned char type);
+void rjs_opmap_invoke_binary_handler(rjs_opmap_t *opmap, ruint16 opid, rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg1, const rvmreg_t *arg2);
+void rjs_opmap_invoke_unary_handler(rjs_opmap_t *opmap, ruint16 opid, rvmcpu_t *cpu, rvmreg_t *res, const rvmreg_t *arg);
 
 #endif
