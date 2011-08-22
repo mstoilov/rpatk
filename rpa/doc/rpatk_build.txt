@@ -3,7 +3,7 @@
 <h2>Linux</h2>
 To build the source tree and install on Linux:
 @code
-# cd rpatk/build/linux/ARCH_DIR
+# cd rpatk/build/unix/ARCH_DIR
 # make BLDCFG=release
 # sudo make install
 @endcode

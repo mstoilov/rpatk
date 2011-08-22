@@ -51,11 +51,33 @@ The following directives are supported:
 * * - Optional/Multiple
 @endcode
 
-@section range_chars Char Ranges
+@section range_chars Char Range
 Example:
 @code
 v::=[a-zA-Z12345-9]
 @endcode
+
+@section range_num Unicode Range
+Use Square brackets '[' ']' to specify a single unicode character or a range. The character codes can be specified both in decimal or hex format.
+To specify hex format use 'x' or '0x' or 'X' or '0X'
+
+Examples:
+@code
+specify space in hex unicode
+space ::= [#x20]
+
+specify space in dec unicode
+space ::= [#32]
+
+specify chars from a to z
+atoz ::= [#x61-#x7a]
+
+specify chars from a to z using hex '0x'
+atoz ::= [#0x61-#0x7a]
+
+v::="This is a single quoted string."
+@endcode
+
 
 @section strings Strings
 Single quoted or double quoted strings.
@@ -65,6 +87,7 @@ Example:
 v::='This is a single quoted string.'
 v::="This is a single quoted string."
 @endcode
+
 
 @section brackets Brackets '(' ')'
 To change the default precedence or to group expressions you can use brackets.
@@ -104,5 +127,52 @@ Examples:
 word ::= [a-zA-Z]+
 v ::= <word> - "Sun" - "Mon" - "Tue"
 @endcode
+
+@section operator_not NOT Operator '^'
+The operator NOT '^' will match one char if the expression behind the operator does not match. 
+@code
+v ::= ^a
+is the same as:
+v ::= . - a
+@endcode
+
+Examples:
+@code
+v ::= ^a
+v ::= ^[a-z]
+v ::= ^[#0x20]
+v ::= ^(abc | def)
+w ::= ^<v>
+@endcode
+
+
+@section operator_and Operator AND
+There is no operator AND, but the semantic can be implemented by combining the operator MINUS '-' and the operator NOT '^'.
+
+Examples:
+@code
+v ::= (abc) -^ (abcde)
+'abc' will match only if it is followed by 'de'
+@endcode
+
+
+
+@section special_chars Special Charactes
+@code
+* SPACE, TAB - These characters are ignored, if used outside a quoted string. 
+* . - Any char. The dot can be used to match any char. If used inside a quoted string it is treated as a normal character.
+@endcode
+
+
+Examples:
+@code
+v ::= a b c | d e f
+is exactly the same as:
+v ::= abc|def
+
+Use quotes to include a space in a rule:
+v ::= "a b c" | "d e f"
+@endcode
+
 
 */
