@@ -63,19 +63,18 @@ To specify hex format use 'x' or '0x' or 'X' or '0X'
 
 Examples:
 @code
-specify space in hex unicode
+# specify space in hex unicode
 space ::= [#x20]
 
-specify space in dec unicode
+# specify space in dec unicode
 space ::= [#32]
 
-specify chars from a to z
+# specify chars from a to z
 atoz ::= [#x61-#x7a]
 
-specify chars from a to z using hex '0x'
+# specify chars from a to z using hex '0x'
 atoz ::= [#0x61-#0x7a]
 
-v::="This is a single quoted string."
 @endcode
 
 
@@ -85,12 +84,12 @@ Example:
 
 @code
 v::='This is a single quoted string.'
-v::="This is a single quoted string."
+v::="This is a double quoted string."
 @endcode
 
 
 @section brackets Brackets '(' ')'
-To change the default precedence or to group expressions you can use brackets.
+Use brackets to change the default precedence or to group expressions.
 Examples:
 @code
 v::= (abc)+ | [a-z]+
@@ -132,7 +131,9 @@ v ::= <word> - "Sun" - "Mon" - "Tue"
 The operator NOT '^' will match one char if the expression behind the operator does not match. 
 @code
 v ::= ^a
+@endcode
 is the same as:
+@code
 v ::= . - a
 @endcode
 
@@ -152,10 +153,17 @@ There is no operator AND, but the semantic can be implemented by combining the o
 Examples:
 @code
 v ::= (abc) -^ (abcde)
-'abc' will match only if it is followed by 'de'
 @endcode
+'abc' will match only if it is followed by 'de'
 
 
+@section operator_precedence Operator precedence
+Listed from higher to lower:
+@code
+^ Operator NOT
+- Operator MINUS
+| Operator OR
+@endcode
 
 @section special_chars Special Charactes
 @code
@@ -167,10 +175,15 @@ v ::= (abc) -^ (abcde)
 Examples:
 @code
 v ::= a b c | d e f
+@endcode
+
 is exactly the same as:
+@code
 v ::= abc|def
+@endcode
 
 Use quotes to include a space in a rule:
+@code
 v ::= "a b c" | "d e f"
 @endcode
 
