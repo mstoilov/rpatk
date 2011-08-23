@@ -18,20 +18,13 @@ LIBS += -lrpa -lrvm -lrlib -lpthread -lm
 TESTS	+= $(OUTDIR)/funcarg-test
 TESTS   += $(OUTDIR)/codegen-test
 TESTS   += $(OUTDIR)/codemap-test
-TESTS   += $(OUTDIR)/opmap-test
-TESTS   += $(OUTDIR)/string-test
 TESTS   += $(OUTDIR)/rlock-test
-TESTS   += $(OUTDIR)/rarray-test
-TESTS   += $(OUTDIR)/rcarray-test
-TESTS   += $(OUTDIR)/rharray-test
-TESTS   += $(OUTDIR)/rmap-test
 TESTS   += $(OUTDIR)/scope-test
 TESTS   += $(OUTDIR)/rhash-test
 TESTS   += $(OUTDIR)/rvm-test
 TESTS   += $(OUTDIR)/loop-test
 TESTS   += $(OUTDIR)/speed-test
 TESTS   += $(OUTDIR)/memalloc-test
-TESTS   += $(OUTDIR)/asm-cast
 TESTS   += $(OUTDIR)/asm-add
 TESTS   += $(OUTDIR)/asm-adds
 TESTS   += $(OUTDIR)/asm-b
@@ -46,10 +39,17 @@ TESTS   += $(OUTDIR)/asm-sbc
 TESTS   += $(OUTDIR)/asm-shiftops
 TESTS   += $(OUTDIR)/asm-stack
 TESTS   += $(OUTDIR)/asm-bl
-TESTS   += $(OUTDIR)/asm-ecmp
-TESTS   += $(OUTDIR)/asm-esub
-TESTS   += $(OUTDIR)/asm-eadd
 
+ETESTS   += $(OUTDIR)/asm-ecmp
+ETESTS   += $(OUTDIR)/asm-esub
+ETESTS   += $(OUTDIR)/asm-eadd
+ETESTS   += $(OUTDIR)/rarray-test
+ETESTS   += $(OUTDIR)/rcarray-test
+ETESTS   += $(OUTDIR)/rharray-test
+ETESTS   += $(OUTDIR)/rmap-test
+ETESTS   += $(OUTDIR)/string-test
+ETESTS   += $(OUTDIR)/opmap-test
+ETESTS   += $(OUTDIR)/asm-cast
 
 all : $(OUTDIR) $(TESTS)
 

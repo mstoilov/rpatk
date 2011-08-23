@@ -99,6 +99,7 @@
 #!emitid DefaultClause					UID_DEFAULTCLAUSE					69
 #!emitid CaseCode						UID_CASECODE						70
 #!emitid CaseBlock						UID_CASEBLOCK						71
+#!emitid HexIntegerLiteral				UID_HEXINTEGERLITERAL				72
 
 #!abort SC
 

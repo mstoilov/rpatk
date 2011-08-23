@@ -21,17 +21,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "common.h"
-#include "rvm/rvmoperator.h"
-
-
-static void rvm_eadd(rvmcpu_t *cpu, rvm_asmins_t *ins)
-{
-	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
-
-	rvm_opmap_invoke_binary_handler(RJS_USERDATA2MAP(cpu->userdata2), RVM_OPID_ADD, cpu, RVM_CPUREG_PTR(cpu, ins->op1), arg2, arg3);
-//	fprintf(stdout, "%s %ld\n", __FUNCTION__, RVM_CPUREG_GETU(cpu, ins->op1));
-}
 
 
 static void rvm_callback_two(rvmcpu_t *vm, rvm_asmins_t *ins)
@@ -42,7 +31,6 @@ static void rvm_callback_two(rvmcpu_t *vm, rvm_asmins_t *ins)
 
 static rvm_switable_t calltable[] = {
 	{"rvm_callback_two", rvm_callback_two},
-	{"rvm_eadd", rvm_eadd},
 	{NULL, NULL},
 };
 
@@ -64,19 +52,13 @@ int main(int argc, char *argv[])
 
 	vmcode[off++] = rvm_asm(RVM_MOV, R4, DA, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_MOV, R5, DA, XX, iter);
-	vmcode[off++] = rvm_asmd(RVM_EMUL, R4, R4, DA, 2.0);
-	vmcode[off++] = rvm_asmd(RVM_EDIV, R4, R4, DA, 2.0);
-	vmcode[off++] = rvm_asm(RVM_EADD, R4, R4, DA, 2);
-	vmcode[off++] = rvm_asm(RVM_ESUB, R4, R4, DA, 1);
-//	vmcode[off++] = rvm_asm(RVM_MOV, R1, DA, XX, 1);
-//	vmcode[off++] = rvm_asm(RVM_MOV, R2, DA, XX, 2);
-//	vmcode[off++] = rvm_asm(RVM_EADD, R0, R1, R2, 0);
-//	vmcode[off++] = rvm_asm(RVM_OPSWI(rvm_cpu_swilookup(vm, "rvm_eadd")), R0, R1, R2, 0);
-//	vmcode[off++] = rvm_asm(RVM_PUSH, DA, XX, XX, 1);
-//	vmcode[off++] = rvm_asm(RVM_POP, R1, XX, XX, 0);
+	vmcode[off++] = rvm_asmd(RVM_MUL, R4, R4, DA, 2);
+	vmcode[off++] = rvm_asmd(RVM_DIV, R4, R4, DA, 2);
+	vmcode[off++] = rvm_asm(RVM_ADD, R4, R4, DA, 2);
+	vmcode[off++] = rvm_asm(RVM_SUB, R4, R4, DA, 1);
 	vmcode[off++] = rvm_asm(RVM_PUSH, R4, XX, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_POP, R4, XX, XX, 0);
-	vmcode[off++] = rvm_asm(RVM_ECMP, R4, R5, XX, 0);
+	vmcode[off++] = rvm_asm(RVM_CMP, R4, R5, XX, 0);
 	vmcode[off++] = rvm_asml(RVM_BLES, DA, XX, XX, -7);
 	vmcode[off++] = rvm_asm(RVM_MOV, R0, R4, XX, 0);
 	vmcode[off++] = rvm_asm(RVM_PRN, R0, XX, XX, 0);

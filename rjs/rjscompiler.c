@@ -532,6 +532,25 @@ int rjs_compiler_rh_decimalintegerliteral(rjs_compiler_t *co, rarray_t *records,
 }
 
 
+int rjs_compiler_rh_hexintegerliteral(rjs_compiler_t *co, rarray_t *records, long rec)
+{
+	rparecord_t *prec;
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rjs_compiler_debugtail(co, records, rec);
+
+	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
+		return -1;
+
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rvm_codegen_addins(co->cg, rvm_asml(RVM_MOV, R0, DA, XX, r_strtol(prec->input, NULL, 16)));
+	rjs_compiler_debugtail(co, records, rec);
+	return 0;
+}
+
+
 int rjs_compiler_rh_decimalnonintegerliteral(rjs_compiler_t *co, rarray_t *records, long rec)
 {
 	rparecord_t *prec;
@@ -1896,6 +1915,7 @@ rjs_compiler_t *rjs_compiler_create(rvmcpu_t *cpu)
 	co->handlers[UID_LEFTHANDSIDEEXPRESSION] = rjs_compiler_rh_lefthandsideexpression;
 	co->handlers[UID_LEFTHANDSIDEEXPRESSIONADDR] = rjs_compiler_rh_lefthandsideexpressionaddr;
 	co->handlers[UID_DECIMALINTEGERLITERAL] = rjs_compiler_rh_decimalintegerliteral;
+	co->handlers[UID_HEXINTEGERLITERAL] = rjs_compiler_rh_hexintegerliteral;
 	co->handlers[UID_DECIMALNONINTEGERLITERAL] = rjs_compiler_rh_decimalnonintegerliteral;
 	co->handlers[UID_STRINGCHARACTERS] = rjs_compiler_rh_stringcharacters;
 	co->handlers[UID_STRINGLITERAL] = rjs_compiler_rh_stringliteral;

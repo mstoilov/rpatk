@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
 		r_printf("Unresolved symbol: %s\n", err->name->str);
 		goto end;
 	}
-	rvm_asm_dump(rvm_codegen_getcode(cg, 0), rvm_codegen_getcodesize(cg));
+	rvm_asm_dump(cpu, rvm_codegen_getcode(cg, 0), rvm_codegen_getcodesize(cg));
 	rvm_cpu_exec_debug(cpu, rvm_codegen_getcode(cg, 0), 0);
 
 end:

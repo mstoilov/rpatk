@@ -39,6 +39,7 @@ typedef struct rjs_engine_s {
 	rjs_compiler_t *co;
 	rarray_t *cgs;
 	rarray_t *errors;
+	rmap_t *props[RVM_DTYPE_SIZE];
 	rvmcpu_t *cpu;
 	long debugcompile:1;
 	long debugexec:1;
@@ -94,6 +95,7 @@ typedef struct rjs_engine_s {
 
 #define RJS_GPKEY_NONE 0
 #define RJS_GPKEY_TYPES 1
+#define RJS_GPKEY_PROPS 2
 
 const char *rjs_version();
 

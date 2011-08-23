@@ -327,17 +327,34 @@ static long rjs_op_mapproplookup(rmap_t *map, rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static long rjs_op_stringproplookup(rstring_t *str, rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	long index = -1;
+	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
+
+	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_SIGNED || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
+		index = RVM_REG_GETL(arg3);
+	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_DOUBLE) {
+		index = (long)RVM_REG_GETD(arg3);
+	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_STRING) {
+		index = r_strtol(((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str, NULL, 10);
+	}
+	return index;
+}
+
+
 static void rjs_op_proplookup(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	long index = -1;
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rmap_t *map = (rmap_t*)RVM_REG_GETP(arg2);
 
 	if (rvm_reg_gettype(arg2) == RVM_DTYPE_MAP) {
+		rmap_t *map = (rmap_t*)RVM_REG_GETP(arg2);
 		index = rjs_op_mapproplookup(map, cpu, ins);
-	} else {
-
+	} else if (rvm_reg_gettype(arg2) == RVM_DTYPE_STRING) {
+		rstring_t *str = (rstring_t*)RVM_REG_GETP(arg2);
+		index = rjs_op_stringproplookup(str, cpu, ins);
 	}
 	RVM_REG_CLEAR(arg1);
 	RVM_REG_SETTYPE(arg1, RVM_DTYPE_SIGNED);
@@ -515,7 +532,6 @@ static void rjs_op_propldr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
 	rvmreg_t tmp = rvm_reg_create_signed(0);
-	rmap_t *a = NULL;
 	rpointer value;
 	long index;
 
@@ -523,10 +539,19 @@ static void rjs_op_propldr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	index = (long)RVM_REG_GETL(&tmp);
 	rvm_reg_setundef(arg1);
 	if (rvm_reg_gettype(arg2) == RVM_DTYPE_MAP) {
-		a = (rmap_t*)RVM_REG_GETP(arg2);
+		rmap_t *a = (rmap_t*)RVM_REG_GETP(arg2);
 		value = r_map_value(a, index);
 		if (value) {
 			*arg1 = *((rvmreg_t*)value);
+		}
+	} else if (rvm_reg_gettype(arg2) == RVM_DTYPE_STRING) {
+		rstring_t *s = (rstring_t*)RVM_REG_GETP(arg2);
+		if (index >= s->s.size) {
+			rvm_reg_setundef(arg1);
+		} else {
+			rstring_t *allocstr = r_string_create_strsize(&s->s.str[index], 1);
+			r_gc_add(cpu->gc, (robject_t*)allocstr);
+			rvm_reg_setstring(arg1, allocstr);
 		}
 	}
 }
@@ -922,6 +947,10 @@ rjs_engine_t *rjs_engine_create()
 	rjs_op_cast_init(RJS_USERDATA2MAP(cpu->userdata2));
 	rjs_op_not_init(RJS_USERDATA2MAP(cpu->userdata2));
 	rjs_op_logicnot_init(RJS_USERDATA2MAP(cpu->userdata2));
+
+
+	jse->props[RVM_DTYPE_STRING] = r_map_create(sizeof(rvmreg_t), 3);
+	r_gc_add(jse->cpu->gc, (robject_t*)jse->props[RVM_DTYPE_STRING]);
 
 	return jse;
 error:
