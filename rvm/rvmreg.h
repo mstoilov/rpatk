@@ -59,6 +59,7 @@ extern "C" {
 #define RVM_DTYPE_USERDEF(__n__) (RVM_DTYPE_USER + (__n__))
 
 #define RVM_INFOBIT_ROBJECT (1 << 0)
+#define RVM_INFOBIT_GLOBAL (1 << 1)
 #define RVM_INFOBIT_LAST (1 << 15)
 #define RVM_INFOBIT_ALL (RVM_INFOBIT_ROBJECT | RVM_INFOBIT_LAST)
 
@@ -157,13 +158,7 @@ typedef struct rvmreg_s {
 	rvmreg_flags_t flags;
 } rvmreg_t;
 
-/* Create array with rvmreg elements */
-rarray_t *r_array_create_rvmreg();
-/* Create harray with rvmreg elements */
-rharray_t *r_harray_create_rvmreg();
-/* Create carray with rvmreg elements */
-rcarray_t *r_carray_create_rvmreg();
-
+rvmreg_t rvm_reg_create_swi(ruword swiid);
 rvmreg_t rvm_reg_create_string_ansi(const char *s);
 rvmreg_t rvm_reg_create_string(const rstr_t *s);
 rvmreg_t rvm_reg_create_array();
@@ -172,7 +167,6 @@ rvmreg_t rvm_reg_create_double(double d);
 rvmreg_t rvm_reg_create_signed(rword l);
 rvmreg_t rvm_reg_create_pair(ruint32 p1, ruint32 p2);
 rvmreg_t rvm_reg_create_strptr(char *s, unsigned int size);
-rvmreg_t *rvm_reg_copy(rvmreg_t *dst, const rvmreg_t *src);
 rvmreg_type_t rvm_reg_gettype(const rvmreg_t *r);
 rboolean rvm_reg_tstflag(const rvmreg_t *r, ruint16 flag);
 void rvm_reg_init(rvmreg_t *reg);
@@ -193,6 +187,8 @@ void rvm_reg_setstring(rvmreg_t *r, rstring_t *ptr);
 void rvm_reg_setarray(rvmreg_t *r, robject_t *ptr);
 void rvm_reg_setharray(rvmreg_t *r, robject_t *ptr);
 void rvm_reg_setjsobject(rvmreg_t *r, robject_t *ptr);
+void rvm_reg_setmap(rvmreg_t *r, robject_t *ptr);
+void rvm_reg_setswi(rvmreg_t *r, ruword swiid);
 int rvm_reg_str2num(rvmreg_t *dst, const rvmreg_t *src);
 int rvm_reg_str2signed(rvmreg_t *dst, const rvmreg_t *ssrc);
 int rvm_reg_str2double(rvmreg_t *dst, const rvmreg_t *ssrc);

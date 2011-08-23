@@ -23,58 +23,6 @@
 #include "rlib/rref.h"
 
 
-static void rvm_reg_array_oncopy(rarray_t *array)
-{
-	unsigned int index;
-	rvmreg_t *r;
-
-	for (index = 0; index < r_array_length(array); index++) {
-		r = (rvmreg_t *)r_array_slot(array, index);
-		rvm_reg_copy(r, r);
-	}
-}
-
-
-static void rvm_reg_array_oncleanup(rarray_t *array)
-{
-	unsigned int index;
-	rvmreg_t *r;
-
-	for (index = 0; index < r_array_length(array); index++) {
-		r = (rvmreg_t *)r_array_slot(array, index);
-		rvm_reg_cleanup(r);
-	}
-}
-
-
-static void rvm_reg_carray_oncopy(rcarray_t *array)
-{
-	unsigned int index;
-	rvmreg_t *r;
-	unsigned int len = r_carray_length(array);
-
-
-	for (index = 0; index < len; index++) {
-		r = (rvmreg_t *)r_carray_slot(array, index);
-		rvm_reg_copy(r, r);
-	}
-}
-
-
-static void rvm_reg_carray_oncleanup(rcarray_t *array)
-{
-	unsigned int index;
-	rvmreg_t *r;
-	unsigned int len = r_carray_length(array);
-
-
-	for (index = 0; index < len; index++) {
-		r = (rvmreg_t *)r_carray_slot(array, index);
-		rvm_reg_cleanup(r);
-	}
-}
-
-
 /*
  * Recursively go over array data to unref any GC managed
  * objects. We need this because when GC is destroying arrays,
@@ -151,40 +99,6 @@ void rvm_reg_array_unref_gcdata(robject_t *obj)
 }
 
 
-
-rarray_t *r_array_create_rvmreg()
-{
-	rarray_t *array = r_array_create(sizeof(rvmreg_t));
-	if (array) {
-		array->oncopy = rvm_reg_array_oncopy;
-		array->oncleanup = rvm_reg_array_oncleanup;
-	}
-	return array;
-}
-
-
-rcarray_t *r_carray_create_rvmreg()
-{
-	rcarray_t *array = r_carray_create(sizeof(rvmreg_t));
-	if (array) {
-		array->oncopy = rvm_reg_carray_oncopy;
-		array->oncleanup = rvm_reg_carray_oncleanup;
-	}
-	return array;
-}
-
-
-rharray_t *r_harray_create_rvmreg()
-{
-	rharray_t *harray = r_harray_create(sizeof(rvmreg_t));
-	if (harray) {
-		harray->members->oncopy = rvm_reg_carray_oncopy;
-		harray->members->oncleanup = rvm_reg_carray_oncleanup;
-	}
-	return harray;
-}
-
-
 rvmreg_t rvm_reg_create_string_ansi(const char *s)
 {
 	rvmreg_t r;
@@ -207,26 +121,9 @@ rvmreg_t rvm_reg_create_string(const rstr_t *s)
 }
 
 
-rvmreg_t rvm_reg_create_array()
-{
-	rvmreg_t r;
-	r_memset(&r, 0, sizeof(r));
-	rvm_reg_setarray(&r, (robject_t*)r_carray_create_rvmreg());
-	return r;
-}
-
-
-rvmreg_t rvm_reg_create_harray()
-{
-	rvmreg_t r;
-	r_memset(&r, 0, sizeof(r));
-	rvm_reg_setharray(&r, (robject_t*)r_harray_create_rvmreg());
-	return r;
-}
-
-
 void rvm_reg_setstring(rvmreg_t *r, rstring_t *ptr)
 {
+	r_memset(r, 0, sizeof(*r));
 	RVM_REG_SETP(r, ptr);
 	RVM_REG_SETTYPE(r, RVM_DTYPE_STRING);
 	RVM_REG_SETFLAG(r, RVM_INFOBIT_ROBJECT);
@@ -235,48 +132,72 @@ void rvm_reg_setstring(rvmreg_t *r, rstring_t *ptr)
 
 void rvm_reg_setpair(rvmreg_t *r, ruint32 p1, ruint32 p2)
 {
-
+	r_memset(r, 0, sizeof(*r));
 	RVM_REG_SETPAIR(r, p1, p2);
 	RVM_REG_SETTYPE(r, RVM_DTYPE_PAIR);
-	RVM_REG_CLRFLAG(r, RVM_INFOBIT_ROBJECT);
 }
 
 
 void rvm_reg_setstrptr(rvmreg_t *r, char *s, unsigned int size)
 {
+	r_memset(r, 0, sizeof(*r));
 	RVM_REG_SETSTR(r, s, size);
 	RVM_REG_SETTYPE(r, RVM_DTYPE_STRPTR);
-	RVM_REG_CLRFLAG(r, RVM_INFOBIT_ROBJECT);
 }
 
 
 void rvm_reg_setarray(rvmreg_t *r, robject_t *ptr)
 {
+	r_memset(r, 0, sizeof(*r));
 	RVM_REG_SETP(r, ptr);
 	RVM_REG_SETTYPE(r, RVM_DTYPE_ARRAY);
 	RVM_REG_SETFLAG(r, RVM_INFOBIT_ROBJECT);
 }
 
 
-void rvm_reg_setjsobject(rvmreg_t *r, robject_t *ptr)
+void rvm_reg_setmap(rvmreg_t *r, robject_t *ptr)
 {
+	r_memset(r, 0, sizeof(*r));
 	RVM_REG_SETP(r, ptr);
 	RVM_REG_SETTYPE(r, RVM_DTYPE_MAP);
 	RVM_REG_SETFLAG(r, RVM_INFOBIT_ROBJECT);
 }
 
 
+void rvm_reg_setjsobject(rvmreg_t *r, robject_t *ptr)
+{
+	rvm_reg_setmap(r, ptr);
+}
+
+
 void rvm_reg_setharray(rvmreg_t *r, robject_t *ptr)
 {
+	r_memset(r, 0, sizeof(*r));
 	RVM_REG_SETP(r, ptr);
 	RVM_REG_SETTYPE(r, RVM_DTYPE_HARRAY);
 	RVM_REG_SETFLAG(r, RVM_INFOBIT_ROBJECT);
 }
 
+
+void rvm_reg_setswi(rvmreg_t *r, ruword swiid)
+{
+	r_memset(r, 0, sizeof(*r));
+	RVM_REG_SETU(r, swiid);
+	RVM_REG_SETTYPE(r, RVM_DTYPE_SWIID);
+}
+
+
+rvmreg_t rvm_reg_create_swi(ruword swiid)
+{
+	rvmreg_t r;
+	rvm_reg_setswi(&r, swiid);
+	return r;
+}
+
+
 rvmreg_t rvm_reg_create_pair(ruint32 p1, ruint32 p2)
 {
 	rvmreg_t r;
-	r_memset(&r, 0, sizeof(r));
 	rvm_reg_setpair(&r, p1, p2);
 	return r;
 }
@@ -285,7 +206,6 @@ rvmreg_t rvm_reg_create_pair(ruint32 p1, ruint32 p2)
 rvmreg_t rvm_reg_create_strptr(char *s, unsigned int size)
 {
 	rvmreg_t r;
-	r_memset(&r, 0, sizeof(r));
 	rvm_reg_setstrptr(&r, s, size);
 	return r;
 }
@@ -294,9 +214,7 @@ rvmreg_t rvm_reg_create_strptr(char *s, unsigned int size)
 rvmreg_t rvm_reg_create_double(double d)
 {
 	rvmreg_t r;
-	r_memset(&r, 0, sizeof(r));
-	RVM_REG_SETD(&r, d);
-	RVM_REG_SETTYPE(&r, RVM_DTYPE_DOUBLE);
+	rvm_reg_setdouble(&r, d);
 	return r;
 }
 
@@ -304,7 +222,6 @@ rvmreg_t rvm_reg_create_double(double d)
 rvmreg_t rvm_reg_create_signed(rword l)
 {
 	rvmreg_t r;
-	r_memset(&r, 0, sizeof(r));
 	rvm_reg_setsigned(&r, l);
 	return r;
 }
@@ -312,9 +229,6 @@ rvmreg_t rvm_reg_create_signed(rword l)
 
 void rvm_reg_cleanup(rvmreg_t *reg)
 {
-	if (rvm_reg_tstflag(reg, RVM_INFOBIT_ROBJECT)) {
-		r_object_destroy((robject_t*)RVM_REG_GETP(reg));
-	}
 	RVM_REG_CLEAR(reg);
 }
 
@@ -368,48 +282,48 @@ void rvm_reg_clrflag(rvmreg_t *r, ruint16 flag)
 
 void rvm_reg_setundef(rvmreg_t *r)
 {
-	RVM_REG_CLEAR(r);
+	r_memset(r, 0, sizeof(*r));
 	RVM_REG_SETTYPE(r, RVM_DTYPE_UNDEF);
 }
 
 
 void rvm_reg_setunsigned(rvmreg_t *r, ruword u)
 {
+	r_memset(r, 0, sizeof(*r));
 	RVM_REG_SETU(r, u);
 	RVM_REG_SETTYPE(r, RVM_DTYPE_UNSIGNED);
-	RVM_REG_CLRFLAG(r, RVM_INFOBIT_ROBJECT);
 }
 
 
 void rvm_reg_setsigned(rvmreg_t *r, rword l)
 {
+	r_memset(r, 0, sizeof(*r));
 	RVM_REG_SETL(r, l);
 	RVM_REG_SETTYPE(r, RVM_DTYPE_SIGNED);
-	RVM_REG_CLRFLAG(r, RVM_INFOBIT_ROBJECT);
 }
 
 
 void rvm_reg_setboolean(rvmreg_t *r, rboolean b)
 {
+	r_memset(r, 0, sizeof(*r));
 	RVM_REG_SETU(r, b ? 1 : 0);
 	RVM_REG_SETTYPE(r, RVM_DTYPE_BOOLEAN);
-	RVM_REG_CLRFLAG(r, RVM_INFOBIT_ROBJECT);
 }
 
 
 void rvm_reg_setdouble(rvmreg_t *r, double d)
 {
+	r_memset(r, 0, sizeof(*r));
 	RVM_REG_SETD(r, d);
 	RVM_REG_SETTYPE(r, RVM_DTYPE_DOUBLE);
-	RVM_REG_CLRFLAG(r, RVM_INFOBIT_ROBJECT);
 }
 
 
 void rvm_reg_setpointer(rvmreg_t *r, rpointer p)
 {
+	r_memset(r, 0, sizeof(*r));
 	RVM_REG_SETP(r, p);
 	RVM_REG_SETTYPE(r, RVM_DTYPE_POINTER);
-	RVM_REG_CLRFLAG(r, RVM_INFOBIT_ROBJECT);
 }
 
 
