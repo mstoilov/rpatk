@@ -35,6 +35,7 @@ static void rjs_engine_print(rvmcpu_t *cpu, rvm_asmins_t *ins);
 static void rjs_engine_dbgprint(rvmcpu_t *cpu, rvm_asmins_t *ins);
 static void rjs_engine_object(rvmcpu_t *cpu, rvm_asmins_t *ins);
 static void rjs_string_ltrim(rvmcpu_t *cpu, rvm_asmins_t *ins);
+static void rjs_string_length(rvmcpu_t *cpu, rvm_asmins_t *ins);
 
 static rvm_switable_t rjsswitable[] = {
 		{"print", rjs_engine_print},
@@ -42,6 +43,7 @@ static rvm_switable_t rjsswitable[] = {
 		{"Object", rjs_engine_object},
 		{"Array", rjs_engine_object},
 		{"string.ltrim", rjs_string_ltrim},
+		{"string.length", rjs_string_length},
 		{NULL, NULL},
 };
 
@@ -436,7 +438,6 @@ static void rjs_op_propldr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	long index;
 
 	index = (long)RVM_REG_GETL(arg1);
-	rvm_reg_setundef(arg1);
 	if (rvm_reg_gettype(arg2) == RVM_DTYPE_MAP) {
 		rmap_t *a = (rmap_t*)RVM_REG_GETP(arg2);
 		value = r_map_value(a, index);
@@ -445,21 +446,24 @@ static void rjs_op_propldr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		}
 	} else if (rvm_reg_gettype(arg2) == RVM_DTYPE_STRING) {
 		rstring_t *s = (rstring_t*)RVM_REG_GETP(arg2);
-		if (index >= s->s.size) {
-			rvm_reg_setundef(arg1);
-		} else {
-			if (1||RVM_REG_TSTFLAG(arg1, RVM_INFOBIT_GLOBAL)) {
-				rmap_t *a = RJS_CPU2JSE(cpu)->props[RVM_DTYPE_STRING];
-				value = r_map_value(a, index);
-				if (value) {
-					*arg1 = *((rvmreg_t*)value);
-				}
-			} else {
-				rstring_t *allocstr = r_string_create_strsize(&s->s.str[index], 1);
-				r_gc_add(cpu->gc, (robject_t*)allocstr);
-				rvm_reg_setstring(arg1, allocstr);
+		if (RVM_REG_TSTFLAG(arg1, RVM_INFOBIT_GLOBAL)) {
+			rmap_t *a = RJS_CPU2JSE(cpu)->props[RVM_DTYPE_STRING];
+			value = r_map_value(a, index);
+			if (value) {
+				*arg1 = *((rvmreg_t*)value);
 			}
+		} else {
+			rstring_t *allocstr;
+			if (index >= s->s.size) {
+				rvm_reg_setundef(arg1);
+				return;
+			}
+			allocstr = r_string_create_strsize(&s->s.str[index], 1);
+			r_gc_add(cpu->gc, (robject_t*)allocstr);
+			rvm_reg_setstring(arg1, allocstr);
 		}
+	} else {
+		rvm_reg_setundef(arg1);
 	}
 }
 
@@ -869,6 +873,21 @@ static void rjs_string_ltrim(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static void rjs_string_length(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	unsigned long size;
+	rvmreg_t *r = NULL;
+	rstring_t *src;
+
+	r = (rvmreg_t *) RVM_CPUREG_PTR(cpu, TP);
+	if (rvm_reg_gettype(r) != RVM_DTYPE_STRING)
+		RJS_SWI_ABORT(rjs_engine_get(cpu), NULL);
+	src = (rstring_t *)RVM_REG_GETP(r);
+	size = src->s.size;
+	rvm_reg_setsigned(RVM_CPUREG_PTR(cpu, R0), size);
+}
+
+
 rjs_engine_t *rjs_engine_create()
 {
 	rvmcpu_t *cpu;
@@ -938,6 +957,8 @@ rjs_engine_t *rjs_engine_create()
 	jse->props[RVM_DTYPE_STRING] = r_map_create(sizeof(rvmreg_t), 3);
 	tmp = rvm_reg_create_swi(rvm_cpu_swilookup_s(cpu, "rjsswitable", "string.ltrim"));
 	r_map_add_s(jse->props[RVM_DTYPE_STRING], "ltrim", &tmp);
+	tmp = rvm_reg_create_swi(rvm_cpu_swilookup_s(cpu, "rjsswitable", "string.length"));
+	r_map_add_s(jse->props[RVM_DTYPE_STRING], "length", &tmp);
 	r_gc_add(jse->cpu->gc, (robject_t*)jse->props[RVM_DTYPE_STRING]);
 
 	return jse;
