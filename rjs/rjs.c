@@ -38,8 +38,8 @@ static void rjs_string_ltrim(rvmcpu_t *cpu, rvm_asmins_t *ins);
 static void rjs_string_length(rvmcpu_t *cpu, rvm_asmins_t *ins);
 
 static rvm_switable_t rjsswitable[] = {
-		{"print", rjs_engine_print},
 		{"dbgprint", rjs_engine_dbgprint},
+		{"print", rjs_engine_print},
 		{"Object", rjs_engine_object},
 		{"Array", rjs_engine_object},
 		{"string.ltrim", rjs_string_ltrim},

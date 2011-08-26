@@ -976,9 +976,15 @@ int rjs_compiler_rh_functioncall(rjs_compiler_t *co, rarray_t *records, long rec
 	ctx.base.type = RJS_COCTX_FUNCTIONCALL;
 	r_array_push(co->coctx, &ctx, rjs_coctx_t*);
 
+	if (rvm_codegen_getcodesize(co->cg) > 0) {
+		rvm_asmins_t *last = rvm_codegen_getcode(co->cg, rvm_codegen_getcodesize(co->cg) - 1);
+		if (last->opcode == RJS_PROPGET)
+			ctx.setthis = 1;
+	}
+
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(TP)|BIT(FP)|BIT(SP)|BIT(LR)));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(R0)|BIT(TP)|BIT(FP)|BIT(SP)|BIT(LR)));
 	rjs_compiler_debugtail(co, records, rec);
 
 	/*
@@ -987,7 +993,7 @@ int rjs_compiler_rh_functioncall(rjs_compiler_t *co, rarray_t *records, long rec
 	 * stack, than we evaluate the FunctionCallName -> R0. When we make the call we assume the
 	 * result of the FunctionCallName will be in R0.
 	 */
-	if (rjs_compiler_playreversechildrecords(co, records, rec) < 0)
+	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
 		goto error;
 
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
@@ -996,6 +1002,7 @@ int rjs_compiler_rh_functioncall(rjs_compiler_t *co, rarray_t *records, long rec
 	if (ctx.setthis)
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, TP, R1, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_SUB, FP, SP, DA, ctx.arguments));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDS, R0, FP, DA, -4));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_CALL, R0, XX, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, SP, FP, XX, 0));
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BITS(TP,LR)));

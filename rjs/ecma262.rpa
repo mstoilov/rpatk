@@ -57,7 +57,6 @@
 #!emitid FunctionDeclaration			UID_FUNCTIONDECLARATION				28
 #!emitid FunctionParameter				UID_FUNCTIONPARAMETER				29
 #!emitid FormalParameterList			UID_FORMALPARAMETERLIST				30
-#!emitid CallExpression					UID_CALLEXPRESSION					31
 #!emitid FunctionCall					UID_FUNCTIONCALL					32
 #!emitid Argument						UID_ARGUMENT						33
 #!emitid Arguments						UID_ARGUMENTS						34
@@ -225,6 +224,7 @@ MemberExpressionDotOp			::= <MemberExpressionBase> '.' <IdentifierName>
 MemberExpression 				::= <MemberExpressionIndexOp>  |
 									<MemberExpressionDotOp> |
 									<FunctionExpression> |
+									<FunctionCall> |
 									<PrimaryExpression>
 									
 NewKeyword						::= 'new' - 'new' <IdentifierPart>
@@ -233,23 +233,15 @@ NewExpressionCall				::= <NewKeyword> <S>? <MemberExpression> <S>? <Arguments>?
 NewExpression 					::= <NewExpressionCall> |
 									<MemberExpression>
 
-# NewExpression 					::= <NewKeyword> <S>? <NewExpression> |
-#									<MemberExpression>
-
-
-FunctionCallName				::= <CallExpression> | <MemberExpression>
+FunctionCallName				::= <MemberExpression>
 FunctionCall					::= <FunctionCallName> <S>? <Arguments>
-CallExpression					::= <CallExpression> <S>? '[' <S>? Expression <S>? ']' |
-									<CallExpression> '.' <IdentifierName> |
-									<FunctionCall>
-
 Arguments						::= '(' <S>? ')' |
 			    					'(' <S>? <ArgumentList> <S>? ')'
 Argument						::= <AssignmentExpression>
 ArgumentList					::= <ArgumentList> <S>? ',' <S>? <Argument> |
 									<Argument>
-LeftHandSideExpression			::= <CallExpression> | <NewExpression>
-LeftHandSideExpressionAddr		::= <CallExpression> | <NewExpression>
+LeftHandSideExpression			::= <NewExpression>
+LeftHandSideExpressionAddr		::= <NewExpression>
 
 
 # 11.3 Postfix Expressions
