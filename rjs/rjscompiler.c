@@ -800,15 +800,23 @@ int rjs_compiler_rh_memberexpressiondotop(rjs_compiler_t *co, rarray_t *records,
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
 	if (rjs_compiler_record_parentuid(co, records, rec) == UID_LEFTHANDSIDEEXPRESSIONADDR && rjs_compiler_record_lastofkind(co, records, rec)) {
+		rvm_codegen_addins(co->cg, rvm_asm(RJS_PROPSET, R0, R1, R2, 0));	// R1 Array
+
+#if 0
 		rvm_codegen_addins(co->cg, rvm_asm(RJS_PROPLKUPADD, R0, R1, R2, 0));	// Get the offset of the element at offset R0
 		rvm_codegen_addins(co->cg, rvm_asm(RJS_PROPADDR, R0, R1, R0, 0));	// Get the address of the element at offset R0
+#endif
 
 	} else {
+		rvm_codegen_addins(co->cg, rvm_asm(RJS_PROPGET, R0, R1, R2, 0));	// Get the property
+
+#if 0
 		rvm_codegen_addins(co->cg, rvm_asm(RJS_PROPLKUP, R0, R1, R2, 0));	// Get the offset of the element at offset R0
 		if (ctx && ctx->type == RJS_COCTX_DELETE)
 			rvm_codegen_addins(co->cg, rvm_asm(RJS_PROPDEL, R0, R1, R0, 0));		// Get the result of deletion in R0
 		else
 			rvm_codegen_addins(co->cg, rvm_asm(RJS_PROPLDR, R0, R1, R0, 0));		// Get the value of the element at offset R0
+#endif
 	}
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;
@@ -833,16 +841,23 @@ int rjs_compiler_rh_memberexpressionindexop(rjs_compiler_t *co, rarray_t *record
 	rjs_compiler_debughead(co, records, rec);
 	if (rjs_compiler_record_parentuid(co, records, rec) == UID_LEFTHANDSIDEEXPRESSIONADDR && rjs_compiler_record_lastofkind(co, records, rec)) {
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0)); 	// Supposedly an Array
+#if 0
 		rvm_codegen_addins(co->cg, rvm_asm(RJS_PROPLKUPADD, R0, R1, R0, 0));	// R1 Array
 		rvm_codegen_addins(co->cg, rvm_asm(RJS_PROPADDR, R0, R1, R0, 0));	// Get the address of the element at offset R0
+#endif
+		rvm_codegen_addins(co->cg, rvm_asm(RJS_PROPSET, R0, R1, R0, 0));	// R1 Array
 
 	} else {
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0)); 	// Supposedly an Array
+		rvm_codegen_addins(co->cg, rvm_asm(RJS_PROPGET, R0, R1, R0, 0));	// R1 Array
+#if 0
 		rvm_codegen_addins(co->cg, rvm_asm(RVM_POP, R1, XX, XX, 0)); 	// Supposedly an Array
 		rvm_codegen_addins(co->cg, rvm_asm(RJS_PROPLKUP, R0, R1, R0, 0));	// R1 Array
 		if (ctx && ctx->type == RJS_COCTX_DELETE)
 			rvm_codegen_addins(co->cg, rvm_asm(RJS_PROPDEL, R0, R1, R0, 0));		// Get the result of deletion in R0
 		else
 			rvm_codegen_addins(co->cg, rvm_asm(RJS_PROPLDR, R0, R1, R0, 0));		// Get the value of the element at offset R0
+#endif
 	}
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;

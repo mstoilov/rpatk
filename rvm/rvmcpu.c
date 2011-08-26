@@ -603,6 +603,8 @@ static void rvm_op_call(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		rvm_op_swiid(cpu, ins);
 	} else if (RVM_REG_GETTYPE(arg1) == RVM_DTYPE_FUNCTION) {
 		rvm_op_bxl(cpu, ins);
+	} else if (RVM_REG_GETTYPE(arg1) == RVM_DTYPE_OPHANDLER) {
+		((rvmcpu_op)RVM_REG_GETP(arg1))(cpu, ins);
 	} else {
 		RVM_ABORT(cpu, RVM_E_NOTFUNCTION);
 	}

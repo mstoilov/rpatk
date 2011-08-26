@@ -52,7 +52,9 @@ extern "C" {
 #define RVM_DTYPE_MAP 12
 #define RVM_DTYPE_FUNCTION 13
 #define RVM_DTYPE_SWIID 14
-#define RVM_DTYPE_USER 16
+#define RVM_DTYPE_OPHANDLER 15
+#define RVM_DTYPE_PROPHANDLER 16
+#define RVM_DTYPE_USER 17
 #define RVM_DTYPE_SIZE (1 << 5)
 #define RVM_DTYPE_MASK (RVM_DTYPE_SIZE - 1)
 #define RVM_DTYPE_MAX (RVM_DTYPE_MASK)
@@ -167,6 +169,9 @@ rvmreg_t rvm_reg_create_double(double d);
 rvmreg_t rvm_reg_create_signed(rword l);
 rvmreg_t rvm_reg_create_pair(ruint32 p1, ruint32 p2);
 rvmreg_t rvm_reg_create_strptr(char *s, unsigned int size);
+rvmreg_t rvm_reg_create_pointer(rpointer p);
+rvmreg_t rvm_reg_create_ophandler(rpointer p);
+rvmreg_t rvm_reg_create_prophandler(rpointer p);
 rvmreg_type_t rvm_reg_gettype(const rvmreg_t *r);
 rboolean rvm_reg_tstflag(const rvmreg_t *r, ruint16 flag);
 void rvm_reg_init(rvmreg_t *reg);
@@ -181,6 +186,8 @@ void rvm_reg_setboolean(rvmreg_t *r, rboolean b);
 void rvm_reg_setsigned(rvmreg_t *r, rword l);
 void rvm_reg_setdouble(rvmreg_t *r, double d);
 void rvm_reg_setpointer(rvmreg_t *r, rpointer p);
+void rvm_reg_setophandler(rvmreg_t *r, rpointer p);
+void rvm_reg_setprophandler(rvmreg_t *r, rpointer p);
 void rvm_reg_setpair(rvmreg_t *r, ruint32 p1, ruint32 p2);
 void rvm_reg_setstrptr(rvmreg_t *r, char *s, unsigned int size);
 void rvm_reg_setstring(rvmreg_t *r, rstring_t *ptr);

@@ -351,6 +351,8 @@ static long rjs_op_mapproplookup(rmap_t *map, rvmcpu_t *cpu, rvm_asmins_t *ins)
 	long index = -1;
 	rvmreg_t *arg3 = RVM_CPUREG_PTR(cpu, ins->op3);
 
+	if (!map)
+		return -1;
 	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_SIGNED || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
 		index = r_map_lookup_l(map, -1, (long)RVM_REG_GETL(arg3));
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_DOUBLE) {
@@ -373,10 +375,72 @@ static long rjs_op_stringproplookup(rstring_t *str, rvmcpu_t *cpu, rvm_asmins_t 
 		index = RVM_REG_GETL(arg3);
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_DOUBLE) {
 		index = (long)RVM_REG_GETD(arg3);
-	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_STRING) {
-		index = r_strtol(((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str, NULL, 10);
 	}
+
+	if (index >= str->s.size)
+		index = -1;
 	return index;
+}
+
+
+static void rjs_op_propget(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	long index = -1;
+	rmap_t *map;
+	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
+	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
+
+	if (rvm_reg_gettype(arg2) == RVM_DTYPE_MAP) {
+		rmap_t *map = (rmap_t*)RVM_REG_GETP(arg2);
+		index = rjs_op_mapproplookup(map, cpu, ins);
+		if (index >= 0) {
+			*arg1 = *((rvmreg_t*)r_map_value(map, index));
+			return;
+		}
+	} else if (rvm_reg_gettype(arg2) == RVM_DTYPE_STRING) {
+		rstring_t *str = (rstring_t*)RVM_REG_GETP(arg2);
+		index = rjs_op_stringproplookup(str, cpu, ins);
+		if (index >= 0) {
+			rstring_t * allocstr = r_string_create_strsize(&str->s.str[index], 1);
+			r_gc_add(cpu->gc, (robject_t*)allocstr);
+			rvm_reg_setstring(arg1, allocstr);
+			return;
+		}
+	}
+
+	map = rjs_engine_get(cpu)->props[rvm_reg_gettype(arg2)];
+	index = rjs_op_mapproplookup(map, cpu, ins);
+	if (index >= 0) {
+		rvmreg_t *val = (rvmreg_t*)r_map_value(map, index);
+		if (RVM_REG_GETTYPE(val) == RVM_DTYPE_PROPHANDLER) {
+			((rvmcpu_op)RVM_REG_GETP(val))(cpu, ins);
+		} else {
+			*arg1 = *val;
+		}
+		return;
+	}
+	rvm_reg_setundef(arg1);
+}
+
+
+static void rjs_op_propset(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	long index = -1;
+	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
+	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
+	rmap_t *map = (rmap_t*)RVM_REG_GETP(arg2);
+	rpointer value = NULL;
+
+	if (rvm_reg_gettype(arg2) == RVM_DTYPE_MAP) {
+		index = rjs_op_mapproplookupadd(map, cpu, ins);
+		value = r_map_value(map, index);
+	}
+	if (!value) {
+		value = &rjs_engine_get(cpu)->scratch;
+	}
+	RVM_REG_CLEAR(arg1);
+	RVM_REG_SETTYPE(arg1, RVM_DTYPE_POINTER);
+	RVM_REG_SETP(arg1, value);
 }
 
 
@@ -395,7 +459,7 @@ static void rjs_op_proplookup(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		rstring_t *str = (rstring_t*)RVM_REG_GETP(arg2);
 		index = rjs_op_stringproplookup(str, cpu, ins);
 		if (index < 0) {
-			index = rjs_op_mapproplookup(RJS_CPU2JSE(cpu)->props[RVM_DTYPE_STRING], cpu, ins);
+			index = rjs_op_mapproplookup(rjs_engine_get(cpu)->props[RVM_DTYPE_STRING], cpu, ins);
 			if (index >= 0)
 				globalprop = TRUE;
 		}
@@ -447,7 +511,7 @@ static void rjs_op_propldr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	} else if (rvm_reg_gettype(arg2) == RVM_DTYPE_STRING) {
 		rstring_t *s = (rstring_t*)RVM_REG_GETP(arg2);
 		if (RVM_REG_TSTFLAG(arg1, RVM_INFOBIT_GLOBAL)) {
-			rmap_t *a = RJS_CPU2JSE(cpu)->props[RVM_DTYPE_STRING];
+			rmap_t *a = rjs_engine_get(cpu)->props[RVM_DTYPE_STRING];
 			value = r_map_value(a, index);
 			if (value) {
 				*arg1 = *((rvmreg_t*)value);
@@ -879,7 +943,7 @@ static void rjs_string_length(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rvmreg_t *r = NULL;
 	rstring_t *src;
 
-	r = (rvmreg_t *) RVM_CPUREG_PTR(cpu, TP);
+	r = (rvmreg_t *) RVM_CPUREG_PTR(cpu, ins->op2);
 	if (rvm_reg_gettype(r) != RVM_DTYPE_STRING)
 		RJS_SWI_ABORT(rjs_engine_get(cpu), NULL);
 	src = (rstring_t *)RVM_REG_GETP(r);
@@ -892,7 +956,6 @@ rjs_engine_t *rjs_engine_create()
 {
 	rvmcpu_t *cpu;
 	rvmreg_t *tp;
-	rvmreg_t tmp;
 	rjs_engine_t *jse = (rjs_engine_t *) r_zmalloc(sizeof(*jse));
 
 	jse->pa = rjs_parser_create();
@@ -946,6 +1009,8 @@ rjs_engine_t *rjs_engine_create()
 	rvm_cpu_setophandler(cpu, RJS_PROPPREV, "RJS_PROPPREV", rjs_op_propprev);
 	rvm_cpu_setophandler(cpu, RJS_STRALLOC, "RJS_STRALLOC", rjs_op_stralloc);
 	rvm_cpu_setophandler(cpu, RJS_MAPALLOC, "RJS_MAPALLOC", rjs_op_mapalloc);
+	rvm_cpu_setophandler(cpu, RJS_PROPGET, "RJS_PROPGET", rjs_op_propget);
+	rvm_cpu_setophandler(cpu, RJS_PROPSET, "RJS_PROPSET", rjs_op_propset);
 
 	cpu->userdata2 = rjs_opmap_create();
 	rjs_op_binary_init(RJS_USERDATA2MAP(cpu->userdata2));
@@ -953,14 +1018,8 @@ rjs_engine_t *rjs_engine_create()
 	rjs_op_not_init(RJS_USERDATA2MAP(cpu->userdata2));
 	rjs_op_logicnot_init(RJS_USERDATA2MAP(cpu->userdata2));
 
-
-	jse->props[RVM_DTYPE_STRING] = r_map_create(sizeof(rvmreg_t), 3);
-	tmp = rvm_reg_create_swi(rvm_cpu_swilookup_s(cpu, "rjsswitable", "string.ltrim"));
-	r_map_add_s(jse->props[RVM_DTYPE_STRING], "ltrim", &tmp);
-	tmp = rvm_reg_create_swi(rvm_cpu_swilookup_s(cpu, "rjsswitable", "string.length"));
-	r_map_add_s(jse->props[RVM_DTYPE_STRING], "length", &tmp);
-	r_gc_add(jse->cpu->gc, (robject_t*)jse->props[RVM_DTYPE_STRING]);
-
+	rjs_set_ophandler(jse, RVM_DTYPE_STRING, "ltrim", rjs_string_ltrim);
+	rjs_set_prophandler(jse, RVM_DTYPE_STRING, "length", rjs_string_length);
 	return jse;
 error:
 	rjs_engine_destroy(jse);
@@ -1345,5 +1404,34 @@ void rjs_engine_abort(rjs_engine_t *jse, rjs_error_t *error)
 
 rjs_engine_t *rjs_engine_get(rvmcpu_t *cpu)
 {
-	return (rjs_engine_t *)cpu->userdata1;
+	return RJS_CPU2JSE(cpu);
+}
+
+
+static void rjs_set_handler(rjs_engine_t *jse, unsigned long type, const char *name, rconstpointer handler, unsigned long handlertype)
+{
+	rmap_t *map;
+	rvmreg_t r;
+
+	if (type >= RVM_DTYPE_SIZE)
+		return;
+	if (!jse->props[type])
+		jse->props[type] = r_map_create(sizeof(rvmreg_t), 3);
+	map = jse->props[type];
+	r_memset(&r, 0, sizeof(r));
+	RVM_REG_SETP(&r, handler);
+	RVM_REG_SETTYPE(&r, handlertype);
+	r_map_add_s(map, name, &r);
+}
+
+
+void rjs_set_prophandler(rjs_engine_t *jse, unsigned long type, const char *name, rconstpointer handler)
+{
+	rjs_set_handler(jse, type, name, handler, RVM_DTYPE_PROPHANDLER);
+}
+
+
+void rjs_set_ophandler(rjs_engine_t *jse, unsigned long type, const char *name, rconstpointer handler)
+{
+	rjs_set_handler(jse, type, name, handler, RVM_DTYPE_OPHANDLER);
 }

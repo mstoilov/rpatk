@@ -227,6 +227,30 @@ rvmreg_t rvm_reg_create_signed(rword l)
 }
 
 
+rvmreg_t rvm_reg_create_pointer(rpointer p)
+{
+	rvmreg_t r;
+	rvm_reg_setpointer(&r, p);
+	return r;
+
+}
+
+rvmreg_t rvm_reg_create_ophandler(rpointer p)
+{
+	rvmreg_t r;
+	rvm_reg_setophandler(&r, p);
+	return r;
+}
+
+
+rvmreg_t rvm_reg_create_prophandler(rpointer p)
+{
+	rvmreg_t r;
+	rvm_reg_setprophandler(&r, p);
+	return r;
+}
+
+
 void rvm_reg_cleanup(rvmreg_t *reg)
 {
 	RVM_REG_CLEAR(reg);
@@ -324,6 +348,22 @@ void rvm_reg_setpointer(rvmreg_t *r, rpointer p)
 	r_memset(r, 0, sizeof(*r));
 	RVM_REG_SETP(r, p);
 	RVM_REG_SETTYPE(r, RVM_DTYPE_POINTER);
+}
+
+
+void rvm_reg_setophandler(rvmreg_t *r, rpointer p)
+{
+	r_memset(r, 0, sizeof(*r));
+	RVM_REG_SETP(r, p);
+	RVM_REG_SETTYPE(r, RVM_DTYPE_OPHANDLER);
+}
+
+
+void rvm_reg_setprophandler(rvmreg_t *r, rpointer p)
+{
+	r_memset(r, 0, sizeof(*r));
+	RVM_REG_SETP(r, p);
+	RVM_REG_SETTYPE(r, RVM_DTYPE_PROPHANDLER);
 }
 
 

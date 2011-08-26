@@ -37,6 +37,7 @@ extern "C" {
 typedef struct rjs_engine_s {
 	rjs_parser_t *pa;
 	rjs_compiler_t *co;
+	rvmreg_t scratch;
 	rarray_t *cgs;
 	rarray_t *errors;
 	rmap_t *props[RVM_DTYPE_SIZE];
@@ -91,9 +92,11 @@ typedef struct rjs_engine_s {
 #define RJS_PROPDEL			RVM_USER162		/* Delete Property */
 #define RJS_PROPNEXT		RVM_USER163
 #define RJS_PROPPREV		RVM_USER164
-#define RJS_STRALLOC		RVM_USER165		/* Allocate string in op1, op2 is pointer (char*) to string, op3 is the size */
-#define RJS_ARRALLOC		RVM_USER166		/* Allocate array in op1, op2 is the size */
-#define RJS_MAPALLOC		RVM_USER167		/* Allocate array in op1, op2 is the size */
+#define RJS_PROPGET			RVM_USER165
+#define RJS_PROPSET			RVM_USER166
+#define RJS_STRALLOC		RVM_USER167		/* Allocate string in op1, op2 is pointer (char*) to string, op3 is the size */
+#define RJS_ARRALLOC		RVM_USER168		/* Allocate array in op1, op2 is the size */
+#define RJS_MAPALLOC		RVM_USER169		/* Allocate array in op1, op2 is the size */
 
 #define RJS_GPKEY_NONE 0
 #define RJS_GPKEY_TYPES 1
@@ -117,6 +120,8 @@ rvmreg_t *rjs_engine_args_exec_s(rjs_engine_t *jse, const char *script, unsigned
 rvmreg_t *rjs_engine_exec_s(rjs_engine_t *jse, const char *script);
 void rjs_engine_abort(rjs_engine_t *jse, rjs_error_t *error);
 rjs_engine_t *rjs_engine_get(rvmcpu_t *cpu);
+void rjs_set_prophandler(rjs_engine_t *jse, unsigned long type, const char *name, rconstpointer handler);
+void rjs_set_ophandler(rjs_engine_t *jse, unsigned long type, const char *name, rconstpointer handler);
 
 #ifdef __cplusplus
 }
