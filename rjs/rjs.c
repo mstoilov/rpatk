@@ -299,6 +299,20 @@ static void rjs_op_mapalloc(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static long rjs_op_mapupdatelength(rmap_t *map, long length, rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	long index;
+	rvmreg_t *value;
+
+	if ((index = r_map_lookup_s(map, -1, "length")) < 0) {
+		index = r_map_gckey_add_s(map, cpu->gc, "length", NULL);
+	}
+	value = (rvmreg_t *)r_map_value(map, index);
+	if (length > rvm_reg_signed(value))
+		rvm_reg_setsigned(value, length);
+}
+
+
 static long rjs_op_mapproplookupadd(rmap_t *map, rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	long index;
@@ -306,12 +320,16 @@ static long rjs_op_mapproplookupadd(rmap_t *map, rvmcpu_t *cpu, rvm_asmins_t *in
 
 	if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_SIGNED || RVM_REG_GETTYPE(arg3) == RVM_DTYPE_UNSIGNED) {
 		index = r_map_lookup_l(map, -1, (long)RVM_REG_GETL(arg3));
-		if (index < 0)
+		if (index < 0) {
 			index = r_map_gckey_add_l(map, cpu->gc, (long)RVM_REG_GETL(arg3), NULL);
+			rjs_op_mapupdatelength(map, (long)RVM_REG_GETL(arg3) + 1, cpu, ins);
+		}
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_DOUBLE) {
 		index = r_map_lookup_d(map, -1, RVM_REG_GETD(arg3));
-		if (index < 0)
+		if (index < 0) {
 			index = r_map_gckey_add_d(map, cpu->gc, RVM_REG_GETD(arg3), NULL);
+			rjs_op_mapupdatelength(map, (long)RVM_REG_GETD(arg3) + 1, cpu, ins);
+		}
 	} else if (RVM_REG_GETTYPE(arg3) == RVM_DTYPE_STRING) {
 		index = r_map_lookup(map, -1, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.str, ((rstring_t *)RVM_CPUREG_GETP(cpu, ins->op3))->s.size);
 		if (index < 0)
@@ -1415,8 +1433,10 @@ static void rjs_set_handler(rjs_engine_t *jse, unsigned long type, const char *n
 
 	if (type >= RVM_DTYPE_SIZE)
 		return;
-	if (!jse->props[type])
+	if (!jse->props[type]) {
 		jse->props[type] = r_map_create(sizeof(rvmreg_t), 3);
+		r_gc_add(jse->cpu->gc, (robject_t*)jse->props[type]);
+	}
 	map = jse->props[type];
 	r_memset(&r, 0, sizeof(r));
 	RVM_REG_SETP(&r, handler);

@@ -785,7 +785,6 @@ int rjs_compiler_rh_newarrayexpression(rjs_compiler_t *co, rarray_t *records, lo
 
 int rjs_compiler_rh_memberexpressiondotop(rjs_compiler_t *co, rarray_t *records, long rec)
 {
-	rjs_coctx_t *ctx = rjs_compiler_gettopctx(co);
 	rparecord_t *prec;
 
 	prec = (rparecord_t *)r_array_slot(records, rec);
@@ -794,8 +793,6 @@ int rjs_compiler_rh_memberexpressiondotop(rjs_compiler_t *co, rarray_t *records,
 	rjs_compiler_debugtail(co, records, rec);
 	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
 		return -1;
-	if (ctx && ctx->type == RJS_COCTX_FUNCTIONCALL)
-		((rjs_coctx_functioncall_t *)ctx)->setthis = 1;
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
@@ -825,7 +822,6 @@ int rjs_compiler_rh_memberexpressiondotop(rjs_compiler_t *co, rarray_t *records,
 
 int rjs_compiler_rh_memberexpressionindexop(rjs_compiler_t *co, rarray_t *records, long rec)
 {
-	rjs_coctx_t *ctx = rjs_compiler_gettopctx(co);
 	rparecord_t *prec;
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
@@ -834,8 +830,6 @@ int rjs_compiler_rh_memberexpressionindexop(rjs_compiler_t *co, rarray_t *record
 
 	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
 		return -1;
-	if (ctx && ctx->type == RJS_COCTX_FUNCTIONCALL)
-		((rjs_coctx_functioncall_t *)ctx)->setthis = 1;
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
@@ -861,6 +855,49 @@ int rjs_compiler_rh_memberexpressionindexop(rjs_compiler_t *co, rarray_t *record
 	}
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;
+}
+
+
+int rjs_compiler_rh_functioncall(rjs_compiler_t *co, rarray_t *records, long rec)
+{
+	rparecord_t *prec;
+	rjs_coctx_functioncall_t ctx;
+
+	r_memset(&ctx, 0, sizeof(ctx));
+	ctx.base.type = RJS_COCTX_FUNCTIONCALL;
+	r_array_push(co->coctx, &ctx, rjs_coctx_t*);
+
+	if (rvm_codegen_getcodesize(co->cg) > 0) {
+		rvm_asmins_t *last = rvm_codegen_getcode(co->cg, rvm_codegen_getcodesize(co->cg) - 1);
+		if (last->opcode == RJS_PROPGET)
+			ctx.setthis = 1;
+	}
+
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(R0)|BIT(TP)|BIT(FP)|BIT(SP)|BIT(LR)));
+	rjs_compiler_debugtail(co, records, rec);
+
+	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
+		goto error;
+
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = (rparecord_t *)r_array_slot(records, rec);
+	rjs_compiler_debughead(co, records, rec);
+	if (ctx.setthis)
+		rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, TP, R1, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_SUB, FP, SP, DA, ctx.arguments));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDS, R0, FP, DA, -4));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_CALL, R0, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, SP, FP, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BITS(TP,LR)));
+	rjs_compiler_debugtail(co, records, rec);
+	r_array_removelast(co->coctx);
+	return 0;
+
+error:
+	r_array_removelast(co->coctx);
+	return -1;
 }
 
 
@@ -891,7 +928,21 @@ int rjs_compiler_rh_functiondeclaration(rjs_compiler_t *co, rarray_t *records, l
 	}
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, endidx, rvm_asm(RVM_B, DA, XX, XX, 0));
 	rvm_codegen_redefinelabel_default(co->cg, execidx);
+#if 0
+	/*
+	 * Undef the unspecified parameters.
+	 */
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_DEFAULT, allocsidx, rvm_asm(RVM_ADD, R0, FP, DA, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_CLR, R1, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_CMP, R0, SP, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_BLEQ, DA, XX, XX, 3));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R1, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, -3));
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, SP, R0, XX, 0));
+#else
 	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_DEFAULT, allocsidx, rvm_asm(RVM_ADD, SP, FP, DA, 0));
+#endif
+
 
 	rjs_compiler_debugtail(co, records, rec);
 
@@ -964,55 +1015,6 @@ int rjs_compiler_rh_functionparameter(rjs_compiler_t *co, rarray_t *records, lon
 
 	rjs_compiler_debugtail(co, records, rec);
 	return 0;
-}
-
-
-int rjs_compiler_rh_functioncall(rjs_compiler_t *co, rarray_t *records, long rec)
-{
-	rparecord_t *prec;
-	rjs_coctx_functioncall_t ctx;
-
-	r_memset(&ctx, 0, sizeof(ctx));
-	ctx.base.type = RJS_COCTX_FUNCTIONCALL;
-	r_array_push(co->coctx, &ctx, rjs_coctx_t*);
-
-	if (rvm_codegen_getcodesize(co->cg) > 0) {
-		rvm_asmins_t *last = rvm_codegen_getcode(co->cg, rvm_codegen_getcodesize(co->cg) - 1);
-		if (last->opcode == RJS_PROPGET)
-			ctx.setthis = 1;
-	}
-
-	prec = (rparecord_t *)r_array_slot(records, rec);
-	rjs_compiler_debughead(co, records, rec);
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(R0)|BIT(TP)|BIT(FP)|BIT(SP)|BIT(LR)));
-	rjs_compiler_debugtail(co, records, rec);
-
-	/*
-	 * Important: Function call has two children FunctionCallName, Arguments
-	 * We evaluate them in reverse order, first we evaluate the Arguments and push them on the
-	 * stack, than we evaluate the FunctionCallName -> R0. When we make the call we assume the
-	 * result of the FunctionCallName will be in R0.
-	 */
-	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
-		goto error;
-
-	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
-	prec = (rparecord_t *)r_array_slot(records, rec);
-	rjs_compiler_debughead(co, records, rec);
-	if (ctx.setthis)
-		rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, TP, R1, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_SUB, FP, SP, DA, ctx.arguments));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_LDS, R0, FP, DA, -4));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_CALL, R0, XX, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, SP, FP, XX, 0));
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_POPM, DA, XX, XX, BITS(TP,LR)));
-	rjs_compiler_debugtail(co, records, rec);
-	r_array_removelast(co->coctx);
-	return 0;
-
-error:
-	r_array_removelast(co->coctx);
-	return -1;
 }
 
 

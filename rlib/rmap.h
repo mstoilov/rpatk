@@ -71,6 +71,7 @@ long r_map_gckey_add(rmap_t *map, rgc_t* gc, const char *name, unsigned int name
 long r_map_gckey_add_s(rmap_t *map, rgc_t* gc, const char *name, rconstpointer pval);
 long r_map_gckey_add_d(rmap_t *map, rgc_t* gc, double name, rconstpointer pval);
 long r_map_gckey_add_l(rmap_t *map, rgc_t* gc, long name, rconstpointer pval);
+
 long r_map_setvalue(rmap_t *map, long index, rconstpointer pval);
 rstring_t *r_map_key(rmap_t *map, unsigned long index);
 rpointer r_map_value(rmap_t *map, unsigned long index);
