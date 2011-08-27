@@ -8,10 +8,7 @@ ELFARCH = elf32-i386
 BINARCH = i386
 OCFLAGS_TXT = --input binary --output $(ELFARCH) --binary-architecture $(BINARCH)
 
-CC = gcc
-AR = ar
-LD = ld
-OC = objcopy
+include $(SRCDIR)/build/unix/config.mk
 
 ifeq ($(BLDCFG), release)
 CFLAGS := $(MACH) -fPIC -O3

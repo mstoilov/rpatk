@@ -36,8 +36,8 @@ typedef struct {ruint32 p1; ruint32 p2;} rpair_t;
 
 #define R_ATOMIC_XCHG(ptr, val) \
 		do { __asm__ __volatile__("lock; xchgl %0,%1" \
-			:"=r" ((ruint32) val) \
-			:"m" (*(volatile ruint32 *)ptr), "0" (val) \
+			:"=r" ( val) \
+			:"m" (*(volatile ratomic_t *)ptr), "0" (val) \
 			:"memory"); } while (0)
 
 #define R_ATOMIC_ADD(ptr, val) \

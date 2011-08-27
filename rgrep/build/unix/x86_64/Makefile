@@ -4,8 +4,7 @@ OS = $(shell uname | tr "[:upper:]" "[:lower:]")
 SRCDIR = ../../../..
 MACH = -m64
 
-CC = gcc
-AR = ar
+include $(SRCDIR)/build/unix/config.mk
 
 CFLAGS = $(MACH)
 ifeq ($(BLDCFG), release)

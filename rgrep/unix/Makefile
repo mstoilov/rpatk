@@ -1,5 +1,3 @@
-CPP		= g++
-CC		= gcc
 OS		:= $(shell uname -s | tr A-Z a-z)
 LOWCASEOS	:= $(shell echo $(OS) | tr A-Z a-z)
 
@@ -33,6 +31,7 @@ RPASCGREP	= rscgrep
 SRCDIR		= .
 COMMONSRCDIR	= ..
 
+include $(ROOTDIR)/build/unix/config.mk
 
 ifeq ($(BLDCFG), release)
 CFLAGS = -O3 -DUNIX $(INCLUDES)

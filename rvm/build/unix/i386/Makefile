@@ -5,9 +5,7 @@ OS = $(shell uname | tr "[:upper:]" "[:lower:]")
 INCLUDE = -I$(SRCDIR)/arch/unix/$(ARCHDIR)
 MACH = -m32
 
-CC = gcc
-AR = ar
-LD = ld
+include $(SRCDIR)/build/unix/config.mk
 
 CFLAGS += $(MACH)
 ifeq ($(BLDCFG), release)

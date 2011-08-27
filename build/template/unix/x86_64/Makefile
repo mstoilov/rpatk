@@ -4,9 +4,7 @@ OUTDIR = out
 OS = $(shell uname | tr "[:upper:]" "[:lower:]")
 INCLUDE = -I$(SRCDIR)/arch/unix/$(ARCHDIR)
 
-CC = gcc
-AR = ar
-LD = ld
+include $(SRCDIR)/build/unix/config.mk
 
 ifeq ($(BLDCFG), release)
 CFLAGS := -fPIC -O3
