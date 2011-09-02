@@ -1,11 +1,9 @@
-SRCDIR = ../../../..
-ARCHDIR = $(shell basename $(shell pwd))
-OUTDIR = out
-OS = $(shell uname | tr "[:upper:]" "[:lower:]")
-INCLUDE = -I$(SRCDIR)/arch/unix/$(ARCHDIR)
-MACH = -m64
+ROOT_DIR = ../../../..
+include $(ROOT_DIR)/build/unix/config.mk
 
-include $(SRCDIR)/build/unix/config.mk
+INCLUDE = -I$(ROOT_DIR)/arch/unix/$(ARCHDIR)
+OUTDIR = out
+MACH = -m64
 
 CFLAGS := $(MACH)
 ifeq ($(BLDCFG), release)
@@ -21,5 +19,4 @@ endif
 CFLAGS += $(INCLUDE)
 LDFLAGS := $(MACH)
 
-include $(SRCDIR)/build/unix/include.mk
 include ../rpa.mk

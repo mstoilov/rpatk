@@ -1,11 +1,11 @@
-RPA_SRCDIR = $(SRCDIR)/rpa
+RPA_SRCDIR = $(ROOT_DIR)/rpa
 RPA_LIB = librpa.a
 RPA_SO_VERSION = 2.0
 RPA_SO_NAME = librpa.so
 RPA_SO = $(RPA_SO_NAME).$(RPA_SO_VERSION)
 TARGET_RPA_LIB = $(OUTDIR)/$(RPA_LIB)
 TARGET_RPA_SO = $(OUTDIR)/$(RPA_SO)
-CFLAGS += -I$(SRCDIR)
+CFLAGS += -I$(ROOT_DIR)
 
 RPA_OBJECTS += $(OUTDIR)/rpacache.o
 RPA_OBJECTS += $(OUTDIR)/rpadbex.o
@@ -46,7 +46,7 @@ clean:
 	-rm -f $(TARGET_RPA_SO)
 	-rm -f $(RPA_OBJECTS)
 	-rm -f *~
-	-rm -f $(SRCDIR)/*~
+	-rm -f $(ROOT_DIR)/*~
 
 install:
 	cp $(TARGET_RPA_SO) $(RTK_LIB_INSTALL)

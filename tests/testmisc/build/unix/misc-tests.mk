@@ -1,10 +1,10 @@
-ROBJECT_SRCDIR = $(SRCDIR)/robject
-RLIB_SRCDIR = $(SRCDIR)/rlib
-RVM_SRCDIR = $(SRCDIR)/rvm
-RPA_SRCDIR = $(SRCDIR)/rpa
-RAST_SRCDIR = $(SRCDIR)/rast
-TESTS_SRCDIR = $(SRCDIR)/tests/testmisc
-INCLUDE = -I$(SRCDIR) -I$(SRCDIR)/arch/unix/$(ARCHDIR) -I$(RPA_SRCDIR)
+ROBJECT_SRCDIR = $(ROOT_DIR)/robject
+RLIB_SRCDIR = $(ROOT_DIR)/rlib
+RVM_SRCDIR = $(ROOT_DIR)/rvm
+RPA_SRCDIR = $(ROOT_DIR)/rpa
+RAST_SRCDIR = $(ROOT_DIR)/rast
+TESTS_SRCDIR = $(ROOT_DIR)/tests/testmisc
+INCLUDE = -I$(ROOT_DIR) -I$(ROOT_DIR)/arch/unix/$(ARCHDIR) -I$(RPA_SRCDIR)
 ifeq ($(OS), linux)
 LDFLAGS += --static
 endif
@@ -71,5 +71,5 @@ distclean: clean
 clean:
 	-rm -f $(TESTS)
 	-rm -f *~
-	-rm -f $(SRCDIR)/*~
+	-rm -f $(ROOT_DIR)/*~
 

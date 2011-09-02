@@ -1,9 +1,9 @@
 RPAGREP_BIN_INSTALL = /usr/bin
-RLIB_SRCDIR = $(SRCDIR)/rlib
-RVM_SRCDIR = $(SRCDIR)/rvm
-RPA_SRCDIR = $(SRCDIR)/rpa
-RGREP_SRCDIR = $(SRCDIR)/rgrep
-INCLUDE = -I$(SRCDIR) -I$(SRCDIR)/arch/unix/$(ARCHDIR) -I$(RGREP_SRCDIR) -I$(RGREP_SRCDIR)/unix
+RLIB_SRCDIR = $(ROOT_DIR)/rlib
+RVM_SRCDIR = $(ROOT_DIR)/rvm
+RPA_SRCDIR = $(ROOT_DIR)/rpa
+RGREP_SRCDIR = $(ROOT_DIR)/rgrep
+INCLUDE = -I$(ROOT_DIR) -I$(ROOT_DIR)/arch/unix/$(ARCHDIR) -I$(RGREP_SRCDIR) -I$(RGREP_SRCDIR)/unix
 ifeq ($(OS), linux)
 LDFLAGS += --static
 endif
@@ -41,7 +41,7 @@ distclean: clean
 clean:
 	-rm -f $(TESTS)
 	-rm -f *~
-	-rm -f $(SRCDIR)/*~
+	-rm -f $(ROOT_DIR)/*~
 	-rm -f $(OBJECTS)
 	-rm -f $(OUTDIR)/$(RPAGREP)
 

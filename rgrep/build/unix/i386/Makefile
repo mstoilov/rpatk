@@ -1,10 +1,10 @@
 ARCHDIR = $(shell basename $(shell pwd))
 OUTDIR = out
 OS = $(shell uname | tr "[:upper:]" "[:lower:]")
-SRCDIR = ../../../..
+ROOT_DIR = ../../../..
 MACH = -m32
 
-include $(SRCDIR)/build/unix/config.mk
+include $(ROOT_DIR)/build/unix/config.mk
 
 CFLAGS = $(MACH)
 ifeq ($(BLDCFG), release)

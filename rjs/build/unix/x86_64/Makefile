@@ -1,14 +1,14 @@
-SRCDIR = ../../../..
+ROOT_DIR = ../../../..
 ARCHDIR = $(shell basename $(shell pwd))
 OUTDIR = out
 OS = $(shell uname | tr "[:upper:]" "[:lower:]")
-INCLUDE = -I$(SRCDIR)/arch/unix/$(ARCHDIR)
+INCLUDE = -I$(ROOT_DIR)/arch/unix/$(ARCHDIR)
 MACH = -m64
 ELFARCH = elf64-x86-64
 BINARCH = i386:x86-64
 OCFLAGS_TXT = --input binary --output $(ELFARCH) --binary-architecture $(BINARCH)
 
-include $(SRCDIR)/build/unix/config.mk
+include $(ROOT_DIR)/build/unix/config.mk
 
 ifeq ($(BLDCFG), release)
 CFLAGS := $(MACH) -fPIC -O3

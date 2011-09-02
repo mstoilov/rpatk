@@ -1,7 +1,7 @@
-RLIB_SRCDIR = $(SRCDIR)/rlib
-RVM_SRCDIR = $(SRCDIR)/rvm
-RPA_SRCDIR = $(SRCDIR)/rpa
-RJS_SRCDIR = $(SRCDIR)/rjs
+RLIB_SRCDIR = $(ROOT_DIR)/rlib
+RVM_SRCDIR = $(ROOT_DIR)/rvm
+RPA_SRCDIR = $(ROOT_DIR)/rpa
+RJS_SRCDIR = $(ROOT_DIR)/rjs
 RJS_LIB = $(OUTDIR)/librjs.a
 RJS_SO = $(OUTDIR)/librjs.so.1.0
 RJS_EXEC = $(OUTDIR)/rjsexec
@@ -14,7 +14,7 @@ ifeq ($(OS), darwin)
 ECMA262_SECTION = -sectcreate rpa ecma262 $(RJS_SRCDIR)/ecma262.rpa
 endif
 
-CFLAGS += -I$(SRCDIR)
+CFLAGS += -I$(ROOT_DIR)
 
 LIBS = -L$(RLIB_SRCDIR)/build/unix/$(ARCHDIR)/out 
 LIBS += -L$(RVM_SRCDIR)/build/unix/$(ARCHDIR)/out 
@@ -107,5 +107,5 @@ clean:
 	-rm -f $(RJS_OBJECTS)
 	-rm -f $(RJS_EXEC)
 	-rm -f *~
-	-rm -f $(SRCDIR)/*~
+	-rm -f $(ROOT_DIR)/*~
 

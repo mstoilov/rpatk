@@ -1,7 +1,10 @@
-PREFIX=
+RTK_LIB_INSTALL=/usr/lib
+RPATK_INC_INSTALL=/usr/include/rpatk
+ARCHDIR = $(shell basename $(shell pwd))
+OS = $(shell uname | tr "[:upper:]" "[:lower:]")
 
-CC = $(PREFIX)gcc
-LD = $(PREFIX)ld
+CC = gcc
+LD = ld
 AR = ar
 CPP = g++
 OC = objcopy

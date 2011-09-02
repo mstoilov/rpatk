@@ -1,6 +1,4 @@
-SRCDIR = ../../..
-ARCHDIR = $(shell basename $(shell pwd))
-OS = $(shell uname | tr "[:upper:]" "[:lower:]")
+ROOT_DIR = ../../..
 
-include ../include.mk
+include ../config.mk
 include ../build.mk

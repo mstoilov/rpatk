@@ -1,12 +1,12 @@
 RTK_LIB_INSTALL=/usr/lib
-RVM_SRCDIR = $(SRCDIR)/rvm
+RVM_SRCDIR = $(ROOT_DIR)/rvm
 RVM_SO_VERSION = 2.0
 RVM_SO_NAME = librvm.so
 RVM_LIB = librvm.a
 RVM_SO = $(RVM_SO_NAME).$(RVM_SO_VERSION)
 TARGET_RVM_LIB = $(OUTDIR)/$(RVM_LIB)
 TARGET_RVM_SO = $(OUTDIR)/$(RVM_SO)
-CFLAGS += -I$(SRCDIR)
+CFLAGS += -I$(ROOT_DIR)
 
 RVM_OBJECTS +=	$(OUTDIR)/rvmcpu.o 
 RVM_OBJECTS +=	$(OUTDIR)/rvmcodemap.o
@@ -43,7 +43,7 @@ clean:
 	-rm -f $(TARGET_RVM_SO)
 	-rm -f $(RVM_OBJECTS)
 	-rm -f *~
-	-rm -f $(SRCDIR)/*~
+	-rm -f $(ROOT_DIR)/*~
 
 install:
 	cp $(TARGET_RVM_SO) $(RTK_LIB_INSTALL)

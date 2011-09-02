@@ -1,10 +1,10 @@
-SRCDIR = ../../..
+ROOT_DIR = ../../..
 ARCHDIR = $(shell basename $(shell pwd))
 OUTDIR = out
 OS = $(shell uname | tr "[:upper:]" "[:lower:]")
-INCLUDE = -I$(SRCDIR)/arch/unix/$(ARCHDIR)
+INCLUDE = -I$(ROOT_DIR)/arch/unix/$(ARCHDIR)
 
-include $(SRCDIR)/build/unix/config.mk
+include $(ROOT_DIR)/build/unix/config.mk
 
 ifeq ($(BLDCFG), release)
 CFLAGS := -fPIC -O3
@@ -19,5 +19,4 @@ endif
 CFLAGS += $(MACH) $(INCLUDE)
 LDFLAGS := $(MACH)
 
-
-include ../robject.mk
+include ../template.mk
