@@ -180,27 +180,20 @@ void *r_array_slot_expand(rarray_t *array, unsigned long index)
 }
 
 
-int r_array_move(rarray_t *array, unsigned long dest, unsigned long src, unsigned long size)
+int r_array_move(rarray_t *array, unsigned long dst, unsigned long src, unsigned long size)
 {
-	unsigned long i;
-	if (src == dest)
-		return 0;
-	if (r_array_length(array) <= src || size <= 0)
+	long i;
+	if ((dst + size) > r_array_length(array))
 		return -1;
-	r_array_checkexpand(array, dest + size);
-	if (dest < src) {
+	if (dst == src)
+		return 0;
+	if (dst < src) {
 		for (i = 0; i < size; i++) {
-			r_array_replace(array, dest, r_array_slot(array, src));
-			++src;
-			++dest;
+			r_array_replace(array, dst + i, r_array_slot(array, src + i));
 		}
 	} else {
-		src = src + size - 1;
-		dest = dest + size - 1;
-		for (i = 0; i < size; i++) {
-			r_array_replace(array, dest, r_array_slot(array, src));
-			--src;
-			--dest;
+		for (i = size; i > 0; i--) {
+			r_array_replace(array, dst + i - 1, r_array_slot(array, src + i - 1));
 		}
 	}
 	return 0;

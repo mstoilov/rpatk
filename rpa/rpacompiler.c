@@ -352,6 +352,7 @@ int rpa_compiler_loop_begin(rpa_compiler_t *co, const char *name, unsigned int n
 		ruleuid = exp.rulepref->ruleuid;
 		ruleid = exp.rulepref->ruleid;
 	}
+	flags |= RPA_RFLAG_LEFTRECURSION;
 	exp.start = rvm_codegen_getcodesize(co->cg);
 	exp.startidx = rvm_codegen_addlabel_default(co->cg, name, namesize);
 	exp.endidx = rpa_codegen_invalid_add_numlabel_s(co->cg, "__end", exp.start);
@@ -516,6 +517,8 @@ int rpa_compiler_inlinerule_begin(rpa_compiler_t *co, const char *name, unsigned
 		ruleuid = exp.rulepref->ruleuid;
 		ruleid = exp.rulepref->ruleid;
 	}
+	ruleflags |= RPA_RFLAG_LEFTRECURSION;
+
 
 	exp.branch = rvm_codegen_addins(co->cg, rvm_asm(RVM_B, DA, XX, XX, 0));
 	exp.start = rvm_codegen_getcodesize(co->cg);

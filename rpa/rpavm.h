@@ -41,6 +41,7 @@ extern "C" {
 #define RPA_LOOP_INDERECTION 1024
 #define RPA_RFLAG_EMITRECORD (1 << 0)
 #define RPA_RFLAG_ABORTONFAIL (1 << 2)
+#define RPA_RFLAG_LEFTRECURSION (1<<3)
 
 #define R_REC (TP - 3)
 #define R_LOO (TP - 2)

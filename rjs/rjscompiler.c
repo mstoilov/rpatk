@@ -637,7 +637,7 @@ int rjs_compiler_rh_binaryexpressionop(rjs_compiler_t *co, rarray_t *records, lo
 
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
+//	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
 	rjs_compiler_debugtail(co, records, rec);
 	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
 		goto error;
@@ -789,7 +789,7 @@ int rjs_compiler_rh_memberexpressiondotop(rjs_compiler_t *co, rarray_t *records,
 
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R1, R0, XX, 0)); 	// Supposedly an Array
+//	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R1, R0, XX, 0)); 	// Supposedly an Array
 	rjs_compiler_debugtail(co, records, rec);
 	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
 		return -1;
@@ -875,7 +875,7 @@ int rjs_compiler_rh_functioncall(rjs_compiler_t *co, rarray_t *records, long rec
 
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
-	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(R0)|BIT(TP)|BIT(FP)|BIT(SP)|BIT(LR)));
+//	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(R0)|BIT(TP)|BIT(FP)|BIT(SP)|BIT(LR)));
 	rjs_compiler_debugtail(co, records, rec);
 
 	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
@@ -1057,6 +1057,7 @@ int rjs_compiler_rh_arguments(rjs_compiler_t *co, rarray_t *records, long rec)
 		return -1;
 	}
 	R_ASSERT(ctx);
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSHM, DA, XX, XX, BIT(R0)|BIT(TP)|BIT(FP)|BIT(SP)|BIT(LR)));
 	rjs_compiler_debugtail(co, records, rec);
 
 	if (rjs_compiler_playchildrecords(co, records, rec) < 0)
@@ -1751,6 +1752,7 @@ int rjs_compiler_rh_binaryoperator(rjs_compiler_t *co, rarray_t *records, long r
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_PUSH, R0, XX, XX, 0));
 	if (ctx && ctx->type == RJS_COCTX_OPERATION)
 		((rjs_coctx_operation_t *)ctx)->opcode = rjs_compiler_record2opcode(prec);
 	rjs_compiler_debugtail(co, records, rec);
@@ -1785,6 +1787,7 @@ int rjs_compiler_rh_identifiername(rjs_compiler_t *co, rarray_t *records, long r
 	rparecord_t *prec;
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	rjs_compiler_debughead(co, records, rec);
+	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R1, R0, XX, 0)); 	// Supposedly an Array
 	rvm_codegen_addins(co->cg, rvm_asm(RVM_MOV, R0, DA, XX, prec->inputsiz));
 	rvm_codegen_addins(co->cg, rvm_asmp(RVM_MOV, R2, DA, XX, (void*)prec->input));
 	rjs_compiler_debugtail(co, records, rec);

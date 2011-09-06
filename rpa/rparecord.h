@@ -219,6 +219,7 @@ rarray_t *rpa_records_create();
  */
 void rpa_records_destroy(rarray_t *records);
 
+int rpa_recordtree_move(rarray_t *records, long dst, long src, long size);
 
 void rpa_record_dumpindented(rarray_t *records, long rec, int level);
 void rpa_record_dump(rarray_t *records, long rec);

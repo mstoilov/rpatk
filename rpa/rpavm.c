@@ -335,6 +335,8 @@ static void rpavm_swi_emitstart(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rec->input = stat->instack[tp].input;
 	rec->inputoff = (unsigned long)(stat->instack[tp].input - stat->start);
 	rec->inputsiz = 0;
+	if (ruledata->flags & RPA_RFLAG_LEFTRECURSION)
+		rec->usertype = RPA_LOOP_PATH;
 }
 
 
@@ -370,6 +372,8 @@ static void rpavm_swi_emitend(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	rec->inputoff = (unsigned long)(stat->instack[tp].input - stat->start);
 	startrec->size = (ruint32)tplen;
 	startrec->inputsiz = rec->inputsiz;
+	if (ruledata->flags & RPA_RFLAG_LEFTRECURSION)
+		rec->usertype = RPA_LOOP_PATH;
 }
 
 

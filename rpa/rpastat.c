@@ -147,6 +147,46 @@ long rpa_stat_exec(rpastat_t *stat, rvm_asmins_t *prog, ruword off, unsigned int
 }
 
 
+static void rpa_stat_fixleftrecursion(rpastat_t *stat, rarray_t *records)
+{
+	rparecord_t *srec, *erec;
+	long i, temp, tempsize;
+	long size = r_array_length(records);
+
+	for (i = 0; i < size; i++) {
+		srec = (rparecord_t *) r_array_slot(records, i);
+		if ((srec->usertype & RPA_LOOP_PATH) && (srec->type & RPA_RECORD_START)) {
+			erec = (rparecord_t *) r_array_slot(records, i - 1);
+			if ((erec->input == srec->input) && (erec->type & RPA_RECORD_END)) {
+				long ssize = 0, j;
+				for (j = 0; j < size; j++) {
+					srec = (rparecord_t *) r_array_slot(records, i + j);
+					if (!(srec->usertype & RPA_LOOP_PATH) || !(srec->type & RPA_RECORD_START)) {
+						break;
+					}
+					ssize++;
+				}
+
+				r_array_setlength(records, size + ssize);
+				r_array_move(records, size, i, ssize);
+				temp = rpa_recordtree_get(records, i - 1, RPA_RECORD_START);
+				tempsize = rpa_recordtree_size(records, i - 1);
+				r_array_move(records, temp + ssize, temp, tempsize);
+				r_array_move(records, temp, size, ssize);
+				r_array_setlength(records, size);
+			}
+
+		}
+
+	}
+
+	for (i = 0; i < size; i++) {
+		erec = (rparecord_t *) r_array_slot(records, i);
+//		erec->usertype = 0;
+	}
+}
+
+
 static long rpa_stat_exec_rid(rpastat_t *stat, rparule_t rid, unsigned int encoding, const char *input, const char *start, const char *end, rarray_t *records)
 {
 	long topsiz = 0;
@@ -171,6 +211,8 @@ static long rpa_stat_exec_rid(rpastat_t *stat, rparule_t rid, unsigned int encod
 	if (topsiz <= 0)
 		return 0;
 	ptp = &stat->instack[topsiz];
+	if (records)
+		rpa_stat_fixleftrecursion(stat, records);
 	return (long)(ptp->input - input);
 }
 

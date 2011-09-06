@@ -200,6 +200,34 @@ long rpa_recordtree_copy(rarray_t *dst, rarray_t *src, long rec)
 }
 
 
+int rpa_recordtree_move(rarray_t *records, long dst, long src, long size)
+{
+	long i;
+	rparecord_t *srcrec, *dstrec;
+	if ((dst + size) > r_array_length(records))
+		return -1;
+	if (dst == src)
+		return 0;
+	if (dst < src) {
+		for (i = 0; i < size; i++) {
+			r_array_replace(records, dst + i, r_array_slot(records, src + i));
+//			srcrec = (rparecord_t *)r_array_slot(records, src + i);
+//			dstrec = (rparecord_t *)r_array_slot(records, dst + i);
+//			*dstrec = *srcrec;
+		}
+	} else {
+		for (i = size; i > 0; i--) {
+			r_array_replace(records, dst + i - 1, r_array_slot(records, src + i - 1));
+
+//			srcrec = (rparecord_t *)r_array_slot(records, src + i - 1);
+//			dstrec = (rparecord_t *)r_array_slot(records, dst + i - 1);
+//			*dstrec = *srcrec;
+		}
+	}
+	return 0;
+}
+
+
 long rpa_recordtree_walk(rarray_t *records, long rec, long level, rpa_recordtree_callback callback, rpointer userdata)
 {
 	long child;
@@ -377,7 +405,7 @@ void rpa_record_dump(rarray_t *records, long rec)
 	size = prec->inputsiz;
 	if (size >= bufsize - n - 1)
 		size = bufsize - n - 1;
-	if (prec->type & RPA_RECORD_END) {
+	if (prec->type & (RPA_RECORD_END | RPA_RECORD_START)) {
 		r_strncpy(buf + n, prec->input, size);
 		n += size;
 		buf[n] = '\0';
