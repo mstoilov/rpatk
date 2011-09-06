@@ -153,7 +153,7 @@ static void rpa_stat_fixleftrecursion(rpastat_t *stat, rarray_t *records)
 	long i, temp, tempsize;
 	long size = r_array_length(records);
 
-	for (i = 0; i < size; i++) {
+	for (i = 1; i < size; i++) {
 		srec = (rparecord_t *) r_array_slot(records, i);
 		if ((srec->usertype & RPA_LOOP_PATH) && (srec->type & RPA_RECORD_START)) {
 			erec = (rparecord_t *) r_array_slot(records, i - 1);

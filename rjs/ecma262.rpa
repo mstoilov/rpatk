@@ -99,6 +99,7 @@
 #!emitid CaseCode						UID_CASECODE						70
 #!emitid CaseBlock						UID_CASEBLOCK						71
 #!emitid HexIntegerLiteral				UID_HEXINTEGERLITERAL				72
+#!emitid IndexExpression				UID_INDEXEXPRESSION					73
 
 #!abort SC
 
@@ -217,8 +218,9 @@ Elision							::= ',' <S>? <Elision> | <S>? ','
 # 11.2 Left-Hand-Side Expressions
 LSB								::= <S>? '[' <S>?
 RSB								::= <S>? ']' <S>?
+IndexExpression					::= <S>? '[' <S>? <Expression> <S>? ']' <S>? 
 MemberExpressionBase			::= <MemberExpression>
-MemberExpressionIndexOp			::= <MemberExpressionBase> <LSB> <Expression> <RSB>
+MemberExpressionIndexOp			::= <MemberExpressionBase> <IndexExpression>
 MemberExpressionDotOp			::= <MemberExpressionBase> '.' <IdentifierName>
 
 MemberExpression 				::= <MemberExpressionIndexOp>  |
