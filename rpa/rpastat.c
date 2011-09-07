@@ -147,7 +147,7 @@ long rpa_stat_exec(rpastat_t *stat, rvm_asmins_t *prog, ruword off, unsigned int
 }
 
 
-static void rpa_stat_fixleftrecursion(rpastat_t *stat, rarray_t *records)
+static void rpa_stat_normalizeleftrecursion(rpastat_t *stat, rarray_t *records)
 {
 	rparecord_t *srec, *erec;
 	long i, temp, tempsize;
@@ -168,11 +168,11 @@ static void rpa_stat_fixleftrecursion(rpastat_t *stat, rarray_t *records)
 				}
 
 				r_array_setlength(records, size + ssize);
-				r_array_move(records, size, i, ssize);
+				rpa_recordtree_move(records, size, i, ssize);
 				temp = rpa_recordtree_get(records, i - 1, RPA_RECORD_START);
 				tempsize = rpa_recordtree_size(records, i - 1);
-				r_array_move(records, temp + ssize, temp, tempsize);
-				r_array_move(records, temp, size, ssize);
+				rpa_recordtree_move(records, temp + ssize, temp, tempsize);
+				rpa_recordtree_move(records, temp, size, ssize);
 				r_array_setlength(records, size);
 			}
 
@@ -182,7 +182,7 @@ static void rpa_stat_fixleftrecursion(rpastat_t *stat, rarray_t *records)
 
 	for (i = 0; i < size; i++) {
 		erec = (rparecord_t *) r_array_slot(records, i);
-//		erec->usertype = 0;
+		erec->usertype = 0;
 	}
 }
 
@@ -212,7 +212,7 @@ static long rpa_stat_exec_rid(rpastat_t *stat, rparule_t rid, unsigned int encod
 		return 0;
 	ptp = &stat->instack[topsiz];
 	if (records)
-		rpa_stat_fixleftrecursion(stat, records);
+		rpa_stat_normalizeleftrecursion(stat, records);
 	return (long)(ptp->input - input);
 }
 

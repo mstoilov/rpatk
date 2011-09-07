@@ -210,18 +210,15 @@ int rpa_recordtree_move(rarray_t *records, long dst, long src, long size)
 		return 0;
 	if (dst < src) {
 		for (i = 0; i < size; i++) {
-			r_array_replace(records, dst + i, r_array_slot(records, src + i));
-//			srcrec = (rparecord_t *)r_array_slot(records, src + i);
-//			dstrec = (rparecord_t *)r_array_slot(records, dst + i);
-//			*dstrec = *srcrec;
+			srcrec = (rparecord_t *)r_array_slot(records, src + i);
+			dstrec = (rparecord_t *)r_array_slot(records, dst + i);
+			*dstrec = *srcrec;
 		}
 	} else {
 		for (i = size; i > 0; i--) {
-			r_array_replace(records, dst + i - 1, r_array_slot(records, src + i - 1));
-
-//			srcrec = (rparecord_t *)r_array_slot(records, src + i - 1);
-//			dstrec = (rparecord_t *)r_array_slot(records, dst + i - 1);
-//			*dstrec = *srcrec;
+			srcrec = (rparecord_t *)r_array_slot(records, src + i - 1);
+			dstrec = (rparecord_t *)r_array_slot(records, dst + i - 1);
+			*dstrec = *srcrec;
 		}
 	}
 	return 0;
