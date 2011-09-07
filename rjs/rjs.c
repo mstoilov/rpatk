@@ -299,7 +299,7 @@ static void rjs_op_mapalloc(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
-static long rjs_op_mapupdatelength(rmap_t *map, long length, rvmcpu_t *cpu, rvm_asmins_t *ins)
+static void rjs_op_mapupdatelength(rmap_t *map, long length, rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	long index;
 	rvmreg_t *value;
