@@ -529,6 +529,34 @@ static int rpa_dbex_rh_specialchar(rpadbex_t *dbex, long rec)
 }
 
 
+static int rpa_dbex_rh_specialclschar(rpadbex_t *dbex, long rec)
+{
+	ruint32 wc = 0;
+	rarray_t *records = dbex->records;
+	rparecord_t *prec;
+
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_START);
+	prec = rpa_dbex_record(dbex, rec);
+	R_ASSERT(prec);
+	rpa_dbex_debug_recordhead(dbex, rec);
+	rpa_dbex_debug_recordtail(dbex, rec);
+	if (rpa_dbex_playchildrecords(dbex, rec) < 0)
+		return -1;
+	rec = rpa_recordtree_get(records, rec, RPA_RECORD_END);
+	prec = rpa_dbex_record(dbex, rec);
+	R_ASSERT(prec);
+	rpa_dbex_debug_recordhead(dbex, rec);
+	if (r_utf8_mbtowc(&wc, (const unsigned char*) prec->input, (const unsigned char*)prec->input + prec->inputsiz) < 0) {
+
+		return -1;
+	}
+	rvm_codegen_addins(dbex->co->cg, rvm_asm(rpa_dbex_getmatchspecialchr(prec->usertype & RPA_MATCH_MASK), DA, XX, XX, wc));
+	rvm_codegen_index_addrelocins(dbex->co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(dbex->co)->endidx, rvm_asm(RVM_BGRE, DA, XX, XX, 0));
+	rpa_dbex_debug_recordtail(dbex, rec);
+	return 0;
+}
+
+
 static int rpa_dbex_rh_cls(rpadbex_t *dbex, long rec)
 {
 	rarray_t *records = dbex->records;
@@ -980,6 +1008,7 @@ rpadbex_t *rpa_dbex_create(void)
 	dbex->handlers[RPA_PRODUCTION_CLS] = rpa_dbex_rh_cls;
 	dbex->handlers[RPA_PRODUCTION_CHAR] = rpa_dbex_rh_char;
 	dbex->handlers[RPA_PRODUCTION_SPECIALCHAR] = rpa_dbex_rh_specialchar;
+	dbex->handlers[RPA_PRODUCTION_SPECIALCLSCHAR] = rpa_dbex_rh_specialclschar;
 	dbex->handlers[RPA_PRODUCTION_CLSCHAR] = rpa_dbex_rh_clschar;
 	dbex->handlers[RPA_PRODUCTION_AREF] = rpa_dbex_rh_aref;
 	dbex->handlers[RPA_PRODUCTION_CREF] = rpa_dbex_rh_aref;

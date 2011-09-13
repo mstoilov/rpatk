@@ -282,26 +282,6 @@ int wmain(int argc, const wchar_t* argv[])
 		}
 	}
 
-
-	/* scan files */
-	for (i = 1; i < argc; i++) {
-		if (argv[i][0] != '-') {
-			++scanned;
-			rpa_grep_scan_path(pGrep, argv[i]);
-		} else if (argv[i][1] == L'e' || argv[i][1] == L'f' || argv[i][1] == L'c'){
-			++i;
-		}
-		
-	}
-
-	if (!scanned) {
-		rpa_buffer_t *buf = rpa_buffer_loadfile(stdin);
-		if (buf) {
-			rpa_grep_scan_buffer(pGrep, buf);
-			rpa_buffer_destroy(buf);
-		}
-	}
-
 end:
 	for (i = 0; i < (long)r_array_length(buffers); i++) {
 		rpa_buffer_destroy(r_array_index(buffers, i, rpa_buffer_t*));
