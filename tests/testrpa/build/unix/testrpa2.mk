@@ -28,6 +28,7 @@ TESTS	+= $(OUTDIR)/rpacompiler-class
 TESTS	+= $(OUTDIR)/rpacompiler-altexp
 TESTS	+= $(OUTDIR)/rpacompiler-minusexp
 TESTS	+= $(OUTDIR)/rpaparser-test
+TESTS	+= $(OUTDIR)/postfix
 
 
 all : $(OUTDIR) $(TESTS)
