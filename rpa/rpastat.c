@@ -146,19 +146,32 @@ long rpa_stat_exec(rpastat_t *stat, rvm_asmins_t *prog, ruword off, unsigned int
 	return ret;
 }
 
-
 static void rpa_stat_normalizeleftrecursion(rpastat_t *stat, rarray_t *records)
 {
 	rparecord_t *srec, *erec;
-	long i, temp, tempsize;
+	long i, temp_start, strayrecs_start, strayrecs_size, strayrecs_end;
 	long size = r_array_length(records);
 
 	for (i = 1; i < size; i++) {
 		srec = (rparecord_t *) r_array_slot(records, i);
 		if ((srec->usertype & RPA_LOOP_PATH) && (srec->type & RPA_RECORD_START)) {
-			erec = (rparecord_t *) r_array_slot(records, i - 1);
-			if ((erec->input == srec->input) && (erec->type & RPA_RECORD_END)) {
+			erec = rpa_record_get(records, i - 1);
+			if (erec && (erec->input >= srec->input) && (erec->input + erec->inputsiz <= srec->input + srec->inputsiz) && (erec->type & RPA_RECORD_END)) {
 				long ssize = 0, j;
+				strayrecs_end = i - 1;
+				strayrecs_start = rpa_recordtree_get(records, strayrecs_end, RPA_RECORD_START);
+				for (temp_start = rpa_recordtree_prev(records, strayrecs_start, RPA_RECORD_START); temp_start >= 0;
+					temp_start = rpa_recordtree_prev(records, strayrecs_start, RPA_RECORD_START)) {
+					erec = rpa_record_get(records, temp_start);
+					if (erec && (erec->input >= srec->input) && (erec->input + erec->inputsiz <= srec->input + srec->inputsiz)) {
+						strayrecs_start = temp_start;
+						r_printf("----> strayrecs_start = %ld\n", strayrecs_start);
+						continue;
+					}
+					break;
+				}
+				strayrecs_size = strayrecs_end - strayrecs_start + 1;
+
 				for (j = 0; j < size; j++) {
 					srec = (rparecord_t *) r_array_slot(records, i + j);
 					if (!(srec->usertype & RPA_LOOP_PATH) || !(srec->type & RPA_RECORD_START)) {
@@ -166,13 +179,10 @@ static void rpa_stat_normalizeleftrecursion(rpastat_t *stat, rarray_t *records)
 					}
 					ssize++;
 				}
-
 				r_array_setlength(records, size + ssize);
 				rpa_recordtree_move(records, size, i, ssize);
-				temp = rpa_recordtree_get(records, i - 1, RPA_RECORD_START);
-				tempsize = rpa_recordtree_size(records, i - 1);
-				rpa_recordtree_move(records, temp + ssize, temp, tempsize);
-				rpa_recordtree_move(records, temp, size, ssize);
+				rpa_recordtree_move(records, strayrecs_start + ssize, strayrecs_start, strayrecs_size);
+				rpa_recordtree_move(records, strayrecs_start, size, ssize);
 				r_array_setlength(records, size);
 			}
 
