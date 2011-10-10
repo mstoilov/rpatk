@@ -99,6 +99,13 @@ rpa_grep_t *rpa_grep_create()
 	return pGrep;
 }
 
+
+static void rpa_grep_matchfound(rpa_grep_t *pGrep)
+{
+	pGrep->ret = 0;
+}
+
+
 void rpa_grep_close(rpa_grep_t *pGrep)
 {
 	if (pGrep->hDbex)
@@ -216,7 +223,7 @@ int rpa_grep_match(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 	hStat->debug = pGrep->execdebug;
 	ret = rpa_stat_match(hStat, pGrep->hPattern, pGrep->encoding, input, start, end);
 	if (ret > 0) {
-		pGrep->ret = 0;
+		rpa_grep_matchfound(pGrep);
 		rpa_grep_print_filename(pGrep);
 		rpa_grep_output(pGrep, input, ret, pGrep->encoding);
 		rpa_grep_output_utf8_string(pGrep, "\n");
@@ -244,7 +251,7 @@ int rpa_grep_parse(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 	hStat->debug = pGrep->execdebug;
 	ret = rpa_stat_parse(hStat, pGrep->hPattern, pGrep->encoding, input, start, end, records);
 	if (ret > 0)
-		pGrep->ret = 0;
+		rpa_grep_matchfound(pGrep);
 	if (ret < 0) {
 		rpa_errinfo_t err;
 		rpa_stat_lasterrorinfo(hStat, &err);
@@ -313,7 +320,7 @@ again:
 	pGrep->cachehit += hStat->cache->hit;
 
 	if (ret > 0) {
-		pGrep->ret = 0;
+		rpa_grep_matchfound(pGrep);
 		if (!displayed) {
 			displayed = 1;
 			rpa_grep_print_filename(pGrep);
