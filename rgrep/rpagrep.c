@@ -373,6 +373,7 @@ again:
 		return 0;
 	ret = rpa_stat_scan(hStat, pGrep->hPattern, pGrep->encoding, lstart, lstart, lend, &matched);
 	if (ret > 0) {
+		rpa_grep_matchfound(pGrep);
 		if (!displayed) {
 			displayed = 1;
 			rpa_grep_print_filename(pGrep);
