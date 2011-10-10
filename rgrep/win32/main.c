@@ -308,9 +308,9 @@ end:
 	}
 
 	rpa_grep_destroy(pGrep);
-	return 0;
+	return pGrep->ret;
 
 error:
 	rpa_grep_destroy(pGrep);
-	return 1;
+	return 2;
 }

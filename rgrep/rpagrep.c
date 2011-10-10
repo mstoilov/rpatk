@@ -94,6 +94,7 @@ rpa_grep_t *rpa_grep_create()
 	if (!pGrep)
 		return (void *)0;
 	memset(pGrep, 0, sizeof(*pGrep));
+	pGrep->ret = 1;
 	pGrep->hDbex = rpa_dbex_create();
 	return pGrep;
 }
@@ -215,6 +216,7 @@ int rpa_grep_match(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 	hStat->debug = pGrep->execdebug;
 	ret = rpa_stat_match(hStat, pGrep->hPattern, pGrep->encoding, input, start, end);
 	if (ret > 0) {
+		pGrep->ret = 0;
 		rpa_grep_print_filename(pGrep);
 		rpa_grep_output(pGrep, input, ret, pGrep->encoding);
 		rpa_grep_output_utf8_string(pGrep, "\n");
@@ -241,6 +243,8 @@ int rpa_grep_parse(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 	rpa_stat_cachedisable(hStat, pGrep->disablecache);
 	hStat->debug = pGrep->execdebug;
 	ret = rpa_stat_parse(hStat, pGrep->hPattern, pGrep->encoding, input, start, end, records);
+	if (ret > 0)
+		pGrep->ret = 0;
 	if (ret < 0) {
 		rpa_errinfo_t err;
 		rpa_stat_lasterrorinfo(hStat, &err);
@@ -309,6 +313,7 @@ again:
 	pGrep->cachehit += hStat->cache->hit;
 
 	if (ret > 0) {
+		pGrep->ret = 0;
 		if (!displayed) {
 			displayed = 1;
 			rpa_grep_print_filename(pGrep);

@@ -59,6 +59,7 @@ typedef struct rpa_grep_s {
 	unsigned int disablecache;
 	unsigned long long scsize;
 	unsigned long ud0;
+	int ret;
 	void *filename;
 } rpa_grep_t;
 
