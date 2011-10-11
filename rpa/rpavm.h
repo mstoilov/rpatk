@@ -84,6 +84,7 @@ typedef struct rpainput_s {
 	const char *input;
 	ruint32 wc;
 	ruint32 iwc;
+	ruint32 wcsize;
 	unsigned char eof;
 } rpainput_t;
 

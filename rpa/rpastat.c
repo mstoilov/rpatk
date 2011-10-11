@@ -261,7 +261,7 @@ long rpa_stat_scan(rpastat_t *stat, rparule_t rid, unsigned int encoding, const 
 		}
 		if (topsiz == 0) {
 			ptp = &stat->instack[0];
-			input += stat->ip.input - ptp->input;
+			input += ptp->wcsize;
 		} else {
 			input += 1;
 		}
@@ -433,10 +433,12 @@ long rpa_stat_shift(rpastat_t *stat, long top)
 				ptp->iwc = r_charicase(ptp->wc);
 			stat->ip.input += inc;
 			stat->ip.serial += 1;
+			ptp->wcsize = inc;
 			ptp->eof = 0;
 		} else {
 			ptp->wc = (ruint32)-1;
 			ptp->eof = 1;
+			ptp->wcsize = 0;
 		}
 	}
 
