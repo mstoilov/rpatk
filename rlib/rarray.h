@@ -51,12 +51,26 @@ struct rarray_s {
 #define r_array_inclast(__array__, __type__) (*((__type__*)(r_array_lastslot(__array__))) += 1)
 #define r_array_declast(__array__, __type__) (*((__type__*)(r_array_lastslot(__array__))) -= 1)
 
-/* #define r_array_index(__array__, __index__, __type__) (((__type__*)(void*)(__array__)->data)[__index__]) */
 #define r_array_slot(__array__, __index__) (((ruint8*)(__array__)->data) + (__array__)->elt_size * (__index__))
 #define r_array_index(__array__, __index__, __type__) *((__type__*)r_array_slot(__array__, __index__))
 #define r_array_lastslot(__array__) (r_array_length(__array__) ? r_array_slot(__array__, r_array_length(__array__) - 1) : NULL)
 #define r_array_push(__array__, __val__, __type__) do {__type__ __v__ = (__type__)__val__; r_array_add(__array__, &__v__); } while(0)
 #define r_array_pop(__array__, __type__) (r_array_index(__array__, (__array__)->len ? --(__array__)->len : 0, __type__))
+#define r_array_sort(__a__, __t__) \
+	do { \
+		__t__ __vi__, __vj__; \
+		long __i__, __j__; \
+		for (__i__ = 0; __i__ < r_array_length(__a__) - 1; __i__++) { \
+			for (__j__ = __i__ + 1; __j__ < r_array_length(__a__); __j__++) { \
+				__vi__ = r_array_index(__a__, __i__, __t__); \
+				__vj__ = r_array_index(__a__, __j__, __t__); \
+				if (__vj__ < __vi__) {\
+					r_array_replace(__a__, __i__, &__vj__); \
+					r_array_replace(__a__, __j__, &__vi__); \
+				} \
+			} \
+		} \
+	} while (0)
 
 robject_t *r_array_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, unsigned long elt_size);
 rarray_t *r_array_create(unsigned long elt_size);
