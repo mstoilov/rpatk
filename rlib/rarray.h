@@ -60,7 +60,7 @@ struct rarray_s {
 	do { \
 		__t__ __vi__, __vj__; \
 		long __i__, __j__; \
-		for (__i__ = 0; __i__ < r_array_length(__a__) - 1; __i__++) { \
+		for (__i__ = 0; __i__ < r_array_length(__a__); __i__++) { \
 			for (__j__ = __i__ + 1; __j__ < r_array_length(__a__); __j__++) { \
 				__vi__ = r_array_index(__a__, __i__, __t__); \
 				__vj__ = r_array_index(__a__, __j__, __t__); \
