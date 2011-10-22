@@ -34,6 +34,7 @@ rpastat_t *rpa_stat_create(rpadbex_t *dbex, unsigned long stacksize)
 		stacksize = RPA_DEFAULT_STACKSIZE;
 	stat->cpu = rpavm_cpu_create(stacksize);
 	stat->cache = rpa_cache_create();
+	stat->si = rex_nfasimulator_create();
 	if (!stat->cpu) {
 		r_free(stat);
 		return NULL;
@@ -51,6 +52,7 @@ void rpa_stat_destroy(rpastat_t *stat)
 			r_free(stat->instackbuffer);
 		rpavm_cpu_destroy(stat->cpu);
 		rpa_cache_destroy(stat->cache);
+		rex_nfasimulator_destroy(stat->si);
 		r_free(stat);
 	}
 }
@@ -322,6 +324,28 @@ int rpa_stat_matchchr(rpastat_t *stat, long top, unsigned long wc)
 		ret = (in->wc == wc) ? 1 : 0;
 	}
 	return ret;
+}
+
+
+long rpa_stat_matchrex(rpastat_t *stat, long top, rexdb_t *db, unsigned long uid)
+{
+	long ret = 0, accret = 0;
+	rboolean acc = FALSE;
+	rpainput_t *in;
+
+	rex_nfasimulator_start(stat->si, db, uid);
+	in = &stat->instack[top];
+	while (!in->eof) {
+		if (!rex_nfasimulator_next(stat->si, db, in->wc, &acc))
+			break;
+		++ret;
+		if (acc)
+			accret = ret;
+		top = rpa_stat_shift(stat, top);
+		in = &stat->instack[top];
+	}
+
+	return accret;
 }
 
 

@@ -78,6 +78,21 @@ static void rpavm_swi_verifybitmap(rvmcpu_t *cpu, rvm_asmins_t *ins)
 }
 
 
+static void rpavm_swi_matchrex(rvmcpu_t *cpu, rvm_asmins_t *ins)
+{
+	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
+	rexdb_t *db = (rexdb_t *)cpu->userdata2;
+	ruword uid = RVM_CPUREG_GETU(cpu, ins->op1);
+	long matched = 0;
+
+	if ((matched = rpa_stat_matchrex(stat, (long)RVM_CPUREG_GETL(cpu, R_TOP), db, (unsigned long)uid)) > 0) {
+		rpavm_swi_shift(cpu, ins);
+	}
+	cpu->status = matched ? 0 : RVM_STATUS_N;
+	RVM_CPUREG_SETU(cpu, R0, matched ? matched : (ruword)-1);
+}
+
+
 static void rpavm_swi_matchchr_nan(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rpastat_t *stat = (rpastat_t *)cpu->userdata1;
@@ -477,6 +492,7 @@ static rvm_switable_t rpavm_swi_table[] = {
 		{"RPA_MATCHBITMAP", rpavm_swi_matchbitmap},
 		{"RPA_EXITONBITMAP", rpavm_swi_exitonbitmap},
 		{"RPA_VERIFYBITMAP", rpavm_swi_verifybitmap},
+		{"RPA_MATCHREX", rpavm_swi_matchrex},
 		{NULL, NULL},
 };
 
