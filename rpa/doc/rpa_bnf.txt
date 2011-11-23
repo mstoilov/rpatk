@@ -112,13 +112,20 @@ Example:
 v ::= abc | abcd | abcde
 @endcode
 Choices 'abcd' and 'abcde' will never be evaluated, because they are masked by 'abc'. You have to understand that the BNF
-schema is compiled to byte code and then run in a Virtual Machine (It is similar to the way Java works). In psedo code this
+schema is compiled to byte code and then run in a Virtual Machine (It is similar to the way Java works). In pseudo code this
 would look like:
 @code
-if (match(ptr, 'abc') || match(ptr, 'abcd') || match(ptr, 'abcde')) {
-	ADJUST(ptr);
+if (match(ptr, 'abc')) {
+	ADJUST(ptr, 3);
+	return SUCCESS;
+} else if (match(ptr, 'abcd')) {
+	ADJUST(ptr, 4);
+	return SUCCESS;
+} else if (match(ptr, 'abcde')) {
+	ADJUST(ptr, 5);
 	return SUCCESS;
 }
+return FAILED;
 @endcode
 If your input is 'abcde', then the very first match('abc') will match the first three letters and the ptr will be adjusted to point
 to the last two letters 'cd'. The other two choices in the if statement match(ptr, 'abcd'), match(ptr, 'abcde') will not even be tried.
