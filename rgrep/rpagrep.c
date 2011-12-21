@@ -274,7 +274,14 @@ int rpa_grep_parse(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 		rpa_grep_output_utf8_string(pGrep, "\n");
 
 	} else {
-		if (pGrep->greptype == RPA_GREPTYPE_PARSE) {
+		if (pGrep->greptype == RPA_GREPTYPE_NOPROD_PARSE) {
+			for (i = 0; i < rpa_records_length(records); i++) {
+				prec = (rparecord_t *)rpa_records_slot(records, i);
+				if (prec->type & RPA_RECORD_END) {
+					rpa_grep_output(pGrep, prec->input, prec->inputsiz, pGrep->encoding);
+				}
+			}
+		} else if (pGrep->greptype == RPA_GREPTYPE_PARSE) {
 			for (i = 0; i < rpa_records_length(records); i++) {
 				prec = (rparecord_t *)rpa_records_slot(records, i);
 				if (prec->type & RPA_RECORD_END) {
@@ -290,7 +297,6 @@ int rpa_grep_parse(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 			for (i = 0; i < rpa_records_length(records); i++) {
 				rpa_record_dump(records, i);
 			}
-
 		}
 	}
 	rpa_records_destroy(records);
@@ -429,6 +435,7 @@ void rpa_grep_scan_buffer(rpa_grep_t *pGrep, rpa_buffer_t *buf)
 		break;
 	case RPA_GREPTYPE_PARSEAST:
 	case RPA_GREPTYPE_PARSE:
+	case RPA_GREPTYPE_NOPROD_PARSE:
 		rpa_grep_parse(pGrep, input, size);
 		break;
 	case RPA_GREPTYPE_SCAN:

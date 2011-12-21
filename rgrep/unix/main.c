@@ -48,7 +48,9 @@ int usage(int argc, const char *argv[])
 		fprintf(stderr, "\t-i                       Ignore case.\n");
 		fprintf(stderr, "\t-m                       Match.\n");
 		fprintf(stderr, "\t-p                       Parse.\n");
+		fprintf(stderr, "\t-x                       Parse. Don't show production info.\n");
 		fprintf(stderr, "\t-l                       Line mode.\n");
+		fprintf(stderr, "\t-q                       Quiet mode.\n");
 		fprintf(stderr, "\t-16                      Force UTF16 encoding.\n");
 		fprintf(stderr, "\t-b                       Force byte encoding.\n");
 		fprintf(stderr, "\t-d                       Dump a production in a tree format.\n");
@@ -76,6 +78,7 @@ int main(int argc, const char *argv[])
 	int ret, scanned = 0, i;
 	rpa_grep_t *pGrep;
 	rarray_t *buffers;
+	FILE *devnull = NULL;
 
 	buffers = r_array_create(sizeof(rpa_buffer_t *));
 	pGrep = rpa_grep_create();
@@ -238,12 +241,17 @@ int main(int argc, const char *argv[])
 			pGrep->greptype = RPA_GREPTYPE_MATCH;
 		} else if (strcmp(argv[i], "-p") == 0) {
 			pGrep->greptype = RPA_GREPTYPE_PARSE;
+		} else if (strcmp(argv[i], "-x") == 0) {
+			pGrep->greptype = RPA_GREPTYPE_NOPROD_PARSE;
 		} else if (strcmp(argv[i], "-a") == 0) {
 			pGrep->greptype = RPA_GREPTYPE_PARSEAST;
 		} else if (strcmp(argv[i], "-16") == 0) {
 			pGrep->forceEncoding = RPA_GREP_FORCE_UTF16;
 		} else if (strcmp(argv[i], "-b") == 0) {
 			pGrep->forceEncoding = RPA_GREP_FORCE_BYTE;
+		} else if (strcmp(argv[i], "-q") == 0) {
+			devnull = fopen("/dev/null", "w");
+			stdout = devnull;
 		}
 		
 	}
@@ -301,10 +309,14 @@ end:
 				pGrep->cachehit);
 	}
 
+	if (devnull)
+		fclose(devnull);
 	rpa_grep_destroy(pGrep);
 	return pGrep->ret;
 
 error:
+	if (devnull)
+		fclose(devnull);
 	rpa_grep_destroy(pGrep);
 	return 2;
 }
