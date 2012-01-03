@@ -7,10 +7,6 @@ TARGET_RPA_LIB = $(OUTDIR)/$(RPA_LIB)
 TARGET_RPA_SO = $(OUTDIR)/$(RPA_SO)
 CFLAGS += -I$(ROOT_DIR)
 
-RPA_OBJECTS += $(OUTDIR)/rexdb.o
-RPA_OBJECTS += $(OUTDIR)/rexfragment.o
-RPA_OBJECTS += $(OUTDIR)/rexstate.o
-RPA_OBJECTS += $(OUTDIR)/rexnfasimulator.o
 
 RPA_OBJECTS += $(OUTDIR)/rpacache.o
 RPA_OBJECTS += $(OUTDIR)/rpadbex.o

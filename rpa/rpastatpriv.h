@@ -29,7 +29,6 @@
 #include "rpa/rpacache.h"
 #include "rpa/rpastat.h"
 #include "rpa/rpabitmap.h"
-#include "rpa/rexnfasimulator.h"
 
 
 #ifdef __cplusplus
@@ -59,7 +58,6 @@ struct rpastat_s {
 	rpacache_t *cache;
 	rpainmap_t ip;
 	rvmcpu_t *cpu;
-	rex_nfasimulator_t *si;
 };
 
 int rpa_stat_init(rpastat_t *stat, unsigned int encoding, const char *input, const char *start, const char *end, rarray_t *records);
@@ -71,7 +69,6 @@ int rpa_stat_matchspchr(rpastat_t *stat, long top, unsigned long wc);
 int rpa_stat_matchrng(rpastat_t *stat, long top, unsigned long wc1, unsigned long wc2);
 long rpa_stat_shift(rpastat_t *stat, long top);
 unsigned long rpa_special_char(unsigned long special);
-long rpa_stat_matchrex(rpastat_t *stat, long top, rexdb_t *db, unsigned long uid);
 
 #ifdef __cplusplus
 }
