@@ -18,20 +18,20 @@
  *  Martin Stoilov <martin@rpasearch.com>
  */
 
-#ifndef _ATON_H_
-#define _ATON_H_
+#ifndef _REXDB_H_
+#define _REXDB_H_
 
 #include "rtypes.h"
 #include "rlib/robject.h"
 #include "rlib/rarray.h"
-#include "rpa/rexstate.h"
+#include "rex/rexstate.h"
 
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define R_OBJECT_ATON 35
+#define R_OBJECT_REXDB 35
 
 typedef enum {
 	REXDB_TYPE_DFA = 0,

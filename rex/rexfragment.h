@@ -22,8 +22,8 @@
 #define _REXFRAGMENT_H_
 
 #include "rtypes.h"
-#include "rpa/rexstate.h"
-#include "rpa/rexdb.h"
+#include "rex/rexstate.h"
+#include "rex/rexdb.h"
 
 
 #ifdef __cplusplus
@@ -52,7 +52,6 @@ void rex_fragment_rangetransition(rexfragment_t *frag, unsigned int c1, unsigned
 void rex_fragment_singletransition(rexfragment_t *frag, unsigned int input);
 rexfragment_t *rex_fragment_cat(rexfragment_t *frag1, rexfragment_t *frag2);
 rexfragment_t *rex_fragment_alt(rexfragment_t *frag1, rexfragment_t *frag2);
-rexfragment_t *rex_fragment_min(rexfragment_t *frag1, rexfragment_t *frag2);
 rexfragment_t *rex_fragment_opt(rexfragment_t *frag);
 rexfragment_t *rex_fragment_mop(rexfragment_t *frag);
 rexfragment_t *rex_fragment_mul(rexfragment_t *frag);

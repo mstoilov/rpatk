@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include "rlib/rmem.h"
 #include "rlib/rutf.h"
-#include "rpa/rextransition.h"
-#include "rpa/rexdb.h"
-#include "rpa/rexnfasimulator.h"
+#include "rex/rextransition.h"
+#include "rex/rexdb.h"
+#include "rex/rexnfasimulator.h"
 
 
 void rex_db_cleanup(robject_t *obj)
@@ -34,7 +34,7 @@ rexdb_t *rex_db_create(rexdb_type_t type)
 	rexdb_t *rexdb;
 
 	rexdb = (rexdb_t*)r_object_create(sizeof(*rexdb));
-	rex_db_init((robject_t*)rexdb, R_OBJECT_ATON, rex_db_cleanup, type);
+	rex_db_init((robject_t*)rexdb, R_OBJECT_REXDB, rex_db_cleanup, type);
 	return rexdb;
 }
 
@@ -142,26 +142,4 @@ int rex_db_simulate_nfa(rexdb_t *rexdb, long uid, const char *str, const char *e
 	}
 
 	return -1;
-}
-
-
-int rex_db_simulate_nfa2(rexdb_t *a, long uid, const char *str, const char *end)
-{
-	rex_nfasimulator_t *si;
-	int ret;
-
-	si = rex_nfasimulator_create();
-	ret = rex_nfasimulator_run(si, a, uid, str, end);
-	if (ret) {
-		long i;
-		rex_accept_t*pacc;
-		for (i = 0; i < r_array_length(si->accepts); i++) {
-			pacc = (rex_accept_t*)r_array_slot(si->accepts, i);
-			r_printf("State: %ld, inputsize: %ld\n", pacc->state, pacc->inputsize);
-		}
-
-
-	}
-	rex_nfasimulator_destroy(si);
-	return ret;
 }

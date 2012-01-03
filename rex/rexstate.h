@@ -18,8 +18,8 @@
  *  Martin Stoilov <martin@rpasearch.com>
  */
 
-#ifndef _FASTATE_H_
-#define _FASTATE_H_
+#ifndef _REXSTATE_H_
+#define _REXSTATE_H_
 
 #include "rtypes.h"
 #include "rlib/robject.h"
@@ -38,7 +38,7 @@ typedef enum {
 	REX_STATETYPE_NONE = 0,
 	REX_STATETYPE_START = 1,
 	REX_STATETYPE_ACCEPT = 2,
-	REX_STATETYPE_REJECT = 3,
+	REX_STATETYPE_DEAD = 3,
 } rex_statetype_t;
 
 
@@ -49,6 +49,7 @@ struct rexstate_s {
 	rarray_t *subset;
 	unsigned long type;
 	unsigned long uid;
+	void *userdata;
 };
 
 
@@ -60,12 +61,13 @@ void rex_state_addtransition(rexstate_t *state, unsigned int c, unsigned long ds
 void rex_state_addrangetransition(rexstate_t *state, unsigned int c1,  unsigned int c2, unsigned long dstuid);
 void rex_state_addrangetransition_dst(rexstate_t *srcstate, unsigned int c1,  unsigned int c2, const rexstate_t *dststate);
 void rex_state_addtransition_e(rexstate_t *state, unsigned long dstuid);
-void rex_state_e_addtransition_e_dst(rexstate_t *srcstate, const rexstate_t *dststate);
+void rex_state_addtransition_e_dst(rexstate_t *srcstate, const rexstate_t *dststate);
 rboolean rex_state_findsubstate(rexstate_t *state, unsigned long uid);
 void rex_state_addsubstate(rexstate_t *state, unsigned long uid);
 void rex_state_addsubstate_dst(rexstate_t *state, const rexstate_t *dststate);
 long rex_state_next(rexstate_t *state, unsigned long input);
 void rex_state_dump(rexstate_t *state);
+void rex_state_setuserdata(rexstate_t *state, void *userdata);
 
 /*
  * Virtual methods implementation

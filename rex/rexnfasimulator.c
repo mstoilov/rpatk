@@ -1,7 +1,7 @@
 #include "rlib/rmem.h"
 #include "rlib/rutf.h"
-#include "rpa/rexnfasimulator.h"
-#include "rpa/rextransition.h"
+#include "rex/rexnfasimulator.h"
+#include "rex/rextransition.h"
 
 
 rex_nfasimulator_t *rex_nfasimulator_create()
@@ -93,6 +93,7 @@ long rex_nfasimulator_run(rex_nfasimulator_t *si, rexdb_t *a, long uid, const ch
 			s = rex_db_getstate(a, suid);
 			if (s->type == REX_STATETYPE_ACCEPT) {
 				acc.state = suid;
+				acc.count = si->count;
 				acc.inputsize = ret;
 				r_array_add(si->accepts, &acc);
 			}
@@ -134,6 +135,8 @@ void rex_nfasimulator_start(rex_nfasimulator_t *si, rexdb_t *db, long uid)
 	unsigned long suid;
 	rboolean off = FALSE;
 
+	si->count = 0;
+	si->inputsize = 0;
 	r_array_setlength(si->oldstates, 0);
 	r_array_setlength(si->newstates, 0);
 	r_array_setlength(si->onmap, r_array_length(db->states));
@@ -153,7 +156,7 @@ void rex_nfasimulator_start(rex_nfasimulator_t *si, rexdb_t *db, long uid)
 }
 
 
-long rex_nfasimulator_next(rex_nfasimulator_t *si, rexdb_t *db, ruint32 wc, rboolean *acc)
+long rex_nfasimulator_next(rex_nfasimulator_t *si, rexdb_t *db, ruint32 wc, int wcsize)
 {
 	rexstate_t *s;
 	rex_transition_t *t;
@@ -162,7 +165,10 @@ long rex_nfasimulator_next(rex_nfasimulator_t *si, rexdb_t *db, ruint32 wc, rboo
 	long i;
 	unsigned long suid;
 
-	*acc = FALSE;
+	if (!r_array_length(si->oldstates))
+		return 0;
+	si->count += 1;
+	si->inputsize += wcsize;
 	while (r_array_length(si->oldstates)) {
 		suid = r_array_pop(si->oldstates, unsigned long);
 		s = rex_db_getstate(db, suid);
@@ -185,7 +191,12 @@ long rex_nfasimulator_next(rex_nfasimulator_t *si, rexdb_t *db, ruint32 wc, rboo
 		r_array_replace(si->onmap, suid, &off);
 		s = rex_db_getstate(db, suid);
 		if (s->type == REX_STATETYPE_ACCEPT) {
-			*acc = TRUE;
+			rex_accept_t acc;
+			acc.count = si->count;
+			acc.inputsize = si->inputsize;
+			acc.state = suid;
+			r_array_add(si->accepts, &acc);
+
 		}
 	}
 

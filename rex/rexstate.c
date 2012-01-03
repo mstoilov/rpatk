@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include "rpa/rextransition.h"
-#include "rpa/rexstate.h"
+#include "rex/rextransition.h"
+#include "rex/rexstate.h"
 
 
 void rex_state_cleanup(robject_t *obj)
@@ -56,7 +56,7 @@ void rex_state_addtransition_e(rexstate_t *state, unsigned long dstuid)
 }
 
 
-void rex_state_e_addtransition_e_dst(rexstate_t *srcstate, const rexstate_t *dststate)
+void rex_state_addtransition_e_dst(rexstate_t *srcstate, const rexstate_t *dststate)
 {
 	rex_state_addtransition_e(srcstate, dststate->uid);
 }
@@ -173,6 +173,12 @@ rboolean rex_state_findsubstate(rexstate_t *state, unsigned long uid)
 void rex_state_addsubstate_dst(rexstate_t *state, const rexstate_t *dststate)
 {
 	rex_state_addsubstate(state, dststate->uid);
+}
+
+
+void rex_state_setuserdata(rexstate_t *state, void *userdata)
+{
+	state->userdata = userdata;
 }
 
 

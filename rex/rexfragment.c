@@ -18,7 +18,7 @@
  *  Martin Stoilov <martin@rpasearch.com>
  */
 #include "rlib/rmem.h"
-#include "rpa/rexfragment.h"
+#include "rex/rexfragment.h"
 
 
 static void rex_fragment_clear_states(rexfragment_t *frag)
@@ -43,7 +43,6 @@ static void rex_fragment_set_states(rexfragment_t *frag)
 	start->type = REX_STATETYPE_START;
 	end->type = REX_STATETYPE_ACCEPT;
 }
-
 
 
 void rex_fragment_init(rexfragment_t *frag, rexdb_t *rexdb)
@@ -192,23 +191,3 @@ rexfragment_t *rex_fragment_alt(rexfragment_t *frag1, rexfragment_t *frag2)
 	return frag1;
 }
 
-
-rexfragment_t *rex_fragment_min(rexfragment_t *frag1, rexfragment_t *frag2)
-{
-	rexdb_t *rexdb = frag1->rexdb;
-	rexstate_t *s;
-	if (frag1->rexdb != frag2->rexdb || frag1->start < 0 || frag1->end < 0 || frag2->start < 0 || frag2->end < 0) {
-		/*
-		 * Error
-		 */
-		return NULL;
-	}
-	rexfragment_to_union(frag1);
-	rex_fragment_clear_states(frag2);
-	rex_db_addtrasition_e(rexdb, frag1->start, frag2->start);
-	rex_db_addtrasition_e(rexdb, frag2->end, frag1->end);
-	s = rex_db_getstate(frag2->rexdb, frag2->end);
-	s->type = REX_STATETYPE_REJECT;
-	rex_fragment_destroy(frag2);
-	return frag1;
-}

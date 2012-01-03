@@ -24,7 +24,7 @@
 #include "rtypes.h"
 #include "rlib/robject.h"
 #include "rlib/rarray.h"
-#include "rpa/rexdb.h"
+#include "rex/rexdb.h"
 
 
 #ifdef __cplusplus
@@ -35,6 +35,7 @@ extern "C" {
 typedef struct rex_accept_s {
 	unsigned long state;
 	long inputsize;
+	long count;
 } rex_accept_t;
 
 
@@ -43,6 +44,8 @@ typedef struct rex_nfasimulator_s {
 	rarray_t *newstates;
 	rarray_t *oldstates;
 	rarray_t *onmap;
+	long inputsize;
+	long count;
 } rex_nfasimulator_t;
 
 
@@ -50,7 +53,7 @@ rex_nfasimulator_t *rex_nfasimulator_create();
 void rex_nfasimulator_destroy(rex_nfasimulator_t *si);
 long rex_nfasimulator_run(rex_nfasimulator_t *si, rexdb_t *db, long uid, const char *start, const char *end);
 void rex_nfasimulator_start(rex_nfasimulator_t *si, rexdb_t *db, long uid);
-long rex_nfasimulator_next(rex_nfasimulator_t *si, rexdb_t *db, ruint32 wc, rboolean *acc);
+long rex_nfasimulator_next(rex_nfasimulator_t *si, rexdb_t *db, ruint32 wc, int wcsize);
 
 
 #ifdef __cplusplus
