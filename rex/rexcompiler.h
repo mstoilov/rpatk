@@ -33,6 +33,7 @@
 extern "C" {
 #endif
 
+#define REX_COMPILER_TOKENSIZE	128
 
 typedef struct rexcompiler_s {
 	rexdb_t *db;
@@ -41,13 +42,14 @@ typedef struct rexcompiler_s {
 	const char *end;
 	const char *ptr;
 	int token;
+	char tokenstr[REX_COMPILER_TOKENSIZE];
 } rexcompiler_t;
 
 
 rexcompiler_t *rex_compiler_create(rexdb_t *db);
 void rex_compiler_destroy(rexcompiler_t *co);
 rexfragment_t *rex_compiler_expression(rexcompiler_t *co, const char *str, unsigned int size, void *accdata);
-
+rexfragment_t *rex_compiler_expression_s(rexcompiler_t *co, const char *str, void *accdata);
 
 #ifdef __cplusplus
 }

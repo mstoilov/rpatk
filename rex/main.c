@@ -4,6 +4,7 @@
 #include "rexdb.h"
 #include "rexstate.h"
 #include "rexnfasimulator.h"
+#include "rexcompiler.h"
 
 static void init_ababb(rexdb_t *nfa)
 {
@@ -56,6 +57,8 @@ int main(int argc, char *argv[])
 	const char *ptr, *in, *end;
 	rex_nfasimulator_t *si = rex_nfasimulator_create();
 	rexdb_t *nfa = rex_db_create(REXDB_TYPE_NFA);
+	rexcompiler_t *co = rex_compiler_create(nfa);
+
 
 	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-ababb") == 0) {
@@ -75,8 +78,11 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	rex_compiler_expression_s(co, "a b* b?    [a-z]b |x y z", NULL);
+
 	rex_db_destroy(nfa);
 	rex_nfasimulator_destroy(si);
+	rex_compiler_destroy(co);
 	fprintf(stdout, "Work in progress...\n");
 	return 0;
 }
