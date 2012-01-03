@@ -2,6 +2,7 @@ all:
 	+make -C $(ROOT_DIR)/rlib/build/unix/$(ARCHDIR) all
 	+make -C $(ROOT_DIR)/rpa/build/unix/$(ARCHDIR) all
 	+make -C $(ROOT_DIR)/rvm/build/unix/$(ARCHDIR) all
+	+make -C $(ROOT_DIR)/rex/build/unix/$(ARCHDIR) all
 	+make -C $(ROOT_DIR)/rgrep/build/unix/$(ARCHDIR) all
 	+make -C $(ROOT_DIR)/tests/testmisc/build/unix/$(ARCHDIR) all
 	+make -C $(ROOT_DIR)/tests/testrpa/build/unix/$(ARCHDIR) all
@@ -14,6 +15,7 @@ distclean: clean
 	+make -C $(ROOT_DIR)/rlib/build/unix/$(ARCHDIR) distclean
 	+make -C $(ROOT_DIR)/rpa/build/unix/$(ARCHDIR) distclean
 	+make -C $(ROOT_DIR)/rvm/build/unix/$(ARCHDIR) distclean
+	+make -C $(ROOT_DIR)/rex/build/unix/$(ARCHDIR) distclean
 	+make -C $(ROOT_DIR)/rjs/build/unix/$(ARCHDIR) distclean
 	+make -C $(ROOT_DIR)/tests/testmisc/build/unix/$(ARCHDIR) distclean
 	+make -C $(ROOT_DIR)/tests/testrpa/build/unix/$(ARCHDIR) distclean
@@ -26,6 +28,7 @@ clean:
 	+make -C $(ROOT_DIR)/rlib/build/unix/$(ARCHDIR) clean
 	+make -C $(ROOT_DIR)/rpa/build/unix/$(ARCHDIR) clean
 	+make -C $(ROOT_DIR)/rvm/build/unix/$(ARCHDIR) clean
+	+make -C $(ROOT_DIR)/rex/build/unix/$(ARCHDIR) clean
 	+make -C $(ROOT_DIR)/tests/testmisc/build/unix/$(ARCHDIR) clean
 	+make -C $(ROOT_DIR)/tests/testrpa/build/unix/$(ARCHDIR) clean
 	+make -C $(ROOT_DIR)/tests/testrjs/build/unix/$(ARCHDIR) clean
