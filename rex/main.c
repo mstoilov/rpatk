@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	rex_compiler_expression_s(co, "a b* b?    [a-z]b |x y z", NULL);
+	rex_compiler_expression_s(co, "ab*b?    [ra-zxyz]* b |x y \r\n z", NULL);
 
 	rex_db_destroy(nfa);
 	rex_nfasimulator_destroy(si);
