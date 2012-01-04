@@ -5,6 +5,9 @@
 #include "rlib/rmem.h"
 #include "rex/rexcompiler.h"
 
+static int rex_compiler_catexpression(rexcompiler_t *co);
+static int rex_compiler_altexpression(rexcompiler_t *co);
+
 enum {
 	REX_TOKEN_ERR = -1,
 	REX_TOKEN_EOF = -2,
@@ -136,26 +139,41 @@ int rex_compiler_charclass(rexcompiler_t *co)
 }
 
 
-int rex_compiler_factor(rexcompiler_t *co)
+static int rex_compiler_factor(rexcompiler_t *co)
 {
-	if (!strchr("*?+[]()|.", co->token)) {
-
+	if (co->token == '[') {
+		return rex_compiler_charclass(co);
+	} else if (co->token == '(') {
+		rex_compiler_gettok(co);		/* eat '(' */
+		rex_compiler_altexpression(co);
+		while (co->token == REX_TOKEN_SPACE)
+			rex_compiler_gettok(co);
+		if (co->token != ')')
+			return -1;
+		rex_compiler_gettok(co);		/* eat ')' */
+		return 0;
+	} else {
 		rex_compiler_gettok(co);
 		return 0;
-	} else if (co->token == '[') {
-		return rex_compiler_charclass(co);
 	}
 
 	return -1;
 }
 
 
-int rex_compiler_qfactor(rexcompiler_t *co)
+static int rex_compiler_qfactor(rexcompiler_t *co)
 {
 	const char *begin = co->ptr - 1;
 
-	if (rex_compiler_factor(co) < 0)
+	if (strchr("*?+])", co->token)) {
+		/*
+		 * Unexpected char.
+		 */
 		return -1;
+	}
+	if (rex_compiler_factor(co) < 0) {
+		return -1;
+	}
 	while (co->token == REX_TOKEN_SPACE)
 		rex_compiler_gettok(co);
 	switch (co->token) {
@@ -166,7 +184,7 @@ int rex_compiler_qfactor(rexcompiler_t *co)
 		rex_compiler_gettok(co);
 		break;
 	}
-	if (co->ptr > begin) {
+	if (co->ptr - 1 > begin) {
 		fprintf(stdout, "qfactor: ");
 		fwrite(begin, 1, co->ptr - begin - 1, stdout);
 		fprintf(stdout, "\n");
@@ -175,7 +193,7 @@ int rex_compiler_qfactor(rexcompiler_t *co)
 }
 
 
-int rex_compiler_catexpression(rexcompiler_t *co)
+static int rex_compiler_catexpression(rexcompiler_t *co)
 {
 	while (1) {
 		switch (co->token) {
@@ -189,10 +207,30 @@ int rex_compiler_catexpression(rexcompiler_t *co)
 		}
 		if (rex_compiler_qfactor(co) < 0)
 			return -1;
-		rex_compiler_gettok(co);
 	}
 	return 0;
 }
+
+
+static int rex_compiler_altexpression(rexcompiler_t *co)
+{
+	if (rex_compiler_catexpression(co) < 0)
+		return -1;
+	while (co->token == REX_TOKEN_SPACE || co->token == REX_TOKEN_NEWLINE)
+		rex_compiler_gettok(co);
+
+	while (co->token == '|') {
+		rex_compiler_gettok(co); /* Eat '|' */
+		while (co->token == REX_TOKEN_SPACE || co->token == REX_TOKEN_NEWLINE)
+			rex_compiler_gettok(co);
+		if (rex_compiler_catexpression(co) < 0)
+			return -1;
+		while (co->token == REX_TOKEN_SPACE || co->token == REX_TOKEN_NEWLINE)
+			rex_compiler_gettok(co);
+	}
+	return 0;
+}
+
 
 
 rexfragment_t *rex_compiler_expression(rexcompiler_t *co, const char *str, unsigned int size, void *accdata)
@@ -202,14 +240,7 @@ rexfragment_t *rex_compiler_expression(rexcompiler_t *co, const char *str, unsig
 	co->ptr = str;
 
 	rex_compiler_gettok(co);
-	while (co->token != REX_TOKEN_EOF) {
-		if (co->token == REX_TOKEN_SPACE || co->token == REX_TOKEN_NEWLINE) {
-			rex_compiler_gettok(co);
-			continue;
-		}
-		if (rex_compiler_qfactor(co) < 0)
-			break;
-	}
+	rex_compiler_altexpression(co);
 	return NULL;
 }
 
