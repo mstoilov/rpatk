@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	rex_compiler_expression_s(co, "(p|q|e)?rab*b?[ra-zxyz]*bc(xyz?)+zdfd+ | pef  | xor[a-z|d]  ", NULL);
+	rex_compiler_expression_s(co, "(p|q|e) ? r a b*b?[ra-zxyz \t] * \nbc(xyz?)+zdfd+ | pef  | xor[a-z|d]  ", NULL);
 
 	rex_db_destroy(nfa);
 	rex_nfasimulator_destroy(si);

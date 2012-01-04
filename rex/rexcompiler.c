@@ -72,23 +72,10 @@ static int rex_compiler_gettok(rexcompiler_t *co)
 		co->tokenstr[0] = '\0';
 		co->token = REX_TOKEN_EOF;
 		return co->token;
-	} else if (c == ' ' || c == '\t') {
+	} else if (rex_compiler_isspace(c)) {
 		co->tokenstr[0] = c;
 		co->tokenstr[1] = '\0';
 		co->token = REX_TOKEN_SPACE;
-	} else if (c == '\r') {
-		co->tokenstr[0] = c;
-		co->tokenstr[1] = '\0';
-		if (rex_compiler_peekchar(co) == '\n') {
-			c = rex_compiler_getchar(co);
-			co->tokenstr[1] = c;
-			co->tokenstr[2] = '\0';
-		}
-		co->token = REX_TOKEN_NEWLINE;
-	} else if (c == '\n') {
-		co->tokenstr[0] = c;
-		co->tokenstr[1] = '\0';
-		co->token = REX_TOKEN_NEWLINE;
 	} else {
 		co->tokenstr[0] = c;
 		co->tokenstr[1] = '\0';
@@ -201,7 +188,6 @@ static int rex_compiler_catexpression(rexcompiler_t *co)
 		case '|':
 			return 0;
 		case REX_TOKEN_SPACE:
-		case REX_TOKEN_NEWLINE:
 			rex_compiler_gettok(co);
 			continue;
 		}
@@ -216,16 +202,16 @@ static int rex_compiler_altexpression(rexcompiler_t *co)
 {
 	if (rex_compiler_catexpression(co) < 0)
 		return -1;
-	while (co->token == REX_TOKEN_SPACE || co->token == REX_TOKEN_NEWLINE)
+	while (co->token == REX_TOKEN_SPACE)
 		rex_compiler_gettok(co);
 
 	while (co->token == '|') {
 		rex_compiler_gettok(co); /* Eat '|' */
-		while (co->token == REX_TOKEN_SPACE || co->token == REX_TOKEN_NEWLINE)
+		while (co->token == REX_TOKEN_SPACE)
 			rex_compiler_gettok(co);
 		if (rex_compiler_catexpression(co) < 0)
 			return -1;
-		while (co->token == REX_TOKEN_SPACE || co->token == REX_TOKEN_NEWLINE)
+		while (co->token == REX_TOKEN_SPACE)
 			rex_compiler_gettok(co);
 	}
 	return 0;
