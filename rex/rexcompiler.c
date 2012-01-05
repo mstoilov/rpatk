@@ -5,6 +5,9 @@
 #include "rlib/rmem.h"
 #include "rex/rexcompiler.h"
 
+#define FPUSH(__co__, __fragment__) do { r_array_push((__co__)->stack, __fragment__, rexfragment_t*); } while (0)
+#define FPOP(__co__) r_array_pop((__co__)->stack, rexfragment_t*)
+
 static int rex_compiler_catexpression(rexcompiler_t *co);
 static int rex_compiler_altexpression(rexcompiler_t *co);
 
@@ -90,7 +93,9 @@ int rex_compiler_charclass(rexcompiler_t *co)
 	int negative = 0;
 	int low;
 	int high;
+	rexfragment_t *frag = rex_fragment_create(co->db);
 
+	FPUSH(co, frag);
 	rex_compiler_gettok(co);
 	if (co->token == '^') {
 		negative = 1;
@@ -112,9 +117,11 @@ int rex_compiler_charclass(rexcompiler_t *co)
 			rex_compiler_gettok(co);
 		}
 		if (low == high) {
-
+			rex_fragment_singletransition(frag, low);
+		} else if (low < high) {
+			rex_fragment_rangetransition(frag, low, high);
 		} else {
-			/* ragne */
+			rex_fragment_rangetransition(frag, high, low);
 		}
 		if (co->token == ']') {
 			rex_compiler_gettok(co); /* eat it */
@@ -140,6 +147,10 @@ static int rex_compiler_factor(rexcompiler_t *co)
 		rex_compiler_gettok(co);		/* eat ')' */
 		return 0;
 	} else {
+		rexfragment_t *frag;
+		frag = rex_fragment_create_singletransition(co->db, co->token);
+//		rex_state_dump(rex_db_getstate(co->db, frag->start));
+		FPUSH(co, frag);
 		rex_compiler_gettok(co);
 		return 0;
 	}
@@ -151,7 +162,10 @@ static int rex_compiler_factor(rexcompiler_t *co)
 static int rex_compiler_qfactor(rexcompiler_t *co)
 {
 	const char *begin = co->ptr - 1;
+	rexfragment_t *frag;
 
+	while (co->token == REX_TOKEN_SPACE)
+		rex_compiler_gettok(co);
 	if (strchr("*?+])", co->token)) {
 		/*
 		 * Unexpected char.
@@ -165,23 +179,41 @@ static int rex_compiler_qfactor(rexcompiler_t *co)
 		rex_compiler_gettok(co);
 	switch (co->token) {
 	case '*':
+		rex_compiler_gettok(co); /* Eat it */
+		frag = FPOP(co);
+		frag = rex_fragment_mop(frag);
+		FPUSH(co, frag);
+		break;
 	case '?':
+		rex_compiler_gettok(co); /* Eat it */
+		frag = FPOP(co);
+		frag = rex_fragment_opt(frag);
+		FPUSH(co, frag);
+		break;
 	case '+':
-
-		rex_compiler_gettok(co);
+		rex_compiler_gettok(co); /* Eat it */
+		frag = FPOP(co);
+		frag = rex_fragment_mul(frag);
+		FPUSH(co, frag);
 		break;
 	}
+#if 0
 	if (co->ptr - 1 > begin) {
 		fprintf(stdout, "qfactor: ");
 		fwrite(begin, 1, co->ptr - begin - 1, stdout);
 		fprintf(stdout, "\n");
 	}
+#endif
 	return 0;
 }
 
 
 static int rex_compiler_catexpression(rexcompiler_t *co)
 {
+	int nfactors = 0;
+	rexfragment_t *frag1;
+	rexfragment_t *frag2;
+
 	while (1) {
 		switch (co->token) {
 		case REX_TOKEN_EOF:
@@ -193,6 +225,13 @@ static int rex_compiler_catexpression(rexcompiler_t *co)
 		}
 		if (rex_compiler_qfactor(co) < 0)
 			return -1;
+		++nfactors;
+		if (nfactors >= 2) {
+			frag2 = FPOP(co);
+			frag1 = FPOP(co);
+			frag1 = rex_fragment_cat(frag1, frag2);
+			FPUSH(co, frag1);
+		}
 	}
 	return 0;
 }
@@ -200,6 +239,8 @@ static int rex_compiler_catexpression(rexcompiler_t *co)
 
 static int rex_compiler_altexpression(rexcompiler_t *co)
 {
+	rexfragment_t *frag1;
+	rexfragment_t *frag2;
 	if (rex_compiler_catexpression(co) < 0)
 		return -1;
 	while (co->token == REX_TOKEN_SPACE)
@@ -213,6 +254,10 @@ static int rex_compiler_altexpression(rexcompiler_t *co)
 			return -1;
 		while (co->token == REX_TOKEN_SPACE)
 			rex_compiler_gettok(co);
+		frag2 = FPOP(co);
+		frag1 = FPOP(co);
+		frag1 = rex_fragment_alt(frag1, frag2);
+		FPUSH(co, frag1);
 	}
 	return 0;
 }
@@ -221,13 +266,15 @@ static int rex_compiler_altexpression(rexcompiler_t *co)
 
 rexfragment_t *rex_compiler_expression(rexcompiler_t *co, const char *str, unsigned int size, void *accdata)
 {
+	rexfragment_t *frag = NULL;
 	co->start = str;
 	co->end = str + size;
 	co->ptr = str;
 
 	rex_compiler_gettok(co);
 	rex_compiler_altexpression(co);
-	return NULL;
+	frag = FPOP(co);
+	return frag;
 }
 
 

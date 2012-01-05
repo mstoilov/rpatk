@@ -201,6 +201,8 @@ void rex_state_dump(rexstate_t *state)
 	long index;
 	rex_transition_t *t;
 
+	if (!state)
+		return;
 	fprintf(stdout, "State %ld", state->uid);
 	if (r_array_length(state->subset)) {
 		fprintf(stdout, "(");
