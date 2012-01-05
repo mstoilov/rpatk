@@ -7,6 +7,7 @@
 
 #define FPUSH(__co__, __fragment__) do { r_array_push((__co__)->stack, __fragment__, rexfragment_t*); } while (0)
 #define FPOP(__co__) r_array_pop((__co__)->stack, rexfragment_t*)
+#define FLEN(__co__) r_array_length((__co__)->stack)
 
 static int rex_compiler_catexpression(rexcompiler_t *co);
 static int rex_compiler_altexpression(rexcompiler_t *co);
@@ -14,8 +15,8 @@ static int rex_compiler_altexpression(rexcompiler_t *co);
 enum {
 	REX_TOKEN_ERR = -1,
 	REX_TOKEN_EOF = -2,
-	REX_TOKEN_SPACE = -4,
-	REX_TOKEN_NEWLINE = -5,
+//	REX_TOKEN_SPACE = -4,
+//	REX_TOKEN_NEWLINE = -5,
 
 };
 
@@ -67,6 +68,32 @@ static int rex_compiler_peekchar(rexcompiler_t *co)
 }
 
 
+static int rex_compiler_escapedchar(int c)
+{
+	switch (c) {
+	case 'r':
+		return '\r';
+	case 'n':
+		return '\n';
+	case 't':
+		return '\t';
+	case '0':
+		return '\0';
+	case 'f':
+		return '\f';
+	case 'v':
+		return '\v';
+	case '\"':
+		return '\"';
+	case '\'':
+		return '\'';
+	default:
+		return c;
+	}
+	return c;
+}
+
+
 static int rex_compiler_gettok(rexcompiler_t *co)
 {
 	int c = rex_compiler_getchar(co);
@@ -75,16 +102,36 @@ static int rex_compiler_gettok(rexcompiler_t *co)
 		co->tokenstr[0] = '\0';
 		co->token = REX_TOKEN_EOF;
 		return co->token;
-	} else if (rex_compiler_isspace(c)) {
-		co->tokenstr[0] = c;
-		co->tokenstr[1] = '\0';
-		co->token = REX_TOKEN_SPACE;
 	} else {
 		co->tokenstr[0] = c;
 		co->tokenstr[1] = '\0';
 		co->token = c;
 	}
 	return co->token;
+}
+
+
+/*
+ * Don't do anything if this is not an escaped token
+ */
+static void rex_compiler_adjustescapedtoken(rexcompiler_t *co)
+{
+	if (co->token == '\\') {
+		rex_compiler_gettok(co);		/* eat '\\' */
+		if (co->token == REX_TOKEN_EOF) {
+			return;
+		}
+		co->token = rex_compiler_escapedchar(co->token);
+	}
+}
+
+
+static int rex_compiler_getnstok(rexcompiler_t *co)
+{
+	int tok = ' ';
+	while (rex_compiler_isspace(tok))
+		tok = rex_compiler_gettok(co);
+	return tok;
 }
 
 
@@ -96,24 +143,31 @@ int rex_compiler_charclass(rexcompiler_t *co)
 	rexfragment_t *frag = rex_fragment_create(co->db);
 
 	FPUSH(co, frag);
-	rex_compiler_gettok(co);
+	rex_compiler_getnstok(co);
 	if (co->token == '^') {
 		negative = 1;
 		rex_compiler_gettok(co);
 	}
 
 	while (1) {
-		switch (co->token) {
-		case '[':
-		case ']':
-		case '-':
+		if (co->token == '[' || co->token == ']' || co->token == '-')
 			return -1;
-			break;
-		}
+		rex_compiler_adjustescapedtoken(co);
 		high = low = co->token;
 		rex_compiler_gettok(co);
 		if (co->token == '-') {
-			high = rex_compiler_gettok(co);
+			rex_compiler_gettok(co);
+			switch (co->token) {
+			case '[':
+			case ']':
+			case '-':
+			case REX_TOKEN_EOF:
+			case REX_TOKEN_ERR:
+				return -1;
+				break;
+			}
+			rex_compiler_adjustescapedtoken(co);
+			high = co->token;
 			rex_compiler_gettok(co);
 		}
 		if (low == high) {
@@ -124,7 +178,7 @@ int rex_compiler_charclass(rexcompiler_t *co)
 			rex_fragment_rangetransition(frag, high, low);
 		}
 		if (co->token == ']') {
-			rex_compiler_gettok(co); /* eat it */
+			rex_compiler_getnstok(co); /* eat it */
 			break;
 		}
 	}
@@ -138,20 +192,22 @@ static int rex_compiler_factor(rexcompiler_t *co)
 	if (co->token == '[') {
 		return rex_compiler_charclass(co);
 	} else if (co->token == '(') {
-		rex_compiler_gettok(co);		/* eat '(' */
-		rex_compiler_altexpression(co);
-		while (co->token == REX_TOKEN_SPACE)
-			rex_compiler_gettok(co);
+		rex_compiler_getnstok(co);		/* eat '(' */
+		if (co->token == ')')
+			return -1;
+		if (rex_compiler_altexpression(co) < 0)
+			return -1;
 		if (co->token != ')')
 			return -1;
-		rex_compiler_gettok(co);		/* eat ')' */
+		rex_compiler_getnstok(co);		/* eat ')' */
 		return 0;
 	} else {
 		rexfragment_t *frag;
+		rex_compiler_adjustescapedtoken(co);
 		frag = rex_fragment_create_singletransition(co->db, co->token);
 //		rex_state_dump(rex_db_getstate(co->db, frag->start));
 		FPUSH(co, frag);
-		rex_compiler_gettok(co);
+		rex_compiler_getnstok(co);
 		return 0;
 	}
 
@@ -164,8 +220,6 @@ static int rex_compiler_qfactor(rexcompiler_t *co)
 	const char *begin = co->ptr - 1;
 	rexfragment_t *frag;
 
-	while (co->token == REX_TOKEN_SPACE)
-		rex_compiler_gettok(co);
 	if (strchr("*?+])", co->token)) {
 		/*
 		 * Unexpected char.
@@ -175,23 +229,21 @@ static int rex_compiler_qfactor(rexcompiler_t *co)
 	if (rex_compiler_factor(co) < 0) {
 		return -1;
 	}
-	while (co->token == REX_TOKEN_SPACE)
-		rex_compiler_gettok(co);
 	switch (co->token) {
 	case '*':
-		rex_compiler_gettok(co); /* Eat it */
+		rex_compiler_getnstok(co); /* Eat it */
 		frag = FPOP(co);
 		frag = rex_fragment_mop(frag);
 		FPUSH(co, frag);
 		break;
 	case '?':
-		rex_compiler_gettok(co); /* Eat it */
+		rex_compiler_getnstok(co); /* Eat it */
 		frag = FPOP(co);
 		frag = rex_fragment_opt(frag);
 		FPUSH(co, frag);
 		break;
 	case '+':
-		rex_compiler_gettok(co); /* Eat it */
+		rex_compiler_getnstok(co); /* Eat it */
 		frag = FPOP(co);
 		frag = rex_fragment_mul(frag);
 		FPUSH(co, frag);
@@ -218,10 +270,8 @@ static int rex_compiler_catexpression(rexcompiler_t *co)
 		switch (co->token) {
 		case REX_TOKEN_EOF:
 		case '|':
+		case ')':
 			return 0;
-		case REX_TOKEN_SPACE:
-			rex_compiler_gettok(co);
-			continue;
 		}
 		if (rex_compiler_qfactor(co) < 0)
 			return -1;
@@ -243,17 +293,10 @@ static int rex_compiler_altexpression(rexcompiler_t *co)
 	rexfragment_t *frag2;
 	if (rex_compiler_catexpression(co) < 0)
 		return -1;
-	while (co->token == REX_TOKEN_SPACE)
-		rex_compiler_gettok(co);
-
 	while (co->token == '|') {
-		rex_compiler_gettok(co); /* Eat '|' */
-		while (co->token == REX_TOKEN_SPACE)
-			rex_compiler_gettok(co);
+		rex_compiler_getnstok(co); /* Eat '|' */
 		if (rex_compiler_catexpression(co) < 0)
 			return -1;
-		while (co->token == REX_TOKEN_SPACE)
-			rex_compiler_gettok(co);
 		frag2 = FPOP(co);
 		frag1 = FPOP(co);
 		frag1 = rex_fragment_alt(frag1, frag2);
@@ -266,15 +309,29 @@ static int rex_compiler_altexpression(rexcompiler_t *co)
 
 rexfragment_t *rex_compiler_expression(rexcompiler_t *co, const char *str, unsigned int size, void *accdata)
 {
+	long curlen = r_array_length(co->db->states);
+	long i;
 	rexfragment_t *frag = NULL;
+
 	co->start = str;
 	co->end = str + size;
 	co->ptr = str;
 
-	rex_compiler_gettok(co);
-	rex_compiler_altexpression(co);
+	rex_compiler_getnstok(co);
+	if (rex_compiler_altexpression(co) < 0)
+		goto error;
 	frag = FPOP(co);
 	return frag;
+error:
+	if (curlen < r_array_length(co->db->states)) {
+		for (i = curlen; i < r_array_length(co->db->states); i++)
+			rex_state_destroy(rex_db_getstate(co->db, i));
+		r_array_setlength(co->db->states, curlen);
+	}
+	while (FLEN(co)) {
+		rex_fragment_destroy(FPOP(co));
+	}
+	return NULL;
 }
 
 
