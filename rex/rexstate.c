@@ -233,7 +233,7 @@ void rex_state_dump(rexstate_t *state)
 			fprintf(stdout, "    epsilon -> %ld\n", t->dstuid);
 		} else if (t->type == REX_TRANSITION_RANGE) {
 			if (isprint(t->lowin) && !isspace(t->lowin) && isprint(t->highin) && !isspace(t->highin))
-				fprintf(stdout, " [%c - %c] -> %ld\n", t->lowin, t->highin, t->dstuid);
+				fprintf(stdout, "    [%c - %c] -> %ld\n", t->lowin, t->highin, t->dstuid);
 			else
 				fprintf(stdout, " [%x - %x] -> %ld\n", t->lowin, t->highin, t->dstuid);
 		} else {
