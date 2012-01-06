@@ -50,6 +50,8 @@ rexcompiler_t *rex_compiler_create(rexdb_t *db);
 void rex_compiler_destroy(rexcompiler_t *co);
 rexfragment_t *rex_compiler_expression(rexcompiler_t *co, const char *str, unsigned int size, void *accdata);
 rexfragment_t *rex_compiler_expression_s(rexcompiler_t *co, const char *str, void *accdata);
+rexfragment_t *rex_compiler_addexpression(rexcompiler_t *co, rexfragment_t *frag1, const char *str, unsigned int size, void *accdata);
+rexfragment_t *rex_compiler_addexpression_s(rexcompiler_t *co, rexfragment_t *frag1, const char *str, void *accdata);
 
 #ifdef __cplusplus
 }

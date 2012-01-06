@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "rlib/rutf.h"
 #include "rlib/rmem.h"
 #include "rex/rexcompiler.h"
 
@@ -15,9 +16,6 @@ static int rex_compiler_altexpression(rexcompiler_t *co);
 enum {
 	REX_TOKEN_ERR = -1,
 	REX_TOKEN_EOF = -2,
-//	REX_TOKEN_SPACE = -4,
-//	REX_TOKEN_NEWLINE = -5,
-
 };
 
 rexcompiler_t *rex_compiler_create(rexdb_t *db)
@@ -50,21 +48,13 @@ static int rex_compiler_isspace(int c)
 
 static int rex_compiler_getchar(rexcompiler_t *co)
 {
-	int c = REX_TOKEN_EOF;
+	ruint32 wc = REX_TOKEN_EOF;
+	int inc = r_utf8_mbtowc(&wc, (const unsigned char*)co->ptr, (const unsigned char*)co->end);
 
-	if (co->ptr < co->end)
-		c = *co->ptr++;
-	return c;
-}
-
-
-static int rex_compiler_peekchar(rexcompiler_t *co)
-{
-	int c = REX_TOKEN_EOF;
-
-	if (co->ptr < co->end)
-		c = *co->ptr;
-	return c;
+	if (inc <= 0)
+		return REX_TOKEN_EOF;
+	co->ptr += inc;
+	return wc;
 }
 
 
@@ -201,11 +191,18 @@ static int rex_compiler_factor(rexcompiler_t *co)
 			return -1;
 		rex_compiler_getnstok(co);		/* eat ')' */
 		return 0;
+	} else if (co->token == '.') {
+		rexfragment_t *frag;
+		frag = rex_fragment_create(co->db);
+		rex_fragment_rangetransition(frag, 0, '\n' - 1);
+		rex_fragment_rangetransition(frag, '\n' + 1, (unsigned int)-1);
+		FPUSH(co, frag);
+		rex_compiler_getnstok(co);
+		return 0;
 	} else {
 		rexfragment_t *frag;
 		rex_compiler_adjustescapedtoken(co);
 		frag = rex_fragment_create_singletransition(co->db, co->token);
-//		rex_state_dump(rex_db_getstate(co->db, frag->start));
 		FPUSH(co, frag);
 		rex_compiler_getnstok(co);
 		return 0;
@@ -321,6 +318,8 @@ rexfragment_t *rex_compiler_expression(rexcompiler_t *co, const char *str, unsig
 	if (rex_compiler_altexpression(co) < 0)
 		goto error;
 	frag = FPOP(co);
+	rex_fragment_set_endstatetype(frag, REX_STATETYPE_ACCEPT);
+	rex_state_setuserdata(rex_fragment_endstate(frag), accdata);
 	return frag;
 error:
 	if (curlen < r_array_length(co->db->states)) {
@@ -340,3 +339,21 @@ rexfragment_t *rex_compiler_expression_s(rexcompiler_t *co, const char *str, voi
 	return rex_compiler_expression(co, str, r_strlen(str), accdata);
 }
 
+
+rexfragment_t *rex_compiler_addexpression(rexcompiler_t *co, rexfragment_t *frag1, const char *str, unsigned int size, void *accdata)
+{
+	rexfragment_t *frag2 = rex_compiler_expression(co, str, size, accdata);
+
+	if (!frag2)
+		return NULL;
+	if (!frag1)
+		return frag2;
+	frag1 = rex_fragment_alt(frag1, frag2);
+	return frag1;
+}
+
+
+rexfragment_t *rex_compiler_addexpression_s(rexcompiler_t *co, rexfragment_t *frag1, const char *str, void *accdata)
+{
+	return rex_compiler_addexpression(co, frag1, str, r_strlen(str), accdata);
+}

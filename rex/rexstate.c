@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <ctype.h>
 #include "rex/rextransition.h"
 #include "rex/rexstate.h"
 
@@ -211,7 +212,14 @@ void rex_state_dump(rexstate_t *state)
 		}
 		fprintf(stdout, ")");
 	}
-	fprintf(stdout, ":\n");
+	fprintf(stdout, ": ");
+	if (state->type == REX_STATETYPE_ACCEPT) {
+		fprintf(stdout, " REX_STATETYPE_ACCEPT ");
+		if (state->userdata) {
+			fprintf(stdout, " : %s", (const char*)state->userdata);
+		}
+	}
+	fprintf(stdout, "\n");
 
 	for (index = 0; index < r_array_length(state->etrans); index++) {
 		t = (rex_transition_t *)r_array_slot(state->etrans, index);
@@ -223,8 +231,16 @@ void rex_state_dump(rexstate_t *state)
 		t = (rex_transition_t *)r_array_slot(state->trans, index);
 		if (t->type == REX_TRANSITION_EMPTY) {
 			fprintf(stdout, "    epsilon -> %ld\n", t->dstuid);
+		} else if (t->type == REX_TRANSITION_RANGE) {
+			if (isprint(t->lowin) && !isspace(t->lowin) && isprint(t->highin) && !isspace(t->highin))
+				fprintf(stdout, " [%c - %c] -> %ld\n", t->lowin, t->highin, t->dstuid);
+			else
+				fprintf(stdout, " [%x - %x] -> %ld\n", t->lowin, t->highin, t->dstuid);
 		} else {
-			fprintf(stdout, "          %c -> %ld\n", t->lowin, t->dstuid);
+			if (isprint(t->lowin) && !isspace(t->lowin))
+				fprintf(stdout, "          %c -> %ld\n", t->lowin, t->dstuid);
+			else
+				fprintf(stdout, "          %x -> %ld\n", t->lowin, t->dstuid);
 		}
 	}
 }

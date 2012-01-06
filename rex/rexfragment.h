@@ -31,16 +31,10 @@ extern "C" {
 #endif
 
 
-typedef enum {
-	FA_FRAGTYPE_NONE = 0,
-	FA_FRAGTYPE_UNION = 1,
-} rex_fragtype_t;
-
 typedef struct rexfragment_s {
 	rexdb_t *rexdb;
 	long start;
 	long end;
-	rex_fragtype_t type;
 } rexfragment_t;
 
 
@@ -50,6 +44,10 @@ void rex_fragment_destroy(rexfragment_t *frag);
 rexfragment_t *rex_fragment_create_singletransition(rexdb_t *rexdb, unsigned int input);
 void rex_fragment_rangetransition(rexfragment_t *frag, unsigned int c1, unsigned int c2);
 void rex_fragment_singletransition(rexfragment_t *frag, unsigned int input);
+void rex_fragment_set_startstatetype(rexfragment_t *frag, rex_statetype_t statetype);
+void rex_fragment_set_endstatetype(rexfragment_t *frag, rex_statetype_t statetype);
+rexstate_t *rex_fragment_startstate(rexfragment_t *frag);
+rexstate_t *rex_fragment_endstate(rexfragment_t *frag);
 rexfragment_t *rex_fragment_cat(rexfragment_t *frag1, rexfragment_t *frag2);
 rexfragment_t *rex_fragment_alt(rexfragment_t *frag1, rexfragment_t *frag2);
 rexfragment_t *rex_fragment_opt(rexfragment_t *frag);

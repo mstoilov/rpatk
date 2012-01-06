@@ -9,7 +9,7 @@ CFLAGS := $(MACH)
 ifeq ($(BLDCFG), release)
 CFLAGS += -fPIC -O3
 else
-CFLAGS += -fPIC -O0 -g -Wall 
+CFLAGS += -fPIC -O0 -g -Wall
 endif
 
 ifeq ($(CCBLD), yes)

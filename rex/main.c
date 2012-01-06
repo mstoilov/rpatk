@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "rlib/rutf.h"
 #include "rlib/rarray.h"
+#include "rlib/rmem.h"
 #include "rexdb.h"
 #include "rexstate.h"
 #include "rexnfasimulator.h"
@@ -54,10 +56,12 @@ static void init_ababb(rexdb_t *nfa)
 
 int main(int argc, char *argv[])
 {
-	int i;
+	int i, inc;
+	ruint32 wc;
 	long startstate = -1;
 	rexfragment_t *frag = NULL;
 	const char *ptr, *in, *end;
+	const char *name;
 	rex_nfasimulator_t *si = rex_nfasimulator_create();
 	rexdb_t *nfa = rex_db_create(REXDB_TYPE_NFA);
 	rexcompiler_t *co = rex_compiler_create(nfa);
@@ -66,10 +70,12 @@ int main(int argc, char *argv[])
 	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-e") == 0) {
 			if (++i < argc) {
-				frag = rex_compiler_expression_s(co, argv[i], NULL);
+				name = argv[i];
+			}
+			if (++i < argc) {
+				frag = rex_compiler_addexpression_s(co, frag, argv[i], (void*)name);
 				if (frag) {
 					startstate = frag->start;
-					rex_fragment_destroy(frag);
 				}
 			}
 		} else if (strcmp(argv[i], "-D") == 0) {
@@ -87,19 +93,27 @@ int main(int argc, char *argv[])
 			end = in + strlen(in);
 //			ret = rex_nfasimulator_run(si, nfa, 0, in, end);
 			rex_nfasimulator_start(si, nfa, startstate);
-			while (rex_nfasimulator_next(si, nfa, *ptr, 1) && ptr < end)
-				ptr++;
+			while ((inc = r_utf8_mbtowc(&wc, (const unsigned char*)ptr, (const unsigned char*)end)) > 0) {
+				rex_nfasimulator_next(si, nfa, wc, inc);
+				ptr += inc;
+			}
 			if (r_array_length(si->accepts)) {
 				rex_accept_t *acc = (rex_accept_t *)r_array_lastslot(si->accepts);
+				if (acc->userdata)
+					fprintf(stdout, "%s: ", (const char*)acc->userdata);
 				fwrite(in, 1, acc->inputsize, stdout);
 				fprintf(stdout, "\n");
 			}
 		}
 	}
 
+	if (frag) {
+		rex_fragment_destroy(frag);
+	}
 	rex_db_destroy(nfa);
 	rex_nfasimulator_destroy(si);
 	rex_compiler_destroy(co);
-	fprintf(stdout, "Work in progress...\n");
+	fprintf(stdout, "memory: %ld KB (leaked %ld Bytes)\n", (long)r_debug_get_maxmem()/1000, (long)r_debug_get_allocmem());
+
 	return 0;
 }

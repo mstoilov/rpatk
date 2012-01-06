@@ -36,6 +36,7 @@ typedef struct rex_accept_s {
 	unsigned long state;
 	long inputsize;
 	long count;
+	void *userdata;			/* This member is populated with the userdata from the accepting state */
 } rex_accept_t;
 
 

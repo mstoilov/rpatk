@@ -95,6 +95,7 @@ long rex_nfasimulator_run(rex_nfasimulator_t *si, rexdb_t *a, long uid, const ch
 				acc.state = suid;
 				acc.count = si->count;
 				acc.inputsize = ret;
+				acc.userdata = s->userdata;
 				r_array_add(si->accepts, &acc);
 			}
 		}
@@ -195,6 +196,7 @@ long rex_nfasimulator_next(rex_nfasimulator_t *si, rexdb_t *db, ruint32 wc, int 
 			acc.count = si->count;
 			acc.inputsize = si->inputsize;
 			acc.state = suid;
+			acc.userdata = s->userdata;
 			r_array_add(si->accepts, &acc);
 
 		}
