@@ -68,7 +68,7 @@ void rex_state_addsubstate_dst(rexstate_t *state, const rexstate_t *dststate);
 long rex_state_next(rexstate_t *state, unsigned long input);
 void rex_state_dump(rexstate_t *state);
 void rex_state_setuserdata(rexstate_t *state, void *userdata);
-
+void rex_state_normalizetransitions(rexstate_t *state);
 /*
  * Virtual methods implementation
  */

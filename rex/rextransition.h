@@ -37,6 +37,10 @@
 extern "C" {
 #endif
 
+typedef unsigned int rexchar_t;
+
+#define REX_CHAR_MAX ((rexchar_t)-1)
+#define REX_CHAR_MIN ((rexchar_t)0)
 
 typedef enum {
 	REX_TRANSITION_INPUT = 0,
@@ -52,8 +56,8 @@ typedef enum {
  */
 typedef struct rex_transition_s {
 	unsigned int type;
-	unsigned int lowin;
-	unsigned int highin;
+	rexchar_t lowin;
+	rexchar_t highin;
 	unsigned long srcuid;
 	unsigned long dstuid;
 } rex_transition_t;

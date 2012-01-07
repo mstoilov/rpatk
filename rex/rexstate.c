@@ -101,8 +101,13 @@ void rex_state_addrangetransition(rexstate_t *state, unsigned int c1,  unsigned 
 	rex_transition_t ntrans;
 	long min, max, mid;
 
-	ntrans.lowin = c1;
-	ntrans.highin = c2;
+	if (c1 < c2) {
+		ntrans.lowin = c1;
+		ntrans.highin = c2;
+	} else {
+		ntrans.lowin = c2;
+		ntrans.highin = c1;
+	}
 	ntrans.type = REX_TRANSITION_RANGE;
 	ntrans.dstuid = dstuid;
 	ntrans.srcuid = state->uid;
@@ -118,6 +123,60 @@ void rex_state_addrangetransition(rexstate_t *state, unsigned int c1,  unsigned 
 		}
 	}
 	r_array_insert(state->trans, min, &ntrans);
+}
+
+
+void rex_state_normalizetransitions(rexstate_t *state)
+{
+	long i, j;
+	rex_transition_t *itrans, *jtrans;
+
+startover:
+	for (i = 0; i < r_array_length(state->trans); i++) {
+		itrans = (rex_transition_t *)r_array_slot(state->trans, i);
+		if (itrans->lowin == itrans->highin)
+			itrans->type = REX_TRANSITION_INPUT;
+		for (j = 0; j < r_array_length(state->trans); j++) {
+			if (i == j) {
+				/*
+				 * Same transition.
+				 */
+				continue;
+			}
+			jtrans = (rex_transition_t *)r_array_slot(state->trans, j);
+			if (itrans->dstuid != jtrans->dstuid) {
+				/*
+				 * These two can never be merged.
+				 */
+				continue;
+			}
+			if (jtrans->lowin >= itrans->lowin && jtrans->lowin <= itrans->highin) {
+				/*
+				 * Overlapping regions
+				 * Merge jtrans into itrans and delete jtrans.
+				 */
+				if (jtrans->highin > itrans->highin)
+					itrans->highin = jtrans->highin;
+				if (itrans->lowin != itrans->highin)
+					itrans->type = REX_TRANSITION_RANGE;
+				r_array_delete(state->trans, j);
+				goto startover;
+			}
+			if (itrans->highin != REX_CHAR_MAX && jtrans->lowin == itrans->highin + 1) {
+				/*
+				 * Adjacent regions
+				 * Merge jtrans into itrans and delete jtrans.
+				 */
+				itrans->highin = jtrans->highin;
+				if (itrans->lowin != itrans->highin)
+					itrans->type = REX_TRANSITION_RANGE;
+				r_array_delete(state->trans, j);
+				goto startover;
+			}
+
+
+		}
+	}
 }
 
 

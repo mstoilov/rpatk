@@ -5,6 +5,8 @@
 #include "rlib/rutf.h"
 #include "rlib/rmem.h"
 #include "rex/rexcompiler.h"
+#include "rex/rextransition.h"
+
 
 #define FPUSH(__co__, __fragment__) do { r_array_push((__co__)->stack, __fragment__, rexfragment_t*); } while (0)
 #define FPOP(__co__) r_array_pop((__co__)->stack, rexfragment_t*)
@@ -172,7 +174,37 @@ int rex_compiler_charclass(rexcompiler_t *co)
 			break;
 		}
 	}
+	rex_state_normalizetransitions(rex_fragment_startstate(frag));
+	if (negative) {
+		int i;
+		rexstate_t *state = rex_fragment_startstate(frag);
+		rarray_t *otrans = state->trans;
+		rex_transition_t *t, *p;
+		state->trans = r_array_create(sizeof(rex_transition_t));
+		for (i = 0; i < r_array_length(otrans); i++) {
+			t = (rex_transition_t *)r_array_slot(otrans, i);
+			if (i == 0) {
+				if (t->lowin != 0) {
+					rex_state_addrangetransition(state, 0, t->lowin - 1, frag->end);
+				}
+				if (r_array_length(otrans) == 1) {
+					if (t->highin != REX_CHAR_MAX)
+						rex_state_addrangetransition(state, t->highin + 1, REX_CHAR_MAX, frag->end);
+				}
+			}
+			if (i > 0){
+				p = (rex_transition_t *)r_array_slot(otrans, i - 1);
+				rex_state_addrangetransition(state, p->highin + 1, t->lowin - 1, frag->end);
+			}
+			if (i == r_array_length(otrans) - 1) {
+				if (t->highin != REX_CHAR_MAX)
+					rex_state_addrangetransition(state, t->highin + 1, REX_CHAR_MAX, frag->end);
+			}
 
+		}
+		r_array_destroy(otrans);
+		rex_state_normalizetransitions(rex_fragment_startstate(frag));
+	}
 	return 0;
 }
 
@@ -196,6 +228,7 @@ static int rex_compiler_factor(rexcompiler_t *co)
 		frag = rex_fragment_create(co->db);
 		rex_fragment_rangetransition(frag, 0, '\n' - 1);
 		rex_fragment_rangetransition(frag, '\n' + 1, (unsigned int)-1);
+		rex_state_normalizetransitions(rex_fragment_startstate(frag));
 		FPUSH(co, frag);
 		rex_compiler_getnstok(co);
 		return 0;
