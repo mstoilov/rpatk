@@ -142,7 +142,7 @@ int rex_compiler_charclass(rexcompiler_t *co)
 	}
 
 	while (1) {
-		if (co->token == '[' || co->token == ']' || co->token == '-')
+		if (co->token == '[' || co->token == ']' || co->token == '-' ||  co->token == REX_TOKEN_EOF)
 			return -1;
 		rex_compiler_adjustescapedtoken(co);
 		high = low = co->token;
@@ -186,10 +186,6 @@ int rex_compiler_charclass(rexcompiler_t *co)
 			if (i == 0) {
 				if (t->lowin != 0) {
 					rex_state_addrangetransition(state, 0, t->lowin - 1, frag->end);
-				}
-				if (r_array_length(otrans) == 1) {
-					if (t->highin != REX_CHAR_MAX)
-						rex_state_addrangetransition(state, t->highin + 1, REX_CHAR_MAX, frag->end);
 				}
 			}
 			if (i > 0){
@@ -325,6 +321,13 @@ static int rex_compiler_altexpression(rexcompiler_t *co)
 		return -1;
 	while (co->token == '|') {
 		rex_compiler_getnstok(co); /* Eat '|' */
+		switch (co->token) {
+		case REX_TOKEN_EOF:
+		case '|':
+		case ')':
+		case ']':
+			return -1;
+		}
 		if (rex_compiler_catexpression(co) < 0)
 			return -1;
 		frag2 = FPOP(co);
@@ -348,7 +351,7 @@ rexfragment_t *rex_compiler_expression(rexcompiler_t *co, const char *str, unsig
 	co->ptr = str;
 
 	rex_compiler_getnstok(co);
-	if (rex_compiler_altexpression(co) < 0)
+	if (rex_compiler_altexpression(co) < 0 || co->token != REX_TOKEN_EOF)
 		goto error;
 	frag = FPOP(co);
 	rex_fragment_set_endstatetype(frag, REX_STATETYPE_ACCEPT);
