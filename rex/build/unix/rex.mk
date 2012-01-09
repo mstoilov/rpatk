@@ -1,7 +1,25 @@
 REX_SRCDIR = $(ROOT_DIR)/rex
-REX_EXE = $(OUTDIR)/rex
+RLIB_SRCDIR = $(ROOT_DIR)/rlib
+RVM_SRCDIR = $(ROOT_DIR)/rvm
+RPA_SRCDIR = $(ROOT_DIR)/rpa
+REX_LIB = librex.a
+REX_SO_VERSION = 2.0
+REX_SO_NAME = librex.so
+REX_SO = $(REX_SO_NAME).$(REX_SO_VERSION)
+TARGET_REX_LIB = $(OUTDIR)/$(REX_LIB)
+TARGET_REX_SO = $(OUTDIR)/$(REX_SO)
+TARGET_REX_EXE = $(OUTDIR)/testrex
+CFLAGS += -I$(ROOT_DIR)
+
+LIBS = -L$(RLIB_SRCDIR)/build/unix/$(ARCHDIR)/out 
+LIBS += -L$(RVM_SRCDIR)/build/unix/$(ARCHDIR)/out 
+LIBS += -L$(RPA_SRCDIR)/build/unix/$(ARCHDIR)/out 
+LIBS += -L$(REX_SRCDIR)/build/unix/$(ARCHDIR)/out 
+LIBS += -lrex -lrpa -lrvm -lrlib -lpthread -lm
+LDFLAGS += $(LIBS)
+
+
 REX_OBJECTS =	\
-	$(OUTDIR)/main.o \
 	$(OUTDIR)/rexdb.o \
 	$(OUTDIR)/rexcompiler.o \
 	$(OUTDIR)/rexfragment.o \
@@ -9,42 +27,48 @@ REX_OBJECTS =	\
 	$(OUTDIR)/rexstate.o
 
 
-INCLUDE = -I/usr/include/rpatk -I$(REX_SRCDIR) -I$(REX_SRCDIR)/..
-LIBS = -lrpa -lrvm -lrlib -lpthread -lm
-LDFLAGS += $(LIBS)
-CFLAGS += $(INCLUDE) 
+EXE_OBJECTS =	\
+	$(OUTDIR)/main.o \
 
-all: $(OUTDIR) $(REX_EXE)
+ifeq ($(OS), linux)
+all: $(OUTDIR) $(TARGET_REX_LIB) $(TARGET_REX_SO) $(TARGET_REX_EXE)
+else
+all: $(OUTDIR) $(TARGET_REX_LIB) $(TARGET_REX_EXE)
+endif
+
 
 $(OUTDIR)/%.o: $(REX_SRCDIR)/%.c
 	$(CC) $(CFLAGS) -o $(OUTDIR)/$*.o -c $(REX_SRCDIR)/$*.c
 
-$(OUTDIR)/%.o: $(REX_SRCDIR)/unix/%.c
-	$(CC) $(CFLAGS) -o $(OUTDIR)/$*.o -c $(REX_SRCDIR)/unix/$*.c
+$(TARGET_REX_LIB): $(REX_OBJECTS)
+	$(AR) -cr $@ $^
 
+$(TARGET_REX_SO): $(REX_OBJECTS)
+	$(CC) $(LDFLAGS) -shared -Wl,-soname,$(REX_SO_NAME) -o $@ $^
 
-$(OUTDIR)/%.o: $(REX_SRCDIR)/%.cpp
-	$(CPP) $(CFLAGS) -o $(OUTDIR)/$*.o -c $(REX_SRCDIR)/$*.cpp
-
-$(OUTDIR)/%.o: $(REX_SRCDIR)/unix/%.cpp
-	$(CPP) $(CFLAGS) -o $(OUTDIR)/$*.o -c $(REX_SRCDIR)/unix/$*.cpp
-
-$(REX_EXE): $(REX_OBJECTS)
-	$(CPP) $(LDFLAGS) -o $@ $^
-
-$(OUTDIR)/%.o: $(REX_RPADIR)/%.rpa
-	$(OC) $(OCFLAGS_TXT)  $(REX_RPADIR)/$*.rpa $(OUTDIR)/$*.o
-
+$(TARGET_REX_EXE): $(EXE_OBJECTS)
+	$(CC) -o $@ $^ $(LDFLAGS) 
 
 $(OUTDIR):
 	@mkdir $(OUTDIR)
 
 distclean: clean
+	-rm -f .depend
 	-rm -rf $(OUTDIR)
 
 clean:
-	-rm -f $(REX_EXE)
+	-rm -f $(TARGET_REX_LIB)
+	-rm -f $(TARGET_REX_SO)
 	-rm -f $(REX_OBJECTS)
 	-rm -f *~
-	-rm -f $(REX_SRCDIR)/*~
+	-rm -f $(ROOT_DIR)/*~
 
+install:
+	cp $(TARGET_REX_SO) $(RTK_LIB_INSTALL)
+	cp $(TARGET_REX_LIB) $(RTK_LIB_INSTALL)
+	cp $(REX_SRCDIR)/*.h $(RPATK_INC_INSTALL)/rex
+
+uninstall:
+	-rm -f $(RTK_LIB_INSTALL)/$(REX_LIB)
+	-rm -f $(RTK_LIB_INSTALL)/$(REX_SO_NAME)*
+	-rm -f $(RPATK_INC_INSTALL)/rex/*
