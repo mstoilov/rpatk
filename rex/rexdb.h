@@ -59,6 +59,7 @@ int rex_db_addtrasition_e(rexdb_t *rexdb, unsigned long srcuid, unsigned long ds
 int rex_db_simulate_nfa(rexdb_t *rexdb, long uid, const char *str, const char *end);
 int rex_db_simulate_nfa2(rexdb_t *a, long uid, const char *str, const char *end);
 long rex_db_compile(rexdb_t *rexdb, const char *str, unsigned int size);
+const char *rex_db_version();
 
 
 /*

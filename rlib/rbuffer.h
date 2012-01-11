@@ -29,22 +29,21 @@
 extern "C" {
 #endif
 
+
 typedef struct rbuffer_s rbuffer_t;
 typedef void (*R_BUFFER_DESTROY)(rbuffer_t *buffer);
 
-void r_buffer_destroy(rbuffer_t *buffer);
-rbuffer_t *r_buffer_alloc(unsigned long size);
-rbuffer_t *r_buffer_fromfile(FILE *pFile);
-int r_buffer_realloc(rbuffer_t *buffer, unsigned int size);
-
-
-typedef struct rbuffer_s {
+struct rbuffer_s {
 	char *s;
 	unsigned long size;
 	void *userdata;
 	void *userdata1;
-	R_BUFFER_DESTROY destroy;
-} rbuffer_t;
+	R_BUFFER_DESTROY alt_destroy;
+};
+
+void r_buffer_destroy(rbuffer_t *buffer);
+rbuffer_t *r_buffer_create(unsigned long size);
+int r_buffer_append(rbuffer_t *buffer, void *src, unsigned long size);
 
 
 #ifdef __cplusplus

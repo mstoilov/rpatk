@@ -143,3 +143,9 @@ int rex_db_simulate_nfa(rexdb_t *rexdb, long uid, const char *str, const char *e
 
 	return -1;
 }
+
+
+const char *rex_db_version()
+{
+	return "1.0";
+}

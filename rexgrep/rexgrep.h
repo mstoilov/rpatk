@@ -23,7 +23,10 @@
 #define _RPAGREP_H_
 
 #include <stdio.h>
+#include "rlib/rbuffer.h"
 #include "rex/rexdb.h"
+#include "rex/rexfragment.h"
+#include "rex/rexnfasimulator.h"
 
 
 #ifdef __cplusplus
@@ -39,8 +42,11 @@ extern "C" {
 #define REX_GREPTYPE_PARSE 3
 
 
-typedef struct rpa_grep_s {
-	rexdb_t *rexdb;
+typedef struct rexgrep_s {
+	rexdb_t *nfa;
+	rex_nfasimulator_t *si;
+	rexfragment_t *lastfrag;
+	unsigned long scsize;
 	unsigned long scanmilisec;
 	unsigned int icase;
 	unsigned int encoding;
@@ -49,24 +55,24 @@ typedef struct rpa_grep_s {
 	unsigned int forceEncoding;
 	int ret;
 	void *filename;
-} rpa_grep_t;
+} rexgrep_t;
 
 
-rpa_grep_t *rpa_grep_create();
-void rpa_grep_destroy(rpa_grep_t *pGrep);
-void rpa_grep_close(rpa_grep_t *pGrep);
-int rpa_grep_load_pattern(rpa_grep_t *pGrep, rpa_buffer_t *buf);
-int rpa_grep_load_string_pattern(rpa_grep_t *pGrep, rpa_buffer_t *buf);
-int rpa_grep_match(rpa_grep_t *pGrep, const char* buffer, unsigned long size);
-int rpa_grep_parse(rpa_grep_t *pGrep, const char* buffer, unsigned long size);
-int rpa_grep_scan(rpa_grep_t *pGrep, const char* buffer, unsigned long size);
-int rpa_grep_scan_lines(rpa_grep_t *pGrep, const char* buffer, unsigned long size);
-void rpa_grep_scan_buffer(rpa_grep_t *pGrep, rpa_buffer_t *buf);
-void rpa_grep_print_filename(rpa_grep_t *pGrep);
-void rpa_grep_output_char(int c);
-void rpa_grep_output(rpa_grep_t *pGrep, const char *s, unsigned long size, unsigned int encoding);
-void rpa_grep_output_utf8_string(rpa_grep_t *pGrep, const char *s);
-void rpa_grep_output_utf16_string(rpa_grep_t *pGrep, const unsigned short *s);
+rexgrep_t *rex_grep_create();
+void rex_grep_destroy(rexgrep_t *pGrep);
+void rex_grep_close(rexgrep_t *pGrep);
+int rex_grep_load_pattern(rexgrep_t *pGrep, rbuffer_t *buf);
+int rex_grep_load_string_pattern(rexgrep_t *pGrep, rbuffer_t *buf);
+int rex_grep_match(rexgrep_t *pGrep, const char* buffer, unsigned long size);
+int rex_grep_parse(rexgrep_t *pGrep, const char* buffer, unsigned long size);
+int rex_grep_scan(rexgrep_t *pGrep, const char* buffer, unsigned long size);
+int rex_grep_scan_lines(rexgrep_t *pGrep, const char* buffer, unsigned long size);
+void rex_grep_scan_buffer(rexgrep_t *pGrep, rbuffer_t *buf);
+void rex_grep_print_filename(rexgrep_t *pGrep);
+void rex_grep_output_char(int c);
+void rex_grep_output(rexgrep_t *pGrep, const char *s, unsigned long size, unsigned int encoding);
+void rex_grep_output_utf8_string(rexgrep_t *pGrep, const char *s);
+void rex_grep_output_utf16_string(rexgrep_t *pGrep, const unsigned short *s);
 
 
 #ifdef __cplusplus

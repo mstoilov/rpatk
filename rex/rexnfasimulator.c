@@ -138,6 +138,7 @@ void rex_nfasimulator_start(rex_nfasimulator_t *si, rexdb_t *db, long uid)
 
 	si->count = 0;
 	si->inputsize = 0;
+	r_array_setlength(si->accepts, 0);
 	r_array_setlength(si->oldstates, 0);
 	r_array_setlength(si->newstates, 0);
 	r_array_setlength(si->onmap, r_array_length(db->states));
@@ -145,7 +146,7 @@ void rex_nfasimulator_start(rex_nfasimulator_t *si, rexdb_t *db, long uid)
 		r_array_replace(si->onmap, i, &off);
 	rex_nfasimulator_addstate(si, db, uid);
 
-#if 1
+#if 0
 	rex_nfasimulator_dumpnewstates(si);
 #endif
 
@@ -182,7 +183,7 @@ long rex_nfasimulator_next(rex_nfasimulator_t *si, rexdb_t *db, ruint32 wc, int 
 			}
 		}
 	}
-#if 1
+#if 0
 	rex_nfasimulator_dumpnewstates(si);
 #endif
 

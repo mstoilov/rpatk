@@ -28,28 +28,30 @@
 #include <string.h>
 #include <stdlib.h>
 #include <wchar.h>
-#include "rpagrep.h"
-#include "rpagreputf.h"
-#include "rpagrepdep.h"
+
+#include "rlib/rbuffer.h"
+#include "rlib/rmem.h"
+#include "rlib/rutf.h"
+#include "rexgrep.h"
+#include "rexgrepdep.h"
 #include "fsenum.h"
 
 
-void rpa_buffer_unmap_file(rpa_buffer_t *buf)
+void rex_buffer_unmap_file(rbuffer_t *buf)
 {
 	if (buf) {
 		munmap(buf->s, buf->size);
-		free(buf);
+		r_free(buf);
 	}
 }
 
 
-rpa_buffer_t * rpa_buffer_map_file(const char *filename)
+rbuffer_t * rex_buffer_map_file(const char *filename)
 {
 	struct stat st;
-	rpa_buffer_t *str;
+	rbuffer_t *str;
 	char *buffer;
 	
-
 	int fd = open(filename, O_RDONLY);
 	if (fd < 0) {
 		return (void*)0;
@@ -63,14 +65,14 @@ rpa_buffer_t * rpa_buffer_map_file(const char *filename)
 		close(fd);
 		return (void*)0;
 	}
-	str = (rpa_buffer_t *)malloc(sizeof(rpa_buffer_t));
+	str = (rbuffer_t *)r_malloc(sizeof(rbuffer_t));
 	if (!str)
 		goto error;
 	memset(str, 0, sizeof(*str));
 	str->s = buffer;
 	str->size = st.st_size;
 	str->userdata = (void*)((unsigned long)fd);
-	str->destroy = rpa_buffer_unmap_file;
+	str->alt_destroy = rex_buffer_unmap_file;
 	close(fd);
 	return str;
 
@@ -81,41 +83,39 @@ error:
 }
 
 
-void rpa_grep_print_filename(rpa_grep_t *pGrep)
+void rex_grep_print_filename(rexgrep_t *pGrep)
 {
 	if (pGrep->filename) {
-		rpa_grep_output_utf8_string(pGrep, pGrep->filename);
-		rpa_grep_output_utf8_string(pGrep, ":\n");
+		rex_grep_output_utf8_string(pGrep, pGrep->filename);
+		rex_grep_output_utf8_string(pGrep, ":\n");
 	}
 	
 }
 
 
-void rpa_grep_scan_path(rpa_grep_t *pGrep, const char *path)
+void rex_grep_scan_path(rexgrep_t *pGrep, const char *path)
 {
 	fs_enum_ptr pFSE;
-	rpa_buffer_t *buf;
+	rbuffer_t *buf;
 
 	if ((pFSE = fse_create(path))) {
     	while (fse_next_file(pFSE) == 0) {
     		pGrep->filename = (void*)fseFileName(pFSE);
-//    		rpa_grep_output_utf8_string(pGrep, pGrep->filename);
-//    		rpa_grep_output_utf8_string(pGrep, "\n");
-    		buf = rpa_buffer_map_file((const char*)pGrep->filename);
+    		buf = rex_buffer_map_file((const char*)pGrep->filename);
     		if (buf) {
-				rpa_grep_scan_buffer(pGrep, buf);
+				rex_grep_scan_buffer(pGrep, buf);
 				pGrep->scsize += buf->size;
-				rpa_buffer_destroy(buf);
+				r_buffer_destroy(buf);
 			}
 		} 
 		fse_destroy(pFSE);
 	} else {
 		pGrep->filename = (void*)path;
-		buf = rpa_buffer_map_file((const char*)pGrep->filename);
+		buf = rex_buffer_map_file((const char*)pGrep->filename);
 		if (buf) {
-			rpa_grep_scan_buffer(pGrep, buf);
+			rex_grep_scan_buffer(pGrep, buf);
 			pGrep->scsize += buf->size;
-			rpa_buffer_destroy(buf);
+			r_buffer_destroy(buf);
 		}
 	}
 	
@@ -123,7 +123,7 @@ void rpa_grep_scan_path(rpa_grep_t *pGrep, const char *path)
 }
 
 
-void rpa_grep_output_char(int c)
+void rex_grep_output_char(int c)
 {
 	int ret;
 	int garbage = 0;
@@ -135,7 +135,7 @@ void rpa_grep_output_char(int c)
 		c = garbage;
 	}
 
-	ret = rpa_grep_utf8_wctomb(c, output, sizeof(output));
+	ret = r_utf8_wctomb(c, output, sizeof(output));
 	if (ret > 0) {
 		fwrite(output, 1, ret, stdout);
 	}

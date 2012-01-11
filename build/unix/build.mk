@@ -21,6 +21,7 @@ distclean: clean
 	+make -C $(ROOT_DIR)/tests/testrpa/build/unix/$(ARCHDIR) distclean
 	+make -C $(ROOT_DIR)/tests/testrjs/build/unix/$(ARCHDIR) distclean
 	+make -C $(ROOT_DIR)/rgrep/build/unix/$(ARCHDIR) distclean
+	+make -C $(ROOT_DIR)/rexgrep/build/unix/$(ARCHDIR) distclean
 	+make -C $(ROOT_DIR)/rjs/build/unix/$(ARCHDIR) distclean
 
 
@@ -33,6 +34,7 @@ clean:
 	+make -C $(ROOT_DIR)/tests/testrpa/build/unix/$(ARCHDIR) clean
 	+make -C $(ROOT_DIR)/tests/testrjs/build/unix/$(ARCHDIR) clean
 	+make -C $(ROOT_DIR)/rgrep/build/unix/$(ARCHDIR) clean
+	+make -C $(ROOT_DIR)/rexgrep/build/unix/$(ARCHDIR) clean
 	+make -C $(ROOT_DIR)/rjs/build/unix/$(ARCHDIR) clean
 
 

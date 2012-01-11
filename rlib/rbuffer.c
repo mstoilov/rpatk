@@ -23,47 +23,54 @@
 
 
 
-void r_buffer_destroy(rpa_buffer_t *buffer)
+void r_buffer_destroy(rbuffer_t *buffer)
 {
 	if (buffer) {
-		free(buffer->s);
-		free(buffer);
+		if (buffer->alt_destroy) {
+			buffer->alt_destroy(buffer);
+			return;
+		} else {
+			r_free(buffer->s);
+			r_free(buffer);
+		}
 	}
 }
 
 
-rpa_buffer_t *rpa_buffer_alloc(unsigned long size)
+rbuffer_t *r_buffer_create(unsigned long size)
 {
-	rpa_buffer_t *buffer;
+	rbuffer_t *buffer;
 
-	buffer = (rpa_buffer_t *)malloc(sizeof(rpa_buffer_t));
+	buffer = (rbuffer_t *)r_malloc(sizeof(rbuffer_t));
 	if (!buffer)
 		return (void*)0;
-	memset(buffer, 0, sizeof(*buffer));
-	if (!(buffer->s = (char *)malloc((size + 1) * sizeof(char)))) {
-		free(buffer);
+	r_memset(buffer, 0, sizeof(*buffer));
+	if (!(buffer->s = (char *)r_malloc((size + 1) * sizeof(char)))) {
+		r_free(buffer);
 		return (void*)0;
 	}
-	memset(buffer->s, 0, size + 1);
+	r_memset(buffer->s, 0, size + 1);
 	buffer->size = size;
-	buffer->destroy = rpa_buffer_free;
 	return buffer;
 }
 
 
-int rpa_buffer_realloc(rpa_buffer_t *buffer, unsigned int size)
+int r_buffer_append(rbuffer_t *buffer, void *src, unsigned long size)
 {
 	char *s;
 
-	s = (char *)realloc(buffer->s, size);
+	s = (char *)r_realloc(buffer->s, size + 1);
 	if (!s)
 		return -1;
 	buffer->s = s;
 	buffer->size = size;
+	r_memcpy(buffer->s, src, size);
+	buffer->s[buffer->size] = '\0';
 	return 0;
 }
 
 
+#if 0
 rbuffer_t *rpa_buffer_fromfile(FILE *pFile)
 {
 	unsigned long memchunk = 256;
@@ -93,3 +100,5 @@ rbuffer_t *rpa_buffer_fromfile(FILE *pFile)
 
 	return buf;
 }
+
+#endif

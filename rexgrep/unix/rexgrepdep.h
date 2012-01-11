@@ -26,8 +26,10 @@
 extern "C" {
 #endif
 
-rpa_buffer_t * rpa_buffer_map_file(const char *filename);
-void rpa_grep_scan_path(rpa_grep_t *pGrep, const char *path);
+#include "rlib/rbuffer.h"
+
+rbuffer_t * rex_buffer_map_file(const char *filename);
+void rex_grep_scan_path(rexgrep_t *pGrep, const char *path);
 
 
 #ifdef __cplusplus

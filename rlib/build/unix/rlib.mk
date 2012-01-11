@@ -10,6 +10,7 @@ TARGET_RLIB_SO = $(OUTDIR)/$(RLIB_SO)
 CFLAGS += -I$(ROOT_DIR)
 
 RLIB_OBJECTS +=	$(OUTDIR)/rref.o
+RLIB_OBJECTS +=	$(OUTDIR)/rbuffer.o
 RLIB_OBJECTS +=	$(OUTDIR)/rcharconv.o
 RLIB_OBJECTS +=	$(OUTDIR)/robject.o
 RLIB_OBJECTS +=	$(OUTDIR)/rgc.o
