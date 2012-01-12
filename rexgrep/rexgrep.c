@@ -88,109 +88,101 @@ int rex_grep_load_pattern(rexgrep_t *pGrep, rbuffer_t *buf)
 }
 
 
-int rex_grep_match(rexgrep_t *pGrep, const char* buffer, unsigned long size)
+int rex_grep_match(rexgrep_t *pGrep, const char* input, const char *end)
 {
 	int inc;
 	ruint32 wc;
-	const char *input = buffer, *end = buffer + size;
 
 	if (!pGrep->lastfrag) {
 
 		return -1;
 	}
+
 	rex_nfasimulator_start(pGrep->si, pGrep->nfa, pGrep->lastfrag->start);
 	while ((inc = r_utf8_mbtowc(&wc, (const unsigned char*)input, (const unsigned char*)end)) > 0) {
 		if (rex_nfasimulator_next(pGrep->si, pGrep->nfa, wc, inc) == 0)
 			break;
 		input += inc;
 	}
-
-	if (r_array_length(pGrep->si->accepts)) {
+	if (r_array_length(pGrep->si->accepts) > 0) {
 		rex_accept_t *acc = (rex_accept_t *)r_array_lastslot(pGrep->si->accepts);
-		rex_grep_matchfound(pGrep);
-		rex_grep_print_filename(pGrep);
-		rex_grep_output(pGrep, buffer, acc->inputsize, pGrep->encoding);
-		rex_grep_output_utf8_string(pGrep, "\n");
+		return acc->inputsize;
 	}
 	return 0;
 }
 
 
-int rex_grep_scan(rexgrep_t *pGrep, const char* buffer, unsigned long size)
+int rex_grep_scan(rexgrep_t *pGrep, const char* start, const char* end)
 {
-	int inc;
-	ruint32 wc;
-	int displayed = 0;	
-	const char *input = buffer, *start = buffer, *end = buffer + size;
+	int ret = 0;
 
-	if (!pGrep->lastfrag) {
-
-		return -1;
-	}
-again:
-	input = start;
-	rex_nfasimulator_start(pGrep->si, pGrep->nfa, pGrep->lastfrag->start);
-	while ((inc = r_utf8_mbtowc(&wc, (const unsigned char*)input, (const unsigned char*)end)) > 0) {
-		if (rex_nfasimulator_next(pGrep->si, pGrep->nfa, wc, inc) == 0)
-			break;
-		input += inc;
-	}
-
-	if (r_array_length(pGrep->si->accepts) > 0) {
-		rex_accept_t *acc = (rex_accept_t *)r_array_lastslot(pGrep->si->accepts);
-		rex_grep_matchfound(pGrep);
-		if (!displayed) {
-			displayed = 1;
-			rex_grep_print_filename(pGrep);
+	while (start < end) {
+		ret = rex_grep_match(pGrep, start, end);
+		if (ret < 0) {
+			/*
+			 * Error
+			 */
+			return -1;
+		} else if (ret > 0) {
+			if (pGrep->showfilename) {
+				fprintf(stdout, "%s:", (const char*)pGrep->filename);
+			}
+			fwrite(start, 1, ret, stdout);
+			fprintf(stdout, "\n");
+			start += ret;
+		} else {
+			ruint32 wc;
+			if ((ret = r_utf8_mbtowc(&wc, (const unsigned char*)start, (const unsigned char*)end)) <= 0)
+				ret = 1;
+			start += ret;
 		}
-		rex_grep_output(pGrep, start, acc->inputsize, pGrep->encoding);
-		rex_grep_output_utf8_string(pGrep, "\n");
-		start += acc->inputsize;
-	} else {
-		inc = r_utf8_mbtowc(&wc, (const unsigned char*)input, (const unsigned char*)end);
-		start += inc;
 	}
-	if (start < end)
-		goto again;
 	return 0;
 }
 
 
-int rex_grep_scan_lines(rexgrep_t *pGrep, const char* buffer, unsigned long size)
+static int rex_grep_scan_do(rexgrep_t *pGrep, const char* start, const char* end)
 {
-	int inc;
-	ruint32 wc;
-	int displayed = 0;
-	const char *input = buffer, *start = buffer, *end = buffer + size;
+	int ret = 0;
 
-	if (!pGrep->lastfrag) {
-
-		return -1;
-	}
-again:
-	input = start;
-	rex_nfasimulator_start(pGrep->si, pGrep->nfa, pGrep->lastfrag->start);
-	while ((inc = r_utf8_mbtowc(&wc, (const unsigned char*)input, (const unsigned char*)end)) > 0 && wc != '\n') {
-		rex_nfasimulator_next(pGrep->si, pGrep->nfa, wc, inc);
-		input += inc;
-	}
-
-	if (r_array_length(pGrep->si->accepts) > 0) {
-		rex_accept_t *acc = (rex_accept_t *)r_array_lastslot(pGrep->si->accepts);
-		rex_grep_matchfound(pGrep);
-		if (!displayed) {
-			displayed = 1;
-			rex_grep_print_filename(pGrep);
+	while (start < end) {
+		ret = rex_grep_match(pGrep, start, end);
+		if (ret < 0) {
+			/*
+			 * Error
+			 */
+			return -1;
+		} else if (ret > 0) {
+			return ret;
+		} else {
+			ruint32 wc;
+			if ((ret = r_utf8_mbtowc(&wc, (const unsigned char*)start, (const unsigned char*)end)) <= 0)
+				ret = 1;
+			start += ret;
 		}
-		rex_grep_output(pGrep, start, input - start, pGrep->encoding);
-		rex_grep_output_utf8_string(pGrep, "\n");
-		start += acc->inputsize;
-	} else {
-		inc = r_utf8_mbtowc(&wc, (const unsigned char*)start, (const unsigned char*)end);
-		start += inc;
 	}
-	if (start < end)
-		goto again;
+	return 0;
+}
+
+
+int rex_grep_scan_lines(rexgrep_t *pGrep, const char* start, const char* end)
+{
+	int ret;
+	const char *eol;
+
+	for (eol = start; eol < end; eol++) {
+		if (*eol == '\n') {
+			ret = rex_grep_scan_do(pGrep, start, eol + 1);
+			if (ret > 0) {
+				if (pGrep->showfilename) {
+					fprintf(stdout, "%s:", (const char*)pGrep->filename);
+				}
+				fwrite(start, 1, eol + 1 - start, stdout);
+			}
+			start = eol + 1;
+		}
+	}
+	rex_grep_output_utf8_string(pGrep, "\n");
 	return 0;
 }
 
@@ -199,14 +191,12 @@ void rex_grep_scan_buffer(rexgrep_t *pGrep, rbuffer_t *buf)
 {
 	switch (pGrep->greptype) {
 	case REX_GREPTYPE_SCANLINES:
-		rex_grep_scan_lines(pGrep, buf->s, buf->size);
+		rex_grep_scan_lines(pGrep, buf->s, buf->s + buf->size);
 		break;
 	case REX_GREPTYPE_MATCH:
-		rex_grep_match(pGrep, buf->s, buf->size);
-		break;
 	case REX_GREPTYPE_SCAN:
 	default:
-		rex_grep_scan(pGrep, buf->s, buf->size);
+		rex_grep_scan(pGrep, buf->s, buf->s + buf->size);
 		break;
 	};
 }

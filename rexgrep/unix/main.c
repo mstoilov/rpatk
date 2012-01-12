@@ -111,7 +111,7 @@ int main(int argc, const char *argv[])
 
 	buffers = r_array_create(sizeof(rbuffer_t *));
 	pGrep = rex_grep_create();
-	pGrep->greptype = REX_GREPTYPE_SCAN;
+	pGrep->greptype = REX_GREPTYPE_SCANLINES;
 	if (argc <= 1) {
 		usage(argc, argv);
 		goto end;
@@ -120,6 +120,12 @@ int main(int argc, const char *argv[])
 	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-t") == 0) {
 			pGrep->showtime = 1;
+		}
+	}
+
+	for (i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "-H") == 0 || strcmp(argv[i], "--with-filename") == 0) {
+			pGrep->showfilename = 1;
 		}
 	}
 
@@ -190,6 +196,15 @@ int main(int argc, const char *argv[])
 		}
 	}
 
+	for (i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "-D") == 0) {
+			int j;
+			for (j = 0; j < r_array_length(pGrep->nfa->states); j++) {
+				rex_state_dump(rex_db_getstate(pGrep->nfa, j));
+			}
+			return 0;
+		}
+	}
 	/* scan files */
 	for (i = 1; i < argc; i++) {
 		if (argv[i][0] != '-') {

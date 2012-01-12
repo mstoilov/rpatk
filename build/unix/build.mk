@@ -4,6 +4,7 @@ all:
 	+make -C $(ROOT_DIR)/rvm/build/unix/$(ARCHDIR) all
 	+make -C $(ROOT_DIR)/rex/build/unix/$(ARCHDIR) all
 	+make -C $(ROOT_DIR)/rgrep/build/unix/$(ARCHDIR) all
+	+make -C $(ROOT_DIR)/rexgrep/build/unix/$(ARCHDIR) all
 	+make -C $(ROOT_DIR)/tests/testmisc/build/unix/$(ARCHDIR) all
 	+make -C $(ROOT_DIR)/tests/testrpa/build/unix/$(ARCHDIR) all
 	+make -C $(ROOT_DIR)/rjs/build/unix/$(ARCHDIR) all

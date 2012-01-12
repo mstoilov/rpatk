@@ -87,7 +87,7 @@ void rex_grep_print_filename(rexgrep_t *pGrep)
 {
 	if (pGrep->filename) {
 		rex_grep_output_utf8_string(pGrep, pGrep->filename);
-		rex_grep_output_utf8_string(pGrep, ":\n");
+		rex_grep_output_utf8_string(pGrep, ":");
 	}
 	
 }
