@@ -31,6 +31,7 @@
 #include <time.h>
 #include "rlib/rmem.h"
 #include "rlib/rarray.h"
+#include "rex/rexdfaconv.h"
 #include "rpa/rpadbex.h"
 #include "rexgrep.h"
 #include "rexgrepdep.h"
@@ -205,6 +206,22 @@ int main(int argc, const char *argv[])
 			return 0;
 		}
 	}
+
+
+	for (i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "-F") == 0) {
+			int j;
+			rexdfaconv_t *conv = rex_dfaconv_create();
+			pGrep->dfa = rex_dfaconv_run(conv, pGrep->nfa, pGrep->lastfrag->start);
+			for (j = 0; j < r_array_length(pGrep->dfa->states); j++) {
+				rex_state_dump(rex_db_getstate(pGrep->dfa, j));
+			}
+			rex_dfaconv_destroy(conv);
+			return 0;
+		}
+	}
+
+
 	/* scan files */
 	for (i = 1; i < argc; i++) {
 		if (argv[i][0] != '-') {

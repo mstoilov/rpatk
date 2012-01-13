@@ -25,6 +25,13 @@ robject_t *rex_db_init(robject_t *obj, unsigned int objtype, r_object_cleanupfun
 	r_object_init(obj, objtype, cleanup, NULL);
 	rexdb->states = r_array_create(sizeof(rexstate_t*));
 	rexdb->type = type;
+	if (type == REXDB_TYPE_DFA) {
+		/*
+		 * Create the dead state.
+		 */
+		long uid = rex_db_createstate(rexdb , REX_STATETYPE_DEAD);
+		rex_state_addrangetransition(rex_db_getstate(rexdb, uid), 0, REX_CHAR_MAX, uid);
+	}
 	return (robject_t*)rexdb;
 }
 
@@ -71,6 +78,26 @@ rexstate_t *rex_db_getstate(rexdb_t *rexdb, long uid)
 	if (uid >= 0 && uid < r_array_length(rexdb->states))
 		return r_array_index(rexdb->states, uid, rexstate_t*);
 	return NULL;
+}
+
+
+long rex_db_findstate(rexdb_t *a, const rarray_t *subset)
+{
+	long i, j;
+	rexstate_t *s;
+
+	for (i = 0; i < r_array_length(a->states); i++) {
+		s = r_array_index(a->states, i, rexstate_t*);
+		if (r_array_length(s->subset) && r_array_length(s->subset) == r_array_length(subset)) {
+			for (j = 0; j < r_array_length(subset); j++) {
+				if (rex_subset_index(s->subset, j) != rex_subset_index(subset, j))
+					break;
+			}
+			if (j == r_array_length(subset))
+				return s->uid;
+		}
+	}
+	return -1;
 }
 
 

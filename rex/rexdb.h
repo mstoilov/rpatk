@@ -52,6 +52,7 @@ rexdb_t *rex_db_create(rexdb_type_t type);
 void rex_db_destroy(rexdb_t *rexdb);
 long rex_db_createstate(rexdb_t *rexdb, rex_statetype_t type);
 long rex_db_insertstate(rexdb_t *rexdb, rexstate_t *s);
+long rex_db_findstate(rexdb_t *a, const rarray_t *subset);
 rexstate_t *rex_db_getstate(rexdb_t *rexdb, long uid);
 int rex_db_addtrasition(rexdb_t *rexdb, unsigned int input, unsigned long srcuid, unsigned long dstuid);
 int rex_db_addrangetrasition(rexdb_t *rexdb, unsigned int c1, unsigned int c2, unsigned long srcuid, unsigned long dstuid);

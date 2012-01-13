@@ -277,6 +277,10 @@ void rex_state_dump(rexstate_t *state)
 		if (state->userdata) {
 			fprintf(stdout, " : %s", (const char*)state->userdata);
 		}
+	} else if (state->type == REX_STATETYPE_DEAD) {
+		fprintf(stdout, " REX_STATETYPE_DEAD ");
+	} else if (state->type == REX_STATETYPE_START) {
+		fprintf(stdout, " REX_STATETYPE_START ");
 	}
 	fprintf(stdout, "\n");
 
@@ -297,10 +301,14 @@ void rex_state_dump(rexstate_t *state)
 				fprintf(stdout, " [%x - %x] -> %ld\n", t->lowin, t->highin, t->dstuid);
 		} else {
 			if (isprint(t->lowin) && !isspace(t->lowin))
-				fprintf(stdout, "          %c -> %ld\n", t->lowin, t->dstuid);
+				fprintf(stdout, "        '%c' -> %ld\n", t->lowin, t->dstuid);
 			else
 				fprintf(stdout, "          %x -> %ld\n", t->lowin, t->dstuid);
 		}
 	}
+	if (!r_array_length(state->etrans) && !r_array_length(state->trans))
+		fprintf(stdout, "        (none)\n");
+	fprintf(stdout, "\n");
+
 }
 

@@ -74,6 +74,14 @@ void rex_state_normalizetransitions(rexstate_t *state);
  */
 void rex_state_cleanup(robject_t *obj);
 
+
+#define rex_subset_length(__set__) r_array_length(__set__)
+#define rex_subset_clear(__set__) r_array_setlength(__set__, 0)
+#define rex_subset_push(__set__, __uid__) r_array_push(__set__, __uid__, unsigned long)
+#define rex_subset_pop(__set__) r_array_pop(__set__, unsigned long)
+#define rex_subset_index(__set__, __i__) r_array_index(__set__, __i__, unsigned long)
+#define rex_subset_insert(__set__, __i__, __uid__) r_array_insert(__set__, __i__, &__uid__)
+
 #ifdef __cplusplus
 }
 #endif

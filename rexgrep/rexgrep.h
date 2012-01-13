@@ -44,6 +44,7 @@ extern "C" {
 
 typedef struct rexgrep_s {
 	rexdb_t *nfa;
+	rexdb_t *dfa;
 	rex_nfasimulator_t *si;
 	rexfragment_t *lastfrag;
 	unsigned long scsize;
