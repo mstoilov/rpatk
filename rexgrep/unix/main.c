@@ -240,7 +240,7 @@ int main(int argc, const char *argv[])
 
 end:
 	for (i = 0; i < r_array_length(buffers); i++) {
-//		r_buffer_destroy(r_array_index(buffers, i, rbuffer_t*));
+		r_buffer_destroy(r_array_index(buffers, i, rbuffer_t*));
 	}
 	r_object_destroy((robject_t*)buffers);
 	ret = pGrep->ret;
