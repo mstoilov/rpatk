@@ -43,7 +43,7 @@ typedef struct rexdfaconv_s {
 
 rexdfaconv_t *rex_dfaconv_create();
 void rex_dfaconv_destroy(rexdfaconv_t *co);
-rexdb_t *rex_dfaconv_todfa(rexdfaconv_t *co, rexdb_t *nfa, unsigned long start);
+rexdb_t *rex_dfaconv_run(rexdfaconv_t *co, rexdb_t *nfa, unsigned long start);
 
 
 #ifdef __cplusplus

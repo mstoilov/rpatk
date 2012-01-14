@@ -32,6 +32,7 @@
 #include "rlib/rutf.h"
 #include "rlib/rmem.h"
 #include "rex/rexcompiler.h"
+#include "rex/rextransition.h"
 #include "rexgrep.h"
 #include "rexgrepdep.h"
 
@@ -59,6 +60,9 @@ void rex_grep_destroy(rexgrep_t *pGrep)
 	if (!pGrep)
 		return;
 	rex_db_destroy(pGrep->nfa);
+	rex_db_destroy(pGrep->dfa);
+	rex_fragment_destroy(pGrep->lastfrag);
+	rex_nfasimulator_destroy(pGrep->si);
 	r_free(pGrep);
 }
 
@@ -81,10 +85,44 @@ int rex_grep_load_pattern(rexgrep_t *pGrep, rbuffer_t *buf)
 	rexcompiler_t *co = rex_compiler_create(pGrep->nfa);
 	frag = rex_compiler_addexpression(co, pGrep->lastfrag, buf->s, buf->size, NULL);
 	if (!frag) {
+		rex_compiler_destroy(co);
 		return -1;
 	}
 	pGrep->lastfrag = frag;
+	rex_compiler_destroy(co);
 	return 0;
+}
+
+
+int rex_grep_matchdfa(rexgrep_t *pGrep, const char* input, const char *end)
+{
+	int inc, i;
+	ruint32 wc;
+	long next;
+	rexstate_t *s;
+	rex_transition_t *t;
+	rexdb_t *db = pGrep->dfa;
+	const char *start = input;
+	int accinput = 0;
+
+	for (next = 1; next != 0;) {
+		if ((inc = r_utf8_mbtowc(&wc, (const unsigned char*)input, (const unsigned char*)end)) <= 0)
+			break;
+		input += inc;
+		s = rex_db_getstate(db, next);
+		if (!s)
+			break;
+		if (s->type == REX_STATETYPE_ACCEPT)
+			accinput = input - start;
+		next = 0;
+		for (i = 0; i < r_array_length(s->trans); i++) {
+			t = (rex_transition_t *)r_array_slot(s->trans, i);
+			if ((t->type == REX_TRANSITION_INPUT && t->lowin == wc) || (t->type == REX_TRANSITION_RANGE && t->lowin <=  wc && wc <= t->highin)) {
+				next = t->dstuid;
+			}
+		}
+	}
+	return accinput;
 }
 
 
@@ -92,15 +130,22 @@ int rex_grep_match(rexgrep_t *pGrep, const char* input, const char *end)
 {
 	int inc;
 	ruint32 wc;
+	long dbstart;
+	rexdb_t *db;
+
+	if (pGrep->usedfa)
+		return rex_grep_matchdfa(pGrep, input, end);
 
 	if (!pGrep->lastfrag) {
 
 		return -1;
 	}
+	db = pGrep->nfa;
+	dbstart = pGrep->lastfrag->start;
 
-	rex_nfasimulator_start(pGrep->si, pGrep->nfa, pGrep->lastfrag->start);
+	rex_nfasimulator_start(pGrep->si, db, dbstart);
 	while ((inc = r_utf8_mbtowc(&wc, (const unsigned char*)input, (const unsigned char*)end)) > 0) {
-		if (rex_nfasimulator_next(pGrep->si, pGrep->nfa, wc, inc) == 0)
+		if (rex_nfasimulator_next(pGrep->si, db, wc, inc) == 0)
 			break;
 		input += inc;
 	}

@@ -198,29 +198,26 @@ int main(int argc, const char *argv[])
 	}
 
 	for (i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "-D") == 0) {
+		if (strcmp(argv[i], "-F") == 0) {
 			int j;
-			for (j = 0; j < r_array_length(pGrep->nfa->states); j++) {
-				rex_state_dump(rex_db_getstate(pGrep->nfa, j));
-			}
-			return 0;
+			rexdfaconv_t *conv = rex_dfaconv_create();
+			pGrep->dfa = rex_dfaconv_run(conv, pGrep->nfa, pGrep->lastfrag->start);
+			rex_dfaconv_destroy(conv);
+			pGrep->usedfa = 1;
 		}
 	}
 
 
 	for (i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "-F") == 0) {
+		if (strcmp(argv[i], "-D") == 0) {
 			int j;
-			rexdfaconv_t *conv = rex_dfaconv_create();
-			pGrep->dfa = rex_dfaconv_run(conv, pGrep->nfa, pGrep->lastfrag->start);
-			for (j = 0; j < r_array_length(pGrep->dfa->states); j++) {
-				rex_state_dump(rex_db_getstate(pGrep->dfa, j));
+			rexdb_t *db = pGrep->usedfa ? pGrep->dfa : pGrep->nfa;
+			for (j = 0; j < r_array_length(db->states); j++) {
+				rex_state_dump(rex_db_getstate(db, j));
 			}
-			rex_dfaconv_destroy(conv);
-			return 0;
+			goto end;
 		}
 	}
-
 
 	/* scan files */
 	for (i = 1; i < argc; i++) {
@@ -243,17 +240,18 @@ int main(int argc, const char *argv[])
 
 end:
 	for (i = 0; i < r_array_length(buffers); i++) {
-		r_buffer_destroy(r_array_index(buffers, i, rbuffer_t*));
+//		r_buffer_destroy(r_array_index(buffers, i, rbuffer_t*));
 	}
 	r_object_destroy((robject_t*)buffers);
+	ret = pGrep->ret;
+	rex_grep_destroy(pGrep);
 	if (pGrep->showtime) {
-		fprintf(stdout, "memory: %ld KB (leaked %ld Bytes)\n", (long)r_debug_get_maxmem()/1000, (long)r_debug_get_allocmem());
+		fprintf(stdout, "memory: %ld KB (leaked %ld Bytes)\n", (long)r_debug_get_maxmem()/1024, (long)r_debug_get_allocmem());
 	}
 
 	if (devnull)
 		fclose(devnull);
-	rex_grep_destroy(pGrep);
-	return pGrep->ret;
+	return ret;
 
 error:
 	if (devnull)
