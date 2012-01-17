@@ -105,9 +105,7 @@ int rex_grep_matchdfa(rexgrep_t *pGrep, const char* input, const char *end)
 	const char *start = input;
 	int accinput = 0;
 
-	for (next = 1; next != 0;) {
-		if ((inc = r_utf8_mbtowc(&wc, (const unsigned char*)input, (const unsigned char*)end)) <= 0)
-			break;
+	for (inc = 0, next = 1; next != 0;) {
 		input += inc;
 		s = rex_db_getstate(db, next);
 		if (!s)
@@ -115,6 +113,8 @@ int rex_grep_matchdfa(rexgrep_t *pGrep, const char* input, const char *end)
 		if (s->type == REX_STATETYPE_ACCEPT)
 			accinput = input - start;
 		next = 0;
+		if ((inc = r_utf8_mbtowc(&wc, (const unsigned char*)input, (const unsigned char*)end)) <= 0)
+			break;
 		for (i = 0; i < r_array_length(s->trans); i++) {
 			t = (rex_transition_t *)r_array_slot(s->trans, i);
 			if ((t->type == REX_TRANSITION_INPUT && t->lowin == wc) || (t->type == REX_TRANSITION_RANGE && t->lowin <=  wc && wc <= t->highin)) {

@@ -46,8 +46,9 @@ int usage(int argc, const char *argv[])
 		fprintf(stderr, " OPTIONS:\n");
 		fprintf(stderr, "\t-e patterns              Regular Expression.\n");
 		fprintf(stderr, "\t-f patternfile           Read Regular Expressions from a file.\n");
-		fprintf(stderr, "\t-m                       Match.\n");
+		fprintf(stderr, "\t-o, --only-matching      Show only the part of a line matching PATTERN\n");
 		fprintf(stderr, "\t-l                       Line mode.\n");
+		fprintf(stderr, "\t-N                       Use NFA.\n");
 		fprintf(stderr, "\t-q                       Quiet mode.\n");
 		fprintf(stderr, "\t-t                       Display time elapsed.\n");
 		fprintf(stderr, "\t-s string                Scan string.\n");
@@ -113,6 +114,7 @@ int main(int argc, const char *argv[])
 	buffers = r_array_create(sizeof(rbuffer_t *));
 	pGrep = rex_grep_create();
 	pGrep->greptype = REX_GREPTYPE_SCANLINES;
+	pGrep->usedfa = 1;
 	if (argc <= 1) {
 		usage(argc, argv);
 		goto end;
@@ -177,7 +179,7 @@ int main(int argc, const char *argv[])
 	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-l") == 0) {
 			pGrep->greptype = REX_GREPTYPE_SCANLINES;
-		} else if (strcmp(argv[i], "-m") == 0) {
+		} else if (strcmp(argv[i], "-o") == 0 || strcmp(argv[i], "--only-matching") == 0) {
 			pGrep->greptype = REX_GREPTYPE_MATCH;
 		} else if (strcmp(argv[i], "-q") == 0) {
 			devnull = fopen("/dev/null", "w");
@@ -198,14 +200,16 @@ int main(int argc, const char *argv[])
 	}
 
 	for (i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "-F") == 0) {
-			rexdfaconv_t *conv = rex_dfaconv_create();
-			pGrep->dfa = rex_dfaconv_run(conv, pGrep->nfa, pGrep->lastfrag->start);
-			rex_dfaconv_destroy(conv);
-			pGrep->usedfa = 1;
+		if (strcmp(argv[i], "-N") == 0) {
+			pGrep->usedfa = 0;
 		}
 	}
 
+	if (pGrep->usedfa) {
+		rexdfaconv_t *conv = rex_dfaconv_create();
+		pGrep->dfa = rex_dfaconv_run(conv, pGrep->nfa, pGrep->lastfrag->start);
+		rex_dfaconv_destroy(conv);
+	}
 
 	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-D") == 0) {

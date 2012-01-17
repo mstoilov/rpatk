@@ -126,6 +126,42 @@ static int rex_compiler_getnstok(rexcompiler_t *co)
 	return tok;
 }
 
+#define REX_CONV_BUFSIZE 128
+int rex_compiler_numerictoken(rexcompiler_t *co)
+{
+	char convbuf[REX_CONV_BUFSIZE + 1];
+	int i = 0;
+	int base = 0;
+
+	rex_compiler_gettok(co); /* Eat # */
+	if (co->token == 'x' || co->token == 'X') {
+		rex_compiler_gettok(co);
+		base = 16;
+	} else if (co->token == '0') {
+		rex_compiler_gettok(co);
+		convbuf[i++] = '0';
+		if (co->token == 'x' || co->token == 'X') {
+			rex_compiler_gettok(co);
+			i = 0;
+			base = 16;
+		} else {
+			base = 8;
+		}
+	} else if (!isdigit(co->token)) {
+		return -1;
+	}
+	while ((base == 16 && isxdigit(co->token)) || (base == 8 && isdigit(co->token) && co->token != '8' && co->token != '9') || isdigit(co->token)) {
+		if (i >= REX_CONV_BUFSIZE)
+			return -1;
+		convbuf[i++] = co->token;
+		if (rex_compiler_gettok(co) == REX_TOKEN_EOF)
+			break;
+	}
+	convbuf[i++] = 0;
+	co->numtoken = strtoul(convbuf, NULL, base);
+	return 0;
+}
+
 
 int rex_compiler_charclass(rexcompiler_t *co)
 {
@@ -135,7 +171,7 @@ int rex_compiler_charclass(rexcompiler_t *co)
 	rexfragment_t *frag = rex_fragment_create(co->db);
 
 	FPUSH(co, frag);
-	rex_compiler_getnstok(co);
+	rex_compiler_gettok(co);
 	if (co->token == '^') {
 		negative = 1;
 		rex_compiler_gettok(co);
@@ -144,9 +180,15 @@ int rex_compiler_charclass(rexcompiler_t *co)
 	while (1) {
 		if (co->token == '[' || co->token == ']' || co->token == '-' ||  co->token == REX_TOKEN_EOF)
 			return -1;
-		rex_compiler_adjustescapedtoken(co);
-		high = low = co->token;
-		rex_compiler_gettok(co);
+		if (co->token == '#') {
+			if (rex_compiler_numerictoken(co) < 0)
+				return -1;
+			high = low = co->numtoken;
+		} else {
+			rex_compiler_adjustescapedtoken(co);
+			high = low = co->token;
+			rex_compiler_gettok(co);
+		}
 		if (co->token == '-') {
 			rex_compiler_gettok(co);
 			switch (co->token) {
@@ -158,9 +200,15 @@ int rex_compiler_charclass(rexcompiler_t *co)
 				return -1;
 				break;
 			}
-			rex_compiler_adjustescapedtoken(co);
-			high = co->token;
-			rex_compiler_gettok(co);
+			if (co->token == '#') {
+				if (rex_compiler_numerictoken(co) < 0)
+					return -1;
+				high = co->numtoken;
+			} else {
+				rex_compiler_adjustescapedtoken(co);
+				high = co->token;
+				rex_compiler_gettok(co);
+			}
 		}
 		if (low == high) {
 			rex_fragment_singletransition(frag, low);

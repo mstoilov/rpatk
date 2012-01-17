@@ -38,6 +38,7 @@ typedef struct rexdfaconv_s {
 	rarray_t *setU;
 	rarray_t *setV;
 	rarray_t *trans;
+	rarray_t *temptrans;
 } rexdfaconv_t;
 
 

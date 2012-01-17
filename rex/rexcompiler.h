@@ -27,7 +27,7 @@
 #include "rex/rexstate.h"
 #include "rex/rexdb.h"
 #include "rex/rexfragment.h"
-
+#include "rex/rextransition.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,6 +42,7 @@ typedef struct rexcompiler_s {
 	const char *end;
 	const char *ptr;
 	int token;
+	rexchar_t numtoken;
 	char tokenstr[REX_COMPILER_TOKENSIZE];
 } rexcompiler_t;
 

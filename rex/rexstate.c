@@ -199,8 +199,6 @@ startover:
 				r_array_delete(state->trans, j);
 				goto startover;
 			}
-
-
 		}
 	}
 }
