@@ -90,7 +90,7 @@ long rex_db_findstate(rexdb_t *a, const rarray_t *subset)
 		s = r_array_index(a->states, i, rexstate_t*);
 		if (r_array_length(s->subset) && r_array_length(s->subset) == r_array_length(subset)) {
 			for (j = 0; j < r_array_length(subset); j++) {
-				if (rex_subset_index(s->subset, j) != rex_subset_index(subset, j))
+				if (rex_subset_slot(s->subset, j)->ss_uid != rex_subset_slot(subset, j)->ss_uid)
 					break;
 			}
 			if (j == r_array_length(subset))

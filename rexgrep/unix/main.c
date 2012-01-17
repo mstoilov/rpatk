@@ -199,7 +199,6 @@ int main(int argc, const char *argv[])
 
 	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-F") == 0) {
-			int j;
 			rexdfaconv_t *conv = rex_dfaconv_create();
 			pGrep->dfa = rex_dfaconv_run(conv, pGrep->nfa, pGrep->lastfrag->start);
 			rex_dfaconv_destroy(conv);

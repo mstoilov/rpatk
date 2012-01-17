@@ -101,6 +101,18 @@ rboolean r_hash_strequal(rconstpointer key1, rconstpointer key2)
 }
 
 
+unsigned int r_hash_longhash(rconstpointer key)
+{
+	return (unsigned int)(*((long*)key));
+}
+
+
+rboolean r_hash_longequal(rconstpointer key1, rconstpointer key2)
+{
+	return (*((long*)key1) == *((long*)key2)) ? TRUE : FALSE;
+}
+
+
 unsigned int r_hash_rstrhash(rconstpointer key)
 {
 	const rstr_t *k = (const rstr_t *)key;

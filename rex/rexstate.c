@@ -4,6 +4,32 @@
 #include "rex/rexstate.h"
 
 
+void rex_subset_addnewsubstate(rarray_t *subset, unsigned long ss_uid, unsigned long ss_type, void *ss_userdata)
+{
+	rexsubstate_t *ssptr;
+	rexsubstate_t subst;
+	long min, max, mid;
+
+	min = 0;
+	max = min + r_array_length(subset);
+	while (max > min) {
+		mid = (min + max)/2;
+		ssptr = (rexsubstate_t *)r_array_slot(subset, mid);
+		if (ss_uid == ssptr->ss_uid) {
+			return;
+		} else if (ssptr->ss_uid >= ss_uid) {
+			min = mid + 1;
+		} else {
+			max = mid;
+		}
+	}
+	subst.ss_uid = ss_uid;
+	subst.ss_type = ss_type;
+	subst.ss_userdata = ss_userdata;
+	r_array_insert(subset, min, &subst);
+}
+
+
 void rex_state_cleanup(robject_t *obj)
 {
 	rexstate_t *state = (rexstate_t*) obj;
@@ -22,7 +48,7 @@ robject_t *rex_state_init(robject_t *obj, unsigned int objtype, r_object_cleanup
 	r_object_init(obj, objtype, cleanup, NULL);
 	state->trans = r_array_create(sizeof(rex_transition_t));
 	state->etrans = r_array_create(sizeof(rex_transition_t));
-	state->subset = r_array_create(sizeof(unsigned long));
+	state->subset = r_array_create(sizeof(rexsubstate_t));
 	state->type = statetype;
 	state->uid = uid;
 	return (robject_t*)state;
@@ -186,53 +212,61 @@ void rex_state_addrangetransition_dst(rexstate_t *srcstate, unsigned int c1,  un
 }
 
 
-void rex_state_addsubstate(rexstate_t *state, unsigned long uid)
+void rex_state_addnewsubstate(rexstate_t *state, unsigned long ss_uid, unsigned long ss_type, void *ss_userdata)
 {
-	unsigned long substate;
+	rex_subset_addnewsubstate(state->subset, ss_uid, ss_type, ss_userdata);
+
+#if 0
+	rexsubstate_t *ssptr;
+	rexsubstate_t subst;
 	long min, max, mid;
 
 	min = 0;
 	max = min + r_array_length(state->subset);
 	while (max > min) {
 		mid = (min + max)/2;
-		substate = r_array_index(state->subset, mid, unsigned long);
-		if (uid == substate) {
+		ssptr = (rexsubstate_t *)r_array_slot(state->subset, mid);
+		if (ss_uid == ssptr->ss_uid) {
 			return;
-		} else if (uid >= substate) {
+		} else if (ssptr->ss_uid >= ss_uid) {
 			min = mid + 1;
 		} else {
 			max = mid;
 		}
 	}
-	r_array_insert(state->subset, min, &uid);
+	subst.ss_uid = ss_uid;
+	subst.ss_type = ss_type;
+	subst.ss_userdata = ss_userdata;
+	r_array_insert(state->subset, min, &subst);
+#endif
 }
 
 
-rboolean rex_state_findsubstate(rexstate_t *state, unsigned long uid)
+rexsubstate_t *rex_state_findsubstate(rexstate_t *state, unsigned long ss_uid)
 {
-	unsigned long substate;
+	rexsubstate_t *ssptr;
 	long min, max, mid;
 
 	min = 0;
 	max = min + r_array_length(state->subset);
 	while (max > min) {
 		mid = (min + max)/2;
-		substate = r_array_index(state->subset, mid, unsigned long);
-		if (uid == substate) {
-			return TRUE;
-		} else if (uid >= substate) {
+		ssptr = (rexsubstate_t *)r_array_slot(state->subset, mid);
+		if (ss_uid == ssptr->ss_uid) {
+			return ssptr;
+		} else if (ssptr->ss_uid >= ss_uid) {
 			min = mid + 1;
 		} else {
 			max = mid;
 		}
 	}
-	return FALSE;
+	return NULL;
 }
 
 
-void rex_state_addsubstate_dst(rexstate_t *state, const rexstate_t *dststate)
+void rex_state_addsubstate(rexstate_t *state, const rexstate_t *substate)
 {
-	rex_state_addsubstate(state, dststate->uid);
+	rex_state_addnewsubstate(state, substate->uid, substate->type, substate->userdata);
 }
 
 
@@ -264,10 +298,13 @@ void rex_state_dump(rexstate_t *state)
 	if (!state)
 		return;
 	fprintf(stdout, "State %ld", state->uid);
-	if (r_array_length(state->subset)) {
-		fprintf(stdout, "(");
-		for (index = 0; index < r_array_length(state->subset); index++) {
-			fprintf(stdout, "%ld,", r_array_index(state->subset, index, unsigned long));
+	if (rex_subset_length(state->subset)) {
+		fprintf(stdout, " (");
+		for (index = 0; index < rex_subset_length(state->subset); index++) {
+			fprintf(stdout, "%ld", rex_subset_slot(state->subset, index)->ss_uid);
+			if (rex_subset_slot(state->subset, index)->ss_type == REX_STATETYPE_ACCEPT)
+				fprintf(stdout, "{accept}");
+			fprintf(stdout, ",");
 		}
 		fprintf(stdout, ")");
 	}

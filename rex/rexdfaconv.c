@@ -9,10 +9,9 @@ rexdfaconv_t *rex_dfaconv_create()
 
 	co = (rexdfaconv_t *)r_malloc(sizeof(*co));
 	r_memset(co, 0, sizeof(*co));
-	co->stack = r_array_create(sizeof(unsigned long));
-	co->setT = r_array_create(sizeof(unsigned long));
-	co->setU = r_array_create(sizeof(unsigned long));
-	co->setV = r_array_create(sizeof(unsigned long));
+	co->setT = r_array_create(sizeof(rexsubstate_t));
+	co->setU = r_array_create(sizeof(rexsubstate_t));
+	co->setV = r_array_create(sizeof(rexsubstate_t));
 	co->trans = r_array_create(sizeof(rex_transition_t));
 	return co;
 }
@@ -21,38 +20,12 @@ rexdfaconv_t *rex_dfaconv_create()
 void rex_dfaconv_destroy(rexdfaconv_t *co)
 {
 	if (co) {
-		r_array_destroy(co->stack);
 		r_array_destroy(co->setT);
 		r_array_destroy(co->setU);
 		r_array_destroy(co->setV);
 		r_array_destroy(co->trans);
 	}
 	r_free(co);
-}
-
-
-static void rex_dfaconv_addsubstate(rarray_t *set, unsigned long uid)
-{
-	unsigned long substate;
-	long min, max, mid;
-
-	min = 0;
-	max = min + r_array_length(set);
-	while (max > min) {
-		mid = (min + max)/2;
-		substate = rex_subset_index(set, mid);
-		if (uid == substate) {
-			/*
-			 * We already have it in the subset.
-			 */
-			return;
-		} else if (uid >= substate) {
-			min = mid + 1;
-		} else {
-			max = mid;
-		}
-	}
-	rex_subset_insert(set, min, uid);
 }
 
 
@@ -64,9 +37,10 @@ static long rex_dfaconv_setsubstates(rexstate_t *state, rexdb_t *nfa, rarray_t *
 
 	rex_subset_clear(state->subset);
 	for (i = 0; i < r_array_length(set); i++) {
-		u = rex_subset_index(set, i);
-		rex_dfaconv_addsubstate(state->subset, u);
-		if (rex_db_getstate(nfa, u)->type == REX_STATETYPE_ACCEPT)
+		u = rex_subset_slot(set, i)->ss_uid;
+		s = rex_db_getstate(nfa, u);
+		rex_state_addsubstate(state, s);
+		if (s->type == REX_STATETYPE_ACCEPT)
 			state->type = REX_STATETYPE_ACCEPT;
 	}
 	return rex_subset_length(state->subset);
@@ -86,17 +60,18 @@ static void rex_dfaconv_eclosure(rexdfaconv_t *co, rexdb_t *nfa, const rarray_t 
 	rex_subset_clear(dest);
 	rex_subset_clear(co->setT);
 	for (i = 0; i < r_array_length(src); i++) {
-		uid = r_array_index(src, i, unsigned long);
-		rex_dfaconv_addsubstate(co->setT, uid);
-		rex_dfaconv_addsubstate(dest, uid);
+		uid = rex_subset_slot(src, i)->ss_uid;
+		rex_subset_addnewsubstate(co->setT, uid, REX_STATETYPE_NONE, NULL);
+		rex_subset_addnewsubstate(dest, uid, REX_STATETYPE_NONE, NULL);
 	}
 	while (!r_array_empty(co->setT)) {
-		uid = r_array_pop(co->setT, unsigned long);
+		rexsubstate_t subst = rex_subset_pop(co->setT);
+		uid = subst.ss_uid;
 		s = rex_db_getstate(nfa, uid);
 		for (j = 0; j < r_array_length(s->etrans); j++) {
 			t = (rex_transition_t *)r_array_slot(s->etrans, j);
-			rex_dfaconv_addsubstate(co->setT, t->dstuid);
-			rex_dfaconv_addsubstate(dest, t->dstuid);
+			rex_subset_addnewsubstate(co->setT, t->dstuid, REX_STATETYPE_NONE, NULL);
+			rex_subset_addnewsubstate(dest, t->dstuid, REX_STATETYPE_NONE, NULL);
 		}
 	}
 }
@@ -111,7 +86,7 @@ static void rex_dfaconv_getsubsettransitions(rexdfaconv_t *co, rexdb_t *nfa, rar
 
 	r_array_setlength(trans, 0);
 	for (i = 0; i < r_array_length(states); i++) {
-		uid = rex_subset_index(states, i);
+		uid = rex_subset_slot(states, i)->ss_uid;
 		s = rex_db_getstate(nfa, uid);
 		for (j = 0; j < r_array_length(s->trans); j++) {
 			t = (rex_transition_t *)r_array_slot(s->trans, j);
@@ -130,14 +105,14 @@ static void rex_dfaconv_move(rexdfaconv_t *co, rexdb_t *nfa, const rarray_t *sta
 
 	rex_subset_clear(moveset);
 	for (i = 0; i < r_array_length(states); i++) {
-		uid = rex_subset_index(states, i);
+		uid = rex_subset_slot(states, i)->ss_uid;
 		s = rex_db_getstate(nfa, uid);
 		for (j = 0; j < r_array_length(s->trans); j++) {
 			t = (rex_transition_t *)r_array_slot(s->trans, j);
 			if (t->type == REX_TRANSITION_INPUT && t->lowin == c) {
-				rex_dfaconv_addsubstate(moveset, t->dstuid);
+				rex_subset_addnewsubstate(moveset, t->dstuid, REX_STATETYPE_NONE, NULL);
 			} else if (t->type == REX_TRANSITION_RANGE && t->lowin <= c && t->highin >= c) {
-				rex_dfaconv_addsubstate(moveset, t->dstuid);
+				rex_subset_addnewsubstate(moveset, t->dstuid, REX_STATETYPE_NONE, NULL);
 			}
 		}
 	}

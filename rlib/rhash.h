@@ -66,6 +66,8 @@ rhash_node_t *r_hash_nodetaillookup(rhash_t* hash, rhash_node_t *cur, rconstpoin
 rpointer r_hash_value(rhash_node_t *node);
 unsigned long r_hash_indexval(rhash_node_t *node);
 
+unsigned int r_hash_longhash(rconstpointer key);
+rboolean r_hash_longequal(rconstpointer key1, rconstpointer key2);
 unsigned int r_hash_strhash(rconstpointer key);
 rboolean r_hash_strequal(rconstpointer key1, rconstpointer key2);
 unsigned int r_hash_rstrhash(rconstpointer key);
