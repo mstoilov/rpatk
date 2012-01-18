@@ -98,7 +98,7 @@ static void rex_dfaconv_getsubsettransitions(rexdfaconv_t *co, rexdb_t *nfa, rar
 }
 
 
-static void rex_dfaconv_move(rexdfaconv_t *co, rexdb_t *nfa, const rarray_t *states, unsigned long c1, unsigned long c2, rarray_t *moveset)
+static void rex_dfaconv_move(rexdfaconv_t *co, rexdb_t *nfa, const rarray_t *substates, unsigned long c1, unsigned long c2, rarray_t *moveset)
 {
 	long i, j;
 	long uid;
@@ -106,12 +106,12 @@ static void rex_dfaconv_move(rexdfaconv_t *co, rexdb_t *nfa, const rarray_t *sta
 	rex_transition_t *t;
 
 	rex_subset_clear(moveset);
-	for (i = 0; i < r_array_length(states); i++) {
-		uid = rex_subset_slot(states, i)->ss_uid;
+	for (i = 0; i < r_array_length(substates); i++) {
+		uid = rex_subset_slot(substates, i)->ss_uid;
 		s = rex_db_getstate(nfa, uid);
 		for (j = 0; j < r_array_length(s->trans); j++) {
 			t = (rex_transition_t *)r_array_slot(s->trans, j);
-			if ((c1 >= t->lowin && c1 <= t->highin) || (c2 >= t->lowin && c2 <= t->highin)) {
+			if ((c1 >= t->lowin && c1 <= t->highin)) {
 				rex_subset_addnewsubstate(moveset, t->dstuid, REX_STATETYPE_NONE, NULL);
 			}
 
@@ -144,7 +144,7 @@ static void rex_dfaconv_insertdeadtransitions(rexdfaconv_t *co, rexstate_t *stat
 
 rexdb_t *rex_dfaconv_run(rexdfaconv_t *co, rexdb_t *nfa, unsigned long start)
 {
-	long i, j;
+	long i, j, k;
 	rexdb_t *dfa = rex_db_create(REXDB_TYPE_DFA);
 	rexstate_t *s, *nextstate;
 	rex_transition_t *t;
@@ -158,6 +158,7 @@ rexdb_t *rex_dfaconv_run(rexdfaconv_t *co, rexdb_t *nfa, unsigned long start)
 	for (i = 0; i < r_array_length(dfa->states); i++) {
 		s = r_array_index(dfa->states, i, rexstate_t*);
 		rex_dfaconv_getsubsettransitions(co, nfa, s->subset, co->trans);
+		rex_transitions_dump(co->trans);
 		for (j = 0; j < r_array_length(co->trans); j++) {
 			t = (rex_transition_t *)r_array_slot(co->trans, j);
 			if (t->type != REX_TRANSITION_INPUT && t->type != REX_TRANSITION_RANGE) {
@@ -166,19 +167,18 @@ rexdb_t *rex_dfaconv_run(rexdfaconv_t *co, rexdb_t *nfa, unsigned long start)
 				 */
 				continue;
 			}
-			rex_dfaconv_move(co, nfa, s->subset, t->lowin, t->highin, co->setU);
-			if (!rex_subset_length(co->setU))
-				continue;
-			rex_dfaconv_eclosure(co, nfa, co->setU, co->setV);
-			if ((uid = rex_db_findstate(dfa, co->setV)) < 0) {
-				uid = rex_db_createstate(dfa, REX_STATETYPE_NONE);
-				nextstate = rex_db_getstate(dfa, uid);
-				rex_dfaconv_setsubstates(nextstate, nfa, co->setV);
+			for (k = t->lowin; k <= t->highin; k++) {
+				rex_dfaconv_move(co, nfa, s->subset, k, k, co->setU);
+				if (!rex_subset_length(co->setU))
+					continue;
+				rex_dfaconv_eclosure(co, nfa, co->setU, co->setV);
+				if ((uid = rex_db_findstate(dfa, co->setV)) < 0) {
+					uid = rex_db_createstate(dfa, REX_STATETYPE_NONE);
+					nextstate = rex_db_getstate(dfa, uid);
+					rex_dfaconv_setsubstates(nextstate, nfa, co->setV);
+				}
+				rex_state_addtransition(s, k, uid);
 			}
-			if (t->type == REX_TRANSITION_RANGE)
-				rex_state_addrangetransition(s, t->lowin, t->highin, uid);
-			else
-				rex_state_addtransition(s, t->lowin, uid);
 		}
 		rex_transitions_normalize(s->trans);
 //		rex_dfaconv_insertdeadtransitions(co, s);

@@ -177,3 +177,38 @@ startover:
 		}
 	}
 }
+
+
+void rex_transitions_dump(rarray_t *trans)
+{
+	long index;
+	char buf[240];
+	int bufsize = sizeof(buf) - 1;
+	int n = 0;
+	rex_transition_t *t;
+
+	fprintf(stdout, "Transitions: \n");
+	for (index = 0; index < r_array_length(trans); index++) {
+		t = (rex_transition_t *)r_array_slot(trans, index);
+		n = 0;
+		if (t->type == REX_TRANSITION_EMPTY) {
+			fprintf(stdout, "    epsilon -> %ld\n", t->dstuid);
+		} else if (t->type == REX_TRANSITION_RANGE) {
+			if (isprint(t->lowin) && !isspace(t->lowin) && isprint(t->highin) && !isspace(t->highin))
+				n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "        [%c - %c] ", t->lowin, t->highin);
+			else
+				n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "        [0x%X - 0x%X] ", t->lowin, t->highin);
+		} else {
+			if (isprint(t->lowin) && !isspace(t->lowin))
+				n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "        '%c' ", t->lowin);
+			else
+				n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "        0x%X ", t->lowin);
+		}
+		r_memset(buf + n, ' ', bufsize - n);
+		n = 40;
+		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "-> %ld", t->dstuid);
+		fprintf(stdout, "%s\n", buf);
+	}
+
+	fprintf(stdout, "\n");
+}

@@ -37,7 +37,7 @@ void rex_subset_addnewsubstate(rarray_t *subset, unsigned long ss_uid, unsigned 
 		ssptr = (rexsubstate_t *)r_array_slot(subset, mid);
 		if (ss_uid == ssptr->ss_uid) {
 			return;
-		} else if (ssptr->ss_uid >= ss_uid) {
+		} else if (ss_uid >= ssptr->ss_uid) {
 			min = mid + 1;
 		} else {
 			max = mid;
