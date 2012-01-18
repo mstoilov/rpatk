@@ -28,6 +28,7 @@ rexcompiler_t *rex_compiler_create(rexdb_t *db)
 	r_memset(co, 0, sizeof(*co));
 	co->db = db;
 	co->stack = r_array_create(sizeof(rexfragment_t*));
+	co->temptrans = r_array_create(sizeof(rex_transition_t));
 	return co;
 }
 
@@ -36,6 +37,7 @@ void rex_compiler_destroy(rexcompiler_t *co)
 {
 	if (co) {
 		r_array_destroy(co->stack);
+		r_array_destroy(co->temptrans);
 		r_free(co);
 	}
 
@@ -168,8 +170,13 @@ int rex_compiler_charclass(rexcompiler_t *co)
 	int negative = 0;
 	int low;
 	int high;
+	long i;
+	rex_transition_t *t;
+	rexstate_t *srcstate, *dststate;
 	rexfragment_t *frag = rex_fragment_create(co->db);
 
+	srcstate = rex_fragment_startstate(frag);
+	dststate = rex_fragment_endstate(frag);
 	FPUSH(co, frag);
 	rex_compiler_gettok(co);
 	if (co->token == '^') {
@@ -222,7 +229,19 @@ int rex_compiler_charclass(rexcompiler_t *co)
 			break;
 		}
 	}
-	rex_state_normalizetransitions(rex_fragment_startstate(frag));
+	rex_transitions_normalize(srcstate->trans);
+	if (negative) {
+		r_array_setlength(co->temptrans, 0);
+		rex_transitions_negative(co->temptrans, srcstate->trans, srcstate->uid, dststate->uid);
+		r_array_setlength(srcstate->trans, 0);
+		for (i = 0; i < r_array_length(co->temptrans); i++) {
+			t = (rex_transition_t *)r_array_slot(co->temptrans, i);
+			r_array_add(srcstate->trans, t);
+		}
+		rex_transitions_normalize(srcstate->trans);
+	}
+
+/*
 	if (negative) {
 		int i;
 		rexstate_t *state = rex_fragment_startstate(frag);
@@ -233,22 +252,23 @@ int rex_compiler_charclass(rexcompiler_t *co)
 			t = (rex_transition_t *)r_array_slot(otrans, i);
 			if (i == 0) {
 				if (t->lowin != 0) {
-					rex_state_addrangetransition(state, 0, t->lowin - 1, frag->end);
+					rex_state_addrangetransition(state, 0, t->lowin - 1, t->dstuid);
 				}
 			}
 			if (i > 0){
 				p = (rex_transition_t *)r_array_slot(otrans, i - 1);
-				rex_state_addrangetransition(state, p->highin + 1, t->lowin - 1, frag->end);
+				rex_state_addrangetransition(state, p->highin + 1, t->lowin - 1, t->dstuid);
 			}
 			if (i == r_array_length(otrans) - 1) {
 				if (t->highin != REX_CHAR_MAX)
-					rex_state_addrangetransition(state, t->highin + 1, REX_CHAR_MAX, frag->end);
+					rex_state_addrangetransition(state, t->highin + 1, REX_CHAR_MAX, t->dstuid);
 			}
 
 		}
 		r_array_destroy(otrans);
-		rex_state_normalizetransitions(rex_fragment_startstate(frag));
+		rex_transitions_normalize(rex_fragment_startstate(frag)->trans);
 	}
+*/
 	return 0;
 }
 
@@ -272,7 +292,7 @@ static int rex_compiler_factor(rexcompiler_t *co)
 		frag = rex_fragment_create(co->db);
 		rex_fragment_rangetransition(frag, 0, '\n' - 1);
 		rex_fragment_rangetransition(frag, '\n' + 1, (unsigned int)-1);
-		rex_state_normalizetransitions(rex_fragment_startstate(frag));
+		rex_transitions_normalize(rex_fragment_startstate(frag)->trans);
 		FPUSH(co, frag);
 		rex_compiler_getnstok(co);
 		return 0;

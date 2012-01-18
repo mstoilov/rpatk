@@ -25,6 +25,7 @@ REX_OBJECTS =	\
 	$(OUTDIR)/rexfragment.o \
 	$(OUTDIR)/rexnfasimulator.o \
 	$(OUTDIR)/rexdfaconv.o \
+	$(OUTDIR)/rextransition.o \
 	$(OUTDIR)/rexstate.o
 
 

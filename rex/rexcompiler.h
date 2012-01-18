@@ -38,6 +38,7 @@ extern "C" {
 typedef struct rexcompiler_s {
 	rexdb_t *db;
 	rarray_t *stack;
+	rarray_t *temptrans;
 	const char *start;
 	const char *end;
 	const char *ptr;

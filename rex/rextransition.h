@@ -32,6 +32,8 @@
 #ifndef _REXTRANSITION_H_
 #define _REXTRANSITION_H_
 
+#include "rlib/rarray.h"
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -62,6 +64,12 @@ typedef struct rex_transition_s {
 	unsigned long dstuid;
 } rex_transition_t;
 
+
+void rex_transitions_add(rarray_t *trans, rexchar_t c1, rexchar_t c2, unsigned long srcuid, unsigned long dstuid);
+void rex_transitions_add_e(rarray_t *etrans, unsigned long srcuid, unsigned long dstuid);
+void rex_transitions_normalize(rarray_t *trans);
+void rex_transitions_negative(rarray_t *dtrans, rarray_t *strans, unsigned long srcuid, unsigned long dstuid);
+rex_transition_t *rex_transitions_find(rarray_t *trans, rexchar_t c);
 
 #ifdef __cplusplus
 }

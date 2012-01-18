@@ -1,5 +1,25 @@
+/*
+ *  Regular Pattern Analyzer (RPA)
+ *  Copyright (c) 2009-2010 Martin Stoilov
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  Martin Stoilov <martin@rpasearch.com>
+ */
 #include <stdio.h>
 #include <ctype.h>
+#include "rlib/rmem.h"
 #include "rex/rextransition.h"
 #include "rex/rexstate.h"
 
@@ -72,14 +92,7 @@ void rex_state_destroy(rexstate_t *state)
 
 void rex_state_addtransition_e(rexstate_t *state, unsigned long dstuid)
 {
-	rex_transition_t ntrans;
-
-	ntrans.lowin = 0;
-	ntrans.highin = 0;
-	ntrans.type = REX_TRANSITION_EMPTY;
-	ntrans.dstuid = dstuid;
-	ntrans.srcuid = state->uid;
-	r_array_add(state->etrans, &ntrans);
+	rex_transitions_add_e(state->etrans, state->uid, dstuid);
 }
 
 
@@ -89,87 +102,50 @@ void rex_state_addtransition_e_dst(rexstate_t *srcstate, const rexstate_t *dstst
 }
 
 
-void rex_state_addtransition(rexstate_t *state, unsigned int c, unsigned long dstuid)
+void rex_state_addtransition(rexstate_t *state, rexchar_t c, unsigned long dstuid)
 {
-	rex_transition_t *t;
-	rex_transition_t ntrans;
-	long min, max, mid;
-
-	ntrans.lowin = c;
-	ntrans.highin = c;
-	ntrans.type = REX_TRANSITION_INPUT;
-	ntrans.dstuid = dstuid;
-	ntrans.srcuid = state->uid;
-	min = 0;
-	max = min + r_array_length(state->trans);
-	while (max > min) {
-		mid = (min + max)/2;
-		t = (rex_transition_t *)r_array_slot(state->trans, mid);
-		if (c >= t->lowin) {
-			min = mid + 1;
-		} else {
-			max = mid;
-		}
-	}
-	r_array_insert(state->trans, min, &ntrans);
+	rex_transitions_add(state->trans, c, c, state->uid, dstuid);
 }
 
 
-void rex_state_addtransition_dst(rexstate_t *srcstate, unsigned long c, const rexstate_t *dststate)
+void rex_state_addtransition_dst(rexstate_t *srcstate, rexchar_t c, const rexstate_t *dststate)
 {
 	rex_state_addtransition(srcstate, c, dststate->uid);
 }
 
 
-void rex_state_addrangetransition(rexstate_t *state, unsigned int c1,  unsigned int c2, unsigned long dstuid)
+void rex_state_addrangetransition(rexstate_t *state, rexchar_t c1, rexchar_t c2, unsigned long dstuid)
 {
-	rex_transition_t *t;
-	rex_transition_t ntrans;
-	long min, max, mid;
-
-	if (c1 < c2) {
-		ntrans.lowin = c1;
-		ntrans.highin = c2;
-	} else {
-		ntrans.lowin = c2;
-		ntrans.highin = c1;
-	}
-	ntrans.type = REX_TRANSITION_RANGE;
-	ntrans.dstuid = dstuid;
-	ntrans.srcuid = state->uid;
-	min = 0;
-	max = min + r_array_length(state->trans);
-	while (max > min) {
-		mid = (min + max)/2;
-		t = (rex_transition_t *)r_array_slot(state->trans, mid);
-		if (c1 >= t->lowin) {
-			min = mid + 1;
-		} else {
-			max = mid;
-		}
-	}
-	r_array_insert(state->trans, min, &ntrans);
+	rex_transitions_add(state->trans, c1, c2, state->uid, dstuid);
 }
 
 
+void rex_state_addrangetransition_dst(rexstate_t *srcstate, rexchar_t c1,  rexchar_t c2, const rexstate_t *dststate)
+{
+	rex_state_addrangetransition(srcstate, c1, c2, dststate->uid);
+}
+
+
+#if 0
 void rex_state_normalizetransitions(rexstate_t *state)
 {
 	long i, j;
 	rex_transition_t *itrans, *jtrans;
+	rarray_t *trans = state->trans;
 
 startover:
-	for (i = 0; i < r_array_length(state->trans); i++) {
-		itrans = (rex_transition_t *)r_array_slot(state->trans, i);
+	for (i = 0; i < r_array_length(trans); i++) {
+		itrans = (rex_transition_t *)r_array_slot(trans, i);
 		if (itrans->lowin == itrans->highin)
 			itrans->type = REX_TRANSITION_INPUT;
-		for (j = 0; j < r_array_length(state->trans); j++) {
+		for (j = 0; j < r_array_length(trans); j++) {
 			if (i == j) {
 				/*
 				 * Same transition.
 				 */
 				continue;
 			}
-			jtrans = (rex_transition_t *)r_array_slot(state->trans, j);
+			jtrans = (rex_transition_t *)r_array_slot(trans, j);
 			if (itrans->dstuid != jtrans->dstuid) {
 				/*
 				 * These two can never be merged.
@@ -185,7 +161,7 @@ startover:
 					itrans->highin = jtrans->highin;
 				if (itrans->lowin != itrans->highin)
 					itrans->type = REX_TRANSITION_RANGE;
-				r_array_delete(state->trans, j);
+				r_array_delete(trans, j);
 				goto startover;
 			}
 			if (itrans->highin != REX_CHAR_MAX && jtrans->lowin == itrans->highin + 1) {
@@ -196,47 +172,18 @@ startover:
 				itrans->highin = jtrans->highin;
 				if (itrans->lowin != itrans->highin)
 					itrans->type = REX_TRANSITION_RANGE;
-				r_array_delete(state->trans, j);
+				r_array_delete(trans, j);
 				goto startover;
 			}
 		}
 	}
 }
-
-
-void rex_state_addrangetransition_dst(rexstate_t *srcstate, unsigned int c1,  unsigned int c2, const rexstate_t *dststate)
-{
-	rex_state_addrangetransition(srcstate, c1, c2, dststate->uid);
-}
+#endif
 
 
 void rex_state_addnewsubstate(rexstate_t *state, unsigned long ss_uid, unsigned long ss_type, void *ss_userdata)
 {
 	rex_subset_addnewsubstate(state->subset, ss_uid, ss_type, ss_userdata);
-
-#if 0
-	rexsubstate_t *ssptr;
-	rexsubstate_t subst;
-	long min, max, mid;
-
-	min = 0;
-	max = min + r_array_length(state->subset);
-	while (max > min) {
-		mid = (min + max)/2;
-		ssptr = (rexsubstate_t *)r_array_slot(state->subset, mid);
-		if (ss_uid == ssptr->ss_uid) {
-			return;
-		} else if (ssptr->ss_uid >= ss_uid) {
-			min = mid + 1;
-		} else {
-			max = mid;
-		}
-	}
-	subst.ss_uid = ss_uid;
-	subst.ss_type = ss_type;
-	subst.ss_userdata = ss_userdata;
-	r_array_insert(state->subset, min, &subst);
-#endif
 }
 
 
@@ -291,6 +238,9 @@ long rex_state_next(rexstate_t *state, unsigned long input)
 void rex_state_dump(rexstate_t *state)
 {
 	long index;
+	char buf[240];
+	int bufsize = sizeof(buf) - 1;
+	int n = 0;
 	rex_transition_t *t;
 
 	if (!state)
@@ -327,19 +277,24 @@ void rex_state_dump(rexstate_t *state)
 	}
 	for (index = 0; index < r_array_length(state->trans); index++) {
 		t = (rex_transition_t *)r_array_slot(state->trans, index);
+		n = 0;
 		if (t->type == REX_TRANSITION_EMPTY) {
 			fprintf(stdout, "    epsilon -> %ld\n", t->dstuid);
 		} else if (t->type == REX_TRANSITION_RANGE) {
 			if (isprint(t->lowin) && !isspace(t->lowin) && isprint(t->highin) && !isspace(t->highin))
-				fprintf(stdout, "    [%c - %c] -> %ld\n", t->lowin, t->highin, t->dstuid);
+				n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "        [%c - %c] ", t->lowin, t->highin);
 			else
-				fprintf(stdout, " [%x - %x] -> %ld\n", t->lowin, t->highin, t->dstuid);
+				n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "        [0x%X - 0x%X] ", t->lowin, t->highin);
 		} else {
 			if (isprint(t->lowin) && !isspace(t->lowin))
-				fprintf(stdout, "        '%c' -> %ld\n", t->lowin, t->dstuid);
+				n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "        '%c' ", t->lowin);
 			else
-				fprintf(stdout, "          %x -> %ld\n", t->lowin, t->dstuid);
+				n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "        0x%X ", t->lowin);
 		}
+		r_memset(buf + n, ' ', bufsize - n);
+		n = 40;
+		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "-> %ld", t->dstuid);
+		fprintf(stdout, "%s\n", buf);
 	}
 	if (!r_array_length(state->etrans) && !r_array_length(state->trans))
 		fprintf(stdout, "        (none)\n");

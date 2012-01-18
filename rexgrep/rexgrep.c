@@ -94,9 +94,9 @@ int rex_grep_load_pattern(rexgrep_t *pGrep, rbuffer_t *buf)
 }
 
 
-int rex_grep_matchdfa(rexgrep_t *pGrep, const char* input, const char *end)
+int rex_grep_matchdfa(rexgrep_t *pGrep, unsigned long startuid, const char* input, const char *end)
 {
-	int inc, i;
+	int inc = 0, i;
 	ruint32 wc;
 	long next;
 	rexstate_t *s;
@@ -105,16 +105,25 @@ int rex_grep_matchdfa(rexgrep_t *pGrep, const char* input, const char *end)
 	const char *start = input;
 	int accinput = 0;
 
-	for (inc = 0, next = 1; next != 0;) {
+	next = startuid;
+	while (next) {
 		input += inc;
 		s = rex_db_getstate(db, next);
 		if (!s)
 			break;
 		if (s->type == REX_STATETYPE_ACCEPT)
 			accinput = input - start;
+		else if (s->type == REX_STATETYPE_DEAD)
+			break;
 		next = 0;
 		if ((inc = r_utf8_mbtowc(&wc, (const unsigned char*)input, (const unsigned char*)end)) <= 0)
 			break;
+
+//		t = rex_transitions_find(s->trans, wc);
+//		if (!t)
+//			break;
+//		next = t->dstuid;
+
 		for (i = 0; i < r_array_length(s->trans); i++) {
 			t = (rex_transition_t *)r_array_slot(s->trans, i);
 			if ((t->type == REX_TRANSITION_INPUT && t->lowin == wc) || (t->type == REX_TRANSITION_RANGE && t->lowin <=  wc && wc <= t->highin)) {
@@ -134,7 +143,7 @@ int rex_grep_match(rexgrep_t *pGrep, const char* input, const char *end)
 	rexdb_t *db;
 
 	if (pGrep->usedfa)
-		return rex_grep_matchdfa(pGrep, input, end);
+		return rex_grep_matchdfa(pGrep, 1, input, end);
 
 	if (!pGrep->lastfrag) {
 
