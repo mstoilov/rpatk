@@ -46,8 +46,7 @@ typedef unsigned int rexchar_t;
 
 typedef enum {
 	REX_TRANSITION_INPUT = 0,
-	REX_TRANSITION_RANGE = 1,
-	REX_TRANSITION_EMPTY = 2
+	REX_TRANSITION_EMPTY = 1
 } rex_transitiontype_t;
 
 

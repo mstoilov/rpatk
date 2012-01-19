@@ -280,7 +280,7 @@ void rex_state_dump(rexstate_t *state)
 		n = 0;
 		if (t->type == REX_TRANSITION_EMPTY) {
 			fprintf(stdout, "    epsilon -> %ld\n", t->dstuid);
-		} else if (t->type == REX_TRANSITION_RANGE) {
+		} else if (t->lowin != t->highin) {
 			if (isprint(t->lowin) && !isspace(t->lowin) && isprint(t->highin) && !isspace(t->highin))
 				n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "        [%c - %c] ", t->lowin, t->highin);
 			else

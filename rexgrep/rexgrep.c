@@ -126,7 +126,7 @@ int rex_grep_matchdfa(rexgrep_t *pGrep, unsigned long startuid, const char* inpu
 
 		for (i = 0; i < r_array_length(s->trans); i++) {
 			t = (rex_transition_t *)r_array_slot(s->trans, i);
-			if ((t->type == REX_TRANSITION_INPUT && t->lowin == wc) || (t->type == REX_TRANSITION_RANGE && t->lowin <=  wc && wc <= t->highin)) {
+			if (t->lowin <=  wc && wc <= t->highin) {
 				next = t->dstuid;
 			}
 		}

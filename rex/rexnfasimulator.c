@@ -109,7 +109,7 @@ long rex_nfasimulator_run(rex_nfasimulator_t *si, rexdb_t *a, long uid, const ch
 			s = rex_db_getstate(a, suid);
 			for (i = 0; i < r_array_length(s->trans); i++) {
 				t = (rex_transition_t *)r_array_slot(s->trans, i);
-				if ((t->type == REX_TRANSITION_INPUT && t->lowin == wc) || (t->type == REX_TRANSITION_RANGE && t->lowin <=  wc && wc <= t->highin)) {
+				if (t->lowin <=  wc && wc <= t->highin) {
 					mapval = r_array_index(si->onmap, t->dstuid, rboolean);
 					if (mapval == 0)
 						rex_nfasimulator_addstate(si, a, t->dstuid);
@@ -176,7 +176,7 @@ long rex_nfasimulator_next(rex_nfasimulator_t *si, rexdb_t *db, ruint32 wc, int 
 		s = rex_db_getstate(db, suid);
 		for (i = 0; i < r_array_length(s->trans); i++) {
 			t = (rex_transition_t *)r_array_slot(s->trans, i);
-			if ((t->type == REX_TRANSITION_INPUT && t->lowin == wc) || (t->type == REX_TRANSITION_RANGE && t->lowin <=  wc && wc <= t->highin)) {
+			if (t->lowin <=  wc && wc <= t->highin) {
 				mapval = r_array_index(si->onmap, t->dstuid, rboolean);
 				if (mapval == 0)
 					rex_nfasimulator_addstate(si, db, t->dstuid);

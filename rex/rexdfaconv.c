@@ -161,7 +161,7 @@ rexdb_t *rex_dfaconv_run(rexdfaconv_t *co, rexdb_t *nfa, unsigned long start)
 		rex_transitions_dump(co->trans);
 		for (j = 0; j < r_array_length(co->trans); j++) {
 			t = (rex_transition_t *)r_array_slot(co->trans, j);
-			if (t->type != REX_TRANSITION_INPUT && t->type != REX_TRANSITION_RANGE) {
+			if (t->type != REX_TRANSITION_INPUT) {
 				/*
 				 * Error. This should never happen!
 				 */

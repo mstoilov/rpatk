@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include "rlib/rmem.h"
+#include "rlib/rstring.h"
 #include "rex/rextransition.h"
 
 
@@ -73,7 +74,7 @@ void rex_transitions_add(rarray_t *trans, rexchar_t c1, rexchar_t c2, unsigned l
 		ntrans.lowin = c2;
 		ntrans.highin = c1;
 	}
-	ntrans.type = (c1 == c2) ? REX_TRANSITION_INPUT : REX_TRANSITION_RANGE;
+	ntrans.type = REX_TRANSITION_INPUT;
 	ntrans.dstuid = dstuid;
 	ntrans.srcuid = srcuid;
 	min = 0;
@@ -158,8 +159,6 @@ startover:
 				 */
 				if (jtrans->highin > itrans->highin)
 					itrans->highin = jtrans->highin;
-				if (itrans->lowin != itrans->highin)
-					itrans->type = REX_TRANSITION_RANGE;
 				r_array_delete(trans, j);
 				goto startover;
 			}
@@ -169,8 +168,6 @@ startover:
 				 * Merge jtrans into itrans and delete jtrans.
 				 */
 				itrans->highin = jtrans->highin;
-				if (itrans->lowin != itrans->highin)
-					itrans->type = REX_TRANSITION_RANGE;
 				r_array_delete(trans, j);
 				goto startover;
 			}
@@ -193,7 +190,7 @@ void rex_transitions_dump(rarray_t *trans)
 		n = 0;
 		if (t->type == REX_TRANSITION_EMPTY) {
 			fprintf(stdout, "    epsilon -> %ld\n", t->dstuid);
-		} else if (t->type == REX_TRANSITION_RANGE) {
+		} else if (t->lowin != t->highin) {
 			if (isprint(t->lowin) && !isspace(t->lowin) && isprint(t->highin) && !isspace(t->highin))
 				n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "        [%c - %c] ", t->lowin, t->highin);
 			else
