@@ -54,7 +54,9 @@ rex_transition_t *rex_transitions_find(rarray_t *trans, rexchar_t c)
 			max = mid;
 		}
 	}
-
+	if (min > 0)
+		--min;
+	t = (rex_transition_t *)r_array_slot(trans, min);
 	if (c >= t->lowin && c <= t->highin)
 		return t;
 	return NULL;
@@ -240,6 +242,19 @@ startover:
 				goto startover;
 			}
 		}
+	}
+}
+
+
+void rex_transitions_renamedestination(rarray_t *trans, long dstold, long dstnew)
+{
+	long index;
+	rex_transition_t *t;
+
+	for (index = 0; index < r_array_length(trans); index++) {
+		t = (rex_transition_t *)r_array_slot(trans, index);
+		if (t->dstuid == dstold)
+			t->dstuid = dstnew;
 	}
 }
 

@@ -119,17 +119,17 @@ int rex_grep_matchdfa(rexgrep_t *pGrep, unsigned long startuid, const char* inpu
 		if ((inc = r_utf8_mbtowc(&wc, (const unsigned char*)input, (const unsigned char*)end)) <= 0)
 			break;
 
-//		t = rex_transitions_find(s->trans, wc);
-//		if (!t)
-//			break;
-//		next = t->dstuid;
+		t = rex_transitions_find(s->trans, wc);
+		if (!t)
+			break;
+		next = t->dstuid;
 
-		for (i = 0; i < r_array_length(s->trans); i++) {
-			t = (rex_transition_t *)r_array_slot(s->trans, i);
-			if (t->lowin <=  wc && wc <= t->highin) {
-				next = t->dstuid;
-			}
-		}
+//		for (i = 0; i < r_array_length(s->trans); i++) {
+//			t = (rex_transition_t *)r_array_slot(s->trans, i);
+//			if (t->lowin <=  wc && wc <= t->highin) {
+//				next = t->dstuid;
+//			}
+//		}
 	}
 	return accinput;
 }

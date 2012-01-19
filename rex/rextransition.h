@@ -70,6 +70,7 @@ void rex_transitions_normalize(rarray_t *trans);
 void rex_transitions_uniqueranges(rarray_t *dest, rarray_t *src);
 void rex_transitions_negative(rarray_t *dtrans, rarray_t *strans, unsigned long srcuid, unsigned long dstuid);
 rex_transition_t *rex_transitions_find(rarray_t *trans, rexchar_t c);
+void rex_transitions_renamedestination(rarray_t *trans, long dstold, long dstnew);
 void rex_transitions_dump(rarray_t *trans);
 
 #ifdef __cplusplus

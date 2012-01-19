@@ -238,35 +238,6 @@ int rex_compiler_charclass(rexcompiler_t *co)
 		}
 		rex_transitions_normalize(srcstate->trans);
 	}
-
-/*
-	if (negative) {
-		int i;
-		rexstate_t *state = rex_fragment_startstate(frag);
-		rarray_t *otrans = state->trans;
-		rex_transition_t *t, *p;
-		state->trans = r_array_create(sizeof(rex_transition_t));
-		for (i = 0; i < r_array_length(otrans); i++) {
-			t = (rex_transition_t *)r_array_slot(otrans, i);
-			if (i == 0) {
-				if (t->lowin != 0) {
-					rex_state_addtransition(state, 0, t->lowin - 1, t->dstuid);
-				}
-			}
-			if (i > 0){
-				p = (rex_transition_t *)r_array_slot(otrans, i - 1);
-				rex_state_addtransition(state, p->highin + 1, t->lowin - 1, t->dstuid);
-			}
-			if (i == r_array_length(otrans) - 1) {
-				if (t->highin != REX_CHAR_MAX)
-					rex_state_addtransition(state, t->highin + 1, REX_CHAR_MAX, t->dstuid);
-			}
-
-		}
-		r_array_destroy(otrans);
-		rex_transitions_normalize(rex_fragment_startstate(frag)->trans);
-	}
-*/
 	return 0;
 }
 
@@ -403,7 +374,6 @@ static int rex_compiler_altexpression(rexcompiler_t *co)
 	}
 	return 0;
 }
-
 
 
 rexfragment_t *rex_compiler_expression(rexcompiler_t *co, const char *str, unsigned int size, void *accdata)

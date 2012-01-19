@@ -161,6 +161,32 @@ int rex_db_simulate_nfa(rexdb_t *rexdb, long uid, const char *str, const char *e
 }
 
 
+void rex_db_optimizeonepsilon(rexdb_t *rexdb)
+{
+	long i, j;
+	long e_dstuid, srcuid;
+	rexstate_t *state;
+	rex_transition_t *t;
+
+	for (i = 0; i < r_array_length(rexdb->states); i++) {
+		state = rex_db_getstate(rexdb, i);
+		if (r_array_length(state->etrans) == 1 && r_array_length(state->trans) == 0 && state->type == REX_STATETYPE_NONE) {
+			srcuid = state->uid;
+			t = (rex_transition_t *)r_array_slot(state->etrans, 0);
+			srcuid = t->srcuid;
+			e_dstuid = t->dstuid;
+			r_array_setlength(state->etrans, 0);
+			state->type = REX_STATETYPE_ZOMBIE;
+			for (j = 0; j < r_array_length(rexdb->states); j++) {
+				state = rex_db_getstate(rexdb, j);
+				rex_transitions_renamedestination(state->trans, srcuid, e_dstuid);
+				rex_transitions_renamedestination(state->etrans, srcuid, e_dstuid);
+			}
+		}
+	}
+}
+
+
 const char *rex_db_version()
 {
 	return "1.0";

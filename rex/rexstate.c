@@ -198,6 +198,8 @@ void rex_state_dump(rexstate_t *state)
 		fprintf(stdout, " REX_STATETYPE_DEAD ");
 	} else if (state->type == REX_STATETYPE_START) {
 		fprintf(stdout, " REX_STATETYPE_START ");
+	} else if (state->type == REX_STATETYPE_ZOMBIE) {
+		fprintf(stdout, " REX_STATETYPE_ZOMBIE ");
 	}
 	fprintf(stdout, "\n");
 
