@@ -218,9 +218,9 @@ int rex_compiler_charclass(rexcompiler_t *co)
 			}
 		}
 		if (low <= high) {
-			rex_fragment_rangetransition(frag, low, high);
+			rex_fragment_transition(frag, low, high);
 		} else {
-			rex_fragment_rangetransition(frag, high, low);
+			rex_fragment_transition(frag, high, low);
 		}
 		if (co->token == ']') {
 			rex_compiler_getnstok(co); /* eat it */
@@ -250,16 +250,16 @@ int rex_compiler_charclass(rexcompiler_t *co)
 			t = (rex_transition_t *)r_array_slot(otrans, i);
 			if (i == 0) {
 				if (t->lowin != 0) {
-					rex_state_addrangetransition(state, 0, t->lowin - 1, t->dstuid);
+					rex_state_addtransition(state, 0, t->lowin - 1, t->dstuid);
 				}
 			}
 			if (i > 0){
 				p = (rex_transition_t *)r_array_slot(otrans, i - 1);
-				rex_state_addrangetransition(state, p->highin + 1, t->lowin - 1, t->dstuid);
+				rex_state_addtransition(state, p->highin + 1, t->lowin - 1, t->dstuid);
 			}
 			if (i == r_array_length(otrans) - 1) {
 				if (t->highin != REX_CHAR_MAX)
-					rex_state_addrangetransition(state, t->highin + 1, REX_CHAR_MAX, t->dstuid);
+					rex_state_addtransition(state, t->highin + 1, REX_CHAR_MAX, t->dstuid);
 			}
 
 		}
@@ -288,8 +288,8 @@ static int rex_compiler_factor(rexcompiler_t *co)
 	} else if (co->token == '.') {
 		rexfragment_t *frag;
 		frag = rex_fragment_create(co->db);
-		rex_fragment_rangetransition(frag, 0, '\n' - 1);
-		rex_fragment_rangetransition(frag, '\n' + 1, REX_CHAR_MAX);
+		rex_fragment_transition(frag, 0, '\n' - 1);
+		rex_fragment_transition(frag, '\n' + 1, REX_CHAR_MAX);
 		rex_transitions_normalize(rex_fragment_startstate(frag)->trans);
 		FPUSH(co, frag);
 		rex_compiler_getnstok(co);
@@ -297,7 +297,7 @@ static int rex_compiler_factor(rexcompiler_t *co)
 	} else {
 		rexfragment_t *frag;
 		rex_compiler_adjustescapedtoken(co);
-		frag = rex_fragment_create_rangetransition(co->db, co->token, co->token);
+		frag = rex_fragment_create_transition(co->db, co->token, co->token);
 		FPUSH(co, frag);
 		rex_compiler_getnstok(co);
 		return 0;

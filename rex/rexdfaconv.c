@@ -111,16 +111,9 @@ static void rex_dfaconv_move(rexdfaconv_t *co, rexdb_t *nfa, const rarray_t *sub
 		s = rex_db_getstate(nfa, uid);
 		for (j = 0; j < r_array_length(s->trans); j++) {
 			t = (rex_transition_t *)r_array_slot(s->trans, j);
-			if ((c1 >= t->lowin && c1 <= t->highin)) {
+			if ((c1 >= t->lowin && c2 <= t->highin)) {
 				rex_subset_addnewsubstate(moveset, t->dstuid, REX_STATETYPE_NONE, NULL);
 			}
-
-
-//			if (t->type == REX_TRANSITION_INPUT && t->lowin == c1) {
-//				rex_subset_addnewsubstate(moveset, t->dstuid, REX_STATETYPE_NONE, NULL);
-//			} else if (t->type == REX_TRANSITION_RANGE && t->lowin <= c1 && t->highin >= c1) {
-//				rex_subset_addnewsubstate(moveset, t->dstuid, REX_STATETYPE_NONE, NULL);
-//			}
 		}
 	}
 }
@@ -171,7 +164,7 @@ rexdb_t *rex_dfaconv_run(rexdfaconv_t *co, rexdb_t *nfa, unsigned long start)
 					nextstate = rex_db_getstate(dfa, uid);
 					rex_dfaconv_setsubstates(nextstate, nfa, co->setV);
 				}
-				rex_state_addrangetransition(s, k, k, uid);
+				rex_state_addtransition(s, k, k, uid);
 			}
 		}
 		rex_transitions_normalize(s->trans);

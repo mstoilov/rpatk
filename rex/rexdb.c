@@ -30,7 +30,7 @@ robject_t *rex_db_init(robject_t *obj, unsigned int objtype, r_object_cleanupfun
 		 * Create the dead state.
 		 */
 		long uid = rex_db_createstate(rexdb , REX_STATETYPE_DEAD);
-		rex_state_addrangetransition(rex_db_getstate(rexdb, uid), 0, REX_CHAR_MAX, uid);
+		rex_state_addtransition(rex_db_getstate(rexdb, uid), 0, REX_CHAR_MAX, uid);
 	}
 	return (robject_t*)rexdb;
 }
@@ -101,13 +101,13 @@ long rex_db_findstate(rexdb_t *a, const rarray_t *subset)
 }
 
 
-int rex_db_addrangetrasition(rexdb_t *rexdb, unsigned int c1, unsigned int c2, unsigned long srcuid, unsigned long dstuid)
+int rex_db_addrangetrasition(rexdb_t *rexdb, rexchar_t c1, rexchar_t c2, unsigned long srcuid, unsigned long dstuid)
 {
 	rexstate_t *s = rex_db_getstate(rexdb, srcuid);
 
 	if (s == NULL)
 		return -1;
-	rex_state_addrangetransition(s, c1, c2, dstuid);
+	rex_state_addtransition(s, c1, c2, dstuid);
 	return 0;
 }
 

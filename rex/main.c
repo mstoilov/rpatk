@@ -44,12 +44,12 @@ static void init_ababb(rexdb_t *nfa)
 	rex_state_addtransition_e_dst(s5, s6);
 	rex_state_addtransition_e_dst(s6, s7);
 
-	rex_state_addrangetransition_dst(s2, 'a', 'a', s3);
-//	rex_state_addrangetransition_dst(s4, 'b', 'z', s5);
-	rex_state_addrangetransition_dst(s4, 'b', 'b', s5);
-	rex_state_addrangetransition_dst(s7, 'a', 'a', s8);
-	rex_state_addrangetransition_dst(s8, 'b', 'b', s9);
-	rex_state_addrangetransition_dst(s9, 'b', 'b', s10);
+	rex_state_addtransition_dst(s2, 'a', 'a', s3);
+//	rex_state_addtransition_dst(s4, 'b', 'z', s5);
+	rex_state_addtransition_dst(s4, 'b', 'b', s5);
+	rex_state_addtransition_dst(s7, 'a', 'a', s8);
+	rex_state_addtransition_dst(s8, 'b', 'b', s9);
+	rex_state_addtransition_dst(s9, 'b', 'b', s10);
 
 }
 

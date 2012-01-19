@@ -54,7 +54,7 @@ long rex_db_createstate(rexdb_t *rexdb, rex_statetype_t type);
 long rex_db_insertstate(rexdb_t *rexdb, rexstate_t *s);
 long rex_db_findstate(rexdb_t *a, const rarray_t *subset);
 rexstate_t *rex_db_getstate(rexdb_t *rexdb, long uid);
-int rex_db_addrangetrasition(rexdb_t *rexdb, unsigned int c1, unsigned int c2, unsigned long srcuid, unsigned long dstuid);
+int rex_db_addrangetrasition(rexdb_t *rexdb, rexchar_t c1, rexchar_t c2, unsigned long srcuid, unsigned long dstuid);
 int rex_db_addtrasition_e(rexdb_t *rexdb, unsigned long srcuid, unsigned long dstuid);
 int rex_db_simulate_nfa(rexdb_t *rexdb, long uid, const char *str, const char *end);
 int rex_db_simulate_nfa2(rexdb_t *a, long uid, const char *str, const char *end);

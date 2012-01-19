@@ -40,9 +40,9 @@ typedef struct rexfragment_s {
 
 void rex_fragment_init(rexfragment_t *frag, rexdb_t *rexdb);
 rexfragment_t *rex_fragment_create(rexdb_t *rexdb);
-rexfragment_t *rex_fragment_create_rangetransition(rexdb_t *rexdb, unsigned int c1, unsigned int c2);
+rexfragment_t *rex_fragment_create_transition(rexdb_t *rexdb, rexchar_t c1, rexchar_t c2);
 void rex_fragment_destroy(rexfragment_t *frag);
-void rex_fragment_rangetransition(rexfragment_t *frag, unsigned int c1, unsigned int c2);
+void rex_fragment_transition(rexfragment_t *frag, rexchar_t c1, rexchar_t c2);
 void rex_fragment_set_startstatetype(rexfragment_t *frag, rex_statetype_t statetype);
 void rex_fragment_set_endstatetype(rexfragment_t *frag, rex_statetype_t statetype);
 rexstate_t *rex_fragment_startstate(rexfragment_t *frag);

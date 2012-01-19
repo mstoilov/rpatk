@@ -68,8 +68,8 @@ void rex_state_destroy(rexstate_t *state);
 void rex_state_addtransition_e_dst(rexstate_t *srcstate, const rexstate_t *dststate);
 void rex_state_addtransition_e(rexstate_t *state, unsigned long dstuid);
 
-void rex_state_addrangetransition(rexstate_t *state, rexchar_t c1, rexchar_t c2, unsigned long dstuid);
-void rex_state_addrangetransition_dst(rexstate_t *srcstate, rexchar_t c1, rexchar_t c2, const rexstate_t *dststate);
+void rex_state_addtransition(rexstate_t *state, rexchar_t c1, rexchar_t c2, unsigned long dstuid);
+void rex_state_addtransition_dst(rexstate_t *srcstate, rexchar_t c1, rexchar_t c2, const rexstate_t *dststate);
 rexsubstate_t *rex_state_findsubstate(rexstate_t *state, unsigned long ss_uid);
 void rex_state_addnewsubstate(rexstate_t *state, unsigned long ss_uid, unsigned long ss_type, void *ss_userdata);
 void rex_state_addsubstate(rexstate_t *state, const rexstate_t *substate);

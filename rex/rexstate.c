@@ -114,15 +114,15 @@ void rex_state_addtransition_dst(rexstate_t *srcstate, rexchar_t c, const rexsta
 #endif
 
 
-void rex_state_addrangetransition(rexstate_t *state, rexchar_t c1, rexchar_t c2, unsigned long dstuid)
+void rex_state_addtransition(rexstate_t *state, rexchar_t c1, rexchar_t c2, unsigned long dstuid)
 {
 	rex_transitions_add(state->trans, c1, c2, state->uid, dstuid);
 }
 
 
-void rex_state_addrangetransition_dst(rexstate_t *srcstate, rexchar_t c1,  rexchar_t c2, const rexstate_t *dststate)
+void rex_state_addtransition_dst(rexstate_t *srcstate, rexchar_t c1,  rexchar_t c2, const rexstate_t *dststate)
 {
-	rex_state_addrangetransition(srcstate, c1, c2, dststate->uid);
+	rex_state_addtransition(srcstate, c1, c2, dststate->uid);
 }
 
 
