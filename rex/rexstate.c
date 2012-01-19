@@ -100,19 +100,6 @@ void rex_state_addtransition_e_dst(rexstate_t *srcstate, const rexstate_t *dstst
 	rex_state_addtransition_e(srcstate, dststate->uid);
 }
 
-#if 0
-void rex_state_addtransition(rexstate_t *state, rexchar_t c, unsigned long dstuid)
-{
-	rex_transitions_add(state->trans, c, c, state->uid, dstuid);
-}
-
-
-void rex_state_addtransition_dst(rexstate_t *srcstate, rexchar_t c, const rexstate_t *dststate)
-{
-	rex_state_addtransition(srcstate, c, dststate->uid);
-}
-#endif
-
 
 void rex_state_addtransition(rexstate_t *state, rexchar_t c1, rexchar_t c2, unsigned long dstuid)
 {
@@ -124,61 +111,6 @@ void rex_state_addtransition_dst(rexstate_t *srcstate, rexchar_t c1,  rexchar_t 
 {
 	rex_state_addtransition(srcstate, c1, c2, dststate->uid);
 }
-
-
-#if 0
-void rex_state_normalizetransitions(rexstate_t *state)
-{
-	long i, j;
-	rex_transition_t *itrans, *jtrans;
-	rarray_t *trans = state->trans;
-
-startover:
-	for (i = 0; i < r_array_length(trans); i++) {
-		itrans = (rex_transition_t *)r_array_slot(trans, i);
-		if (itrans->lowin == itrans->highin)
-			itrans->type = REX_TRANSITION_INPUT;
-		for (j = 0; j < r_array_length(trans); j++) {
-			if (i == j) {
-				/*
-				 * Same transition.
-				 */
-				continue;
-			}
-			jtrans = (rex_transition_t *)r_array_slot(trans, j);
-			if (itrans->dstuid != jtrans->dstuid) {
-				/*
-				 * These two can never be merged.
-				 */
-				continue;
-			}
-			if (jtrans->lowin >= itrans->lowin && jtrans->lowin <= itrans->highin) {
-				/*
-				 * Overlapping regions
-				 * Merge jtrans into itrans and delete jtrans.
-				 */
-				if (jtrans->highin > itrans->highin)
-					itrans->highin = jtrans->highin;
-				if (itrans->lowin != itrans->highin)
-					itrans->type = REX_TRANSITION_RANGE;
-				r_array_delete(trans, j);
-				goto startover;
-			}
-			if (itrans->highin != REX_CHAR_MAX && jtrans->lowin == itrans->highin + 1) {
-				/*
-				 * Adjacent regions
-				 * Merge jtrans into itrans and delete jtrans.
-				 */
-				itrans->highin = jtrans->highin;
-				if (itrans->lowin != itrans->highin)
-					itrans->type = REX_TRANSITION_RANGE;
-				r_array_delete(trans, j);
-				goto startover;
-			}
-		}
-	}
-}
-#endif
 
 
 void rex_state_addnewsubstate(rexstate_t *state, unsigned long ss_uid, unsigned long ss_type, void *ss_userdata)
@@ -251,7 +183,7 @@ void rex_state_dump(rexstate_t *state)
 		for (index = 0; index < rex_subset_length(state->subset); index++) {
 			fprintf(stdout, "%ld", rex_subset_slot(state->subset, index)->ss_uid);
 			if (rex_subset_slot(state->subset, index)->ss_type == REX_STATETYPE_ACCEPT)
-				fprintf(stdout, "{accept}");
+				fprintf(stdout, "*");
 			fprintf(stdout, ",");
 		}
 		fprintf(stdout, ")");

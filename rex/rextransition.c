@@ -176,47 +176,67 @@ startover:
 }
 
 
-void rex_transitions_unify(rarray_t *trans)
+void rex_transitions_uniqueranges(rarray_t *dest, rarray_t *src)
 {
 	long i, j;
-	rex_transition_t *itrans, *jtrans;
+	rex_transition_t *it, *jt, *t;
+	rex_transition_t temp;
+
+	r_memset(&temp, 0, sizeof(temp));
+	for (j = 0; j < r_array_length(src); j++) {
+		t = (rex_transition_t *)r_array_slot(src, j);
+		temp.lowin = t->lowin;
+		temp.highin = t->highin;
+		r_array_add(dest, &temp);
+	}
 
 startover:
-	for (i = 0; i < r_array_length(trans); i++) {
-		itrans = (rex_transition_t *)r_array_slot(trans, i);
-		if (itrans->lowin == itrans->highin)
-			itrans->type = REX_TRANSITION_INPUT;
-		for (j = 0; j < r_array_length(trans); j++) {
+	for (i = 0; i < r_array_length(dest); i++) {
+		it = (rex_transition_t *)r_array_slot(dest, i);
+		for (j = 0; j < r_array_length(dest); j++) {
+			jt = (rex_transition_t *)r_array_slot(dest, j);
+			rexchar_t a1 = it->lowin;
+			rexchar_t a2 = it->highin;
+			rexchar_t b1 = jt->lowin;
+			rexchar_t b2 = jt->highin;
+
 			if (i == j) {
 				/*
 				 * Same transition.
 				 */
 				continue;
 			}
-			jtrans = (rex_transition_t *)r_array_slot(trans, j);
-			if (itrans->dstuid != jtrans->dstuid) {
+			if (a1 == b1 && a2 == b2) {
 				/*
-				 * These two can never be merged.
+				 * The same. Remove one
 				 */
-				continue;
-			}
-			if (jtrans->lowin >= itrans->lowin && jtrans->lowin <= itrans->highin) {
-				/*
-				 * Overlapping regions
-				 * Merge jtrans into itrans and delete jtrans.
-				 */
-				if (jtrans->highin > itrans->highin)
-					itrans->highin = jtrans->highin;
-				r_array_delete(trans, j);
+				r_array_delete(dest, j);
 				goto startover;
-			}
-			if (itrans->highin != REX_CHAR_MAX && jtrans->lowin == itrans->highin + 1) {
-				/*
-				 * Adjacent regions
-				 * Merge jtrans into itrans and delete jtrans.
-				 */
-				itrans->highin = jtrans->highin;
-				r_array_delete(trans, j);
+			} else if (b1 > a1 && b2 < a2) {
+				it->lowin = a1;
+				it->highin = b1 - 1;
+				jt->lowin = b1;
+				jt->highin = b2;
+				rex_transitions_add(dest, b2+1, a2, 0, 0);
+				goto startover;
+			} else if (b1 > a1 && b1 <= a2 && b2 > a2) {
+				it->lowin = a1;
+				it->highin = b1-1;
+				jt->lowin = b1;
+				jt->highin = a2;
+				rex_transitions_add(dest, a2+1, b2, 0, 0);
+				goto startover;
+			} else if (a1 == b1 && b2 < a2) {
+				it->lowin = a1;
+				it->highin = b2;
+				jt->lowin = b2+1;
+				jt->highin = a2;
+				goto startover;
+			} else if (b1 > a1 && b2 == a2) {
+				it->lowin = a1;
+				it->highin = b1-1;
+				jt->lowin = b1;
+				jt->highin = b2;
 				goto startover;
 			}
 		}

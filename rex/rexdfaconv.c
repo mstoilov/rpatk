@@ -85,14 +85,18 @@ static void rex_dfaconv_getsubsettransitions(rexdfaconv_t *co, rexdb_t *nfa, rar
 	long uid;
 	rexstate_t *s;
 	rex_transition_t *t;
+	rex_transition_t temp;
 
+	r_memset(&temp, 0, sizeof(temp));
 	r_array_setlength(trans, 0);
 	for (i = 0; i < r_array_length(states); i++) {
 		uid = rex_subset_slot(states, i)->ss_uid;
 		s = rex_db_getstate(nfa, uid);
 		for (j = 0; j < r_array_length(s->trans); j++) {
 			t = (rex_transition_t *)r_array_slot(s->trans, j);
-			r_array_add(trans, t);
+			temp.lowin = t->lowin;
+			temp.highin = t->highin;
+			r_array_add(trans, &temp);
 		}
 	}
 }
@@ -137,7 +141,7 @@ static void rex_dfaconv_insertdeadtransitions(rexdfaconv_t *co, rexstate_t *stat
 
 rexdb_t *rex_dfaconv_run(rexdfaconv_t *co, rexdb_t *nfa, unsigned long start)
 {
-	long i, j, k;
+	long i, j;
 	rexdb_t *dfa = rex_db_create(REXDB_TYPE_DFA);
 	rexstate_t *s, *nextstate;
 	rex_transition_t *t;
@@ -150,25 +154,24 @@ rexdb_t *rex_dfaconv_run(rexdfaconv_t *co, rexdb_t *nfa, unsigned long start)
 
 	for (i = 0; i < r_array_length(dfa->states); i++) {
 		s = r_array_index(dfa->states, i, rexstate_t*);
-		rex_dfaconv_getsubsettransitions(co, nfa, s->subset, co->trans);
-		rex_transitions_dump(co->trans);
+		rex_dfaconv_getsubsettransitions(co, nfa, s->subset, co->temptrans);
+		rex_transitions_uniqueranges(co->trans, co->temptrans);
+//		rex_transitions_dump(co->trans);
 		for (j = 0; j < r_array_length(co->trans); j++) {
 			t = (rex_transition_t *)r_array_slot(co->trans, j);
-			for (k = t->lowin; k <= t->highin; k++) {
-				rex_dfaconv_move(co, nfa, s->subset, k, k, co->setU);
-				if (!rex_subset_length(co->setU))
-					continue;
-				rex_dfaconv_eclosure(co, nfa, co->setU, co->setV);
-				if ((uid = rex_db_findstate(dfa, co->setV)) < 0) {
-					uid = rex_db_createstate(dfa, REX_STATETYPE_NONE);
-					nextstate = rex_db_getstate(dfa, uid);
-					rex_dfaconv_setsubstates(nextstate, nfa, co->setV);
-				}
-				rex_state_addtransition(s, k, k, uid);
+			rex_dfaconv_move(co, nfa, s->subset, t->lowin, t->highin, co->setU);
+			if (!rex_subset_length(co->setU))
+				continue;
+			rex_dfaconv_eclosure(co, nfa, co->setU, co->setV);
+			if ((uid = rex_db_findstate(dfa, co->setV)) < 0) {
+				uid = rex_db_createstate(dfa, REX_STATETYPE_NONE);
+				nextstate = rex_db_getstate(dfa, uid);
+				rex_dfaconv_setsubstates(nextstate, nfa, co->setV);
 			}
+			rex_state_addtransition(s, t->lowin, t->highin, uid);
 		}
 		rex_transitions_normalize(s->trans);
-//		rex_dfaconv_insertdeadtransitions(co, s);
+		rex_dfaconv_insertdeadtransitions(co, s);
 	}
 	return dfa;
 }
