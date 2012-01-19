@@ -217,9 +217,7 @@ int rex_compiler_charclass(rexcompiler_t *co)
 				rex_compiler_gettok(co);
 			}
 		}
-		if (low == high) {
-			rex_fragment_singletransition(frag, low);
-		} else if (low < high) {
+		if (low <= high) {
 			rex_fragment_rangetransition(frag, low, high);
 		} else {
 			rex_fragment_rangetransition(frag, high, low);
@@ -291,7 +289,7 @@ static int rex_compiler_factor(rexcompiler_t *co)
 		rexfragment_t *frag;
 		frag = rex_fragment_create(co->db);
 		rex_fragment_rangetransition(frag, 0, '\n' - 1);
-		rex_fragment_rangetransition(frag, '\n' + 1, (unsigned int)-1);
+		rex_fragment_rangetransition(frag, '\n' + 1, REX_CHAR_MAX);
 		rex_transitions_normalize(rex_fragment_startstate(frag)->trans);
 		FPUSH(co, frag);
 		rex_compiler_getnstok(co);
@@ -299,7 +297,7 @@ static int rex_compiler_factor(rexcompiler_t *co)
 	} else {
 		rexfragment_t *frag;
 		rex_compiler_adjustescapedtoken(co);
-		frag = rex_fragment_create_singletransition(co->db, co->token);
+		frag = rex_fragment_create_rangetransition(co->db, co->token, co->token);
 		FPUSH(co, frag);
 		rex_compiler_getnstok(co);
 		return 0;

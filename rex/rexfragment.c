@@ -60,12 +60,6 @@ void rex_fragment_init(rexfragment_t *frag, rexdb_t *rexdb)
 }
 
 
-void rex_fragment_singletransition(rexfragment_t *frag, unsigned int input)
-{
-	rex_db_addtrasition(frag->rexdb, input, frag->start, frag->end);
-}
-
-
 void rex_fragment_rangetransition(rexfragment_t *frag, unsigned int c1, unsigned int c2)
 {
 	rex_db_addrangetrasition(frag->rexdb, c1, c2, frag->start, frag->end);
@@ -81,10 +75,10 @@ rexfragment_t *rex_fragment_create(rexdb_t *rexdb)
 }
 
 
-rexfragment_t *rex_fragment_create_singletransition(rexdb_t *rexdb, unsigned int input)
+rexfragment_t *rex_fragment_create_rangetransition(rexdb_t *rexdb, unsigned int c1, unsigned int c2)
 {
 	rexfragment_t *frag = rex_fragment_create(rexdb);
-	rex_fragment_singletransition(frag, input);
+	rex_fragment_rangetransition(frag, c1, c2);
 	return frag;
 }
 

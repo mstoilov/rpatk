@@ -63,12 +63,13 @@ typedef struct rexsubstate_s {
 robject_t *rex_state_init(robject_t *obj, unsigned int objtype, r_object_cleanupfun cleanup, unsigned long uid, unsigned long statetype);
 rexstate_t *rex_state_create(unsigned long uid, long statetype);
 void rex_state_destroy(rexstate_t *state);
-void rex_state_addtransition_dst(rexstate_t *srcstate, rexchar_t c, const rexstate_t *dststate);
-void rex_state_addtransition(rexstate_t *state, rexchar_t c, unsigned long dstuid);
+//void rex_state_addtransition_dst(rexstate_t *srcstate, rexchar_t c, const rexstate_t *dststate);
+//void rex_state_addtransition(rexstate_t *state, rexchar_t c, unsigned long dstuid);
+void rex_state_addtransition_e_dst(rexstate_t *srcstate, const rexstate_t *dststate);
+void rex_state_addtransition_e(rexstate_t *state, unsigned long dstuid);
+
 void rex_state_addrangetransition(rexstate_t *state, rexchar_t c1, rexchar_t c2, unsigned long dstuid);
 void rex_state_addrangetransition_dst(rexstate_t *srcstate, rexchar_t c1, rexchar_t c2, const rexstate_t *dststate);
-void rex_state_addtransition_e(rexstate_t *state, unsigned long dstuid);
-void rex_state_addtransition_e_dst(rexstate_t *srcstate, const rexstate_t *dststate);
 rexsubstate_t *rex_state_findsubstate(rexstate_t *state, unsigned long ss_uid);
 void rex_state_addnewsubstate(rexstate_t *state, unsigned long ss_uid, unsigned long ss_type, void *ss_userdata);
 void rex_state_addsubstate(rexstate_t *state, const rexstate_t *substate);

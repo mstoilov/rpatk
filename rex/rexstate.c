@@ -89,7 +89,6 @@ void rex_state_destroy(rexstate_t *state)
 	r_object_destroy((robject_t*)state);
 }
 
-
 void rex_state_addtransition_e(rexstate_t *state, unsigned long dstuid)
 {
 	rex_transitions_add_e(state->etrans, state->uid, dstuid);
@@ -101,7 +100,7 @@ void rex_state_addtransition_e_dst(rexstate_t *srcstate, const rexstate_t *dstst
 	rex_state_addtransition_e(srcstate, dststate->uid);
 }
 
-
+#if 0
 void rex_state_addtransition(rexstate_t *state, rexchar_t c, unsigned long dstuid)
 {
 	rex_transitions_add(state->trans, c, c, state->uid, dstuid);
@@ -112,6 +111,7 @@ void rex_state_addtransition_dst(rexstate_t *srcstate, rexchar_t c, const rexsta
 {
 	rex_state_addtransition(srcstate, c, dststate->uid);
 }
+#endif
 
 
 void rex_state_addrangetransition(rexstate_t *state, rexchar_t c1, rexchar_t c2, unsigned long dstuid)

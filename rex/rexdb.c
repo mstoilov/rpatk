@@ -112,17 +112,6 @@ int rex_db_addrangetrasition(rexdb_t *rexdb, unsigned int c1, unsigned int c2, u
 }
 
 
-int rex_db_addtrasition(rexdb_t *rexdb, unsigned int input, unsigned long srcuid, unsigned long dstuid)
-{
-	rexstate_t *s = rex_db_getstate(rexdb, srcuid);
-
-	if (s == NULL)
-		return -1;
-	rex_state_addtransition(s, input, dstuid);
-	return 0;
-}
-
-
 int rex_db_addtrasition_e(rexdb_t *rexdb, unsigned long srcuid, unsigned long dstuid)
 {
 	rexstate_t *s = rex_db_getstate(rexdb, srcuid);

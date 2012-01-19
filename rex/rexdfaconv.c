@@ -161,12 +161,6 @@ rexdb_t *rex_dfaconv_run(rexdfaconv_t *co, rexdb_t *nfa, unsigned long start)
 		rex_transitions_dump(co->trans);
 		for (j = 0; j < r_array_length(co->trans); j++) {
 			t = (rex_transition_t *)r_array_slot(co->trans, j);
-			if (t->type != REX_TRANSITION_INPUT) {
-				/*
-				 * Error. This should never happen!
-				 */
-				continue;
-			}
 			for (k = t->lowin; k <= t->highin; k++) {
 				rex_dfaconv_move(co, nfa, s->subset, k, k, co->setU);
 				if (!rex_subset_length(co->setU))
@@ -177,7 +171,7 @@ rexdb_t *rex_dfaconv_run(rexdfaconv_t *co, rexdb_t *nfa, unsigned long start)
 					nextstate = rex_db_getstate(dfa, uid);
 					rex_dfaconv_setsubstates(nextstate, nfa, co->setV);
 				}
-				rex_state_addtransition(s, k, uid);
+				rex_state_addrangetransition(s, k, k, uid);
 			}
 		}
 		rex_transitions_normalize(s->trans);

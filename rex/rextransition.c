@@ -176,6 +176,54 @@ startover:
 }
 
 
+void rex_transitions_unify(rarray_t *trans)
+{
+	long i, j;
+	rex_transition_t *itrans, *jtrans;
+
+startover:
+	for (i = 0; i < r_array_length(trans); i++) {
+		itrans = (rex_transition_t *)r_array_slot(trans, i);
+		if (itrans->lowin == itrans->highin)
+			itrans->type = REX_TRANSITION_INPUT;
+		for (j = 0; j < r_array_length(trans); j++) {
+			if (i == j) {
+				/*
+				 * Same transition.
+				 */
+				continue;
+			}
+			jtrans = (rex_transition_t *)r_array_slot(trans, j);
+			if (itrans->dstuid != jtrans->dstuid) {
+				/*
+				 * These two can never be merged.
+				 */
+				continue;
+			}
+			if (jtrans->lowin >= itrans->lowin && jtrans->lowin <= itrans->highin) {
+				/*
+				 * Overlapping regions
+				 * Merge jtrans into itrans and delete jtrans.
+				 */
+				if (jtrans->highin > itrans->highin)
+					itrans->highin = jtrans->highin;
+				r_array_delete(trans, j);
+				goto startover;
+			}
+			if (itrans->highin != REX_CHAR_MAX && jtrans->lowin == itrans->highin + 1) {
+				/*
+				 * Adjacent regions
+				 * Merge jtrans into itrans and delete jtrans.
+				 */
+				itrans->highin = jtrans->highin;
+				r_array_delete(trans, j);
+				goto startover;
+			}
+		}
+	}
+}
+
+
 void rex_transitions_dump(rarray_t *trans)
 {
 	long index;
