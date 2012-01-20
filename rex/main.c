@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 		} else if (strcmp(argv[i], "-D") == 0) {
 			int j;
 			for (j = 0; j < r_array_length(nfa->states); j++) {
-				rex_state_dump(rex_db_getstate(nfa, j));
+				rex_db_dumpstate(nfa, j);
 			}
 		} else if (strcmp(argv[i], "-ababb") == 0) {
 			init_ababb(nfa);

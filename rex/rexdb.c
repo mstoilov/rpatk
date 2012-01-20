@@ -14,6 +14,7 @@ void rex_db_cleanup(robject_t *obj)
 	for (i = 0; i < r_array_length(rexdb->states); i++)
 		rex_state_destroy(r_array_index(rexdb->states, i, rexstate_t*));
 	r_array_destroy(rexdb->states);
+	r_array_destroy(rexdb->substates);
 	r_object_cleanup(obj);
 }
 
@@ -24,6 +25,7 @@ robject_t *rex_db_init(robject_t *obj, unsigned int objtype, r_object_cleanupfun
 
 	r_object_init(obj, objtype, cleanup, NULL);
 	rexdb->states = r_array_create(sizeof(rexstate_t*));
+	rexdb->substates = r_array_create(sizeof(rexsubstate_t));
 	rexdb->type = type;
 	if (type == REXDB_TYPE_DFA) {
 		/*
@@ -90,7 +92,7 @@ long rex_db_findstate(rexdb_t *a, const rarray_t *subset)
 		s = r_array_index(a->states, i, rexstate_t*);
 		if (r_array_length(s->subset) && r_array_length(s->subset) == r_array_length(subset)) {
 			for (j = 0; j < r_array_length(subset); j++) {
-				if (rex_subset_slot(s->subset, j)->ss_uid != rex_subset_slot(subset, j)->ss_uid)
+				if (rex_subset_index(s->subset, j) != rex_subset_index(subset, j))
 					break;
 			}
 			if (j == r_array_length(subset))
@@ -184,6 +186,89 @@ void rex_db_optimizeonepsilon(rexdb_t *rexdb)
 			}
 		}
 	}
+}
+
+
+rexsubstate_t *rex_db_getsubstate(rexdb_t *rexdb, unsigned long uid)
+{
+	if (uid < r_array_length(rexdb->substates)) {
+		return (rexsubstate_t *)r_array_slot(rexdb->substates, uid);
+	}
+	return NULL;
+}
+
+
+void rex_db_dumpstate(rexdb_t *rexdb, unsigned long uid)
+{
+	long index;
+	char buf[240];
+	int bufsize = sizeof(buf) - 1;
+	int n = 0;
+	rex_transition_t *t;
+	rexsubstate_t *ss;
+	rexstate_t *state = rex_db_getstate(rexdb, uid);
+
+	if (!state)
+		return;
+	fprintf(stdout, "State %ld", state->uid);
+	if (rex_subset_length(state->subset)) {
+		fprintf(stdout, " (");
+		for (index = 0; index < rex_subset_length(state->subset); index++) {
+			fprintf(stdout, "%ld", rex_subset_index(state->subset, index));
+			if ((ss = rex_db_getsubstate(rexdb, rex_subset_index(state->subset, index))) != NULL) {
+				if (ss->ss_type == REX_STATETYPE_ACCEPT)
+					fprintf(stdout, "*");
+			}
+			fprintf(stdout, ",");
+		}
+		fprintf(stdout, ")");
+	}
+	fprintf(stdout, ": ");
+	if (state->type == REX_STATETYPE_ACCEPT) {
+		fprintf(stdout, " REX_STATETYPE_ACCEPT ");
+		if (state->userdata) {
+			fprintf(stdout, " : %s", (const char*)state->userdata);
+		}
+	} else if (state->type == REX_STATETYPE_DEAD) {
+		fprintf(stdout, " REX_STATETYPE_DEAD ");
+	} else if (state->type == REX_STATETYPE_START) {
+		fprintf(stdout, " REX_STATETYPE_START ");
+	} else if (state->type == REX_STATETYPE_ZOMBIE) {
+		fprintf(stdout, " REX_STATETYPE_ZOMBIE ");
+	}
+	fprintf(stdout, "\n");
+
+	for (index = 0; index < r_array_length(state->etrans); index++) {
+		t = (rex_transition_t *)r_array_slot(state->etrans, index);
+		if (t->type == REX_TRANSITION_EMPTY) {
+			fprintf(stdout, "    epsilon -> %ld\n", t->dstuid);
+		}
+	}
+	for (index = 0; index < r_array_length(state->trans); index++) {
+		t = (rex_transition_t *)r_array_slot(state->trans, index);
+		n = 0;
+		if (t->type == REX_TRANSITION_EMPTY) {
+			fprintf(stdout, "    epsilon -> %ld\n", t->dstuid);
+		} else if (t->lowin != t->highin) {
+			if (isprint(t->lowin) && !isspace(t->lowin) && isprint(t->highin) && !isspace(t->highin))
+				n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "        [%c - %c] ", t->lowin, t->highin);
+			else
+				n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "        [0x%X - 0x%X] ", t->lowin, t->highin);
+		} else {
+			if (isprint(t->lowin) && !isspace(t->lowin))
+				n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "        '%c' ", t->lowin);
+			else
+				n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "        0x%X ", t->lowin);
+		}
+		r_memset(buf + n, ' ', bufsize - n);
+		n = 40;
+		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "-> %ld", t->dstuid);
+		fprintf(stdout, "%s\n", buf);
+	}
+	if (!r_array_length(state->etrans) && !r_array_length(state->trans))
+		fprintf(stdout, "        (none)\n");
+	fprintf(stdout, "\n");
+
 }
 
 

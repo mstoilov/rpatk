@@ -24,6 +24,7 @@
 #include "rtypes.h"
 #include "rlib/robject.h"
 #include "rlib/rarray.h"
+#include "rlib/rhash.h"
 #include "rexstate.h"
 #include "rexdb.h"
 
@@ -39,6 +40,7 @@ typedef struct rexdfaconv_s {
 	rarray_t *setV;
 	rarray_t *trans;
 	rarray_t *temptrans;
+	rhash_t *hash;
 } rexdfaconv_t;
 
 

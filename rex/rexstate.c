@@ -24,29 +24,26 @@
 #include "rex/rexstate.h"
 
 
-void rex_subset_addnewsubstate(rarray_t *subset, unsigned long ss_uid, unsigned long ss_type, void *ss_userdata)
+
+void rex_subset_addnewsubstate(rarray_t *subset, unsigned long uid)
 {
-	rexsubstate_t *ssptr;
-	rexsubstate_t subst;
 	long min, max, mid;
+	unsigned long ss_uid;
 
 	min = 0;
 	max = min + r_array_length(subset);
 	while (max > min) {
 		mid = (min + max)/2;
-		ssptr = (rexsubstate_t *)r_array_slot(subset, mid);
-		if (ss_uid == ssptr->ss_uid) {
+		ss_uid = rex_subset_index(subset, mid);
+		if (uid == ss_uid) {
 			return;
-		} else if (ss_uid >= ssptr->ss_uid) {
+		} else if (uid >= ss_uid) {
 			min = mid + 1;
 		} else {
 			max = mid;
 		}
 	}
-	subst.ss_uid = ss_uid;
-	subst.ss_type = ss_type;
-	subst.ss_userdata = ss_userdata;
-	r_array_insert(subset, min, &subst);
+	r_array_insert(subset, min, &uid);
 }
 
 
@@ -113,37 +110,15 @@ void rex_state_addtransition_dst(rexstate_t *srcstate, rexchar_t c1,  rexchar_t 
 }
 
 
-void rex_state_addnewsubstate(rexstate_t *state, unsigned long ss_uid, unsigned long ss_type, void *ss_userdata)
+void rex_state_addnewsubstate(rexstate_t *state, unsigned long ss_uid)
 {
-	rex_subset_addnewsubstate(state->subset, ss_uid, ss_type, ss_userdata);
-}
-
-
-rexsubstate_t *rex_state_findsubstate(rexstate_t *state, unsigned long ss_uid)
-{
-	rexsubstate_t *ssptr;
-	long min, max, mid;
-
-	min = 0;
-	max = min + r_array_length(state->subset);
-	while (max > min) {
-		mid = (min + max)/2;
-		ssptr = (rexsubstate_t *)r_array_slot(state->subset, mid);
-		if (ss_uid == ssptr->ss_uid) {
-			return ssptr;
-		} else if (ssptr->ss_uid >= ss_uid) {
-			min = mid + 1;
-		} else {
-			max = mid;
-		}
-	}
-	return NULL;
+	rex_subset_addnewsubstate(state->subset, ss_uid);
 }
 
 
 void rex_state_addsubstate(rexstate_t *state, const rexstate_t *substate)
 {
-	rex_state_addnewsubstate(state, substate->uid, substate->type, substate->userdata);
+	rex_state_addnewsubstate(state, substate->uid);
 }
 
 
@@ -164,75 +139,5 @@ long rex_state_next(rexstate_t *state, unsigned long input)
 			return t->dstuid;
 	}
 	return -1;
-}
-
-
-void rex_state_dump(rexstate_t *state)
-{
-	long index;
-	char buf[240];
-	int bufsize = sizeof(buf) - 1;
-	int n = 0;
-	rex_transition_t *t;
-
-	if (!state)
-		return;
-	fprintf(stdout, "State %ld", state->uid);
-	if (rex_subset_length(state->subset)) {
-		fprintf(stdout, " (");
-		for (index = 0; index < rex_subset_length(state->subset); index++) {
-			fprintf(stdout, "%ld", rex_subset_slot(state->subset, index)->ss_uid);
-			if (rex_subset_slot(state->subset, index)->ss_type == REX_STATETYPE_ACCEPT)
-				fprintf(stdout, "*");
-			fprintf(stdout, ",");
-		}
-		fprintf(stdout, ")");
-	}
-	fprintf(stdout, ": ");
-	if (state->type == REX_STATETYPE_ACCEPT) {
-		fprintf(stdout, " REX_STATETYPE_ACCEPT ");
-		if (state->userdata) {
-			fprintf(stdout, " : %s", (const char*)state->userdata);
-		}
-	} else if (state->type == REX_STATETYPE_DEAD) {
-		fprintf(stdout, " REX_STATETYPE_DEAD ");
-	} else if (state->type == REX_STATETYPE_START) {
-		fprintf(stdout, " REX_STATETYPE_START ");
-	} else if (state->type == REX_STATETYPE_ZOMBIE) {
-		fprintf(stdout, " REX_STATETYPE_ZOMBIE ");
-	}
-	fprintf(stdout, "\n");
-
-	for (index = 0; index < r_array_length(state->etrans); index++) {
-		t = (rex_transition_t *)r_array_slot(state->etrans, index);
-		if (t->type == REX_TRANSITION_EMPTY) {
-			fprintf(stdout, "    epsilon -> %ld\n", t->dstuid);
-		}
-	}
-	for (index = 0; index < r_array_length(state->trans); index++) {
-		t = (rex_transition_t *)r_array_slot(state->trans, index);
-		n = 0;
-		if (t->type == REX_TRANSITION_EMPTY) {
-			fprintf(stdout, "    epsilon -> %ld\n", t->dstuid);
-		} else if (t->lowin != t->highin) {
-			if (isprint(t->lowin) && !isspace(t->lowin) && isprint(t->highin) && !isspace(t->highin))
-				n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "        [%c - %c] ", t->lowin, t->highin);
-			else
-				n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "        [0x%X - 0x%X] ", t->lowin, t->highin);
-		} else {
-			if (isprint(t->lowin) && !isspace(t->lowin))
-				n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "        '%c' ", t->lowin);
-			else
-				n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "        0x%X ", t->lowin);
-		}
-		r_memset(buf + n, ' ', bufsize - n);
-		n = 40;
-		n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "-> %ld", t->dstuid);
-		fprintf(stdout, "%s\n", buf);
-	}
-	if (!r_array_length(state->etrans) && !r_array_length(state->trans))
-		fprintf(stdout, "        (none)\n");
-	fprintf(stdout, "\n");
-
 }
 

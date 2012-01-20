@@ -224,7 +224,7 @@ int main(int argc, const char *argv[])
 			int j;
 			rexdb_t *db = pGrep->usedfa ? pGrep->dfa : pGrep->nfa;
 			for (j = 0; j < r_array_length(db->states); j++) {
-				rex_state_dump(rex_db_getstate(db, j));
+				rex_db_dumpstate(db, j);
 			}
 			goto end;
 		}

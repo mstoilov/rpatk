@@ -96,7 +96,7 @@ int rex_grep_load_pattern(rexgrep_t *pGrep, rbuffer_t *buf)
 
 int rex_grep_matchdfa(rexgrep_t *pGrep, unsigned long startuid, const char* input, const char *end)
 {
-	int inc = 0, i;
+	int inc = 0;
 	ruint32 wc;
 	long next;
 	rexstate_t *s;
