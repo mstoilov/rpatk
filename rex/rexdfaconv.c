@@ -5,7 +5,7 @@
 #include "rextransition.h"
 
 
-void rex_dfaconv_dumpsubset(rarray_t *subset)
+static void rex_dfaconv_dumpsubset(rarray_t *subset)
 {
 	long index;
 	if (rex_subset_length(subset)) {
@@ -99,18 +99,6 @@ static long rex_dfaconv_setsubstates(rexstate_t *state, rexdb_t *nfa, rarray_t *
 }
 
 
-static rboolean rex_dfaconv_finduid(rarray_t *subset, unsigned long uid)
-{
-	long i;
-
-	for (i = 0; i < r_array_length(subset); i++) {
-		if (rex_subset_index(subset, i) == uid)
-			return TRUE;
-	}
-	return FALSE;
-}
-
-
 static void rex_dfaconv_eclosure(rexdfaconv_t *co, rexdb_t *nfa, const rarray_t *src, rarray_t *dest)
 {
 	long i, j;
@@ -128,29 +116,15 @@ static void rex_dfaconv_eclosure(rexdfaconv_t *co, rexdb_t *nfa, const rarray_t 
 		rex_subset_addnewsubstate(co->setT, uid);
 		rex_subset_addnewsubstate(dest, uid);
 	}
-	for (i = 0; i < r_array_length(co->setT); i++) {
-		uid = rex_subset_index(co->setT, i);
+	while (!r_array_empty(co->setT)) {
+		uid = rex_subset_pop(co->setT);
 		s = rex_db_getstate(nfa, uid);
 		for (j = 0; j < r_array_length(s->etrans); j++) {
 			t = (rex_transition_t *)r_array_slot(s->etrans, j);
-			if (rex_dfaconv_finduid(co->setT, t->dstuid))
-				continue;
 			rex_subset_addnewsubstate(co->setT, t->dstuid);
 			rex_subset_addnewsubstate(dest, t->dstuid);
 		}
 	}
-
-
-
-//	while (!r_array_empty(co->setT)) {
-//		uid = rex_subset_pop(co->setT);
-//		s = rex_db_getstate(nfa, uid);
-//		for (j = 0; j < r_array_length(s->etrans); j++) {
-//			t = (rex_transition_t *)r_array_slot(s->etrans, j);
-//			rex_subset_addnewsubstate(co->setT, t->dstuid);
-//			rex_subset_addnewsubstate(dest, t->dstuid);
-//		}
-//	}
 }
 
 

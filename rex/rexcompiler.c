@@ -11,7 +11,6 @@
 #define FPUSH(__co__, __fragment__) do { r_array_push((__co__)->stack, __fragment__, rexfragment_t*); } while (0)
 #define FPOP(__co__) r_array_pop((__co__)->stack, rexfragment_t*)
 #define FLEN(__co__) r_array_length((__co__)->stack)
-#define FPEEK(__co__) (FLEN(__co__) ? *((rexfragment_t**)r_array_lastslot((__co__)->stack)) : NULL)
 
 static int rex_compiler_catexpression(rexcompiler_t *co);
 static int rex_compiler_altexpression(rexcompiler_t *co);
@@ -174,17 +173,8 @@ int rex_compiler_charclass(rexcompiler_t *co)
 	long i;
 	rex_transition_t *t;
 	rexstate_t *srcstate, *dststate;
-	rexfragment_t *frag = NULL;
-	rexfragment_t *lfrag = FPEEK(co);
-	rexstate_t *lstate = NULL;
+	rexfragment_t *frag = rex_fragment_create(co->db);
 
-	if (lfrag)
-		lstate = rex_fragment_endstate(lfrag);
-	if (0 && lstate && r_array_empty(lstate->etrans) && r_array_empty(lstate->trans)) {
-		frag = rex_fragment_createwithstates(co->db, lfrag->end, -1);
-	} else {
-		frag = rex_fragment_create(co->db);
-	}
 	srcstate = rex_fragment_startstate(frag);
 	dststate = rex_fragment_endstate(frag);
 	FPUSH(co, frag);
@@ -277,18 +267,8 @@ static int rex_compiler_factor(rexcompiler_t *co)
 		return 0;
 	} else {
 		rexfragment_t *frag;
-		rexfragment_t *lfrag = FPEEK(co);
-		rexstate_t *lstate = NULL;
-		if (lfrag)
-			lstate = rex_fragment_endstate(lfrag);
-		if (0 && lstate && r_array_empty(lstate->etrans) && r_array_empty(lstate->trans)) {
-			frag = rex_fragment_createwithstates(co->db, lfrag->end, -1);
-		} else {
-			frag = rex_fragment_create(co->db);
-		}
-
 		rex_compiler_adjustescapedtoken(co);
-		rex_fragment_transition(frag, co->token, co->token);
+		frag = rex_fragment_create_transition(co->db, co->token, co->token);
 		FPUSH(co, frag);
 		rex_compiler_getnstok(co);
 		return 0;
@@ -362,22 +342,10 @@ static int rex_compiler_catexpression(rexcompiler_t *co)
 		if (nfactors >= 2) {
 			frag2 = FPOP(co);
 			frag1 = FPOP(co);
-			if (frag1->end != frag2->start) {
-				frag1 = rex_fragment_cat(frag1, frag2);
-			} else {
-				frag1->end = frag2->end;
-				rex_fragment_destroy(frag2);
-			}
+			frag1 = rex_fragment_cat(frag1, frag2);
 			FPUSH(co, frag1);
 		}
 	}
-//	frag2 = FPOP(co);
-//	frag1 = rex_fragment_create(co->db);
-//	rex_db_addtrasition_e(co->db, frag1->start, frag2->start);
-//	rex_db_addtrasition_e(co->db, frag2->end, frag1->end);
-//	rex_fragment_destroy(frag2);
-//	FPUSH(co, frag1);
-
 	return 0;
 }
 

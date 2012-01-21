@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <ctype.h>
 #include "rlib/rmem.h"
 #include "rlib/rutf.h"
 #include "rex/rextransition.h"

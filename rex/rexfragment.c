@@ -51,16 +51,12 @@ rexstate_t *rex_fragment_endstate(rexfragment_t *frag)
 }
 
 
-void rex_fragment_init(rexfragment_t *frag, rexdb_t *rexdb, long start, long end)
+void rex_fragment_init(rexfragment_t *frag, rexdb_t *rexdb)
 {
 	r_memset(frag, 0, sizeof(*frag));
 	frag->rexdb = rexdb;
-	frag->start = start;
-	frag->end = end;
-	if (start < 0)
-		frag->start = rex_db_createstate(rexdb, REX_STATETYPE_NONE);
-	if (end < 0)
-		frag->end = rex_db_createstate(rexdb, REX_STATETYPE_NONE);
+	frag->start = rex_db_createstate(rexdb, REX_STATETYPE_NONE);
+	frag->end = rex_db_createstate(rexdb, REX_STATETYPE_NONE);
 }
 
 
@@ -70,18 +66,12 @@ void rex_fragment_transition(rexfragment_t *frag, rexchar_t c1, rexchar_t c2)
 }
 
 
-rexfragment_t *rex_fragment_createwithstates(rexdb_t *rexdb, long start, long end)
+rexfragment_t *rex_fragment_create(rexdb_t *rexdb)
 {
 	rexfragment_t *frag;
 	frag = (rexfragment_t*)r_malloc(sizeof(*frag));
-	rex_fragment_init(frag, rexdb, start, end);
+	rex_fragment_init(frag, rexdb);
 	return frag;
-}
-
-
-rexfragment_t *rex_fragment_create(rexdb_t *rexdb)
-{
-	return rex_fragment_createwithstates(rexdb, -1, -1);
 }
 
 
@@ -130,26 +120,7 @@ rexfragment_t *rex_fragment_opt(rexfragment_t *frag)
 	return frag;
 }
 
-#define NEWFRAG
 
-#ifdef NEWFRAG
-rexfragment_t *rex_fragment_mop(rexfragment_t *frag)
-{
-	rex_db_addtrasition_e(frag->rexdb, frag->end, frag->start);
-	rex_db_addtrasition_e(frag->rexdb, frag->start, frag->end);
-	return frag;
-}
-
-
-rexfragment_t *rex_fragment_mul(rexfragment_t *frag)
-{
-	rex_db_addtrasition_e(frag->rexdb, frag->end, frag->start);
-	return frag;
-}
-
-#endif
-
-#ifdef OLDFRAG
 rexfragment_t *rex_fragment_mop(rexfragment_t *frag)
 {
 	unsigned long start, end;
@@ -177,7 +148,7 @@ rexfragment_t *rex_fragment_mul(rexfragment_t *frag)
 	frag->end = end;
 	return frag;
 }
-#endif
+
 
 static void rexfragment_to_union(rexfragment_t *frag)
 {
