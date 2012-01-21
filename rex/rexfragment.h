@@ -38,7 +38,8 @@ typedef struct rexfragment_s {
 } rexfragment_t;
 
 
-void rex_fragment_init(rexfragment_t *frag, rexdb_t *rexdb);
+void rex_fragment_init(rexfragment_t *frag, rexdb_t *rexdb, long start, long end);
+rexfragment_t *rex_fragment_createwithstates(rexdb_t *rexdb, long start, long end);
 rexfragment_t *rex_fragment_create(rexdb_t *rexdb);
 rexfragment_t *rex_fragment_create_transition(rexdb_t *rexdb, rexchar_t c1, rexchar_t c2);
 void rex_fragment_destroy(rexfragment_t *frag);
