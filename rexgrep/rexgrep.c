@@ -150,7 +150,7 @@ int rex_grep_match(rexgrep_t *pGrep, const char* input, const char *end)
 		return -1;
 	}
 	db = pGrep->nfa;
-	dbstart = pGrep->lastfrag->start;
+	dbstart = REX_FRAG_STARTUID(pGrep->lastfrag);
 
 	rex_nfasimulator_start(pGrep->si, db, dbstart);
 	while ((inc = r_utf8_mbtowc(&wc, (const unsigned char*)input, (const unsigned char*)end)) > 0) {

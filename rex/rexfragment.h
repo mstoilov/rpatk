@@ -33,10 +33,12 @@ extern "C" {
 
 typedef struct rexfragment_s {
 	rexdb_t *rexdb;
-	long start;
-	long end;
+	rexstate_t *sstate;
+	rexstate_t *estate;
 } rexfragment_t;
 
+#define REX_FRAG_STARTUID(__f__) (__f__)->sstate->uid
+#define REX_FRAG_ENDUID(__f__) (__f__)->estate->uid
 
 void rex_fragment_init(rexfragment_t *frag, rexdb_t *rexdb);
 rexfragment_t *rex_fragment_create(rexdb_t *rexdb);

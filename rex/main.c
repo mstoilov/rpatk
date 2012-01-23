@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
 			if (++i < argc) {
 				frag = rex_compiler_addexpression_s(co, frag, argv[i], (void*)name);
 				if (frag) {
-					startstate = frag->start;
+					startstate = REX_FRAG_STARTUID(frag);
 				}
 			}
 		} else if (strcmp(argv[i], "-D") == 0) {
