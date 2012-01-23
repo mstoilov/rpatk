@@ -5,7 +5,7 @@
 #include "rextransition.h"
 
 
-static void rex_dfaconv_dumpsubset(rarray_t *subset)
+void rex_dfaconv_dumpsubset(rarray_t *subset)
 {
 	long index;
 	if (rex_subset_length(subset)) {

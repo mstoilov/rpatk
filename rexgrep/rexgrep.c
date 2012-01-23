@@ -67,12 +67,6 @@ void rex_grep_destroy(rexgrep_t *pGrep)
 }
 
 
-static void rex_grep_matchfound(rexgrep_t *pGrep)
-{
-	pGrep->ret = 0;
-}
-
-
 int rex_grep_load_string_pattern(rexgrep_t *pGrep, rbuffer_t *buf)
 {
 	return rex_grep_load_pattern(pGrep, buf);
@@ -150,7 +144,7 @@ int rex_grep_match(rexgrep_t *pGrep, const char* input, const char *end)
 		return -1;
 	}
 	db = pGrep->nfa;
-	dbstart = REX_FRAG_STARTUID(pGrep->lastfrag);
+	dbstart = REX_FRAG_STATEUID(pGrep->lastfrag);
 
 	rex_nfasimulator_start(pGrep->si, db, dbstart);
 	while ((inc = r_utf8_mbtowc(&wc, (const unsigned char*)input, (const unsigned char*)end)) > 0) {

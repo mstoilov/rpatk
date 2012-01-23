@@ -280,7 +280,6 @@ static int rex_compiler_factor(rexcompiler_t *co)
 
 static int rex_compiler_qfactor(rexcompiler_t *co)
 {
-	const char *begin = co->ptr - 1;
 	rexfragment_t *frag;
 
 	if (strchr("*?+])", co->token)) {
@@ -312,13 +311,6 @@ static int rex_compiler_qfactor(rexcompiler_t *co)
 		FPUSH(co, frag);
 		break;
 	}
-#if 0
-	if (co->ptr - 1 > begin) {
-		fprintf(stdout, "qfactor: ");
-		fwrite(begin, 1, co->ptr - begin - 1, stdout);
-		fprintf(stdout, "\n");
-	}
-#endif
 	return 0;
 }
 
@@ -380,7 +372,7 @@ rexfragment_t *rex_compiler_expression(rexcompiler_t *co, const char *str, unsig
 {
 	long curlen = r_array_length(co->db->states);
 	long i;
-	rexfragment_t *frag = NULL;
+	rexfragment_t *frag1 = NULL, *frag2 = NULL;
 
 	co->start = str;
 	co->end = str + size;
@@ -389,10 +381,13 @@ rexfragment_t *rex_compiler_expression(rexcompiler_t *co, const char *str, unsig
 	rex_compiler_getnstok(co);
 	if (rex_compiler_altexpression(co) < 0 || co->token != REX_TOKEN_EOF)
 		goto error;
-	frag = FPOP(co);
-	rex_fragment_set_endstatetype(frag, REX_STATETYPE_ACCEPT);
-	rex_state_setuserdata(rex_fragment_endstate(frag), accdata);
-	return frag;
+	frag1 = FPOP(co);
+	frag2 = rex_fragment_create(co->db);
+	REX_FRAG_STATE(frag2)->type = REX_STATETYPE_ACCEPT;
+	frag1 = rex_fragment_cat(frag1, frag2);
+	FPUSH(co, frag1);
+	rex_state_setuserdata(REX_FRAG_STATE(frag1), accdata);
+	return frag1;
 error:
 	if (curlen < r_array_length(co->db->states)) {
 		for (i = curlen; i < r_array_length(co->db->states); i++)

@@ -24,7 +24,7 @@
 #include "rex/rextransition.h"
 
 
-void rex_transitions_add_e(rarray_t *etrans, unsigned long srcuid, unsigned long dstuid)
+rex_transition_t *rex_transitions_add_e(rarray_t *etrans, unsigned long srcuid, unsigned long dstuid)
 {
 	rex_transition_t ntrans;
 
@@ -32,7 +32,7 @@ void rex_transitions_add_e(rarray_t *etrans, unsigned long srcuid, unsigned long
 	ntrans.type = REX_TRANSITION_EMPTY;
 	ntrans.srcuid = srcuid;
 	ntrans.dstuid = dstuid;
-	r_array_add(etrans, &ntrans);
+	return (rex_transition_t *)r_array_slot(etrans, r_array_add(etrans, &ntrans));
 }
 
 
@@ -63,7 +63,7 @@ rex_transition_t *rex_transitions_find(rarray_t *trans, rexchar_t c)
 }
 
 
-void rex_transitions_add(rarray_t *trans, rexchar_t c1, rexchar_t c2, unsigned long srcuid, unsigned long dstuid)
+rex_transition_t *rex_transitions_add(rarray_t *trans, rexchar_t c1, rexchar_t c2, unsigned long srcuid, unsigned long dstuid)
 {
 	rex_transition_t *t;
 	rex_transition_t ntrans;
@@ -90,7 +90,7 @@ void rex_transitions_add(rarray_t *trans, rexchar_t c1, rexchar_t c2, unsigned l
 			max = mid;
 		}
 	}
-	r_array_insert(trans, min, &ntrans);
+	return (rex_transition_t *)r_array_slot(trans, r_array_insert(trans, min, &ntrans));
 }
 
 

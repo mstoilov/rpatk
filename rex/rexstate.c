@@ -86,27 +86,27 @@ void rex_state_destroy(rexstate_t *state)
 	r_object_destroy((robject_t*)state);
 }
 
-void rex_state_addtransition_e(rexstate_t *state, unsigned long dstuid)
+rex_transition_t * rex_state_addtransition_e(rexstate_t *state, unsigned long dstuid)
 {
-	rex_transitions_add_e(state->etrans, state->uid, dstuid);
+	return rex_transitions_add_e(state->etrans, state->uid, dstuid);
 }
 
 
-void rex_state_addtransition_e_dst(rexstate_t *srcstate, const rexstate_t *dststate)
+rex_transition_t * rex_state_addtransition_e_dst(rexstate_t *srcstate, const rexstate_t *dststate)
 {
-	rex_state_addtransition_e(srcstate, dststate->uid);
+	return rex_state_addtransition_e(srcstate, dststate->uid);
 }
 
 
-void rex_state_addtransition(rexstate_t *state, rexchar_t c1, rexchar_t c2, unsigned long dstuid)
+rex_transition_t *rex_state_addtransition(rexstate_t *state, rexchar_t c1, rexchar_t c2, unsigned long dstuid)
 {
-	rex_transitions_add(state->trans, c1, c2, state->uid, dstuid);
+	return rex_transitions_add(state->trans, c1, c2, state->uid, dstuid);
 }
 
 
-void rex_state_addtransition_dst(rexstate_t *srcstate, rexchar_t c1,  rexchar_t c2, const rexstate_t *dststate)
+rex_transition_t *rex_state_addtransition_dst(rexstate_t *srcstate, rexchar_t c1, rexchar_t c2, const rexstate_t *dststate)
 {
-	rex_state_addtransition(srcstate, c1, c2, dststate->uid);
+	return rex_state_addtransition(srcstate, c1, c2, dststate->uid);
 }
 
 

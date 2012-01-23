@@ -104,25 +104,23 @@ long rex_db_findstate(rexdb_t *a, const rarray_t *subset)
 }
 
 
-int rex_db_addrangetrasition(rexdb_t *rexdb, rexchar_t c1, rexchar_t c2, unsigned long srcuid, unsigned long dstuid)
+rex_transition_t *rex_db_addrangetrasition(rexdb_t *rexdb, rexchar_t c1, rexchar_t c2, unsigned long srcuid, unsigned long dstuid)
 {
 	rexstate_t *s = rex_db_getstate(rexdb, srcuid);
 
 	if (s == NULL)
-		return -1;
-	rex_state_addtransition(s, c1, c2, dstuid);
-	return 0;
+		return NULL;
+	return rex_state_addtransition(s, c1, c2, dstuid);
 }
 
 
-int rex_db_addtrasition_e(rexdb_t *rexdb, unsigned long srcuid, unsigned long dstuid)
+rex_transition_t *rex_db_addtrasition_e(rexdb_t *rexdb, unsigned long srcuid, unsigned long dstuid)
 {
 	rexstate_t *s = rex_db_getstate(rexdb, srcuid);
 
 	if (rexdb->type == REXDB_TYPE_DFA || s == NULL)
-		return -1;
-	rex_state_addtransition_e(s, dstuid);
-	return 0;
+		return NULL;
+	return rex_state_addtransition_e(s, dstuid);
 }
 
 
@@ -161,32 +159,6 @@ int rex_db_simulate_nfa(rexdb_t *rexdb, long uid, const char *str, const char *e
 	}
 
 	return -1;
-}
-
-
-void rex_db_optimizeonepsilon(rexdb_t *rexdb)
-{
-	long i, j;
-	long e_dstuid, srcuid;
-	rexstate_t *state;
-	rex_transition_t *t;
-
-	for (i = 0; i < r_array_length(rexdb->states); i++) {
-		state = rex_db_getstate(rexdb, i);
-		if (r_array_length(state->etrans) == 1 && r_array_length(state->trans) == 0 && state->type == REX_STATETYPE_NONE) {
-			srcuid = state->uid;
-			t = (rex_transition_t *)r_array_slot(state->etrans, 0);
-			srcuid = t->srcuid;
-			e_dstuid = t->dstuid;
-			r_array_setlength(state->etrans, 0);
-			state->type = REX_STATETYPE_ZOMBIE;
-			for (j = 0; j < r_array_length(rexdb->states); j++) {
-				state = rex_db_getstate(rexdb, j);
-				rex_transitions_renamedestination(state->trans, srcuid, e_dstuid);
-				rex_transitions_renamedestination(state->etrans, srcuid, e_dstuid);
-			}
-		}
-	}
 }
 
 
@@ -242,7 +214,11 @@ void rex_db_dumpstate(rexdb_t *rexdb, unsigned long uid)
 	for (index = 0; index < r_array_length(state->etrans); index++) {
 		t = (rex_transition_t *)r_array_slot(state->etrans, index);
 		if (t->type == REX_TRANSITION_EMPTY) {
-			fprintf(stdout, "    epsilon -> %ld\n", t->dstuid);
+			n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "        epsilon ");
+			r_memset(buf + n, ' ', bufsize - n);
+			n = 40;
+			n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "-> %ld", t->dstuid);
+			fprintf(stdout, "%s\n", buf);
 		}
 	}
 	for (index = 0; index < r_array_length(state->trans); index++) {

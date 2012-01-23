@@ -41,22 +41,30 @@ rexstate_t *rex_fragment_startstate(rexfragment_t *frag)
 
 rexstate_t *rex_fragment_endstate(rexfragment_t *frag)
 {
-	return frag->estate;
+	return NULL;
 }
 
 
 void rex_fragment_init(rexfragment_t *frag, rexdb_t *rexdb)
 {
 	r_memset(frag, 0, sizeof(*frag));
+	frag->dangling = r_array_create(sizeof(rex_transition_t*));
 	frag->rexdb = rexdb;
 	frag->sstate = rex_db_getstate(rexdb, rex_db_createstate(rexdb, REX_STATETYPE_NONE));
-	frag->estate = rex_db_getstate(rexdb, rex_db_createstate(rexdb, REX_STATETYPE_NONE));
 }
 
 
 void rex_fragment_transition(rexfragment_t *frag, rexchar_t c1, rexchar_t c2)
 {
-	rex_db_addrangetrasition(frag->rexdb, c1, c2, REX_FRAG_STARTUID(frag), REX_FRAG_ENDUID(frag));
+	rex_transition_t *t = rex_db_addrangetrasition(frag->rexdb, c1, c2, REX_FRAG_STATEUID(frag), 0);
+	r_array_add(frag->dangling, &t);
+}
+
+
+void rex_fragment_transition_e(rexfragment_t *frag)
+{
+	rex_transition_t *t = rex_db_addtrasition_e(frag->rexdb, REX_FRAG_STATEUID(frag), 0);
+	r_array_add(frag->dangling, &t);
 }
 
 
@@ -79,95 +87,72 @@ rexfragment_t *rex_fragment_create_transition(rexdb_t *rexdb, rexchar_t c1, rexc
 
 void rex_fragment_destroy(rexfragment_t *frag)
 {
+	if (frag)
+		r_array_destroy(frag->dangling);
 	r_free(frag);
 }
 
 
 rexfragment_t *rex_fragment_cat(rexfragment_t *frag1, rexfragment_t *frag2)
 {
-	rexdb_t *rexdb;
+	long i;
+	rex_transition_t *t;
 
-	if (frag1 == NULL && frag2 != NULL)
-		return frag2;
-	else if (frag2 == NULL && frag1 != NULL)
-		return frag1;
-	else if (frag1 == NULL && frag2 == NULL)
-		return NULL; /* Error */
-
-	rexdb = frag1->rexdb;
-	if (frag1->rexdb != frag2->rexdb || frag1->sstate == NULL || frag1->estate == NULL || frag2->sstate == NULL || frag2->estate == NULL) {
-		/*
-		 * Error
-		 */
-		return NULL;
+	for (i = 0; i < r_array_length(frag1->dangling); i++) {
+		t = r_array_index(frag1->dangling, i, rex_transition_t *);
+		t->dstuid = REX_FRAG_STATEUID(frag2);
 	}
-	rex_db_addtrasition_e(rexdb, REX_FRAG_ENDUID(frag1), REX_FRAG_STARTUID(frag2));
-	frag1->estate = frag2->estate;
-	rex_fragment_destroy(frag2);
-	return frag1;
+	frag2->sstate = frag1->sstate;
+	rex_fragment_destroy(frag1);
+	return frag2;
 }
 
 
 rexfragment_t *rex_fragment_opt(rexfragment_t *frag)
 {
-	rex_db_addtrasition_e(frag->rexdb, REX_FRAG_STARTUID(frag), REX_FRAG_ENDUID(frag));
+	rexstate_t *split = REX_FRAG_STATE(frag);
+	rex_transition_t *t = rex_state_addtransition_e(split, 0);
+	r_array_add(frag->dangling, &t);
 	return frag;
 }
 
 
 rexfragment_t *rex_fragment_mop(rexfragment_t *frag)
 {
-	rexstate_t *start, *end;
-	start = rex_db_getstate(frag->rexdb, rex_db_createstate(frag->rexdb, REX_STATETYPE_NONE));
-	end = rex_db_getstate(frag->rexdb, rex_db_createstate(frag->rexdb, REX_STATETYPE_NONE));
-	rex_db_addtrasition_e(frag->rexdb, REX_FRAG_ENDUID(frag), REX_FRAG_STARTUID(frag));
-	rex_db_addtrasition_e(frag->rexdb, start->uid, REX_FRAG_STARTUID(frag));
-	rex_db_addtrasition_e(frag->rexdb, REX_FRAG_ENDUID(frag), end->uid);
-	rex_db_addtrasition_e(frag->rexdb, start->uid, end->uid);
-	frag->sstate = start;
-	frag->estate = end;
+	long i;
+	rex_transition_t *t;
+
+	for (i = 0; i < r_array_length(frag->dangling); i++) {
+		t = r_array_index(frag->dangling, i, rex_transition_t *);
+		t->dstuid = REX_FRAG_STATEUID(frag);
+	}
+	r_array_setlength(frag->dangling, 0);
+	t = rex_state_addtransition_e(REX_FRAG_STATE(frag), 0);
+	r_array_add(frag->dangling, &t);
 	return frag;
 }
 
 
-rexfragment_t *rex_fragment_mul(rexfragment_t *frag)
+rexfragment_t *rex_fragment_mul(rexfragment_t *frag1)
 {
-	rexstate_t *start, *end;
-	start = rex_db_getstate(frag->rexdb, rex_db_createstate(frag->rexdb, REX_STATETYPE_NONE));
-	end = rex_db_getstate(frag->rexdb, rex_db_createstate(frag->rexdb, REX_STATETYPE_NONE));
-	rex_db_addtrasition_e(frag->rexdb, REX_FRAG_ENDUID(frag), REX_FRAG_STARTUID(frag));
-	rex_db_addtrasition_e(frag->rexdb, start->uid, REX_FRAG_STARTUID(frag));
-	rex_db_addtrasition_e(frag->rexdb, REX_FRAG_ENDUID(frag), end->uid);
-	frag->sstate = start;
-	frag->estate = end;
-	return frag;
-}
-
-
-static void rexfragment_to_union(rexfragment_t *frag)
-{
-	unsigned long newend;
-	rexstate_t *endstate = rex_db_getstate(frag->rexdb, REX_FRAG_ENDUID(frag));
-	if (endstate->type == REX_STATETYPE_NONE)
-		return;
-	newend = rex_db_createstate(frag->rexdb, REX_STATETYPE_NONE);
-	rex_db_addtrasition_e(frag->rexdb, REX_FRAG_ENDUID(frag), newend);
-	frag->estate = rex_db_getstate(frag->rexdb, newend);
+	rexfragment_t *frag2 = rex_fragment_create(frag1->rexdb);
+	rex_db_addtrasition_e(frag1->rexdb, REX_FRAG_STATEUID(frag2), REX_FRAG_STATEUID(frag1));
+	rex_fragment_transition_e(frag2);
+	frag1 = rex_fragment_cat(frag1, frag2);
+	return frag1;
 }
 
 
 rexfragment_t *rex_fragment_alt(rexfragment_t *frag1, rexfragment_t *frag2)
 {
-	rexdb_t *rexdb = frag1->rexdb;
-	if (frag1->rexdb != frag2->rexdb || frag1->sstate == NULL || frag1->estate == NULL || frag2->sstate == NULL || frag2->estate == NULL) {
-		/*
-		 * Error
-		 */
-		return NULL;
+	long i;
+	rex_transition_t *t;
+
+	rex_db_addtrasition_e(frag1->rexdb, REX_FRAG_STATEUID(frag1), REX_FRAG_STATEUID(frag2));
+	for (i = 0; i < r_array_length(frag2->dangling); i++) {
+		t = r_array_index(frag2->dangling, i, rex_transition_t *);
+		r_array_add(frag1->dangling, &t);
 	}
-	rexfragment_to_union(frag1);
-	rex_db_addtrasition_e(rexdb, REX_FRAG_STARTUID(frag1), REX_FRAG_STARTUID(frag2));
-	rex_db_addtrasition_e(rexdb, REX_FRAG_ENDUID(frag2), REX_FRAG_ENDUID(frag1));
 	rex_fragment_destroy(frag2);
 	return frag1;
 }

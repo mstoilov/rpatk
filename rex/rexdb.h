@@ -56,12 +56,11 @@ long rex_db_insertstate(rexdb_t *rexdb, rexstate_t *s);
 long rex_db_findstate(rexdb_t *a, const rarray_t *subset);
 rexstate_t *rex_db_getstate(rexdb_t *rexdb, long uid);
 rexsubstate_t *rex_db_getsubstate(rexdb_t *rexdb, unsigned long uid);
-int rex_db_addrangetrasition(rexdb_t *rexdb, rexchar_t c1, rexchar_t c2, unsigned long srcuid, unsigned long dstuid);
-int rex_db_addtrasition_e(rexdb_t *rexdb, unsigned long srcuid, unsigned long dstuid);
+rex_transition_t * rex_db_addrangetrasition(rexdb_t *rexdb, rexchar_t c1, rexchar_t c2, unsigned long srcuid, unsigned long dstuid);
+rex_transition_t * rex_db_addtrasition_e(rexdb_t *rexdb, unsigned long srcuid, unsigned long dstuid);
 int rex_db_simulate_nfa(rexdb_t *rexdb, long uid, const char *str, const char *end);
 int rex_db_simulate_nfa2(rexdb_t *a, long uid, const char *str, const char *end);
 long rex_db_compile(rexdb_t *rexdb, const char *str, unsigned int size);
-void rex_db_optimizeonepsilon(rexdb_t *rexdb);
 void rex_db_dumpstate(rexdb_t *rexdb, unsigned long uid);
 const char *rex_db_version();
 

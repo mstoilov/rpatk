@@ -49,7 +49,6 @@ int usage(int argc, const char *argv[])
 		fprintf(stderr, "\t-o, --only-matching      Show only the part of a line matching PATTERN\n");
 		fprintf(stderr, "\t-l                       Line mode.\n");
 		fprintf(stderr, "\t-N                       Use NFA.\n");
-		fprintf(stderr, "\t-O                       Use optimizations.\n");
 		fprintf(stderr, "\t-q                       Quiet mode.\n");
 		fprintf(stderr, "\t-t                       Display time elapsed.\n");
 		fprintf(stderr, "\t-s string                Scan string.\n");
@@ -206,16 +205,9 @@ int main(int argc, const char *argv[])
 		}
 	}
 
-	for (i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "-O") == 0) {
-			rex_db_optimizeonepsilon(pGrep->nfa);
-			break;
-		}
-	}
-
 	if (pGrep->usedfa) {
 		rexdfaconv_t *conv = rex_dfaconv_create();
-		pGrep->dfa = rex_dfaconv_run(conv, pGrep->nfa, REX_FRAG_STARTUID(pGrep->lastfrag));
+		pGrep->dfa = rex_dfaconv_run(conv, pGrep->nfa, REX_FRAG_STATEUID(pGrep->lastfrag));
 		rex_dfaconv_destroy(conv);
 	}
 
