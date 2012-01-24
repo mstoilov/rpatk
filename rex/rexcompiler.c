@@ -368,10 +368,11 @@ static int rex_compiler_altexpression(rexcompiler_t *co)
 }
 
 
-rexfragment_t *rex_compiler_expression(rexcompiler_t *co, const char *str, unsigned int size, void *accdata)
+long rex_compiler_expression(rexcompiler_t *co, const char *str, unsigned int size, void *accdata)
 {
 	long curlen = r_array_length(co->db->states);
 	long i;
+	long ret = -1L;
 	rexfragment_t *frag1 = NULL, *frag2 = NULL;
 
 	co->start = str;
@@ -387,7 +388,9 @@ rexfragment_t *rex_compiler_expression(rexcompiler_t *co, const char *str, unsig
 	frag1 = rex_fragment_cat(frag1, frag2);
 	FPUSH(co, frag1);
 	rex_state_setuserdata(REX_FRAG_STATE(frag1), accdata);
-	return frag1;
+	ret = REX_FRAG_STATEUID(frag1);
+	rex_fragment_destroy(frag1);
+	return ret;
 error:
 	if (curlen < r_array_length(co->db->states)) {
 		for (i = curlen; i < r_array_length(co->db->states); i++)
@@ -397,30 +400,32 @@ error:
 	while (FLEN(co)) {
 		rex_fragment_destroy(FPOP(co));
 	}
-	return NULL;
+	return -1;
 }
 
 
-rexfragment_t *rex_compiler_expression_s(rexcompiler_t *co, const char *str, void *accdata)
+long rex_compiler_expression_s(rexcompiler_t *co, const char *str, void *accdata)
 {
 	return rex_compiler_expression(co, str, r_strlen(str), accdata);
 }
 
 
-rexfragment_t *rex_compiler_addexpression(rexcompiler_t *co, rexfragment_t *frag1, const char *str, unsigned int size, void *accdata)
+long rex_compiler_addexpression(rexcompiler_t *co, unsigned long prev, const char *str, unsigned int size, void *accdata)
 {
-	rexfragment_t *frag2 = rex_compiler_expression(co, str, size, accdata);
-
-	if (!frag2)
-		return NULL;
-	if (!frag1)
-		return frag2;
-	frag1 = rex_fragment_alt(frag1, frag2);
-	return frag1;
+	rexstate_t *sprev = NULL, *scur = NULL;
+	long cur = rex_compiler_expression(co, str, size, accdata);
+	if (cur < 0)
+		return -1;
+	sprev = rex_db_getstate(co->db, prev);
+	scur = rex_db_getstate(co->db, cur);
+	if (!sprev)
+		return scur->uid;
+	rex_state_addtransition_e_dst(sprev, scur);
+	return prev;
 }
 
 
-rexfragment_t *rex_compiler_addexpression_s(rexcompiler_t *co, rexfragment_t *frag1, const char *str, void *accdata)
+long rex_compiler_addexpression_s(rexcompiler_t *co, unsigned long prev, const char *str, void *accdata)
 {
-	return rex_compiler_addexpression(co, frag1, str, r_strlen(str), accdata);
+	return rex_compiler_addexpression(co, prev, str, r_strlen(str), accdata);
 }

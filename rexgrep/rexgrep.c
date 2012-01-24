@@ -51,6 +51,7 @@ rexgrep_t *rex_grep_create()
 	pGrep->nfa = rex_db_create(REXDB_TYPE_NFA);
 	pGrep->si = rex_nfasimulator_create();
 	pGrep->ret = 1;
+	pGrep->startuid = -1L;
 	return pGrep;
 }
 
@@ -61,7 +62,6 @@ void rex_grep_destroy(rexgrep_t *pGrep)
 		return;
 	rex_db_destroy(pGrep->nfa);
 	rex_db_destroy(pGrep->dfa);
-	rex_fragment_destroy(pGrep->lastfrag);
 	rex_nfasimulator_destroy(pGrep->si);
 	r_free(pGrep);
 }
@@ -75,14 +75,12 @@ int rex_grep_load_string_pattern(rexgrep_t *pGrep, rbuffer_t *buf)
 
 int rex_grep_load_pattern(rexgrep_t *pGrep, rbuffer_t *buf)
 {
-	rexfragment_t *frag;
 	rexcompiler_t *co = rex_compiler_create(pGrep->nfa);
-	frag = rex_compiler_addexpression(co, pGrep->lastfrag, buf->s, buf->size, NULL);
-	if (!frag) {
+	pGrep->startuid = rex_compiler_addexpression(co, pGrep->startuid, buf->s, buf->size, NULL);
+	if (pGrep->startuid < 0) {
 		rex_compiler_destroy(co);
 		return -1;
 	}
-	pGrep->lastfrag = frag;
 	rex_compiler_destroy(co);
 	return 0;
 }
@@ -133,20 +131,17 @@ int rex_grep_match(rexgrep_t *pGrep, const char* input, const char *end)
 {
 	int inc;
 	ruint32 wc;
-	long dbstart;
 	rexdb_t *db;
 
 	if (pGrep->usedfa)
 		return rex_grep_matchdfa(pGrep, 1, input, end);
 
-	if (!pGrep->lastfrag) {
-
+	if (pGrep->startuid < 0) {
 		return -1;
 	}
 	db = pGrep->nfa;
-	dbstart = REX_FRAG_STATEUID(pGrep->lastfrag);
 
-	rex_nfasimulator_start(pGrep->si, db, dbstart);
+	rex_nfasimulator_start(pGrep->si, db, pGrep->startuid);
 	while ((inc = r_utf8_mbtowc(&wc, (const unsigned char*)input, (const unsigned char*)end)) > 0) {
 		if (rex_nfasimulator_next(pGrep->si, db, wc, inc) == 0)
 			break;

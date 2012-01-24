@@ -62,6 +62,7 @@ rexdfaconv_t *rex_dfaconv_create()
 	co->setV = r_array_create(sizeof(unsigned long));
 	co->trans = r_array_create(sizeof(rex_transition_t));
 	co->temptrans = r_array_create(sizeof(rex_transition_t));
+	co->marked = r_array_create(sizeof(unsigned char));
 	co->hash = r_hash_create(12, rex_dfaconv_subsetequal, rex_dfaconv_subsethash);
 	return co;
 }
@@ -75,6 +76,7 @@ void rex_dfaconv_destroy(rexdfaconv_t *co)
 		r_array_destroy(co->setV);
 		r_array_destroy(co->trans);
 		r_array_destroy(co->temptrans);
+		r_array_destroy(co->marked);
 		r_hash_destroy(co->hash);
 	}
 	r_free(co);
@@ -99,6 +101,30 @@ static long rex_dfaconv_setsubstates(rexstate_t *state, rexdb_t *nfa, rarray_t *
 }
 
 
+static void rex_dfaconv_mark(rexdfaconv_t *co, unsigned long uid)
+{
+	unsigned char marked = 1;
+	r_array_replace(co->marked, uid, &marked);
+}
+
+static void rex_dfaconv_unmark(rexdfaconv_t *co, unsigned long uid)
+{
+	unsigned char marked = 0;
+	r_array_replace(co->marked, uid, &marked);
+}
+
+
+static rboolean rex_dfaconv_ismarked(rexdfaconv_t *co, unsigned long uid)
+{
+	rboolean marked;
+	if (uid >= r_array_length(co->marked))
+		r_array_setlength(co->marked, uid + 1);
+	marked = (rboolean)r_array_index(co->marked, uid, unsigned char);
+//	fprintf(stdout, "%s, %ld : %d\n", __FUNCTION__, uid, marked);
+	return marked;
+}
+
+
 static void rex_dfaconv_eclosure(rexdfaconv_t *co, rexdb_t *nfa, const rarray_t *src, rarray_t *dest)
 {
 	long i, j;
@@ -115,15 +141,23 @@ static void rex_dfaconv_eclosure(rexdfaconv_t *co, rexdb_t *nfa, const rarray_t 
 		uid = rex_subset_index(src, i);
 		rex_subset_addnewsubstate(co->setT, uid);
 		rex_subset_addnewsubstate(dest, uid);
+		rex_dfaconv_mark(co, uid);
 	}
 	while (!r_array_empty(co->setT)) {
 		uid = rex_subset_pop(co->setT);
 		s = rex_db_getstate(nfa, uid);
 		for (j = 0; j < r_array_length(s->etrans); j++) {
 			t = (rex_transition_t *)r_array_slot(s->etrans, j);
-			rex_subset_addnewsubstate(co->setT, t->dstuid);
-			rex_subset_addnewsubstate(dest, t->dstuid);
+			if (!rex_dfaconv_ismarked(co, t->dstuid)) {
+				rex_subset_addnewsubstate(co->setT, t->dstuid);
+				rex_subset_addnewsubstate(dest, t->dstuid);
+				rex_dfaconv_mark(co, t->dstuid);
+			}
 		}
+	}
+	for (i = 0; i < r_array_length(dest); i++) {
+		uid = rex_subset_index(dest, i);
+		rex_dfaconv_unmark(co, uid);
 	}
 }
 

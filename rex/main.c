@@ -59,7 +59,6 @@ int main(int argc, char *argv[])
 	int i, inc;
 	ruint32 wc;
 	long startstate = -1;
-	rexfragment_t *frag = NULL;
 	const char *ptr, *in, *end;
 	const char *name;
 	rex_nfasimulator_t *si = rex_nfasimulator_create();
@@ -73,10 +72,7 @@ int main(int argc, char *argv[])
 				name = argv[i];
 			}
 			if (++i < argc) {
-				frag = rex_compiler_addexpression_s(co, frag, argv[i], (void*)name);
-				if (frag) {
-					startstate = REX_FRAG_STATEUID(frag);
-				}
+				startstate = rex_compiler_addexpression_s(co, startstate, argv[i], (void*)name);
 			}
 		} else if (strcmp(argv[i], "-D") == 0) {
 			int j;
@@ -107,9 +103,6 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if (frag) {
-		rex_fragment_destroy(frag);
-	}
 	rex_db_destroy(nfa);
 	rex_nfasimulator_destroy(si);
 	rex_compiler_destroy(co);

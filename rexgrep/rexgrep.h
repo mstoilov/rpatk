@@ -46,7 +46,7 @@ typedef struct rexgrep_s {
 	rexdb_t *nfa;
 	rexdb_t *dfa;
 	rex_nfasimulator_t *si;
-	rexfragment_t *lastfrag;
+	long startuid;
 	unsigned long scsize;
 	unsigned long scanmilisec;
 	unsigned int icase;

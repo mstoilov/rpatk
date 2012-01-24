@@ -207,7 +207,7 @@ int main(int argc, const char *argv[])
 
 	if (pGrep->usedfa) {
 		rexdfaconv_t *conv = rex_dfaconv_create();
-		pGrep->dfa = rex_dfaconv_run(conv, pGrep->nfa, REX_FRAG_STATEUID(pGrep->lastfrag));
+		pGrep->dfa = rex_dfaconv_run(conv, pGrep->nfa, pGrep->startuid);
 		rex_dfaconv_destroy(conv);
 	}
 

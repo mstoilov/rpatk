@@ -41,7 +41,6 @@ typedef enum {
 	REX_STATETYPE_START = 1,
 	REX_STATETYPE_ACCEPT = 2,
 	REX_STATETYPE_DEAD = 3,
-	REX_STATETYPE_ZOMBIE = 4,
 } rex_statetype_t;
 
 struct rexstate_s {

@@ -206,12 +206,11 @@ void rex_db_dumpstate(rexdb_t *rexdb, unsigned long uid)
 		fprintf(stdout, " REX_STATETYPE_DEAD ");
 	} else if (state->type == REX_STATETYPE_START) {
 		fprintf(stdout, " REX_STATETYPE_START ");
-	} else if (state->type == REX_STATETYPE_ZOMBIE) {
-		fprintf(stdout, " REX_STATETYPE_ZOMBIE ");
 	}
 	fprintf(stdout, "\n");
 
 	for (index = 0; index < r_array_length(state->etrans); index++) {
+		n = 0;
 		t = (rex_transition_t *)r_array_slot(state->etrans, index);
 		if (t->type == REX_TRANSITION_EMPTY) {
 			n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "        epsilon ");
