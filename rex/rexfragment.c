@@ -43,7 +43,10 @@ static void rex_fragment_append(rarray_t *dest, rarray_t *src)
 	}
 }
 
-
+/*
+ * The state must have all transitions in place, otherwise they
+ * will not be added to the dangling array.
+ */
 rexfragment_t *rex_fragment_create(rexstate_t *state)
 {
 	long i;
@@ -55,31 +58,17 @@ rexfragment_t *rex_fragment_create(rexstate_t *state)
 	frag->sstate = state;
 
 	for (i = 0; i < r_array_length(state->trans); i++) {
-		t = r_array_index(state->trans, i, rex_transition_t *);
-		r_array_add(frag->dangling, &t);
+		t = (rex_transition_t *)r_array_slot(state->trans, i);
+		if (t->dstuid < 0)
+			r_array_add(frag->dangling, &t);
 	}
 	for (i = 0; i < r_array_length(state->etrans); i++) {
-		t = r_array_index(state->etrans, i, rex_transition_t *);
-		r_array_add(frag->dangling, &t);
+		t = (rex_transition_t *)r_array_slot(state->etrans, i);
+		if (t->dstuid < 0)
+			r_array_add(frag->dangling, &t);
 	}
 	return frag;
 }
-
-
-//rex_transition_t *rex_fragment_danglingtransition(rexfragment_t *frag, rexchar_t c1, rexchar_t c2)
-//{
-//	rex_transition_t *t = rex_state_addtransition(REX_FRAG_STATE(frag), c1, c2, -1);
-//	r_array_add(frag->dangling, &t);
-//	return t;
-//}
-//
-//
-//rex_transition_t *rex_fragment_danglingtransition_e(rexfragment_t *frag)
-//{
-//	rex_transition_t *t = rex_state_addtransition_e(REX_FRAG_STATE(frag), 0);
-//	r_array_add(frag->dangling, &t);
-//	return t;
-//}
 
 
 void rex_fragment_destroy(rexfragment_t *frag)
@@ -101,35 +90,40 @@ rexfragment_t *rex_fragment_cat(rexdb_t *rexdb, rexfragment_t *frag1, rexfragmen
 
 rexfragment_t *rex_fragment_opt(rexdb_t *rexdb, rexfragment_t *frag1)
 {
-	rexstate_t *state = rex_db_getstate(rexdb, rex_db_createstate(rexdb, REX_STATETYPE_NONE));
 	rexfragment_t *frag2;
-	rex_state_addtransition_e(state, -1);
-	frag2 = rex_fragment_create(state);
+	rexstate_t *state2 = rex_db_getstate(rexdb, rex_db_createstate(rexdb, REX_STATETYPE_NONE));
+	rex_state_addtransition_e(state2, -1);
+	rex_state_addtransition_e(state2, REX_FRAG_STATEUID(frag1));
+	frag2 = rex_fragment_create(state2);
 	rex_fragment_append(frag2->dangling, frag1->dangling);
 	rex_fragment_destroy(frag1);
-	rex_state_addtransition_e(REX_FRAG_STATE(frag2), REX_FRAG_STATEUID(frag1));
 	return frag2;
 }
 
 
 rexfragment_t *rex_fragment_mop(rexdb_t *rexdb, rexfragment_t *frag1)
 {
-//	rexfragment_t *frag2 = rex_fragment_create(rex_db_getstate(rexdb, rex_db_createstate(rexdb, REX_STATETYPE_NONE)));
-//	rex_state_addtransition_e(REX_FRAG_STATE(frag2), REX_FRAG_STATEUID(frag1));
-//	rex_fragment_danglingtransition_e(frag2);
-//	rex_fragment_patch(frag1->dangling, REX_FRAG_STATEUID(frag2));
-//	rex_fragment_destroy(frag1);
-//	return frag2;
-	return frag1;
+	rexfragment_t *frag2;
+	rexstate_t *state2 = rex_db_getstate(rexdb, rex_db_createstate(rexdb, REX_STATETYPE_NONE));
+
+	rex_state_addtransition_e(state2, -1);
+	rex_state_addtransition_e(state2, REX_FRAG_STATEUID(frag1));
+	frag2 = rex_fragment_create(state2);
+	rex_fragment_patch(frag1->dangling, REX_FRAG_STATEUID(frag2));
+	rex_fragment_destroy(frag1);
+	return frag2;
 }
 
 
 rexfragment_t *rex_fragment_mul(rexdb_t *rexdb, rexfragment_t *frag1)
 {
-//	rexfragment_t *frag2 = rex_fragment_create(rex_db_getstate(rexdb, rex_db_createstate(rexdb, REX_STATETYPE_NONE)));
-//	rex_db_addtrasition_e(rexdb, REX_FRAG_STATEUID(frag2), REX_FRAG_STATEUID(frag1));
-//	rex_fragment_danglingtransition_e(frag2);
-//	frag1 = rex_fragment_cat(rexdb, frag1, frag2);
+	rexfragment_t *frag2;
+	rexstate_t *state2 = rex_db_getstate(rexdb, rex_db_createstate(rexdb, REX_STATETYPE_NONE));
+
+	rex_state_addtransition_e(state2, REX_FRAG_STATEUID(frag1));
+	rex_state_addtransition_e(state2, -1);
+	frag2 = rex_fragment_create(state2);
+	frag1 = rex_fragment_cat(rexdb, frag1, frag2);
 	return frag1;
 }
 

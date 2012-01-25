@@ -223,7 +223,7 @@ int rex_compiler_charclass(rexcompiler_t *co)
 	rex_transitions_normalize(srcstate->trans);
 	if (negative) {
 		r_array_setlength(co->temptrans, 0);
-		rex_transitions_negative(co->temptrans, srcstate->trans, srcstate->uid, 0);
+		rex_transitions_negative(co->temptrans, srcstate->trans, srcstate->uid, -1);
 		r_array_setlength(srcstate->trans, 0);
 		for (i = 0; i < r_array_length(co->temptrans); i++) {
 			t = (rex_transition_t *)r_array_slot(co->temptrans, i);
@@ -262,6 +262,13 @@ static int rex_compiler_factor(rexcompiler_t *co)
 //		rex_fragment_danglingtransition(frag, '\n' + 1, REX_CHAR_MAX);
 //		rex_transitions_normalize(REX_FRAG_STATE(frag)->trans);
 //		FPUSH(co, frag);
+		srcstate = rex_db_getstate(co->db, rex_db_createstate(co->db, REX_STATETYPE_NONE));
+		rex_compiler_adjustescapedtoken(co);
+		frag = rex_fragment_create(srcstate);
+		rex_state_addtransition(srcstate, 0, '\n' - 1, -1);
+		rex_state_addtransition(srcstate, '\n' + 1, REX_CHAR_MAX, -1);
+		frag = rex_fragment_create(srcstate);
+		FPUSH(co, frag);
 		rex_compiler_getnstok(co);
 		return 0;
 	} else {
@@ -384,8 +391,7 @@ long rex_compiler_expression(rexcompiler_t *co, const char *str, unsigned int si
 	if (rex_compiler_altexpression(co) < 0 || co->token != REX_TOKEN_EOF)
 		goto error;
 	frag1 = FPOP(co);
-	frag2 = rex_fragment_create(rex_db_getstate(co->db, rex_db_createstate(co->db, REX_STATETYPE_NONE)));
-	REX_FRAG_STATE(frag2)->type = REX_STATETYPE_ACCEPT;
+	frag2 = rex_fragment_create(rex_db_getstate(co->db, rex_db_createstate(co->db, REX_STATETYPE_ACCEPT)));
 	frag1 = rex_fragment_cat(co->db, frag1, frag2);
 	FPUSH(co, frag1);
 	rex_state_setuserdata(REX_FRAG_STATE(frag1), accdata);

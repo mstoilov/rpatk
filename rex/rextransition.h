@@ -59,8 +59,8 @@ typedef struct rex_transition_s {
 	unsigned int type;
 	rexchar_t lowin;
 	rexchar_t highin;
-	unsigned long srcuid;
-	unsigned long dstuid;
+	long srcuid;
+	long dstuid;
 } rex_transition_t;
 
 
