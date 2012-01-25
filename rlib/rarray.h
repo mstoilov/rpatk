@@ -81,7 +81,7 @@ unsigned long r_array_removelast(rarray_t *array);
 unsigned long r_array_insert(rarray_t *array, unsigned long index, rconstpointer data);
 unsigned long r_array_replace(rarray_t *array, unsigned long index, rconstpointer data);
 unsigned long r_array_setlength(rarray_t *array, unsigned long len);
-unsigned long r_array_expand(rarray_t *array, unsigned long len);
+void r_array_expand(rarray_t *array, unsigned long len);
 void *r_array_slot_expand(rarray_t *array, unsigned long index);
 void r_array_delete(rarray_t *array, unsigned long index);
 

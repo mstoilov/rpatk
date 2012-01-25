@@ -144,9 +144,9 @@ unsigned long r_array_setlength(rarray_t *array, unsigned long len)
 }
 
 
-unsigned long r_array_expand(rarray_t *array, unsigned long len)
+void r_array_expand(rarray_t *array, unsigned long len)
 {
-	return r_array_setlength(array, r_array_length(array) + len);
+	r_array_checkexpand(array, r_array_length(array) + len);
 }
 
 

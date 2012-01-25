@@ -32,30 +32,22 @@ extern "C" {
 
 
 typedef struct rexfragment_s {
-	rexdb_t *rexdb;
 	rexstate_t *sstate;
-//	rexstate_t *estate;
 	rarray_t *dangling;
 } rexfragment_t;
 
 #define REX_FRAG_STATEUID(__f__) (__f__)->sstate->uid
 #define REX_FRAG_STATE(__f__) (__f__)->sstate
 
-void rex_fragment_init(rexfragment_t *frag, rexdb_t *rexdb);
-rexfragment_t *rex_fragment_create(rexdb_t *rexdb);
-rexfragment_t *rex_fragment_create_transition(rexdb_t *rexdb, rexchar_t c1, rexchar_t c2);
 void rex_fragment_destroy(rexfragment_t *frag);
-void rex_fragment_transition(rexfragment_t *frag, rexchar_t c1, rexchar_t c2);
-void rex_fragment_transition_e(rexfragment_t *frag);
-void rex_fragment_set_startstatetype(rexfragment_t *frag, rex_statetype_t statetype);
-void rex_fragment_set_endstatetype(rexfragment_t *frag, rex_statetype_t statetype);
-rexstate_t *rex_fragment_startstate(rexfragment_t *frag);
-rexstate_t *rex_fragment_endstate(rexfragment_t *frag);
-rexfragment_t *rex_fragment_cat(rexfragment_t *frag1, rexfragment_t *frag2);
-rexfragment_t *rex_fragment_alt(rexfragment_t *frag1, rexfragment_t *frag2);
-rexfragment_t *rex_fragment_opt(rexfragment_t *frag);
-rexfragment_t *rex_fragment_mop(rexfragment_t *frag);
-rexfragment_t *rex_fragment_mul(rexfragment_t *frag);
+rexfragment_t *rex_fragment_create(rexstate_t *state);
+rexfragment_t *rex_fragment_cat(rexdb_t *rexdb, rexfragment_t *frag1, rexfragment_t *frag2);
+rexfragment_t *rex_fragment_alt(rexdb_t *rexdb, rexfragment_t *frag1, rexfragment_t *frag2);
+rexfragment_t *rex_fragment_opt(rexdb_t *rexdb, rexfragment_t *frag1);
+rexfragment_t *rex_fragment_mop(rexdb_t *rexdb, rexfragment_t *frag1);
+rexfragment_t *rex_fragment_mul(rexdb_t *rexdb, rexfragment_t *frag1);
+//rex_transition_t *rex_fragment_danglingtransition(rexfragment_t *frag, rexchar_t c1, rexchar_t c2);
+//rex_transition_t *rex_fragment_danglingtransition_e(rexfragment_t *frag);
 
 
 #ifdef __cplusplus

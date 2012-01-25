@@ -68,6 +68,7 @@ robject_t *rex_state_init(robject_t *obj, unsigned int objtype, r_object_cleanup
 	state->subset = r_array_create(sizeof(rexsubstate_t));
 	state->type = statetype;
 	state->uid = uid;
+
 	return (robject_t*)state;
 }
 
