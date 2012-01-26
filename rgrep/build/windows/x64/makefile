@@ -25,7 +25,7 @@ NULL=nul
 !ENDIF
 
 
-RGREP=rgrep.exe
+RGREP=rpagrep.exe
 PORT=windows
 ARCH=x64
 SRC_DIR=..\..\..
@@ -65,7 +65,7 @@ RGREP_OBJS= \
 	"$(OUTDIR)\fsenumwin.obj" \
 	"$(OUTDIR)\rpagrepdep.obj" \
 	"$(OUTDIR)\main.obj" \
-	
+
 
 ALL : "$(OUTDIR)\$(RGREP)"
 

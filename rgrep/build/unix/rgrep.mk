@@ -15,7 +15,7 @@ LIBS += -L$(RPA_SRCDIR)/build/unix/$(ARCHDIR)/out
 LIBS += -lrpa -lrvm -lrlib -lpthread -lm
 
 OBJECTS	= $(OUTDIR)/rpagrep.o $(OUTDIR)/main.o $(OUTDIR)/fsenum.o $(OUTDIR)/rpagrepdep.o $(OUTDIR)/rpagreputf.o
-RPAGREP	= rgrep
+RPAGREP	= rpagrep
 
 
 all : $(OUTDIR) $(OUTDIR)/$(RPAGREP)
