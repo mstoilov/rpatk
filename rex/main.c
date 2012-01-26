@@ -95,8 +95,9 @@ int main(int argc, char *argv[])
 			}
 			if (r_array_length(si->accepts)) {
 				rex_accept_t *acc = (rex_accept_t *)r_array_lastslot(si->accepts);
-				if (acc->userdata)
-					fprintf(stdout, "%s: ", (const char*)acc->userdata);
+				rexstate_t *s = rex_db_getstate(nfa, acc->state);
+				if (s->userdata)
+					fprintf(stdout, "%s: ", (const char*)s->userdata);
 				fwrite(in, 1, acc->inputsize, stdout);
 				fprintf(stdout, "\n");
 			}

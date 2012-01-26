@@ -88,16 +88,15 @@ int rex_grep_load_pattern(rexgrep_t *pGrep, rbuffer_t *buf)
 
 int rex_grep_matchdfa(rexgrep_t *pGrep, unsigned long startuid, const char* input, const char *end)
 {
-	int inc = 0;
 	ruint32 wc;
-	long next;
 	rexstate_t *s;
 	rex_transition_t *t;
 	rexdb_t *db = pGrep->dfa;
 	const char *start = input;
 	int accinput = 0;
+	int inc = 0;
+	long next = startuid;
 
-	next = startuid;
 	while (next) {
 		input += inc;
 		s = rex_db_getstate(db, next);
@@ -110,18 +109,10 @@ int rex_grep_matchdfa(rexgrep_t *pGrep, unsigned long startuid, const char* inpu
 		next = 0;
 		if ((inc = r_utf8_mbtowc(&wc, (const unsigned char*)input, (const unsigned char*)end)) <= 0)
 			break;
-
 		t = rex_transitions_find(s->trans, wc);
 		if (!t)
 			break;
 		next = t->dstuid;
-
-//		for (i = 0; i < r_array_length(s->trans); i++) {
-//			t = (rex_transition_t *)r_array_slot(s->trans, i);
-//			if (t->lowin <=  wc && wc <= t->highin) {
-//				next = t->dstuid;
-//			}
-//		}
 	}
 	return accinput;
 }

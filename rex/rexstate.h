@@ -58,6 +58,12 @@ typedef struct rexsubstate_s {
 	void *ss_userdata;
 } rexsubstate_t;
 
+typedef struct rex_accept_s {
+	unsigned long state;
+	long inputsize;
+	long count;
+} rex_accept_t;
+
 
 robject_t *rex_state_init(robject_t *obj, unsigned int objtype, r_object_cleanupfun cleanup, unsigned long uid, unsigned long statetype);
 rexstate_t *rex_state_create(unsigned long uid, long statetype);

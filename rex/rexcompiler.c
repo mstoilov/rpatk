@@ -392,9 +392,9 @@ long rex_compiler_expression(rexcompiler_t *co, const char *str, unsigned int si
 		goto error;
 	frag1 = FPOP(co);
 	frag2 = rex_fragment_create(rex_db_getstate(co->db, rex_db_createstate(co->db, REX_STATETYPE_ACCEPT)));
+	rex_state_setuserdata(REX_FRAG_STATE(frag2), accdata);
 	frag1 = rex_fragment_cat(co->db, frag1, frag2);
 	FPUSH(co, frag1);
-	rex_state_setuserdata(REX_FRAG_STATE(frag1), accdata);
 	ret = REX_FRAG_STATEUID(frag1);
 	REX_FRAG_STATE(frag1)->type = REX_STATETYPE_START;
 	rex_fragment_destroy(frag1);
