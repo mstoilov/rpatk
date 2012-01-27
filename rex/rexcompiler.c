@@ -256,15 +256,8 @@ static int rex_compiler_factor(rexcompiler_t *co)
 		rex_compiler_getnstok(co);		/* eat ')' */
 		return 0;
 	} else if (co->token == '.') {
-//		rexfragment_t *frag;
-//		frag = rex_fragment_create(rex_db_getstate(co->db, rex_db_createstate(co->db, REX_STATETYPE_NONE)));
-//		rex_fragment_danglingtransition(frag, 0, '\n' - 1);
-//		rex_fragment_danglingtransition(frag, '\n' + 1, REX_CHAR_MAX);
-//		rex_transitions_normalize(REX_FRAG_STATE(frag)->trans);
-//		FPUSH(co, frag);
 		srcstate = rex_db_getstate(co->db, rex_db_createstate(co->db, REX_STATETYPE_NONE));
 		rex_compiler_adjustescapedtoken(co);
-		frag = rex_fragment_create(srcstate);
 		rex_state_addtransition(srcstate, 0, '\n' - 1, -1);
 		rex_state_addtransition(srcstate, '\n' + 1, REX_CHAR_MAX, -1);
 		frag = rex_fragment_create(srcstate);
@@ -274,7 +267,6 @@ static int rex_compiler_factor(rexcompiler_t *co)
 	} else {
 		srcstate = rex_db_getstate(co->db, rex_db_createstate(co->db, REX_STATETYPE_NONE));
 		rex_compiler_adjustescapedtoken(co);
-		frag = rex_fragment_create(srcstate);
 		rex_state_addtransition(srcstate, co->token, co->token, -1);
 		frag = rex_fragment_create(srcstate);
 		FPUSH(co, frag);
@@ -394,7 +386,6 @@ long rex_compiler_expression(rexcompiler_t *co, const char *str, unsigned int si
 	frag2 = rex_fragment_create(rex_db_getstate(co->db, rex_db_createstate(co->db, REX_STATETYPE_ACCEPT)));
 	rex_state_setuserdata(REX_FRAG_STATE(frag2), accdata);
 	frag1 = rex_fragment_cat(co->db, frag1, frag2);
-	FPUSH(co, frag1);
 	ret = REX_FRAG_STATEUID(frag1);
 	REX_FRAG_STATE(frag1)->type = REX_STATETYPE_START;
 	rex_fragment_destroy(frag1);

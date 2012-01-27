@@ -56,8 +56,7 @@ static void init_ababb(rexdb_t *nfa)
 
 int main(int argc, char *argv[])
 {
-	int i, inc;
-	ruint32 wc;
+	int i;
 	long startstate = -1;
 	const char *ptr, *in, *end;
 	const char *name;
@@ -87,12 +86,7 @@ int main(int argc, char *argv[])
 				return 1;
 			ptr = in = argv[i];
 			end = in + strlen(in);
-//			ret = rex_nfasimulator_run(si, nfa, 0, in, end);
-			rex_nfasimulator_start(si, nfa, startstate);
-			while ((inc = r_utf8_mbtowc(&wc, (const unsigned char*)ptr, (const unsigned char*)end)) > 0) {
-				rex_nfasimulator_next(si, nfa, wc, inc);
-				ptr += inc;
-			}
+			rex_nfasimulator_run(si, nfa, startstate, in, strlen(in));
 			if (r_array_length(si->accepts)) {
 				rex_accept_t *acc = (rex_accept_t *)r_array_lastslot(si->accepts);
 				rexstate_t *s = rex_db_getstate(nfa, acc->state);

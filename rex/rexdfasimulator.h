@@ -18,8 +18,8 @@
  *  Martin Stoilov <martin@rpasearch.com>
  */
 
-#ifndef _REXNFASIMULATOR_H_
-#define _REXNFASIMULATOR_H_
+#ifndef _REXDFASIMULATOR_H_
+#define _REXDFASIMULATOR_H_
 
 #include "rtypes.h"
 #include "rlib/robject.h"
@@ -32,21 +32,19 @@ extern "C" {
 #endif
 
 
-typedef struct rex_nfasimulator_s {
+typedef struct rex_dfasimulator_s {
 	rarray_t *accepts;
-	rarray_t *newstates;
-	rarray_t *oldstates;
-	rarray_t *onmap;
 	long inputsize;
 	long count;
-} rex_nfasimulator_t;
+	rexstate_t *next;
+} rex_dfasimulator_t;
 
 
-rex_nfasimulator_t *rex_nfasimulator_create();
-void rex_nfasimulator_destroy(rex_nfasimulator_t *si);
-long rex_nfasimulator_run(rex_nfasimulator_t *si, rexdb_t *nfa, long uid, const char *str, unsigned long size);
-void rex_nfasimulator_start(rex_nfasimulator_t *si, rexdb_t *db, long uid);
-long rex_nfasimulator_next(rex_nfasimulator_t *si, rexdb_t *db, ruint32 wc, int wcsize);
+rex_dfasimulator_t *rex_dfasimulator_create();
+void rex_dfasimulator_destroy(rex_dfasimulator_t *si);
+long rex_dfasimulator_run(rex_dfasimulator_t *si, rexdb_t *nfa, long uid, const char *str, unsigned long size);
+void rex_dfasimulator_start(rex_dfasimulator_t *si, rexdb_t *db, long uid);
+long rex_dfasimulator_next(rex_dfasimulator_t *si, rexdb_t *db, ruint32 wc, int wcsize);
 
 
 #ifdef __cplusplus

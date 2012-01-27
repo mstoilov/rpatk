@@ -33,6 +33,7 @@
 #include "rlib/rmem.h"
 #include "rex/rexcompiler.h"
 #include "rex/rextransition.h"
+#include "rex/rexdfasimulator.h"
 #include "rexgrep.h"
 #include "rexgrepdep.h"
 
@@ -50,6 +51,7 @@ rexgrep_t *rex_grep_create()
 	r_memset(pGrep, 0, sizeof(*pGrep));
 	pGrep->nfa = rex_db_create(REXDB_TYPE_NFA);
 	pGrep->si = rex_nfasimulator_create();
+	pGrep->dfasi = rex_dfasimulator_create();
 	pGrep->ret = 1;
 	pGrep->startuid = -1L;
 	return pGrep;
@@ -63,6 +65,7 @@ void rex_grep_destroy(rexgrep_t *pGrep)
 	rex_db_destroy(pGrep->nfa);
 	rex_db_destroy(pGrep->dfa);
 	rex_nfasimulator_destroy(pGrep->si);
+	rex_dfasimulator_destroy(pGrep->dfasi);
 	r_free(pGrep);
 }
 
@@ -86,38 +89,6 @@ int rex_grep_load_pattern(rexgrep_t *pGrep, rbuffer_t *buf)
 }
 
 
-int rex_grep_matchdfa(rexgrep_t *pGrep, unsigned long startuid, const char* input, const char *end)
-{
-	ruint32 wc;
-	rexstate_t *s;
-	rex_transition_t *t;
-	rexdb_t *db = pGrep->dfa;
-	const char *start = input;
-	int accinput = 0;
-	int inc = 0;
-	long next = startuid;
-
-	while (next) {
-		input += inc;
-		s = rex_db_getstate(db, next);
-		if (!s)
-			break;
-		if (s->type == REX_STATETYPE_ACCEPT)
-			accinput = input - start;
-		else if (s->type == REX_STATETYPE_DEAD)
-			break;
-		next = 0;
-		if ((inc = r_utf8_mbtowc(&wc, (const unsigned char*)input, (const unsigned char*)end)) <= 0)
-			break;
-		t = rex_transitions_find(s->trans, wc);
-		if (!t)
-			break;
-		next = t->dstuid;
-	}
-	return accinput;
-}
-
-
 int rex_grep_match(rexgrep_t *pGrep, const char* input, const char *end)
 {
 	int inc;
@@ -125,7 +96,7 @@ int rex_grep_match(rexgrep_t *pGrep, const char* input, const char *end)
 	rexdb_t *db;
 
 	if (pGrep->usedfa)
-		return rex_grep_matchdfa(pGrep, 1, input, end);
+		return rex_dfasimulator_run(pGrep->dfasi, pGrep->dfa, 1, input, end - input);
 
 	if (pGrep->startuid < 0) {
 		return -1;

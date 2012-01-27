@@ -61,71 +61,22 @@ void rex_nfasimulator_dumpnewstates(rex_nfasimulator_t *si)
 
 }
 
-long rex_nfasimulator_run(rex_nfasimulator_t *si, rexdb_t *a, long uid, const char *str, const char *end)
+
+long rex_nfasimulator_run(rex_nfasimulator_t *si, rexdb_t *nfa, long uid, const char *str, unsigned long size)
 {
-	rexstate_t *s;
-	rex_transition_t *t;
+	int inc;
 	ruint32 wc;
-	rboolean off = FALSE;
-	rboolean mapval;
-	int wcsize;
-	long i, ret = 0;
-	unsigned long suid;
-	rex_accept_t acc, *pacc;
+	const char *ptr = str;
+	const char *end = str + size;
 
-	r_array_setlength(si->oldstates, 0);
-	r_array_setlength(si->newstates, 0);
-	r_array_setlength(si->accepts, 0);
-	r_array_setlength(si->onmap, r_array_length(a->states));
-	for (i = 0; i < r_array_length(a->states); i++)
-		r_array_replace(si->onmap, i, &off);
-	rex_nfasimulator_addstate(si, a, uid);
-
-#if 1
-	rex_nfasimulator_dumpnewstates(si);
-#endif
-
-	while (r_array_length(si->newstates)) {
-		while (r_array_length(si->newstates)) {
-			suid = r_array_pop(si->newstates, unsigned long);
-			r_array_push(si->oldstates, suid, unsigned long);
-			r_array_replace(si->onmap, suid, &off);
-			s = rex_db_getstate(a, suid);
-			if (s->type == REX_STATETYPE_ACCEPT) {
-				acc.state = suid;
-				acc.count = si->count;
-				acc.inputsize = ret;
-				r_array_add(si->accepts, &acc);
-			}
-		}
-
-		wcsize = r_utf8_mbtowc(&wc, (const unsigned char*)str + ret, (const unsigned char*)end);
-		if (wcsize <= 0)
-			goto end;
-		ret += wcsize;
-		while (r_array_length(si->oldstates)) {
-			suid = r_array_pop(si->oldstates, unsigned long);
-			s = rex_db_getstate(a, suid);
-			for (i = 0; i < r_array_length(s->trans); i++) {
-				t = (rex_transition_t *)r_array_slot(s->trans, i);
-				if (t->lowin <=  wc && wc <= t->highin) {
-					mapval = r_array_index(si->onmap, t->dstuid, rboolean);
-					if (mapval == 0)
-						rex_nfasimulator_addstate(si, a, t->dstuid);
-				}
-			}
-		}
-#if 1
-		rex_nfasimulator_dumpnewstates(si);
-#endif
+	rex_nfasimulator_start(si, nfa, uid);
+	while ((inc = r_utf8_mbtowc(&wc, (const unsigned char*)ptr, (const unsigned char*)end)) > 0) {
+		if (rex_nfasimulator_next(si, nfa, wc, inc) == 0)
+			break;
+		ptr += inc;
 	}
 
-end:
-	if (r_array_length(si->accepts)) {
-		pacc = (rex_accept_t*)r_array_slot(si->accepts, r_array_length(si->accepts) - 1);
-		return pacc->inputsize;
-	}
-	return 0;
+	return r_array_length(si->accepts);
 }
 
 
@@ -144,11 +95,9 @@ void rex_nfasimulator_start(rex_nfasimulator_t *si, rexdb_t *db, long uid)
 	for (i = 0; i < r_array_length(db->states); i++)
 		r_array_replace(si->onmap, i, &off);
 	rex_nfasimulator_addstate(si, db, uid);
-
 #if 0
 	rex_nfasimulator_dumpnewstates(si);
 #endif
-
 	while (r_array_length(si->newstates)) {
 		suid = r_array_pop(si->newstates, unsigned long);
 		r_array_push(si->oldstates, suid, unsigned long);
