@@ -21,12 +21,12 @@ OBJECTS	= $(OUTDIR)/rexgrep.o \
 	$(OUTDIR)/fsenum.o \
 	$(OUTDIR)/rexgrepdep.o
 
-RPAGREP	= rexgrep
+REXGREP	= rexgrep
 
 
-all : $(OUTDIR) $(OUTDIR)/$(RPAGREP)
+all : $(OUTDIR) $(OUTDIR)/$(REXGREP)
 
-$(OUTDIR)/$(RPAGREP) : $(OBJECTS)
+$(OUTDIR)/$(REXGREP) : $(OBJECTS)
 	$(CC) -o $@ $^ $(LIBS) $(LDFLAGS)
 
 
@@ -49,12 +49,12 @@ clean:
 	-rm -f *~
 	-rm -f $(ROOT_DIR)/*~
 	-rm -f $(OBJECTS)
-	-rm -f $(OUTDIR)/$(RPAGREP)
+	-rm -f $(OUTDIR)/$(REXGREP)
 
 install:
-	cp $(OUTDIR)/$(RPAGREP) $(REXGREP_BIN_INSTALL)
+	cp $(OUTDIR)/$(REXGREP) $(REXGREP_BIN_INSTALL)
 
 uninstall:
-	-rm -f $(REXGREP_BIN_INSTALL)/$(RPAGREP)
+	-rm -f $(REXGREP_BIN_INSTALL)/$(REXGREP)
 
 

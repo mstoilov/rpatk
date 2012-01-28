@@ -32,15 +32,14 @@
 #include "rlib/rmem.h"
 #include "rlib/rarray.h"
 #include "rex/rexdfaconv.h"
-#include "rpa/rpadbex.h"
 #include "rexgrep.h"
 #include "rexgrepdep.h"
 
 
 int usage(int argc, const char *argv[])
 {
-	    fprintf(stderr, "REX Grep with RPA Engine: %s \n", rpa_dbex_version());
-		fprintf(stderr, "Copyright (C) 2010 Martin Stoilov\n\n");
+		fprintf(stderr, "REX Grep - using library version: %s \n", rex_db_version());
+		fprintf(stderr, "Copyright (C) 2012 Martin Stoilov\n\n");
 
 		fprintf(stderr, "Usage: \n %s [OPTIONS] <filename>\n", argv[0]);
 		fprintf(stderr, " OPTIONS:\n");

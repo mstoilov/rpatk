@@ -39,8 +39,12 @@
 extern "C" {
 #endif
 
-typedef unsigned int rexchar_t;
 
+#ifndef REX_CHAR_TYPE
+typedef unsigned int rexchar_t;
+#else
+typedef REX_CHAR_TYPE rexchar_t;
+#endif
 #define REX_CHAR_MAX ((rexchar_t)-1)
 #define REX_CHAR_MIN ((rexchar_t)0)
 

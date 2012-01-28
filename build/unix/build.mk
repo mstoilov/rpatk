@@ -61,6 +61,7 @@ install: $(RPATK_INC_INSTALL) $(RPATK_INC_INSTALL)/rlib $(RPATK_INC_INSTALL)/rvm
 	+make -C $(ROOT_DIR)/rvm/build/unix/$(ARCHDIR) install
 	+make -C $(ROOT_DIR)/rex/build/unix/$(ARCHDIR) install
 	+make -C $(ROOT_DIR)/rgrep/build/unix/$(ARCHDIR) install
+	+make -C $(ROOT_DIR)/rexgrep/build/unix/$(ARCHDIR) install
 	ldconfig -n $(RTK_LIB_INSTALL)
 
 uninstall:
@@ -68,6 +69,7 @@ uninstall:
 	+make -C $(ROOT_DIR)/rpa/build/unix/$(ARCHDIR) uninstall
 	+make -C $(ROOT_DIR)/rvm/build/unix/$(ARCHDIR) uninstall
 	+make -C $(ROOT_DIR)/rgrep/build/unix/$(ARCHDIR) uninstall
+	+make -C $(ROOT_DIR)/rexgrep/build/unix/$(ARCHDIR) uninstall
 	-rm -rf $(RPATK_INC_INSTALL)/rlib
 	-rm -rf $(RPATK_INC_INSTALL)/rvm
 	-rm -rf $(RPATK_INC_INSTALL)/rpa
