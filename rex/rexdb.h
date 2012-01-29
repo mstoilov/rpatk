@@ -50,6 +50,7 @@ typedef struct rexdb_s {
 
 robject_t *rex_db_init(robject_t *obj, unsigned int objtype, r_object_cleanupfun cleanup, rexdb_type_t type);
 rexdb_t *rex_db_create(rexdb_type_t type);
+rexdb_t *rex_db_createdfa(rexdb_t *nfa, unsigned long start);
 void rex_db_destroy(rexdb_t *rexdb);
 long rex_db_createstate(rexdb_t *rexdb, rex_statetype_t type);
 long rex_db_insertstate(rexdb_t *rexdb, rexstate_t *s);

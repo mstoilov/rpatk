@@ -5,6 +5,16 @@
 #include "rex/rextransition.h"
 #include "rex/rexdb.h"
 #include "rex/rexnfasimulator.h"
+#include "rex/rexdfaconv.h"
+
+
+rexdb_t *rex_db_createdfa(rexdb_t *nfa, unsigned long start)
+{
+	rexdfaconv_t *conv = rex_dfaconv_create();
+	rexdb_t *dfa = rex_dfaconv_run(conv, nfa, start);
+	rex_dfaconv_destroy(conv);
+	return dfa;
+}
 
 
 void rex_db_cleanup(robject_t *obj)
