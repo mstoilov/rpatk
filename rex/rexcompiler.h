@@ -24,10 +24,8 @@
 #include "rtypes.h"
 #include "rlib/robject.h"
 #include "rlib/rarray.h"
-#include "rex/rexstate.h"
 #include "rex/rexdb.h"
-#include "rex/rexfragment.h"
-#include "rex/rextransition.h"
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,25 +33,15 @@ extern "C" {
 
 #define REX_COMPILER_TOKENSIZE	128
 
-typedef struct rexcompiler_s {
-	rexdb_t *db;
-	rarray_t *stack;
-	rarray_t *temptrans;
-	const char *start;
-	const char *end;
-	const char *ptr;
-	int token;
-	rexchar_t numtoken;
-	char tokenstr[REX_COMPILER_TOKENSIZE];
-} rexcompiler_t;
+typedef struct rexcompiler_s rexcompiler_t;
 
 
-rexcompiler_t *rex_compiler_create(rexdb_t *db);
+rexcompiler_t *rex_compiler_create();
 void rex_compiler_destroy(rexcompiler_t *co);
-long rex_compiler_expression(rexcompiler_t *co, const char *str, unsigned int size, void *accdata);
-long rex_compiler_expression_s(rexcompiler_t *co, const char *str, void *accdata);
-long rex_compiler_addexpression(rexcompiler_t *co, unsigned long prev, const char *str, unsigned int size, void *accdata);
-long rex_compiler_addexpression_s(rexcompiler_t *co, unsigned long prev, const char *str, void *accdata);
+long rex_compiler_expression(rexcompiler_t *co, rexdb_t *rexdb, const char *str, unsigned int size, void *accdata);
+long rex_compiler_expression_s(rexcompiler_t *co, rexdb_t *rexdb, const char *str, void *accdata);
+long rex_compiler_addexpression(rexcompiler_t *co, rexdb_t *rexdb, unsigned long prev, const char *str, unsigned int size, void *accdata);
+long rex_compiler_addexpression_s(rexcompiler_t *co, rexdb_t *rexdb, unsigned long prev, const char *str, void *accdata);
 
 #ifdef __cplusplus
 }

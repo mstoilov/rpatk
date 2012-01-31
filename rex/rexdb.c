@@ -3,9 +3,9 @@
 #include "rlib/rmem.h"
 #include "rlib/rutf.h"
 #include "rex/rextransition.h"
-#include "rex/rexdb.h"
 #include "rex/rexnfasimulator.h"
 #include "rex/rexdfaconv.h"
+#include "rex/rexcompiler.h"
 
 
 rexdb_t *rex_db_createdfa(rexdb_t *nfa, unsigned long start)
@@ -26,6 +26,7 @@ void rex_db_cleanup(robject_t *obj)
 		rex_state_destroy(r_array_index(rexdb->states, i, rexstate_t*));
 	r_array_destroy(rexdb->states);
 	r_array_destroy(rexdb->substates);
+	rex_compiler_destroy(rexdb->co);
 	r_object_cleanup(obj);
 }
 
@@ -35,6 +36,7 @@ robject_t *rex_db_init(robject_t *obj, unsigned int objtype, r_object_cleanupfun
 	rexdb_t *rexdb = (rexdb_t*) obj;
 
 	r_object_init(obj, objtype, cleanup, NULL);
+	rexdb->co = NULL;
 	rexdb->states = r_array_create(sizeof(rexstate_t*));
 	rexdb->substates = r_array_create(sizeof(rexsubstate_t));
 	rexdb->type = type;
@@ -44,6 +46,9 @@ robject_t *rex_db_init(robject_t *obj, unsigned int objtype, r_object_cleanupfun
 		 */
 		long uid = rex_db_createstate(rexdb , REX_STATETYPE_DEAD);
 		rex_state_addtransition(rex_db_getstate(rexdb, uid), 0, REX_CHAR_MAX, uid);
+	}
+	if (type == REXDB_TYPE_NFA) {
+		rexdb->co = rex_compiler_create(rexdb);
 	}
 	return (robject_t*)rexdb;
 }
@@ -178,6 +183,22 @@ rexsubstate_t *rex_db_getsubstate(rexdb_t *rexdb, unsigned long uid)
 		return (rexsubstate_t *)r_array_slot(rexdb->substates, uid);
 	}
 	return NULL;
+}
+
+
+long rex_db_addexpression(rexdb_t *rexdb, unsigned long prev, const char *str, unsigned int size, void *accuserdata)
+{
+	if (rexdb->type != REXDB_TYPE_NFA)
+		return -1;
+	return rex_compiler_addexpression(rexdb->co, rexdb, prev, str, size, accuserdata);
+}
+
+
+long rex_db_addexpression_s(rexdb_t *rexdb, unsigned long prev, const char *str, void *accuserdata)
+{
+	if (rexdb->type != REXDB_TYPE_NFA)
+		return -1;
+	return rex_compiler_addexpression_s(rexdb->co, rexdb, prev, str, accuserdata);
 }
 
 

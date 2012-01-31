@@ -144,7 +144,7 @@ long rex_nfasimulator_next(rex_nfasimulator_t *si, rexdb_t *db, ruint32 wc, int 
 			rex_accept_t acc;
 			acc.count = si->count;
 			acc.inputsize = si->inputsize;
-			acc.state = suid;
+			acc.state = s;
 			r_array_add(si->accepts, &acc);
 
 		}

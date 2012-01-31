@@ -45,7 +45,6 @@ static void init_ababb(rexdb_t *nfa)
 	rex_state_addtransition_e_dst(s6, s7);
 
 	rex_state_addtransition_dst(s2, 'a', 'a', s3);
-//	rex_state_addtransition_dst(s4, 'b', 'z', s5);
 	rex_state_addtransition_dst(s4, 'b', 'b', s5);
 	rex_state_addtransition_dst(s7, 'a', 'a', s8);
 	rex_state_addtransition_dst(s8, 'b', 'b', s9);
@@ -62,7 +61,6 @@ int main(int argc, char *argv[])
 	const char *name;
 	rex_nfasimulator_t *si = rex_nfasimulator_create();
 	rexdb_t *nfa = rex_db_create(REXDB_TYPE_NFA);
-	rexcompiler_t *co = rex_compiler_create(nfa);
 
 
 	for (i = 1; i < argc; i++) {
@@ -71,7 +69,7 @@ int main(int argc, char *argv[])
 				name = argv[i];
 			}
 			if (++i < argc) {
-				startstate = rex_compiler_addexpression_s(co, startstate, argv[i], (void*)name);
+				startstate = rex_db_addexpression_s(nfa, startstate, argv[i], (void*)name);
 			}
 		} else if (strcmp(argv[i], "-D") == 0) {
 			int j;
@@ -89,7 +87,7 @@ int main(int argc, char *argv[])
 			rex_nfasimulator_run(si, nfa, startstate, in, strlen(in));
 			if (r_array_length(si->accepts)) {
 				rex_accept_t *acc = (rex_accept_t *)r_array_lastslot(si->accepts);
-				rexstate_t *s = rex_db_getstate(nfa, acc->state);
+				rexstate_t *s = acc->state;
 				if (s->userdata)
 					fprintf(stdout, "%s: ", (const char*)s->userdata);
 				fwrite(in, 1, acc->inputsize, stdout);
@@ -97,11 +95,8 @@ int main(int argc, char *argv[])
 			}
 		}
 	}
-
 	rex_db_destroy(nfa);
 	rex_nfasimulator_destroy(si);
-	rex_compiler_destroy(co);
 	fprintf(stdout, "memory: %ld KB (leaked %ld Bytes)\n", (long)r_debug_get_maxmem()/1000, (long)r_debug_get_allocmem());
-
 	return 0;
 }

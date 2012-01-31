@@ -59,7 +59,7 @@ typedef struct rexsubstate_s {
 } rexsubstate_t;
 
 typedef struct rex_accept_s {
-	unsigned long state;
+	rexstate_t *state;
 	long inputsize;
 	long count;
 } rex_accept_t;

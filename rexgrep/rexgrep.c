@@ -31,7 +31,6 @@
 
 #include "rlib/rutf.h"
 #include "rlib/rmem.h"
-#include "rex/rexcompiler.h"
 #include "rex/rextransition.h"
 #include "rex/rexdfasimulator.h"
 #include "rexgrep.h"
@@ -78,13 +77,10 @@ int rex_grep_load_string_pattern(rexgrep_t *pGrep, rbuffer_t *buf)
 
 int rex_grep_load_pattern(rexgrep_t *pGrep, rbuffer_t *buf)
 {
-	rexcompiler_t *co = rex_compiler_create(pGrep->nfa);
-	pGrep->startuid = rex_compiler_addexpression(co, pGrep->startuid, buf->s, buf->size, NULL);
+	pGrep->startuid = rex_db_addexpression(pGrep->nfa, pGrep->startuid, buf->s, buf->size, NULL);
 	if (pGrep->startuid < 0) {
-		rex_compiler_destroy(co);
 		return -1;
 	}
-	rex_compiler_destroy(co);
 	return 0;
 }
 

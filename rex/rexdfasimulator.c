@@ -67,7 +67,7 @@ long rex_dfasimulator_next(rex_dfasimulator_t *si, rexdb_t *db, ruint32 wc, int 
 		rex_accept_t acc;
 		acc.count = si->count;
 		acc.inputsize = si->inputsize;
-		acc.state = si->next->uid;
+		acc.state = si->next;
 		r_array_add(si->accepts, &acc);
 	}
 	return si->next->uid;

@@ -38,10 +38,11 @@ typedef enum {
 	REXDB_TYPE_NFA = 1
 } rexdb_type_t;
 
-
+struct rexcompiler_s;
 typedef struct rexdb_s {
 	robject_t obj;
 	rexdb_type_t type;
+	struct rexcompiler_s *co;
 	rarray_t *states;
 	rarray_t *substates;	/* Used only if the type is REXDB_TYPE_DFA */
 	rexstate_t *start;
@@ -54,14 +55,13 @@ rexdb_t *rex_db_createdfa(rexdb_t *nfa, unsigned long start);
 void rex_db_destroy(rexdb_t *rexdb);
 long rex_db_createstate(rexdb_t *rexdb, rex_statetype_t type);
 long rex_db_insertstate(rexdb_t *rexdb, rexstate_t *s);
-long rex_db_findstate(rexdb_t *a, const rarray_t *subset);
+long rex_db_findstate(rexdb_t *rexdb, const rarray_t *subset);
+long rex_db_addexpression(rexdb_t *rexdb, unsigned long prev, const char *str, unsigned int size, void *accuserdata);
+long rex_db_addexpression_s(rexdb_t *rexdb, unsigned long prev, const char *str, void *accuserdata);
 rexstate_t *rex_db_getstate(rexdb_t *rexdb, long uid);
 rexsubstate_t *rex_db_getsubstate(rexdb_t *rexdb, unsigned long uid);
 rex_transition_t * rex_db_addrangetrasition(rexdb_t *rexdb, rexchar_t c1, rexchar_t c2, unsigned long srcuid, unsigned long dstuid);
 rex_transition_t * rex_db_addtrasition_e(rexdb_t *rexdb, unsigned long srcuid, unsigned long dstuid);
-int rex_db_simulate_nfa(rexdb_t *rexdb, long uid, const char *str, const char *end);
-int rex_db_simulate_nfa2(rexdb_t *a, long uid, const char *str, const char *end);
-long rex_db_compile(rexdb_t *rexdb, const char *str, unsigned int size);
 void rex_db_dumpstate(rexdb_t *rexdb, unsigned long uid);
 const char *rex_db_version();
 

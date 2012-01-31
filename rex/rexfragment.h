@@ -46,8 +46,6 @@ rexfragment_t *rex_fragment_alt(rexdb_t *rexdb, rexfragment_t *frag1, rexfragmen
 rexfragment_t *rex_fragment_opt(rexdb_t *rexdb, rexfragment_t *frag1);
 rexfragment_t *rex_fragment_mop(rexdb_t *rexdb, rexfragment_t *frag1);
 rexfragment_t *rex_fragment_mul(rexdb_t *rexdb, rexfragment_t *frag1);
-//rex_transition_t *rex_fragment_danglingtransition(rexfragment_t *frag, rexchar_t c1, rexchar_t c2);
-//rex_transition_t *rex_fragment_danglingtransition_e(rexfragment_t *frag);
 
 
 #ifdef __cplusplus
