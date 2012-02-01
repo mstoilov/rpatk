@@ -77,7 +77,7 @@ int rex_grep_load_string_pattern(rexgrep_t *pGrep, rbuffer_t *buf)
 
 int rex_grep_load_pattern(rexgrep_t *pGrep, rbuffer_t *buf)
 {
-	pGrep->startuid = rex_db_addexpression(pGrep->nfa, pGrep->startuid, buf->s, buf->size, NULL);
+	pGrep->startuid = rex_db_addexpression(pGrep->nfa, pGrep->startuid, buf->s, buf->size, 0);
 	if (pGrep->startuid < 0) {
 		return -1;
 	}

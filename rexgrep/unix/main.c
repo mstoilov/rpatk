@@ -32,6 +32,7 @@
 #include "rlib/rmem.h"
 #include "rlib/rarray.h"
 #include "rex/rexdfaconv.h"
+#include "rex/rexdfa.h"
 #include "rexgrep.h"
 #include "rexgrepdep.h"
 
@@ -48,6 +49,8 @@ int usage(int argc, const char *argv[])
 		fprintf(stderr, "\t-o, --only-matching      Show only the part of a line matching PATTERN\n");
 		fprintf(stderr, "\t-l                       Line mode.\n");
 		fprintf(stderr, "\t-N                       Use NFA.\n");
+		fprintf(stderr, "\t-D                       Dump states.\n");
+		fprintf(stderr, "\t-F                       Dump rexdfa_t states.\n");
 		fprintf(stderr, "\t-q                       Quiet mode.\n");
 		fprintf(stderr, "\t-t                       Display time elapsed.\n");
 		fprintf(stderr, "\t-s string                Scan string.\n");
@@ -218,6 +221,22 @@ int main(int argc, const char *argv[])
 			goto end;
 		}
 	}
+
+
+	for (i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "-F") == 0) {
+			int j;
+			rexdfa_t *dfa = NULL;
+			if (pGrep->dfa == NULL)
+				goto end;
+			dfa = rex_dfa_create_from_db(pGrep->dfa);
+			for (j = 0; j < dfa->nstates; j++) {
+				rex_dfa_dumpstate(dfa, j);
+			}
+			goto end;
+		}
+	}
+
 
 	/* scan files */
 	for (i = 1; i < argc; i++) {

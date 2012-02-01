@@ -381,7 +381,7 @@ static int rex_compiler_altexpression(rexcompiler_t *co, rexdb_t *rexdb)
 }
 
 
-long rex_compiler_expression(rexcompiler_t *co, rexdb_t *rexdb, const char *str, unsigned int size, void *accdata)
+long rex_compiler_expression(rexcompiler_t *co, rexdb_t *rexdb, const char *str, unsigned int size, rexuserdata_t userdata)
 {
 	long curlen = r_array_length(rexdb->states);
 	long i;
@@ -397,7 +397,7 @@ long rex_compiler_expression(rexcompiler_t *co, rexdb_t *rexdb, const char *str,
 		goto error;
 	frag1 = FPOP(co);
 	frag2 = rex_fragment_create(rex_db_getstate(rexdb, rex_db_createstate(rexdb, REX_STATETYPE_ACCEPT)));
-	rex_state_setuserdata(REX_FRAG_STATE(frag2), accdata);
+	rex_state_setuserdata(REX_FRAG_STATE(frag2), userdata);
 	frag1 = rex_fragment_cat(rexdb, frag1, frag2);
 	ret = REX_FRAG_STATEUID(frag1);
 	REX_FRAG_STATE(frag1)->type = REX_STATETYPE_START;
@@ -416,16 +416,16 @@ error:
 }
 
 
-long rex_compiler_expression_s(rexcompiler_t *co, rexdb_t *rexdb, const char *str, void *accdata)
+long rex_compiler_expression_s(rexcompiler_t *co, rexdb_t *rexdb, const char *str, rexuserdata_t userdata)
 {
-	return rex_compiler_expression(co, rexdb, str, r_strlen(str), accdata);
+	return rex_compiler_expression(co, rexdb, str, r_strlen(str), userdata);
 }
 
 
-long rex_compiler_addexpression(rexcompiler_t *co, rexdb_t *rexdb, unsigned long prev, const char *str, unsigned int size, void *accdata)
+long rex_compiler_addexpression(rexcompiler_t *co, rexdb_t *rexdb, unsigned long prev, const char *str, unsigned int size, rexuserdata_t userdata)
 {
 	rexstate_t *sprev = NULL, *scur = NULL;
-	long cur = rex_compiler_expression(co, rexdb, str, size, accdata);
+	long cur = rex_compiler_expression(co, rexdb, str, size, userdata);
 	if (cur < 0)
 		return -1;
 	sprev = rex_db_getstate(rexdb, prev);
@@ -439,7 +439,7 @@ long rex_compiler_addexpression(rexcompiler_t *co, rexdb_t *rexdb, unsigned long
 }
 
 
-long rex_compiler_addexpression_s(rexcompiler_t *co, rexdb_t *rexdb, unsigned long prev, const char *str, void *accdata)
+long rex_compiler_addexpression_s(rexcompiler_t *co, rexdb_t *rexdb, unsigned long prev, const char *str, rexuserdata_t userdata)
 {
-	return rex_compiler_addexpression(co, rexdb, prev, str, r_strlen(str), accdata);
+	return rex_compiler_addexpression(co, rexdb, prev, str, r_strlen(str), userdata);
 }

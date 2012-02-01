@@ -56,13 +56,16 @@ void rex_db_destroy(rexdb_t *rexdb);
 long rex_db_createstate(rexdb_t *rexdb, rex_statetype_t type);
 long rex_db_insertstate(rexdb_t *rexdb, rexstate_t *s);
 long rex_db_findstate(rexdb_t *rexdb, const rarray_t *subset);
-long rex_db_addexpression(rexdb_t *rexdb, unsigned long prev, const char *str, unsigned int size, void *accuserdata);
-long rex_db_addexpression_s(rexdb_t *rexdb, unsigned long prev, const char *str, void *accuserdata);
+long rex_db_addexpression(rexdb_t *rexdb, unsigned long prev, const char *str, unsigned int size, rexuserdata_t userdata);
+long rex_db_addexpression_s(rexdb_t *rexdb, unsigned long prev, const char *str, rexuserdata_t userdata);
 rexstate_t *rex_db_getstate(rexdb_t *rexdb, long uid);
 rexsubstate_t *rex_db_getsubstate(rexdb_t *rexdb, unsigned long uid);
 rex_transition_t * rex_db_addrangetrasition(rexdb_t *rexdb, rexchar_t c1, rexchar_t c2, unsigned long srcuid, unsigned long dstuid);
 rex_transition_t * rex_db_addtrasition_e(rexdb_t *rexdb, unsigned long srcuid, unsigned long dstuid);
 void rex_db_dumpstate(rexdb_t *rexdb, unsigned long uid);
+long rex_db_numtransitions(rexdb_t *rexdb);
+long rex_db_numstates(rexdb_t *rexdb);
+long rex_db_numsubstates(rexdb_t *rexdb);
 const char *rex_db_version();
 
 

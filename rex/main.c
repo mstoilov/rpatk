@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
 				name = argv[i];
 			}
 			if (++i < argc) {
-				startstate = rex_db_addexpression_s(nfa, startstate, argv[i], (void*)name);
+				startstate = rex_db_addexpression_s(nfa, startstate, argv[i], (rexuserdata_t)name);
 			}
 		} else if (strcmp(argv[i], "-D") == 0) {
 			int j;

@@ -33,7 +33,6 @@ extern "C" {
 
 #define R_OBJECT_FASTATE 33
 
-
 typedef struct rexstate_s rexstate_t;
 
 typedef enum {
@@ -50,12 +49,12 @@ struct rexstate_s {
 	rarray_t *subset;
 	unsigned long type;
 	unsigned long uid;
-	void *userdata;
+	rexuserdata_t userdata;
 };
 
 typedef struct rexsubstate_s {
 	unsigned long ss_type;
-	void *ss_userdata;
+	unsigned long ss_userdata;
 } rexsubstate_t;
 
 typedef struct rex_accept_s {
@@ -75,7 +74,7 @@ rex_transition_t *rex_state_addtransition_dst(rexstate_t *srcstate, rexchar_t c1
 void rex_state_addnewsubstate(rexstate_t *state, unsigned long ss_uid);
 void rex_state_addsubstate(rexstate_t *state, const rexstate_t *substate);
 long rex_state_next(rexstate_t *state, unsigned long input);
-void rex_state_setuserdata(rexstate_t *state, void *userdata);
+void rex_state_setuserdata(rexstate_t *state, rexuserdata_t userdata);
 
 /*
  * Virtual methods implementation

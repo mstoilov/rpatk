@@ -123,11 +123,16 @@ void rex_state_addsubstate(rexstate_t *state, const rexstate_t *substate)
 }
 
 
-void rex_state_setuserdata(rexstate_t *state, void *userdata)
+void rex_state_setuserdata(rexstate_t *state, rexuserdata_t userdata)
 {
 	state->userdata = userdata;
 }
 
+
+unsigned long rex_state_getuserdata(rexstate_t *state)
+{
+	return state->userdata;
+}
 
 long rex_state_next(rexstate_t *state, unsigned long input)
 {

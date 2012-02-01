@@ -186,19 +186,19 @@ rexsubstate_t *rex_db_getsubstate(rexdb_t *rexdb, unsigned long uid)
 }
 
 
-long rex_db_addexpression(rexdb_t *rexdb, unsigned long prev, const char *str, unsigned int size, void *accuserdata)
+long rex_db_addexpression(rexdb_t *rexdb, unsigned long prev, const char *str, unsigned int size, rexuserdata_t userdata)
 {
 	if (rexdb->type != REXDB_TYPE_NFA)
 		return -1;
-	return rex_compiler_addexpression(rexdb->co, rexdb, prev, str, size, accuserdata);
+	return rex_compiler_addexpression(rexdb->co, rexdb, prev, str, size, userdata);
 }
 
 
-long rex_db_addexpression_s(rexdb_t *rexdb, unsigned long prev, const char *str, void *accuserdata)
+long rex_db_addexpression_s(rexdb_t *rexdb, unsigned long prev, const char *str, rexuserdata_t userdata)
 {
 	if (rexdb->type != REXDB_TYPE_NFA)
 		return -1;
-	return rex_compiler_addexpression_s(rexdb->co, rexdb, prev, str, accuserdata);
+	return rex_compiler_addexpression_s(rexdb->co, rexdb, prev, str, userdata);
 }
 
 
@@ -230,9 +230,6 @@ void rex_db_dumpstate(rexdb_t *rexdb, unsigned long uid)
 	fprintf(stdout, ": ");
 	if (state->type == REX_STATETYPE_ACCEPT) {
 		fprintf(stdout, " REX_STATETYPE_ACCEPT ");
-		if (state->userdata) {
-			fprintf(stdout, " : %s", (const char*)state->userdata);
-		}
 	} else if (state->type == REX_STATETYPE_DEAD) {
 		fprintf(stdout, " REX_STATETYPE_DEAD ");
 	} else if (state->type == REX_STATETYPE_START) {
@@ -276,6 +273,38 @@ void rex_db_dumpstate(rexdb_t *rexdb, unsigned long uid)
 		fprintf(stdout, "        (none)\n");
 	fprintf(stdout, "\n");
 
+}
+
+
+long rex_db_numtransitions(rexdb_t *rexdb)
+{
+	long i;
+	long ret = 0;
+
+	for (i = 0; i < r_array_length(rexdb->states); i++) {
+		rexstate_t *state = rex_db_getstate(rexdb, i);
+		ret += r_array_length(state->trans);
+	}
+	return ret;
+}
+
+
+long rex_db_numstates(rexdb_t *rexdb)
+{
+	return r_array_length(rexdb->states);
+}
+
+
+long rex_db_numsubstates(rexdb_t *rexdb)
+{
+	long i;
+	long ret = 0;
+
+	for (i = 0; i < r_array_length(rexdb->states); i++) {
+		rexstate_t *state = rex_db_getstate(rexdb, i);
+		ret += rex_subset_length(state->subset);
+	}
+	return ret;
 }
 
 

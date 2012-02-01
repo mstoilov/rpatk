@@ -33,20 +33,12 @@
 #define _REXTRANSITION_H_
 
 #include "rlib/rarray.h"
-
+#include "rex/rexdef.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-
-#ifndef REX_CHAR_TYPE
-typedef unsigned int rexchar_t;
-#else
-typedef REX_CHAR_TYPE rexchar_t;
-#endif
-#define REX_CHAR_MAX ((rexchar_t)-1)
-#define REX_CHAR_MIN ((rexchar_t)0)
 
 typedef enum {
 	REX_TRANSITION_INPUT = 0,
