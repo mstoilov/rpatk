@@ -13,7 +13,8 @@ extern "C" {
  * Subset info definition
  */
 typedef struct rexsi_s {
-	unsigned long substate;
+	unsigned int type;
+	unsigned long uid;
 	rexuserdata_t userdata;
 } rexsi_t;
 
@@ -35,6 +36,8 @@ typedef struct rexdfs_s {
 	unsigned int type;
 	unsigned int ntrans;
 	rexdft_t *trans;
+	unsigned int nsubstates;
+	rexsi_t *substates;
 } rexdfs_t;
 
 

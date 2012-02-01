@@ -45,7 +45,7 @@ void rex_dfa_destroy(rexdfa_t *dfa)
 }
 
 
-static void rex_dfa_fillstate(rexdfa_t *dfa, struct rexdfa_ctx *ctx, rexstate_t *state)
+static void rex_dfa_fillstate(rexdb_t *db, rexdfa_t *dfa, struct rexdfa_ctx *ctx, rexstate_t *state)
 {
 	long i;
 	rex_transition_t *t = NULL;
@@ -60,6 +60,16 @@ static void rex_dfa_fillstate(rexdfa_t *dfa, struct rexdfa_ctx *ctx, rexstate_t 
 		s->trans[i].state = t->dstuid;
 	}
 	ctx->ntrnas += s->ntrans;
+	s->substates = &dfa->substates[ctx->nsubstates];
+	s->nsubstates = rex_subset_length(state->subset);
+	for (i = 0; i < s->nsubstates; i++) {
+		unsigned long uid = rex_subset_index(state->subset, i);
+		rexsubstate_t *substate = rex_db_getsubstate(db, uid);
+		s->substates[i].uid = uid;
+		s->substates[i].type = substate->ss_type;
+		s->substates[i].userdata = substate->ss_userdata;
+	}
+	ctx->nsubstates += s->nsubstates;
 }
 
 
@@ -76,7 +86,7 @@ rexdfa_t *rex_dfa_create_from_db(rexdb_t *db)
 
 	for (i = 0; i < r_array_length(db->states); i++) {
 		rexstate_t *state = rex_db_getstate(db, i);
-		rex_dfa_fillstate(dfa, &ctx, state);
+		rex_dfa_fillstate(db, dfa, &ctx, state);
 	}
 	return dfa;
 }
@@ -92,6 +102,16 @@ void rex_dfa_dumpstate(rexdfa_t *dfa, long off)
 	rexdft_t *t = NULL;
 
 	fprintf(stdout, "State %ld", off);
+
+	fprintf(stdout, " (");
+	for (index = 0; index < s->nsubstates; index++) {
+		fprintf(stdout, "%ld", s->substates[index].uid);
+		if (s->substates[index].type == REX_STATETYPE_ACCEPT)
+			fprintf(stdout, "*");
+		fprintf(stdout, ",");
+	}
+	fprintf(stdout, ")");
+
 
 	fprintf(stdout, ": ");
 	if (s->type == REX_STATETYPE_ACCEPT) {
