@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include "rlib/rbuffer.h"
 #include "rex/rexdb.h"
+#include "rex/rexdfa.h"
 #include "rex/rexfragment.h"
 #include "rex/rexnfasimulator.h"
 #include "rex/rexdfasimulator.h"
@@ -44,7 +45,7 @@ extern "C" {
 
 typedef struct rexgrep_s {
 	rexdb_t *nfa;
-	rexdb_t *dfa;
+	rexdfa_t *dfa;
 	rex_nfasimulator_t *si;
 	rex_dfasimulator_t *dfasi;
 	long startuid;

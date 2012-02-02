@@ -208,35 +208,27 @@ int main(int argc, const char *argv[])
 	}
 
 	if (pGrep->usedfa) {
-		pGrep->dfa = rex_db_createdfa(pGrep->nfa, pGrep->startuid);
+		rexdb_t *dfadb = rex_db_createdfa(pGrep->nfa, pGrep->startuid);
+		pGrep->dfa = rex_dfa_create_from_db(dfadb);
+		rex_db_destroy(dfadb);
 	}
 
 	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-D") == 0) {
 			int j;
-			rexdb_t *db = pGrep->usedfa ? pGrep->dfa : pGrep->nfa;
-			for (j = 0; j < r_array_length(db->states); j++) {
-				rex_db_dumpstate(db, j);
+			if (pGrep->dfa) {
+				for (j = 0; j < pGrep->dfa->nstates; j++) {
+					rex_dfa_dumpstate(pGrep->dfa, j);
+				}
+			} else if (pGrep->nfa) {
+				rexdb_t *db = pGrep->nfa;
+				for (j = 0; j < r_array_length(db->states); j++) {
+					rex_db_dumpstate(db, j);
+				}
 			}
 			goto end;
 		}
 	}
-
-
-	for (i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "-F") == 0) {
-			int j;
-			rexdfa_t *dfa = NULL;
-			if (pGrep->dfa == NULL)
-				goto end;
-			dfa = rex_dfa_create_from_db(pGrep->dfa);
-			for (j = 0; j < dfa->nstates; j++) {
-				rex_dfa_dumpstate(dfa, j);
-			}
-			goto end;
-		}
-	}
-
 
 	/* scan files */
 	for (i = 1; i < argc; i++) {

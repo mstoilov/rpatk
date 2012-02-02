@@ -1,3 +1,23 @@
+/*
+ *  Regular Pattern Analyzer (RPA)
+ *  Copyright (c) 2009-2010 Martin Stoilov
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  Martin Stoilov <martin@rpasearch.com>
+ */
+
 #ifndef _REXDFA_H_
 #define _REXDFA_H_
 
@@ -9,14 +29,17 @@ extern "C" {
 #endif
 
 
+#define REX_DFA_DEADSTATE (0)
+#define REX_DFA_STARTSTATE (1)
+
 /*
- * Subset info definition
+ * Sub-state info definition
  */
-typedef struct rexsi_s {
+typedef struct rexdfss_s {
 	unsigned int type;
 	unsigned long uid;
 	rexuserdata_t userdata;
-} rexsi_t;
+} rexdfss_t;
 
 
 /*
@@ -34,10 +57,12 @@ typedef struct rexdft_s {
  */
 typedef struct rexdfs_s {
 	unsigned int type;
-	unsigned int ntrans;
-	rexdft_t *trans;
-	unsigned int nsubstates;
-	rexsi_t *substates;
+	unsigned long trans;
+	unsigned long ntrans;
+	unsigned long substates;
+	unsigned long nsubstates;
+	unsigned long accsubstates;
+	unsigned long naccsubstates;
 } rexdfs_t;
 
 
@@ -50,17 +75,21 @@ typedef struct rexdfa_s {
 	unsigned long ntrans;
 	rexdft_t *trans;
 	unsigned long nsubstates;
-	rexsi_t *substates;
+	rexdfss_t *substates;
 	unsigned long naccsubstates;
-	rexsi_t *accsubstates;
+	rexdfss_t *accsubstates;
 } rexdfa_t;
 
 
 rexdfa_t *rex_dfa_create(unsigned long nstates, unsigned long ntrans, unsigned long nsubsets, unsigned long naccsubsets);
 rexdfa_t *rex_dfa_create_from_db(rexdb_t *db);
 void rex_dfa_destroy(rexdfa_t *dfa);
-void rex_dfa_dumpstate(rexdfa_t *dfa, long off);
-
+void rex_dfa_dumpstate(rexdfa_t *dfa, unsigned long nstate);
+rexdfs_t *rex_dfa_state(rexdfa_t *dfa, unsigned long nstate);
+rexdft_t *rex_dfa_transition(rexdfa_t *dfa, unsigned long nstate, unsigned long ntransition);
+rexdfss_t *rex_dfa_substate(rexdfa_t *dfa, unsigned long nstate, unsigned long nsubstate);
+rexdfss_t *rex_dfa_accsubstate(rexdfa_t *dfa, unsigned long nstate, unsigned long naccsubstate);
+long rex_dfa_next(rexdfa_t *dfa, unsigned long nstate, rexchar_t input);
 
 #ifdef __cplusplus
 }

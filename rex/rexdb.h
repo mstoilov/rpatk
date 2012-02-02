@@ -66,6 +66,7 @@ void rex_db_dumpstate(rexdb_t *rexdb, unsigned long uid);
 long rex_db_numtransitions(rexdb_t *rexdb);
 long rex_db_numstates(rexdb_t *rexdb);
 long rex_db_numsubstates(rexdb_t *rexdb);
+long rex_db_numaccsubstates(rexdb_t *rexdb);
 const char *rex_db_version();
 
 

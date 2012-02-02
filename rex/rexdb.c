@@ -308,6 +308,23 @@ long rex_db_numsubstates(rexdb_t *rexdb)
 }
 
 
+long rex_db_numaccsubstates(rexdb_t *rexdb)
+{
+	long i, j;
+	long ret = 0;
+
+	for (i = 0; i < r_array_length(rexdb->states); i++) {
+		rexstate_t *state = rex_db_getstate(rexdb, i);
+		for (j = 0; j < rex_subset_length(state->subset); j++) {
+			rexsubstate_t *substate = rex_db_getsubstate(rexdb, rex_subset_index(state->subset, j));
+			if (substate->ss_type == REX_STATETYPE_ACCEPT)
+				ret += 1;
+		}
+	}
+	return ret;
+}
+
+
 const char *rex_db_version()
 {
 	return "1.0";

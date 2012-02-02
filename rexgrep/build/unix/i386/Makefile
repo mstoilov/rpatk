@@ -25,4 +25,4 @@ CFLAGS += $(INCLUDE)
 LDFLAGS = $(MACH)
 
 
-include ../rgrep.mk
+include ../rexgrep.mk
