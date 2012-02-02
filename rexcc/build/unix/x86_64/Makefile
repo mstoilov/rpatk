@@ -1,0 +1,28 @@
+ARCHDIR = $(shell basename $(shell pwd))
+OUTDIR = out
+OS = $(shell uname | tr "[:upper:]" "[:lower:]")
+ROOT_DIR = ../../../..
+MACH = -m64
+
+include $(ROOT_DIR)/build/unix/config.mk
+
+CFLAGS = $(MACH)
+ifeq ($(BLDCFG), release)
+CFLAGS += -O3
+else
+ifeq ($(BLDCFG), profile)
+CFLAGS += -O0 -pg
+else
+CFLAGS += -g -O0 -Wall 
+endif
+endif
+
+ifeq ($(CCBLD), yes)
+CFLAGS += -fprofile-arcs -ftest-coverage
+endif
+
+CFLAGS += $(INCLUDE)
+LDFLAGS = $(MACH)
+
+
+include ../rexcc.mk
