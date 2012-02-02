@@ -33,8 +33,53 @@
 #include "rlib/rarray.h"
 #include "rex/rexdfaconv.h"
 #include "rex/rexdfa.h"
-#include "rexgrep.h"
-#include "rexgrepdep.h"
+#include "rexcc.h"
+
+
+void rex_buffer_unmap_file(rbuffer_t *buf)
+{
+	if (buf) {
+		munmap(buf->s, buf->size);
+		r_free(buf);
+	}
+}
+
+
+rbuffer_t * rex_buffer_map_file(const char *filename)
+{
+	struct stat st;
+	rbuffer_t *str;
+	char *buffer;
+
+	int fd = open(filename, O_RDONLY);
+	if (fd < 0) {
+		return (void*)0;
+	}
+	if (fstat(fd, &st) < 0) {
+		close(fd);
+		return (void*)0;
+	}
+	buffer = (char*)mmap(NULL, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
+	if (buffer == (void*)-1) {
+		close(fd);
+		return (void*)0;
+	}
+	str = (rbuffer_t *)r_malloc(sizeof(rbuffer_t));
+	if (!str)
+		goto error;
+	memset(str, 0, sizeof(*str));
+	str->s = buffer;
+	str->size = st.st_size;
+	str->userdata = (void*)((unsigned long)fd);
+	str->alt_destroy = rex_buffer_unmap_file;
+	close(fd);
+	return str;
+
+error:
+	munmap(buffer, st.st_size);
+	close(fd);
+	return str;
+}
 
 
 int usage(int argc, const char *argv[])
@@ -106,6 +151,7 @@ int main(int argc, const char *argv[])
 	rexcc_t *pCC;
 	rarray_t *buffers;
 	FILE *devnull = NULL;
+	rexdb_t *tempdb = NULL;
 
 	buffers = r_array_create(sizeof(rbuffer_t *));
 	pCC = rex_cc_create();
@@ -137,15 +183,7 @@ int main(int argc, const char *argv[])
 	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-f") == 0) {
 			if (++i < argc) {
-				rbuffer_t *pattern = rex_buffer_map_file(argv[i]);
-				if (pattern) {
-					ret = rex_cc_load_pattern(pCC, pattern);
-					r_array_add(buffers, &pattern);
-				} else {
-					ret = -1;
-				}
-				if (ret < 0)
-					goto error;
+				rbuffer_t *text = rex_buffer_map_file(argv[i]);
 			}
 		}
 	}
@@ -154,9 +192,14 @@ int main(int argc, const char *argv[])
 		if (strcmp(argv[i], "-e") == 0) {
 			if (++i < argc) {
 				rbuffer_t pattern;
+				rexuserdata_t userdata = 0;
 				pattern.s = (char*)argv[i];
 				pattern.size = strlen(argv[i]);
-				ret = rex_cc_load_string_pattern(pCC, &pattern);
+				if ((i + 1) < argc && argv[i + 1][0] != '-') {
+					++i;
+					userdata = strtoul(argv[i], NULL, 10);
+				}
+				ret = rex_cc_load_string_pattern(pCC, &pattern, userdata);
 				if (ret < 0)
 					goto error;
 			}
@@ -164,11 +207,11 @@ int main(int argc, const char *argv[])
 		}
 	}
 
-	if (pCC->usedfa) {
-		rexdb_t *dfadb = rex_db_createdfa(pCC->nfa, pCC->startuid);
-		pCC->dfa = rex_dfa_create_from_db(dfadb);
-		rex_db_destroy(dfadb);
-	}
+	if (pCC->startuid < 0)
+		goto error;
+	tempdb = rex_db_createdfa(pCC->nfa, pCC->startuid);
+	pCC->dfa = rex_dfa_create_from_db(tempdb);
+	rex_db_destroy(tempdb);
 
 	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-D") == 0) {
@@ -187,6 +230,7 @@ int main(int argc, const char *argv[])
 		}
 	}
 
+	rex_cc_output(pCC, stdout);
 
 end:
 	rex_cc_destroy(pCC);

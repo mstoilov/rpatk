@@ -22,7 +22,6 @@
 #define _REXDFA_H_
 
 #include "rex/rexdef.h"
-#include "rex/rexdb.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -56,7 +55,7 @@ typedef struct rexdft_s {
  * State definition
  */
 typedef struct rexdfs_s {
-	unsigned int type;
+	unsigned long type;
 	unsigned long trans;
 	unsigned long ntrans;
 	unsigned long substates;
@@ -82,7 +81,6 @@ typedef struct rexdfa_s {
 
 
 rexdfa_t *rex_dfa_create(unsigned long nstates, unsigned long ntrans, unsigned long nsubsets, unsigned long naccsubsets);
-rexdfa_t *rex_dfa_create_from_db(rexdb_t *db);
 void rex_dfa_destroy(rexdfa_t *dfa);
 void rex_dfa_dumpstate(rexdfa_t *dfa, unsigned long nstate);
 rexdfs_t *rex_dfa_state(rexdfa_t *dfa, unsigned long nstate);

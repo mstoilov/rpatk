@@ -23,6 +23,7 @@
 #include <ctype.h>
 #include "rlib/rmem.h"
 #include "rex/rexdfa.h"
+#include "rex/rexdb.h"
 
 
 struct rexdfa_ctx {
@@ -169,7 +170,7 @@ rexdfss_t *rex_dfa_accsubstate(rexdfa_t *dfa, unsigned long nstate, unsigned lon
 		return NULL;
 	if (naccsubstate >= s->naccsubstates)
 		return NULL;
-	ss = &dfa->substates[s->accsubstates + naccsubstate];
+	ss = &dfa->accsubstates[s->accsubstates + naccsubstate];
 	return ss;
 }
 
