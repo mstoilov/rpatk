@@ -21,15 +21,64 @@
 #ifndef _REXDFA_H_
 #define _REXDFA_H_
 
-#include "rex/rexdef.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#ifndef REX_USERDATA_TYPE
+typedef unsigned long rexuserdata_t;
+#else
+typedef REX_USERDATA_TYPE rexuserdata_t;
+#endif
+
+
+#ifndef REX_UINT_TYPE
+typedef unsigned long rexuint_t;
+#else
+typedef REX_UINT_TYPE rexuint_t;
+#endif
+
+
+#ifndef REX_CHAR_TYPE
+typedef unsigned int rexchar_t;
+#else
+typedef REX_CHAR_TYPE rexchar_t;
+#endif
+#define REX_CHAR_MAX ((rexchar_t)-1)
+#define REX_CHAR_MIN ((rexchar_t)0)
+
+typedef enum {
+	REX_STATETYPE_NONE = 0,
+	REX_STATETYPE_START = 1,
+	REX_STATETYPE_ACCEPT = 2,
+	REX_STATETYPE_DEAD = 3,
+} rex_statetype_t;
 
 #define REX_DFA_DEADSTATE (0)
 #define REX_DFA_STARTSTATE (1)
+
+#define REX_DFA_STATE(__dfa__, __nstate__)							(&(__dfa__)->states[__nstate__])
+#define REX_DFA_TRANSITION(__dfa__, __nstate__, __ntrans__)			(&(__dfa__)->trans[(REX_DFA_STATE(__dfa__, __nstate__)->trans) + (__ntrans__)])
+#define REX_DFA_SUBSTATE(__dfa__, __nstate__, __nsubstate__)		(&(__dfa__)->substates[REX_DFA_STATE(__dfa__, __nstate__)->substates + (__nsubstate__)])
+#define REX_DFA_ACCSUBSTATE(__dfa__, __nstate__, __naccsubstate__)	(&(__dfa__)->accsubstates[REX_DFA_STATE(__dfa__, __nstate__)->accsubstates + (__naccsubstate__)])
+#define REX_DFA_NEXT(__dfa__, __nstate__, __input__) \
+		({ \
+			rexdft_t *t; \
+			long mid, min = 0, max = min + REX_DFA_STATE(__dfa__, __nstate__)->ntrans; \
+			while (max > min) { \
+				mid = (min + max)/2; \
+				t = REX_DFA_TRANSITION(dfa, nstate, mid); \
+				if ((__input__) >= t->lowin) { \
+					min = mid + 1; \
+				} else { \
+					max = mid; \
+				} \
+			} \
+			min -= (min > 0) ? 1 : 0; \
+			t = REX_DFA_TRANSITION(__dfa__, __nstate__, min); \
+			(((__input__) >= t->lowin && (__input__) <= t->highin) ? t->state : 0); \
+		})
+
 
 /*
  * Sub-state info definition

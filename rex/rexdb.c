@@ -7,6 +7,13 @@
 #include "rex/rexdfaconv.h"
 #include "rex/rexcompiler.h"
 
+struct rexdfa_ctx {
+	unsigned long nstates;
+	unsigned long ntrnas;
+	unsigned long nsubstates;
+	unsigned long naccsubstates;
+};
+
 
 rexdb_t *rex_db_createdfa(rexdb_t *nfa, unsigned long start)
 {
@@ -328,4 +335,69 @@ long rex_db_numaccsubstates(rexdb_t *rexdb)
 const char *rex_db_version()
 {
 	return "1.0";
+}
+
+
+static void rex_db_filldfastate(rexdb_t *db, rexdfa_t *dfa, struct rexdfa_ctx *ctx, rexstate_t *state)
+{
+	long i;
+	rex_transition_t *t = NULL;
+	rexdfs_t *s = &dfa->states[ctx->nstates++];
+	s->type = state->type;
+	s->trans = ctx->ntrnas;
+	s->ntrans = r_array_length(state->trans);
+	for (i = 0; i < s->ntrans; i++) {
+		t = (rex_transition_t *)r_array_slot(state->trans, i);
+		dfa->trans[s->trans + i].lowin = t->lowin;
+		dfa->trans[s->trans + i].highin = t->highin;
+		dfa->trans[s->trans + i].state = t->dstuid;
+	}
+	ctx->ntrnas += s->ntrans;
+	s->substates = ctx->nsubstates;
+	s->nsubstates = rex_subset_length(state->subset);
+	for (i = 0; i < s->nsubstates; i++) {
+		unsigned long uid = rex_subset_index(state->subset, i);
+		rexsubstate_t *substate = rex_db_getsubstate(db, uid);
+		dfa->substates[s->substates + i].uid = uid;
+		dfa->substates[s->substates + i].type = substate->ss_type;
+		dfa->substates[s->substates + i].userdata = substate->ss_userdata;
+	}
+	ctx->nsubstates += s->nsubstates;
+	s->accsubstates = ctx->naccsubstates;
+	s->naccsubstates = 0L;
+	for (i = 0; i < s->nsubstates; i++) {
+		unsigned long uid = rex_subset_index(state->subset, i);
+		rexsubstate_t *substate = rex_db_getsubstate(db, uid);
+		if (substate->ss_type == REX_STATETYPE_ACCEPT) {
+			dfa->accsubstates[s->accsubstates + s->naccsubstates].uid = uid;
+			dfa->accsubstates[s->accsubstates + s->naccsubstates].type = substate->ss_type;
+			dfa->accsubstates[s->accsubstates + s->naccsubstates].userdata = substate->ss_userdata;
+			s->naccsubstates++;
+		}
+	}
+	ctx->naccsubstates += s->naccsubstates;
+}
+
+
+rexdfa_t *rex_db_todfa(rexdb_t *db)
+{
+	long i;
+	rexdfa_t *dfa;
+	struct rexdfa_ctx ctx;
+	unsigned long nstates = rex_db_numstates(db);
+	unsigned long ntrans = rex_db_numtransitions(db);
+	unsigned long nsubstates = rex_db_numsubstates(db);
+	unsigned long naccsubstates = rex_db_numaccsubstates(db);
+	dfa = rex_dfa_create(nstates, ntrans, nsubstates, naccsubstates);
+	r_memset(&ctx, 0, sizeof(ctx));
+
+	for (i = 0; i < r_array_length(db->states); i++) {
+		rexstate_t *state = rex_db_getstate(db, i);
+		rex_db_filldfastate(db, dfa, &ctx, state);
+	}
+	R_ASSERT(ctx.nstates == nstates);
+	R_ASSERT(ctx.ntrnas == ntrans);
+	R_ASSERT(ctx.nsubstates == nsubstates);
+	R_ASSERT(ctx.naccsubstates == naccsubstates);
+	return dfa;
 }

@@ -515,7 +515,6 @@ static void rjs_op_propldr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	rvmreg_t *arg1 = RVM_CPUREG_PTR(cpu, ins->op1);
 	rvmreg_t *arg2 = RVM_CPUREG_PTR(cpu, ins->op2);
-	rvmreg_t tmp = rvm_reg_create_signed(0);
 	rpointer value;
 	long index;
 
@@ -663,7 +662,7 @@ static void rjs_op_propprev(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	RVM_REG_SETL(arg1, index);
 }
 
-
+#if 0
 static void rjs_op_mapdel(rvmcpu_t *cpu, rvm_asmins_t *ins)
 {
 	int ret;
@@ -913,7 +912,7 @@ static void rjs_op_mapstr(rvmcpu_t *cpu, rvm_asmins_t *ins)
 		RVM_ABORT(cpu, RVM_E_ILLEGAL);
 	r_map_setvalue(a, index, arg1);
 }
-
+#endif
 
 const char *rjs_version()
 {

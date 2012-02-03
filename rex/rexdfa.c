@@ -22,16 +22,8 @@
 #include <stdio.h>
 #include <ctype.h>
 #include "rlib/rmem.h"
+#include "rlib/rstring.h"
 #include "rex/rexdfa.h"
-#include "rex/rexdb.h"
-
-
-struct rexdfa_ctx {
-	unsigned long nstates;
-	unsigned long ntrnas;
-	unsigned long nsubstates;
-	unsigned long naccsubstates;
-};
 
 
 rexdfa_t *rex_dfa_create(unsigned long nstates, unsigned long ntrans, unsigned long nsubstates, unsigned long naccsubstates)
@@ -61,77 +53,12 @@ void rex_dfa_destroy(rexdfa_t *dfa)
 }
 
 
-static void rex_dfa_fillstate(rexdb_t *db, rexdfa_t *dfa, struct rexdfa_ctx *ctx, rexstate_t *state)
-{
-	long i;
-	rex_transition_t *t = NULL;
-	rexdfs_t *s = &dfa->states[ctx->nstates++];
-	s->type = state->type;
-	s->trans = ctx->ntrnas;
-	s->ntrans = r_array_length(state->trans);
-	for (i = 0; i < s->ntrans; i++) {
-		t = (rex_transition_t *)r_array_slot(state->trans, i);
-		dfa->trans[s->trans + i].lowin = t->lowin;
-		dfa->trans[s->trans + i].highin = t->highin;
-		dfa->trans[s->trans + i].state = t->dstuid;
-	}
-	ctx->ntrnas += s->ntrans;
-	s->substates = ctx->nsubstates;
-	s->nsubstates = rex_subset_length(state->subset);
-	for (i = 0; i < s->nsubstates; i++) {
-		unsigned long uid = rex_subset_index(state->subset, i);
-		rexsubstate_t *substate = rex_db_getsubstate(db, uid);
-		dfa->substates[s->substates + i].uid = uid;
-		dfa->substates[s->substates + i].type = substate->ss_type;
-		dfa->substates[s->substates + i].userdata = substate->ss_userdata;
-	}
-	ctx->nsubstates += s->nsubstates;
-	s->accsubstates = ctx->naccsubstates;
-	s->naccsubstates = 0L;
-	for (i = 0; i < s->nsubstates; i++) {
-		unsigned long uid = rex_subset_index(state->subset, i);
-		rexsubstate_t *substate = rex_db_getsubstate(db, uid);
-		if (substate->ss_type == REX_STATETYPE_ACCEPT) {
-			dfa->accsubstates[s->accsubstates + s->naccsubstates].uid = uid;
-			dfa->accsubstates[s->accsubstates + s->naccsubstates].type = substate->ss_type;
-			dfa->accsubstates[s->accsubstates + s->naccsubstates].userdata = substate->ss_userdata;
-			s->naccsubstates++;
-		}
-	}
-	ctx->naccsubstates += s->naccsubstates;
-}
-
-
-rexdfa_t *rex_dfa_create_from_db(rexdb_t *db)
-{
-	long i;
-	rexdfa_t *dfa;
-	struct rexdfa_ctx ctx;
-	unsigned long nstates = rex_db_numstates(db);
-	unsigned long ntrans = rex_db_numtransitions(db);
-	unsigned long nsubstates = rex_db_numsubstates(db);
-	unsigned long naccsubstates = rex_db_numaccsubstates(db);
-	dfa = rex_dfa_create(nstates, ntrans, nsubstates, naccsubstates);
-	r_memset(&ctx, 0, sizeof(ctx));
-
-	for (i = 0; i < r_array_length(db->states); i++) {
-		rexstate_t *state = rex_db_getstate(db, i);
-		rex_dfa_fillstate(db, dfa, &ctx, state);
-	}
-	R_ASSERT(ctx.nstates == nstates);
-	R_ASSERT(ctx.ntrnas == ntrans);
-	R_ASSERT(ctx.nsubstates == nsubstates);
-	R_ASSERT(ctx.naccsubstates == naccsubstates);
-	return dfa;
-}
-
-
 rexdfs_t *rex_dfa_state(rexdfa_t *dfa, unsigned long nstate)
 {
 	rexdfs_t *s;
 	if (nstate >= dfa->nstates)
 		return NULL;
-	s = &dfa->states[nstate];
+	s = REX_DFA_STATE(dfa, nstate);
 	return s;
 }
 
@@ -144,7 +71,7 @@ rexdft_t *rex_dfa_transition(rexdfa_t *dfa, unsigned long nstate, unsigned long 
 		return NULL;
 	if (ntrans >= s->ntrans)
 		return NULL;
-	t = &dfa->trans[s->trans + ntrans];
+	t = REX_DFA_TRANSITION(dfa, nstate, ntrans);
 	return t;
 }
 
@@ -157,7 +84,7 @@ rexdfss_t *rex_dfa_substate(rexdfa_t *dfa, unsigned long nstate, unsigned long n
 		return NULL;
 	if (nsubstate >= s->nsubstates)
 		return NULL;
-	ss = &dfa->substates[s->substates + nsubstate];
+	ss = REX_DFA_SUBSTATE(dfa, nstate, nsubstate);
 	return ss;
 }
 
@@ -170,7 +97,7 @@ rexdfss_t *rex_dfa_accsubstate(rexdfa_t *dfa, unsigned long nstate, unsigned lon
 		return NULL;
 	if (naccsubstate >= s->naccsubstates)
 		return NULL;
-	ss = &dfa->accsubstates[s->accsubstates + naccsubstate];
+	ss = REX_DFA_ACCSUBSTATE(dfa, nstate, naccsubstate);
 	return ss;
 }
 
@@ -178,28 +105,19 @@ rexdfss_t *rex_dfa_accsubstate(rexdfa_t *dfa, unsigned long nstate, unsigned lon
 long rex_dfa_next(rexdfa_t *dfa, unsigned long nstate, rexchar_t input)
 {
 	rexdft_t *t;
-	rexdfs_t *s = rex_dfa_state(dfa, nstate);
-	long min, max, mid;
-
-	if (!s || !s->ntrans)
-		return 0L;
-	min = 0;
-	max = min + s->ntrans;
+	long mid, min = 0, max = min + REX_DFA_STATE(dfa, nstate)->ntrans;
 	while (max > min) {
 		mid = (min + max)/2;
-		t = rex_dfa_transition(dfa, nstate, mid);
+		t = REX_DFA_TRANSITION(dfa, nstate, mid);
 		if (input >= t->lowin) {
 			min = mid + 1;
 		} else {
 			max = mid;
 		}
 	}
-	if (min > 0)
-		--min;
-	t = rex_dfa_transition(dfa, nstate, min);
-	if (input >= t->lowin && input <= t->highin)
-		return t->state;
-	return 0;
+	min -= (min > 0) ? 1 : 0;
+	t = REX_DFA_TRANSITION(dfa, nstate, min);
+	return (input >= t->lowin && input <= t->highin) ? t->state : 0;
 }
 
 

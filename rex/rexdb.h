@@ -69,7 +69,7 @@ long rex_db_numstates(rexdb_t *rexdb);
 long rex_db_numsubstates(rexdb_t *rexdb);
 long rex_db_numaccsubstates(rexdb_t *rexdb);
 const char *rex_db_version();
-rexdfa_t *rex_dfa_create_from_db(rexdb_t *db);
+rexdfa_t *rex_db_todfa(rexdb_t *db);
 
 
 /*

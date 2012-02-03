@@ -209,7 +209,7 @@ int main(int argc, const char *argv[])
 
 	if (pGrep->usedfa) {
 		rexdb_t *dfadb = rex_db_createdfa(pGrep->nfa, pGrep->startuid);
-		pGrep->dfa = rex_dfa_create_from_db(dfadb);
+		pGrep->dfa = rex_db_todfa(dfadb);
 		rex_db_destroy(dfadb);
 	}
 

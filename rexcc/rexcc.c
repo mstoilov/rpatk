@@ -229,7 +229,7 @@ static int rex_cc_output_dfa(rexcc_t *pCC, FILE *out)
 int rex_cc_output(rexcc_t *pCC, FILE *out)
 {
 
-	rex_cc_fprintf(out, 0, "#include \"rex/rexdfa.h\"\n\n");
+	rex_cc_fprintf(out, 0, "#include \"rexdfa.h\"\n\n");
 
 	rex_cc_output_accsubstates(pCC, out);
 	rex_cc_fprintf(out, 0, "\n\n");

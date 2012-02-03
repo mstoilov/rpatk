@@ -35,13 +35,6 @@ extern "C" {
 
 typedef struct rexstate_s rexstate_t;
 
-typedef enum {
-	REX_STATETYPE_NONE = 0,
-	REX_STATETYPE_START = 1,
-	REX_STATETYPE_ACCEPT = 2,
-	REX_STATETYPE_DEAD = 3,
-} rex_statetype_t;
-
 struct rexstate_s {
 	robject_t obj;
 	rarray_t *etrans;

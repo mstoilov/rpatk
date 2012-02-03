@@ -183,7 +183,9 @@ int main(int argc, const char *argv[])
 	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-f") == 0) {
 			if (++i < argc) {
+#if 0
 				rbuffer_t *text = rex_buffer_map_file(argv[i]);
+#endif
 			}
 		}
 	}
@@ -210,7 +212,7 @@ int main(int argc, const char *argv[])
 	if (pCC->startuid < 0)
 		goto error;
 	tempdb = rex_db_createdfa(pCC->nfa, pCC->startuid);
-	pCC->dfa = rex_dfa_create_from_db(tempdb);
+	pCC->dfa = rex_db_todfa(tempdb);
 	rex_db_destroy(tempdb);
 
 	for (i = 1; i < argc; i++) {
