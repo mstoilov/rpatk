@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <wchar.h>
 #include <time.h>
+#include <errno.h>
 #include "rlib/rmem.h"
 #include "rlib/rarray.h"
 #include "rex/rexdfaconv.h"
@@ -46,6 +47,8 @@ int usage(int argc, const char *argv[])
 		fprintf(stderr, " OPTIONS:\n");
 		fprintf(stderr, "\t-e patterns              Regular Expression.\n");
 		fprintf(stderr, "\t-f patternfile           Read Regular Expressions from a file.\n");
+		fprintf(stderr, "\t-c binfile               Compile DFA and save to binfile.\n");
+		fprintf(stderr, "\t-b binfile               Load DFA from binfile.\n");
 		fprintf(stderr, "\t-o, --only-matching      Show only the part of a line matching PATTERN\n");
 		fprintf(stderr, "\t-l                       Line mode.\n");
 		fprintf(stderr, "\t-N                       Use NFA.\n");
@@ -111,6 +114,8 @@ int main(int argc, const char *argv[])
 	int ret, scanned = 0, i;
 	rexgrep_t *pGrep;
 	rarray_t *buffers;
+	const char *loadbinfile = NULL;
+	const char *savebinfile = NULL;
 	FILE *devnull = NULL;
 
 	buffers = r_array_create(sizeof(rbuffer_t *));
@@ -149,32 +154,54 @@ int main(int argc, const char *argv[])
 	}
 
 	for (i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "-f") == 0) {
+		if (strcmp(argv[i], "-c") == 0) {
 			if (++i < argc) {
-				rbuffer_t *pattern = rex_buffer_map_file(argv[i]);
-				if (pattern) {
-					ret = rex_grep_load_pattern(pGrep, pattern);
-					r_array_add(buffers, &pattern);
-				} else {
-					ret = -1;
-				}
-				if (ret < 0)
-					goto error;
+				savebinfile = argv[i];
 			}
 		}
 	}
 
 	for (i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "-e") == 0) {
+		if (strcmp(argv[i], "-b") == 0) {
 			if (++i < argc) {
-				rbuffer_t pattern;
-				pattern.s = (char*)argv[i];
-				pattern.size = strlen(argv[i]);
-				ret = rex_grep_load_string_pattern(pGrep, &pattern);
-				if (ret < 0)
-					goto error;
+				loadbinfile = argv[i];
 			}
-			
+		}
+	}
+
+	if (!loadbinfile) {
+		for (i = 1; i < argc; i++) {
+			if (strcmp(argv[i], "-f") == 0) {
+				if (++i < argc) {
+					rbuffer_t *pattern = rex_buffer_map_file(argv[i]);
+					if (pattern) {
+						ret = rex_grep_load_pattern(pGrep, pattern);
+						r_array_add(buffers, &pattern);
+					} else {
+						ret = -1;
+					}
+					if (ret < 0)
+						goto error;
+				}
+			}
+		}
+		for (i = 1; i < argc; i++) {
+			if (strcmp(argv[i], "-e") == 0) {
+				if (++i < argc) {
+					rbuffer_t pattern;
+					pattern.s = (char*)argv[i];
+					pattern.size = strlen(argv[i]);
+					ret = rex_grep_load_string_pattern(pGrep, &pattern);
+					if (ret < 0)
+						goto error;
+				}
+
+			}
+		}
+		for (i = 1; i < argc; i++) {
+			if (strcmp(argv[i], "-N") == 0) {
+				pGrep->usedfa = 0;
+			}
 		}
 	}
 
@@ -201,13 +228,25 @@ int main(int argc, const char *argv[])
 		}
 	}
 
-	for (i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "-N") == 0) {
-			pGrep->usedfa = 0;
+	if (!pGrep->dfa && loadbinfile) {
+		FILE *pfile = NULL;
+		rexdfa_t dfa;
+		r_memset(&dfa, 0, sizeof(dfa));
+		pfile = fopen(loadbinfile, "rb");
+		if (!pfile) {
+			fprintf(stderr, "Failed to open file: %s, %s\n", loadbinfile, strerror(errno));
+			goto error;
 		}
+		fread(&dfa, sizeof(dfa), 1, pfile);
+		pGrep->dfa = rex_dfa_create(dfa.nstates, dfa.ntrans, dfa.naccsubstates, dfa.nsubstates);
+		fread(pGrep->dfa->states, sizeof(*dfa.states), dfa.nstates, pfile);
+		fread(pGrep->dfa->trans, sizeof(*dfa.trans), dfa.ntrans, pfile);
+		fread(pGrep->dfa->accsubstates, sizeof(*dfa.accsubstates), dfa.naccsubstates, pfile);
+		fread(pGrep->dfa->substates, sizeof(*dfa.substates), dfa.nsubstates, pfile);
+		fclose(pfile);
 	}
 
-	if (pGrep->usedfa) {
+	if (!pGrep->dfa && pGrep->usedfa) {
 		rexdb_t *dfadb = rex_db_createdfa(pGrep->nfa, pGrep->startuid);
 		pGrep->dfa = rex_db_todfa(dfadb);
 		rex_db_destroy(dfadb);
@@ -230,12 +269,35 @@ int main(int argc, const char *argv[])
 		}
 	}
 
+	if (pGrep->dfa && savebinfile) {
+		rexdfa_t dfa = *pGrep->dfa;
+		dfa.nsubstates = 0;
+		dfa.substates = NULL;
+		dfa.states = NULL;
+		dfa.trans = NULL;
+		dfa.accsubstates = NULL;
+		FILE *pfile = fopen(savebinfile, "wb");
+		if (!pfile) {
+			fprintf(stderr, "Failed to create file: %s, %s\n", savebinfile, strerror(errno));
+			goto error;
+		}
+		fwrite(&dfa, sizeof(dfa), 1, pfile);
+		dfa.states = pGrep->dfa->states;
+		dfa.trans = pGrep->dfa->trans;
+		dfa.accsubstates = pGrep->dfa->accsubstates;
+		fwrite(dfa.states, sizeof(*dfa.states), dfa.nstates, pfile);
+		fwrite(dfa.trans, sizeof(*dfa.trans), dfa.ntrans, pfile);
+		fwrite(dfa.accsubstates, sizeof(*dfa.accsubstates), dfa.naccsubstates, pfile);
+		fclose(pfile);
+		goto end;
+	}
+
 	/* scan files */
 	for (i = 1; i < argc; i++) {
 		if (argv[i][0] != '-') {
 			++scanned;
 			rex_grep_scan_path(pGrep, argv[i]);
-		} else if (argv[i][1] == 'e' || argv[i][1] == 'f' || argv[i][1] == 'c' || argv[i][1] == 'C'){
+		} else if (argv[i][1] == 'e' || argv[i][1] == 'f' || argv[i][1] == 'c' || argv[i][1] == 'b'){
 			++i;
 		}
 		
@@ -255,9 +317,21 @@ end:
 	}
 	r_object_destroy((robject_t*)buffers);
 	ret = pGrep->ret;
+	if (pGrep->showtime) {
+		rexdfa_t *dfa = pGrep->dfa;
+		unsigned long sizestates = dfa->nstates * sizeof(rexdfs_t);
+		unsigned long sizetrans = dfa->ntrans * sizeof(rexdft_t);
+		unsigned long sizeaccsubs = dfa->naccsubstates * sizeof(rexdfss_t);
+		unsigned long sizesubs = dfa->nsubstates * sizeof(rexdfss_t);
+		unsigned long sizetotal = sizestates + sizetrans + sizeaccsubs + sizesubs + sizeof(rexdfa_t);
+		fprintf(stdout, "\n\n");
+		fprintf(stdout, "\tDFA Memory: %ld KB, States: %ld KB (%.2f), Transitions: %ld KB (%.2f), Accecpting Substates: %ld KB(%.2f), Substates: %ld KB (%.2f)\n",
+				sizetotal/1024, sizestates/1024, (100.0*sizestates/sizetotal), sizetrans/1024, (100.0*sizetrans/sizetotal),
+				sizeaccsubs/1024, (100.0*sizeaccsubs/sizetotal), sizesubs/1024, (100.0*sizesubs/sizetotal));
+	}
 	rex_grep_destroy(pGrep);
 	if (pGrep->showtime) {
-		fprintf(stdout, "memory: %ld KB (leaked %ld Bytes)\n", (long)r_debug_get_maxmem()/1024, (long)r_debug_get_allocmem());
+		fprintf(stdout, "\tmemory: %ld KB (leaked %ld Bytes)\n", (long)r_debug_get_maxmem()/1024, (long)r_debug_get_allocmem());
 	}
 
 	if (devnull)

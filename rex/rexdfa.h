@@ -33,7 +33,7 @@ typedef REX_USERDATA_TYPE rexuserdata_t;
 
 
 #ifndef REX_UINT_TYPE
-typedef unsigned long rexuint_t;
+typedef unsigned int rexuint_t;
 #else
 typedef REX_UINT_TYPE rexuint_t;
 #endif
@@ -59,8 +59,8 @@ typedef enum {
 
 #define REX_DFA_STATE(__dfa__, __nstate__)							(&(__dfa__)->states[__nstate__])
 #define REX_DFA_TRANSITION(__dfa__, __nstate__, __ntrans__)			(&(__dfa__)->trans[(REX_DFA_STATE(__dfa__, __nstate__)->trans) + (__ntrans__)])
-#define REX_DFA_SUBSTATE(__dfa__, __nstate__, __nsubstate__)		(&(__dfa__)->substates[REX_DFA_STATE(__dfa__, __nstate__)->substates + (__nsubstate__)])
-#define REX_DFA_ACCSUBSTATE(__dfa__, __nstate__, __naccsubstate__)	(&(__dfa__)->accsubstates[REX_DFA_STATE(__dfa__, __nstate__)->accsubstates + (__naccsubstate__)])
+#define REX_DFA_SUBSTATE(__dfa__, __nstate__, __nsubstate__)		((__dfa__)->substates ? &(__dfa__)->substates[REX_DFA_STATE(__dfa__, __nstate__)->substates + (__nsubstate__)] : ((void*)0))
+#define REX_DFA_ACCSUBSTATE(__dfa__, __nstate__, __naccsubstate__)	((__dfa__)->accsubstates ? &(__dfa__)->accsubstates[REX_DFA_STATE(__dfa__, __nstate__)->accsubstates + (__naccsubstate__)] : ((void*)0))
 #define REX_DFA_NEXT(__dfa__, __nstate__, __input__) \
 		({ \
 			rexdft_t *t; \
@@ -76,7 +76,7 @@ typedef enum {
 			} \
 			min -= (min > 0) ? 1 : 0; \
 			t = REX_DFA_TRANSITION(__dfa__, __nstate__, min); \
-			(((__input__) >= t->lowin && (__input__) <= t->highin) ? t->state : 0); \
+			(t->state); \
 		})
 
 
@@ -107,10 +107,10 @@ typedef struct rexdfs_s {
 	rexuint_t type;
 	rexuint_t trans;
 	rexuint_t ntrans;
-	rexuint_t substates;
-	rexuint_t nsubstates;
 	rexuint_t accsubstates;
 	rexuint_t naccsubstates;
+	rexuint_t substates;
+	rexuint_t nsubstates;
 } rexdfs_t;
 
 
@@ -122,14 +122,14 @@ typedef struct rexdfa_s {
 	rexdfs_t *states;
 	rexuint_t ntrans;
 	rexdft_t *trans;
-	rexuint_t nsubstates;
-	rexdfss_t *substates;
 	rexuint_t naccsubstates;
 	rexdfss_t *accsubstates;
+	rexuint_t nsubstates;
+	rexdfss_t *substates;
 } rexdfa_t;
 
 
-rexdfa_t *rex_dfa_create(rexuint_t nstates, rexuint_t ntrans, rexuint_t nsubsets, rexuint_t naccsubsets);
+rexdfa_t *rex_dfa_create(rexuint_t nstates, rexuint_t ntrans, rexuint_t naccsubstates, rexuint_t nsubstates);
 void rex_dfa_destroy(rexdfa_t *dfa);
 void rex_dfa_dumpstate(rexdfa_t *dfa, rexuint_t nstate);
 rexdfs_t *rex_dfa_state(rexdfa_t *dfa, rexuint_t nstate);

@@ -1,10 +1,12 @@
 #!/bin/bash
 
-for i in {a..z} ; do 
-    for j in {a..z} {A..Z}; do 
-	echo -n "${i}*${j}h*e?l${i}othere|"; 
+for i in {a..z} {A..Z} {0..9}; do 
+    for j in {a..z} {A..Z} {0..9}; do 
+	for k in {z..z}; do 
+	    echo -n "${i}*${j}h*e?l([${i}-${j}]|ot${j}h)${k}*ewre|"; 
+	done
     done
 done
 
-echo -n "hesi..|martin|lesssthan.*there|hello.*|mello.*|fori|morei|elsi|whilei|doio|l*(i(n.*)*.)+ux|ponty|montyie|smuzi|lussi.*|"
+echo -n "hesi..z|ma?rti*n|"
 echo "theregexend"; 

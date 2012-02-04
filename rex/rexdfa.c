@@ -26,13 +26,15 @@
 #include "rex/rexdfa.h"
 
 
-rexdfa_t *rex_dfa_create(rexuint_t nstates, rexuint_t ntrans, rexuint_t nsubstates, rexuint_t naccsubstates)
+rexdfa_t *rex_dfa_create(rexuint_t nstates, rexuint_t ntrans, rexuint_t naccsubstates, rexuint_t nsubstates)
 {
 	rexdfa_t *dfa = (rexdfa_t *)r_zmalloc(sizeof(*dfa));
 	dfa->states = r_zmalloc(sizeof(rexdfs_t) * nstates);
 	dfa->trans = r_zmalloc(sizeof(rexdft_t) * ntrans);
-	dfa->substates = r_zmalloc(sizeof(rexdfss_t) * nsubstates);
-	dfa->accsubstates = r_zmalloc(sizeof(rexdfss_t) * naccsubstates);
+	if (naccsubstates)
+		dfa->accsubstates = r_zmalloc(sizeof(rexdfss_t) * naccsubstates);
+	if (nsubstates)
+		dfa->substates = r_zmalloc(sizeof(rexdfss_t) * nsubstates);
 	dfa->nstates = nstates;
 	dfa->ntrans = ntrans;
 	dfa->nsubstates = nsubstates;
@@ -128,6 +130,7 @@ void rex_dfa_dumpstate(rexdfa_t *dfa, rexuint_t nstate)
 	int bufsize = sizeof(buf) - 1;
 	int n = 0;
 	rexdfs_t *s = rex_dfa_state(dfa, nstate);
+	rexdfss_t *ss = NULL;
 	rexdft_t *t = NULL;
 
 	if (!s)
@@ -135,11 +138,14 @@ void rex_dfa_dumpstate(rexdfa_t *dfa, rexuint_t nstate)
 	fprintf(stdout, "State %ld", (unsigned long)nstate);
 	fprintf(stdout, " (");
 	for (index = 0; index < s->nsubstates; index++) {
-		fprintf(stdout, "%ld", (unsigned long)dfa->substates[s->substates + index].uid);
-		if (dfa->substates[s->substates + index].type == REX_STATETYPE_ACCEPT)
-			fprintf(stdout, "*");
-		if (index + 1 < s->nsubstates)
-			fprintf(stdout, ",");
+		ss = REX_DFA_SUBSTATE(dfa, nstate, index);
+		if (ss) {
+			fprintf(stdout, "%ld", (unsigned long)ss->uid);
+			if (ss->type == REX_STATETYPE_ACCEPT)
+				fprintf(stdout, "*");
+			if (index + 1 < s->nsubstates)
+				fprintf(stdout, ",");
+		}
 	}
 	fprintf(stdout, ")");
 
@@ -149,9 +155,12 @@ void rex_dfa_dumpstate(rexdfa_t *dfa, rexuint_t nstate)
 		fprintf(stdout, " REX_STATETYPE_ACCEPT ");
 		fprintf(stdout, " (");
 		for (index = 0; index < s->naccsubstates; index++) {
-			fprintf(stdout, "%ld*", (unsigned long)dfa->accsubstates[s->accsubstates + index].uid);
-			if (index + 1 < s->naccsubstates)
-				fprintf(stdout, ",");
+			ss = REX_DFA_ACCSUBSTATE(dfa, nstate, index);
+			if (ss) {
+				fprintf(stdout, "%ld*", (unsigned long)ss->uid);
+				if (index + 1 < s->naccsubstates)
+					fprintf(stdout, ",");
+			}
 		}
 		fprintf(stdout, ")");
 	} else if (s->type == REX_STATETYPE_DEAD) {
@@ -165,14 +174,14 @@ void rex_dfa_dumpstate(rexdfa_t *dfa, rexuint_t nstate)
 		n = 0;
 		if (t->lowin != t->highin) {
 			if (isprint(t->lowin) && !isspace(t->lowin) && isprint(t->highin) && !isspace(t->highin))
-				n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "        [%c - %c] ", t->lowin, t->highin);
+				n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "    [%c - %c] ", t->lowin, t->highin);
 			else
-				n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "        [0x%X - 0x%X] ", t->lowin, t->highin);
+				n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "    [0x%X - 0x%X] ", t->lowin, t->highin);
 		} else {
 			if (isprint(t->lowin) && !isspace(t->lowin))
-				n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "        '%c' ", t->lowin);
+				n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "    '%c' ", t->lowin);
 			else
-				n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "        0x%X ", t->lowin);
+				n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "    0x%X ", t->lowin);
 		}
 		r_memset(buf + n, ' ', bufsize - n);
 		n = 40;

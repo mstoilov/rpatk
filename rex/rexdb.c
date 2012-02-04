@@ -388,7 +388,7 @@ rexdfa_t *rex_db_todfa(rexdb_t *db)
 	unsigned long ntrans = rex_db_numtransitions(db);
 	unsigned long nsubstates = rex_db_numsubstates(db);
 	unsigned long naccsubstates = rex_db_numaccsubstates(db);
-	dfa = rex_dfa_create(nstates, ntrans, nsubstates, naccsubstates);
+	dfa = rex_dfa_create(nstates, ntrans, naccsubstates, nsubstates);
 	r_memset(&ctx, 0, sizeof(ctx));
 
 	for (i = 0; i < r_array_length(db->states); i++) {

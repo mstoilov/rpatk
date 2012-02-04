@@ -63,7 +63,7 @@ rexdfaconv_t *rex_dfaconv_create()
 	co->trans = r_array_create(sizeof(rex_transition_t));
 	co->temptrans = r_array_create(sizeof(rex_transition_t));
 	co->marked = r_array_create(sizeof(unsigned char));
-	co->hash = r_hash_create(12, rex_dfaconv_subsetequal, rex_dfaconv_subsethash);
+	co->hash = r_hash_create(16, rex_dfaconv_subsetequal, rex_dfaconv_subsethash);
 	return co;
 }
 

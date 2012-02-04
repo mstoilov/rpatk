@@ -85,35 +85,30 @@ int rex_grep_load_pattern(rexgrep_t *pGrep, rbuffer_t *buf)
 }
 
 
-int rex_grep_dfamatch(rexgrep_t *pGrep, const char* input, const char *end)
-{
-	ruint32 wc = 0;
-	int inc = 0, ret = 0;
-	long nstate = REX_DFA_STARTSTATE;
-	const char *start = input;
-	rexdfa_t *dfa = pGrep->dfa;
-	rexdfs_t *s;
-
-	while ((inc = r_utf8_mbtowc(&wc, (const unsigned char*)input, (const unsigned char*)end)) > 0) {
-		if ((nstate = REX_DFA_NEXT(dfa, nstate, wc)) <= 0)
-			break;
-		input += inc;
-		s = REX_DFA_STATE(dfa, nstate);
-		if (s->type == REX_STATETYPE_ACCEPT)
-			ret = input - start;
-	}
-	return ret;
-}
-
-
 int rex_grep_match(rexgrep_t *pGrep, const char* input, const char *end)
 {
-	int inc;
+	int inc = 1;
 	ruint32 wc;
 	rexdb_t *db;
 
-	if (pGrep->usedfa)
-		return rex_grep_dfamatch(pGrep, input, end);
+	if (pGrep->usedfa) {
+		ruint32 wc = 0;
+		int ret = 0;
+		long nstate = REX_DFA_STARTSTATE;
+		const char *start = input;
+		rexdfa_t *dfa = pGrep->dfa;
+		rexdfs_t *s;
+
+		while ((inc = r_utf8_mbtowc(&wc, (const unsigned char*)input, (const unsigned char*)end)) > 0) {
+			if ((nstate = REX_DFA_NEXT(dfa, nstate, wc)) <= 0)
+				break;
+			input += inc;
+			s = REX_DFA_STATE(dfa, nstate);
+			if (s->type == REX_STATETYPE_ACCEPT)
+				ret = input - start;
+		}
+		return ret;
+	}
 
 	if (pGrep->startuid < 0) {
 		return -1;
