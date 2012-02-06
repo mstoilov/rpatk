@@ -63,6 +63,8 @@ rexdfaconv_t *rex_dfaconv_create()
 	co->trans = r_array_create(sizeof(rex_transition_t));
 	co->temptrans = r_array_create(sizeof(rex_transition_t));
 	co->marked = r_array_create(sizeof(unsigned char));
+	co->temptrans1 = r_array_create(sizeof(rex_transition_t));
+	co->ranges = r_array_create(sizeof(rexchar_t));
 	co->hash = r_hash_create(16, rex_dfaconv_subsetequal, rex_dfaconv_subsethash);
 	return co;
 }
@@ -78,6 +80,8 @@ void rex_dfaconv_destroy(rexdfaconv_t *co)
 		r_array_destroy(co->temptrans);
 		r_array_destroy(co->marked);
 		r_hash_destroy(co->hash);
+		r_array_destroy(co->temptrans1);
+		r_array_destroy(co->ranges);
 	}
 	r_free(co);
 }
@@ -239,6 +243,55 @@ static void rex_dfaconv_initsubstates(rexdb_t *dfa, rexdb_t *nfa)
 }
 
 
+void rex_dfaconv_uniquerange_insertvalue(rarray_t *ranges, rexchar_t value)
+{
+	long min, max, mid;
+	rexchar_t existingval;
+
+	min = 0;
+	max = min + r_array_length(ranges);
+	while (max > min) {
+		mid = (min + max)/2;
+		existingval = r_array_index(ranges, mid, rexchar_t);
+		if (value == existingval) {
+			return;
+		} else if (value >= existingval) {
+			min = mid + 1;
+		} else {
+			max = mid;
+		}
+	}
+	r_array_insert(ranges, min, &value);
+}
+
+
+void rex_dfaconv_uniqueranges(rexdfaconv_t *co, rarray_t *dest, rarray_t *src)
+{
+	long i;
+	rex_transition_t *t;
+	rexchar_t zero = 0, low, high;
+
+	r_array_setlength(co->ranges, 0);
+	r_array_add(co->ranges, &zero);
+	for (i = 0; i < r_array_length(src); i++) {
+		t = (rex_transition_t *)r_array_slot(src, i);
+		rex_dfaconv_uniquerange_insertvalue(co->ranges, t->lowin);
+		rex_dfaconv_uniquerange_insertvalue(co->ranges, t->highin + 1);
+	}
+	r_array_setlength(dest, 0);
+	for (i = 0; i < r_array_length(co->ranges); i++) {
+		if (i == r_array_length(co->ranges) - 1) {
+			low = r_array_index(co->ranges, i, rexchar_t);
+			high = REX_CHAR_MAX;
+		} else {
+			low = r_array_index(co->ranges, i, rexchar_t);
+			high = (rexchar_t)r_array_index(co->ranges, i+1, rexchar_t) - 1;
+		}
+		rex_transitions_add(dest, low, high, 0, 0);
+	}
+}
+
+
 rexdb_t *rex_dfaconv_run(rexdfaconv_t *co, rexdb_t *nfa, unsigned long start)
 {
 	long i, j;
@@ -258,14 +311,15 @@ rexdb_t *rex_dfaconv_run(rexdfaconv_t *co, rexdb_t *nfa, unsigned long start)
 	for (i = 0; i < r_array_length(dfa->states); i++) {
 		s = r_array_index(dfa->states, i, rexstate_t*);
 		rex_dfaconv_getsubsettransitions(co, nfa, s->subset, co->temptrans);
-		rex_transitions_uniqueranges(co->trans, co->temptrans);
+		rex_dfaconv_uniqueranges(co, co->trans, co->temptrans);
 		for (j = 0; j < r_array_length(co->trans); j++) {
 			t = (rex_transition_t *)r_array_slot(co->trans, j);
 			rex_dfaconv_move(co, nfa, s->subset, t->lowin, t->highin, co->setU);
-			if (!rex_subset_length(co->setU))
+			if (!rex_subset_length(co->setU)) {
+				rex_state_addtransition(s, t->lowin, t->highin, 0);
 				continue;
+			}
 			rex_dfaconv_eclosure(co, nfa, co->setU, co->setV);
-//			if ((uid = rex_db_findstate(dfa, co->setV)) < 0) {
 			uidptr = r_hash_lookup(co->hash, co->setV);
 			uid = uidptr ? *uidptr : -1;
 			if (uid < 0) {
@@ -276,8 +330,6 @@ rexdb_t *rex_dfaconv_run(rexdfaconv_t *co, rexdb_t *nfa, unsigned long start)
 			}
 			rex_state_addtransition(s, t->lowin, t->highin, uid);
 		}
-		rex_transitions_normalize(s->trans);
-		rex_dfaconv_insertdeadtransitions(co, s);
 	}
 	return dfa;
 }

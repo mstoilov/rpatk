@@ -94,8 +94,6 @@ rex_transition_t *rex_transitions_add(rarray_t *trans, rexchar_t c1, rexchar_t c
 }
 
 
-#if 1
-
 /*
  * Source transitions must be normalized, for this functions to work properly
  */
@@ -127,7 +125,6 @@ void rex_transitions_negative(rarray_t *dtrans, rarray_t *strans, unsigned long 
 
 	}
 }
-#endif
 
 
 void rex_transitions_normalize(rarray_t *trans)
