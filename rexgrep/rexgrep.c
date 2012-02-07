@@ -87,7 +87,7 @@ int rex_grep_load_pattern(rexgrep_t *pGrep, rbuffer_t *buf)
 
 int rex_grep_match(rexgrep_t *pGrep, const char* input, const char *end)
 {
-	int inc = 1;
+	int inc;
 	ruint32 wc;
 	rexdb_t *db;
 
