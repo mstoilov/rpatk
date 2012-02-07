@@ -51,8 +51,7 @@ robject_t *rex_db_init(robject_t *obj, unsigned int objtype, r_object_cleanupfun
 		/*
 		 * Create the dead state.
 		 */
-		long uid = rex_db_createstate(rexdb , REX_STATETYPE_DEAD);
-		rex_state_addtransition(rex_db_getstate(rexdb, uid), 0, REX_CHAR_MAX, uid);
+		rex_db_createstate(rexdb , REX_STATETYPE_DEAD);
 	}
 	if (type == REXDB_TYPE_NFA) {
 		rexdb->co = rex_compiler_create(rexdb);

@@ -47,8 +47,8 @@ int usage(int argc, const char *argv[])
 		fprintf(stderr, " OPTIONS:\n");
 		fprintf(stderr, "\t-e patterns              Regular Expression.\n");
 		fprintf(stderr, "\t-f patternfile           Read Regular Expressions from a file.\n");
-		fprintf(stderr, "\t-c binfile               Compile DFA and save to binfile.\n");
-		fprintf(stderr, "\t-b binfile               Load DFA from binfile.\n");
+		fprintf(stderr, "\t-b binfile               Use DFA from binfile.\n");
+		fprintf(stderr, "\t-c                       Compile DFA and save to binfile. Use -b option to specify the name of the file.\n");
 		fprintf(stderr, "\t-o, --only-matching      Show only the part of a line matching PATTERN\n");
 		fprintf(stderr, "\t-l                       Line mode.\n");
 		fprintf(stderr, "\t-N                       Use NFA.\n");
@@ -109,13 +109,18 @@ rbuffer_t *grep_buffer_loadfile(FILE *pFile)
 }
 
 
+#define REXGREP_BINOP_NONE 0
+#define REXGREP_BINOP_READ 1
+#define REXGREP_BINOP_WRITE 2
+
+
 int main(int argc, const char *argv[])
 {
 	int ret, scanned = 0, i;
 	rexgrep_t *pGrep;
 	rarray_t *buffers;
-	const char *loadbinfile = NULL;
-	const char *savebinfile = NULL;
+	const char *binfile = NULL;
+	int binop = REXGREP_BINOP_NONE;
 	FILE *devnull = NULL;
 
 	buffers = r_array_create(sizeof(rbuffer_t *));
@@ -154,22 +159,23 @@ int main(int argc, const char *argv[])
 	}
 
 	for (i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "-c") == 0) {
+		if (strcmp(argv[i], "-b") == 0) {
 			if (++i < argc) {
-				savebinfile = argv[i];
+				binfile = argv[i];
+				binop = REXGREP_BINOP_READ;
 			}
 		}
 	}
 
 	for (i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "-b") == 0) {
-			if (++i < argc) {
-				loadbinfile = argv[i];
-			}
+		if (strcmp(argv[i], "-c") == 0) {
+			binop = REXGREP_BINOP_WRITE;
+			if (!binfile)
+				binfile = "rex.bin";
 		}
 	}
 
-	if (!loadbinfile) {
+	if (binop != REXGREP_BINOP_READ) {
 		for (i = 1; i < argc; i++) {
 			if (strcmp(argv[i], "-f") == 0) {
 				if (++i < argc) {
@@ -216,25 +222,13 @@ int main(int argc, const char *argv[])
 		}
 	}
 
-	for (i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "-s") == 0) {
-			if (++i < argc) {
-				rbuffer_t buf;
-				buf.s = (char*)argv[i];
-				buf.size = r_strlen(argv[i]);
-				rex_grep_scan_buffer(pGrep, &buf);
-				++scanned;
-			}
-		}
-	}
-
-	if (!pGrep->dfa && loadbinfile) {
+	if (!pGrep->dfa && binop == REXGREP_BINOP_READ) {
 		FILE *pfile = NULL;
 		rexdfa_t dfa;
 		r_memset(&dfa, 0, sizeof(dfa));
-		pfile = fopen(loadbinfile, "rb");
+		pfile = fopen(binfile, "rb");
 		if (!pfile) {
-			fprintf(stderr, "Failed to open file: %s, %s\n", loadbinfile, strerror(errno));
+			fprintf(stderr, "Failed to open file: %s, %s\n", binfile, strerror(errno));
 			goto error;
 		}
 		fread(&dfa, sizeof(dfa), 1, pfile);
@@ -269,16 +263,16 @@ int main(int argc, const char *argv[])
 		}
 	}
 
-	if (pGrep->dfa && savebinfile) {
+	if (pGrep->dfa && binop == REXGREP_BINOP_WRITE) {
 		rexdfa_t dfa = *pGrep->dfa;
 		dfa.nsubstates = 0;
 		dfa.substates = NULL;
 		dfa.states = NULL;
 		dfa.trans = NULL;
 		dfa.accsubstates = NULL;
-		FILE *pfile = fopen(savebinfile, "wb");
+		FILE *pfile = fopen(binfile, "wb");
 		if (!pfile) {
-			fprintf(stderr, "Failed to create file: %s, %s\n", savebinfile, strerror(errno));
+			fprintf(stderr, "Failed to create file: %s, %s\n", binfile, strerror(errno));
 			goto error;
 		}
 		fwrite(&dfa, sizeof(dfa), 1, pfile);
@@ -292,12 +286,24 @@ int main(int argc, const char *argv[])
 		goto end;
 	}
 
+	for (i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "-s") == 0) {
+			if (++i < argc) {
+				rbuffer_t buf;
+				buf.s = (char*)argv[i];
+				buf.size = r_strlen(argv[i]);
+				rex_grep_scan_buffer(pGrep, &buf);
+				++scanned;
+			}
+		}
+	}
+
 	/* scan files */
 	for (i = 1; i < argc; i++) {
 		if (argv[i][0] != '-') {
 			++scanned;
 			rex_grep_scan_path(pGrep, argv[i]);
-		} else if (argv[i][1] == 'e' || argv[i][1] == 'f' || argv[i][1] == 'c' || argv[i][1] == 'b'){
+		} else if (argv[i][1] == 'e' || argv[i][1] == 'f' || argv[i][1] == 'b'){
 			++i;
 		}
 		

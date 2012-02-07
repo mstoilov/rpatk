@@ -188,7 +188,7 @@ int rex_grep_scan_lines(rexgrep_t *pGrep, const char* start, const char* end)
 	const char *eol;
 
 	for (eol = start; eol < end; eol++) {
-		if (*eol == '\n') {
+		if (*eol == '\n' || (eol + 1) == end) {
 			ret = rex_grep_scan_do(pGrep, start, eol + 1);
 			if (ret > 0) {
 				if (pGrep->showfilename) {

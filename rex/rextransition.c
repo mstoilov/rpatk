@@ -132,8 +132,8 @@ void rex_transitions_normalize(rarray_t *trans)
 	long i, j;
 	rex_transition_t *itrans, *jtrans;
 
-startover:
 	for (i = 0; i < r_array_length(trans); i++) {
+startover:
 		itrans = (rex_transition_t *)r_array_slot(trans, i);
 		if (itrans->lowin == itrans->highin)
 			itrans->type = REX_TRANSITION_INPUT;

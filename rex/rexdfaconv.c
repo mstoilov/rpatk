@@ -330,6 +330,7 @@ rexdb_t *rex_dfaconv_run(rexdfaconv_t *co, rexdb_t *nfa, unsigned long start)
 			}
 			rex_state_addtransition(s, t->lowin, t->highin, uid);
 		}
+		rex_transitions_normalize(s->trans);
 	}
 	return dfa;
 }
