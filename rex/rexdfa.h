@@ -64,7 +64,7 @@ typedef enum {
 #define REX_DFA_NEXT(__dfa__, __nstate__, __input__) \
 		({ \
 			rexdft_t *t; \
-			long mid, min = 0, max = min + REX_DFA_STATE(__dfa__, __nstate__)->ntrans; \
+			rexuint_t mid, min = 0, max = REX_DFA_STATE(__dfa__, __nstate__)->ntrans; \
 			while (max > min) { \
 				mid = (min + max)/2; \
 				t = REX_DFA_TRANSITION(dfa, nstate, mid); \
@@ -74,8 +74,7 @@ typedef enum {
 					max = mid; \
 				} \
 			} \
-			min -= (min > 0) ? 1 : 0; \
-			t = REX_DFA_TRANSITION(__dfa__, __nstate__, min); \
+			t = REX_DFA_TRANSITION(__dfa__, __nstate__, min-1); \
 			(t->state); \
 		})
 
