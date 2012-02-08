@@ -31,6 +31,11 @@ typedef unsigned long rexuserdata_t;
 typedef REX_USERDATA_TYPE rexuserdata_t;
 #endif
 
+#ifndef REX_UWORD_TYPE
+typedef unsigned long rexuword_t;
+#else
+typedef REX_UWORD_TYPE rexuword_t;
+#endif
 
 #ifndef REX_UINT_TYPE
 typedef unsigned int rexuint_t;
@@ -125,6 +130,7 @@ typedef struct rexdfa_s {
 	rexdfss_t *accsubstates;
 	rexuint_t nsubstates;
 	rexdfss_t *substates;
+	rexuword_t reserved[64];
 } rexdfa_t;
 
 
