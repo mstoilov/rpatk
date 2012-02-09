@@ -210,22 +210,6 @@ static void rex_dfaconv_move(rexdfaconv_t *co, rexdb_t *nfa, const rarray_t *sub
 }
 
 
-static void rex_dfaconv_insertdeadtransitions(rexdfaconv_t *co, rexstate_t *state)
-{
-	long i;
-	rex_transition_t *t;
-
-	r_array_setlength(co->temptrans, 0);
-	for (i = 0; i < r_array_length(state->trans); i++) {
-		t = (rex_transition_t *)r_array_slot(state->trans, i);
-		rex_transitions_add(co->temptrans, t->lowin, t->highin, state->uid, 0);
-	}
-	rex_transitions_normalize(co->temptrans);
-	rex_transitions_negative(state->trans, co->temptrans, state->uid, 0);
-	rex_transitions_normalize(state->trans);
-}
-
-
 static void rex_dfaconv_initsubstates(rexdb_t *dfa, rexdb_t *nfa)
 {
 	long i;
