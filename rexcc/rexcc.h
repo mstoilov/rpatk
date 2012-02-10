@@ -45,7 +45,7 @@ rexcc_t *rex_cc_create();
 void rex_cc_destroy(rexcc_t *pCC);
 int rex_cc_load_pattern(rexcc_t *pCC, rbuffer_t *buf, rexuserdata_t userdata);
 int rex_cc_load_string_pattern(rexcc_t *pCC, rbuffer_t *buf, rexuserdata_t userdata);
-int rex_cc_output(rexcc_t *pCC, FILE *out);
+int rex_cc_output(rexcc_t *pCC, FILE *outc,  FILE *outh);
 
 #ifdef __cplusplus
 }

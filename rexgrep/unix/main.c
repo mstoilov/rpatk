@@ -53,7 +53,7 @@ int usage(int argc, const char *argv[])
 		fprintf(stderr, "\t-l                       Line mode.\n");
 		fprintf(stderr, "\t-N                       Use NFA.\n");
 		fprintf(stderr, "\t-D                       Dump states.\n");
-		fprintf(stderr, "\t-F                       Dump rexdfa_t states.\n");
+		fprintf(stderr, "\t-S                       Include DFA substates.\n");
 		fprintf(stderr, "\t-q                       Quiet mode.\n");
 		fprintf(stderr, "\t-t                       Display time elapsed.\n");
 		fprintf(stderr, "\t-s string                Scan string.\n");
@@ -135,6 +135,12 @@ int main(int argc, const char *argv[])
 	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-t") == 0) {
 			pGrep->showtime = 1;
+		}
+	}
+
+	for (i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "-S") == 0) {
+			pGrep->withsubstates = 1;
 		}
 	}
 
@@ -242,7 +248,7 @@ int main(int argc, const char *argv[])
 
 	if (!pGrep->dfa && pGrep->usedfa) {
 		rexdb_t *dfadb = rex_db_createdfa(pGrep->nfa, pGrep->startuid);
-		pGrep->dfa = rex_db_todfa(dfadb);
+		pGrep->dfa = rex_db_todfa(dfadb, pGrep->withsubstates);
 		rex_db_destroy(dfadb);
 	}
 
@@ -265,7 +271,7 @@ int main(int argc, const char *argv[])
 
 	if (pGrep->dfa && binop == REXGREP_BINOP_WRITE) {
 		rexdfa_t dfa = *pGrep->dfa;
-		dfa.nsubstates = 0;
+//		dfa.nsubstates = 0;
 		dfa.substates = NULL;
 		dfa.states = NULL;
 		dfa.trans = NULL;
@@ -279,9 +285,11 @@ int main(int argc, const char *argv[])
 		dfa.states = pGrep->dfa->states;
 		dfa.trans = pGrep->dfa->trans;
 		dfa.accsubstates = pGrep->dfa->accsubstates;
+		dfa.substates = pGrep->dfa->substates;
 		fwrite(dfa.states, sizeof(*dfa.states), dfa.nstates, pfile);
 		fwrite(dfa.trans, sizeof(*dfa.trans), dfa.ntrans, pfile);
 		fwrite(dfa.accsubstates, sizeof(*dfa.accsubstates), dfa.naccsubstates, pfile);
+		fwrite(dfa.substates, sizeof(*dfa.substates), dfa.nsubstates, pfile);
 		fclose(pfile);
 		goto end;
 	}
@@ -329,7 +337,7 @@ end:
 		unsigned long sizetrans = dfa->ntrans * sizeof(rexdft_t);
 		unsigned long sizeaccsubs = dfa->naccsubstates * sizeof(rexdfss_t);
 		unsigned long sizesubs = dfa->nsubstates * sizeof(rexdfss_t);
-		unsigned long sizetotal = sizestates + sizetrans + sizeaccsubs + sizesubs + sizeof(rexdfa_t);
+		unsigned long sizetotal = sizestates + sizetrans + sizeaccsubs + sizesubs;
 		fprintf(stdout, "\n\n");
 		fprintf(stdout, "\tDFA Memory: %ld KB, States: %ld KB (%.2f), Transitions: %ld KB (%.2f), Accecpting Substates: %ld KB(%.2f), Substates: %ld KB (%.2f)\n",
 				sizetotal/1024, sizestates/1024, (100.0*sizestates/sizetotal), sizetrans/1024, (100.0*sizetrans/sizetotal),

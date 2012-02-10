@@ -57,6 +57,7 @@ typedef struct rexgrep_s {
 	unsigned int showtime;
 	unsigned int showfilename;
 	unsigned int usedfa;
+	unsigned int withsubstates;
 	unsigned int forceEncoding;
 	int ret;
 	void *filename;

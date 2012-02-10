@@ -210,15 +210,16 @@ static int rex_cc_output_dfa(rexcc_t *pCC, FILE *out)
 {
 	rexdfa_t *dfa = pCC->dfa;
 
-	rex_cc_fprintf(out, 0, "rexdfa_t ccdfa = {\n");
+	rex_cc_fprintf(out, 0, "static rexdfa_t ccdfa = {\n");
 	rex_cc_fprintf(out, 1, "%lu,\n", dfa->nstates);
 	rex_cc_fprintf(out, 1, "%s,\n", "states");
 	rex_cc_fprintf(out, 1, "%lu,\n", dfa->ntrans);
 	rex_cc_fprintf(out, 1, "%s,\n", "transitions");
+	rex_cc_fprintf(out, 1, "%lu,\n", dfa->naccsubstates);
+	rex_cc_fprintf(out, 1, "%s,\n", "accsubstates");
 	rex_cc_fprintf(out, 1, "%lu,\n", dfa->nsubstates);
 	rex_cc_fprintf(out, 1, "%s,\n", "substates");
-	rex_cc_fprintf(out, 1, "%lu,\n", dfa->naccsubstates);
-	rex_cc_fprintf(out, 1, "%s\n", "accsubstates");
+	rex_cc_fprintf(out, 1, "{0, },\n");
 	rex_cc_fprintf(out, 0, "};\n");
 
 	return 0;
@@ -226,21 +227,21 @@ static int rex_cc_output_dfa(rexcc_t *pCC, FILE *out)
 
 
 
-int rex_cc_output(rexcc_t *pCC, FILE *out)
+int rex_cc_output(rexcc_t *pCC, FILE *outc, FILE *outh)
 {
 
-	rex_cc_fprintf(out, 0, "#include \"rexdfa.h\"\n\n");
-
-	rex_cc_output_accsubstates(pCC, out);
-	rex_cc_fprintf(out, 0, "\n\n");
-	rex_cc_output_substates(pCC, out);
-	rex_cc_fprintf(out, 0, "\n\n");
-	rex_cc_output_transitions(pCC, out);
-	rex_cc_fprintf(out, 0, "\n\n");
-	rex_cc_output_states(pCC, out);
-	rex_cc_fprintf(out, 0, "\n\n");
-	rex_cc_output_dfa(pCC, out);
-
+	if (outc) {
+		rex_cc_fprintf(outc, 0, "#include \"rexdfa.h\"\n\n");
+		rex_cc_output_accsubstates(pCC, outc);
+		rex_cc_fprintf(outc, 0, "\n\n");
+		rex_cc_output_substates(pCC, outc);
+		rex_cc_fprintf(outc, 0, "\n\n");
+		rex_cc_output_transitions(pCC, outc);
+		rex_cc_fprintf(outc, 0, "\n\n");
+		rex_cc_output_states(pCC, outc);
+		rex_cc_fprintf(outc, 0, "\n\n");
+		rex_cc_output_dfa(pCC, outc);
+	}
 
 	return 0;
 }

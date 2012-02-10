@@ -66,6 +66,7 @@ static int rex_compiler_isspace(int c)
 static int rex_compiler_getchar(rexcompiler_t *co)
 {
 	ruint32 wc = REX_TOKEN_EOF;
+	int inc = 0;
 
 again:
 	if (co->ptr + 1 < co->end && *co->ptr == '\\' && *(co->ptr + 1) == '\n') {
@@ -76,9 +77,7 @@ again:
 		co->ptr += 3;
 		goto again;
 	}
-
-	int inc = r_utf8_mbtowc(&wc, (const unsigned char*)co->ptr, (const unsigned char*)co->end);
-
+	inc = r_utf8_mbtowc(&wc, (const unsigned char*)co->ptr, (const unsigned char*)co->end);
 	if (inc <= 0)
 		return REX_TOKEN_EOF;
 	co->ptr += inc;
