@@ -35,7 +35,46 @@
 #include "rexcc.h"
 
 
+static rexdfa_t *tokens_dfa = NULL;
+struct tokeninfo_s {
+	int id;
+	const char *name;
+	const char *regex;
+};
 
+
+static struct tokeninfo_s tokens[] = {
+		{0, "%%[ \t]?[\r]?[\n]", "delimiter"},
+		{1, "identifier", "[A-Za-z_][_A-Za-z0-9]*"},
+		{2, "space", "[ \t]"},
+		{3, "cr ", "[\r]?[\n]"},
+		{4, "regex", "(\\[\r]?[\n]|.)+\r?\n"},
+};
+
+static rexdfa_t * rex_cc_tokensdfa()
+{
+	if (!tokens_dfa) {
+		long start = -1;
+		struct tokeninfo_s *ti = tokens;
+		rexdb_t *nfadb, *dfadb;
+		nfadb = rex_db_create(REXDB_TYPE_NFA);
+		while (ti->regex) {
+			start = rex_db_addexpression_s(nfadb, start, ti->regex, (rexuserdata_t)ti);
+			if (start < 0) {
+				rex_db_destroy(nfadb);
+				return NULL;
+			}
+			++ti;
+		}
+		dfadb = rex_db_createdfa(nfadb, start);
+		if (dfadb) {
+			tokens_dfa = rex_db_todfa(dfadb, 0);
+		}
+		rex_db_destroy(dfadb);
+		rex_db_destroy(nfadb);
+	}
+	return tokens_dfa;
+}
 
 rexcc_t *rex_cc_create()
 {
@@ -227,7 +266,7 @@ static int rex_cc_output_dfa(rexcc_t *pCC, FILE *out)
 
 
 
-int rex_cc_output(rexcc_t *pCC, FILE *outc, FILE *outh)
+int rex_cc_output(rexcc_t *pCC, FILE *outc)
 {
 
 	if (outc) {
@@ -244,4 +283,30 @@ int rex_cc_output(rexcc_t *pCC, FILE *outc, FILE *outh)
 	}
 
 	return 0;
+}
+
+
+int rex_cc_gettoken(rexcc_t *pCC, const char* start, const char *end)
+{
+	ruint32 wc = 0;
+	int ret = 0, inc;
+	long nstate = REX_DFA_STARTSTATE;
+	const char *input = start;
+	rexdfa_t *dfa = rex_cc_tokensdfa();
+	rexdfs_t *s;
+
+	while ((inc = r_utf8_mbtowc(&wc, (const unsigned char*)input, (const unsigned char*)end)) > 0) {
+		if ((nstate = REX_DFA_NEXT(dfa, nstate, wc)) <= 0)
+			break;
+		input += inc;
+		s = REX_DFA_STATE(dfa, nstate);
+		if (s->type == REX_STATETYPE_ACCEPT) {
+			ret = input - start;
+			/*
+			 * Find out what was accepted.
+			 */
+			pCC->token = 0;
+		}
+	}
+	return ret;
 }

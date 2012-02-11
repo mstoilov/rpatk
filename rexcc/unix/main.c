@@ -92,13 +92,12 @@ int usage(int argc, const char *argv[])
 		fprintf(stderr, " OPTIONS:\n");
 		fprintf(stderr, "\t-e <expression>          Regular Expression.\n");
 		fprintf(stderr, "\t-f <patternfile>         Read Regular Expressions from a file.\n");
-		fprintf(stderr, "\t-c <cfile>               Output .c file.\n");
-		fprintf(stderr, "\t-h <hfile>               Output .h file.\n");
+		fprintf(stderr, "\t-o <cfile>               Output .c file.\n");
 		fprintf(stderr, "\t-D                       Dump states.\n");
 		fprintf(stderr, "\t-S                       Include substates.\n");
 		fprintf(stderr, "\t-t                       Display statistics.\n");
 		fprintf(stderr, "\t-v                       Display version information.\n");
-		fprintf(stderr, "\t--help                   Display this help.\n");
+		fprintf(stderr, "\t-h, --help               Display this help.\n");
 		
 		return 0;
 }
@@ -174,7 +173,7 @@ int main(int argc, const char *argv[])
 	}
 
 	for (i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-help") == 0) {
+		if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-help") == 0 || strcmp(argv[i], "/?") == 0 || strcmp(argv[i], "-h") == 0) {
 			usage(argc, argv);
 			goto end;
 		}
@@ -188,7 +187,7 @@ int main(int argc, const char *argv[])
 	}
 
 	for (i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "-c") == 0) {
+		if (strcmp(argv[i], "-o") == 0) {
 			if (++i < argc) {
 				cfile = fopen(argv[i], "wb");
 				if (!cfile) {
@@ -199,20 +198,6 @@ int main(int argc, const char *argv[])
 			}
 		}
 	}
-
-	for (i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "-h") == 0) {
-			if (++i < argc) {
-				hfile = fopen(argv[i], "wb");
-				if (!hfile) {
-					fprintf(stderr, "Failed to create file: %s, %s\n", argv[i], strerror(errno));
-					goto error;
-				}
-
-			}
-		}
-	}
-
 
 	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-f") == 0) {
@@ -272,7 +257,7 @@ int main(int argc, const char *argv[])
 		}
 	}
 
-	rex_cc_output(pCC, cfile, hfile);
+	rex_cc_output(pCC, cfile);
 
 end:
 	rex_cc_destroy(pCC);
