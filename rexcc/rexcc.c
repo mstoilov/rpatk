@@ -43,15 +43,34 @@ struct tokeninfo_s {
 };
 
 
-static struct tokeninfo_s tokens[] = {
-		{0, "%%[ \t]?[\r]?[\n]", "delimiter"},
-		{1, "identifier", "[A-Za-z_][_A-Za-z0-9]*"},
-		{2, "space", "[ \t]"},
-		{3, "cr ", "[\r]?[\n]"},
-		{4, "regex", "(\\[\r]?[\n]|.)+\r?\n"},
+struct parseinfo_s {
+	char *id;
+	int idlen;
+	char *regex;
+	int regexlen;
 };
 
-static rexdfa_t * rex_cc_tokensdfa()
+
+#define REXCC_TOKEN_NONE			0
+#define REXCC_TOKEN_DELIMITER		1
+#define REXCC_TOKEN_IDENTIFIER		2
+#define REXCC_TOKEN_SPACE			3
+#define REXCC_TOKEN_CR				4
+#define REXCC_TOKEN_REGEX			5
+
+
+static struct tokeninfo_s tokens[] = {
+		{REXCC_TOKEN_DELIMITER,		"delimiter",	"%%[ \\t]?[\\r]?[\\n]"},
+		{REXCC_TOKEN_IDENTIFIER,	"identifier",	"([^\\t\\r\\n\'\" ]+|\".*\")+|'.+'"},
+		{REXCC_TOKEN_SPACE,			"space",		"[ \\t]+"},
+		{REXCC_TOKEN_CR,			"cr ",			"[\\r]?[\\n]"},
+		{REXCC_TOKEN_REGEX,			"regex",		"[ \\t](\\\\[\\r]?[\\n]|.)+\\r?\\n"},
+		{0, NULL, NULL},
+};
+
+
+
+rexdfa_t * rex_cc_tokensdfa()
 {
 	if (!tokens_dfa) {
 		long start = -1;
@@ -66,6 +85,15 @@ static rexdfa_t * rex_cc_tokensdfa()
 			}
 			++ti;
 		}
+
+//		if (nfadb) {
+//			long j;
+//			rexdb_t *db = nfadb;
+//			for (j = 0; j < r_array_length(db->states); j++) {
+//				rex_db_dumpstate(db, j);
+//			}
+//		}
+
 		dfadb = rex_db_createdfa(nfadb, start);
 		if (dfadb) {
 			tokens_dfa = rex_db_todfa(dfadb, 0);
@@ -84,6 +112,7 @@ rexcc_t *rex_cc_create()
 	if (!pCC)
 		return (void *)0;
 	r_memset(pCC, 0, sizeof(*pCC));
+	pCC->parseinfo = r_array_create(sizeof(struct parseinfo_s));
 	pCC->nfa = rex_db_create(REXDB_TYPE_NFA);
 	pCC->startuid = -1L;
 	return pCC;
@@ -94,6 +123,7 @@ void rex_cc_destroy(rexcc_t *pCC)
 {
 	if (!pCC)
 		return;
+	r_array_destroy(pCC->parseinfo);
 	rex_db_destroy(pCC->nfa);
 	rex_dfa_destroy(pCC->dfa);
 	r_free(pCC);
@@ -235,7 +265,7 @@ static int rex_cc_output_states(rexcc_t *pCC, FILE *out)
 	for (i = 0; i < dfa->nstates; i++) {
 		s = rex_dfa_state(dfa, i);
 		rex_cc_fprintf(out, 1, "{ %16lu, %16lu, %16lu, %16lu, %16lu, %16lu , %16lu},\n",
-				s->type, s->trans, s->ntrans, s->substates, s->nsubstates, s->accsubstates, s->naccsubstates);
+				s->type, s->trans, s->ntrans, s->accsubstates, s->naccsubstates, s->substates, s->nsubstates);
 
 	}
 	rex_cc_fprintf(out, 1, "{ %16lu, %16lu, %16lu, %16lu, %16lu, %16lu , %16lu},\n", 0, 0, 0, 0, 0, 0, 0);
@@ -286,26 +316,129 @@ int rex_cc_output(rexcc_t *pCC, FILE *outc)
 }
 
 
-int rex_cc_gettoken(rexcc_t *pCC, const char* start, const char *end)
+int rex_cc_gettoken(rexcc_t *pCC)
 {
 	ruint32 wc = 0;
-	int ret = 0, inc;
-	long nstate = REX_DFA_STARTSTATE;
-	const char *input = start;
+	int inc, ret = 0;
+	long nstate = REX_DFA_STARTSTATE, nlast = 0;
+	const char *input = pCC->input;
 	rexdfa_t *dfa = rex_cc_tokensdfa();
-	rexdfs_t *s;
+	rexdfs_t *s = NULL;
+	rexdfss_t *ss = NULL;
 
-	while ((inc = r_utf8_mbtowc(&wc, (const unsigned char*)input, (const unsigned char*)end)) > 0) {
+	pCC->token = 0;
+	pCC->tokenlen = 0;
+	if (!dfa) {
+		/*
+		 * Error
+		 */
+		return -1;
+	}
+	while ((inc = r_utf8_mbtowc(&wc, (const unsigned char*)input, (const unsigned char*)pCC->end)) > 0) {
 		if ((nstate = REX_DFA_NEXT(dfa, nstate, wc)) <= 0)
 			break;
 		input += inc;
 		s = REX_DFA_STATE(dfa, nstate);
+		ss = REX_DFA_ACCSUBSTATE(dfa, nstate, 0);
 		if (s->type == REX_STATETYPE_ACCEPT) {
-			ret = input - start;
+			pCC->token = ((struct tokeninfo_s *)ss->userdata)->id;
+			ret = input - pCC->input;
+			if (ss && ((struct tokeninfo_s *)ss->userdata)->id == 1) {
+				break;
+			}
+		}
+	}
+	if (ret) {
+		pCC->tokenptr = pCC->input;
+		pCC->tokenlen = ret;
+		pCC->input += ret;
+	}
+	return ret;
+}
+
+
+static int rex_cc_parseid(rexcc_t *pCC, struct parseinfo_s *info)
+{
+	info->id = pCC->tokenptr;
+	info->idlen = pCC->tokenlen;
+	rex_cc_gettoken(pCC);
+	return 0;
+}
+
+
+static int rex_cc_parseregex(rexcc_t *pCC, struct parseinfo_s *info)
+{
+	info->regex = pCC->tokenptr;
+	info->regexlen = pCC->tokenlen;
+	rex_cc_gettoken(pCC);
+	return 0;
+}
+
+
+static int rex_cc_parseline(rexcc_t *pCC)
+{
+	struct parseinfo_s info;
+
+	if (rex_cc_parseid(pCC, &info) < 0)
+		return -1;
+	rex_cc_gettoken(pCC);
+	if (pCC->token != REXCC_TOKEN_REGEX) {
+		/*
+		 * Unexpected char.
+		 */
+		return -1;
+	}
+	if (rex_cc_parseregex(pCC, &info) < 0)
+		return -1;
+	r_array_add(pCC->parseinfo, &info);
+	return 0;
+}
+
+
+int rex_cc_parse(rexcc_t *pCC)
+{
+	rex_cc_gettoken(pCC);
+	if (pCC->token != REXCC_TOKEN_DELIMITER)
+		return -1;
+	rex_cc_gettoken(pCC);
+	while (pCC->token) {
+		if (pCC->token == REXCC_TOKEN_CR || pCC->token == REXCC_TOKEN_SPACE) {
+			rex_cc_gettoken(pCC);
+		} else if (pCC->token == REXCC_TOKEN_IDENTIFIER) {
+			rex_cc_parseline(pCC);
+		} else if (pCC->token == REXCC_TOKEN_DELIMITER) {
+			rex_cc_gettoken(pCC);
+			return 0;
+		} else {
 			/*
-			 * Find out what was accepted.
+			 * Unexpected char
 			 */
-			pCC->token = 0;
+			return -1;
+		}
+	}
+	return -1;
+}
+
+
+int rex_cc_load_buffer(rexcc_t *pCC, rbuffer_t *text)
+{
+	int ret = 0;
+
+	pCC->input = text->s;
+	pCC->end = text->s + text->size;
+//	return rex_cc_parse(pCC);
+	while ((ret = rex_cc_gettoken(pCC)) > 0) {
+		if (ret < 0) {
+			/*
+			 * Error
+			 */
+			return -1;
+		} else if (ret > 0) {
+			fprintf(stdout, "%d: ", pCC->token);
+			fwrite(pCC->tokenptr, 1, ret, stdout);
+			fprintf(stdout, "\n");
+		} else {
+			break;
 		}
 	}
 	return ret;

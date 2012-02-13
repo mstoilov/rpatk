@@ -156,7 +156,7 @@ int main(int argc, const char *argv[])
 	int withsubstates = 0;
 	FILE *devnull = NULL;
 	rexdb_t *tempdb = NULL;
-	FILE *cfile = NULL;
+	FILE *cfile = stdout;
 	FILE *hfile = NULL;
 
 	buffers = r_array_create(sizeof(rbuffer_t *));
@@ -200,16 +200,6 @@ int main(int argc, const char *argv[])
 	}
 
 	for (i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "-f") == 0) {
-			if (++i < argc) {
-#if 0
-				rbuffer_t *text = rex_buffer_map_file(argv[i]);
-#endif
-			}
-		}
-	}
-
-	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-e") == 0) {
 			if (++i < argc) {
 				rbuffer_t pattern;
@@ -234,12 +224,11 @@ int main(int argc, const char *argv[])
 		}
 	}
 
-	if (pCC->startuid < 0)
-		goto error;
-	tempdb = rex_db_createdfa(pCC->nfa, pCC->startuid);
-	pCC->dfa = rex_db_todfa(tempdb, withsubstates);
-	rex_db_destroy(tempdb);
-
+	if (pCC->startuid >= 0) {
+		tempdb = rex_db_createdfa(pCC->nfa, pCC->startuid);
+		pCC->dfa = rex_db_todfa(tempdb, withsubstates);
+		rex_db_destroy(tempdb);
+	}
 	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-D") == 0) {
 			int j;
@@ -254,6 +243,23 @@ int main(int argc, const char *argv[])
 				}
 			}
 			goto end;
+		}
+	}
+
+	for (i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "-f") == 0) {
+			if (++i < argc) {
+				rbuffer_t *text = rex_buffer_map_file(argv[i]);
+				if (text) {
+					if (rex_cc_load_buffer(pCC, text) < 0) {
+						/*
+						 * Error
+						 */
+					}
+					r_buffer_destroy(text);
+					goto end;
+				}
+			}
 		}
 	}
 
