@@ -16,6 +16,7 @@ struct rexcompiler_s {
 	const char *start;
 	const char *end;
 	const char *ptr;
+	const char *tokenptr;
 	int token;
 	rexchar_t numtoken;
 	char tokenstr[REX_COMPILER_TOKENSIZE];
@@ -122,8 +123,10 @@ static int rex_compiler_escapedchar(int c)
 
 static int rex_compiler_gettok(rexcompiler_t *co)
 {
-	int c = rex_compiler_getchar(co);
+	int c;
 
+	co->tokenptr = co->ptr;
+	c = rex_compiler_getchar(co);
 	if (c == REX_TOKEN_EOF) {
 		co->tokenstr[0] = '\0';
 		co->token = REX_TOKEN_EOF;
@@ -322,6 +325,7 @@ static int rex_compiler_factor(rexcompiler_t *co, rexdb_t *rexdb)
 static int rex_compiler_qfactor(rexcompiler_t *co, rexdb_t *rexdb)
 {
 	rexfragment_t *frag;
+	const char *fstart, *fend;
 
 	if (strchr("*?+]\n\r)", co->token)) {
 		/*
@@ -329,9 +333,14 @@ static int rex_compiler_qfactor(rexcompiler_t *co, rexdb_t *rexdb)
 		 */
 		return -1;
 	}
+	fstart = co->tokenptr;
 	if (rex_compiler_factor(co, rexdb) < 0) {
 		return -1;
 	}
+	fend = co->tokenptr;
+//	fprintf(stdout, "factor: ");
+//	fwrite(fstart, 1, fend - fstart, stdout);
+//	fprintf(stdout, "\n");
 	switch (co->token) {
 	case '*':
 		rex_compiler_getnbtok(co); /* Eat it */
