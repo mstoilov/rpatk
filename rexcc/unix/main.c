@@ -210,7 +210,7 @@ int main(int argc, const char *argv[])
 					++i;
 					userdata = strtoul(argv[i], NULL, 10);
 				}
-				ret = rex_cc_load_string_pattern(pCC, &pattern, userdata);
+				ret = rex_cc_load_pattern(pCC, &pattern, userdata);
 				if (ret < 0)
 					goto error;
 			}
@@ -224,11 +224,34 @@ int main(int argc, const char *argv[])
 		}
 	}
 
-	if (pCC->startuid >= 0) {
-		tempdb = rex_db_createdfa(pCC->nfa, pCC->startuid);
-		pCC->dfa = rex_db_todfa(tempdb, withsubstates);
-		rex_db_destroy(tempdb);
+	for (i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "-D") == 0) {
+		}
 	}
+
+	for (i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "-f") == 0) {
+			if (++i < argc) {
+				rbuffer_t *text = rex_buffer_map_file(argv[i]);
+				if (text) {
+					if (rex_cc_load_buffer(pCC, text) < 0) {
+						/*
+						 * Error
+						 */
+					}
+					if (pCC->startuid >= 0) {
+						tempdb = rex_db_createdfa(pCC->nfa, pCC->startuid);
+						pCC->dfa = rex_db_todfa(tempdb, withsubstates);
+						rex_cc_output(pCC, cfile);
+						rex_db_destroy(tempdb);
+					}
+					r_buffer_destroy(text);
+				}
+			}
+		}
+	}
+
+
 	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-D") == 0) {
 			int j;
@@ -245,25 +268,6 @@ int main(int argc, const char *argv[])
 			goto end;
 		}
 	}
-
-	for (i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "-f") == 0) {
-			if (++i < argc) {
-				rbuffer_t *text = rex_buffer_map_file(argv[i]);
-				if (text) {
-					if (rex_cc_load_buffer(pCC, text) < 0) {
-						/*
-						 * Error
-						 */
-					}
-					r_buffer_destroy(text);
-					goto end;
-				}
-			}
-		}
-	}
-
-	rex_cc_output(pCC, cfile);
 
 end:
 	rex_cc_destroy(pCC);

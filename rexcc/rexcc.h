@@ -41,10 +41,13 @@ typedef struct rexcc_s {
 	long startuid;
 	unsigned int showtime;
 	rbuffer_t *buffer;
+	rbuffer_t prolog;
+	rbuffer_t epilog;
+	char *temp;
 	int token;
-	const char *input;
-	const char *end;
-	const char *tokenptr;
+	char *input;
+	char *end;
+	char *tokenptr;
 	int tokenlen;
 } rexcc_t;
 
@@ -52,7 +55,6 @@ typedef struct rexcc_s {
 rexcc_t *rex_cc_create();
 void rex_cc_destroy(rexcc_t *pCC);
 int rex_cc_load_pattern(rexcc_t *pCC, rbuffer_t *buf, rexuserdata_t userdata);
-int rex_cc_load_string_pattern(rexcc_t *pCC, rbuffer_t *buf, rexuserdata_t userdata);
 int rex_cc_load_buffer(rexcc_t *pCC, rbuffer_t *text);
 int rex_cc_output(rexcc_t *pCC, FILE *outc);
 rexdfa_t * rex_cc_tokensdfa();

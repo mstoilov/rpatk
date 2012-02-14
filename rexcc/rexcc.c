@@ -44,10 +44,8 @@ struct tokeninfo_s {
 
 
 struct parseinfo_s {
-	char *id;
-	int idlen;
-	char *regex;
-	int regexlen;
+	rbuffer_t id;
+	rbuffer_t regex;
 };
 
 
@@ -126,13 +124,8 @@ void rex_cc_destroy(rexcc_t *pCC)
 	r_array_destroy(pCC->parseinfo);
 	rex_db_destroy(pCC->nfa);
 	rex_dfa_destroy(pCC->dfa);
+	r_free(pCC->temp);
 	r_free(pCC);
-}
-
-
-int rex_cc_load_string_pattern(rexcc_t *pCC, rbuffer_t *buf, rexuserdata_t userdata)
-{
-	return rex_cc_load_pattern(pCC, buf, userdata);
 }
 
 
@@ -174,9 +167,19 @@ static int rex_cc_output_statesubstates(rexcc_t *pCC, FILE *out, long nstate)
 	rexdfa_t *dfa = pCC->dfa;
 	rexdfs_t *s = rex_dfa_state(dfa, nstate);
 	rexdfss_t *ss;
+	struct parseinfo_s *pi;
+
 	for (i = 0; i < s->nsubstates; i++) {
 		ss = rex_dfa_substate(dfa, nstate, i);
-		rex_cc_fprintf(out, 1, "{ %16lu, %16lu, %16lu },\n", ss->type, ss->uid, (unsigned long)ss->userdata);
+		if (ss->type == REX_STATETYPE_ACCEPT) {
+			pi = (struct parseinfo_s *)r_array_slot(pCC->parseinfo, ss->userdata);
+			pCC->temp = r_realloc(pCC->temp, pi->id.size + 1);
+			r_memset(pCC->temp, 0, pi->id.size + 1);
+			r_memcpy(pCC->temp, pi->id.s, pi->id.size);
+			rex_cc_fprintf(out, 1, "{ %16lu, %16lu, (rexuserdata_t)(%s) },\n", ss->type, ss->uid, pCC->temp);
+		} else {
+			rex_cc_fprintf(out, 1, "{ %16lu, %16lu, %16lu },\n", ss->type, ss->uid, (unsigned long)0);
+		}
 	}
 	return 0;
 }
@@ -203,9 +206,15 @@ static int rex_cc_output_stateaccsubstates(rexcc_t *pCC, FILE *out, long nstate)
 	rexdfa_t *dfa = pCC->dfa;
 	rexdfs_t *s = rex_dfa_state(dfa, nstate);
 	rexdfss_t *ss;
+	struct parseinfo_s *pi;
+
 	for (i = 0; i < s->naccsubstates; i++) {
 		ss = rex_dfa_accsubstate(dfa, nstate, i);
-		rex_cc_fprintf(out, 1, "{ %16lu, %16lu, %16lu },\n", ss->type, ss->uid, (unsigned long)ss->userdata);
+		pi = (struct parseinfo_s *)r_array_slot(pCC->parseinfo, ss->userdata);
+		pCC->temp = r_realloc(pCC->temp, pi->id.size + 1);
+		r_memset(pCC->temp, 0, pi->id.size + 1);
+		r_memcpy(pCC->temp, pi->id.s, pi->id.size);
+		rex_cc_fprintf(out, 1, "{ %16lu, %16lu, (rexuserdata_t)(%s) },\n", ss->type, ss->uid, pCC->temp);
 	}
 	return 0;
 }
@@ -301,6 +310,10 @@ int rex_cc_output(rexcc_t *pCC, FILE *outc)
 
 	if (outc) {
 		rex_cc_fprintf(outc, 0, "#include \"rexdfa.h\"\n\n");
+		if (pCC->prolog.size) {
+			fwrite(pCC->prolog.s, 1, pCC->prolog.size, outc);
+			rex_cc_fprintf(outc, 0, "\n");
+		}
 		rex_cc_output_accsubstates(pCC, outc);
 		rex_cc_fprintf(outc, 0, "\n\n");
 		rex_cc_output_substates(pCC, outc);
@@ -310,6 +323,10 @@ int rex_cc_output(rexcc_t *pCC, FILE *outc)
 		rex_cc_output_states(pCC, outc);
 		rex_cc_fprintf(outc, 0, "\n\n");
 		rex_cc_output_dfa(pCC, outc);
+		if (pCC->epilog.size) {
+			rex_cc_fprintf(outc, 0, "\n");
+			fwrite(pCC->epilog.s, 1, pCC->epilog.size, outc);
+		}
 	}
 
 	return 0;
@@ -320,7 +337,7 @@ int rex_cc_gettoken(rexcc_t *pCC)
 {
 	ruint32 wc = 0;
 	int inc, ret = 0;
-	long nstate = REX_DFA_STARTSTATE, nlast = 0;
+	long nstate = REX_DFA_STARTSTATE;
 	const char *input = pCC->input;
 	rexdfa_t *dfa = rex_cc_tokensdfa();
 	rexdfs_t *s = NULL;
@@ -359,8 +376,8 @@ int rex_cc_gettoken(rexcc_t *pCC)
 
 static int rex_cc_parseid(rexcc_t *pCC, struct parseinfo_s *info)
 {
-	info->id = pCC->tokenptr;
-	info->idlen = pCC->tokenlen;
+	info->id.s = pCC->tokenptr;
+	info->id.size = pCC->tokenlen;
 	rex_cc_gettoken(pCC);
 	return 0;
 }
@@ -368,8 +385,8 @@ static int rex_cc_parseid(rexcc_t *pCC, struct parseinfo_s *info)
 
 static int rex_cc_parseregex(rexcc_t *pCC, struct parseinfo_s *info)
 {
-	info->regex = pCC->tokenptr;
-	info->regexlen = pCC->tokenlen;
+	info->regex.s = pCC->tokenptr;
+	info->regex.size = pCC->tokenlen;
 	rex_cc_gettoken(pCC);
 	return 0;
 }
@@ -379,9 +396,9 @@ static int rex_cc_parseline(rexcc_t *pCC)
 {
 	struct parseinfo_s info;
 
+	r_memset(&info, 0, sizeof(info));
 	if (rex_cc_parseid(pCC, &info) < 0)
 		return -1;
-	rex_cc_gettoken(pCC);
 	if (pCC->token != REXCC_TOKEN_REGEX) {
 		/*
 		 * Unexpected char.
@@ -397,6 +414,14 @@ static int rex_cc_parseline(rexcc_t *pCC)
 
 int rex_cc_parse(rexcc_t *pCC)
 {
+	pCC->prolog.s = pCC->input;
+	pCC->prolog.size = 0;
+	while (pCC->input + 3 < pCC->end) {
+		if (*pCC->input == '%' && *(pCC->input+1) == '%' && (*(pCC->input+2) == '\n' || (*(pCC->input+2) == '\r' && *(pCC->input+3) == '\n')))
+			break;
+		pCC->prolog.size += 1;
+		pCC->input += 1;
+	}
 	rex_cc_gettoken(pCC);
 	if (pCC->token != REXCC_TOKEN_DELIMITER)
 		return -1;
@@ -415,6 +440,8 @@ int rex_cc_parse(rexcc_t *pCC)
 			 */
 			return -1;
 		}
+		pCC->epilog.s = pCC->input;
+		pCC->epilog.size = pCC->end - pCC->input;
 	}
 	return -1;
 }
@@ -422,23 +449,25 @@ int rex_cc_parse(rexcc_t *pCC)
 
 int rex_cc_load_buffer(rexcc_t *pCC, rbuffer_t *text)
 {
-	int ret = 0;
+	int ret = 0, i;
+	struct parseinfo_s *pi;
 
 	pCC->input = text->s;
 	pCC->end = text->s + text->size;
-//	return rex_cc_parse(pCC);
-	while ((ret = rex_cc_gettoken(pCC)) > 0) {
-		if (ret < 0) {
-			/*
-			 * Error
-			 */
-			return -1;
-		} else if (ret > 0) {
-			fprintf(stdout, "%d: ", pCC->token);
-			fwrite(pCC->tokenptr, 1, ret, stdout);
+	r_array_setlength(pCC->parseinfo, 0);
+	if (rex_cc_parse(pCC) == 0) {
+		for (i = 0; i < r_array_length(pCC->parseinfo); i++) {
+			pi = (struct parseinfo_s *)r_array_slot(pCC->parseinfo, i);
+			if (rex_cc_load_pattern(pCC, &pi->regex, i) < 0) {
+				return -1;
+			}
+
+#if 0
+			fwrite(pi->id.s, 1, pi->id.size, stdout);
+			fprintf(stdout, " : ");
+			fwrite(pi->regex.s, 1, pi->regex.size, stdout);
 			fprintf(stdout, "\n");
-		} else {
-			break;
+#endif
 		}
 	}
 	return ret;
