@@ -375,6 +375,7 @@ static int rex_compiler_qfactor(rexcompiler_t *co, rexdb_t *rexdb)
 	rexfragment_t *frag, *frag1, *frag2;
 	const char *fstart, *fend;
 	rexstate_t *srcstate;
+	long nstates, i;
 
 	if (strchr("{}*?+]\n\r)", co->token)) {
 		/*
@@ -382,6 +383,7 @@ static int rex_compiler_qfactor(rexcompiler_t *co, rexdb_t *rexdb)
 		 */
 		return -1;
 	}
+	nstates = r_array_length(rexdb->states);
 	fstart = co->tokenptr;
 	if (rex_compiler_factor(co, rexdb) < 0) {
 		return -1;
@@ -411,16 +413,34 @@ static int rex_compiler_qfactor(rexcompiler_t *co, rexdb_t *rexdb)
 			return -1;
 		if (co->fromcount > co->tocount)
 			return -1;
+		if (co->fromcount == 0 && co->tocount == (unsigned long)-1) {
+			frag = FPOP(co);
+			frag = rex_fragment_mop(rexdb, frag);
+			FPUSH(co, frag);
+			break;
+		}
+		if (co->fromcount == 1 && co->tocount == (unsigned long)-1) {
+			frag = FPOP(co);
+			frag = rex_fragment_mul(rexdb, frag);
+			FPUSH(co, frag);
+			break;
+		}
 		if (co->fromcount == 0 && co->tocount == 0) {
 			/*
 			 * Special case
 			 */
 			frag = FPOP(co);
+			for (i = nstates; i < r_array_length(rexdb->states); i++) {
+				srcstate = rex_db_getstate(rexdb, i);
+				rex_state_destroy(srcstate);
+			}
+			r_array_setlength(rexdb->states, nstates);
 			srcstate = rex_db_getstate(rexdb, rex_db_createstate(rexdb, REX_STATETYPE_NONE));
 			rex_compiler_adjustescapedtoken(co);
 			rex_state_addtransition_e(srcstate, -1);
 			frag = rex_fragment_create(srcstate);
 			FPUSH(co, frag);
+			break;
 		}
 		if (co->fromcount == 0) {
 			frag = FPOP(co);
