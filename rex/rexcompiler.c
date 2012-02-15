@@ -19,6 +19,8 @@ struct rexcompiler_s {
 	const char *tokenptr;
 	int token;
 	rexchar_t numtoken;
+	long fromcount;
+	long tocount;
 	char tokenstr[REX_COMPILER_TOKENSIZE];
 };
 
@@ -322,12 +324,57 @@ static int rex_compiler_factor(rexcompiler_t *co, rexdb_t *rexdb)
 }
 
 
+static int rex_compiler_parsecount(rexcompiler_t *co, rexdb_t *rexdb)
+{
+	char convbuf[REX_CONV_BUFSIZE + 1];
+	int i = 0;
+
+	rex_compiler_getnbtok(co);		/* eat '{' */
+	if (!isdigit(co->token))
+		return -1;
+	for (i = 0; isdigit(co->token); i++) {
+		if (i >= REX_CONV_BUFSIZE)
+			return -1;
+		convbuf[i] = co->token;
+		if (rex_compiler_gettok(co) == REX_TOKEN_EOF)
+			return -1;
+	}
+	convbuf[i++] = 0;
+	co->fromcount = strtoul(convbuf, NULL, 10);
+	co->tocount = co->fromcount;
+	if (rex_compiler_isblank(co->token)) {
+		rex_compiler_getnbtok(co);
+	}
+	if (co->token == ',') {
+		rex_compiler_getnbtok(co);		/* eat ',' */
+		if (!isdigit(co->token))
+			return -1;
+		for (i = 0; isdigit(co->token); i++) {
+			if (i >= REX_CONV_BUFSIZE)
+				return -1;
+			convbuf[i] = co->token;
+			if (rex_compiler_gettok(co) == REX_TOKEN_EOF)
+				return -1;
+		}
+		convbuf[i++] = 0;
+		co->tocount = strtoul(convbuf, NULL, 10);
+		if (rex_compiler_isblank(co->token)) {
+			rex_compiler_getnbtok(co);
+		}
+	}
+	if (co->token != '}')
+		return -1;
+	rex_compiler_getnbtok(co);		/* eat '}' */
+	return 0;
+}
+
+
 static int rex_compiler_qfactor(rexcompiler_t *co, rexdb_t *rexdb)
 {
-	rexfragment_t *frag;
+	rexfragment_t *frag, *frag1, *frag2;
 	const char *fstart, *fend;
 
-	if (strchr("*?+]\n\r)", co->token)) {
+	if (strchr("{}*?+]\n\r)", co->token)) {
 		/*
 		 * Unexpected char.
 		 */
@@ -338,9 +385,6 @@ static int rex_compiler_qfactor(rexcompiler_t *co, rexdb_t *rexdb)
 		return -1;
 	}
 	fend = co->tokenptr;
-//	fprintf(stdout, "factor: ");
-//	fwrite(fstart, 1, fend - fstart, stdout);
-//	fprintf(stdout, "\n");
 	switch (co->token) {
 	case '*':
 		rex_compiler_getnbtok(co); /* Eat it */
@@ -359,6 +403,47 @@ static int rex_compiler_qfactor(rexcompiler_t *co, rexdb_t *rexdb)
 		frag = FPOP(co);
 		frag = rex_fragment_mul(rexdb, frag);
 		FPUSH(co, frag);
+		break;
+	case '{':
+		if (rex_compiler_parsecount(co, rexdb) < 0)
+			return -1;
+		if (co->fromcount > co->tocount)
+			return -1;
+		if (co->fromcount == 0 && co->tocount == 0)
+			co->tocount = 1;
+		if (co->fromcount == 0) {
+			frag = FPOP(co);
+			frag = rex_fragment_opt(rexdb, frag);
+			FPUSH(co, frag);
+		}
+		do {
+			long count;
+			const char *saved_start = co->start;
+			const char *saved_end = co->end;
+			const char *saved_ptr = co->ptr;
+			const char *saved_tokenptr = co->tokenptr;
+			int saved_token = co->token;
+			for (count = 1; count < co->tocount; count++) {
+				co->start = fstart;
+				co->end = fend;
+				co->ptr = fstart;
+				rex_compiler_getnbtok(co);
+				rex_compiler_catexpression(co, rexdb);
+				frag2 = FPOP(co);
+				frag1 = FPOP(co);
+				frag1 = rex_fragment_cat(rexdb, frag1, frag2);
+				if (count >= co->fromcount)
+					frag1 = rex_fragment_opt(rexdb, frag1);
+				FPUSH(co, frag1);
+			}
+//			fwrite(fstart, 1, fend - fstart, stdout);
+//			fprintf(stdout, "{%ld,%ld}\n", co->fromcount, co->tocount);
+			co->start = saved_start;
+			co->end = saved_end;
+			co->ptr = saved_ptr;
+			co->tokenptr = saved_tokenptr;
+			co->token = saved_token;
+		} while (0);
 		break;
 	}
 	return 0;

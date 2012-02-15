@@ -331,7 +331,7 @@ end:
 	}
 	r_object_destroy((robject_t*)buffers);
 	ret = pGrep->ret;
-	if (pGrep->showtime) {
+	if (pGrep->showtime && pGrep->dfa) {
 		rexdfa_t *dfa = pGrep->dfa;
 		unsigned long sizestates = dfa->nstates * sizeof(rexdfs_t);
 		unsigned long sizetrans = dfa->ntrans * sizeof(rexdft_t);
