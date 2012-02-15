@@ -19,8 +19,8 @@ struct rexcompiler_s {
 	const char *tokenptr;
 	int token;
 	rexchar_t numtoken;
-	long fromcount;
-	long tocount;
+	unsigned long fromcount;
+	unsigned long tocount;
 	char tokenstr[REX_COMPILER_TOKENSIZE];
 };
 
@@ -347,19 +347,20 @@ static int rex_compiler_parsecount(rexcompiler_t *co, rexdb_t *rexdb)
 	}
 	if (co->token == ',') {
 		rex_compiler_getnbtok(co);		/* eat ',' */
-		if (!isdigit(co->token))
-			return -1;
-		for (i = 0; isdigit(co->token); i++) {
-			if (i >= REX_CONV_BUFSIZE)
-				return -1;
-			convbuf[i] = co->token;
-			if (rex_compiler_gettok(co) == REX_TOKEN_EOF)
-				return -1;
-		}
-		convbuf[i++] = 0;
-		co->tocount = strtoul(convbuf, NULL, 10);
-		if (rex_compiler_isblank(co->token)) {
-			rex_compiler_getnbtok(co);
+		co->tocount = (unsigned long)-1;
+		if (isdigit(co->token)) {
+			for (i = 0; isdigit(co->token); i++) {
+				if (i >= REX_CONV_BUFSIZE)
+					return -1;
+				convbuf[i] = co->token;
+				if (rex_compiler_gettok(co) == REX_TOKEN_EOF)
+					return -1;
+			}
+			convbuf[i++] = 0;
+			co->tocount = strtoul(convbuf, NULL, 10);
+			if (rex_compiler_isblank(co->token)) {
+				rex_compiler_getnbtok(co);
+			}
 		}
 	}
 	if (co->token != '}')
@@ -373,6 +374,7 @@ static int rex_compiler_qfactor(rexcompiler_t *co, rexdb_t *rexdb)
 {
 	rexfragment_t *frag, *frag1, *frag2;
 	const char *fstart, *fend;
+	rexstate_t *srcstate;
 
 	if (strchr("{}*?+]\n\r)", co->token)) {
 		/*
@@ -409,8 +411,17 @@ static int rex_compiler_qfactor(rexcompiler_t *co, rexdb_t *rexdb)
 			return -1;
 		if (co->fromcount > co->tocount)
 			return -1;
-		if (co->fromcount == 0 && co->tocount == 0)
-			co->tocount = 1;
+		if (co->fromcount == 0 && co->tocount == 0) {
+			/*
+			 * Special case
+			 */
+			frag = FPOP(co);
+			srcstate = rex_db_getstate(rexdb, rex_db_createstate(rexdb, REX_STATETYPE_NONE));
+			rex_compiler_adjustescapedtoken(co);
+			rex_state_addtransition_e(srcstate, -1);
+			frag = rex_fragment_create(srcstate);
+			FPUSH(co, frag);
+		}
 		if (co->fromcount == 0) {
 			frag = FPOP(co);
 			frag = rex_fragment_opt(rexdb, frag);
@@ -430,10 +441,18 @@ static int rex_compiler_qfactor(rexcompiler_t *co, rexdb_t *rexdb)
 				rex_compiler_getnbtok(co);
 				rex_compiler_catexpression(co, rexdb);
 				frag2 = FPOP(co);
+				if (co->tocount == (unsigned long)-1 && count >= co->fromcount) {
+					frag2 = rex_fragment_mop(rexdb, frag2);
+					frag1 = FPOP(co);
+					frag1 = rex_fragment_cat(rexdb, frag1, frag2);
+					FPUSH(co, frag1);
+					break;
+				}
+				if (count >= co->fromcount) {
+					frag2 = rex_fragment_opt(rexdb, frag2);
+				}
 				frag1 = FPOP(co);
 				frag1 = rex_fragment_cat(rexdb, frag1, frag2);
-				if (count >= co->fromcount)
-					frag1 = rex_fragment_opt(rexdb, frag1);
 				FPUSH(co, frag1);
 			}
 //			fwrite(fstart, 1, fend - fstart, stdout);
