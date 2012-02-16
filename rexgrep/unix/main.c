@@ -237,12 +237,17 @@ int main(int argc, const char *argv[])
 			fprintf(stderr, "Failed to open file: %s, %s\n", binfile, strerror(errno));
 			goto error;
 		}
-		fread(&dfa, sizeof(dfa), 1, pfile);
+		if (fread(&dfa, sizeof(dfa), 1, pfile) != 1)
+			goto error;
 		pGrep->dfa = rex_dfa_create(dfa.nstates, dfa.ntrans, dfa.naccsubstates, dfa.nsubstates);
-		fread(pGrep->dfa->states, sizeof(*dfa.states), dfa.nstates, pfile);
-		fread(pGrep->dfa->trans, sizeof(*dfa.trans), dfa.ntrans, pfile);
-		fread(pGrep->dfa->accsubstates, sizeof(*dfa.accsubstates), dfa.naccsubstates, pfile);
-		fread(pGrep->dfa->substates, sizeof(*dfa.substates), dfa.nsubstates, pfile);
+		if (fread(pGrep->dfa->states, sizeof(*dfa.states), dfa.nstates, pfile) != dfa.nstates)
+			goto error;
+		if (fread(pGrep->dfa->trans, sizeof(*dfa.trans), dfa.ntrans, pfile) != dfa.ntrans)
+			goto error;
+		if (fread(pGrep->dfa->accsubstates, sizeof(*dfa.accsubstates), dfa.naccsubstates, pfile) != dfa.naccsubstates)
+			goto error;
+		if (fread(pGrep->dfa->substates, sizeof(*dfa.substates), dfa.nsubstates, pfile) != dfa.nsubstates)
+			goto error;
 		fclose(pfile);
 	}
 
@@ -271,12 +276,11 @@ int main(int argc, const char *argv[])
 
 	if (pGrep->dfa && binop == REXGREP_BINOP_WRITE) {
 		rexdfa_t dfa = *pGrep->dfa;
-//		dfa.nsubstates = 0;
+		FILE *pfile = fopen(binfile, "wb");
 		dfa.substates = NULL;
 		dfa.states = NULL;
 		dfa.trans = NULL;
 		dfa.accsubstates = NULL;
-		FILE *pfile = fopen(binfile, "wb");
 		if (!pfile) {
 			fprintf(stderr, "Failed to create file: %s, %s\n", binfile, strerror(errno));
 			goto error;
