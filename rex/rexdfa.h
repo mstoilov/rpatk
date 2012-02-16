@@ -64,15 +64,15 @@ typedef enum {
 
 #define REX_DFA_STATE(__dfa__, __nstate__)							(&(__dfa__)->states[__nstate__])
 #define REX_DFA_TRANSITION(__dfa__, __nstate__, __ntrans__)			(&(__dfa__)->trans[(REX_DFA_STATE(__dfa__, __nstate__)->trans) + (__ntrans__)])
-#define REX_DFA_SUBSTATE(__dfa__, __nstate__, __nsubstate__)		((__dfa__)->substates ? &(__dfa__)->substates[REX_DFA_STATE(__dfa__, __nstate__)->substates + (__nsubstate__)] : ((void*)0))
-#define REX_DFA_ACCSUBSTATE(__dfa__, __nstate__, __naccsubstate__)	((__dfa__)->accsubstates ? &(__dfa__)->accsubstates[REX_DFA_STATE(__dfa__, __nstate__)->accsubstates + (__naccsubstate__)] : ((void*)0))
+#define REX_DFA_SUBSTATE(__dfa__, __nstate__, __nsubstate__)		((__dfa__)->substates ? &(__dfa__)->substates[REX_DFA_STATE(__dfa__, __nstate__)->substates + (__nsubstate__)] : ((rexdfss_t*)0))
+#define REX_DFA_ACCSUBSTATE(__dfa__, __nstate__, __naccsubstate__)	((__dfa__)->accsubstates ? &(__dfa__)->accsubstates[REX_DFA_STATE(__dfa__, __nstate__)->accsubstates + (__naccsubstate__)] : ((rexdfss_t*)0))
 #define REX_DFA_NEXT(__dfa__, __nstate__, __input__) \
 		({ \
 			rexdft_t *t; \
 			rexuint_t mid, min = 0, max = REX_DFA_STATE(__dfa__, __nstate__)->ntrans; \
 			while (max > min) { \
 				mid = (min + max)/2; \
-				t = REX_DFA_TRANSITION(dfa, nstate, mid); \
+				t = REX_DFA_TRANSITION(__dfa__, nstate, mid); \
 				if ((__input__) >= t->lowin) { \
 					min = mid + 1; \
 				} else { \

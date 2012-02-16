@@ -83,15 +83,6 @@ rexdfa_t * rex_cc_tokensdfa()
 			}
 			++ti;
 		}
-
-//		if (nfadb) {
-//			long j;
-//			rexdb_t *db = nfadb;
-//			for (j = 0; j < r_array_length(db->states); j++) {
-//				rex_db_dumpstate(db, j);
-//			}
-//		}
-
 		dfadb = rex_db_createdfa(nfadb, start);
 		if (dfadb) {
 			tokens_dfa = rex_db_todfa(dfadb, 0);
@@ -101,6 +92,7 @@ rexdfa_t * rex_cc_tokensdfa()
 	}
 	return tokens_dfa;
 }
+
 
 rexcc_t *rex_cc_create()
 {
@@ -126,6 +118,10 @@ void rex_cc_destroy(rexcc_t *pCC)
 	rex_dfa_destroy(pCC->dfa);
 	r_free(pCC->temp);
 	r_free(pCC);
+	if (tokens_dfa) {
+		rex_dfa_destroy(tokens_dfa);
+		tokens_dfa = NULL;
+	}
 }
 
 
@@ -176,9 +172,9 @@ static int rex_cc_output_statesubstates(rexcc_t *pCC, FILE *out, long nstate)
 			pCC->temp = r_realloc(pCC->temp, pi->id.size + 1);
 			r_memset(pCC->temp, 0, pi->id.size + 1);
 			r_memcpy(pCC->temp, pi->id.s, pi->id.size);
-			rex_cc_fprintf(out, 1, "{ %16lu, %16lu, (rexuserdata_t)(%s) },\n", ss->type, ss->uid, pCC->temp);
+			rex_cc_fprintf(out, 1, "{ %16lu, %16lu, (rexuserdata_t)(%s) },\n", (unsigned long)ss->type, (unsigned long)ss->uid, pCC->temp);
 		} else {
-			rex_cc_fprintf(out, 1, "{ %16lu, %16lu, %16lu },\n", ss->type, ss->uid, (unsigned long)0);
+			rex_cc_fprintf(out, 1, "{ %16lu, %16lu, %16lu },\n", (unsigned long)ss->type, (unsigned long)ss->uid, (unsigned long)0);
 		}
 	}
 	return 0;
@@ -193,7 +189,7 @@ static int rex_cc_output_substates(rexcc_t *pCC, FILE *out)
 	rex_cc_fprintf(out, 0, "static rexdfss_t substates[] = {\n");
 	for (i = 0; i < dfa->nstates; i++)
 		rex_cc_output_statesubstates(pCC, out, i);
-	rex_cc_fprintf(out, 1, "{ %16lu, %16lu, %16lu },\n", 0, 0, 0);
+	rex_cc_fprintf(out, 1, "{ %16lu, %16lu, %16lu },\n", 0UL, 0UL, 0UL);
 	rex_cc_fprintf(out, 0, "};\n");
 
 	return 0;
@@ -214,7 +210,7 @@ static int rex_cc_output_stateaccsubstates(rexcc_t *pCC, FILE *out, long nstate)
 		pCC->temp = r_realloc(pCC->temp, pi->id.size + 1);
 		r_memset(pCC->temp, 0, pi->id.size + 1);
 		r_memcpy(pCC->temp, pi->id.s, pi->id.size);
-		rex_cc_fprintf(out, 1, "{ %16lu, %16lu, (rexuserdata_t)(%s) },\n", ss->type, ss->uid, pCC->temp);
+		rex_cc_fprintf(out, 1, "{ %16lu, %16lu, (rexuserdata_t)(%s) },\n", (unsigned long)ss->type, (unsigned long)ss->uid, pCC->temp);
 	}
 	return 0;
 }
@@ -228,7 +224,7 @@ static int rex_cc_output_accsubstates(rexcc_t *pCC, FILE *out)
 	rex_cc_fprintf(out, 0, "static rexdfss_t accsubstates[] = {\n");
 	for (i = 0; i < dfa->nstates; i++)
 		rex_cc_output_stateaccsubstates(pCC, out, i);
-	rex_cc_fprintf(out, 1, "{ %16lu, %16lu, %16lu },\n", 0, 0, 0);
+	rex_cc_fprintf(out, 1, "{ %16lu, %16lu, %16lu },\n", 0UL, 0UL, 0UL);
 	rex_cc_fprintf(out, 0, "};\n");
 
 	return 0;
@@ -243,7 +239,7 @@ static int rex_cc_output_statetransitions(rexcc_t *pCC, FILE *out, long nstate)
 	rexdft_t *t;
 	for (i = 0; i < s->ntrans; i++) {
 		t = rex_dfa_transition(dfa, nstate, i);
-		rex_cc_fprintf(out, 1, "{ %16lu, %16lu, %16lu },\n", t->lowin, t->highin, t->state);
+		rex_cc_fprintf(out, 1, "{ %16lu, %16lu, %16lu },\n", (unsigned long)t->lowin, (unsigned long)t->highin, (unsigned long)t->state);
 	}
 	return 0;
 }
@@ -257,7 +253,7 @@ static int rex_cc_output_transitions(rexcc_t *pCC, FILE *out)
 	rex_cc_fprintf(out, 0, "static rexdft_t transitions[] = {\n");
 	for (i = 0; i < dfa->nstates; i++)
 		rex_cc_output_statetransitions(pCC, out, i);
-	rex_cc_fprintf(out, 1, "{ %16lu, %16lu, %16lu },\n", 0, 0, 0);
+	rex_cc_fprintf(out, 1, "{ %16lu, %16lu, %16lu },\n", 0UL, 0UL, 0UL);
 	rex_cc_fprintf(out, 0, "};\n");
 
 	return 0;
@@ -274,10 +270,11 @@ static int rex_cc_output_states(rexcc_t *pCC, FILE *out)
 	for (i = 0; i < dfa->nstates; i++) {
 		s = rex_dfa_state(dfa, i);
 		rex_cc_fprintf(out, 1, "{ %16lu, %16lu, %16lu, %16lu, %16lu, %16lu , %16lu},\n",
-				s->type, s->trans, s->ntrans, s->accsubstates, s->naccsubstates, s->substates, s->nsubstates);
+				(unsigned long)s->type, (unsigned long)s->trans, (unsigned long)s->ntrans, (unsigned long)s->accsubstates,
+				(unsigned long)s->naccsubstates, (unsigned long)s->substates, (unsigned long)s->nsubstates);
 
 	}
-	rex_cc_fprintf(out, 1, "{ %16lu, %16lu, %16lu, %16lu, %16lu, %16lu , %16lu},\n", 0, 0, 0, 0, 0, 0, 0);
+	rex_cc_fprintf(out, 1, "{ %16lu, %16lu, %16lu, %16lu, %16lu, %16lu , %16lu},\n", 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL);
 	rex_cc_fprintf(out, 0, "};\n");
 
 	return 0;
