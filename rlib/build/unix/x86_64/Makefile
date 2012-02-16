@@ -7,7 +7,7 @@ MACH = -m64
 
 CFLAGS := $(MACH)
 ifeq ($(BLDCFG), release)
-CFLAGS += -fPIC -O3
+CFLAGS += -fPIC -O2
 else 
 ifeq ($(BLDCFG), profile)
 CFLAGS += -fPIC -O0 -pg -Wall

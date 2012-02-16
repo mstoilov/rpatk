@@ -8,7 +8,7 @@ include $(ROOT_DIR)/build/unix/config.mk
 
 CFLAGS = $(MACH)
 ifeq ($(BLDCFG), release)
-CFLAGS += -O3
+CFLAGS += -O2
 else
 ifeq ($(BLDCFG), profile)
 CFLAGS += -O0 -pg

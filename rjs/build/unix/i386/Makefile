@@ -11,7 +11,7 @@ OCFLAGS_TXT = --input binary --output $(ELFARCH) --binary-architecture $(BINARCH
 include $(ROOT_DIR)/build/unix/config.mk
 
 ifeq ($(BLDCFG), release)
-CFLAGS := $(MACH) -fPIC -O3
+CFLAGS := $(MACH) -fPIC -O2
 else
 CFLAGS := $(MACH) -fPIC -O0 -g -Wall 
 endif

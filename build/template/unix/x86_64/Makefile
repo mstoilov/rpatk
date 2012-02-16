@@ -7,7 +7,7 @@ INCLUDE = -I$(ROOT_DIR)/arch/unix/$(ARCHDIR)
 include $(ROOT_DIR)/build/unix/config.mk
 
 ifeq ($(BLDCFG), release)
-CFLAGS := -fPIC -O3
+CFLAGS := -fPIC -O2
 else
 CFLAGS := -fPIC -O0 -g -Wall 
 endif

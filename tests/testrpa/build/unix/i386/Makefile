@@ -7,7 +7,7 @@ MACH = -m32
 include $(ROOT_DIR)/build/unix/config.mk
 
 ifeq ($(BLDCFG), release)
-CFLAGS = -O3
+CFLAGS = -O2
 else
 ifeq ($(BLDCFG), profile)
 CFLAGS = -O0 -pg

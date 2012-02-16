@@ -7,7 +7,7 @@ MACH = -m32
 
 CFLAGS := $(MACH)
 ifeq ($(BLDCFG), release)
-CFLAGS += -fPIC -O3
+CFLAGS += -fPIC -O2
 else
 CFLAGS += -fPIC -O0 -g -Wall
 endif
