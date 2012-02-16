@@ -25,11 +25,6 @@
 #include <stdarg.h>
 #include <time.h>
 
-/*
- * Temporary here. Need to fix the encoding definitions.
- */
-#include "rpa/rpastat.h"
-
 #include "rlib/rutf.h"
 #include "rlib/rmem.h"
 #include "rexcc.h"
@@ -59,7 +54,7 @@ struct parseinfo_s {
 
 static struct tokeninfo_s tokens[] = {
 		{REXCC_TOKEN_DELIMITER,		"delimiter",	"%%[ \\t]?[\\r]?[\\n]"},
-		{REXCC_TOKEN_IDENTIFIER,	"identifier",	"([^\\t\\r\\n\'\" ]+|\".*\")+|'.+'"},
+		{REXCC_TOKEN_IDENTIFIER,	"identifier",	"([^\\t\\r\\n\'\" ]+|\"([^\"\\n]|\\\\\")*\")+|'.+'"},
 		{REXCC_TOKEN_SPACE,			"space",		"[ \\t]+"},
 		{REXCC_TOKEN_CR,			"cr ",			"[\\r]?[\\n]"},
 		{REXCC_TOKEN_REGEX,			"regex",		"[ \\t](\\\\[\\r]?[\\n]|.)+\\r?\\n"},
@@ -191,7 +186,6 @@ static int rex_cc_output_substates(rexcc_t *pCC, FILE *out)
 		rex_cc_output_statesubstates(pCC, out, i);
 	rex_cc_fprintf(out, 1, "{ %16lu, %16lu, %16lu },\n", 0UL, 0UL, 0UL);
 	rex_cc_fprintf(out, 0, "};\n");
-
 	return 0;
 }
 
@@ -226,7 +220,6 @@ static int rex_cc_output_accsubstates(rexcc_t *pCC, FILE *out)
 		rex_cc_output_stateaccsubstates(pCC, out, i);
 	rex_cc_fprintf(out, 1, "{ %16lu, %16lu, %16lu },\n", 0UL, 0UL, 0UL);
 	rex_cc_fprintf(out, 0, "};\n");
-
 	return 0;
 }
 
@@ -255,7 +248,6 @@ static int rex_cc_output_transitions(rexcc_t *pCC, FILE *out)
 		rex_cc_output_statetransitions(pCC, out, i);
 	rex_cc_fprintf(out, 1, "{ %16lu, %16lu, %16lu },\n", 0UL, 0UL, 0UL);
 	rex_cc_fprintf(out, 0, "};\n");
-
 	return 0;
 }
 
@@ -276,7 +268,6 @@ static int rex_cc_output_states(rexcc_t *pCC, FILE *out)
 	}
 	rex_cc_fprintf(out, 1, "{ %16lu, %16lu, %16lu, %16lu, %16lu, %16lu , %16lu},\n", 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL);
 	rex_cc_fprintf(out, 0, "};\n");
-
 	return 0;
 }
 
@@ -296,7 +287,6 @@ static int rex_cc_output_dfa(rexcc_t *pCC, FILE *out)
 	rex_cc_fprintf(out, 1, "%s,\n", "substates");
 	rex_cc_fprintf(out, 1, "{0, },\n");
 	rex_cc_fprintf(out, 0, "};\n");
-
 	return 0;
 }
 
@@ -325,7 +315,6 @@ int rex_cc_output(rexcc_t *pCC, FILE *outc)
 			fwrite(pCC->epilog.s, 1, pCC->epilog.size, outc);
 		}
 	}
-
 	return 0;
 }
 
@@ -458,7 +447,6 @@ int rex_cc_load_buffer(rexcc_t *pCC, rbuffer_t *text)
 			if (rex_cc_load_pattern(pCC, &pi->regex, i) < 0) {
 				return -1;
 			}
-
 #if 0
 			fwrite(pi->id.s, 1, pi->id.size, stdout);
 			fprintf(stdout, " : ");
