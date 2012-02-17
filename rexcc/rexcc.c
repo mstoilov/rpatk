@@ -413,7 +413,7 @@ int rex_cc_parse(rexcc_t *pCC)
 		return -1;
 	rex_cc_gettoken(pCC);
 	while (pCC->token) {
-		if (pCC->token == REXCC_TOKEN_CR || pCC->token == REXCC_TOKEN_SPACE) {
+		if (pCC->token == REXCC_TOKEN_CR || pCC->token == REXCC_TOKEN_SPACE || pCC->token == REXCC_TOKEN_REGEX) {
 			rex_cc_gettoken(pCC);
 		} else if (pCC->token == REXCC_TOKEN_IDENTIFIER) {
 			rex_cc_parseline(pCC);

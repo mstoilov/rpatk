@@ -77,15 +77,6 @@ static int rex_compiler_getchar(rexcompiler_t *co)
 	ruint32 wc = REX_TOKEN_EOF;
 	int inc = 0;
 
-again:
-	if (co->ptr + 1 < co->end && *co->ptr == '\\' && *(co->ptr + 1) == '\n') {
-		co->ptr += 2;
-		goto again;
-	}
-	if (co->ptr + 2 < co->end && *co->ptr == '\\' && *(co->ptr + 1) == '\r' && *(co->ptr + 2) == '\n') {
-		co->ptr += 3;
-		goto again;
-	}
 	inc = r_utf8_mbtowc(&wc, (const unsigned char*)co->ptr, (const unsigned char*)co->end);
 	if (inc <= 0)
 		return REX_TOKEN_EOF;
@@ -159,8 +150,18 @@ static void rex_compiler_adjustescapedtoken(rexcompiler_t *co)
 
 static int rex_compiler_getnbtok(rexcompiler_t *co)
 {
+again:
 	while (co->ptr < co->end && rex_compiler_isblank(*co->ptr))
 		co->ptr += 1;
+	if (co->ptr + 1 < co->end && *co->ptr == '\\' && *(co->ptr + 1) == '\n') {
+		co->ptr += 2;
+		goto again;
+	}
+	if (co->ptr + 2 < co->end && *co->ptr == '\\' && *(co->ptr + 1) == '\r' && *(co->ptr + 2) == '\n') {
+		co->ptr += 3;
+		goto again;
+	}
+
 	return rex_compiler_gettok(co);
 
 }
@@ -168,8 +169,18 @@ static int rex_compiler_getnbtok(rexcompiler_t *co)
 
 static int rex_compiler_getnstok(rexcompiler_t *co)
 {
+again:
 	while (co->ptr < co->end && rex_compiler_isspace(*co->ptr))
 		co->ptr += 1;
+	if (co->ptr + 1 < co->end && *co->ptr == '\\' && *(co->ptr + 1) == '\n') {
+		co->ptr += 2;
+		goto again;
+	}
+	if (co->ptr + 2 < co->end && *co->ptr == '\\' && *(co->ptr + 1) == '\r' && *(co->ptr + 2) == '\n') {
+		co->ptr += 3;
+		goto again;
+	}
+
 	return rex_compiler_gettok(co);
 }
 
