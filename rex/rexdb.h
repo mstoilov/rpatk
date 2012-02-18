@@ -18,6 +18,16 @@
  *  Martin Stoilov <martin@rpasearch.com>
  */
 
+
+/**
+ * @file rex/rexdb.h
+ * @brief Public interface for creating regular expressions.
+ *
+ *
+ * <h2>Synopsis</h2>
+ * The following APIs are used to create a database of regular expressions.
+ */
+
 #ifndef _REXDB_H_
 #define _REXDB_H_
 

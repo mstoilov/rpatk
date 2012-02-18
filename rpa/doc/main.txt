@@ -3,6 +3,9 @@
 /** 
 @mainpage Rpa/Tk Documentation (Under Development!)
 - @subpage rpatk_build
+- @subpage rex_main "Regular Expressions"
+	- @subpage rexdb
+	- @subpage rexdfa
 - @subpage rpa_main "Regular Pattern Analyzer"
 	- @subpage rpa_bnf	
 	- @subpage rpa_dbex

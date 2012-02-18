@@ -173,7 +173,7 @@ void rex_dfa_dumpstate(rexdfa_t *dfa, rexuint_t nstate)
 		t = &dfa->trans[s->trans + index];
 		n = 0;
 		if (t->lowin != t->highin) {
-			if (isprint(t->lowin) && !isspace(t->lowin) && isprint(t->highin) && !isspace(t->highin))
+			if (isprint(t->lowin) && !isspace(t->lowin) && isprint(t->highin) && !isspace(t->highin) && !r_strchr("[]-^", t->lowin) && !r_strchr("[]-^", t->highin))
 				n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "    [%c - %c] ", t->lowin, t->highin);
 			else
 				n += r_snprintf(buf + n, n < bufsize ? bufsize - n : 0, "    [0x%X - 0x%X] ", t->lowin, t->highin);

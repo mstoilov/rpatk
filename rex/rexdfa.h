@@ -18,6 +18,15 @@
  *  Martin Stoilov <martin@rpasearch.com>
  */
 
+/**
+ * @file rex/rexdfa.h
+ * @brief Definition of DFA interface
+ *
+ *
+ * <h2>Synopsis</h2>
+ * This file defines the data structures and the macros for the DFA implementation.
+ */
+
 #ifndef _REXDFA_H_
 #define _REXDFA_H_
 
@@ -52,15 +61,19 @@ typedef REX_CHAR_TYPE rexchar_t;
 #define REX_CHAR_MAX ((rexchar_t)-1)
 #define REX_CHAR_MIN ((rexchar_t)0)
 
+/**
+ * Definition of state types.
+ */
 typedef enum {
-	REX_STATETYPE_NONE = 0,
-	REX_STATETYPE_START = 1,
-	REX_STATETYPE_ACCEPT = 2,
-	REX_STATETYPE_DEAD = 3,
+	REX_STATETYPE_NONE = 0,			/**< There is nothing interesting about this state */
+	REX_STATETYPE_START = 1,		/**< This state is marked as starting point for the automaton */
+	REX_STATETYPE_ACCEPT = 2,		/**< This type indicates that one or more regular expressions compiled in the automaton matched. */
+	REX_STATETYPE_DEAD = 3,			/**< The automaton is in the dead state(all transitions lead back to the same state) */
 } rex_statetype_t;
 
-#define REX_DFA_DEADSTATE (0)
-#define REX_DFA_STARTSTATE (1)
+
+#define REX_DFA_DEADSTATE (0)		/**< DFA Dead State ID, In rexdfa_t object the state at offset 0 is always the dead state  */
+#define REX_DFA_STARTSTATE (1)		/**< DFA Start State ID, In rexdfa_t object the start state is always at offset 1  */
 
 #define REX_DFA_STATE(__dfa__, __nstate__)							(&(__dfa__)->states[__nstate__])
 #define REX_DFA_TRANSITION(__dfa__, __nstate__, __ntrans__)			(&(__dfa__)->trans[(REX_DFA_STATE(__dfa__, __nstate__)->trans) + (__ntrans__)])
@@ -84,52 +97,54 @@ typedef enum {
 		})
 
 
-/*
- * Sub-state info definition
+
+/**
+ * Define DFA sub-state.
  */
 typedef struct rexdfss_s {
-	rexuint_t type;
-	rexuint_t uid;
-	rexuserdata_t userdata;
+	rexuint_t type;					/**< This is the original NFA state type(substate of a DFA state). */
+	rexuint_t uid;					/**< Unique ID of the NFA state(substate of a DFA state). */
+	rexuserdata_t userdata;			/**< If this is an accepting sub-state, this parameter has the value specified in the @ref rex_db_addexpression call.
+									 	 This parameter is used to track which regular expression is matching, when the DFA gets to accepting state. */
 } rexdfss_t;
 
 
-/*
- * Transition definition
+/**
+ * Define DFA transition.
  */
 typedef struct rexdft_s {
-	rexchar_t lowin;
-	rexchar_t highin;
-	rexuint_t state;
+	rexchar_t lowin;				/**< Low input boundary */
+	rexchar_t highin;				/**< High input boundary */
+	rexuint_t state;				/**< New state to go to if the input is within the boundary */
 } rexdft_t;
 
 
-/*
+/**
  * State definition
  */
 typedef struct rexdfs_s {
-	rexuint_t type;
-	rexuint_t trans;
-	rexuint_t ntrans;
-	rexuint_t accsubstates;
-	rexuint_t naccsubstates;
-	rexuint_t substates;
-	rexuint_t nsubstates;
+	rexuint_t type;					/**< Type of DFA state. */
+	rexuint_t trans;				/**< The offset of the first transition for this state in the dfa->trans array. */
+	rexuint_t ntrans;				/**< Total number of transitions. */
+	rexuint_t accsubstates;			/**< The offset of the first accepting sub-state for this state in the dfa->accsubstates array. */
+	rexuint_t naccsubstates;		/**< Total number of accepting sub-states. */
+	rexuint_t substates;			/**< The offset of the first sub-state for this state in the dfa->substates array. */
+	rexuint_t nsubstates;			/**< Total number of sub-states. */
 } rexdfs_t;
 
 
-/*
- * Automata definition
+/**
+ * Define DFA.
  */
 typedef struct rexdfa_s {
-	rexuint_t nstates;
-	rexdfs_t *states;
-	rexuint_t ntrans;
-	rexdft_t *trans;
-	rexuint_t naccsubstates;
-	rexdfss_t *accsubstates;
-	rexuint_t nsubstates;
-	rexdfss_t *substates;
+	rexuint_t nstates;				/**< Total number of states. */
+	rexdfs_t *states;				/**< Array of states */
+	rexuint_t ntrans;				/**< Total number of transitions */
+	rexdft_t *trans;				/**< Array of transitions, all states transitions are recorded here. Each state keeps the offset of its first transition it this array */
+	rexuint_t naccsubstates;		/**< Total number of accepting substates */
+	rexdfss_t *accsubstates;		/**< Array of accepting sub-states, all states accepting sub-states are recorded here. */
+	rexuint_t nsubstates;			/**< Total number of substates */
+	rexdfss_t *substates;			/**< Array of sub-states, all states sub-states are recorded here. */
 	rexuword_t reserved[64];
 } rexdfa_t;
 

@@ -1,0 +1,39 @@
+/** \page rex_main "Regular Expressions Library (REX)"
+REX is Automata Compiler - it turns regular expressions into Automaton (NFA or DFA).
+REX does not support back references. REX doesn't support anchors directly, but the support can be added externally.
+The REX library is based on the theory of Deterministic Finite Automata (DFA).
+Regular expressions like '[a-zA-Z_][a-zA-Z0-9_]*' are first compiled to
+Non-deterministic Finite Automata(NFA) and then transformed to DFA, using
+algorithm similar to the DFA subset construction method. 
+
+\section features Features
+- Regular expressions based on Automata theory
+
+- Support for wide characters. By default 32-bit, but it could be redefined at compile time to 64-bit or any other integral size.
+
+\section usage How to use.
+To implement matching using REX, the user has to run the input through the DFA states until the automaton
+arrives at accepting state. For example, if the input is a string:
+@code
+nstate = REX_DFA_STARTSTATE;
+while (*str) {
+    nstate = REX_DFA_NEXT(dfa, nstate, *str);
+    if (REX_DFA_STATE(dfa, nstate)->type == REX_STATETYPE_DEAD) {
+        /* Did not match */
+        break;
+    } else if (REX_DFA_STATE(dfa, nstate)->type == REX_STATETYPE_ACCEPT) {
+        /* The DFA is in accepting state, lets find out what exactly is being accepted. */
+ 
+        ++str;	    
+        break;
+    } else {
+        /* Keep going... */
+        ++str;
+    }
+}
+@endcode
+
+REX doesn't provide API for matching or searching directly, it is up to the user to decide how to
+implement whatever functionality they need using the automaton.
+
+*/

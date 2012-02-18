@@ -1,7 +1,9 @@
 /** \page rpa_main "Regular Pattern Analyzer (RPA)"
-Regular Pattern Analyzer (RPA) is a bottom-up, recursive parser. 
+Regular Pattern Analyzer (RPA) is a top-down, recursive parser. 
 The input grammar notation is Backus–Naur Form (BNF) and the produced output is a browsable Abstract Syntax Tree (AST).
-The grammar allows Regular Expressions, so the parser can also be used as RegEx or search engine. The execution
+The grammar allows Regular Expressions, so the parser can also be used as RegEx or search engine. The regular expressions
+in the RPA library are NOT based on the automata theory and they are not the same as the traditional Unix regular expressions. 
+If you need Unix compatible regular expressions, please check the REX library. The execution
 engine supports muti-threading and it can parse multiple input streams simultaneously.
 
 \section features Features

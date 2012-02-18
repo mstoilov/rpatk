@@ -1,0 +1,11 @@
+/** \page rexdfa rexdfa_t - Using the DFA for matching.
+
+- 1. Create @ref rexdfa_t object using @ref rex_db_todfa. At this point you can destroy the rexdb_t objects.
+- 2. Use @ref rexdfa_t to implement matching/searching.
+- 3. Destroy the rexdfa_t object when you are done with it.
+
+
+Note: You could also create a @ref rex_nfasimulator_t and/or @ref rex_dfasimulator_t object to run the NFA/DFA automaton directly
+from rexdb_t object, but the recommended way is to create rexdfa_t object.
+
+*/
