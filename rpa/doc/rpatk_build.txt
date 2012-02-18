@@ -22,7 +22,7 @@ RVM library uses some math functions from the system math library,
 that is why you must include '-lm' to include the math library to your project
 in addition to the Rpa/Tk built libraries:
 - librpa
-- lrex
+- librex
 - librvm
 - librlib
 
