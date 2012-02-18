@@ -52,7 +52,7 @@ rexgrep_t *rex_grep_create()
 	pGrep->si = rex_nfasimulator_create();
 	pGrep->dfasi = rex_dfasimulator_create();
 	pGrep->ret = 1;
-	pGrep->startuid = -1L;
+	pGrep->startuid = 0UL;
 	return pGrep;
 }
 
