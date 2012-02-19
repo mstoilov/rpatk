@@ -1,5 +1,5 @@
 /*
- *  Regular Pattern Analyzer (RPA)
+ *  Regular Pattern Analyzer Toolkit (RPA/Tk)
  *  Copyright (c) 2009-2010 Martin Stoilov
  *
  *  This program is free software: you can redistribute it and/or modify
