@@ -147,7 +147,7 @@ const char *rex_db_version();
  * This function is used to generate rexdfa_t object from a rexdb_t. The rexdfa_t
  * has a smaller memory footprint and is easier to use. Also, you have the option
  * to eliminate the sub-states because they tend to take a lot of memory and are
- * pretty much useless once once the DFA is constructed.
+ * pretty much useless once the DFA is constructed.
  *
  * @param db Pointer to the rexdb_t DFA to be converted.
  * @param withsubstates Supported values are:
