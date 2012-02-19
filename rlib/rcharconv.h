@@ -1,6 +1,6 @@
 /*
  *  Regular Pattern Analyzer Toolkit (RPA/Tk)
- *  Copyright (c) 2009-2010 Martin Stoilov
+ *  Copyright (c) 2009-2012 Martin Stoilov
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
