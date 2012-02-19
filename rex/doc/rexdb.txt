@@ -1,7 +1,7 @@
 /** \page rexdb rexdb_t - Loading and compiling regular expressions.
 To load regular expressions, use the rexdb_t API.
 
-- 1. Create a rexdb_t object of type @ref REXDB_TYPE_NFA, using @ref rex_db_create.
+- 1. Create a @ref rexdb_t object of type @ref REXDB_TYPE_NFA, using @ref rex_db_create.
 - 2. Load regular expressions, using @ref rex_db_addexpression or @ref rex_db_addexpression_s
 - 3. Create @ref rexdb_t object of type @ref REXDB_TYPE_DFA, using @ref rex_db_createdfa
 

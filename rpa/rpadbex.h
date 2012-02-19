@@ -32,7 +32,7 @@
  * The following APIs are used to Create, Compile, Enumerate, etc. BNF productions.
  *
  * @example personname.c
- * This is an example how to use rpadbex_t APIs
+ * This is an example how to use rpadbex_t API
 
  */
 

@@ -45,6 +45,11 @@ extern "C" {
 #define R_OBJECT_REXDB 35
 
 /**
+ * @example js-tokenizer.c
+ * This is an example how to use rexdb_t and rexdfa_t
+ */
+
+/**
  * Define rexdb_t type. It could either REXDB_TYPE_NFA or REXDB_TYPE_DFA
  */
 typedef enum {
@@ -69,6 +74,7 @@ typedef struct rexdb_s {
 	rexstate_t *start;
 } rexdb_t;
 
+
 /**
  * Create a new empty object of type rexdb_t
  *
@@ -85,6 +91,7 @@ rexdb_t *rex_db_create(rexdb_type_t type);
  * states of the NFA, passed as parameter.
  *
  * @param nfa This is REXDB_TYPE_NFA type automata object used to construct the DFA.
+ * @param start Start state of the NFA.
  * @return DFA object.
  */
 rexdb_t *rex_db_createdfa(rexdb_t *nfa, unsigned long start);
@@ -147,7 +154,7 @@ const char *rex_db_version();
  * 			- 0 No sub-states information will be written.
  * 			- 1 Sub-states information from the underlying NFA will be written.
  * 	@return Pointer to rexdfa_t object or NULL on error. If the functions succeeds, the return
- * 	object must be destroyed with @rex_dfa_destroy when not needed any more.
+ * 	object must be destroyed with @ref rex_dfa_destroy when not needed any more.
  */
 rexdfa_t *rex_db_todfa(rexdb_t *db, int withsubstates);
 
@@ -156,6 +163,12 @@ rexdfa_t *rex_db_todfa(rexdb_t *db, int withsubstates);
  * Virtual methods implementation
  */
 void rex_db_cleanup(robject_t *obj);
+
+
+/**
+ * @example js-tokenizer.c
+ */
+
 
 #ifdef __cplusplus
 }

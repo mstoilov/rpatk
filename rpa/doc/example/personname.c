@@ -17,14 +17,14 @@
  *
  * 3. Run it, and you should get:
  * # ./personname
- * RPA_RECORD_START   (ID: 1)  name: John M. Smith
- * RPA_RECORD_START   (ID: 2)  first: John
- * RPA_RECORD_END     (ID: 2)  first: John
- * RPA_RECORD_START   (ID: 0)  middle: M.
- * RPA_RECORD_END     (ID: 0)  middle: M.
- * RPA_RECORD_START   (ID: 3)  last: Smith
- * RPA_RECORD_END     (ID: 3)  last: Smith
- * RPA_RECORD_END     (ID: 1)  name: John M. Smith
+ * RPA_RECORD_START   (UID: 1)  name: John M. Smith
+ * RPA_RECORD_START   (UID: 2)  first: John
+ * RPA_RECORD_END     (UID: 2)  first: John
+ * RPA_RECORD_START   (UID: 0)  middle: M.
+ * RPA_RECORD_END     (UID: 0)  middle: M.
+ * RPA_RECORD_START   (UID: 3)  last: Smith
+ * RPA_RECORD_END     (UID: 3)  last: Smith
+ * RPA_RECORD_END     (UID: 1)  name: John M. Smith
  */
 int main(int argc, char *argv[])
 {
