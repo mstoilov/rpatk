@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
 	if (!setlocale(LC_CTYPE, "")) {
 		printf("Can not set the specified locale, please check LANG, LC_CTYPE, LC_ALL.\n");
 		return 1;
-    }
+	}
 
 	/*
 	 * Create empty automaton of type NFA.
@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
 	startstate = rex_db_addexpression_s(nfadb, startstate, "[^\\t\\r\\n'\" ]", TOKEN_SELF);
 
 	/*
-	 * Construct the DFA from the NFA
+	 * Construct DFA from the NFA
 	 */
 	dfadb = rex_db_createdfa(nfadb, startstate);
 
