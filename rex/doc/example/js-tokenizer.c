@@ -24,6 +24,8 @@
  *
  * To run:
  * # echo "function add(a,b) { var c = a + b; return c; } print('здравей means hello');" | ./js-tokenizer
+ *
+ * Your terminal must use UTF8 encoding, something like: LANG=en_US.utf8
  */
 
 #include <stdio.h>
@@ -94,7 +96,7 @@ int main(int argc, char *argv[])
 	int token;
 	
 	if (!setlocale(LC_CTYPE, "")) {
-		printf("Can not set the specified locale, please check LANG, LC_CTYPE, LC_ALL.\n");
+		printf("Failed to set the specified locale, please check LANG, LC_CTYPE, LC_ALL.\n");
 		return 1;
 	}
 

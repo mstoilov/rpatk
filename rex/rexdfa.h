@@ -75,10 +75,68 @@ typedef enum {
 #define REX_DFA_DEADSTATE (0)		/**< DFA Dead State ID, In rexdfa_t object the state at offset 0 is always the dead state  */
 #define REX_DFA_STARTSTATE (1)		/**< DFA Start State ID, In rexdfa_t object the start state is always at offset 1  */
 
+
+/**
+ * @def REX_DFA_STATE(__dfa__, __nstate__)
+ *
+ * Get a pointer to @ref rexdfa_t state.
+ * @param __dfa__ Pointer to @ref rexdfa_t object
+ * @param __nstate__ State ID returned from @ref REX_DFA_NEXT or @ref REX_DFA_DEADSTATE, @ref REX_DFA_STARTSTATE
+ * @return Pointer to @ref rexdfa_t
+ */
 #define REX_DFA_STATE(__dfa__, __nstate__)							(&(__dfa__)->states[__nstate__])
+
+/**
+ * @def REX_DFA_TRANSITION(__dfa__, __nstate__, __ntrans__)
+ * Get a pointer to @ref rexdft_t transition. This macro is used internally to find
+ * a transition to the next state.
+ *
+ * @param __dfa__ Pointer to @ref rexdfa_t object
+ * @param __nstate__ State ID returned from @ref REX_DFA_NEXT or @ref REX_DFA_DEADSTATE, @ref REX_DFA_STARTSTATE
+ * @param __ntrans__ Transition offset in the array of transitions for the specified state. This parameter
+ * must not exceed rexdfs_t::ntrans.
+ * @return Pointer to @ref rexdft_t transition
+ */
 #define REX_DFA_TRANSITION(__dfa__, __nstate__, __ntrans__)			(&(__dfa__)->trans[(REX_DFA_STATE(__dfa__, __nstate__)->trans) + (__ntrans__)])
+
+/**
+ * @def REX_DFA_SUBSTATE(__dfa__, __nstate__, __nsubstate__)
+ * Get a pointer to @ref rexdfss_t sub-state. This macro would only work if the DFA
+ * is generated with its NFA sub-states.
+ *
+ * @param __dfa__ Pointer to @ref rexdfa_t object
+ * @param __nstate__ State ID returned from @ref REX_DFA_NEXT or @ref REX_DFA_STARTSTATE
+ * @param __nsubstate__ Sub-state offset in the array of sub-states for the specified state. This parameter
+ * must not exceed rexdfs_t::nsubstates.
+ * @return Pointer to @ref rexdfss_t substate.
+ */
 #define REX_DFA_SUBSTATE(__dfa__, __nstate__, __nsubstate__)		((__dfa__)->substates ? &(__dfa__)->substates[REX_DFA_STATE(__dfa__, __nstate__)->substates + (__nsubstate__)] : ((rexdfss_t*)0))
+
+/**
+ * @def REX_DFA_ACCSUBSTATE(__dfa__, __nstate__, __naccsubstate__)
+ * Get a pointer to @ref rexdfss_t accepting sub-state.
+ *
+ * @param __dfa__ Pointer to @ref rexdfa_t object
+ * @param __nstate__ State ID returned from @ref REX_DFA_NEXT or @ref REX_DFA_STARTSTATE
+ * @param __naccsubstate__ Sub-state offset in the array of accepting sub-states for the specified state. This parameter
+ * must not exceed rexdfs_t::naccsubstates.
+ * @return Pointer to @ref rexdfss_t accepting substate.
+ */
 #define REX_DFA_ACCSUBSTATE(__dfa__, __nstate__, __naccsubstate__)	((__dfa__)->accsubstates ? &(__dfa__)->accsubstates[REX_DFA_STATE(__dfa__, __nstate__)->accsubstates + (__naccsubstate__)] : ((rexdfss_t*)0))
+
+
+/**
+ * @def REX_DFA_NEXT(__dfa__, __nstate__, __input__)
+ *
+ * Get the next state ID in the DFA for the specified input. The macro will
+ * search through the transitions of the current state to find the next
+ * state of the DFA for the specified input.
+ *
+ * @param __dfa__ Pointer to @ref rexdfa_t object
+ * @param __nstate__ Current state of the DFA
+ * @param __input__ Current input
+ * @return The next state of the DFA for the specified input
+ */
 #define REX_DFA_NEXT(__dfa__, __nstate__, __input__) \
 		({ \
 			rexdft_t *t; \

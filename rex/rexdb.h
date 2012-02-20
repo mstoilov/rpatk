@@ -108,8 +108,8 @@ void rex_db_destroy(rexdb_t *rexdb);
  * @param nfa NFA object.
  * @param prev This is the previous start state of the automata, returned from a previous call to this function.
  * 				If this is the first call to this function prev is ignored.
- * @param str Regular expression string.
- * @param size The size of the string to be parsed.
+ * @param str UTF8 encoded regular expression string.
+ * @param size The size of the regular expression string.
  * @param userdata The value of this parameter is stored in the accepting state of the NFA(which also becomes
  * a sub-state in an accepting DFA state). You can use this value to identify which of the many regular expressions
  * compiled into the automaton is actually matching. A DFA state can have multiple sub-states, this means it can have

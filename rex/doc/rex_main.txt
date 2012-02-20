@@ -36,6 +36,6 @@ while (*str) {
 REX doesn't provide API for matching or searching directly, it is up to the user to decide how to
 implement whatever functionality they need using the automaton.
 
-The JavaScript tokenizer example @ref js-tokenizer.c is a simple demonstration how to use the REX library for lexical analysis.
+The JavaScript tokenizer example @ref js-tokenizer.c is a simple demonstration how to use the REX library for lexical analysis of UTF8 encoded text.
 
 */

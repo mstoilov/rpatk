@@ -1,0 +1,99 @@
+/** \page rexcc REX C code generator.
+rexcc is a code generator for C language. It generates C code from regular expressions and 
+initializes Deterministic Finite Automata(DFA) rexdfa_t object. The rexcc program reads
+user specified input file, for a description of the code to generate. It will produce a
+C file or it will output the generated code to the standard output.
+
+<h2>Input file format</h2>
+The rexcc input file consists of three sections, separated by a line containing only `%%'.
+
+@verbatim
+C code prolog
+%%
+regular expressions
+%%
+C code epilog
+@endverbatim
+
+
+<h3>C code prolog</h3>
+This section is used to include any header files or definitions that are required by the rest of the C code.
+
+<h3>regular expressions</h3>
+This section is used to specify the regular expressions that will be used to generate and initialize the
+Deterministic Finite Automata (DFA). This section contain series of regular expression definitions of the form:
+
+@verbatim
+userdata	regex
+@endverbatim
+
+where userdata must be a user defined data of type @ref rexuserdata_t and regex must be a regular expression. 
+Both must be separated by space or tab.
+
+<h3>C code epilog</h3>
+This section is used to add any C code that uses the @ref rexdfa_t object generated from the rules specified in
+the previous section. The name of the generated variable of type @ref rexdfa_t is always `ccdfa' and it is declared
+as static. If you need to access it outside of the generated file you should add code in this section that will
+make such access possible. For example:
+
+@verbatim
+rexdfa_t *mydfa = &ccdfa;
+@endverbatim
+
+Or using accessor function:
+@verbatim
+rexdfa_t *GetMyDfaPtr()
+{
+	return &ccdfa;
+} 
+@endverbatim
+
+<h2>Example</h2>
+
+@code
+#include "mydefinitions.h"
+#define IDENTIFIER 257
+
+%%
+IDENTIFIER      [A-Za-z_][A-Za-z_0-9]*
+"keyword"       while|do
+256             [ \n\r\t]
+%%
+
+/* All userdata used in the previous section, can be cast to rexuserdata_t. */
+
+rexdfa_t *get_simple_dfa()
+{
+	return &ccdfa;
+}
+
+@endcode
+
+The userdata specified for eache regular expression is used to identify that regular expression when the
+automata arrives at an accepting state. 
+
+@section build_rexcc_code Building the generated code
+The code generated with rexcc doesn't require to be linked with the REX library, but it includes the header file @ref rexdfa.h. 
+This file provides the definitions of the DFA related structures used by the generated code and it also provides macros for
+accessing the states and substates of the DFA. You must add the path to the @ref rexdfa.h header file to your default search path.
+
+List of macros:
+	- @ref REX_DFA_NEXT - Get the next state in the DFA for the specified input.
+	- @ref REX_DFA_STATE - Get a pointer to @ref rexdfa_t state.
+	- @ref REX_DFA_TRANSITION - Get a pointer to @ref rexdft_t transition.
+	- @ref REX_DFA_SUBSTATE - Get a pointer to @ref rexdfss_t substate. This works only if rexcc is instructed to generate the substates.
+	- @ref REX_DFA_ACCSUBSTATE - Get a pointer to @ref rexdfss_t accepting substate.
+	 
+
+
+<h2>Example</h2>
+	- @ref tokenjs.rexcc - JavaScript tokenizer.
+
+
+
+@example tokenjs.rexcc
+
+
+
+ 
+*/
