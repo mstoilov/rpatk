@@ -55,8 +55,8 @@ int usage(int argc, const char *argv[])
 		fprintf(stderr, "\t-D                       Dump states.\n");
 		fprintf(stderr, "\t-S                       Include DFA substates.\n");
 		fprintf(stderr, "\t-q                       Quiet mode.\n");
-		fprintf(stderr, "\t-t                       Display time elapsed.\n");
-		fprintf(stderr, "\t-s string                Scan string.\n");
+		fprintf(stderr, "\t-t                       Display statistics. Works only when built in DEBUG mode.\n");
+		fprintf(stderr, "\t-s string                Search in string.\n");
 		fprintf(stderr, "\t-v                       Display version information.\n");
 		fprintf(stderr, "\t-h, --help               Display this help.\n");
 		
@@ -251,7 +251,7 @@ int main(int argc, const char *argv[])
 		fclose(pfile);
 	}
 
-	if (!pGrep->dfa && pGrep->usedfa) {
+	if (!pGrep->dfa && !rex_db_isempty(pGrep->nfa) && pGrep->usedfa) {
 		rexdb_t *dfadb = rex_db_createdfa(pGrep->nfa, pGrep->startuid);
 		pGrep->dfa = rex_db_todfa(dfadb, pGrep->withsubstates);
 		rex_db_destroy(dfadb);
@@ -297,7 +297,10 @@ int main(int argc, const char *argv[])
 		fclose(pfile);
 		goto end;
 	}
-
+	if (!pGrep->dfa && pGrep->usedfa)
+		goto end;
+	if (rex_db_isempty(pGrep->nfa) && !pGrep->usedfa)
+		goto end;
 	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-s") == 0) {
 			if (++i < argc) {

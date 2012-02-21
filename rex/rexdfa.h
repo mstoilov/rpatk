@@ -94,7 +94,7 @@ typedef enum {
  * @param __dfa__ Pointer to @ref rexdfa_t object
  * @param __nstate__ State ID returned from @ref REX_DFA_NEXT or @ref REX_DFA_DEADSTATE, @ref REX_DFA_STARTSTATE
  * @param __ntrans__ Transition offset in the array of transitions for the specified state. This parameter
- * must not exceed rexdfs_t::ntrans.
+ * must be from 0 to rexdfs_t::ntrans - 1.
  * @return Pointer to @ref rexdft_t transition
  */
 #define REX_DFA_TRANSITION(__dfa__, __nstate__, __ntrans__)			(&(__dfa__)->trans[(REX_DFA_STATE(__dfa__, __nstate__)->trans) + (__ntrans__)])
@@ -107,7 +107,7 @@ typedef enum {
  * @param __dfa__ Pointer to @ref rexdfa_t object
  * @param __nstate__ State ID returned from @ref REX_DFA_NEXT or @ref REX_DFA_STARTSTATE
  * @param __nsubstate__ Sub-state offset in the array of sub-states for the specified state. This parameter
- * must not exceed rexdfs_t::nsubstates.
+ * must from 0 to rexdfs_t::nsubstates - 1.
  * @return Pointer to @ref rexdfss_t substate.
  */
 #define REX_DFA_SUBSTATE(__dfa__, __nstate__, __nsubstate__)		((__dfa__)->substates ? &(__dfa__)->substates[REX_DFA_STATE(__dfa__, __nstate__)->substates + (__nsubstate__)] : ((rexdfss_t*)0))
@@ -119,7 +119,7 @@ typedef enum {
  * @param __dfa__ Pointer to @ref rexdfa_t object
  * @param __nstate__ State ID returned from @ref REX_DFA_NEXT or @ref REX_DFA_STARTSTATE
  * @param __naccsubstate__ Sub-state offset in the array of accepting sub-states for the specified state. This parameter
- * must not exceed rexdfs_t::naccsubstates.
+ * must be from 0 to rexdfs_t::naccsubstates - 1.
  * @return Pointer to @ref rexdfss_t accepting substate.
  */
 #define REX_DFA_ACCSUBSTATE(__dfa__, __nstate__, __naccsubstate__)	((__dfa__)->accsubstates ? &(__dfa__)->accsubstates[REX_DFA_STATE(__dfa__, __nstate__)->accsubstates + (__naccsubstate__)] : ((rexdfss_t*)0))

@@ -91,6 +91,7 @@ int usage(int argc, const char *argv[])
 		fprintf(stderr, "Usage: \n %s [OPTIONS] <filename>\n", argv[0]);
 		fprintf(stderr, " OPTIONS:\n");
 		fprintf(stderr, "\t-o <cfile>               Output .c file.\n");
+		fprintf(stderr, "\t-d                       Dump regular expressions.\n");
 		fprintf(stderr, "\t-D                       Dump DFA states.\n");
 		fprintf(stderr, "\t-N                       Dump NFA states.\n");
 		fprintf(stderr, "\t-s                       Include substates.\n");
@@ -207,6 +208,11 @@ int main(int argc, const char *argv[])
 		}
 	}
 	for (i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "-d") == 0) {
+			dumponly = 3;
+		}
+	}
+	for (i = 1; i < argc; i++) {
 		if (argv[i][0] != '-') {
 			rbuffer_t *text = rex_buffer_map_file(argv[i]);
 			if (text) {
@@ -221,6 +227,9 @@ int main(int argc, const char *argv[])
 					rex_db_destroy(tempdb);
 					if (pCC->dfa && !dumponly)
 						rex_cc_output(pCC, cfile);
+					if (dumponly == 3) {
+						rex_cc_parseinfodump(pCC);
+					}
 				}
 				r_buffer_destroy(text);
 			} else {

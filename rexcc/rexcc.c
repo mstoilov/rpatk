@@ -41,6 +41,7 @@ struct tokeninfo_s {
 struct parseinfo_s {
 	rbuffer_t id;
 	rbuffer_t regex;
+	int line;
 };
 
 
@@ -149,6 +150,32 @@ int rex_cc_fprintf(FILE *out, int indent, const char *format, ...)
 	ret = rex_cc_vfprintf(out, indent, format, ap);
 	va_end(ap);
 	return ret;
+}
+
+
+static void rex_cc_output_gpl(FILE *out)
+{
+	static char *gpl =
+			"/*\n"
+			" *  Regular Pattern Analyzer Toolkit(RPA/Tk)\n"
+			" *  Copyright (c) 2009-2012 Martin Stoilov\n"
+			" *\n"
+			" *  This program is free software: you can redistribute it and/or modify\n"
+			" *  it under the terms of the GNU General Public License as published by\n"
+			" *  the Free Software Foundation, either version 3 of the License, or\n"
+			" *  (at your option) any later version.\n"
+			" *\n"
+			" *  This program is distributed in the hope that it will be useful,\n"
+			" *  but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+			" *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+			" *  GNU General Public License for more details.\n"
+			" *\n"
+			" *  You should have received a copy of the GNU General Public License\n"
+			" *  along with this program.  If not, see <http://www.gnu.org/licenses/>.\n"
+			" *\n"
+			" *  Martin Stoilov <martin@rpasearch.com>\n"
+			" */\n";
+	rex_cc_fprintf(out, 0, "%s\n", gpl);
 }
 
 
@@ -294,8 +321,8 @@ static int rex_cc_output_dfa(rexcc_t *pCC, FILE *out)
 
 int rex_cc_output(rexcc_t *pCC, FILE *outc)
 {
-
 	if (outc) {
+		rex_cc_output_gpl(outc);
 		rex_cc_fprintf(outc, 0, "#include \"rexdfa.h\"\n\n");
 		if (pCC->prolog.size) {
 			fwrite(pCC->prolog.s, 1, pCC->prolog.size, outc);
@@ -316,6 +343,18 @@ int rex_cc_output(rexcc_t *pCC, FILE *outc)
 		}
 	}
 	return 0;
+}
+
+
+static int rex_cc_getlineno(rexcc_t *pCC, const char *input)
+{
+	int ret = 1;
+
+	while (--input >= pCC->start) {
+		if (*input == '\n')
+			ret += 1;
+	}
+	return ret;
 }
 
 
@@ -389,6 +428,7 @@ static int rex_cc_parseline(rexcc_t *pCC)
 		/*
 		 * Unexpected char.
 		 */
+		fprintf(stdout, "Line %d, (%s) Unexpected Char.\n", rex_cc_getlineno(pCC, pCC->input), "Error");
 		return -1;
 	}
 	if (rex_cc_parseregex(pCC, &info) < 0)
@@ -403,8 +443,9 @@ int rex_cc_parse(rexcc_t *pCC)
 	pCC->prolog.s = pCC->input;
 	pCC->prolog.size = 0;
 	while (pCC->input + 3 < pCC->end) {
-		if (*pCC->input == '%' && *(pCC->input+1) == '%' && (*(pCC->input+2) == '\n' || (*(pCC->input+2) == '\r' && *(pCC->input+3) == '\n')))
+		if (*pCC->input == '%' && *(pCC->input+1) == '%' && (*(pCC->input+2) == '\n' || (*(pCC->input+2) == '\r' && *(pCC->input+3) == '\n'))) {
 			break;
+		}
 		pCC->prolog.size += 1;
 		pCC->input += 1;
 	}
@@ -416,7 +457,8 @@ int rex_cc_parse(rexcc_t *pCC)
 		if (pCC->token == REXCC_TOKEN_CR || pCC->token == REXCC_TOKEN_SPACE || pCC->token == REXCC_TOKEN_REGEX) {
 			rex_cc_gettoken(pCC);
 		} else if (pCC->token == REXCC_TOKEN_IDENTIFIER) {
-			rex_cc_parseline(pCC);
+			if (rex_cc_parseline(pCC) < 0)
+				return -1;
 		} else if (pCC->token == REXCC_TOKEN_DELIMITER) {
 			rex_cc_gettoken(pCC);
 			return 0;
@@ -424,6 +466,7 @@ int rex_cc_parse(rexcc_t *pCC)
 			/*
 			 * Unexpected char
 			 */
+			fprintf(stdout, "Line %d, (%s) Unexpected Char.\n", rex_cc_getlineno(pCC, pCC->input), "Error");
 			return -1;
 		}
 		pCC->epilog.s = pCC->input;
@@ -438,6 +481,7 @@ int rex_cc_load_buffer(rexcc_t *pCC, rbuffer_t *text)
 	int ret = 0, i;
 	struct parseinfo_s *pi;
 
+	pCC->start = text->s;
 	pCC->input = text->s;
 	pCC->end = text->s + text->size;
 	r_array_setlength(pCC->parseinfo, 0);
@@ -445,6 +489,11 @@ int rex_cc_load_buffer(rexcc_t *pCC, rbuffer_t *text)
 		for (i = 0; i < r_array_length(pCC->parseinfo); i++) {
 			pi = (struct parseinfo_s *)r_array_slot(pCC->parseinfo, i);
 			if (rex_cc_load_pattern(pCC, &pi->regex, i) < 0) {
+				fprintf(stdout, "Line %d, (%s) Syntax error: ", rex_cc_getlineno(pCC, pi->id.s), "Error");
+				fwrite(pi->id.s, 1, pi->id.size, stdout);
+				fprintf(stdout, "  ");
+				fwrite(pi->regex.s, 1, pi->regex.size, stdout);
+				fprintf(stdout, "\n");
 				return -1;
 			}
 #if 0
@@ -456,4 +505,19 @@ int rex_cc_load_buffer(rexcc_t *pCC, rbuffer_t *text)
 		}
 	}
 	return ret;
+}
+
+
+void rex_cc_parseinfodump(rexcc_t *pCC)
+{
+	long i;
+	struct parseinfo_s *pi;
+
+	for (i = 0; i < r_array_length(pCC->parseinfo); i++) {
+		pi = (struct parseinfo_s *)r_array_slot(pCC->parseinfo, i);
+		fwrite(pi->id.s, 1, pi->id.size, stdout);
+		fprintf(stdout, "  ");
+		fwrite(pi->regex.s, 1, pi->regex.size, stdout);
+		fprintf(stdout, "\n");
+	}
 }

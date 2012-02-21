@@ -600,7 +600,10 @@ long rex_compiler_expression_s(rexcompiler_t *co, rexdb_t *rexdb, const char *st
 long rex_compiler_addexpression(rexcompiler_t *co, rexdb_t *rexdb, unsigned long prev, const char *str, unsigned int size, rexuserdata_t userdata)
 {
 	rexstate_t *sprev = NULL, *scur = NULL;
-	long cur = rex_compiler_expression(co, rexdb, str, size, userdata);
+	long cur;
+	if (r_array_empty(rexdb->states))
+		prev = -1UL;
+	cur = rex_compiler_expression(co, rexdb, str, size, userdata);
 	if (cur < 0)
 		return -1;
 	sprev = rex_db_getstate(rexdb, prev);

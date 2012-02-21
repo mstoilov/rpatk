@@ -1,0 +1,140 @@
+/** \page rexgrep REX Grep 
+rexgrep is a program for matching and searching strings in files using
+the REX library. It is intended as a front end for the REX library and provides some command
+line switches to help using the REX library. For example rexgrep can display the generated
+Deterministic Finite Automata (DFA) or Non-Deterministic Finite Automata (NFA) from a
+regular expression. 
+
+Example 1 - Display DFA:
+@verbatim
+# rexgrep -e "hel+o" -D
+State 0 ():  REX_STATETYPE_DEAD 
+    [0x0 - 0xFFFFFFFF]                  -> 0
+
+State 1 ():  REX_STATETYPE_START 
+    [0x0 - 0x67]                        -> 0
+    'h'                                 -> 2
+    [0x69 - 0xFFFFFFFF]                 -> 0
+
+State 2 (): 
+    [0x0 - 0x64]                        -> 0
+    'e'                                 -> 3
+    [0x66 - 0xFFFFFFFF]                 -> 0
+
+State 3 (): 
+    [0x0 - 0x6B]                        -> 0
+    'l'                                 -> 4
+    [0x6D - 0xFFFFFFFF]                 -> 0
+
+State 4 (): 
+    [0x0 - 0x6B]                        -> 0
+    'l'                                 -> 4
+    [m - n]                             -> 0
+    'o'                                 -> 5
+    [0x70 - 0xFFFFFFFF]                 -> 0
+
+State 5 ():  REX_STATETYPE_ACCEPT  (5*)
+    [0x0 - 0xFFFFFFFF]                  -> 0
+
+@endverbatim 
+
+Example 2 - Display NFA. Note: if the regular expression characters are not ASCII, their hex value will be displayed.
+Wide characters are encoded within the state the same way as ASCII characters, they are just displayed with their hex value.
+@verbatim
+# rexgrep -e "здравей" -N -D
+State 0:  REX_STATETYPE_START 
+        0x437                           -> 1
+
+State 1: 
+        0x434                           -> 2
+
+State 2: 
+        0x440                           -> 3
+
+State 3: 
+        0x430                           -> 4
+
+State 4: 
+        0x432                           -> 5
+
+State 5: 
+        0x435                           -> 6
+
+State 6: 
+        0x439                           -> 7
+
+State 7:  REX_STATETYPE_ACCEPT 
+        (none)
+
+@endverbatim
+
+Example 3 - Display DFA with the NFA substates.
+@verbatim
+# rexgrep -e "здравей" -S -D
+State 0 ():  REX_STATETYPE_DEAD 
+    [0x0 - 0xFFFFFFFF]                  -> 0
+
+State 1 (0):  REX_STATETYPE_START 
+    [0x0 - 0x436]                       -> 0
+    0x437                               -> 2
+    [0x438 - 0xFFFFFFFF]                -> 0
+
+State 2 (1): 
+    [0x0 - 0x433]                       -> 0
+    0x434                               -> 3
+    [0x435 - 0xFFFFFFFF]                -> 0
+
+State 3 (2): 
+    [0x0 - 0x43F]                       -> 0
+    0x440                               -> 4
+    [0x441 - 0xFFFFFFFF]                -> 0
+
+State 4 (3): 
+    [0x0 - 0x42F]                       -> 0
+    0x430                               -> 5
+    [0x431 - 0xFFFFFFFF]                -> 0
+
+State 5 (4): 
+    [0x0 - 0x431]                       -> 0
+    0x432                               -> 6
+    [0x433 - 0xFFFFFFFF]                -> 0
+
+State 6 (5): 
+    [0x0 - 0x434]                       -> 0
+    0x435                               -> 7
+    [0x436 - 0xFFFFFFFF]                -> 0
+
+State 7 (6): 
+    [0x0 - 0x438]                       -> 0
+    0x439                               -> 8
+    [0x43A - 0xFFFFFFFF]                -> 0
+
+State 8 (7*):  REX_STATETYPE_ACCEPT  (7*)
+    [0x0 - 0xFFFFFFFF]                  -> 0
+
+
+@endverbatim
+
+Here is a complete list of available command line options.
+@verbatim
+Usage: 
+ rexgrep [OPTIONS] <filename>
+ OPTIONS:
+	-e patterns              Regular Expression.
+	-f patternfile           Read Regular Expressions from a file.
+	-b binfile               Use DFA from binfile.
+	-c                       Compile DFA and save to binfile. Use -b option to specify the name of the file.
+	-o, --only-matching      Show only the part of a line matching PATTERN
+	-l                       Line mode.
+	-N                       Use NFA.
+	-D                       Dump states.
+	-S                       Include DFA substates.
+	-q                       Quiet mode.
+	-t                       Display statistics. Works only when built in DEBUG mode.
+	-s string                Search in string.
+	-v                       Display version information.
+	-h, --help               Display this help.
+@endverbatim
+
+
+*/

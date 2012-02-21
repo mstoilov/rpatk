@@ -46,6 +46,7 @@ typedef struct rexcc_s {
 	char *temp;
 	int token;
 	char *input;
+	char *start;
 	char *end;
 	char *tokenptr;
 	int tokenlen;
@@ -58,6 +59,7 @@ int rex_cc_load_pattern(rexcc_t *pCC, rbuffer_t *buf, rexuserdata_t userdata);
 int rex_cc_load_buffer(rexcc_t *pCC, rbuffer_t *text);
 int rex_cc_output(rexcc_t *pCC, FILE *outc);
 rexdfa_t * rex_cc_tokensdfa();
+void rex_cc_parseinfodump(rexcc_t *pCC);
 
 
 #ifdef __cplusplus

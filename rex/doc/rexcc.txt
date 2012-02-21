@@ -89,7 +89,19 @@ List of macros:
 <h2>Example</h2>
 	- @ref tokenjs.rexcc - JavaScript tokenizer.
 
-
+@section rexcc_command_line rexcc parameters
+@verbatim
+# rexcc [OPTIONS] <filename>
+ OPTIONS:
+	-o <cfile>               Output .c file.
+	-d                       Dump regular expressions.
+	-D                       Dump DFA states.
+	-N                       Dump NFA states.
+	-s                       Include substates.
+	-t                       Display statistics.
+	-v                       Display version information.
+	-h, --help               Display this help.
+@endverbatim
 
 @example tokenjs.rexcc
 

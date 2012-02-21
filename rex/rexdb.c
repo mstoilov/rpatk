@@ -406,3 +406,11 @@ rexdfa_t *rex_db_todfa(rexdb_t *db, int withsubstates)
 	R_ASSERT(ctx.naccsubstates == naccsubstates);
 	return dfa;
 }
+
+
+int rex_db_isempty(rexdb_t *db)
+{
+	if (!db)
+		return 0;
+	return r_array_length(db->states) ? 0 : 1;
+}

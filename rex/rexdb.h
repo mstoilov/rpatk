@@ -139,6 +139,7 @@ long rex_db_numtransitions(rexdb_t *rexdb);
 long rex_db_numstates(rexdb_t *rexdb);
 long rex_db_numsubstates(rexdb_t *rexdb);
 long rex_db_numaccsubstates(rexdb_t *rexdb);
+int rex_db_isempty(rexdb_t *db);
 const char *rex_db_version();
 
 /**
