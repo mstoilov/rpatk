@@ -21,6 +21,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <time.h>
 #include "rlib/rmem.h"
 #include "rlib/rarray.h"

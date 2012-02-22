@@ -22,13 +22,12 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
-#include <errno.h>
 #include "rlib/rmem.h"
 #include "rlib/rarray.h"
 #include "rex/rexdfaconv.h"
 #include "rex/rexdfa.h"
-#include "rexcc.h"
 #include "rexccdep.h"
+#include "rexcc.h"
 
 
 int usage(int argc, const char *argv[])
@@ -98,8 +97,8 @@ rbuffer_t *rexcc_buffer_loadfile(FILE *pFile)
 
 int main(int argc, const char *argv[])
 {
-	int i, ret = 0, dumponly = 0;;
 	rexcc_t *pCC;
+	int i, ret = 0, dumponly = 0;
 	int withsubstates = 0;
 	FILE *devnull = NULL;
 	rexdb_t *tempdb = NULL;

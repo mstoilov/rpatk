@@ -25,7 +25,7 @@ NULL=nul
 !ENDIF
 
 
-RGREP=rexgrep.exe
+REXCC=rexcc.exe
 PORT=windows
 ARCH=i386
 SRC_DIR=..\..\..
@@ -58,18 +58,17 @@ CPP=cl.exe
 LINK32=link.exe
 LINK32_FLAGS=$(LIBS) kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ws2_32.lib /nologo /subsystem:console /incremental:no /machine:I386 $(LINK_DEBUG)
 
-RGREP_OBJS= \
-	"$(OUTDIR)\rexgrep.obj" \
-	"$(OUTDIR)\fsenumwin.obj" \
-	"$(OUTDIR)\rexgrepdep.obj" \
+REXCC_OBJS= \
 	"$(OUTDIR)\main.obj" \
-	
+	"$(OUTDIR)\rexcc.obj" \
+	"$(OUTDIR)\rexccdep.obj" \
 
-ALL : "$(OUTDIR)\$(RGREP)"
+
+ALL : "$(OUTDIR)\$(REXCC)"
 
 CLEAN :
-	-@erase "$(OUTDIR)\$(RGREP)"
-	-@erase $(RGREP_OBJS)
+	-@erase "$(OUTDIR)\$(REXCC)"
+	-@erase $(REXCC_OBJS)
 	-@erase *.pdb *.idb *.pch "$(OUTDIR)\*.pdb"
 	-@rd /S /Q "$(OUTDIR)"
 
@@ -77,22 +76,18 @@ CLEAN :
 	if not exist "$(OUTDIR)\$(NULL)" mkdir "$(OUTDIR)"
 
 
-"$(OUTDIR)\$(RGREP)" : "$(OUTDIR)" $(RGREP_OBJS)
+"$(OUTDIR)\$(REXCC)" : "$(OUTDIR)" $(REXCC_OBJS)
 	$(LINK32) @<<
-	$(LINK32_FLAGS) /out:"$(OUTDIR)\$(RGREP)" $(RGREP_OBJS)
+	$(LINK32_FLAGS) /out:"$(OUTDIR)\$(REXCC)" $(REXCC_OBJS)
 <<
 
 
-SOURCE="$(SRC_DIR)\rexgrep.c"
-"$(OUTDIR)\rexgrep.obj" : $(SOURCE) "$(OUTDIR)"
+SOURCE="$(SRC_DIR)\rexcc.c"
+"$(OUTDIR)\rexcc.obj" : $(SOURCE) "$(OUTDIR)"
 	$(CPP) $(CPP_FLAGS) $(SOURCE)
 
-SOURCE="$(DEPSRC_DIR)\rexgrepdep.c"
-"$(OUTDIR)\rexgrepdep.obj" : $(SOURCE) "$(OUTDIR)"
-	$(CPP) $(CPP_FLAGS) $(SOURCE)
-
-SOURCE="$(DEPSRC_DIR)\fsenumwin.c"
-"$(OUTDIR)\fsenumwin.obj" : $(SOURCE) "$(OUTDIR)"
+SOURCE="$(DEPSRC_DIR)\rexccdep.c"
+"$(OUTDIR)\rexccdep.obj" : $(SOURCE) "$(OUTDIR)"
 	$(CPP) $(CPP_FLAGS) $(SOURCE)
 
 SOURCE="$(SRC_DIR)\main.c"

@@ -20,7 +20,7 @@
 
 #include <windows.h>
 #include <stdio.h>
-#include <wchar.h>
+#include <tchar.h>
 #include "rlib/rbuffer.h"
 #include "rexgrep.h"
 #include "rexgrepdep.h"
@@ -97,7 +97,7 @@ void rex_grep_scan_path(rexgrep_t *pGrep, LPCTSTR path)
 	if ((pFSE = fse_create(path))) {
     	while (fse_next_file(pFSE)) {
     		pGrep->filename = (void*)fseFileName(pFSE);
-    		buf = rex_buffer_map_file((const wchar_t*)pGrep->filename);
+    		buf = rex_buffer_map_file(pGrep->filename);
     		if (buf) {
 				rex_grep_scan_buffer(pGrep, buf);
 				pGrep->scsize += buf->size;
@@ -107,7 +107,7 @@ void rex_grep_scan_path(rexgrep_t *pGrep, LPCTSTR path)
 		fse_destroy(pFSE);
 	} else {
 		pGrep->filename = (void*)path;
-		buf = rex_buffer_map_file((const wchar_t*)pGrep->filename);
+		buf = rex_buffer_map_file(pGrep->filename);
 		if (buf) {
 			rex_grep_scan_buffer(pGrep, buf);
 			pGrep->scsize += buf->size;

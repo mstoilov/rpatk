@@ -35,7 +35,7 @@ extern "C" {
 #endif
 
 #ifndef REX_USERDATA_TYPE
-typedef unsigned long rexuserdata_t;
+typedef size_t rexuserdata_t;
 #else
 typedef REX_USERDATA_TYPE rexuserdata_t;
 #endif

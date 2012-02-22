@@ -47,7 +47,7 @@ struct rexstate_s {
 
 typedef struct rexsubstate_s {
 	unsigned long ss_type;
-	unsigned long ss_userdata;
+	rexuserdata_t ss_userdata;
 } rexsubstate_t;
 
 typedef struct rex_accept_s {

@@ -360,6 +360,8 @@ static int rex_cc_getlineno(rexcc_t *pCC, const char *input)
 
 int rex_cc_gettoken(rexcc_t *pCC)
 {
+	struct tokeninfo_s *ti = NULL;
+	struct tokeninfo_s *tk = tokens;
 	ruint32 wc = 0;
 	int inc, ret = 0;
 	long nstate = REX_DFA_STARTSTATE;
@@ -384,8 +386,9 @@ int rex_cc_gettoken(rexcc_t *pCC)
 		s = REX_DFA_STATE(dfa, nstate);
 		ss = REX_DFA_ACCSUBSTATE(dfa, nstate, 0);
 		if (s->type == REX_STATETYPE_ACCEPT) {
-			pCC->token = ((struct tokeninfo_s *)ss->userdata)->id;
-			ret = input - pCC->input;
+			ti = (struct tokeninfo_s *)ss->userdata;
+			pCC->token = ti->id;
+			ret = (int)(input - pCC->input);
 			if (ss && ((struct tokeninfo_s *)ss->userdata)->id == 1) {
 				break;
 			}
@@ -471,7 +474,7 @@ int rex_cc_parse(rexcc_t *pCC)
 			return -1;
 		}
 		pCC->epilog.s = pCC->input;
-		pCC->epilog.size = pCC->end - pCC->input;
+		pCC->epilog.size = (long)(pCC->end - pCC->input);
 	}
 	return -1;
 }
