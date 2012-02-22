@@ -27,8 +27,8 @@ extern "C" {
 #endif
 
 
-rbuffer_t * rex_buffer_map_file(const wchar_t *filename);
-void rex_grep_scan_path(rexgrep_t *pGrep, const wchar_t *path);
+rbuffer_t * rex_buffer_map_file(LPCTSTR filename);
+void rex_grep_scan_path(rexgrep_t *pGrep, LPCTSTR path);
 
 
 #ifdef __cplusplus

@@ -29,6 +29,7 @@ SUBPROJECTS= \
 	$(RPATK_DIR)\rex\build\$(PORT)\$(ARCH)+ \
 	$(RPATK_DIR)\rpagrep\build\$(PORT)\$(ARCH)+ \
 	$(RPATK_DIR)\rjs\build\$(PORT)\$(ARCH)+ \
+	$(RPATK_DIR)\rexgrep\build\$(PORT)\$(ARCH)+ \
 
 
 ALL : $(SUBPROJECTS)

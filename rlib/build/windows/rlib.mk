@@ -16,6 +16,7 @@ LINK32_OBJS= \
 	"$(OUTDIR)\rstring.obj" \
 	"$(OUTDIR)\rlist.obj" \
 	"$(OUTDIR)\rutf.obj" \
+	"$(OUTDIR)\rbuffer.obj" \
 
 
 ALL : "$(OUTDIR)\$(TARGET)"
@@ -103,3 +104,6 @@ SOURCE="$(SRC_DIR)\rutf.c"
 "$(OUTDIR)\rutf.obj" : $(SOURCE) "$(OUTDIR)"
 	$(CPP) $(CPP_FLAGS) $(SOURCE)
 
+SOURCE="$(SRC_DIR)\rbuffer.c"
+"$(OUTDIR)\rbuffer.obj" : $(SOURCE) "$(OUTDIR)"
+	$(CPP) $(CPP_FLAGS) $(SOURCE)

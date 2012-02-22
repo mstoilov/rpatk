@@ -21,12 +21,13 @@
 #include <windows.h>
 #include <stdio.h>
 #include <wchar.h>
+#include "rlib/rbuffer.h"
 #include "rexgrep.h"
 #include "rexgrepdep.h"
 #include "fsenumwin.h"
 
 
-void rex_buffer_unmap_file(rex_buffer_t *buf)
+void rex_buffer_unmap_file(rbuffer_t *buf)
 {
 	HANDLE hFile = INVALID_HANDLE_VALUE;
 	HANDLE hMapping = 0;
@@ -46,16 +47,16 @@ void rex_buffer_unmap_file(rex_buffer_t *buf)
 }
 
 
-rex_buffer_t * rex_buffer_map_file(const wchar_t *pFileName)
+rbuffer_t * rex_buffer_map_file(LPCTSTR pFileName)
 {
-	rex_buffer_t *buf;
+	rbuffer_t *buf;
 	char *pMappedView = 0;
 	HANDLE hFile = INVALID_HANDLE_VALUE;
 	HANDLE hMapping = 0;
 	unsigned __int64 fileSize;
 	DWORD sizeLo, sizeHi;
 
-	buf = (rex_buffer_t *)malloc(sizeof(rex_buffer_t));
+	buf = (rbuffer_t *)malloc(sizeof(rbuffer_t));
 	if (!buf)
 		goto error;
 	hFile = CreateFile(pFileName, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, 0);
@@ -73,7 +74,7 @@ rex_buffer_t * rex_buffer_map_file(const wchar_t *pFileName)
 	buf->userdata1 = (void*)hMapping;
 	buf->s = pMappedView;
 	buf->size = (unsigned long)fileSize;
-	buf->destroy = rex_buffer_unmap_file;
+	buf->alt_destroy = rex_buffer_unmap_file;
 	return buf;
 
 error:
@@ -84,58 +85,14 @@ error:
 	if (pMappedView)
 		UnmapViewOfFile(pMappedView);
 	free(buf);
-	return (rex_buffer_t*)0;
+	return (rbuffer_t*)0;
 }
 
 
-rex_buffer_t * rex_buffer_from_wchar(const wchar_t *wstr)
-{
-	rex_buffer_t *buf;
-	int ret;
-	int wideLen = (int)wcslen(wstr) + 1;
-	int sizeNeeded = WideCharToMultiByte(
-		CP_UTF8,
-		0,
-		wstr,
-		wideLen,
-		NULL,
-		0,
-		NULL,
-		NULL);
-	if (!(buf = rex_buffer_alloc(sizeNeeded)))
-		return (rex_buffer_t*)0;
-	ret = WideCharToMultiByte(
-				CP_UTF8,
-				0,
-				wstr,
-				wideLen,
-				buf->s,
-				sizeNeeded,
-				NULL,
-				NULL);
-	if (ret <= 0) {
-		rex_buffer_destroy(buf);
-		return NULL;
-	}
-	return buf;
-
-}
-
-
-void rex_grep_print_filename(rexgrep_t *pGrep)
-{
-	if (pGrep->filename) {
-		rex_grep_output_utf16_string(pGrep, pGrep->filename);
-		rex_grep_output_utf16_string(pGrep, L":\n");
-	}
-	
-}
-
-
-void rex_grep_scan_path(rexgrep_t *pGrep, const wchar_t *path)
+void rex_grep_scan_path(rexgrep_t *pGrep, LPCTSTR path)
 {
 	fs_enum_ptr pFSE;
-	rex_buffer_t *buf;
+	rbuffer_t *buf;
 
 	if ((pFSE = fse_create(path))) {
     	while (fse_next_file(pFSE)) {
@@ -144,7 +101,7 @@ void rex_grep_scan_path(rexgrep_t *pGrep, const wchar_t *path)
     		if (buf) {
 				rex_grep_scan_buffer(pGrep, buf);
 				pGrep->scsize += buf->size;
-				rex_buffer_destroy(buf);
+				r_buffer_destroy(buf);
 			}
 		} 
 		fse_destroy(pFSE);
@@ -154,28 +111,7 @@ void rex_grep_scan_path(rexgrep_t *pGrep, const wchar_t *path)
 		if (buf) {
 			rex_grep_scan_buffer(pGrep, buf);
 			pGrep->scsize += buf->size;
-			rex_buffer_destroy(buf);
+			r_buffer_destroy(buf);
 		}
 	}
-}
-
-
-void rex_grep_output_char(int c)
-{
-	int ret;
-	int garbage = 0;
-	wchar_t output[3];
-
-	if ((unsigned char)c < 32 && !(c == '\t' || c == '\n' || c == '\r')) {
-		c = garbage;
-	} else if (c >= 127 && c <= 255) {
-		c = garbage;
-	}
-
-	output[0] = output[1] = output[2] = 0;
-	ret = rex_grep_utf16_wctomb(c, (unsigned char*)output, sizeof(output));
-	if (ret > 0) {
-		fwprintf(stdout, L"%s", output);
-	}
-	return;
 }

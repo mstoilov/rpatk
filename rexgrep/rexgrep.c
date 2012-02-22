@@ -24,11 +24,6 @@
 #include <string.h>
 #include <time.h>
 
-/*
- * Temporary here. Need to fix the encoding definitions.
- */
-#include "rpa/rpastat.h"
-
 #include "rlib/rutf.h"
 #include "rlib/rmem.h"
 #include "rex/rextransition.h"
@@ -37,7 +32,6 @@
 #include "rexgrepdep.h"
 
 #define MAX_STACK 256000
-
 
 
 rexgrep_t *rex_grep_create()
@@ -106,7 +100,7 @@ int rex_grep_match(rexgrep_t *pGrep, const char* input, const char *end)
 			input += inc;
 			s = REX_DFA_STATE(dfa, nstate);
 			if (s->type == REX_STATETYPE_ACCEPT)
-				ret = input - start;
+				ret = (int)(input - start);
 		}
 		return ret;
 	}
@@ -222,39 +216,12 @@ void rex_grep_scan_buffer(rexgrep_t *pGrep, rbuffer_t *buf)
 
 void rex_grep_output(rexgrep_t *pGrep, const char *s, unsigned long size, unsigned int encoding)
 {
-	const unsigned char *input = (const unsigned char*)s;
-	const unsigned char *end = input + size;
-	unsigned int wc;
-	int ret;
-
-	if (encoding == RPA_ENCODING_UTF16LE || encoding == RPA_ENCODING_ICASE_UTF16LE) {
-		while ((ret = (int)r_utf16_mbtowc(&wc, input, end)) != 0) {
-			rex_grep_output_char(wc);
-			input += ret;
-		}
-	} else {
-		while ((ret = (int)r_utf8_mbtowc(&wc, input, end)) != 0) {
-			rex_grep_output_char(wc);
-			input += ret;
-		}
-	}
+	fwrite(s, 1, size, stdout);
 }
 
 
 void rex_grep_output_utf8_string(rexgrep_t *pGrep, const char *s)
 {
-	rex_grep_output(pGrep, s, r_strlen(s), RPA_ENCODING_UTF8);
+	rex_grep_output(pGrep, s, r_strlen(s), 0);
 }
 
-
-void rex_grep_output_utf16_string(rexgrep_t *pGrep, const unsigned short *s)
-{
-	unsigned long size = 0;
-	const unsigned short *pstr = s;
-
-	while (*pstr) {
-		size += sizeof(unsigned short);
-		pstr += 1;
-	}
-	rex_grep_output(pGrep, (const char*)s, size, RPA_ENCODING_UTF16LE);
-}
