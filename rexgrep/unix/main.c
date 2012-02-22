@@ -18,18 +18,10 @@
  *  Martin Stoilov <martin@rpasearch.com>
  */
 
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/mman.h>
+
 #include <string.h>
 #include <stdlib.h>
-#include <wchar.h>
 #include <time.h>
-#include <errno.h>
 #include "rlib/rmem.h"
 #include "rlib/rarray.h"
 #include "rex/rexdfaconv.h"
@@ -223,8 +215,10 @@ int main(int argc, const char *argv[])
 		} else if (strcmp(argv[i], "-o") == 0 || strcmp(argv[i], "--only-matching") == 0) {
 			pGrep->greptype = REX_GREPTYPE_MATCH;
 		} else if (strcmp(argv[i], "-q") == 0) {
+#ifndef WIN32
 			devnull = fopen("/dev/null", "w");
 			stdout = devnull;
+#endif
 		}
 	}
 
@@ -234,7 +228,7 @@ int main(int argc, const char *argv[])
 		r_memset(&dfa, 0, sizeof(dfa));
 		pfile = fopen(binfile, "rb");
 		if (!pfile) {
-			fprintf(stderr, "Failed to open file: %s, %s\n", binfile, strerror(errno));
+			fprintf(stderr, "Failed to open file: %s\n", binfile);
 			goto error;
 		}
 		if (fread(&dfa, sizeof(dfa), 1, pfile) != 1)
@@ -282,7 +276,7 @@ int main(int argc, const char *argv[])
 		dfa.trans = NULL;
 		dfa.accsubstates = NULL;
 		if (!pfile) {
-			fprintf(stderr, "Failed to create file: %s, %s\n", binfile, strerror(errno));
+			fprintf(stderr, "Failed to create file: %s\n", binfile);
 			goto error;
 		}
 		fwrite(&dfa, sizeof(dfa), 1, pfile);
