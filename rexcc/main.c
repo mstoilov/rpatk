@@ -19,15 +19,8 @@
  */
 
 #include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/mman.h>
 #include <string.h>
 #include <stdlib.h>
-#include <wchar.h>
 #include <time.h>
 #include <errno.h>
 #include "rlib/rmem.h"
@@ -35,52 +28,7 @@
 #include "rex/rexdfaconv.h"
 #include "rex/rexdfa.h"
 #include "rexcc.h"
-
-
-void rex_buffer_unmap_file(rbuffer_t *buf)
-{
-	if (buf) {
-		munmap(buf->s, buf->size);
-		r_free(buf);
-	}
-}
-
-
-rbuffer_t * rex_buffer_map_file(const char *filename)
-{
-	struct stat st;
-	rbuffer_t *str;
-	char *buffer;
-
-	int fd = open(filename, O_RDONLY);
-	if (fd < 0) {
-		return (void*)0;
-	}
-	if (fstat(fd, &st) < 0) {
-		close(fd);
-		return (void*)0;
-	}
-	buffer = (char*)mmap(NULL, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
-	if (buffer == (void*)-1) {
-		close(fd);
-		return (void*)0;
-	}
-	str = (rbuffer_t *)r_malloc(sizeof(rbuffer_t));
-	if (!str)
-		goto error;
-	memset(str, 0, sizeof(*str));
-	str->s = buffer;
-	str->size = st.st_size;
-	str->userdata = (void*)((unsigned long)fd);
-	str->alt_destroy = rex_buffer_unmap_file;
-	close(fd);
-	return str;
-
-error:
-	munmap(buffer, st.st_size);
-	close(fd);
-	return str;
-}
+#include "rexccdep.h"
 
 
 int usage(int argc, const char *argv[])
@@ -185,7 +133,7 @@ int main(int argc, const char *argv[])
 			if (++i < argc) {
 				cfile = fopen(argv[i], "wb");
 				if (!cfile) {
-					fprintf(stderr, "Failed to create file: %s, %s\n", argv[i], strerror(errno));
+					fprintf(stderr, "Failed to create file: %s\n", argv[i]);
 					goto error;
 				}
 

@@ -17,6 +17,7 @@ LIBS += -L$(REX_SRCDIR)/build/unix/$(ARCHDIR)/out
 LIBS += -lrpa -lrvm -lrex -lrlib -lpthread -lm
 
 OBJECTS	= $(OUTDIR)/rexcc.o \
+	$(OUTDIR)/rexccdep.o \
 	$(OUTDIR)/main.o
 
 REXCC	= rexcc
