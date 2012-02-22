@@ -3,7 +3,7 @@ all:
 	+make -C $(ROOT_DIR)/rpa/build/unix/$(ARCHDIR) all
 	+make -C $(ROOT_DIR)/rvm/build/unix/$(ARCHDIR) all
 	+make -C $(ROOT_DIR)/rex/build/unix/$(ARCHDIR) all
-	+make -C $(ROOT_DIR)/rgrep/build/unix/$(ARCHDIR) all
+	+make -C $(ROOT_DIR)/rpagrep/build/unix/$(ARCHDIR) all
 	+make -C $(ROOT_DIR)/rexgrep/build/unix/$(ARCHDIR) all
 	+make -C $(ROOT_DIR)/rexcc/build/unix/$(ARCHDIR) all
 	+make -C $(ROOT_DIR)/tests/testmisc/build/unix/$(ARCHDIR) all
@@ -22,7 +22,7 @@ distclean: clean
 	+make -C $(ROOT_DIR)/tests/testmisc/build/unix/$(ARCHDIR) distclean
 	+make -C $(ROOT_DIR)/tests/testrpa/build/unix/$(ARCHDIR) distclean
 	+make -C $(ROOT_DIR)/tests/testrjs/build/unix/$(ARCHDIR) distclean
-	+make -C $(ROOT_DIR)/rgrep/build/unix/$(ARCHDIR) distclean
+	+make -C $(ROOT_DIR)/rpagrep/build/unix/$(ARCHDIR) distclean
 	+make -C $(ROOT_DIR)/rexgrep/build/unix/$(ARCHDIR) distclean
 	+make -C $(ROOT_DIR)/rexcc/build/unix/$(ARCHDIR) distclean
 	+make -C $(ROOT_DIR)/rjs/build/unix/$(ARCHDIR) distclean
@@ -36,7 +36,7 @@ clean:
 	+make -C $(ROOT_DIR)/tests/testmisc/build/unix/$(ARCHDIR) clean
 	+make -C $(ROOT_DIR)/tests/testrpa/build/unix/$(ARCHDIR) clean
 	+make -C $(ROOT_DIR)/tests/testrjs/build/unix/$(ARCHDIR) clean
-	+make -C $(ROOT_DIR)/rgrep/build/unix/$(ARCHDIR) clean
+	+make -C $(ROOT_DIR)/rpagrep/build/unix/$(ARCHDIR) clean
 	+make -C $(ROOT_DIR)/rexgrep/build/unix/$(ARCHDIR) clean
 	+make -C $(ROOT_DIR)/rexcc/build/unix/$(ARCHDIR) clean
 	+make -C $(ROOT_DIR)/rjs/build/unix/$(ARCHDIR) clean
@@ -63,7 +63,7 @@ install: $(RPATK_INC_INSTALL) $(RPATK_INC_INSTALL)/rlib $(RPATK_INC_INSTALL)/rvm
 	+make -C $(ROOT_DIR)/rpa/build/unix/$(ARCHDIR) install
 	+make -C $(ROOT_DIR)/rvm/build/unix/$(ARCHDIR) install
 	+make -C $(ROOT_DIR)/rex/build/unix/$(ARCHDIR) install
-	+make -C $(ROOT_DIR)/rgrep/build/unix/$(ARCHDIR) install
+	+make -C $(ROOT_DIR)/rpagrep/build/unix/$(ARCHDIR) install
 	+make -C $(ROOT_DIR)/rexgrep/build/unix/$(ARCHDIR) install
 	+make -C $(ROOT_DIR)/rexcc/build/unix/$(ARCHDIR) install
 	ldconfig -n $(RTK_LIB_INSTALL)
@@ -72,7 +72,7 @@ uninstall:
 	+make -C $(ROOT_DIR)/rlib/build/unix/$(ARCHDIR) uninstall
 	+make -C $(ROOT_DIR)/rpa/build/unix/$(ARCHDIR) uninstall
 	+make -C $(ROOT_DIR)/rvm/build/unix/$(ARCHDIR) uninstall
-	+make -C $(ROOT_DIR)/rgrep/build/unix/$(ARCHDIR) uninstall
+	+make -C $(ROOT_DIR)/rpagrep/build/unix/$(ARCHDIR) uninstall
 	+make -C $(ROOT_DIR)/rexgrep/build/unix/$(ARCHDIR) uninstall
 	+make -C $(ROOT_DIR)/rexcc/build/unix/$(ARCHDIR) uninstall
 	-rm -rf $(RPATK_INC_INSTALL)/rlib
