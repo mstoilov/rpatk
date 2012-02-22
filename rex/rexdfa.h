@@ -35,7 +35,11 @@ extern "C" {
 #endif
 
 #ifndef REX_USERDATA_TYPE
+#ifdef WIN32
 typedef size_t rexuserdata_t;
+#else
+typedef unsigned long rexuserdata_t;
+#endif
 #else
 typedef REX_USERDATA_TYPE rexuserdata_t;
 #endif
