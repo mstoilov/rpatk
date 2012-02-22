@@ -117,9 +117,8 @@ rexuint_t rex_dfa_next(rexdfa_t *dfa, rexuint_t nstate, rexchar_t input)
 			max = mid;
 		}
 	}
-	min -= (min > 0) ? 1 : 0;
-	t = REX_DFA_TRANSITION(dfa, nstate, min);
-	return (input >= t->lowin && input <= t->highin) ? t->state : 0;
+	t = REX_DFA_TRANSITION(dfa, nstate, min-1);
+	return t->state;
 }
 
 

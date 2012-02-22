@@ -25,14 +25,13 @@ NULL=nul
 !ENDIF
 
 
-RGREP=rgrep.exe
+RGREP=rexgrep.exe
 PORT=windows
 ARCH=x64
 SRC_DIR=..\..\..
 DEPSRC_DIR=..\..\..\win32
 RPATK_DIR=..\..\..\..
-RPA_LIB="$(RPATK_DIR)\rpa\build\$(PORT)\$(ARCH)\out\rpa.lib"
-RVM_LIB="$(RPATK_DIR)\rvm\build\$(PORT)\$(ARCH)\out\rvm.lib"
+REX_LIB="$(RPATK_DIR)\rex\build\$(PORT)\$(ARCH)\out\rex.lib"
 RLIB_LIB="$(RPATK_DIR)\rlib\build\$(PORT)\$(ARCH)\out\rlib.lib"
 INCLUDE_DIRS=/I"$(SRC_DIR)" /I"$(SRC_DIR)\win32" /I"$(RPATK_DIR)" /I"$(RPATK_DIR)\arch\$(PORT)\$(ARCH)"
 
@@ -51,7 +50,7 @@ LINK_DEBUG=/DEBUG
 !ENDIF
 
 CPP_FLAGS=$(CPP_FLAGS)
-LIBS=$(RPA_LIB) $(RVM_LIB) $(RLIB_LIB)
+LIBS=$(REX_LIB) $(RLIB_LIB)
 
 CPP=cl.exe
 # LINK32=lib.exe
@@ -60,12 +59,12 @@ LINK32=link.exe
 LINK32_FLAGS=$(LIBS) kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ws2_32.lib /nologo /subsystem:console /incremental:no $(LINK_DEBUG)
 
 RGREP_OBJS= \
-	"$(OUTDIR)\rpagrep.obj" \
-	"$(OUTDIR)\rpagreputf.obj" \
-	"$(OUTDIR)\fsenumwin.obj" \
-	"$(OUTDIR)\rpagrepdep.obj" \
 	"$(OUTDIR)\main.obj" \
-	
+	"$(OUTDIR)\fsenumwin.obj" \
+	"$(OUTDIR)\rexgrep.obj" \
+
+#	"$(OUTDIR)\rexgrepdep.obj" \
+
 
 ALL : "$(OUTDIR)\$(RGREP)"
 
@@ -85,16 +84,16 @@ CLEAN :
 <<
 
 
-SOURCE="$(SRC_DIR)\rpagrep.c"
-"$(OUTDIR)\rpagrep.obj" : $(SOURCE) "$(OUTDIR)"
+SOURCE="$(SRC_DIR)\rexgrep.c"
+"$(OUTDIR)\rexgrep.obj" : $(SOURCE) "$(OUTDIR)"
 	$(CPP) $(CPP_FLAGS) $(SOURCE)
 
-SOURCE="$(SRC_DIR)\rpagreputf.c"
-"$(OUTDIR)\rpagreputf.obj" : $(SOURCE) "$(OUTDIR)"
+SOURCE="$(SRC_DIR)\rexgreputf.c"
+"$(OUTDIR)\rexgreputf.obj" : $(SOURCE) "$(OUTDIR)"
 	$(CPP) $(CPP_FLAGS) $(SOURCE)
 
-SOURCE="$(DEPSRC_DIR)\rpagrepdep.c"
-"$(OUTDIR)\rpagrepdep.obj" : $(SOURCE) "$(OUTDIR)"
+SOURCE="$(DEPSRC_DIR)\rexgrepdep.c"
+"$(OUTDIR)\rexgrepdep.obj" : $(SOURCE) "$(OUTDIR)"
 	$(CPP) $(CPP_FLAGS) $(SOURCE)
 
 SOURCE="$(DEPSRC_DIR)\fsenumwin.c"

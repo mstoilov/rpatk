@@ -68,7 +68,7 @@ static int rex_compiler_isspace(int c)
 
 static int rex_compiler_isblank(int c)
 {
-	return isblank(c);
+	return r_strchr(" \t", c) ? 1 : 0;
 }
 
 
@@ -486,8 +486,6 @@ static int rex_compiler_qfactor(rexcompiler_t *co, rexdb_t *rexdb)
 				frag1 = rex_fragment_cat(rexdb, frag1, frag2);
 				FPUSH(co, frag1);
 			}
-//			fwrite(fstart, 1, fend - fstart, stdout);
-//			fprintf(stdout, "{%ld,%ld}\n", co->fromcount, co->tocount);
 			co->start = saved_start;
 			co->end = saved_end;
 			co->ptr = saved_ptr;

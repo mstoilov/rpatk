@@ -21,13 +21,12 @@
 #include <windows.h>
 #include <stdio.h>
 #include <wchar.h>
-#include "rpagrep.h"
-#include "rpagrepdep.h"
+#include "rexgrep.h"
+#include "rexgrepdep.h"
 #include "fsenumwin.h"
-#include "rpagreputf.h"
 
 
-void rpa_buffer_unmap_file(rpa_buffer_t *buf)
+void rex_buffer_unmap_file(rex_buffer_t *buf)
 {
 	HANDLE hFile = INVALID_HANDLE_VALUE;
 	HANDLE hMapping = 0;
@@ -47,16 +46,16 @@ void rpa_buffer_unmap_file(rpa_buffer_t *buf)
 }
 
 
-rpa_buffer_t * rpa_buffer_map_file(const wchar_t *pFileName)
+rex_buffer_t * rex_buffer_map_file(const wchar_t *pFileName)
 {
-	rpa_buffer_t *buf;
+	rex_buffer_t *buf;
 	char *pMappedView = 0;
 	HANDLE hFile = INVALID_HANDLE_VALUE;
 	HANDLE hMapping = 0;
 	unsigned __int64 fileSize;
 	DWORD sizeLo, sizeHi;
 
-	buf = (rpa_buffer_t *)malloc(sizeof(rpa_buffer_t));
+	buf = (rex_buffer_t *)malloc(sizeof(rex_buffer_t));
 	if (!buf)
 		goto error;
 	hFile = CreateFile(pFileName, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, 0);
@@ -74,7 +73,7 @@ rpa_buffer_t * rpa_buffer_map_file(const wchar_t *pFileName)
 	buf->userdata1 = (void*)hMapping;
 	buf->s = pMappedView;
 	buf->size = (unsigned long)fileSize;
-	buf->destroy = rpa_buffer_unmap_file;
+	buf->destroy = rex_buffer_unmap_file;
 	return buf;
 
 error:
@@ -85,13 +84,13 @@ error:
 	if (pMappedView)
 		UnmapViewOfFile(pMappedView);
 	free(buf);
-	return (rpa_buffer_t*)0;
+	return (rex_buffer_t*)0;
 }
 
 
-rpa_buffer_t * rpa_buffer_from_wchar(const wchar_t *wstr)
+rex_buffer_t * rex_buffer_from_wchar(const wchar_t *wstr)
 {
-	rpa_buffer_t *buf;
+	rex_buffer_t *buf;
 	int ret;
 	int wideLen = (int)wcslen(wstr) + 1;
 	int sizeNeeded = WideCharToMultiByte(
@@ -103,8 +102,8 @@ rpa_buffer_t * rpa_buffer_from_wchar(const wchar_t *wstr)
 		0,
 		NULL,
 		NULL);
-	if (!(buf = rpa_buffer_alloc(sizeNeeded)))
-		return (rpa_buffer_t*)0;
+	if (!(buf = rex_buffer_alloc(sizeNeeded)))
+		return (rex_buffer_t*)0;
 	ret = WideCharToMultiByte(
 				CP_UTF8,
 				0,
@@ -115,7 +114,7 @@ rpa_buffer_t * rpa_buffer_from_wchar(const wchar_t *wstr)
 				NULL,
 				NULL);
 	if (ret <= 0) {
-		rpa_buffer_destroy(buf);
+		rex_buffer_destroy(buf);
 		return NULL;
 	}
 	return buf;
@@ -123,45 +122,45 @@ rpa_buffer_t * rpa_buffer_from_wchar(const wchar_t *wstr)
 }
 
 
-void rpa_grep_print_filename(rpa_grep_t *pGrep)
+void rex_grep_print_filename(rexgrep_t *pGrep)
 {
 	if (pGrep->filename) {
-		rpa_grep_output_utf16_string(pGrep, pGrep->filename);
-		rpa_grep_output_utf16_string(pGrep, L":\n");
+		rex_grep_output_utf16_string(pGrep, pGrep->filename);
+		rex_grep_output_utf16_string(pGrep, L":\n");
 	}
 	
 }
 
 
-void rpa_grep_scan_path(rpa_grep_t *pGrep, const wchar_t *path)
+void rex_grep_scan_path(rexgrep_t *pGrep, const wchar_t *path)
 {
 	fs_enum_ptr pFSE;
-	rpa_buffer_t *buf;
+	rex_buffer_t *buf;
 
 	if ((pFSE = fse_create(path))) {
     	while (fse_next_file(pFSE)) {
     		pGrep->filename = (void*)fseFileName(pFSE);
-    		buf = rpa_buffer_map_file((const wchar_t*)pGrep->filename);
+    		buf = rex_buffer_map_file((const wchar_t*)pGrep->filename);
     		if (buf) {
-				rpa_grep_scan_buffer(pGrep, buf);
+				rex_grep_scan_buffer(pGrep, buf);
 				pGrep->scsize += buf->size;
-				rpa_buffer_destroy(buf);
+				rex_buffer_destroy(buf);
 			}
 		} 
 		fse_destroy(pFSE);
 	} else {
 		pGrep->filename = (void*)path;
-		buf = rpa_buffer_map_file((const wchar_t*)pGrep->filename);
+		buf = rex_buffer_map_file((const wchar_t*)pGrep->filename);
 		if (buf) {
-			rpa_grep_scan_buffer(pGrep, buf);
+			rex_grep_scan_buffer(pGrep, buf);
 			pGrep->scsize += buf->size;
-			rpa_buffer_destroy(buf);
+			rex_buffer_destroy(buf);
 		}
 	}
 }
 
 
-void rpa_grep_output_char(int c)
+void rex_grep_output_char(int c)
 {
 	int ret;
 	int garbage = 0;
@@ -174,7 +173,7 @@ void rpa_grep_output_char(int c)
 	}
 
 	output[0] = output[1] = output[2] = 0;
-	ret = rpa_grep_utf16_wctomb(c, (unsigned char*)output, sizeof(output));
+	ret = rex_grep_utf16_wctomb(c, (unsigned char*)output, sizeof(output));
 	if (ret > 0) {
 		fwprintf(stdout, L"%s", output);
 	}
