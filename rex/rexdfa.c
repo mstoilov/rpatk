@@ -106,19 +106,9 @@ rexdfss_t *rex_dfa_accsubstate(rexdfa_t *dfa, rexuint_t nstate, rexuint_t naccsu
 
 rexuint_t rex_dfa_next(rexdfa_t *dfa, rexuint_t nstate, rexchar_t input)
 {
-	rexdft_t *t;
-	long mid, min = 0, max = min + REX_DFA_STATE(dfa, nstate)->ntrans;
-	while (max > min) {
-		mid = (min + max)/2;
-		t = REX_DFA_TRANSITION(dfa, nstate, mid);
-		if (input >= t->lowin) {
-			min = mid + 1;
-		} else {
-			max = mid;
-		}
-	}
-	t = REX_DFA_TRANSITION(dfa, nstate, min-1);
-	return t->state;
+	rexuint_t newstate = 0;
+	REX_DFA_NEXT(dfa, nstate, input, &newstate);
+	return newstate;
 }
 
 

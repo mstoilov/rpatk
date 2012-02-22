@@ -377,7 +377,8 @@ int rex_cc_gettoken(rexcc_t *pCC)
 		return -1;
 	}
 	while ((inc = r_utf8_mbtowc(&wc, (const unsigned char*)input, (const unsigned char*)pCC->end)) > 0) {
-		if ((nstate = REX_DFA_NEXT(dfa, nstate, wc)) <= 0)
+		REX_DFA_NEXT(dfa, nstate, wc, &nstate);
+		if (nstate == 0)
 			break;
 		input += inc;
 		s = REX_DFA_STATE(dfa, nstate);

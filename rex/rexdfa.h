@@ -178,19 +178,21 @@ typedef enum {
 
 
 /**
- * @def REX_DFA_NEXT(__dfa__, __nstate__, __input__)
+ * @def REX_DFA_NEXT(__dfa__, __nstate__, __input__, __nextptr__)
  *
  * Get the next state ID in the DFA for the specified input. The macro will
  * search through the transitions of the current state to find the next
- * state of the DFA for the specified input.
+ * state of the DFA for the specified input. The next state will be assigned
+ * to *(__nextptr__).
  *
  * @param __dfa__ Pointer to @ref rexdfa_t object
- * @param __nstate__ Current state of the DFA
+ * @param __nstate__ Current state of the DFA.
  * @param __input__ Current input
- * @return The next state of the DFA for the specified input
+ * @param __nextptr__ Output the next state in here
+ * @return The next state of the DFA for the specified input is written in __nextptr__
  */
-#define REX_DFA_NEXT(__dfa__, __nstate__, __input__) \
-		({ \
+#define REX_DFA_NEXT(__dfa__, __nstate__, __input__, __nextptr__) \
+		do { \
 			rexdft_t *t; \
 			rexuint_t mid, min = 0, max = REX_DFA_STATE(__dfa__, __nstate__)->ntrans; \
 			while (max > min) { \
@@ -203,8 +205,8 @@ typedef enum {
 				} \
 			} \
 			t = REX_DFA_TRANSITION(__dfa__, __nstate__, min-1); \
-			(t->state); \
-		})
+			*(__nextptr__) = t->state; \
+		} while (0)
 
 rexdfa_t *rex_dfa_create(rexuint_t nstates, rexuint_t ntrans, rexuint_t naccsubstates, rexuint_t nsubstates);
 void rex_dfa_destroy(rexdfa_t *dfa);
