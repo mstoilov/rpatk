@@ -8,7 +8,6 @@ REX_SO_NAME = librex.so
 REX_SO = $(REX_SO_NAME).$(REX_SO_VERSION)
 TARGET_REX_LIB = $(OUTDIR)/$(REX_LIB)
 TARGET_REX_SO = $(OUTDIR)/$(REX_SO)
-TARGET_REX_EXE = $(OUTDIR)/testrex
 CFLAGS += -I$(ROOT_DIR)
 
 LIBS = -L$(RLIB_SRCDIR)/build/unix/$(ARCHDIR)/out 
@@ -31,13 +30,10 @@ REX_OBJECTS =	\
 	$(OUTDIR)/rexstate.o
 
 
-EXE_OBJECTS =	\
-	$(OUTDIR)/main.o \
-
 ifeq ($(OS), linux)
-all: $(OUTDIR) $(TARGET_REX_LIB) $(TARGET_REX_SO) $(TARGET_REX_EXE)
+all: $(OUTDIR) $(TARGET_REX_LIB) $(TARGET_REX_SO)
 else
-all: $(OUTDIR) $(TARGET_REX_LIB) $(TARGET_REX_EXE)
+all: $(OUTDIR) $(TARGET_REX_LIB)
 endif
 
 
@@ -49,9 +45,6 @@ $(TARGET_REX_LIB): $(REX_OBJECTS)
 
 $(TARGET_REX_SO): $(REX_OBJECTS)
 	$(CC) $(LDFLAGS) -shared -Wl,-soname,$(REX_SO_NAME) -o $@ $^
-
-$(TARGET_REX_EXE): $(EXE_OBJECTS)
-	$(CC) -o $@ $^ $(LDFLAGS) 
 
 $(OUTDIR):
 	@mkdir $(OUTDIR)
