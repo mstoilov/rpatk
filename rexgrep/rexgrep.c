@@ -190,11 +190,12 @@ int rex_grep_scan_lines(rexgrep_t *pGrep, const char* start, const char* end)
 					fprintf(stdout, "%s:", (const char*)pGrep->filename);
 				}
 				fwrite(start, 1, eol + 1 - start, stdout);
+				if ((eol + 1) == end)
+					fprintf(stdout, "\n");
 			}
 			start = eol + 1;
 		}
 	}
-	rex_grep_output_utf8_string(pGrep, "\n");
 	return 0;
 }
 
