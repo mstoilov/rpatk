@@ -113,6 +113,9 @@ typedef struct rexdfa_s {
 	rexdfss_t *accsubstates;		/**< Array of accepting sub-states, all states accepting sub-states are recorded here. */
 	rexuint_t nsubstates;			/**< Total number of substates */
 	rexdfss_t *substates;			/**< Array of sub-states, all states sub-states are recorded here. */
+	unsigned int hbytes;
+	unsigned int hbits;
+	unsigned char *bits;
 	rexuword_t reserved[64];
 } rexdfa_t;
 
@@ -211,6 +214,17 @@ typedef enum {
 			t = REX_DFA_TRANSITION(__dfa__, __nstate__, min-1); \
 			*(__nextptr__) = t->state; \
 		} while (0)
+
+
+#define REX_DFH_BITS(__bytes__, __bitsperbyte__) ((__bytes__) * (__bitsperbyte__))
+#define REX_DFH_SIZE(__bytes__, __bitsperbyte__) (1 << REX_DFH_BITS(__bytes__, __bitsperbyte__))
+#define REX_DFH_MASK(__bytes__, __bitsperbyte__) (REX_DFH_SIZE(__bytes__, __bitsperbyte__) - 1)
+
+#define REX_BITARRAY_BYTE(__arr__, __entry__) (((unsigned char*)__arr__)[((unsigned int)(__entry__))>>3])
+#define REX_BITARRAY_GET(__arr__, __entry__) ((((unsigned char*)__arr__)[((unsigned int)(__entry__))>>3] & (1 << (((unsigned int)(__entry__)) & 0x7))) ? 1 : 0)
+#define REX_BITARRAY_SET(__arr__, __entry__) do { ((unsigned char*)__arr__)[((unsigned int)(__entry__))>>3] |= (1 << (((unsigned int)(__entry__)) & 0x7)); } while (0)
+#define REX_BITARRAY_CLR(__arr__, __entry__) do { ((unsigned char*)__arr__)[((unsigned int)(__entry__))>>3] &= ~(1 << (((unsigned int)(__entry__)) & 0x7)); } while (0)
+
 
 rexdfa_t *rex_dfa_create(rexuint_t nstates, rexuint_t ntrans, rexuint_t naccsubstates, rexuint_t nsubstates);
 void rex_dfa_destroy(rexdfa_t *dfa);

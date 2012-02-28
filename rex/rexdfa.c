@@ -112,6 +112,47 @@ rexuint_t rex_dfa_next(rexdfa_t *dfa, rexuint_t nstate, rexchar_t input)
 }
 
 
+static void rex_dfh_hash(rexdfa_t *dfa, rexuint_t state, unsigned int level, unsigned int hbits, unsigned int entry)
+{
+	rexdft_t *t;
+	rexuint_t trans;
+	rexchar_t in;
+	unsigned char *bitarray = dfa->bits;
+	unsigned char handled[32];
+	unsigned int curentry = 0;
+	unsigned int mask = (1 << hbits) - 1;
+	rexdfs_t *s = REX_DFA_STATE(dfa, state);
+
+	if (s->type == REX_STATETYPE_ACCEPT) {
+		for (curentry = 0; curentry <(1 << hbits); curentry++) {
+			if (level) {
+				rex_dfh_hash(dfa, state, level - 1, hbits, (entry | curentry) << hbits);
+			} else {
+				REX_BITARRAY_SET(bitarray, entry | curentry);
+			}
+		}
+	} else {
+		for (trans = 0; trans < s->ntrans; trans++) {
+			r_memset(handled, 0, sizeof(handled));
+			t = REX_DFA_TRANSITION(dfa, state, trans);
+			if (!t->state)
+				continue;
+			for (in = t->lowin; in <= t->highin && ((in - t->lowin) < (1 << hbits)); in++) {
+				curentry = in & mask;
+				if (REX_BITARRAY_GET(handled, curentry))
+					continue;
+				REX_BITARRAY_SET(handled, curentry);
+				if (level) {
+					rex_dfh_hash(dfa, t->state, level - 1, hbits, (entry | curentry) << hbits);
+				} else {
+					REX_BITARRAY_SET(bitarray, entry | curentry);
+				}
+			}
+		}
+	}
+}
+
+
 void rex_dfa_dumpstate(rexdfa_t *dfa, rexuint_t nstate)
 {
 	long index;
