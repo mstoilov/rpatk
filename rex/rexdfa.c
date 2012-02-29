@@ -50,6 +50,7 @@ void rex_dfa_destroy(rexdfa_t *dfa)
 		r_free(dfa->accsubstates);
 		r_free(dfa->states);
 		r_free(dfa->trans);
+		r_free(dfa->bits);
 		r_free(dfa);
 	}
 }
@@ -112,7 +113,7 @@ rexuint_t rex_dfa_next(rexdfa_t *dfa, rexuint_t nstate, rexchar_t input)
 }
 
 
-static void rex_dfh_hash(rexdfa_t *dfa, rexuint_t state, unsigned int level, unsigned int hbits, unsigned int entry)
+static void rex_dfa_statehash(rexdfa_t *dfa, rexuint_t state, unsigned int level, unsigned int hbits, unsigned int entry)
 {
 	rexdft_t *t;
 	rexuint_t trans;
@@ -126,7 +127,7 @@ static void rex_dfh_hash(rexdfa_t *dfa, rexuint_t state, unsigned int level, uns
 	if (s->type == REX_STATETYPE_ACCEPT) {
 		for (curentry = 0; curentry <(1 << hbits); curentry++) {
 			if (level) {
-				rex_dfh_hash(dfa, state, level - 1, hbits, (entry | curentry) << hbits);
+				rex_dfa_statehash(dfa, state, level - 1, hbits, (entry | curentry) << hbits);
 			} else {
 				REX_BITARRAY_SET(bitarray, entry | curentry);
 			}
@@ -143,13 +144,29 @@ static void rex_dfh_hash(rexdfa_t *dfa, rexuint_t state, unsigned int level, uns
 					continue;
 				REX_BITARRAY_SET(handled, curentry);
 				if (level) {
-					rex_dfh_hash(dfa, t->state, level - 1, hbits, (entry | curentry) << hbits);
+					rex_dfa_statehash(dfa, t->state, level - 1, hbits, (entry | curentry) << hbits);
 				} else {
 					REX_BITARRAY_SET(bitarray, entry | curentry);
 				}
 			}
 		}
 	}
+}
+
+
+int rex_dfa_hash(rexdfa_t *dfa, unsigned int hbytes, unsigned int hbits)
+{
+	if ((REX_DFA_HASHBITS(hbytes, hbits) - 3) > 24)
+		return -1;
+	if (!dfa)
+		return -1;
+	if (dfa->bits)
+		r_free(dfa->bits);
+	dfa->hbytes = hbytes;
+	dfa->hbits = hbits;
+	dfa->bits = (unsigned char*)r_malloc((REX_DFA_HASHSIZE(hbytes, hbits) >> 3) * sizeof(unsigned char));
+	rex_dfa_statehash(dfa, REX_DFA_STARTSTATE, hbytes - 1, hbits, 0);
+	return 0;
 }
 
 

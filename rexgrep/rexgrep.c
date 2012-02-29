@@ -124,17 +124,63 @@ int rex_grep_match(rexgrep_t *pGrep, const char* input, const char *end)
 }
 
 
+#define REX_GREP_SHIFT(__shift__, __count__, __bytes__, __bitsperbyte__, __shiftstart__, __end__) \
+do { \
+	int inc, i; \
+	unsigned int mask = (1 << __bitsperbyte__) - 1; \
+	ruint32 wc = 0; \
+	for (i = 0; i < __count__; i++) { \
+		wc = 0; \
+		if (__shiftstart__ < __end__) { \
+			wc = *(__shiftstart__); \
+			inc = 1; \
+			if (wc >= 0x80) { \
+				inc = r_utf8_mbtowc(&wc, (const unsigned char*)(__shiftstart__), (const unsigned char*)__end__); \
+			} \
+			__shiftstart__ += inc; \
+		} \
+		__shift__ <<= __bitsperbyte__; \
+		__shift__ |= (wc & mask); \
+	} \
+	__shift__ = (__shift__ & REX_DFA_HASHMASK(__bytes__, __bitsperbyte__)); \
+} while (0)
+
+
 int rex_grep_scan(rexgrep_t *pGrep, const char* start, const char* end)
 {
 	int ret = 0;
+	unsigned int shifter = 0;
+	const char *nextshift = start;
+	rexdfa_t *dfa = pGrep->dfa;
+
+	nextshift = start;
+	REX_GREP_SHIFT(shifter, REX_HASH_BYTES, REX_HASH_BYTES, REX_HASH_BITS, nextshift, end);
 
 	while (start < end) {
-		ret = rex_grep_match(pGrep, start, end);
-		if (ret < 0) {
-			/*
-			 * Error
-			 */
-			return -1;
+		if (REX_BITARRAY_GET(dfa->bits, shifter) == 0) {
+			ret = 0;
+		} else {
+			ret = rex_grep_match(pGrep, start, end);
+		}
+		if (ret == 0) {
+			ruint32 wc = *start;
+			if (wc >= 0x80) {
+				ret = r_utf8_mbtowc(&wc, (const unsigned char*)start, (const unsigned char*)end);
+				if (ret <= 0)
+					ret = 1;
+				start += ret;
+			} else {
+				start += 1;
+			}
+
+			if (nextshift < end && ((unsigned char)*nextshift) < 0x80) {
+				shifter <<= REX_HASH_BITS;
+				shifter |= (((unsigned char)*nextshift) & ((1 << REX_HASH_BITS) - 1));
+				shifter = (shifter & REX_DFA_HASHMASK(REX_HASH_BYTES, REX_HASH_BITS));
+				nextshift += 1;
+			} else {
+				REX_GREP_SHIFT(shifter, 1, REX_HASH_BYTES, REX_HASH_BITS, nextshift, end);
+			}
 		} else if (ret > 0) {
 			if (pGrep->showfilename) {
 				fprintf(stdout, "%s:", (const char*)pGrep->filename);
@@ -142,11 +188,14 @@ int rex_grep_scan(rexgrep_t *pGrep, const char* start, const char* end)
 			fwrite(start, 1, ret, stdout);
 			fprintf(stdout, "\n");
 			start += ret;
+			shifter = 0;
+			nextshift = start;
+			REX_GREP_SHIFT(shifter, REX_HASH_BYTES, REX_HASH_BYTES, REX_HASH_BITS, nextshift, end);
 		} else {
-			ruint32 wc;
-			if ((ret = r_utf8_mbtowc(&wc, (const unsigned char*)start, (const unsigned char*)end)) <= 0)
-				ret = 1;
-			start += ret;
+			/*
+			 * Error
+			 */
+			return -1;
 		}
 	}
 	return 0;

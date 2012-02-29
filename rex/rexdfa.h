@@ -216,9 +216,9 @@ typedef enum {
 		} while (0)
 
 
-#define REX_DFH_BITS(__bytes__, __bitsperbyte__) ((__bytes__) * (__bitsperbyte__))
-#define REX_DFH_SIZE(__bytes__, __bitsperbyte__) (1 << REX_DFH_BITS(__bytes__, __bitsperbyte__))
-#define REX_DFH_MASK(__bytes__, __bitsperbyte__) (REX_DFH_SIZE(__bytes__, __bitsperbyte__) - 1)
+#define REX_DFA_HASHBITS(__bytes__, __bitsperbyte__) ((__bytes__) * (__bitsperbyte__))
+#define REX_DFA_HASHSIZE(__bytes__, __bitsperbyte__) (1 << REX_DFA_HASHBITS(__bytes__, __bitsperbyte__))
+#define REX_DFA_HASHMASK(__bytes__, __bitsperbyte__) (REX_DFA_HASHSIZE(__bytes__, __bitsperbyte__) - 1)
 
 #define REX_BITARRAY_BYTE(__arr__, __entry__) (((unsigned char*)__arr__)[((unsigned int)(__entry__))>>3])
 #define REX_BITARRAY_GET(__arr__, __entry__) ((((unsigned char*)__arr__)[((unsigned int)(__entry__))>>3] & (1 << (((unsigned int)(__entry__)) & 0x7))) ? 1 : 0)
@@ -228,6 +228,7 @@ typedef enum {
 
 rexdfa_t *rex_dfa_create(rexuint_t nstates, rexuint_t ntrans, rexuint_t naccsubstates, rexuint_t nsubstates);
 void rex_dfa_destroy(rexdfa_t *dfa);
+int rex_dfa_hash(rexdfa_t *dfa, unsigned int hbytes, unsigned int hbits);
 void rex_dfa_dumpstate(rexdfa_t *dfa, rexuint_t nstate);
 rexdfs_t *rex_dfa_state(rexdfa_t *dfa, rexuint_t nstate);
 rexdft_t *rex_dfa_transition(rexdfa_t *dfa, rexuint_t nstate, rexuint_t ntransition);

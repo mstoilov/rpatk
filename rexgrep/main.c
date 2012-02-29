@@ -296,6 +296,10 @@ int main(int argc, const char *argv[])
 		goto end;
 	if (rex_db_isempty(pGrep->nfa) && !pGrep->usedfa)
 		goto end;
+	if (pGrep->dfa) {
+		rex_dfa_hash(pGrep->dfa, REX_HASH_BYTES, REX_HASH_BITS);
+	}
+
 	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-s") == 0) {
 			if (++i < argc) {
