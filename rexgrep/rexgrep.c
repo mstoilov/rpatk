@@ -124,6 +124,29 @@ int rex_grep_match(rexgrep_t *pGrep, const char* input, const char *end)
 }
 
 
+static int rex_grep_dfamatch(rexgrep_t *pGrep, const char* input, const char *end)
+{
+	int inc;
+	ruint32 wc = 0;
+	int ret = 0;
+	long nstate = REX_DFA_STARTSTATE;
+	const char *start = input;
+	rexdfa_t *dfa = pGrep->dfa;
+	rexdfs_t *s;
+
+	while ((inc = r_utf8_mbtowc(&wc, (const unsigned char*)input, (const unsigned char*)end)) > 0) {
+		REX_DFA_NEXT(dfa, nstate, wc, &nstate);
+		if (nstate == 0)
+			break;
+		input += inc;
+		s = REX_DFA_STATE(dfa, nstate);
+		if (s->type == REX_STATETYPE_ACCEPT)
+			ret = (int)(input - start);
+	}
+	return ret;
+}
+
+
 #define REX_GREP_SHIFT(__shift__, __count__, __bytes__, __bitsperbyte__, __shiftstart__, __end__) \
 do { \
 	int inc, i; \
@@ -152,16 +175,22 @@ int rex_grep_scan(rexgrep_t *pGrep, const char* start, const char* end)
 	unsigned int shifter = 0;
 	const char *nextshift = start;
 	rexdfa_t *dfa = pGrep->dfa;
+	unsigned long hit = 0;
 
 	nextshift = start;
 	REX_GREP_SHIFT(shifter, REX_HASH_BYTES, REX_HASH_BYTES, REX_HASH_BITS, nextshift, end);
 
 	while (start < end) {
-		if (REX_BITARRAY_GET(dfa->bits, shifter) == 0) {
-			ret = 0;
-		} else {
-			ret = rex_grep_match(pGrep, start, end);
+		while ((ret = REX_BITARRAY_GET(dfa->bits, shifter)) == 0 && nextshift < end && ((unsigned char)*nextshift) < 0x80 && ((unsigned char)*start) < 0x80) {
+//			hit += 1;
+			shifter <<= REX_HASH_BITS;
+			shifter |= (((unsigned char)*nextshift) & ((1 << REX_HASH_BITS) - 1));
+			shifter = (shifter & REX_DFA_HASHMASK(REX_HASH_BYTES, REX_HASH_BITS));
+			nextshift += 1;
+			start += 1;
 		}
+		if (ret)
+			ret = rex_grep_dfamatch(pGrep, start, end);
 		if (ret == 0) {
 			ruint32 wc = *start;
 			if (wc >= 0x80) {
@@ -198,6 +227,7 @@ int rex_grep_scan(rexgrep_t *pGrep, const char* start, const char* end)
 			return -1;
 		}
 	}
+//	fprintf(stdout, "Cache Hit :%ld", hit);
 	return 0;
 }
 

@@ -42,8 +42,8 @@ extern "C" {
 #define REX_GREPTYPE_MATCH 2
 #define REX_GREPTYPE_PARSE 3
 
-#define REX_HASH_BYTES 6
-#define REX_HASH_BITS 3
+#define REX_HASH_BYTES 5
+#define REX_HASH_BITS 4
 
 typedef struct rexgrep_s {
 	rexdb_t *nfa;
