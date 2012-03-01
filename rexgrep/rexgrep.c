@@ -152,30 +152,31 @@ static int rex_grep_dfascan(rexgrep_t *pGrep, const char* start, const char* end
 	int ret = 0;
 	unsigned int shifter = 0;
 	const char *nextshift = start;
+	const char *input = start;
 	rexdfa_t *dfa = pGrep->dfa;
 
 	nextshift = start;
 	REX_GREP_SHIFT(shifter, REX_HASH_BYTES, REX_HASH_BYTES, REX_HASH_BITS, nextshift, end);
 
-	while (start < end) {
-		while ((ret = REX_BITARRAY_GET(dfa->bits, shifter)) == 0 && nextshift < end && ((unsigned char)*nextshift) < 0x80 && ((unsigned char)*start) < 0x80) {
+	while (input < end) {
+		while ((ret = REX_BITARRAY_GET(dfa->bits, shifter)) == 0 && nextshift < end && ((unsigned char)*nextshift) < 0x80 && ((unsigned char)*input) < 0x80) {
 			shifter <<= REX_HASH_BITS;
 			shifter |= (((unsigned char)*nextshift) & ((1 << REX_HASH_BITS) - 1));
 			shifter = (shifter & REX_DFA_HASHMASK(REX_HASH_BYTES, REX_HASH_BITS));
 			nextshift += 1;
-			start += 1;
+			input += 1;
 		}
 		if (ret)
-			ret = rex_grep_dfamatch(pGrep, start, end);
+			ret = rex_grep_dfamatch(pGrep, input, end);
 		if (ret == 0) {
-			ruint32 wc = *start;
+			ruint32 wc = *input;
 			if (wc >= 0x80) {
-				ret = r_utf8_mbtowc(&wc, (const unsigned char*)start, (const unsigned char*)end);
+				ret = r_utf8_mbtowc(&wc, (const unsigned char*)input, (const unsigned char*)end);
 				if (ret <= 0)
 					ret = 1;
-				start += ret;
+				input += ret;
 			} else {
-				start += 1;
+				input += 1;
 			}
 
 			if (nextshift < end && ((unsigned char)*nextshift) < 0x80) {
@@ -194,12 +195,12 @@ static int rex_grep_dfascan(rexgrep_t *pGrep, const char* start, const char* end
 				fwrite(start, 1, end - start, stdout);
 				break;
 			} else {
-				fwrite(start, 1, ret, stdout);
+				fwrite(input, 1, ret, stdout);
 				fprintf(stdout, "\n");
 			}
-			start += ret;
+			input += ret;
 			shifter = 0;
-			nextshift = start;
+			nextshift = input;
 			REX_GREP_SHIFT(shifter, REX_HASH_BYTES, REX_HASH_BYTES, REX_HASH_BITS, nextshift, end);
 		} else {
 			/*
