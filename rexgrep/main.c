@@ -243,12 +243,25 @@ int main(int argc, const char *argv[])
 			goto error;
 		if (fread(pGrep->dfa->substates, sizeof(*dfa.substates), dfa.nsubstates, pfile) != dfa.nsubstates)
 			goto error;
+		pGrep->dfa->hbytes = dfa.hbytes;
+		pGrep->dfa->hbits = dfa.hbits;
+		pGrep->dfa->hsize = dfa.hsize;
+		if (pGrep->dfa->bits) {
+			r_free(pGrep->dfa->bits);
+			pGrep->dfa->bits = NULL;
+		}
+		if (pGrep->dfa->hsize) {
+			pGrep->dfa->bits = (unsigned char*)r_malloc(pGrep->dfa->hsize);
+			if (fread(pGrep->dfa->bits, 1, dfa.hsize, pfile) != dfa.hsize)
+				goto error;
+		}
 		fclose(pfile);
 	}
 
 	if (!pGrep->dfa && !rex_db_isempty(pGrep->nfa) && pGrep->usedfa) {
 		rexdb_t *dfadb = rex_db_createdfa(pGrep->nfa, pGrep->startuid);
 		pGrep->dfa = rex_db_todfa(dfadb, pGrep->withsubstates);
+		rex_dfa_hash(pGrep->dfa, REX_HASH_BYTES, REX_HASH_BITS);
 		rex_db_destroy(dfadb);
 	}
 
@@ -289,6 +302,7 @@ int main(int argc, const char *argv[])
 		fwrite(dfa.trans, sizeof(*dfa.trans), dfa.ntrans, pfile);
 		fwrite(dfa.accsubstates, sizeof(*dfa.accsubstates), dfa.naccsubstates, pfile);
 		fwrite(dfa.substates, sizeof(*dfa.substates), dfa.nsubstates, pfile);
+		fwrite(dfa.bits, 1, dfa.hsize, pfile);
 		fclose(pfile);
 		goto end;
 	}
@@ -296,10 +310,6 @@ int main(int argc, const char *argv[])
 		goto end;
 	if (rex_db_isempty(pGrep->nfa) && !pGrep->usedfa)
 		goto end;
-	if (pGrep->dfa) {
-		rex_dfa_hash(pGrep->dfa, REX_HASH_BYTES, REX_HASH_BITS);
-	}
-
 	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-s") == 0) {
 			if (++i < argc) {

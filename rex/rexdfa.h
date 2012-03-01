@@ -115,6 +115,7 @@ typedef struct rexdfa_s {
 	rexdfss_t *substates;			/**< Array of sub-states, all states sub-states are recorded here. */
 	unsigned int hbytes;
 	unsigned int hbits;
+	unsigned int hsize;
 	unsigned char *bits;
 	rexuword_t reserved[64];
 } rexdfa_t;

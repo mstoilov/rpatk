@@ -79,37 +79,15 @@ int rex_grep_load_pattern(rexgrep_t *pGrep, rbuffer_t *buf)
 }
 
 
-int rex_grep_match(rexgrep_t *pGrep, const char* input, const char *end)
+int rex_grep_nfamatch(rexgrep_t *pGrep, const char* input, const char *end)
 {
 	int inc;
 	ruint32 wc;
-	rexdb_t *db;
-
-	if (pGrep->usedfa) {
-		ruint32 wc = 0;
-		int ret = 0;
-		long nstate = REX_DFA_STARTSTATE;
-		const char *start = input;
-		rexdfa_t *dfa = pGrep->dfa;
-		rexdfs_t *s;
-
-		while ((inc = r_utf8_mbtowc(&wc, (const unsigned char*)input, (const unsigned char*)end)) > 0) {
-			REX_DFA_NEXT(dfa, nstate, wc, &nstate);
-			if (nstate == 0)
-				break;
-			input += inc;
-			s = REX_DFA_STATE(dfa, nstate);
-			if (s->type == REX_STATETYPE_ACCEPT)
-				ret = (int)(input - start);
-		}
-		return ret;
-	}
+	rexdb_t *db = pGrep->nfa;
 
 	if (pGrep->startuid < 0) {
 		return -1;
 	}
-	db = pGrep->nfa;
-
 	rex_nfasimulator_start(pGrep->si, db, pGrep->startuid);
 	while ((inc = r_utf8_mbtowc(&wc, (const unsigned char*)input, (const unsigned char*)end)) > 0) {
 		if (rex_nfasimulator_next(pGrep->si, db, wc, inc) == 0)
@@ -169,20 +147,18 @@ do { \
 } while (0)
 
 
-int rex_grep_scan(rexgrep_t *pGrep, const char* start, const char* end)
+static int rex_grep_dfascan(rexgrep_t *pGrep, const char* start, const char* end, int alloutput)
 {
 	int ret = 0;
 	unsigned int shifter = 0;
 	const char *nextshift = start;
 	rexdfa_t *dfa = pGrep->dfa;
-	unsigned long hit = 0;
 
 	nextshift = start;
 	REX_GREP_SHIFT(shifter, REX_HASH_BYTES, REX_HASH_BYTES, REX_HASH_BITS, nextshift, end);
 
 	while (start < end) {
 		while ((ret = REX_BITARRAY_GET(dfa->bits, shifter)) == 0 && nextshift < end && ((unsigned char)*nextshift) < 0x80 && ((unsigned char)*start) < 0x80) {
-//			hit += 1;
 			shifter <<= REX_HASH_BITS;
 			shifter |= (((unsigned char)*nextshift) & ((1 << REX_HASH_BITS) - 1));
 			shifter = (shifter & REX_DFA_HASHMASK(REX_HASH_BYTES, REX_HASH_BITS));
@@ -214,8 +190,13 @@ int rex_grep_scan(rexgrep_t *pGrep, const char* start, const char* end)
 			if (pGrep->showfilename) {
 				fprintf(stdout, "%s:", (const char*)pGrep->filename);
 			}
-			fwrite(start, 1, ret, stdout);
-			fprintf(stdout, "\n");
+			if (alloutput) {
+				fwrite(start, 1, end - start, stdout);
+				break;
+			} else {
+				fwrite(start, 1, ret, stdout);
+				fprintf(stdout, "\n");
+			}
 			start += ret;
 			shifter = 0;
 			nextshift = start;
@@ -227,24 +208,33 @@ int rex_grep_scan(rexgrep_t *pGrep, const char* start, const char* end)
 			return -1;
 		}
 	}
-//	fprintf(stdout, "Cache Hit :%ld", hit);
 	return 0;
 }
 
 
-static int rex_grep_scan_do(rexgrep_t *pGrep, const char* start, const char* end)
+static int rex_grep_nfascan(rexgrep_t *pGrep, const char* start, const char* end, int alloutput)
 {
 	int ret = 0;
 
 	while (start < end) {
-		ret = rex_grep_match(pGrep, start, end);
+		ret = rex_grep_nfamatch(pGrep, start, end);
 		if (ret < 0) {
 			/*
 			 * Error
 			 */
 			return -1;
 		} else if (ret > 0) {
-			return ret;
+			if (pGrep->showfilename) {
+				fprintf(stdout, "%s:", (const char*)pGrep->filename);
+			}
+			if (alloutput) {
+				fwrite(start, 1, end - start, stdout);
+				break;
+			} else {
+				fwrite(start, 1, ret, stdout);
+				fprintf(stdout, "\n");
+			}
+			start += ret;
 		} else {
 			ruint32 wc;
 			if ((ret = r_utf8_mbtowc(&wc, (const unsigned char*)start, (const unsigned char*)end)) <= 0)
@@ -256,22 +246,29 @@ static int rex_grep_scan_do(rexgrep_t *pGrep, const char* start, const char* end
 }
 
 
-int rex_grep_scan_lines(rexgrep_t *pGrep, const char* start, const char* end)
+static int rex_grep_dfascanlines(rexgrep_t *pGrep, const char* start, const char* end)
 {
 	int ret;
 	const char *eol;
 
 	for (eol = start; eol < end; eol++) {
 		if (*eol == '\n' || (eol + 1) == end) {
-			ret = rex_grep_scan_do(pGrep, start, eol + 1);
-			if (ret > 0) {
-				if (pGrep->showfilename) {
-					fprintf(stdout, "%s:", (const char*)pGrep->filename);
-				}
-				fwrite(start, 1, eol + 1 - start, stdout);
-				if ((eol + 1) == end)
-					fprintf(stdout, "\n");
-			}
+			ret = rex_grep_dfascan(pGrep, start, eol + 1, 1);
+			start = eol + 1;
+		}
+	}
+	return 0;
+}
+
+
+static int rex_grep_nfascanlines(rexgrep_t *pGrep, const char* start, const char* end)
+{
+	int ret;
+	const char *eol;
+
+	for (eol = start; eol < end; eol++) {
+		if (*eol == '\n' || (eol + 1) == end) {
+			ret = rex_grep_nfascan(pGrep, start, eol + 1, 1);
 			start = eol + 1;
 		}
 	}
@@ -283,12 +280,20 @@ void rex_grep_scan_buffer(rexgrep_t *pGrep, rbuffer_t *buf)
 {
 	switch (pGrep->greptype) {
 	case REX_GREPTYPE_SCANLINES:
-		rex_grep_scan_lines(pGrep, buf->s, buf->s + buf->size);
+		if (pGrep->usedfa) {
+			rex_grep_dfascanlines(pGrep, buf->s, buf->s + buf->size);
+		} else {
+			rex_grep_nfascanlines(pGrep, buf->s, buf->s + buf->size);
+		}
 		break;
 	case REX_GREPTYPE_MATCH:
 	case REX_GREPTYPE_SCAN:
 	default:
-		rex_grep_scan(pGrep, buf->s, buf->s + buf->size);
+		if (pGrep->usedfa) {
+			rex_grep_dfascan(pGrep, buf->s, buf->s + buf->size, 0);
+		}else {
+			rex_grep_nfascan(pGrep, buf->s, buf->s + buf->size, 0);
+		}
 		break;
 	};
 }

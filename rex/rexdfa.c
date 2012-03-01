@@ -164,7 +164,8 @@ int rex_dfa_hash(rexdfa_t *dfa, unsigned int hbytes, unsigned int hbits)
 		r_free(dfa->bits);
 	dfa->hbytes = hbytes;
 	dfa->hbits = hbits;
-	dfa->bits = (unsigned char*)r_malloc((REX_DFA_HASHSIZE(hbytes, hbits) >> 3) * sizeof(unsigned char));
+	dfa->hsize = REX_DFA_HASHSIZE(hbytes, hbits) >> 3;
+	dfa->bits = (unsigned char*)r_malloc(dfa->hsize);
 	rex_dfa_statehash(dfa, REX_DFA_STARTSTATE, hbytes - 1, hbits, 0);
 	return 0;
 }

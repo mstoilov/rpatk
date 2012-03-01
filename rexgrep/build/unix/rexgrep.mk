@@ -14,7 +14,7 @@ LIBS = -L$(RLIB_SRCDIR)/build/unix/$(ARCHDIR)/out
 LIBS += -L$(RVM_SRCDIR)/build/unix/$(ARCHDIR)/out 
 LIBS += -L$(RPA_SRCDIR)/build/unix/$(ARCHDIR)/out 
 LIBS += -L$(REX_SRCDIR)/build/unix/$(ARCHDIR)/out
-LIBS += -lrpa -lrvm -lrex -lrlib -lpthread -lm
+LIBS += -lrpa -lrvm -lrex -lrlib -lm
 
 OBJECTS	= $(OUTDIR)/rexgrep.o \
 	$(OUTDIR)/main.o \
