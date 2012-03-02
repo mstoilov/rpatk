@@ -20,6 +20,7 @@ LDFLAGS += $(LIBS)
 
 REX_OBJECTS =	\
 	$(OUTDIR)/rexdb.o \
+	$(OUTDIR)/rexregex.o \
 	$(OUTDIR)/rexcompiler.o \
 	$(OUTDIR)/rexfragment.o \
 	$(OUTDIR)/rexnfasimulator.o \

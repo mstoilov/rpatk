@@ -8,6 +8,7 @@ all:
 	+make -C $(ROOT_DIR)/rexcc/build/unix/$(ARCHDIR) all
 	+make -C $(ROOT_DIR)/tests/testmisc/build/unix/$(ARCHDIR) all
 	+make -C $(ROOT_DIR)/tests/testrpa/build/unix/$(ARCHDIR) all
+	+make -C $(ROOT_DIR)/tests/testrex/build/unix/$(ARCHDIR) all
 	+make -C $(ROOT_DIR)/rjs/build/unix/$(ARCHDIR) all
 ifeq ($(OS), linux)
 	+make -C $(ROOT_DIR)/tests/testrjs/build/unix/$(ARCHDIR) all
@@ -21,6 +22,7 @@ distclean: clean
 	+make -C $(ROOT_DIR)/rjs/build/unix/$(ARCHDIR) distclean
 	+make -C $(ROOT_DIR)/tests/testmisc/build/unix/$(ARCHDIR) distclean
 	+make -C $(ROOT_DIR)/tests/testrpa/build/unix/$(ARCHDIR) distclean
+	+make -C $(ROOT_DIR)/tests/testrex/build/unix/$(ARCHDIR) distclean
 	+make -C $(ROOT_DIR)/tests/testrjs/build/unix/$(ARCHDIR) distclean
 	+make -C $(ROOT_DIR)/rpagrep/build/unix/$(ARCHDIR) distclean
 	+make -C $(ROOT_DIR)/rexgrep/build/unix/$(ARCHDIR) distclean
@@ -35,6 +37,7 @@ clean:
 	+make -C $(ROOT_DIR)/rex/build/unix/$(ARCHDIR) clean
 	+make -C $(ROOT_DIR)/tests/testmisc/build/unix/$(ARCHDIR) clean
 	+make -C $(ROOT_DIR)/tests/testrpa/build/unix/$(ARCHDIR) clean
+	+make -C $(ROOT_DIR)/tests/testrex/build/unix/$(ARCHDIR) clean
 	+make -C $(ROOT_DIR)/tests/testrjs/build/unix/$(ARCHDIR) clean
 	+make -C $(ROOT_DIR)/rpagrep/build/unix/$(ARCHDIR) clean
 	+make -C $(ROOT_DIR)/rexgrep/build/unix/$(ARCHDIR) clean

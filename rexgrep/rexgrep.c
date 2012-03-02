@@ -216,9 +216,10 @@ static int rex_grep_dfascan(rexgrep_t *pGrep, const char* start, const char* end
 static int rex_grep_nfascan(rexgrep_t *pGrep, const char* start, const char* end, int alloutput)
 {
 	int ret = 0;
+	const char *input = start;
 
-	while (start < end) {
-		ret = rex_grep_nfamatch(pGrep, start, end);
+	while (input < end) {
+		ret = rex_grep_nfamatch(pGrep, input, end);
 		if (ret < 0) {
 			/*
 			 * Error
@@ -232,15 +233,15 @@ static int rex_grep_nfascan(rexgrep_t *pGrep, const char* start, const char* end
 				fwrite(start, 1, end - start, stdout);
 				break;
 			} else {
-				fwrite(start, 1, ret, stdout);
+				fwrite(input, 1, ret, stdout);
 				fprintf(stdout, "\n");
 			}
-			start += ret;
+			input += ret;
 		} else {
 			ruint32 wc;
-			if ((ret = r_utf8_mbtowc(&wc, (const unsigned char*)start, (const unsigned char*)end)) <= 0)
+			if ((ret = r_utf8_mbtowc(&wc, (const unsigned char*)input, (const unsigned char*)end)) <= 0)
 				ret = 1;
-			start += ret;
+			input += ret;
 		}
 	}
 	return 0;
