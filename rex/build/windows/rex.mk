@@ -3,6 +3,7 @@ LINK32_OBJS= \
 	"$(OUTDIR)\rexcompiler.obj" \
 	"$(OUTDIR)\rexdb.obj" \
 	"$(OUTDIR)\rexdfa.obj" \
+	"$(OUTDIR)\rexregex.obj" \
 	"$(OUTDIR)\rexdfaconv.obj" \
 	"$(OUTDIR)\rexdfasimulator.obj" \
 	"$(OUTDIR)\rexfragment.obj" \
@@ -38,6 +39,10 @@ SOURCE="$(SRC_DIR)\rexdb.c"
 
 SOURCE="$(SRC_DIR)\rexdfa.c"
 "$(OUTDIR)\rexdfa.obj" : $(SOURCE) $(OUTDIR)
+    $(CPP) $(CPP_FLAGS) $(SOURCE)
+
+SOURCE="$(SRC_DIR)\rexregex.c"
+"$(OUTDIR)\rexregex.obj" : $(SOURCE) $(OUTDIR)
     $(CPP) $(CPP_FLAGS) $(SOURCE)
 
 SOURCE="$(SRC_DIR)\rexdfaconv.c"

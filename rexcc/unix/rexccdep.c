@@ -59,7 +59,7 @@ rbuffer_t * rex_buffer_map_file(const char *filename)
 	str = (rbuffer_t *)r_malloc(sizeof(rbuffer_t));
 	if (!str)
 		goto error;
-	memset(str, 0, sizeof(*str));
+	r_memset(str, 0, sizeof(*str));
 	str->s = buffer;
 	str->size = st.st_size;
 	str->userdata = (void*)((unsigned long)fd);

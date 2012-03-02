@@ -361,7 +361,6 @@ static int rex_cc_getlineno(rexcc_t *pCC, const char *input)
 int rex_cc_gettoken(rexcc_t *pCC)
 {
 	struct tokeninfo_s *ti = NULL;
-	struct tokeninfo_s *tk = tokens;
 	ruint32 wc = 0;
 	int inc, ret = 0;
 	long nstate = REX_DFA_STARTSTATE;

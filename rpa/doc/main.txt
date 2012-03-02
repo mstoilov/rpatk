@@ -12,6 +12,7 @@
 - @subpage rex_main "Regular Expressions (REX library)"
 	- @subpage rexdb
 	- @subpage rexdfa
+	- @subpage rexregex
 	- @subpage rexcc
 	- @subpage rexgrep
 

@@ -79,7 +79,7 @@ rexregex_t *rex_regex_create_s(const char *str)
 }
 
 
-#define REX_GREP_SHIFT(__shift__, __count__, __bytes__, __bitsperbyte__, __shiftstart__, __end__) \
+#define REX_GREP_SHIFT_UTF8(__shift__, __count__, __bytes__, __bitsperbyte__, __shiftstart__, __end__) \
 do { \
 	int inc, i; \
 	unsigned int mask = (1 << __bitsperbyte__) - 1; \
@@ -92,6 +92,25 @@ do { \
 			if (wc >= 0x80) { \
 				inc = r_utf8_mbtowc(&wc, (const unsigned char*)(__shiftstart__), (const unsigned char*)__end__); \
 			} \
+			__shiftstart__ += inc; \
+		} \
+		__shift__ <<= __bitsperbyte__; \
+		__shift__ |= (wc & mask); \
+	} \
+	__shift__ = (__shift__ & REX_DFA_HASHMASK(__bytes__, __bitsperbyte__)); \
+} while (0)
+
+
+#define REX_GREP_SHIFT_BYTE(__shift__, __count__, __bytes__, __bitsperbyte__, __shiftstart__, __end__) \
+do { \
+	int inc, i; \
+	unsigned int mask = (1 << __bitsperbyte__) - 1; \
+	ruint32 wc = 0; \
+	for (i = 0; i < __count__; i++) { \
+		wc = 0; \
+		if (__shiftstart__ < __end__) { \
+			wc = *(__shiftstart__); \
+			inc = 1; \
 			__shiftstart__ += inc; \
 		} \
 		__shift__ <<= __bitsperbyte__; \
@@ -124,6 +143,75 @@ static int rex_regex_match_utf8(rexregex_t *regex, const char *start, const char
 }
 
 
+static int rex_regex_match_byte(rexregex_t *regex, const char *start, const char *end)
+{
+	ruint32 wc = 0;
+	int ret = 0;
+	long nstate = REX_DFA_STARTSTATE;
+	const char *input = start;
+	rexdfa_t *dfa = regex->dfa;
+	rexdfs_t *s;
+
+	while (input < end) {
+		wc = *input;
+		REX_DFA_NEXT(dfa, nstate, wc, &nstate);
+		if (nstate == 0)
+			break;
+		input += 1;
+		s = REX_DFA_STATE(dfa, nstate);
+		if (s->type == REX_STATETYPE_ACCEPT)
+			ret = (int)(input - start);
+	}
+	return ret;
+}
+
+
+int rex_regex_scan_byte(rexregex_t *regex, const char *start, const char *end, const char **where)
+{
+	int ret = 0;
+	unsigned int shifter = 0;
+	const char *nextshift = start;
+	const char *input = start;
+	rexdfa_t *dfa = regex->dfa;
+
+	nextshift = start;
+	REX_GREP_SHIFT_BYTE(shifter, REX_REGEX_HASHBYTES, REX_REGEX_HASHBYTES, REX_REGEX_HASHBITS, nextshift, end);
+
+	while (input < end) {
+		while ((ret = REX_BITARRAY_GET(dfa->bits, shifter)) == 0 && nextshift < end) {
+			shifter <<= REX_REGEX_HASHBITS;
+			shifter |= (((unsigned char)*nextshift) & ((1 << REX_REGEX_HASHBITS) - 1));
+			shifter = (shifter & REX_DFA_HASHMASK(REX_REGEX_HASHBYTES, REX_REGEX_HASHBITS));
+			nextshift += 1;
+			input += 1;
+		}
+		if (ret)
+			ret = rex_regex_match_byte(regex, input, end);
+		if (ret == 0) {
+			input += 1;
+			if (nextshift < end) {
+				shifter <<= REX_REGEX_HASHBITS;
+				shifter |= (((unsigned char)*nextshift) & ((1 << REX_REGEX_HASHBITS) - 1));
+				shifter = (shifter & REX_DFA_HASHMASK(REX_REGEX_HASHBYTES, REX_REGEX_HASHBITS));
+				nextshift += 1;
+			} else {
+				REX_GREP_SHIFT_BYTE(shifter, 1, REX_REGEX_HASHBYTES, REX_REGEX_HASHBITS, nextshift, end);
+			}
+		} else if (ret > 0) {
+			if (where)
+				*where = input;
+			return ret;
+		} else {
+			/*
+			 * Error
+			 */
+			return -1;
+		}
+	}
+	return 0;
+}
+
+
 int rex_regex_scan_utf8(rexregex_t *regex, const char *start, const char *end, const char **where)
 {
 	int ret = 0;
@@ -133,7 +221,7 @@ int rex_regex_scan_utf8(rexregex_t *regex, const char *start, const char *end, c
 	rexdfa_t *dfa = regex->dfa;
 
 	nextshift = start;
-	REX_GREP_SHIFT(shifter, REX_REGEX_HASHBYTES, REX_REGEX_HASHBYTES, REX_REGEX_HASHBITS, nextshift, end);
+	REX_GREP_SHIFT_UTF8(shifter, REX_REGEX_HASHBYTES, REX_REGEX_HASHBYTES, REX_REGEX_HASHBITS, nextshift, end);
 
 	while (input < end) {
 		while ((ret = REX_BITARRAY_GET(dfa->bits, shifter)) == 0 && nextshift < end && ((unsigned char)*nextshift) < 0x80 && ((unsigned char)*input) < 0x80) {
@@ -161,7 +249,7 @@ int rex_regex_scan_utf8(rexregex_t *regex, const char *start, const char *end, c
 				shifter = (shifter & REX_DFA_HASHMASK(REX_REGEX_HASHBYTES, REX_REGEX_HASHBITS));
 				nextshift += 1;
 			} else {
-				REX_GREP_SHIFT(shifter, 1, REX_REGEX_HASHBYTES, REX_REGEX_HASHBITS, nextshift, end);
+				REX_GREP_SHIFT_UTF8(shifter, 1, REX_REGEX_HASHBYTES, REX_REGEX_HASHBITS, nextshift, end);
 			}
 		} else if (ret > 0) {
 			if (where)
@@ -182,6 +270,7 @@ int rex_regex_match(rexregex_t *regex, unsigned int encoding, const char *start,
 {
 	switch (encoding) {
 	case REX_ENCODING_BYTE:
+		return rex_regex_match_byte(regex, start, end);
 	case REX_ENCODING_UTF8:
 	default:
 		return rex_regex_match_utf8(regex, start, end);
@@ -194,6 +283,7 @@ int rex_regex_scan(rexregex_t *regex, unsigned int encoding, const char *start, 
 {
 	switch (encoding) {
 	case REX_ENCODING_BYTE:
+		return rex_regex_scan_byte(regex, start, end, where);
 	case REX_ENCODING_UTF8:
 	default:
 		return rex_regex_scan_utf8(regex, start, end, where);

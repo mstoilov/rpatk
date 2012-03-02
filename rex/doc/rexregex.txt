@@ -1,0 +1,7 @@
+/** \page rexregex rexregex_t - Using RegEx for matching.
+
+- 1. Create @ref rexregex_t object using @ref rex_regex_create.
+- 2. Use @ref rexregex_t object to match or search with @ref rex_regex_match or @ref rex_regex_scan.
+- 3. Destroy the rexregex_t object with @ref rex_regex_destroy.
+
+*/
