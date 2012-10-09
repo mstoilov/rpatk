@@ -1,0 +1,63 @@
+RPA LIBRARY
+
+The Regular Pattern Analyzer Library (RPA) is a top-down recursive parser and 
+pattern matching engine. The input grammar notation is Backus–Naur Form (BNF) 
+and the produced output is a browsable Abstract Syntax Tree (AST). The grammar 
+allows Regular Expressions, so the parser can also be used as RegEx or search 
+engine. The execution engine supports muti-threading and it can parse multiple 
+input streams simultaneously.
+
+    Features
+
+    - Backus–Naur Form (BNF)
+    - Produces a browsable Abstract Syntax Tree
+    - Produces a browsable Abstract Syntax Tree
+    - Regular Expressions
+    - Input Encodings: UTF8, UTF16
+    - Case sensitive/insensitive searching or parsing
+    - Left-Recursive expressions (direct and indirect)
+    - Right-Recursive expressions (direct and indirect)
+    - Multi-Threading.
+
+If you would like to see the RPA engine in action, 
+please check out the Online Demo
+
+
+REX LIBRARY
+
+The Regular Expressions Library (REX) is a Deterministic Finite Automata (DFA) 
+implementation. One of the key features in REX is the native support for wide 
+characters. By default REX uses 32-bit integer to encode the transtion symbols, 
+but this could be redefined at build time to any other integral data type. 
+REX will NOT split wide characters across multiple DFA states as other 
+implementations supporting wide characters do. REX will always generate the 
+same number of DFA states for a given regular expression complexity no matter 
+what type and size of symbols are used.
+
+If you would like to experiment with REX please check out REX Grep program. 
+
+
+BUILD
+
+To build the engine:
+
+# cd build/unix/x86_64
+# make BLDCFG=release
+
+
+To install the libraries (in /usr/lib):
+
+# make install (as Super User)
+
+
+To build the PHP extension (you need to build the librpa first!):
+
+# cd phpext/prpa
+# phpize
+# ./configure
+# make
+# make install (as Super User)
+
+
+You also need to add the following line to your php.ini:
+extension=prpa.so
