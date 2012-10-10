@@ -29,26 +29,23 @@ typedef struct {ruint32 p1; ruint32 p2;} rpair_t;
 /*
  * Atomic operations (Architecture Dependent)
  */
-#define R_ATOMIC_CMPXCHG(ptr, oldval, newval, resptr) \
-		do { __asm__ __volatile__ ("lock; cmpxchgl %2, %1" \
-			: "=a" (*(resptr)), "=m" (*ptr) \
-			: "r" (newval), "m" (*ptr), "0" (oldval)); } while (0)
+#define R_ATOMIC_CMPXCHG(ptr, oldval, newval, res) \
+	do { res = __sync_val_compare_and_swap(ptr, oldval, newval); } while (0)
 
 #define R_ATOMIC_XCHG(ptr, val) \
-		do { __asm__ __volatile__("lock; xchgl %0,%1" \
-			:"=r" ((ruint32) val) \
-			:"m" (*(volatile ruint32 *)ptr), "0" (val) \
-			:"memory"); } while (0)
+	do { val = __sync_lock_test_and_set(ptr, val); } while (0)
 
-#define R_ATOMIC_ADD(ptr, val) \
-		do { __asm__ __volatile__ ("addl %1,%0" \
-			: "=m" (*ptr) \
-			: "ir" (val), "m" (*ptr)); } while (0)
+#define R_ATOMIC_ADD(ptr, val, res) \
+	do { res = __sync_fetch_and_add(ptr, val); } while (0)
 
-#define R_ATOMIC_SUB(ptr, val) \
-		do { __asm__ __volatile__ ("subl %1,%0" \
-			: "=m" (*ptr) \
-			: "ir" (val), "m" (*ptr)); } while (0)
+#define R_ATOMIC_SUB(ptr, val, res) \
+	do { res = __sync_fetch_and_sub(ptr, val); } while (0)
+
+#define R_ATOMIC_GET(ptr, res) \
+	do { __sync_synchronize (); res = *ptr; } while (0)
+
+#define R_ATOMIC_SET(ptr, val) \
+	do { *ptr = val; __sync_synchronize (); } while (0)
 
 
 #define R_DEBUG_BRAKE __asm__ ("int $3")

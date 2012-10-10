@@ -26,4 +26,4 @@ CFLAGS := $(CFLAGS)
 LDFLAGS = $(MACH)
 
 
-include ../testrpa2.mk
+include ../testrex.mk

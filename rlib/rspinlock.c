@@ -24,7 +24,7 @@
 
 void r_spinlock_init(rspinlock_t *lock)
 {
-	*lock = 0;
+	r_atomic_set(lock, 0);
 }
 
 
@@ -32,13 +32,9 @@ void r_spinlock_lock(rspinlock_t *lock)
 {
 	while (1)
 	{
-		if (!r_atomic_exchange(lock, R_SPINLOCK_BUSY))
+		if (r_atomic_compare_and_exchange(lock, 0, R_SPINLOCK_BUSY))
 			return;
-		while (*lock) {
-			/*
-			 * Spin...
-			 */
-		}
+
 	}
 }
 
@@ -51,5 +47,5 @@ void r_spinlock_unlock(rspinlock_t *lock)
 
 rboolean r_spinlock_trylock(rspinlock_t *lock)
 {
-	return (!r_atomic_exchange(lock, R_SPINLOCK_BUSY));
+	return (r_atomic_compare_and_exchange(lock, 0, R_SPINLOCK_BUSY));
 }

@@ -24,10 +24,10 @@
 
 rboolean r_atomic_compare_and_exchange(volatile ratomic_t *ptr, ratomic_t oldval, ratomic_t newval)
 {
-	volatile ratomic_t result;
+	volatile ratomic_t res;
 
-	R_ATOMIC_CMPXCHG(ptr, oldval, newval, &result);
-	return (result == oldval);
+	R_ATOMIC_CMPXCHG(ptr, oldval, newval, res);
+	return (res == oldval);
 }
 
 
@@ -38,13 +38,31 @@ ratomic_t r_atomic_exchange(volatile ratomic_t *ptr, volatile ratomic_t val)
 }
 
 
-void r_atomic_add(volatile ratomic_t *ptr, ratomic_t val)
+ratomic_t r_atomic_add(volatile ratomic_t *ptr, ratomic_t val)
 {
-	R_ATOMIC_ADD(ptr, val);
+	ratomic_t res = 0;
+	R_ATOMIC_ADD(ptr, val, res);
+	return res;
 }
 
 
-void r_atomic_sub(volatile ratomic_t *ptr, ratomic_t val)
+ratomic_t r_atomic_sub(volatile ratomic_t *ptr, ratomic_t val)
 {
-	R_ATOMIC_SUB(ptr, val);
+	ratomic_t res = 0;
+	R_ATOMIC_SUB(ptr, val, res);
+	return res;
+}
+
+
+ratomic_t r_atomic_get(volatile ratomic_t *ptr)
+{
+	ratomic_t res;
+	R_ATOMIC_GET(ptr, res);
+	return res;
+}
+
+
+void r_atomic_set(volatile ratomic_t *ptr, ratomic_t val)
+{
+	R_ATOMIC_SET(ptr, val);
 }

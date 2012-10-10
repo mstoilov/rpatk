@@ -29,17 +29,23 @@ typedef struct {ruint32 p1; ruint32 p2;} rpair_t;
 /*
  * Atomic operations (Architecture Dependent)
  */
-#define R_ATOMIC_CMPXCHG(ptr, oldval, newval, resptr) \
-	do {*resptr = __sync_val_compare_and_swap(ptr, oldval, newval); } while (0)
+#define R_ATOMIC_CMPXCHG(ptr, oldval, newval, res) \
+	do { res = __sync_val_compare_and_swap(ptr, oldval, newval); } while (0)
 
 #define R_ATOMIC_XCHG(ptr, val) \
-	do {val = __sync_lock_test_and_set(ptr, val); } while (0)
+	do { val = __sync_lock_test_and_set(ptr, val); } while (0)
 
-#define R_ATOMIC_ADD(ptr, val) \
-	do { __sync_fetch_and_add(ptr, val); } while (0)
+#define R_ATOMIC_ADD(ptr, val, res) \
+	do { res = __sync_fetch_and_add(ptr, val); } while (0)
 
-#define R_ATOMIC_SUB(ptr, val) \
-	do { __sync_fetch_and_sub(ptr, val); } while (0)
+#define R_ATOMIC_SUB(ptr, val, res) \
+	do { res = __sync_fetch_and_sub(ptr, val); } while (0)
+
+#define R_ATOMIC_GET(ptr, res) \
+	do { __sync_synchronize (); res = *ptr; } while (0)
+
+#define R_ATOMIC_SET(ptr, val) \
+	do { *ptr = val; __sync_synchronize (); } while (0)
 
 
 

@@ -28,8 +28,10 @@ extern "C" {
 
 rboolean r_atomic_compare_and_exchange(volatile ratomic_t *ptr, ratomic_t oldval, ratomic_t newval);
 ratomic_t r_atomic_exchange(volatile ratomic_t *ptr, volatile ratomic_t val);
-void r_atomic_add(volatile ratomic_t *ptr, ratomic_t val);
-void r_atomic_sub(volatile ratomic_t *ptr, ratomic_t val);
+ratomic_t r_atomic_add(volatile ratomic_t *ptr, ratomic_t val);
+ratomic_t r_atomic_sub(volatile ratomic_t *ptr, ratomic_t val);
+ratomic_t r_atomic_get(volatile ratomic_t *ptr);
+void r_atomic_set(volatile ratomic_t *ptr, ratomic_t val);
 
 #ifdef __cplusplus
 }
