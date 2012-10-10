@@ -92,7 +92,7 @@ $(RJS_SO): $(RJS_OBJECTS)
 	$(CC) $(LDFLAGS) -shared -Wl,-soname,librjs.so -o $@ $^
 
 $(OUTDIR)/%.o: $(RJS_SRCDIR)/%.rpa
-	$(OC) $(OCFLAGS_TXT)  $(RJS_SRCDIR)/$*.rpa $(OUTDIR)/$*.o
+	$(OBJCOPY) $(OCFLAGS_TXT)  $(RJS_SRCDIR)/$*.rpa $(OUTDIR)/$*.o
 
 $(OUTDIR):
 	@mkdir $(OUTDIR)

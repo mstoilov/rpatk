@@ -18,7 +18,7 @@ all : $(OUTDIR) $(TESTS)
 
 
 $(OUTDIR)/%: $(TESTS_SRCDIR)/%.c
-	+ $(CC) $(CFLAGS) -o $(OUTDIR)/$* $(TESTS_SRCDIR)/$*.c  -lrpa $(LIBS) $(LDFLAGS) $(INCLUDE)
+	+ $(CC) $(CFLAGS) -o $(OUTDIR)/$* $(TESTS_SRCDIR)/$*.c  -lrex $(LIBS) $(LDFLAGS) $(INCLUDE)
 
 
 $(OUTDIR)/%.o: $(TESTS_SRCDIR)/%.rpa
