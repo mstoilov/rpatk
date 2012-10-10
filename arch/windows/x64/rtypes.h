@@ -30,18 +30,23 @@ typedef struct {ruint32 p1; ruint32 p2;} rpair_t;
 /*
  * Atomic operations (Architecture Dependent)
  */
-#define R_ATOMIC_CMPXCHG(ptr, oldval, newval, resptr) \
-		do { InterlockedCompareExchange (ptr, newval, oldval); *resptr = *ptr; } while (0)
+#define R_ATOMIC_CMPXCHG(ptr, oldval, newval, res) \
+		do { res = InterlockedCompareExchange (ptr, newval, oldval); } while (0)
 
 #define R_ATOMIC_XCHG(ptr, val) \
 		do { val = InterlockedExchange (ptr, val); } while (0)
 
-#define R_ATOMIC_ADD(ptr, val) \
-		do { InterlockedExchangeAdd (ptr, val); } while (0)
+#define R_ATOMIC_ADD(ptr, val, res) \
+		do { res = InterlockedExchangeAdd (ptr, val); } while (0)
 
-#define R_ATOMIC_SUB(ptr, val) \
-		do { InterlockedExchangeAdd (ptr, -val); } while (0)
+#define R_ATOMIC_SUB(ptr, val, res) \
+		do { res = InterlockedExchangeAdd (ptr, -val); } while (0)
 
+#define R_ATOMIC_GET(ptr, res) \
+	do { res = *ptr; } while (0)
+
+#define R_ATOMIC_SET(ptr, val) \
+	do { *ptr = val; } while (0)
 
 #define R_DEBUG_BRAKE do { __debugbreak(); } while (0)
 #define R_ASSERT(__a__) do {if (!(__a__)) R_DEBUG_BRAKE; } while (0)

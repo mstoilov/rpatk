@@ -35,11 +35,11 @@ typedef struct {ruint32 p1; ruint32 p2;} rpair_t;
 #define R_ATOMIC_XCHG(ptr, val) \
 		do { val = InterlockedExchange (ptr, val); } while (0)
 
-#define R_ATOMIC_ADD(ptr, val) \
-		do { InterlockedExchangeAdd (ptr, val); } while (0)
+#define R_ATOMIC_ADD(ptr, val, res) \
+		do { res = InterlockedExchangeAdd (ptr, val); } while (0)
 
-#define R_ATOMIC_SUB(ptr, val) \
-		do { InterlockedExchangeSubtract (ptr, val); } while (0)
+#define R_ATOMIC_SUB(ptr, val, res) \
+		do { res = InterlockedExchangeAdd (ptr, -val); } while (0)
 
 #define R_ATOMIC_GET(ptr, res) \
 	do { res = *ptr; } while (0)
