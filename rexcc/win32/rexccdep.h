@@ -18,8 +18,8 @@
  *  Martin Stoilov <martin@rpasearch.com>
  */
 
-#ifndef _REXGREPDEP_H_
-#define _REXGREPDEP_H_
+#ifndef _REXCCDEP_H_
+#define _REXCCDEP_H_
 
 
 #ifdef __cplusplus
