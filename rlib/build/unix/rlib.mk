@@ -1,4 +1,3 @@
-RPATK_LIB_INSTALL=/usr/lib
 RLIB_SRCDIR = $(ROOT_DIR)/rlib
 RLIB_SO_VERSION = 2.0
 RLIB_SO_NAME = librlib.so

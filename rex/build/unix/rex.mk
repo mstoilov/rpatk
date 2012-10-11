@@ -62,11 +62,11 @@ clean:
 	-rm -f $(ROOT_DIR)/*~
 
 install:
-	cp $(TARGET_REX_SO) $(RTK_LIB_INSTALL)
-	cp $(TARGET_REX_LIB) $(RTK_LIB_INSTALL)
+	cp $(TARGET_REX_SO) $(RPATK_LIB_INSTALL)
+	cp $(TARGET_REX_LIB) $(RPATK_LIB_INSTALL)
 	cp $(REX_SRCDIR)/*.h $(RPATK_INC_INSTALL)/rex
 
 uninstall:
-	-rm -f $(RTK_LIB_INSTALL)/$(REX_LIB)
-	-rm -f $(RTK_LIB_INSTALL)/$(REX_SO_NAME)*
+	-rm -f $(RPATK_LIB_INSTALL)/$(REX_LIB)
+	-rm -f $(RPATK_LIB_INSTALL)/$(REX_SO_NAME)*
 	-rm -f $(RPATK_INC_INSTALL)/rex/*

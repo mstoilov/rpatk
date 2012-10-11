@@ -1,4 +1,3 @@
-RTK_LIB_INSTALL=/usr/lib
 RVM_SRCDIR = $(ROOT_DIR)/rvm
 RVM_SO_VERSION = 2.0
 RVM_SO_NAME = librvm.so
@@ -46,11 +45,11 @@ clean:
 	-rm -f $(ROOT_DIR)/*~
 
 install:
-	cp $(TARGET_RVM_SO) $(RTK_LIB_INSTALL)
-	cp $(TARGET_RVM_LIB) $(RTK_LIB_INSTALL)
+	cp $(TARGET_RVM_SO) $(RPATK_LIB_INSTALL)
+	cp $(TARGET_RVM_LIB) $(RPATK_LIB_INSTALL)
 	cp $(RVM_SRCDIR)/*.h $(RPATK_INC_INSTALL)/rvm
 
 uninstall:
-	-rm -f $(RTK_LIB_INSTALL)/$(RVM_LIB)
-	-rm -f $(RTK_LIB_INSTALL)/$(RVM_SO_NAME)*
+	-rm -f $(RPATK_LIB_INSTALL)/$(RVM_LIB)
+	-rm -f $(RPATK_LIB_INSTALL)/$(RVM_SO_NAME)*
 	-rm -f $(RPATK_INC_INSTALL)/rvm/*

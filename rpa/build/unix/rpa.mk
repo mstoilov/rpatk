@@ -49,11 +49,11 @@ clean:
 	-rm -f $(ROOT_DIR)/*~
 
 install:
-	cp $(TARGET_RPA_SO) $(RTK_LIB_INSTALL)
-	cp $(TARGET_RPA_LIB) $(RTK_LIB_INSTALL)
+	cp $(TARGET_RPA_SO) $(RPATK_LIB_INSTALL)
+	cp $(TARGET_RPA_LIB) $(RPATK_LIB_INSTALL)
 	cp $(RPA_SRCDIR)/*.h $(RPATK_INC_INSTALL)/rpa
 
 uninstall:
-	-rm -f $(RTK_LIB_INSTALL)/$(RPA_LIB)
-	-rm -f $(RTK_LIB_INSTALL)/$(RPA_SO_NAME)*
+	-rm -f $(RPATK_LIB_INSTALL)/$(RPA_LIB)
+	-rm -f $(RPATK_LIB_INSTALL)/$(RPA_SO_NAME)*
 	-rm -f $(RPATK_INC_INSTALL)/rpa/*
