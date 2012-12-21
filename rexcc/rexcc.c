@@ -312,6 +312,10 @@ static int rex_cc_output_dfa(rexcc_t *pCC, FILE *out)
 	rex_cc_fprintf(out, 1, "%s,\n", "accsubstates");
 	rex_cc_fprintf(out, 1, "%lu,\n", dfa->nsubstates);
 	rex_cc_fprintf(out, 1, "%s,\n", "substates");
+	rex_cc_fprintf(out, 1, "0,\n");
+	rex_cc_fprintf(out, 1, "0,\n");
+	rex_cc_fprintf(out, 1, "0,\n");
+	rex_cc_fprintf(out, 1, "0,\n");
 	rex_cc_fprintf(out, 1, "{0, },\n");
 	rex_cc_fprintf(out, 0, "};\n");
 	return 0;
@@ -323,7 +327,6 @@ int rex_cc_output(rexcc_t *pCC, FILE *outc)
 {
 	if (outc) {
 		rex_cc_output_gpl(outc);
-		rex_cc_fprintf(outc, 0, "#include \"rexdfa.h\"\n\n");
 		if (pCC->prolog.size) {
 			fwrite(pCC->prolog.s, 1, pCC->prolog.size, outc);
 			rex_cc_fprintf(outc, 0, "\n");

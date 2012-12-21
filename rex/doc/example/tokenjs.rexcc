@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
 	wint_t buffer[4000];
 	int token;
 	
-	if (!setlocale(LC_CTYPE, "")) {
+	if (!setlocale(LC_ALL, "en_US.UTF8" )) {
 		printf("Can not set the specified locale, please check LANG, LC_CTYPE, LC_ALL.\n");
 		return 1;
 	}
