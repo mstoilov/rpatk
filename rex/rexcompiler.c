@@ -599,15 +599,28 @@ long rex_compiler_addexpression(rexcompiler_t *co, rexdb_t *rexdb, unsigned long
 {
 	rexstate_t *sprev = NULL, *scur = NULL;
 	long cur;
-	if (r_array_empty(rexdb->states))
-		prev = -1UL;
+	long first = -1;
+
+	if (r_array_empty(rexdb->states)) {
+		first = rex_db_createstate(rexdb, REX_STATETYPE_START);
+		prev = first;
+		sprev = rex_db_getstate(rexdb, prev);
+	} else {
+		sprev = rex_db_getstate(rexdb, prev);
+		if (!sprev)
+			return -1;
+	}
 	cur = rex_compiler_expression(co, rexdb, str, size, userdata);
-	if (cur < 0)
+	if (cur < 0) {
+		if (first >= 0) {
+			/*
+			 * Also destroy the start state if we just created it
+			 */
+			rex_state_destroy(rex_db_getstate(rexdb, first));
+		}
 		return -1;
-	sprev = rex_db_getstate(rexdb, prev);
+	}
 	scur = rex_db_getstate(rexdb, cur);
-	if (!sprev)
-		return scur->uid;
 	rex_state_addtransition_e_dst(sprev, scur);
 	scur->type = REX_STATETYPE_NONE;
 	sprev->type = REX_STATETYPE_START;
