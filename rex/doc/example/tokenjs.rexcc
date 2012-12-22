@@ -1,7 +1,7 @@
 /*
  * To build:
  * # rexcc tokenjs.rexcc -o tokenjs.c
- * # gcc -I/usr/include/rpatk/rex -o tokenjs tokenjs.c
+ * # gcc -I/usr/include/rpatk -o tokenjs tokenjs.c
  *
  * To run:
  * # echo "function add(a,b) { var c = a + b; return c; }" | ./tokenjs
@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <wchar.h>
 #include <locale.h>
+#include "rex/rexdfa.h"
 
 #define TOKEN_SELF 256
 #define TOKEN_IDENTIFIER 257
@@ -60,7 +61,7 @@ int get_token(wint_t *buffer, int size)
 	while ((wc = fgetwc(stdin)) != WEOF) {
 		REX_DFA_NEXT(dfa, nstate, wc, &nstate);
 		if (nstate == REX_DFA_DEADSTATE) {
-			ungetc(wc, stdin);
+			ungetwc(wc, stdin);
 			break;
 		}
 		if (i + 1 < size) {
