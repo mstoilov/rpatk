@@ -4,7 +4,7 @@
  * # gcc -I/usr/include/rpatk -o postfix postfix.c
  *
  * To run:
- * # echo "function add(a,b) { var c = a + b; return c; }" | ./tokenjs
+ * # echo "2+3-4" | ./postfix
  */
 
 #include <stdio.h>
