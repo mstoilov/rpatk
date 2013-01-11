@@ -1680,7 +1680,7 @@ unsigned long rpa_dbex_strlen(rpadbex_t *dbex, rparule_t rid)
 }
 
 
-unsigned long rpa_dbex_strncpy(rpadbex_t *dbex, char *dst, rparule_t rid, unsigned long n)
+long rpa_dbex_strncpy(rpadbex_t *dbex, char *dst, rparule_t rid, unsigned long n)
 {
 	rparecord_t *prec;
 	unsigned long size;

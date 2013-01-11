@@ -319,7 +319,7 @@ unsigned long rpa_dbex_strlen(rpadbex_t *dbex, rparule_t rid);
  * @param size to be copied
  * @return Return the number of bytes written in the buffer.
  */
-unsigned long rpa_dbex_strncpy(rpadbex_t *dbex, char *dest, rparule_t rid, unsigned long size);
+long rpa_dbex_strncpy(rpadbex_t *dbex, char *dest, rparule_t rid, unsigned long size);
 
 
 /**
