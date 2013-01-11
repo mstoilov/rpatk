@@ -307,7 +307,7 @@ rparule_t rpa_dbex_prev(rpadbex_t *dbex, rparule_t rid);
  * @param rid production ID.
  * @return the string length of the specified production
  */
-unsigned long rpa_dbex_strlen(rpadbex_t *dbex, rparule_t rid);
+long rpa_dbex_strlen(rpadbex_t *dbex, rparule_t rid);
 
 
 /**

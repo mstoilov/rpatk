@@ -1664,7 +1664,7 @@ int rpa_dbex_dumpcode(rpadbex_t* dbex, rparule_t rid)
 }
 
 
-unsigned long rpa_dbex_strlen(rpadbex_t *dbex, rparule_t rid)
+long rpa_dbex_strlen(rpadbex_t *dbex, rparule_t rid)
 {
 	rparecord_t *prec;
 	unsigned long size;
