@@ -1539,6 +1539,7 @@ int rpa_dbex_dumpproductions(rpadbex_t *dbex)
 	for (rid = rpa_dbex_first(dbex); rid >= 0; rid = rpa_dbex_next(dbex, rid)) {
 		ret = rpa_dbex_strncpy(dbex, buffer, rid, sizeof(buffer));
 		if ( ret >= 0) {
+			buffer[ret] = '\0';
 			if (ret == sizeof(buffer))
 				r_printf("   %s ...\n", buffer);
 			else
@@ -1691,11 +1692,10 @@ unsigned long rpa_dbex_strncpy(rpadbex_t *dbex, char *dst, rparule_t rid, unsign
 		return -1;
 	}
 	size = prec->inputsiz;
-	if (n <= size)
-		size = n - 1;
-	r_memset(dst, 0, n);
+	if (n < size)
+		size = n;
 	r_strncpy(dst, prec->input, size);
-	return size + 1;
+	return size;
 }
 
 
