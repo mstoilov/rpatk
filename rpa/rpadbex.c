@@ -1537,7 +1537,7 @@ int rpa_dbex_dumpproductions(rpadbex_t *dbex)
 		return -1;
 	}
 	for (rid = rpa_dbex_first(dbex); rid >= 0; rid = rpa_dbex_next(dbex, rid)) {
-		ret = rpa_dbex_strncpy(dbex, buffer, rid, sizeof(buffer));
+		ret = rpa_dbex_strncpy(dbex, buffer, rid, sizeof(buffer) - 1);
 		if ( ret >= 0) {
 			buffer[ret] = '\0';
 			if (ret == sizeof(buffer))
@@ -1667,7 +1667,6 @@ int rpa_dbex_dumpcode(rpadbex_t* dbex, rparule_t rid)
 long rpa_dbex_strlen(rpadbex_t *dbex, rparule_t rid)
 {
 	rparecord_t *prec;
-	unsigned long size;
 
 	if (!dbex)
 		return -1;
@@ -1675,8 +1674,7 @@ long rpa_dbex_strlen(rpadbex_t *dbex, rparule_t rid)
 		RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_NOTFOUND);
 		return -1;
 	}
-	size = prec->inputsiz;
-	return size;
+	return prec->inputsiz;
 }
 
 
