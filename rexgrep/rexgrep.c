@@ -47,6 +47,7 @@ rexgrep_t *rex_grep_create()
 	pGrep->dfasi = rex_dfasimulator_create();
 	pGrep->ret = 1;
 	pGrep->startuid = 0UL;
+	rex_db_setblanks_s(pGrep->nfa, "");
 	return pGrep;
 }
 
@@ -256,6 +257,11 @@ static int rex_grep_dfascanlines(rexgrep_t *pGrep, const char* start, const char
 	for (eol = start; eol < end; eol++) {
 		if (*eol == '\n' || (eol + 1) == end) {
 			ret = rex_grep_dfascan(pGrep, start, eol + 1, 1);
+			if (ret < 0) {
+				/*
+				 * Error
+				 */
+			}
 			start = eol + 1;
 		}
 	}
@@ -271,6 +277,11 @@ static int rex_grep_nfascanlines(rexgrep_t *pGrep, const char* start, const char
 	for (eol = start; eol < end; eol++) {
 		if (*eol == '\n' || (eol + 1) == end) {
 			ret = rex_grep_nfascan(pGrep, start, eol + 1, 1);
+			if (ret < 0) {
+				/*
+				 * Error
+				 */
+			}
 			start = eol + 1;
 		}
 	}

@@ -48,6 +48,7 @@ int usage(int argc, const char *argv[])
 		fprintf(stderr, "\t-D                       Dump states.\n");
 		fprintf(stderr, "\t-S                       Include DFA substates.\n");
 		fprintf(stderr, "\t-q                       Quiet mode.\n");
+		fprintf(stderr, "\t-H, --with-filename      Display file name.\n");
 		fprintf(stderr, "\t-t                       Display statistics. Works only when built in DEBUG mode.\n");
 		fprintf(stderr, "\t-s string                Search in string.\n");
 		fprintf(stderr, "\t-v                       Display version information.\n");

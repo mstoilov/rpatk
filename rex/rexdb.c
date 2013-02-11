@@ -414,3 +414,17 @@ int rex_db_isempty(rexdb_t *db)
 		return 0;
 	return r_array_length(db->states) ? 0 : 1;
 }
+
+
+long rex_db_setblanks(rexdb_t *nfa, const char *str, unsigned int size)
+{
+	if (nfa->type != REXDB_TYPE_NFA || nfa->co == NULL)
+		return -1;
+	return rex_compiler_setblanks(nfa->co, str, size);
+}
+
+
+long rex_db_setblanks_s(rexdb_t *nfa, const char *str)
+{
+	return rex_db_setblanks(nfa, str, r_strlen(str));
+}

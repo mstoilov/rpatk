@@ -165,6 +165,28 @@ rexdfa_t *rex_db_todfa(rexdb_t *db, int withsubstates);
  */
 void rex_db_cleanup(robject_t *obj);
 
+/**
+ * @brief Set which chars should be treated as blank chars.
+ *
+ * This function can be used only if the @ref rexdb_t is of type REXDB_TYPE_NFA
+ *
+ * @param nfa NFA object
+ * @param str ASCII string of chars to be treated as blanks.
+ * @param size The number of chars in the string.
+ * @return Return 0 on success and negative on error.
+ */
+long rex_db_setblanks(rexdb_t *nfa, const char *str, unsigned int size);
+
+/**
+ * @brief Set which chars should be treated as blank chars.
+ *
+ * This function can be used only if the @ref rexdb_t is of type REXDB_TYPE_NFA
+ *
+ * @param nfa NFA object
+ * @param str ASCII string of chars to be treated as blanks.
+ * @return Return 0 on success and negative on error.
+ */
+long rex_db_setblanks_s(rexdb_t *nfa, const char *str);
 
 /**
  * @example js-tokenizer.c

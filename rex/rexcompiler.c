@@ -9,6 +9,8 @@
 #include "rex/rexstate.h"
 #include "rex/rexfragment.h"
 
+#define REX_COMPILER_TOKENSIZE	128
+#define REX_COMPILER_BLANKCHARS	64
 
 struct rexcompiler_s {
 	rarray_t *stack;
@@ -22,6 +24,7 @@ struct rexcompiler_s {
 	unsigned long fromcount;
 	unsigned long tocount;
 	char tokenstr[REX_COMPILER_TOKENSIZE];
+	char blankchars[REX_COMPILER_BLANKCHARS];
 };
 
 
@@ -43,6 +46,7 @@ rexcompiler_t *rex_compiler_create()
 
 	co = (rexcompiler_t *)r_malloc(sizeof(*co));
 	r_memset(co, 0, sizeof(*co));
+	r_strncpy(co->blankchars, " \t", sizeof(co->blankchars) - 1);
 	co->stack = r_array_create(sizeof(rexfragment_t*));
 	co->temptrans = r_array_create(sizeof(rex_transition_t));
 	return co;
@@ -66,9 +70,25 @@ static int rex_compiler_isspace(int c)
 }
 
 
-static int rex_compiler_isblank(int c)
+static int rex_compiler_isblank(rexcompiler_t *co, int c)
 {
-	return r_strchr(" \t", c) ? 1 : 0;
+	return r_strchr(co->blankchars, c) ? 1 : 0;
+}
+
+
+long rex_compiler_setblanks(rexcompiler_t *co, const char *str, unsigned int size)
+{
+	if (size + 1 > sizeof(co->blankchars))
+		return -1;
+	r_memset(co->blankchars, 0, sizeof(co->blankchars));
+	r_strncpy(co->blankchars, str, sizeof(co->blankchars) - 1);
+	return 0;
+}
+
+
+long rex_compiler_setblanks_s(rexcompiler_t *co, const char *str)
+{
+	return rex_compiler_setblanks(co, str, r_strlen(str));
 }
 
 
@@ -151,7 +171,7 @@ static void rex_compiler_adjustescapedtoken(rexcompiler_t *co)
 static int rex_compiler_getnbtok(rexcompiler_t *co)
 {
 again:
-	while (co->ptr < co->end && rex_compiler_isblank(*co->ptr))
+	while (co->ptr < co->end && rex_compiler_isblank(co, *co->ptr))
 		co->ptr += 1;
 	if (co->ptr + 1 < co->end && *co->ptr == '\\' && *(co->ptr + 1) == '\n') {
 		co->ptr += 2;
@@ -353,7 +373,7 @@ static int rex_compiler_parsecount(rexcompiler_t *co, rexdb_t *rexdb)
 	convbuf[i++] = 0;
 	co->fromcount = strtoul(convbuf, NULL, 10);
 	co->tocount = co->fromcount;
-	if (rex_compiler_isblank(co->token)) {
+	if (rex_compiler_isblank(co, co->token)) {
 		rex_compiler_getnbtok(co);
 	}
 	if (co->token == ',') {
@@ -369,7 +389,7 @@ static int rex_compiler_parsecount(rexcompiler_t *co, rexdb_t *rexdb)
 			}
 			convbuf[i++] = 0;
 			co->tocount = strtoul(convbuf, NULL, 10);
-			if (rex_compiler_isblank(co->token)) {
+			if (rex_compiler_isblank(co, co->token)) {
 				rex_compiler_getnbtok(co);
 			}
 		}
