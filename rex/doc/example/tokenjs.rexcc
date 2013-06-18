@@ -71,7 +71,7 @@ int get_token(wint_t *buffer, int size)
 			/*
 			 * The DFA is in accepting state, lets find out what exactly is
 			 * being accepted.
-			 * The token ID is recorder in the substate's userdata
+			 * The token ID is recorded in the substate's userdata
 			 *
 			 * Note: There are may be more than one accepting substate,
 			 * but we only check the first one (at offset 0). A real implementation
