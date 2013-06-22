@@ -50,7 +50,8 @@ int get_token(rexdfa_t *dfa, wint_t *buffer, int size)
 	wint_t wc;
 	
 	while ((wc = fgetwc(stdin)) != WEOF) {
-		if ((nstate = REX_DFA_NEXT(dfa, nstate, wc)) == REX_DFA_DEADSTATE) {
+		REX_DFA_NEXT(dfa, nstate, wc, &nstate);
+		if (nstate == REX_DFA_DEADSTATE) {
 			ungetc(wc, stdin);
 			break;
 		}
