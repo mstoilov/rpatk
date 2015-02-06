@@ -29,7 +29,7 @@
 #define TOKEN_RIGHTCB 273
 
 %%
-TOKEN_INT			[0-9]|[1-9][0-9]+
+TOKEN_INT			-?[0-9]|-?[1-9][0-9]+
 TOKEN_NUMBER		-?([1-9][0-9]*|0)([.][0-9]+)?(-?[eE][+\-]?[0-9]+)?
 TOKEN_STRING		"([^"\\]|[\\](["\\bfnrt]|u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]))*"
 TOKEN_TRUE			true
@@ -73,11 +73,6 @@ int get_token(wint_t *buffer, int size)
 			 * but we only check the first one (at offset 0). A real implementation
 			 * might need to check the rest of the accepting substates(and userdata)
 			 * to decide which one to use.
-			 *
-			 * Note: Some of the conflicts might be resolved simply be reordering
-			 * the regular expressions. For example TOKEN_KEYWORD such as 
-			 * 'while', 'if', etc. also match TOKEN_IDENTIFIER, but because
-			 * TOKEN_KEYWORD appears before TOKEN_IDENTIFIER it is placed first.
 			 *
 			 * Note: We will not break out of the loop here. We will keep going
 			 * in order to find the longest match.
