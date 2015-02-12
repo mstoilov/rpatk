@@ -29,7 +29,6 @@ distclean: clean
 	+make -C $(ROOT_DIR)/rexcc/build/unix/$(ARCHDIR) distclean
 	+make -C $(ROOT_DIR)/rjs/build/unix/$(ARCHDIR) distclean
 
-
 clean:
 	+make -C $(ROOT_DIR)/rlib/build/unix/$(ARCHDIR) clean
 	+make -C $(ROOT_DIR)/rpa/build/unix/$(ARCHDIR) clean
