@@ -1,6 +1,10 @@
 #ifndef REXJSON_H_
 #define REXJSON_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stdio.h>
 
@@ -59,9 +63,13 @@ void rexjson_init(rexjson_t *ctx, rexjson_record_t* recs, size_t recsize, const 
 ssize_t rexjson_parse_buffer(rexjson_t *ctx, rexjson_record_t* recs, size_t recsize, const char* buffer, size_t bufsize, size_t maxlevels);
 int rexjson_get_error(rexjson_t *ctx);
 size_t rexjson_get_error_offset(rexjson_t *ctx);
-ssize_t rexjson_recordtree_firstchild(rexjson_record_t* recs, size_t recsize, size_t rec_index);
-ssize_t rexjson_recordtree_next(rexjson_record_t* recs, size_t recsize, size_t rec_index);
+ssize_t rexjson_recordtree_firstchild(rexjson_record_t* recs, size_t recsize, ssize_t rec_index);
+ssize_t rexjson_recordtree_next(rexjson_record_t* recs, size_t recsize, ssize_t rec_index);
 void rexjson_dump_tree(FILE *file, rexjson_record_t* recs, size_t recsize, size_t record, const char* buffer, int indent);
 void rexjson_dump_records(FILE *file, rexjson_record_t* recs, size_t recsize, const char* buffer, size_t bufsize);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* REXJSON_H_ */

@@ -367,12 +367,14 @@ ssize_t rexjson_parse_buffer(rexjson_t *ctx, rexjson_record_t* recs, size_t recs
 	return rexjson_parse_value(ctx);
 }
 
-static ssize_t rexjson_recordtree_end(rexjson_record_t* recs, size_t recsize, size_t rec_index)
+static ssize_t rexjson_recordtree_end(rexjson_record_t* recs, size_t recsize, ssize_t rec_index)
 {
 	size_t s = 0;
-	rexjson_record_t* rec = &recs[rec_index];
-	if (rec_index >= recsize || rec->rectype != REXJSON_RECORD_BEGIN)
+	rexjson_record_t* rec;
+
+	if (rec_index < 0 || rec_index >= recsize || recs[rec_index].rectype != REXJSON_RECORD_BEGIN)
 		return -1;
+	rec = &recs[rec_index];
 	for (s = 0; rec_index < recsize && recs[rec_index].rectype != REXJSON_RECORD_NONE; rec_index++) {
 		rec = &recs[rec_index];
 		if (rec->rectype == REXJSON_RECORD_BEGIN)
@@ -385,17 +387,16 @@ static ssize_t rexjson_recordtree_end(rexjson_record_t* recs, size_t recsize, si
 	return -1;
 }
 
-ssize_t rexjson_recordtree_firstchild(rexjson_record_t* recs, size_t recsize, size_t rec_index)
+ssize_t rexjson_recordtree_firstchild(rexjson_record_t* recs, size_t recsize, ssize_t rec_index)
 {
-	rexjson_record_t* rec = &recs[rec_index];
-	if (rec_index + 1 >= recsize || rec->rectype != REXJSON_RECORD_BEGIN)
+	if (rec_index < 0 || rec_index + 1 >= recsize || recs[rec_index].rectype != REXJSON_RECORD_BEGIN)
 		return -1;
 	if (recs[rec_index + 1].rectype == REXJSON_RECORD_BEGIN)
 		return rec_index + 1;
 	return -1;
 }
 
-ssize_t rexjson_recordtree_next(rexjson_record_t* recs, size_t recsize, size_t rec_index)
+ssize_t rexjson_recordtree_next(rexjson_record_t* recs, size_t recsize, ssize_t rec_index)
 {
 	ssize_t end_index = rexjson_recordtree_end(recs, recsize, rec_index);
 
