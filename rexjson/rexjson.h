@@ -59,14 +59,73 @@ typedef struct {
 	const char *buffer;
 } rexjson_t;
 
+/**
+ * This function is called by @ref rexjson_parse_buffer and shouldn't be called directly.
+ */
 void rexjson_init(rexjson_t *ctx, rexjson_record_t* recs, size_t recsize, const char* buffer, size_t bufsize, size_t maxlevels);
+
+/**
+ * Parse the buffer string and fill the recs array with records representing the parsed JSON tree.
+ * To see how this tree looks like you can use @ref rexjson_dump_tree
+ *
+ * @param ctx pointer to parse context structure. It doesn't need to be initialized.
+ * @param recs array of records, representing the parsed JSON. This array will be filled if parsing is successful.
+ * @param recsize the size of the records array in number of records (not bytes).
+ * @param buffer pointer to the buffer containing the JSON string
+ * @param bufsize size of the buffer.
+ * @param maxlevels This parameters controls how deep the JSON tree can be.
+ * @return If successful the function returns the size of the parsed string in the @ref buffer. Returns negative if fails.
+ */
 ssize_t rexjson_parse_buffer(rexjson_t *ctx, rexjson_record_t* recs, size_t recsize, const char* buffer, size_t bufsize, size_t maxlevels);
+
+/**
+ * Return the error code if @ref rexjson_parse_buffer fails (returns negative)
+ */
 int rexjson_get_error(rexjson_t *ctx);
+
+/**
+ * Return the offset at which @ref rexjson_parse_buffer encountered error
+ */
 size_t rexjson_get_error_offset(rexjson_t *ctx);
+/**
+ * Return the first child.
+ * @param recs array of records, representing the parsed JSON.
+ * @param recsize the size of the records array in number of records (not bytes).
+ * @param rec_index The index of the current record, in other words the parent of the first child. The root is located at index 0.
+ * @return first child of the current record @ref rec_index.
+ */
 ssize_t rexjson_recordtree_firstchild(rexjson_record_t* recs, size_t recsize, ssize_t rec_index);
+
+/**
+ * Return the next sibling.
+ * @param recs array of records, representing the parsed JSON.
+ * @param recsize the size of the records array in number of records (not bytes).
+ * @param rec_index The index of the current record.
+ * @return next sibling of the current record @ref rec_index.
+ */
 ssize_t rexjson_recordtree_next(rexjson_record_t* recs, size_t recsize, ssize_t rec_index);
-void rexjson_dump_tree(FILE *file, rexjson_record_t* recs, size_t recsize, size_t record, const char* buffer, int indent);
-void rexjson_dump_records(FILE *file, rexjson_record_t* recs, size_t recsize, const char* buffer, size_t bufsize);
+
+/**
+ * Dump the parsed JSON tree in a file. This function is used for debugging.
+ * @param file Dump to this file.
+ * @recs  array of records, representing the parsed JSON.
+ * @param recsize the size of the records array in number of records (not bytes).
+ * @param start_record_index the root of the JSON tree. Most of the time you would want to start from the root, so this will be 0
+ * @param buffer the JSON string buffer that was passed to @ref rexjson_parse_buffer
+ * @param indent starting indentation, most of the time will be 0
+ * @return none
+ */
+void rexjson_dump_tree(FILE *file, rexjson_record_t* recs, size_t recsize, size_t start_record_index, const char* buffer, int indent);
+
+/**
+ * Dump the parsed JSON records in a file. This function is used for debugging.
+ * @param file Dump to this file.
+ * @recs  array of records, representing the parsed JSON.
+ * @param recsize the size of the records array in number of records (not bytes).
+ * @param buffer the JSON string buffer that was passed to @ref rexjson_parse_buffer
+ * @return none
+ */
+void rexjson_dump_records(FILE *file, rexjson_record_t* recs, size_t recsize, const char* buffer);
 
 #ifdef __cplusplus
 }

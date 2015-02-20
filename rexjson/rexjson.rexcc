@@ -344,7 +344,7 @@ static void rexjson_record_dump(FILE* file, rexjson_record_t* record, int indent
 	}
 }
 
-void rexjson_dump_records(FILE *file, rexjson_record_t* recs, size_t recsize, const char* buffer, size_t bufsize)
+void rexjson_dump_records(FILE *file, rexjson_record_t* recs, size_t recsize, const char* buffer)
 {
 	int i = 0, indent = 0;
 
