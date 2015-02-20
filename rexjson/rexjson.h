@@ -34,15 +34,23 @@ typedef enum {
 
 typedef struct rexjson_record rexjson_record_t;
 
+/**
+ * \struct rexjson_record <rexjson.h> <rexjson.h>
+ * This structure is used to build the parsed JSON tree
+ */
 typedef struct rexjson_record {
-	rexjson_recordtype_t rectype;
-	rexjson_valuetype_t valtype;
-	size_t name;			/* offset in the buffer */
-	size_t namesize;		/* length of the name string */
-	size_t value;			/* offset in the buffer */
-	size_t valuesize;		/* length of the value string */
+	rexjson_recordtype_t rectype;	/* This can one of: REXJSON_RECORD_NONE, REXJSON_RECORD_BEGIN, REXJSON_RECORD_END */
+	rexjson_valuetype_t valtype;	/* This is the JSON value type: REXJSON_VALUE_NULL, REXJSON_VALUE_TRUE, ... , REXJSON_VALUE_OBJECT */
+	size_t name;					/* offset in the buffer */
+	size_t namesize;				/* length of the name string */
+	size_t value;					/* offset in the buffer */
+	size_t valuesize;				/* length of the value string */
 } rexjson_record_t;
 
+/**
+ * \struct rexjson_t <rexjson.h> <rexjson.h>
+ * This structure is the parsing context.
+ */
 typedef struct {
 	int stacksize;
 	int top;
