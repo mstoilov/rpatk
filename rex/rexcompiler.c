@@ -637,6 +637,7 @@ long rex_compiler_addexpression(rexcompiler_t *co, rexdb_t *rexdb, unsigned long
 			 * Also destroy the start state if we just created it
 			 */
 			rex_state_destroy(rex_db_getstate(rexdb, first));
+			r_array_setlength(rexdb->states, first);
 		}
 		return -1;
 	}
