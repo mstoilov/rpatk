@@ -168,13 +168,15 @@ static ssize_t rexjson_parse_object(rexjson_t* ctx)
 
 	if (rexjson_parse_token(ctx, TOKEN_LEFTCB) < 0)
 		return -1;
-	if (rexjson_parse_namevalue(ctx) < 0)
-		return -1;
-	while (ctx->token_id == TOKEN_COMMA) {
-		if (rexjson_parse_token(ctx, TOKEN_COMMA) < 0)
-			return -1;
+	if (ctx->token_id != TOKEN_RIGHTCB) {
 		if (rexjson_parse_namevalue(ctx) < 0)
 			return -1;
+		while (ctx->token_id == TOKEN_COMMA) {
+			if (rexjson_parse_token(ctx, TOKEN_COMMA) < 0)
+				return -1;
+			if (rexjson_parse_namevalue(ctx) < 0)
+				return -1;
+		}
 	}
 	if (rexjson_parse_token(ctx, TOKEN_RIGHTCB) < 0)
 		return -1;
@@ -191,13 +193,15 @@ static ssize_t rexjson_parse_array(rexjson_t* ctx)
 
 	if (rexjson_parse_token(ctx, TOKEN_LEFTSB) < 0)
 		return -1;
-	if (rexjson_parse_value(ctx) < 0)
-		return -1;
-	while (ctx->token_id == TOKEN_COMMA) {
-		if (rexjson_parse_token(ctx, TOKEN_COMMA) < 0)
-			return -1;
+	if (ctx->token_id != TOKEN_RIGHTSB) {
 		if (rexjson_parse_value(ctx) < 0)
 			return -1;
+		while (ctx->token_id == TOKEN_COMMA) {
+			if (rexjson_parse_token(ctx, TOKEN_COMMA) < 0)
+				return -1;
+			if (rexjson_parse_value(ctx) < 0)
+				return -1;
+		}
 	}
 	if (rexjson_parse_token(ctx, TOKEN_RIGHTSB) < 0)
 		return -1;
