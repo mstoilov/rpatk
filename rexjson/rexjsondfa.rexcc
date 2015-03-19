@@ -1,0 +1,39 @@
+/*
+ * To generate the rexjsonpp.cpp file from rexjsonpp.rexcc do:
+ * # rexcc rexjsondfa.rexcc -o rexjsondfa.h
+ */
+
+#include "rexdfatypes.h"
+
+#define TOKEN_SELF 256
+#define TOKEN_SPACE 257
+#define TOKEN_STRING 261
+#define TOKEN_INT 262
+#define TOKEN_NUMBER 263
+#define TOKEN_TRUE	264
+#define TOKEN_FALSE 266
+#define TOKEN_NULL 267
+#define TOKEN_COMMA 268
+#define TOKEN_COLON 269
+#define TOKEN_LEFTSB 270
+#define TOKEN_RIGHTSB 271
+#define TOKEN_LEFTCB 272
+#define TOKEN_RIGHTCB 273
+
+%%
+TOKEN_STRING		"([^"\\#0x0-#0x1F]|[\\](["\\bfnrt]|u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]))*"
+TOKEN_INT			-?[0-9]|-?[1-9][0-9]+
+TOKEN_NUMBER		-?([1-9][0-9]*|0)([.][0-9]+)?(-?[eE][+\-]?[0-9]+)?
+TOKEN_TRUE			true
+TOKEN_FALSE			false
+TOKEN_NULL			null
+TOKEN_COMMA			[,]
+TOKEN_COLON			[:]
+TOKEN_LEFTSB		[\[]
+TOKEN_RIGHTSB		[\]]
+TOKEN_LEFTCB		[{]
+TOKEN_RIGHTCB		[}]
+TOKEN_SPACE			[\t\r\n ]+
+%%
+
+static rexdfa_t *dfa = &ccdfa;

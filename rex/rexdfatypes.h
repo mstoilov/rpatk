@@ -177,7 +177,7 @@ typedef enum {
 			while (max > min) { \
 				mid = (min + max)/2; \
 				t = REX_DFA_TRANSITION(__dfa__, __nstate__, mid); \
-				if ((__input__) >= t->lowin) { \
+				if (((rexchar_t)(__input__)) >= t->lowin) { \
 					min = mid + 1; \
 				} else { \
 					max = mid; \

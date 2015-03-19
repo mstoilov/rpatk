@@ -1,58 +1,25 @@
 /*
- * To generate the rexjson.c file from rexjson.rexcc do:
- * # rexcc rexjson.rexcc -o rexjson.c
+ * To generate the header file rexjsondfa.h from rexjsondfa.rexcc do:
+ * # rexcc rexjsondfa.rexcc -o rexjsondfa.h
  * 
  * To build the test program:
  * # gcc -o testrexjson rexjson.c -DREXJSON_TEST_MAIN
  *
  * To use the library in your own project, just add these 3 files to your project:
- * rexjson.c   (generated from rexjson.rexcc)
+ * rexjson.c
  * rexjson.h
+ * rexjsondfa.h  (generated from rexjsondfa.rexcc)
  * rexdfatypes.h
  */
 
 #include <string.h>
 #include <stdio.h>
-#include "rexdfatypes.h"
 #include "rexjson.h"
+#include "rexjsondfa.h"
 
-#define TOKEN_SELF 256
-#define TOKEN_SPACE 257
-
-#define TOKEN_STRING 261
-#define TOKEN_INT 262
-#define TOKEN_NUMBER 263
-#define TOKEN_TRUE	264
-#define TOKEN_FALSE 266
-#define TOKEN_NULL 267
-#define TOKEN_COMMA 268
-#define TOKEN_COLON 269
-#define TOKEN_LEFTSB 270
-#define TOKEN_RIGHTSB 271
-#define TOKEN_LEFTCB 272
-#define TOKEN_RIGHTCB 273
-
-%%
-TOKEN_INT			-?[0-9]|-?[1-9][0-9]+
-TOKEN_NUMBER		-?([1-9][0-9]*|0)([.][0-9]+)?(-?[eE][+\-]?[0-9]+)?
-TOKEN_STRING		"([^"\\]|[\\](["\\bfnrt]|u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]))*"
-TOKEN_TRUE			true
-TOKEN_FALSE			false
-TOKEN_NULL			null
-TOKEN_COMMA			[,]
-TOKEN_COLON			[:]
-TOKEN_LEFTSB		[\[]
-TOKEN_RIGHTSB		[\]]
-TOKEN_LEFTCB		[{]
-TOKEN_RIGHTCB		[}]
-TOKEN_SPACE			[\t\r\n ]+
-%%
-
-rexdfa_t *dfa = &ccdfa;
 
 static ssize_t rexjson_parse_value(rexjson_t* ctx);
 static ssize_t rexjson_parse_value_set_name(rexjson_t* ctx, size_t nameoffset, size_t namesize);
-
 
 static rexjson_record_t *rexjson_record_add(rexjson_t* ctx, rexjson_recordtype_t rectype, rexjson_valuetype_t valtype)
 {
