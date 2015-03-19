@@ -21,19 +21,19 @@
 #define TOKEN_RIGHTCB 273
 
 %%
-TOKEN_STRING		"([^"\\#0x0-#0x1F]|[\\](["\\bfnrt]|u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]))*"
-TOKEN_INT			-?[0-9]|-?[1-9][0-9]+
-TOKEN_NUMBER		-?([1-9][0-9]*|0)([.][0-9]+)?(-?[eE][+\-]?[0-9]+)?
-TOKEN_TRUE			true
-TOKEN_FALSE			false
-TOKEN_NULL			null
-TOKEN_COMMA			[,]
-TOKEN_COLON			[:]
-TOKEN_LEFTSB		[\[]
-TOKEN_RIGHTSB		[\]]
-TOKEN_LEFTCB		[{]
-TOKEN_RIGHTCB		[}]
-TOKEN_SPACE			[\t\r\n ]+
+TOKEN_STRING        "([^"\\#0x0-#0x1F]|[\\](["\\bfnrt]|u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]))*"
+TOKEN_INT           -?[0-9]|-?[1-9][0-9]+
+TOKEN_NUMBER        -?([1-9][0-9]*|0)([.][0-9]+)?(-?[eE][+\-]?[0-9]+)?
+TOKEN_TRUE          true
+TOKEN_FALSE         false
+TOKEN_NULL          null
+TOKEN_COMMA         [,]
+TOKEN_COLON         [:]
+TOKEN_LEFTSB        [\[]
+TOKEN_RIGHTSB       [\]]
+TOKEN_LEFTCB        [{]
+TOKEN_RIGHTCB       [}]
+TOKEN_SPACE         [\t\r\n ]+
 %%
 
 static rexdfa_t *dfa = &ccdfa;
