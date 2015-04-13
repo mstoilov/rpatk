@@ -14,7 +14,6 @@
 #include <vector>
 #include <iostream>
 #include <stdint.h>
-#include "rexjson.h"
 
 namespace rexjson {
 
