@@ -41,11 +41,11 @@ value::~value()
 
 void value::destroy()
 {
-	if (get_type() == string_type)
+	if (get_type() == str_type)
 		delete store_.v_string_;
 	else if (get_type() == array_type)
 		delete store_.v_array_;
-	else if (get_type() == object_type)
+	else if (get_type() == obj_type)
 		delete store_.v_object_;
 	store_.v_null_ = NULL;
 	value_type_ = null_type;
@@ -68,13 +68,13 @@ value::value(const value& v)
 
 value::value(const char* v)
 {
-	value_type_ = string_type;
+	value_type_ = str_type;
 	store_.v_string_ = new std::string(v);
 }
 
 value::value(const std::string& v)
 {
-	value_type_ = string_type;
+	value_type_ = str_type;
 	store_.v_string_ = new std::string(v);
 }
 
@@ -104,7 +104,7 @@ value::value(double v)
 
 value::value(const object& v)
 {
-	value_type_ = object_type;
+	value_type_ = obj_type;
 	store_.v_object_ = new object(v);
 }
 
@@ -131,7 +131,7 @@ bool value::is_null() const
 
 const std::string& value::get_str()    const
 {
-	check_type(string_type);
+	check_type(str_type);
 	return *store_.v_string_;
 }
 
@@ -161,9 +161,9 @@ double value::get_real() const
 	return store_.v_double_;
 }
 
-const object& value::get_object() const
+const object& value::get_obj() const
 {
-	check_type(object_type);
+	check_type(obj_type);
 	return *store_.v_object_;
 }
 
@@ -173,9 +173,9 @@ const array& value::get_array() const
 	return *store_.v_array_;
 }
 
-object& value::get_object()
+object& value::get_obj()
 {
-	check_type(object_type);
+	check_type(obj_type);
 	return *store_.v_object_;
 }
 
@@ -196,9 +196,9 @@ std::string value::to_string() const
 		os << get_int64();
 	else if (value_type_ == real_type)
 		os << get_real();
-	else if (value_type_ == string_type)
+	else if (value_type_ == str_type)
 		os << get_str();
-	else if (value_type_ == object_type)
+	else if (value_type_ == obj_type)
 		throw std::runtime_error("'object' can not be converted to 'string'");
 	else if (value_type_ == array_type)
 		throw std::runtime_error("'array' can not be converted to 'string'");
@@ -218,7 +218,7 @@ value& value::operator=(const char* v)
 {
 	destroy();
 	check_type(null_type);
-	value_type_ = string_type;
+	value_type_ = str_type;
 	store_.v_string_ = new std::string(v);
 	return *this;
 }
@@ -260,7 +260,7 @@ value& value::operator=(const std::string& v)
 	std::string *tmp = new std::string(v);
 
 	destroy();
-	value_type_ = string_type;
+	value_type_ = str_type;
 	store_.v_string_ = tmp;
 	return *this;
 }
@@ -270,7 +270,7 @@ value& value::operator=(const object& v)
 	object *tmp = new object(v);
 
 	destroy();
-	value_type_ = object_type;
+	value_type_ = obj_type;
 	store_.v_object_ = tmp;
 	return *this;
 }
@@ -291,11 +291,11 @@ value& value::operator=(const value& v)
 		return *this;
 	destroy();
 	value_type_ = v.value_type_;
-	if (get_type() == string_type)
+	if (get_type() == str_type)
 		store_.v_string_ = new std::string(*v.store_.v_string_);
 	else if (get_type() == array_type)
 		store_.v_array_ = new array(*v.store_.v_array_);
-	else if (get_type() == object_type)
+	else if (get_type() == obj_type)
 		store_.v_object_ =  new object(*v.store_.v_object_);
 	else
 		store_ = v.store_;
@@ -317,7 +317,7 @@ value& value::operator[](size_t i)
 
 value& value::operator[](const std::string& name)
 {
-	check_type(object_type);
+	check_type(obj_type);
 	return store_.v_object_->operator[](name);
 }
 
@@ -391,21 +391,21 @@ void output::write_stream(const value& v, std::ostream& os, size_t level)
 		os.precision(precision_);
 		os.setf(std::ios::fixed, std:: ios::floatfield);
 		os << v.get_real();
-	} else if (v.value_type_ == string_type) {
+	} else if (v.value_type_ == str_type) {
 		os << '"';
 		os << v.get_str();
 		os << '"';
-	} else if (v.value_type_ == object_type) {
+	} else if (v.value_type_ == obj_type) {
 		os << '{';
-		if (pretty_ && !v.get_object().empty())
+		if (pretty_ && !v.get_obj().empty())
 			os << crlf_;
-		for (object::const_iterator it = v.get_object().begin(); it != v.get_object().end();) {
+		for (object::const_iterator it = v.get_obj().begin(); it != v.get_obj().end();) {
 			if (it->second.is_null() && nullprop_ == false) {
 				++it;
 				continue;
 			}
 			write_stream_namevalue(it->first, it->second, os, level + 1);
-			if (++it != v.get_object().end()) {
+			if (++it != v.get_obj().end()) {
 				os << ',';
 				if (pretty_)
 					os << crlf_;
