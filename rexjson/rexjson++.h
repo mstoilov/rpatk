@@ -52,7 +52,7 @@ public:
 	 * @param tabsize if pretty is true the formatting will use indentation with the specified tabsize
 	 * @param precision Specifies how many digits to use after the decimal dot
 	 */
-	std::string write(bool pretty = false, bool nullprop = false, size_t tabsize = 4, size_t precision = 4) const;
+	std::string write(bool pretty = false, bool nullprop = true, size_t tabsize = 4, size_t precision = 4) const;
 
 	/**
 	 * Parse the string and return JSON value representation.
@@ -160,7 +160,7 @@ protected:
 
 class output {
 public:
-	output(bool pretty = false, bool nullprop = false, size_t tabsize = 4, size_t precision = 3, const std::string& crlf = "\n");
+	output(bool pretty = false, bool nullprop = true, size_t tabsize = 4, size_t precision = 3, const std::string& crlf = "\n");
 	void write(const value& v, std::ostream& os);
 	std::string write(const value& v);
 
@@ -200,6 +200,17 @@ inline bool read_no_throw(value& v, const std::string& str, size_t maxlevels = 3
 		return false;
 	}
 	return true;
+}
+
+
+inline std::string write(const value& v)
+{
+	return v.write(false);
+}
+
+inline std::string write_formatted(const value& v)
+{
+	return v.write(true);
 }
 
 
