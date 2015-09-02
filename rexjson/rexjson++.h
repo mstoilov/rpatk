@@ -203,7 +203,7 @@ inline bool read_no_throw(value& v, const std::string& str, size_t maxlevels = 3
 	try {
 		std::stringstream oss(str);
 		rexjson::input in(oss);
-		in.read_steam(v);
+		in.read_steam(v, maxlevels);
 	} catch (std::runtime_error &e) {
 		return false;
 	}
