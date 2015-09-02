@@ -12,6 +12,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <sstream>
 #include <iostream>
 #include <stdint.h>
 
@@ -62,6 +63,7 @@ public:
 	 * @param maxlevels The maximum nested levels the parser can parse
 	 */
 	value& read(const std::string& str, size_t maxlevels = 32);
+	value& read(const char* s, size_t n, size_t maxlevels = 32);
 
 	value& push_back(const value& v = value::null);
 	value& operator[](size_t i);
@@ -115,10 +117,10 @@ public:
 	value& operator=(int64_t v);
 	value& operator=(double v);
 	void check_type(value_type vtype) const;
+	void move(value& v);
 
 protected:
 	void destroy();
-	void move(value& v);
 
 protected:
 	value_type value_type_;
@@ -153,6 +155,7 @@ protected:
 protected:
 	std::istream& is_;
 	std::string token_;
+	std::string loctok_;
 	int token_id_;
 	size_t offset_;
 	size_t levels_;
@@ -184,6 +187,11 @@ protected:
 inline value read(const std::string& s)
 {
 	return value().read(s);
+}
+
+inline value read(char* s, size_t n)
+{
+	return value().read(s, n);
 }
 
 /**

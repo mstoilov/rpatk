@@ -317,7 +317,7 @@ static void rexjson_record_dump(FILE* file, rexjson_record_t* record, int indent
 
 void rexjson_dump_records(FILE *file, rexjson_record_t* recs, size_t recsize, const char* buffer)
 {
-	int i = 0, indent = 0;
+	size_t i = 0, indent = 0;
 
 	while (i < recsize && recs[i].rectype) {
 		if (recs[i].rectype == REXJSON_RECORD_BEGIN) {
@@ -343,10 +343,10 @@ static ssize_t rexjson_recordtree_end(rexjson_record_t* recs, size_t recsize, ss
 	size_t s = 0;
 	rexjson_record_t* rec;
 
-	if (rec_index < 0 || rec_index >= recsize || recs[rec_index].rectype != REXJSON_RECORD_BEGIN)
+	if (rec_index < 0 || rec_index >= (ssize_t)recsize || recs[rec_index].rectype != REXJSON_RECORD_BEGIN)
 		return -1;
 	rec = &recs[rec_index];
-	for (s = 0; rec_index < recsize && recs[rec_index].rectype != REXJSON_RECORD_NONE; rec_index++) {
+	for (s = 0; rec_index < (ssize_t)recsize && recs[rec_index].rectype != REXJSON_RECORD_NONE; rec_index++) {
 		rec = &recs[rec_index];
 		if (rec->rectype == REXJSON_RECORD_BEGIN)
 			++s;
@@ -360,7 +360,7 @@ static ssize_t rexjson_recordtree_end(rexjson_record_t* recs, size_t recsize, ss
 
 ssize_t rexjson_recordtree_firstchild(rexjson_record_t* recs, size_t recsize, ssize_t rec_index)
 {
-	if (rec_index < 0 || rec_index + 1 >= recsize || recs[rec_index].rectype != REXJSON_RECORD_BEGIN)
+	if (rec_index < 0 || rec_index + 1 >= (ssize_t)recsize || recs[rec_index].rectype != REXJSON_RECORD_BEGIN)
 		return -1;
 	if (recs[rec_index + 1].rectype == REXJSON_RECORD_BEGIN)
 		return rec_index + 1;
@@ -373,7 +373,7 @@ ssize_t rexjson_recordtree_next(rexjson_record_t* recs, size_t recsize, ssize_t 
 
 	if (end_index < 0)
 		return -1;
-	if (end_index + 1 < recsize && recs[end_index + 1].rectype == REXJSON_RECORD_BEGIN)
+	if (end_index + 1 < (ssize_t)recsize && recs[end_index + 1].rectype == REXJSON_RECORD_BEGIN)
 		return end_index + 1;
 	return -1;
 }

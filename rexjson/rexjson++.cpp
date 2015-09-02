@@ -19,6 +19,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <cstdlib>
+#include <limits>
 #include "rexjson++.h"
 #include "rexjsondfa.h"
 
@@ -413,8 +414,14 @@ value& value::read(const std::string& str, size_t maxlevels)
 {
 	std::stringstream oss(str);
 	rexjson::input in(oss);
-	in.read_steam(*this);
+	in.read_steam(*this, maxlevels);
 	return *this;
+}
+
+value& value::read(const char* s, size_t n, size_t maxlevels)
+{
+	std::string str(s, n);
+	return read(str, maxlevels);
 }
 
 std::string value::write(bool pretty, bool nullprop, size_t tabsize, size_t precision) const
@@ -476,14 +483,19 @@ void output::write_stream(const value& v, std::ostream& os, size_t level)
 	} else if (v.value_type_ == int_type) {
 		os << v.get_int64();
 	} else if (v.value_type_ == real_type) {
-		os.precision(precision_);
-		os.setf(std::ios::fixed, std:: ios::floatfield);
-		os << v.get_real();
+		if (v.get_real() != std::numeric_limits<double>::infinity() && v.get_real() != std::numeric_limits<double>::quiet_NaN()) {
+			os.precision(precision_);
+			os.setf(std::ios::fixed, std:: ios::floatfield);
+			os << v.get_real();
+		} else {
+			os << "null";
+		}
 	} else if (v.value_type_ == str_type) {
 		os << '"';
 		escape_str_val(v, os);
 		os << '"';
 	} else if (v.value_type_ == obj_type) {
+		size_t elems = 0;
 		os << '{';
 		if (pretty_ && !v.get_obj().empty())
 			os << crlf_;
@@ -491,12 +503,13 @@ void output::write_stream(const value& v, std::ostream& os, size_t level)
 			if (it->second.is_null() && nullprop_ == false) {
 				continue;
 			}
-			if (it != v.get_obj().begin()) {
+			if (elems) {
 				os << ',';
 				if (pretty_)
 					os << crlf_;
 			}
 			write_stream_namevalue(it->first, it->second, os, level + 1);
+			++elems;
 		}
 		if (pretty_)
 			os << crlf_ << indent;
@@ -524,28 +537,20 @@ void input::get_token()
 	rexdfss_t *acc_ss = NULL;
 	rexuint_t nstate = REX_DFA_STARTSTATE;
 	char ch = 0;
-	std::string loctok;
 
+	loctok_.clear();
 	token_.clear();
 	token_id_ = 0;
 	while (is_) {
 		++offset_;
 		ch = is_.get();
+		loctok_ += ch;
 		REX_DFA_NEXT(dfa, nstate, ch, &nstate);
 		if (nstate == REX_DFA_DEADSTATE) {
 			is_.unget();
 			--offset_;
-			if (!token_id_) {
-				std::ostringstream os;
-				if (::isprint(ch))
-					os << "unexpected char: '" << ch << "' at offset " << offset_;
-				else
-					os << "unexpected char at offset " << offset_;
-				throw std::runtime_error(os.str());
-			}
 			break;
 		}
-		loctok += ch;
 		if (REX_DFA_STATE(dfa, nstate)->type == REX_STATETYPE_ACCEPT) {
 			/*
 			 * Note: We will not break out of the loop here. We will keep going
@@ -553,7 +558,7 @@ void input::get_token()
 			 */
 			acc_ss = REX_DFA_ACCSUBSTATE(dfa, nstate, 0);
 			token_id_ = (int) acc_ss->userdata;
-			token_ = loctok;
+			token_ = loctok_;
 		}
 	}
 }
@@ -577,7 +582,7 @@ void input::next_token()
 void input::error_unexpectedtoken()
 {
 	std::ostringstream os;
-	os << "unexpected: '" << token_ << "', at offset " << offset_ - token_.length();
+	os << "unexpected: '" << loctok_ << "', at offset " << offset_ - loctok_.length();
 	throw std::runtime_error(os.str());
 }
 
@@ -699,7 +704,7 @@ int main(int argc, const char *argv[])
 	std::cout << "*** text1 ***\n" << rexjson::read(text1).write(false) << std::endl << std::endl;
 	std::cout << "*** text2 ***\n" << rexjson::read(text2).write(false) << std::endl << std::endl;
 	std::cout << "*** text3 ***\n" << rexjson::read(text3).write(false) << std::endl << std::endl;
-	std::cout << "*** text4 ***\n" << rexjson::read(text4).write(true, true, 8) << std::endl << std::endl;
+	std::cout << "*** text4 ***\n" << rexjson::read(text4, sizeof(text4)).write(true, true, 8) << std::endl << std::endl;
 	std::cout << "*** text5 ***\n";
 	rexjson::output(false).write(rexjson::read(text5), std::cout);
 	std::cout << std::endl << std::endl;
