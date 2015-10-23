@@ -356,7 +356,7 @@ void rpa_record_dump(rarray_t *records, long rec)
 	int n = 0, size;
 	char optc = ' ';
 
-	if (rec < 0 || rec >= (long)r_array_length(records))
+	if (rec < 0 || rec >= records->alloc_size)
 		return;
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	if (prec->type & RPA_RECORD_END) {

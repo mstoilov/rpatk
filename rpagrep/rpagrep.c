@@ -233,11 +233,22 @@ int rpa_grep_match(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 	return 0;
 }
 
+void dump_ast_records(rarray_t *records)
+{
+	long i = 0;
+	rparecord_t *prec = NULL;
+
+	prec = (rparecord_t *)r_array_slot(records, i);
+	while (prec->type & (RPA_RECORD_START | RPA_RECORD_END)) {
+		rpa_record_dump(records, i);
+		prec = (rparecord_t *)r_array_slot(records, ++i);
+	}
+}
 
 int rpa_grep_parse(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 {
 	long ret;
-	long i;
+	long i = 0;
 	char location[128];
 	rpastat_t *hStat;
 	rarray_t *records = rpa_records_create();
@@ -272,7 +283,12 @@ int rpa_grep_parse(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 			rpa_grep_output_utf8_string(pGrep, location);
 		}
 		rpa_grep_output_utf8_string(pGrep, "\n");
-
+		/*
+		 * Dump the records anyway, although the AST is broken.
+		 * This is still useful for debugging...
+		 */
+		if (pGrep->greptype == RPA_GREPTYPE_PARSEAST)
+			dump_ast_records(records);
 	} else {
 		if (pGrep->greptype == RPA_GREPTYPE_NOPROD_PARSE) {
 			for (i = 0; i < rpa_records_length(records); i++) {
@@ -294,9 +310,7 @@ int rpa_grep_parse(rpa_grep_t *pGrep, const char* buffer, unsigned long size)
 				}
 			}
 		} else if (pGrep->greptype == RPA_GREPTYPE_PARSEAST) {
-			for (i = 0; i < rpa_records_length(records); i++) {
-				rpa_record_dump(records, i);
-			}
+			dump_ast_records(records);
 		}
 	}
 	rpa_records_destroy(records);

@@ -39,13 +39,15 @@ int usage(int argc, const wchar_t *argv[])
 		fwprintf(stderr, L" OPTIONS:\n");
 		fwprintf(stderr, L"\t-e patterns              BNF Expression.\n");
 		fwprintf(stderr, L"\t-f patternfile           Read the BNF rules from a file, the last pattern will be executed.\n");
+		fwprintf(stderr, L"\t-s \"string\"              Parse or match the content in the string.\n");
 		fwprintf(stderr, L"\t-i                       Ignore case.\n");
 		fwprintf(stderr, L"\t-m                       Match.\n");
-		fwprintf(stderr, L"\t-p                       Parse.\n");
+		fwprintf(stderr, L"\t-p                       Parse. Display parse info.\n");
+		fwprintf(stderr, L"\t-a                       Parse. Display parse records.\n");
 		fwprintf(stderr, L"\t-l                       Line mode.\n");
 		fwprintf(stderr, L"\t-16                      Force UTF16 encoding.\n");
 		fwprintf(stderr, L"\t-b                       Force byte encoding.\n");
-		fwprintf(stderr, L"\t-d                       Dump a production in a tree format.\n");
+		fwprintf(stderr, L"\t-d rule                  Dump production rule in a tree format.\n");
 		fwprintf(stderr, L"\t-t                       Display time elapsed.\n");
 		fwprintf(stderr, L"\t-L, --list-rules         List all patterns.\n");
 		fwprintf(stderr, L"\t-v                       Display version information.\n");

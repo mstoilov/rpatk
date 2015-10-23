@@ -85,7 +85,7 @@ struct rpa_errinfo_s {
 	long code;
 
 	/**
-	 * Error offset in the BNF schema
+	 * Error offset in the BNF schema or the input stream
 	 */
 	long offset;
 
