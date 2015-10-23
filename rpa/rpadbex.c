@@ -249,6 +249,7 @@ static int rpa_dbex_rh_abort(rpadbex_t *dbex, long rec)
 	unsigned long namesize;
 	rarray_t *records = dbex->records;
 	rparecord_t *prec;
+	rparule_t notset = 0L;
 
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_START);
 	prec = rpa_dbex_record(dbex, rec);
@@ -257,6 +258,7 @@ static int rpa_dbex_rh_abort(rpadbex_t *dbex, long rec)
 	if (rpa_dbex_rulename(dbex, rec, &name, &namesize) < 0) {
 		return -1;
 	}
+	r_harray_add(dbex->abortrules, name, namesize, &notset);
 	rpa_compiler_rulepref_set_flag(dbex->co, name, namesize, RPA_RFLAG_ABORTONFAIL);
 	rpa_dbex_debug_recordtail(dbex, rec);
 	if (rpa_dbex_playchildrecords(dbex, rec) < 0)
@@ -996,6 +998,7 @@ rpadbex_t *rpa_dbex_create(void)
 	dbex->records = r_array_create(sizeof(rparecord_t));
 	dbex->temprecords = r_array_create(sizeof(rparecord_t));
 	dbex->rules = r_harray_create(sizeof(rpa_ruleinfo_t));
+	dbex->abortrules = r_harray_create(sizeof(rparule_t)); 		/* We never populate the rule id anyway. we use the name for now */
 	dbex->recstack = r_array_create(sizeof(unsigned long));
 	dbex->inlinestack = r_array_create(sizeof(unsigned long));
 	dbex->handlers = r_zmalloc(sizeof(rpa_dbex_recordhandler) * RPA_PRODUCTION_COUNT);
@@ -1045,6 +1048,7 @@ void rpa_dbex_destroy(rpadbex_t *dbex)
 		rpa_compiler_destroy(dbex->co);
 		rpa_parser_destroy(dbex->pa);
 		r_harray_destroy(dbex->rules);
+		r_harray_destroy(dbex->abortrules);
 		r_array_destroy(dbex->records);
 		r_array_destroy(dbex->temprecords);
 		r_array_destroy(dbex->recstack);
@@ -1355,8 +1359,8 @@ void rpa_dbex_close(rpadbex_t *dbex)
 		return;
 	rpa_dbex_buildruleinfo(dbex);
 	rpa_dbex_buildloopinfo(dbex);
-	if (dbex->bitmap)
-		rpa_dbex_buildbitmapinfo(dbex);
+//	if (dbex->bitmap)
+//		rpa_dbex_buildbitmapinfo(dbex);
 }
 
 
@@ -1869,6 +1873,9 @@ int rpa_dbex_compile(rpadbex_t *dbex)
 	rpa_dbex_setemit(dbex, TRUE);
 
 	for (rid = rpa_dbex_first(dbex); rid >= 0; rid = rpa_dbex_next(dbex, rid)) {
+		if (dbex->bitmap)
+			rpa_dbex_getrulebitmap(dbex, rid);
+
 		if (rpa_dbex_compile_rule(dbex, rid) < 0) {
 			RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_COMPILE);
 			return -1;

@@ -24,6 +24,7 @@
 #include "rpa/rpaparser.h"
 #include "rpa/rpadbexpriv.h"
 #include "rpa/rpastatpriv.h"
+#include "rpa/rpacompiler.h"
 
 static long rpa_bitmap_set(rarray_t *records, long rec, rpointer userdata);
 
@@ -40,6 +41,8 @@ void rpa_dbex_buildbitmapinfo_for_rule(rpadbex_t *dbex, rparule_t rid)
 	rpa_bitmapcompiler_t bc;
 	rharray_t *rules = dbex->rules;
 	rpa_ruleinfo_t *info;
+	const char *name = rpa_dbex_name(dbex, rid);
+	unsigned long namesize;
 
 	r_memset(&bc, 0, sizeof(bc));
 	bc.dbex = dbex;
@@ -47,8 +50,11 @@ void rpa_dbex_buildbitmapinfo_for_rule(rpadbex_t *dbex, rparule_t rid)
 		rparecord_t *record = rpa_record_get(dbex->records, info->startrec);
 		RPA_BITMAP_SETALL(RPA_RECORD2BITMAP(record));
 		rpa_recordtree_walk(dbex->records, info->startrec, 0, rpa_bitmap_set, (rpointer)&bc);
+		if (r_harray_lookup_s(dbex->abortrules, rpa_dbex_name(dbex, rid)) >= 0) {
+			RPA_BITMAP_SETALL(RPA_RECORD2BITMAP(rpa_record_get(dbex->records, info->startrec)));
+			RPA_BITMAP_SETALL(RPA_RECORD2BITMAP(rpa_record_get(dbex->records, rpa_recordtree_get(dbex->records, info->startrec, RPA_RECORD_END))));
+		}
 	}
-
 }
 
 
@@ -69,7 +75,6 @@ ruword rpa_dbex_getrulebitmap(rpadbex_t *dbex, rparule_t rid)
 	}
 	return bitmap;
 }
-
 
 void rpa_dbex_buildbitmapinfo(rpadbex_t *dbex)
 {

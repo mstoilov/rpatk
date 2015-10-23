@@ -137,6 +137,9 @@ void rpa_compiler_rulepref_clear_flag(rpa_compiler_t *co, const char *name, unsi
 void rpa_compiler_rulepref_clear_flag_s(rpa_compiler_t *co, const char *name, unsigned long flag);
 void rpa_compiler_rulepref_set(rpa_compiler_t *co, const char *name, unsigned int namesize, long ruleid, long ruleuid, unsigned long flags);
 void rpa_compiler_rulepref_set_s(rpa_compiler_t *co, const char *name, long ruleid, long ruleuid, unsigned long flags);
+rpa_rulepref_t *rpa_compiler_rulepref(rpa_compiler_t *co, const char *name, unsigned int namesize);
+rpa_rulepref_t *rpa_compiler_rulepref_lookup_s(rpa_compiler_t *co, const char *name);
+
 #ifdef __cplusplus
 }
 #endif

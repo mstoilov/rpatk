@@ -57,6 +57,7 @@ struct rpadbex_s {
 	rarray_t *records;
 	rarray_t *temprecords;
 	rharray_t *rules;
+	rharray_t *abortrules; // these are rules used in (#!abort rulename) directive
 	rarray_t *recstack;
 	rarray_t *inlinestack;
 	rarray_t *text;
