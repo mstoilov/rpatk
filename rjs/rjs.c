@@ -1188,7 +1188,7 @@ int rjs_engine_dumpast(rjs_engine_t *jse, const char *script, unsigned long size
 	if (records) {
 		long i;
 		for (i = 0; i < rpa_records_length(records); i++)
-			rpa_record_dump(records, i);
+			rpa_record_dump(records, i, 0);
 	}
 
 	rpa_records_destroy(records);

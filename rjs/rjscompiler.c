@@ -36,7 +36,7 @@ void rjs_compiler_debughead(rjs_compiler_t *co, rarray_t *records, long rec)
 		rparecord_t *prec = (rparecord_t *) r_array_slot(records, rec);
 		co->headoff = rvm_codegen_getcodesize(co->cg);
 		if (prec->type & RPA_RECORD_START) {
-			rpa_record_dump(records, rec);
+			rpa_record_dump(records, rec, 0);
 		}
 
 	}
@@ -50,7 +50,7 @@ void rjs_compiler_debugtail(rjs_compiler_t *co, rarray_t *records, long rec)
 		rparecord_t *prec = (rparecord_t *) r_array_slot(records, rec);
 		rvm_asm_dump(co->cpu, rvm_codegen_getcode(co->cg, co->headoff), rvm_codegen_getcodesize(co->cg) - co->headoff);
 		if (prec->type & RPA_RECORD_END) {
-			rpa_record_dump(records, rec);
+			rpa_record_dump(records, rec, 0);
 		}
 	}
 

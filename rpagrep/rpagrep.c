@@ -184,6 +184,7 @@ void rpa_grep_list_patterns(rpa_grep_t *pGrep)
 
 void rpa_grep_dump_pattern_records(rpa_grep_t *pGrep)
 {
+	rpa_dbex_compile(pGrep->hDbex);
 	rpa_dbex_dumprecords(pGrep->hDbex);
 }
 
@@ -240,7 +241,7 @@ void dump_ast_records(rarray_t *records)
 
 	prec = (rparecord_t *)r_array_slot(records, i);
 	while (prec->type & (RPA_RECORD_START | RPA_RECORD_END)) {
-		rpa_record_dump(records, i);
+		rpa_record_dump(records, i, 0);
 		prec = (rparecord_t *)r_array_slot(records, ++i);
 	}
 }

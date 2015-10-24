@@ -222,7 +222,7 @@ void rpa_records_destroy(rarray_t *records);
 int rpa_recordtree_move(rarray_t *records, long dst, long src, long size);
 
 void rpa_record_dumpindented(rarray_t *records, long rec, int level);
-void rpa_record_dump(rarray_t *records, long rec);
+void rpa_record_dump(rarray_t *records, long rec, int wantuserdata);
 long rpa_record_getruleuid(rarray_t *records, long rec);
 void rpa_record_setusertype(rarray_t *records, long rec, ruint32 usertype, rvalset_t op);
 long rpa_record_getusertype(rarray_t *records, long rec);

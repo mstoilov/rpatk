@@ -337,7 +337,7 @@ int main(int argc, char *argv[])
 		rvm_cpu_exec(stat->cpu, rvm_codegen_getcode(co->cg, 0), mainoff);
 	}
 	for (i = 0; i < r_array_length(stat->records); i++) {
-		rpa_record_dump(stat->records, i);
+		rpa_record_dump(stat->records, i, 0);
 	}
 
 	r_printf("(%s) Matched size: %s\n", argv[0], RVM_CPUREG_GETU(stat->cpu, R0) == 151 ? "PASSED" : "FAILED");

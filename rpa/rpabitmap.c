@@ -26,67 +26,12 @@
 #include "rpa/rpastatpriv.h"
 #include "rpa/rpacompiler.h"
 
-static long rpa_bitmap_set(rarray_t *records, long rec, rpointer userdata);
-
 static long rpa_bitmap_set_startrec(rarray_t *records, long rec, rpabitmap_t bitmap)
 {
 	rparecord_t *record = rpa_record_get(records, rpa_recordtree_get(records, rec, RPA_RECORD_START));
 	RPA_BITMAP_SETVAL(RPA_RECORD2BITMAP(record), bitmap);
 	return 0;
 }
-
-
-void rpa_dbex_buildbitmapinfo_for_rule(rpadbex_t *dbex, rparule_t rid)
-{
-	rpa_bitmapcompiler_t bc;
-	rharray_t *rules = dbex->rules;
-	rpa_ruleinfo_t *info;
-	const char *name = rpa_dbex_name(dbex, rid);
-	unsigned long namesize;
-
-	r_memset(&bc, 0, sizeof(bc));
-	bc.dbex = dbex;
-	if ((info = (rpa_ruleinfo_t *)r_harray_get(rules, rid)) != NULL) {
-		rparecord_t *record = rpa_record_get(dbex->records, info->startrec);
-		RPA_BITMAP_SETALL(RPA_RECORD2BITMAP(record));
-		rpa_recordtree_walk(dbex->records, info->startrec, 0, rpa_bitmap_set, (rpointer)&bc);
-		if (r_harray_lookup_s(dbex->abortrules, rpa_dbex_name(dbex, rid)) >= 0) {
-			RPA_BITMAP_SETALL(RPA_RECORD2BITMAP(rpa_record_get(dbex->records, info->startrec)));
-			RPA_BITMAP_SETALL(RPA_RECORD2BITMAP(rpa_record_get(dbex->records, rpa_recordtree_get(dbex->records, info->startrec, RPA_RECORD_END))));
-		}
-	}
-}
-
-
-ruword rpa_dbex_getrulebitmap(rpadbex_t *dbex, rparule_t rid)
-{
-	ruword bitmap = 0L;
-	rharray_t *rules = dbex->rules;
-	rpa_ruleinfo_t *info;
-
-	if ((info = (rpa_ruleinfo_t *)r_harray_get(rules, rid)) != NULL) {
-		rparecord_t *record = rpa_record_get(dbex->records, info->startrec);
-		if (record) {
-			if (!RPA_BITMAP_GETVAL(RPA_RECORD2BITMAP(record))) {
-				rpa_dbex_buildbitmapinfo_for_rule(dbex, rid);
-			}
-			bitmap = RPA_BITMAP_GETVAL(RPA_RECORD2BITMAP(record));
-		}
-	}
-	return bitmap;
-}
-
-void rpa_dbex_buildbitmapinfo(rpadbex_t *dbex)
-{
-	unsigned int i;
-	rharray_t *rules = dbex->rules;
-
-	for (i = 0; i < r_array_length(rules->members); i++) {
-		rpa_dbex_getrulebitmap(dbex, i);
-	}
-}
-
-
 
 static long rpa_bitmap_set_char(rarray_t *records, rparecord_t *record, long rec, rpointer userdata)
 {
@@ -357,7 +302,7 @@ static long rpa_bitmap_set_notop(rarray_t *records, rparecord_t *record, long re
 }
 
 
-static long rpa_bitmap_set(rarray_t *records, long rec, rpointer userdata)
+long rpa_bitmap_set(rarray_t *records, long rec, rpointer userdata)
 {
 //	rpa_bitmapcompiler_t *bc = (rpa_bitmapcompiler_t*)userdata;
 	rparecord_t *record = rpa_record_get(records, rec);

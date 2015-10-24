@@ -62,8 +62,7 @@ typedef struct rpa_bitmapcompiler_s {
 	ruint32 endchar;
 } rpa_bitmapcompiler_t;
 
-void rpa_dbex_buildbitmapinfo(rpadbex_t *dbex);
-void rpa_dbex_buildbitmapinfo_for_rule(rpadbex_t *dbex, rparule_t rid);
+long rpa_bitmap_set(rarray_t *records, long rec, rpointer userdata);
 
 
 #ifdef __cplusplus

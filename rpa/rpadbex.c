@@ -51,6 +51,69 @@ static int rpa_dbex_playchildrecords(rpadbex_t *dbex, long rec);
 static int rpa_dbex_playreversechildrecords(rpadbex_t *dbex, long rec);
 static int rpa_dbex_playrecord(rpadbex_t *dbex, long rec);
 static int rpa_dbex_rh_default(rpadbex_t *dbex, long rec);
+static void rpa_dbex_buildbitmapinfo(rpadbex_t *dbex);
+static void rpa_dbex_buildbitmapinfo_for_rule(rpadbex_t *dbex, rparule_t rid);
+static void rpa_dbex_bitmapinfo_set_all(rpadbex_t *dbex, rparule_t rid);
+
+static void rpa_dbex_buildbitmapinfo_for_rule(rpadbex_t *dbex, rparule_t rid)
+{
+	rpa_bitmapcompiler_t bc;
+	rharray_t *rules = dbex->rules;
+	rpa_ruleinfo_t *info;
+
+	r_memset(&bc, 0, sizeof(bc));
+	bc.dbex = dbex;
+	if ((info = (rpa_ruleinfo_t *)r_harray_get(rules, rid)) != NULL) {
+		rpa_rulepref_t *rulepref = rpa_compiler_rulepref_lookup_s(dbex->co, rpa_dbex_name(dbex, rid));
+		rparecord_t *record = rpa_record_get(dbex->records, info->startrec);
+		RPA_BITMAP_SETALL(RPA_RECORD2BITMAP(record));
+		rpa_recordtree_walk(dbex->records, info->startrec, 0, rpa_bitmap_set, (rpointer)&bc);
+		if (rulepref && (rulepref->flags & RPA_RFLAG_ABORTONFAIL))
+			rpa_dbex_bitmapinfo_set_all(dbex, rid);
+	}
+}
+
+
+ruword rpa_dbex_getrulebitmap(rpadbex_t *dbex, rparule_t rid)
+{
+	ruword bitmap = 0L;
+	rharray_t *rules = dbex->rules;
+	rpa_ruleinfo_t *info;
+
+	if ((info = (rpa_ruleinfo_t *)r_harray_get(rules, rid)) != NULL) {
+		rparecord_t *record = rpa_record_get(dbex->records, info->startrec);
+		if (record) {
+			if (!RPA_BITMAP_GETVAL(RPA_RECORD2BITMAP(record))) {
+				rpa_dbex_buildbitmapinfo_for_rule(dbex, rid);
+			}
+			bitmap = RPA_BITMAP_GETVAL(RPA_RECORD2BITMAP(record));
+		}
+	}
+	return bitmap;
+}
+
+
+static void rpa_dbex_bitmapinfo_set_all(rpadbex_t *dbex, rparule_t rid)
+{
+	rharray_t *rules = dbex->rules;
+	rpa_ruleinfo_t *info;
+
+	if ((info = (rpa_ruleinfo_t *)r_harray_get(rules, rid)) != NULL) {
+		RPA_BITMAP_SETALL(RPA_RECORD2BITMAP(rpa_record_get(dbex->records, info->startrec)));
+		RPA_BITMAP_SETALL(RPA_RECORD2BITMAP(rpa_record_get(dbex->records, rpa_recordtree_get(dbex->records, info->startrec, RPA_RECORD_END))));
+	}
+}
+
+
+static void rpa_dbex_buildbitmapinfo(rpadbex_t *dbex)
+{
+	unsigned int i;
+	rharray_t *rules = dbex->rules;
+
+	for (i = 0; i < r_array_length(rules->members); i++) {
+		rpa_dbex_getrulebitmap(dbex, i);
+	}
+}
 
 
 void rpa_dbex_debug_recordhead(rpadbex_t *dbex, long rec)
@@ -60,10 +123,9 @@ void rpa_dbex_debug_recordhead(rpadbex_t *dbex, long rec)
 		rparecord_t *prec = (rparecord_t *) r_array_slot(records, rec);
 		dbex->headoff = rvm_codegen_getcodesize(dbex->co->cg);
 		if (prec->type & RPA_RECORD_START) {
-			rpa_record_dump(records, rec);
+			rpa_record_dump(records, rec, 0);
 		}
 	}
-
 }
 
 
@@ -74,7 +136,7 @@ void rpa_dbex_debug_recordtail(rpadbex_t *dbex, long rec)
 		rparecord_t *prec = (rparecord_t *) r_array_slot(records, rec);
 		rvm_asm_dump(NULL, rvm_codegen_getcode(dbex->co->cg, dbex->headoff), rvm_codegen_getcodesize(dbex->co->cg) - dbex->headoff);
 		if (prec->type & RPA_RECORD_END) {
-			rpa_record_dump(records, rec);
+			rpa_record_dump(records, rec, 0);
 		}
 	}
 }
@@ -249,7 +311,6 @@ static int rpa_dbex_rh_abort(rpadbex_t *dbex, long rec)
 	unsigned long namesize;
 	rarray_t *records = dbex->records;
 	rparecord_t *prec;
-	rparule_t notset = 0L;
 
 	rec = rpa_recordtree_get(records, rec, RPA_RECORD_START);
 	prec = rpa_dbex_record(dbex, rec);
@@ -258,7 +319,6 @@ static int rpa_dbex_rh_abort(rpadbex_t *dbex, long rec)
 	if (rpa_dbex_rulename(dbex, rec, &name, &namesize) < 0) {
 		return -1;
 	}
-	r_harray_add(dbex->abortrules, name, namesize, &notset);
 	rpa_compiler_rulepref_set_flag(dbex->co, name, namesize, RPA_RFLAG_ABORTONFAIL);
 	rpa_dbex_debug_recordtail(dbex, rec);
 	if (rpa_dbex_playchildrecords(dbex, rec) < 0)
@@ -998,7 +1058,6 @@ rpadbex_t *rpa_dbex_create(void)
 	dbex->records = r_array_create(sizeof(rparecord_t));
 	dbex->temprecords = r_array_create(sizeof(rparecord_t));
 	dbex->rules = r_harray_create(sizeof(rpa_ruleinfo_t));
-	dbex->abortrules = r_harray_create(sizeof(rparule_t)); 		/* We never populate the rule id anyway. we use the name for now */
 	dbex->recstack = r_array_create(sizeof(unsigned long));
 	dbex->inlinestack = r_array_create(sizeof(unsigned long));
 	dbex->handlers = r_zmalloc(sizeof(rpa_dbex_recordhandler) * RPA_PRODUCTION_COUNT);
@@ -1048,7 +1107,6 @@ void rpa_dbex_destroy(rpadbex_t *dbex)
 		rpa_compiler_destroy(dbex->co);
 		rpa_parser_destroy(dbex->pa);
 		r_harray_destroy(dbex->rules);
-		r_harray_destroy(dbex->abortrules);
 		r_array_destroy(dbex->records);
 		r_array_destroy(dbex->temprecords);
 		r_array_destroy(dbex->recstack);
@@ -1566,7 +1624,7 @@ int rpa_dbex_dumprecords(rpadbex_t *dbex)
 		return -1;
 	}
 	for (i = 0; i < r_array_length(dbex->records); i++) {
-		rpa_record_dump(dbex->records, i);
+		rpa_record_dump(dbex->records, i, 1);
 	}
 	return 0;
 }
@@ -1845,6 +1903,12 @@ static int rpa_dbex_compile_rule(rpadbex_t *dbex, rparule_t rid)
 	 * with the correct rid.
 	 */
 	rpa_compiler_rulepref_set_ruleid_s(dbex->co, rpa_dbex_name(dbex, rid), rid);
+
+	/*
+	 * Build the bitmap
+	 */
+	if (dbex->bitmap)
+		rpa_dbex_getrulebitmap(dbex, rid);
 	if (rpa_dbex_playrecord(dbex, info->startrec) < 0)
 		return -1;
 	info->codeoff = codeoff;
@@ -1873,9 +1937,6 @@ int rpa_dbex_compile(rpadbex_t *dbex)
 	rpa_dbex_setemit(dbex, TRUE);
 
 	for (rid = rpa_dbex_first(dbex); rid >= 0; rid = rpa_dbex_next(dbex, rid)) {
-		if (dbex->bitmap)
-			rpa_dbex_getrulebitmap(dbex, rid);
-
 		if (rpa_dbex_compile_rule(dbex, rid) < 0) {
 			RPA_DBEX_SETERRINFO_CODE(dbex, RPA_E_COMPILE);
 			return -1;

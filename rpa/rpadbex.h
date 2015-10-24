@@ -417,6 +417,9 @@ int rpa_dbex_dumpinfo(rpadbex_t *dbex);
  */
 int rpa_dbex_dumpuids(rpadbex_t *dbex);
 
+
+ruword rpa_dbex_getrulebitmap(rpadbex_t *dbex, rparule_t rid);
+
 /**
  * @example personname.c
  */

@@ -162,7 +162,7 @@ int main(int argc, char *argv[])
 	rpa_stat_cachedisable(stat, 0);
 	rvm_cpu_exec(stat->cpu, rvm_codegen_getcode(co->cg, 0), mainoff);
 	for (i = 0;  i < r_array_length(records); i++) {
-		rpa_record_dump(records, i);
+		rpa_record_dump(records, i, 0);
 	}
 
 	r_printf("(%s) Matched size: %s(cache hits: %d)\n", argv[0], RVM_CPUREG_GETU(stat->cpu, R0) == 8 ? "PASSED" : "FAILED", stat->cache->hit);
