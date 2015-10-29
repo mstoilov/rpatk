@@ -453,7 +453,7 @@ static void rpa_production_anonymousrule(rpa_parser_t *pa)
 	rpa_compiler_rule_end(co);
 }
 
-
+#ifdef NO_BACKSLASH_NEWLINE
 static void rpa_production_space(rpa_parser_t *pa)
 {
 	rpa_compiler_t *co = pa->co;
@@ -471,6 +471,41 @@ static void rpa_production_space(rpa_parser_t *pa)
 	rpa_compiler_rule_end(co);
 }
 
+#else
+
+static void rpa_production_space(rpa_parser_t *pa)
+{
+	rpa_compiler_t *co = pa->co;
+
+	rpa_compiler_rule_begin_s(co, "space", 0);
+
+	rpa_compiler_altexp_begin(co, RPA_MATCH_MULTIPLE, 0);
+
+	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
+	rpa_compiler_class_begin(co, RPA_MATCH_NONE);
+	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, ' '));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BGRE, DA, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, '\t'));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BGRE, DA, XX, XX, 0));
+	rpa_compiler_class_end(co);
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
+	rpa_compiler_branch_end(co);
+
+	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
+	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, '\\'));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_OPT, DA, XX, XX, '\r'));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
+	rvm_codegen_addins(co->cg, rvm_asm(RPA_MATCHCHR_NAN, DA, XX, XX, '\n'));
+	rvm_codegen_index_addrelocins(co->cg, RVM_RELOC_BRANCH, RPA_COMPILER_CURRENTEXP(co)->endidx, rvm_asm(RVM_BLES, DA, XX, XX, 0));
+	rpa_compiler_branch_end(co);
+
+	rpa_compiler_altexp_end(co);
+
+	rpa_compiler_rule_end(co);
+}
+
+#endif
 
 static void rpa_production_rulename(rpa_parser_t *pa)
 {
