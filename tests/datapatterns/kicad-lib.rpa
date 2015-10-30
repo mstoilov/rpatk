@@ -1,0 +1,101 @@
+#!emitnone
+#!emit header
+#!emit comp
+#!emit comp_field
+#!emit field_header
+#!emit field_value
+#!emit field_name
+#!emit field_x
+#!emit field_y
+#!emit field_size
+#!emit field_orient
+#!emit field_halign
+#!emit field_valign
+#!emit field_visible
+#!emit field_italic
+#!emit field_bold
+
+#!abort header
+#!abort field_value
+#!abort field_x
+#!abort field_y
+#!abort field_size
+#!abort field_orient
+#!abort field_visible
+#!abort field_halign
+#!abort field_valign
+#!abort field_italic
+#!abort field_bold
+
+
+EOL		::= [#xA] | [#xA][#xD]
+BL		::= <EOL>+
+S		::= ( [#x20] | [#x9] )+
+DD		::= [0-9][0-9]
+DDDD		::= [0-9][0-9][0-9][0-9]
+
+datestr		::= Date
+date		::= <DD>/<DD>/<DDDD><S><DD>:<DD>:<DD>
+lib_header 	::= "EESchema-LIBRARY" <S> Version <S> "2.3" (<S><datestr>: <S> '"' <date> '"' )? <EOL>*
+lib_encoding	::= "#encoding utf-8" <EOL>*
+lib_trailer	::= "#End Library" <EOL>*
+comment		::= '#'(. - <EOL>)* <EOL>* - <lib_trailer>
+
+comp_name_char	::= [\-_$\.\%\#\@&\*\+\!0-9A-Za-z]
+comp_name	::= [~]<comp_name_char>* | <comp_name_char>+
+comp_ref	::= [A-Za-z]+
+pinname_offs	::= [0-9]+
+pinnum_visible	::= [YN]
+pinname_visible	::= [YN]
+num_parts	::= [0-9]+
+locked		::= [LF]
+power		::= [PN]
+field_header	::= F[0-9]+
+field_value	::= '"' (. - (<EOL> | '"'))* '"'
+field_name	::= '"' (. - (<EOL> | '"'))* '"'
+field_x		::= [\-]?[0-9]+
+field_y		::= [\-]?[0-9]+
+field_size	::= [0-9]+
+field_orient	::= [HV]
+field_visible	::= [IV]
+field_halign	::= [CLRTB]
+field_valign	::= [CLRTB]
+field_italic	::= [IN]
+field_bold	::= [BN]
+comp_header	::= DEF <S> \
+		    <comp_name> <S> \
+		    <comp_ref> <S> \
+		    0 <S> \
+		    <pinname_offs> <S> \
+		    <pinnum_visible> <S> \
+		    <pinname_visible> <S> \
+		    <num_parts> (<S> <locked> <S> <power>)? <S>* <EOL>*
+comp_field	::= <field_header> <S> \
+		    <field_value> <S> \
+		    <field_x> <S> \
+		    <field_y> <S> \
+		    <field_size> <S> \
+		    <field_orient> <S> \
+		    <field_visible> <S> \
+		    <field_halign> <S> \
+		    <field_valign> <field_italic> <field_bold> (<S> <field_name>)? <S>* <EOL>*
+
+fplist_header	::= $FPLIST <S> *<EOL>*
+fplist_trailer	::= $ENDFPLIST <S>* <EOL>*
+fplist_filter	::= (. - (<EOL> | <comment> | <fplist_trailer>))+ <EOL>*
+fplist		::= <fplist_header> <fplist_filter>* <fplist_trailer>
+
+comp		::= <comp_header> \
+		    <comp_field>* \
+		    <fplist>? \
+		    DRAW <S>* <EOL>* \
+		    (((. - <EOL>)* <EOL>*) - ENDDRAW)* \
+    		    ENDDRAW <S>* <EOL>* \
+    		    ENDDEF <S>* <EOL>*
+
+lib		::= <lib_header> \
+		    <lib_encoding> \
+		    (<comment> | <comp>)* \
+		    <lib_trailer>
+
+
