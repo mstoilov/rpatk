@@ -108,14 +108,14 @@ void rex_transitions_negative(rarray_t *dtrans, rarray_t *strans, unsigned long 
 	}
 
 	for (i = 0; i < r_array_length(strans); i++) {
-		t = (rex_transition_t *)r_array_slot(strans, i);
+		t = (rex_transition_t *) r_array_slot(strans, i);
 		if (i == 0) {
 			if (t->lowin != 0) {
 				rex_transitions_add(dtrans, REX_CHAR_MIN, t->lowin - 1, srcuid, dstuid);
 			}
 		}
-		if (i > 0){
-			p = (rex_transition_t *)r_array_slot(strans, i - 1);
+		if (i > 0) {
+			p = (rex_transition_t *) r_array_slot(strans, i - 1);
 			rex_transitions_add(dtrans, p->highin + 1, t->lowin - 1, srcuid, dstuid);
 		}
 		if (i == r_array_length(strans) - 1) {

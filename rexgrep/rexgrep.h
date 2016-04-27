@@ -51,7 +51,8 @@ typedef struct rexgrep_s {
 	rex_nfasimulator_t *si;
 	rex_dfasimulator_t *dfasi;
 	long startuid;
-	unsigned long scsize;
+	unsigned long long scsize;
+	unsigned long long scfiltered;
 	unsigned long scanmilisec;
 	unsigned int icase;
 	unsigned int encoding;

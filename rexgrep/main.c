@@ -355,16 +355,33 @@ end:
 		unsigned long sizeaccsubs = dfa->naccsubstates * sizeof(rexdfss_t);
 		unsigned long sizesubs = dfa->nsubstates * sizeof(rexdfss_t);
 		unsigned long sizetotal = sizestates + sizetrans + sizeaccsubs + sizesubs;
+		unsigned long long sckb = pGrep->scsize / 1024;
+		unsigned long milsec;
+		unsigned long minutes;
+		float sec;
+		milsec = pGrep->scanmilisec;
+		if (milsec == 0)
+			milsec = 1;
+		minutes = milsec / 60000;
+		sec = (milsec % 60000) / 1000.0;
 		fprintf(stdout, "\n\n");
-		fprintf(stdout, "\tDFA Memory: %ld KB, States: %ld KB (%.2f), Transitions: %ld KB (%.2f), Accecpting Substates: %ld KB(%.2f), Substates: %ld KB (%.2f)\n",
-				sizetotal/1024, sizestates/1024, (100.0*sizestates/sizetotal), sizetrans/1024, (100.0*sizetrans/sizetotal),
-				sizeaccsubs/1024, (100.0*sizeaccsubs/sizetotal), sizesubs/1024, (100.0*sizesubs/sizetotal));
+		fprintf(stdout,
+				"\tDFA Memory: %ld KB, States: %ld KB (%.2f%%), Transitions: %ld KB (%.2f%%), Accecpting Substates: %ld KB(%.2f%%), Substates: %ld KB (%.2f%%)\n",
+				sizetotal / 1024, sizestates / 1024, (100.0 * sizestates / sizetotal), sizetrans / 1024,
+				(100.0 * sizetrans / sizetotal), sizeaccsubs / 1024, (100.0 * sizeaccsubs / sizetotal), sizesubs / 1024,
+				(100.0 * sizesubs / sizetotal));
+		if (scanned) {
+			fprintf(stdout, "\tScanned: %lld Bytes, Filtered: %lld Bytes (%5.2f%%), Time: %0ldm%1.3fs (%lld KB/sec)\n",
+					pGrep->scsize, pGrep->scfiltered, 100.0f * pGrep->scfiltered / pGrep->scsize, minutes, sec,
+					(unsigned long long) 1000 * sckb / milsec);
+		}
 	}
 	rex_grep_destroy(pGrep);
+#ifdef R_DEBUG_MEMALLOC
 	if (pGrep->showtime) {
-		fprintf(stdout, "\tmemory: %ld KB (leaked %ld Bytes)\n", (long)r_debug_get_maxmem()/1024, (long)r_debug_get_allocmem());
+		fprintf(stdout, "\tMemory Allocator: %ld KB (leaked %ld Bytes)\n", (long)r_debug_get_maxmem() / 1024, (long)r_debug_get_allocmem());
 	}
-
+#endif
 	if (devnull)
 		fclose(devnull);
 	return ret;

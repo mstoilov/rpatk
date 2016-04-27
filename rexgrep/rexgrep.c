@@ -166,9 +166,11 @@ static int rex_grep_dfascan(rexgrep_t *pGrep, const char* start, const char* end
 			shifter = (shifter & REX_DFA_HASHMASK(REX_HASH_BYTES, REX_HASH_BITS));
 			nextshift += 1;
 			input += 1;
+			pGrep->scfiltered++;
 		}
 		if (ret)
 			ret = rex_grep_dfamatch(pGrep, input, end);
+
 		if (ret == 0) {
 			ruint32 wc = *input;
 			if (wc >= 0x80) {
@@ -291,6 +293,9 @@ static int rex_grep_nfascanlines(rexgrep_t *pGrep, const char* start, const char
 
 void rex_grep_scan_buffer(rexgrep_t *pGrep, rbuffer_t *buf)
 {
+	clock_t btime, scanclocks;
+	btime = clock();
+
 	switch (pGrep->greptype) {
 	case REX_GREPTYPE_SCANLINES:
 		if (pGrep->usedfa) {
@@ -309,6 +314,8 @@ void rex_grep_scan_buffer(rexgrep_t *pGrep, rbuffer_t *buf)
 		}
 		break;
 	};
+	scanclocks = clock() - btime;
+	pGrep->scanmilisec += (unsigned long)(((unsigned long long)1000)*scanclocks/CLOCKS_PER_SEC);
 }
 
 

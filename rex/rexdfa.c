@@ -121,10 +121,11 @@ static void rex_dfa_statehash(rexdfa_t *dfa, rexuint_t state, unsigned int level
 	unsigned char *bitarray = dfa->bits;
 	unsigned int curentry = 0;
 	unsigned int mask = (1 << hbits) - 1;
+	unsigned int hbits_size = 1 << hbits;
 	rexdfs_t *s = REX_DFA_STATE(dfa, state);
 
 	if (s->type == REX_STATETYPE_ACCEPT) {
-		for (curentry = 0; curentry <(1 << hbits); curentry++) {
+		for (curentry = 0; curentry < hbits_size; curentry++) {
 			if (level) {
 				rex_dfa_statehash(dfa, state, level - 1, hbits, (entry | curentry) << hbits);
 			} else {
@@ -136,7 +137,7 @@ static void rex_dfa_statehash(rexdfa_t *dfa, rexuint_t state, unsigned int level
 			t = REX_DFA_TRANSITION(dfa, state, trans);
 			if (!t->state)
 				continue;
-			for (in = t->lowin; in <= t->highin && ((in - t->lowin) < (1 << hbits)); in++) {
+			for (in = t->lowin; in <= t->highin && (in - t->lowin) < hbits_size; in++) {
 				curentry = in & mask;
 				if (level) {
 					rex_dfa_statehash(dfa, t->state, level - 1, hbits, (entry | curentry) << hbits);
