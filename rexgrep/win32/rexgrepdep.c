@@ -100,7 +100,6 @@ void rex_grep_scan_path(rexgrep_t *pGrep, LPCTSTR path)
     		buf = rex_buffer_map_file(pGrep->filename);
     		if (buf) {
 				rex_grep_scan_buffer(pGrep, buf);
-				pGrep->scsize += buf->size;
 				r_buffer_destroy(buf);
 			}
 		} 
@@ -110,7 +109,6 @@ void rex_grep_scan_path(rexgrep_t *pGrep, LPCTSTR path)
 		buf = rex_buffer_map_file(pGrep->filename);
 		if (buf) {
 			rex_grep_scan_buffer(pGrep, buf);
-			pGrep->scsize += buf->size;
 			r_buffer_destroy(buf);
 		}
 	}

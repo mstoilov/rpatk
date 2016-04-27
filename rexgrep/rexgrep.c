@@ -315,6 +315,7 @@ void rex_grep_scan_buffer(rexgrep_t *pGrep, rbuffer_t *buf)
 		break;
 	};
 	scanclocks = clock() - btime;
+	pGrep->scsize += buf->size;
 	pGrep->scanmilisec += (unsigned long)(((unsigned long long)1000)*scanclocks/CLOCKS_PER_SEC);
 }
 
