@@ -40,8 +40,8 @@ struct rexstate_s {
 	rarray_t *etrans;
 	rarray_t *trans;
 	rarray_t *subset;
-	unsigned long type;
-	unsigned long uid;
+	unsigned long type;			/* REX_STATETYPE_START, REX_STATETYPE_ACCEPT, ... */
+	unsigned long uid;			/* The index of this state in the array of states in rexdb_t */
 	rexuserdata_t userdata;
 };
 
