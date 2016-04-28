@@ -4,10 +4,12 @@
 #include "rlib/rutf.h"
 #include "rlib/rarray.h"
 #include "rlib/rmem.h"
-#include "rexdb.h"
-#include "rexstate.h"
-#include "rexnfasimulator.h"
-#include "rexcompiler.h"
+#include "rex/rexdb.h"
+#include "rex/rexstate.h"
+#include "rex/rexnfasimulator.h"
+#include "rex/rexcompiler.h"
+#include "rex/rexdfaconv.h"
+
 
 static void init_ababb(rexdb_t *nfa)
 {
@@ -53,6 +55,28 @@ static void init_ababb(rexdb_t *nfa)
 }
 
 
+static void init_s4(rexdb_t *nfa)
+{
+	rexstate_t *s1 = rex_state_create(0, REX_STATETYPE_START);
+	rexstate_t *s2 = rex_state_create(2, REX_STATETYPE_NONE);
+	rexstate_t *s3 = rex_state_create(3, REX_STATETYPE_ACCEPT);
+	rexstate_t *s4 = rex_state_create(4, REX_STATETYPE_NONE);
+
+	rex_db_insertstate(nfa, s1);
+	rex_db_insertstate(nfa, s2);
+	rex_db_insertstate(nfa, s3);
+	rex_db_insertstate(nfa, s4);
+
+	rex_state_addtransition_e_dst(s2, s1);
+	rex_state_addtransition_e_dst(s4, s3);
+
+	rex_state_addtransition_dst(s1, 'a', 'a', s2);
+	rex_state_addtransition_dst(s2, 'b', 'b', s3);
+	rex_state_addtransition_dst(s1, 'c', 'c', s4);
+	rex_state_addtransition_dst(s4, 'c', 'c', s3);
+}
+
+
 int main(int argc, char *argv[])
 {
 	int i;
@@ -76,8 +100,18 @@ int main(int argc, char *argv[])
 			for (j = 0; j < r_array_length(nfa->states); j++) {
 				rex_db_dumpstate(nfa, j);
 			}
+		} else if (strcmp(argv[i], "-d") == 0) {
+			int j;
+			rexdfa_t *dfa = rex_db_todfa(nfa, 1);
+			for (j = 0; j < dfa->nstates; j++) {
+				rex_dfa_dumpstate(dfa, j);
+			}
+			rex_dfa_destroy(dfa);
 		} else if (strcmp(argv[i], "-ababb") == 0) {
 			init_ababb(nfa);
+			startstate = 0;
+		} else if (strcmp(argv[i], "-s4") == 0) {
+			init_s4(nfa);
 			startstate = 0;
 		} else {
 			if (startstate < 0)

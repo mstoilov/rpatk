@@ -12,6 +12,7 @@ LIBS += -lrex -lrlib -lm
 
 
 TESTS	+= $(OUTDIR)/rexregex
+TESTS	+= $(OUTDIR)/main
 
 
 all : $(OUTDIR) $(TESTS)
@@ -19,10 +20,6 @@ all : $(OUTDIR) $(TESTS)
 
 $(OUTDIR)/%: $(TESTS_SRCDIR)/%.c
 	+ $(CC) $(CFLAGS) -o $(OUTDIR)/$* $(TESTS_SRCDIR)/$*.c  -lrex $(LIBS) $(LDFLAGS) $(INCLUDE)
-
-
-$(OUTDIR)/%.o: $(TESTS_SRCDIR)/%.rpa
-	$(LD) -r -b binary -o $(OUTDIR)/$*.o $(TESTS_SRCDIR)/$*.rpa
 
 
 $(OUTDIR):
