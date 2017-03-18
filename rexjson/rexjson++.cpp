@@ -691,8 +691,7 @@ void input::parse_value(value& v)
 
 }
 
-//#define REXJSON_TEST_MAIN
-#ifdef REXJSON_TEST_MAIN
+#if defined(REXJSON_TEST_MAIN)
 int main(int argc, const char *argv[])
 {
 	char text1[]="{\n\"name\" : \"Jack (\\\"Bee\\\") Nimble \u0434\u0432\u0435\", \n\"format\": {\"type\":       \"rect\", \n\"width\":      1920, \n\"height\":     1080, \n\"interlace\":  false,\"frame rate\": 24\n}\n}}";
@@ -733,4 +732,24 @@ int main(int argc, const char *argv[])
 	std::cout << "*** New Text ***\n" << v.write(true, true, 8, 8) << std::endl;
 	return 0;
 }
+
+#elif defined(REXJSON_TEST_PARSER)
+
+#include <fstream>
+
+int main(int argc, const char *argv[])
+{
+	std::stringstream iss;
+
+	if (argc > 1) {
+		std::ifstream file(argv[1]);
+		iss << file.rdbuf();
+	} else {
+		iss << std::cin.rdbuf();
+	}
+	std::cout << rexjson::read(iss.str()).write(true) << std::endl;
+
+	return 0;
+}
+
 #endif
