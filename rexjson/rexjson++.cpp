@@ -582,7 +582,7 @@ void input::next_token()
 void input::error_unexpectedtoken()
 {
 	std::ostringstream os;
-	os << "unexpected: '" << loctok_ << "', at offset " << offset_ - loctok_.length();
+	os << "unexpected: '" << loctok_ << "', at offset " << offset_ + 1 - loctok_.length();
 	throw std::runtime_error(os.str());
 }
 
