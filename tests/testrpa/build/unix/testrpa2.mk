@@ -23,6 +23,7 @@ TESTS	+= $(OUTDIR)/rpacompiler-rulerec
 TESTS	+= $(OUTDIR)/rpacompiler-rulealtrec
 TESTS	+= $(OUTDIR)/rpacompiler-rule
 TESTS	+= $(OUTDIR)/rpacompiler-exp
+TESTS	+= $(OUTDIR)/rpacompiler-exp-mlc
 TESTS	+= $(OUTDIR)/rpacompiler-notexp
 TESTS	+= $(OUTDIR)/rpacompiler-class
 TESTS	+= $(OUTDIR)/rpacompiler-altexp
