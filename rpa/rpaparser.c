@@ -56,10 +56,10 @@ static void rpa_compiler_branch_nan_s(rpa_compiler_t *co, const char *str)
 	rpa_compiler_branch_end(co);
 }
 
-static inline void rvm_codegen_addins_matcher_range(rpa_compiler_t *co, int rvm_relop, ruword range_start, ruword range_end)
+static inline void rvm_codegen_addins_matcher_range(rpa_compiler_t *co, ruword matcher, int rvm_relop, ruword range_start, ruword range_end)
 {
-	rvm_codegen_addins(co->cg, rvm_asm2(RPA_MATCHRNG_NAN, DA, XX, XX, range_start, range_end));
-	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BGRE);
+	rvm_codegen_addins(co->cg, rvm_asm2(matcher, DA, XX, XX, range_start, range_end));
+	rvm_codegen_index_addrelocins_reloc_branch(co, rvm_relop);
 }
 
 
@@ -157,8 +157,9 @@ static void rpa_production_bnf(rpa_parser_t *pa)
 	rpa_compiler_branch_nan_s(co, "space");
 	rpa_compiler_branch_nan_s(co, "directives");
 	rpa_compiler_branch_nan_s(co, "comment");
+#ifdef SIMPLE_EBNF
 	rpa_compiler_branch_nan_s(co, "multilinecomment");
-
+#endif
 	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
 	rpa_compiler_class_begin(co, RPA_MATCH_MULTIPLE);
 	rvm_codegen_addins_matcher_nan_str(co, RVM_BGRE, "\r\n;");
@@ -427,17 +428,17 @@ static void rpa_production_rulename(rpa_parser_t *pa)
 	rpa_compiler_rule_begin_s(co, "rulename", 0);
 
 	rpa_compiler_class_begin(co, RPA_MATCH_NONE);
-	rvm_codegen_addins_matcher_range(co, RVM_BGRE, 'a', 'z');
-	rvm_codegen_addins_matcher_range(co, RVM_BGRE, 'A', 'Z');
+	rvm_codegen_addins_matcher_range(co, RPA_MATCHRNG_NAN, RVM_BGRE, 'a', 'z');
+	rvm_codegen_addins_matcher_range(co, RPA_MATCHRNG_NAN, RVM_BGRE, 'A', 'Z');
 	rvm_codegen_addins_matcher_nan_ch(co, RVM_BGRE, '_');
 
 	rpa_compiler_class_end(co);
 	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
 
 	rpa_compiler_class_begin(co, RPA_MATCH_MULTIOPT);
-	rvm_codegen_addins_matcher_range(co, RVM_BGRE, 'a', 'z');
-	rvm_codegen_addins_matcher_range(co, RVM_BGRE, 'A', 'Z');
-	rvm_codegen_addins_matcher_range(co, RVM_BGRE, '0', '9');
+	rvm_codegen_addins_matcher_range(co, RPA_MATCHRNG_NAN, RVM_BGRE, 'a', 'z');
+	rvm_codegen_addins_matcher_range(co, RPA_MATCHRNG_NAN, RVM_BGRE, 'A', 'Z');
+	rvm_codegen_addins_matcher_range(co, RPA_MATCHRNG_NAN, RVM_BGRE, '0', '9');
 	rvm_codegen_addins_matcher_nan_ch(co, RVM_BGRE, '_');
 	rpa_compiler_class_end(co);
 	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
@@ -454,15 +455,15 @@ static void rpa_production_aliasname(rpa_parser_t *pa)
 	rpa_compiler_rule_begin_s(co, "aliasname", 0);
 
 	rpa_compiler_class_begin(co, RPA_MATCH_NONE);
-	rvm_codegen_addins_matcher_range(co, RVM_BGRE, 'a', 'z');
-	rvm_codegen_addins_matcher_range(co, RVM_BGRE, 'A', 'Z');
+	rvm_codegen_addins_matcher_range(co, RPA_MATCHRNG_NAN, RVM_BGRE, 'a', 'z');
+	rvm_codegen_addins_matcher_range(co, RPA_MATCHRNG_NAN, RVM_BGRE, 'A', 'Z');
 	rpa_compiler_class_end(co);
 	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
 
 	rpa_compiler_class_begin(co, RPA_MATCH_MULTIOPT);
-	rvm_codegen_addins_matcher_range(co, RVM_BGRE, 'a', 'z');
-	rvm_codegen_addins_matcher_range(co, RVM_BGRE, 'A', 'Z');
-	rvm_codegen_addins_matcher_range(co, RVM_BGRE, '0', '9');
+	rvm_codegen_addins_matcher_range(co, RPA_MATCHRNG_NAN, RVM_BGRE, 'a', 'z');
+	rvm_codegen_addins_matcher_range(co, RPA_MATCHRNG_NAN, RVM_BGRE, 'A', 'Z');
+	rvm_codegen_addins_matcher_range(co, RPA_MATCHRNG_NAN, RVM_BGRE, '0', '9');
 	rvm_codegen_addins_matcher_nan_ch(co, RVM_BGRE, '_');
 	rpa_compiler_class_end(co);
 	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
@@ -480,7 +481,8 @@ static void rpa_production_assign(rpa_parser_t *pa)
 
 	rpa_compiler_reference_opt_s(co, "space");
 
-	rvm_codegen_addins_matcher_nan_str(co, RVM_BLES, "::=");
+	rvm_codegen_addins_matcher_nan_str(co, RVM_BLES, "::");
+	rvm_codegen_addins_matcher(co, RPA_MATCHCHR_NAN, '=');
 
 	rpa_compiler_reference_mop_s(co, "space");
 
@@ -497,11 +499,11 @@ static void rpa_production_regexchar(rpa_parser_t *pa)
 	rpa_compiler_rule_begin_s(co, "regexchar", 0);
 
 	rvm_codegen_addins_matcher_nan_ch(co, RVM_BGRE, '\0');
-	rvm_codegen_addins_matcher_nan_str(co, RVM_BGRE, " ~#^-|&+*?\"\'()[]"
+	rvm_codegen_addins_matcher_nan_str(co, RVM_BGRE, " ~#^-|&+*?\"'()[]"
 #ifndef SIMPLE_EBNF
-		"<>."
+		"<>"
 #endif
-		";\t\r\n");
+		".;\t\r\n");
 	rpa_compiler_reference_nan_s(co, "char");
 	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
 
@@ -857,8 +859,8 @@ static void rpa_production_dec(rpa_parser_t *pa)
 	rpa_compiler_rulepref_set_s(co, "dec", 0, RPA_PRODUCTION_DEC, RPA_RFLAG_EMITRECORD);
 	rpa_compiler_rule_begin_s(co, "dec", 0);
 
-	rvm_codegen_addins_matcher_range(co, RVM_BLES, '1', '9');
-	rvm_codegen_addins_matcher_range(co, RVM_BLES, '0', '9');
+	rvm_codegen_addins_matcher_range(co, RPA_MATCHRNG_NAN, RVM_BLES, '1', '9');
+	rvm_codegen_addins_matcher_range(co, RPA_MATCHRNG_MOP, RVM_BLES, '0', '9');
 
 	rpa_compiler_rule_end(co);
 }
@@ -872,9 +874,9 @@ static void rpa_production_hex(rpa_parser_t *pa)
 	rpa_compiler_rule_begin_s(co, "hex", 0);
 
 	rpa_compiler_class_begin(co, RPA_MATCH_MULTIPLE);
-	rvm_codegen_addins_matcher_range(co, RVM_BGRE, '0', '9');
-	rvm_codegen_addins_matcher_range(co, RVM_BGRE, 'a', 'f');
-	rvm_codegen_addins_matcher_range(co, RVM_BGRE, 'A', 'F');
+	rvm_codegen_addins_matcher_range(co, RPA_MATCHRNG_NAN, RVM_BGRE, '0', '9');
+	rvm_codegen_addins_matcher_range(co, RPA_MATCHRNG_NAN, RVM_BGRE, 'a', 'f');
+	rvm_codegen_addins_matcher_range(co, RPA_MATCHRNG_NAN, RVM_BGRE, 'A', 'F');
 	rpa_compiler_class_end(co);
 	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
 
@@ -949,6 +951,7 @@ static void rpa_production_cref(rpa_parser_t *pa)
 }
 
 
+#ifdef SIMPLE_EBNF
 #if DUMMY_FOR_COMMENTS
 mcstart ::= '/*'
 mcend ::= '*/'
@@ -975,7 +978,7 @@ static void rpa_production_multiline_comment(rpa_parser_t *pa)
 
 	rpa_compiler_rule_end(co);
 }
-
+#endif
 
 
 static void rpa_production_terminal(rpa_parser_t *pa)
@@ -1361,7 +1364,9 @@ static int rpa_parser_init(rpa_parser_t *pa)
 	rpa_production_namedrule(pa);
 	rpa_production_anonymousrule(pa);
 	rpa_production_comment(pa);
+#ifdef SIMPLE_EBNF
 	rpa_production_multiline_comment(pa);
+#endif
 	rpa_production_bnf(pa);
 
 	if (rvm_codegen_relocate(co->cg, &err) < 0) {
