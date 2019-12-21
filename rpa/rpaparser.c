@@ -305,7 +305,6 @@ static void rpa_production_directive_noemit(rpa_parser_t *pa)
 	rpa_compiler_rule_end(co);
 }
 
-
 static void rpa_production_comment(rpa_parser_t *pa)
 {
 	rpa_compiler_t *co = pa->co;
@@ -1002,6 +1001,11 @@ static void rpa_production_cref(rpa_parser_t *pa)
 }
 
 
+#if DUMMY_FOR_COMMENTS
+mcstart ::= '/*'
+mcend ::= '*/'
+mc ::= <mcstart> (. - <mcend>)* <mcend>
+#endif
 static void rpa_production_multiline_comment(rpa_parser_t *pa)
 {
 	rpa_compiler_t *co = pa->co;
