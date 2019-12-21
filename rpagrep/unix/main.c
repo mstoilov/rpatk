@@ -69,7 +69,7 @@ int usage(int argc, const char *argv[])
 		fprintf(stderr, "\t    --exec-debug         Execute in debug mode.\n");
 		fprintf(stderr, "\t    --no-cache           Disable execution cache.\n");
 		fprintf(stderr, "\t    --no-bitmap          Disable expression bitmap use.\n");
-		
+
 		return 0;
 }
 
@@ -147,7 +147,7 @@ int main(int argc, const char *argv[])
 				if (ret < 0)
 					goto error;
 			}
-			
+
 		}
 	}
 
@@ -230,7 +230,7 @@ int main(int argc, const char *argv[])
 				if (argv[i]) {
 					rpa_buffer_t pattern;
 					pattern.s = (char*)argv[i];
-					pattern.size = strlen(argv[i]);					
+					pattern.size = strlen(argv[i]);
 					rpa_grep_dump_pattern_tree(pGrep, &pattern);
 					goto end;
 				}
@@ -255,7 +255,7 @@ int main(int argc, const char *argv[])
 			devnull = fopen("/dev/null", "w");
 			stdout = devnull;
 		}
-		
+
 	}
 
 
@@ -279,7 +279,7 @@ int main(int argc, const char *argv[])
 		} else if (argv[i][1] == 'e' || argv[i][1] == 'f' || argv[i][1] == 'c' || argv[i][1] == 'C'){
 			++i;
 		}
-		
+
 	}
 
 	if (!scanned) {
@@ -313,8 +313,9 @@ end:
 
 	if (devnull)
 		fclose(devnull);
+	i = pGrep->ret;
 	rpa_grep_destroy(pGrep);
-	return pGrep->ret;
+	return i;
 
 error:
 	if (devnull)
