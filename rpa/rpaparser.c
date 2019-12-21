@@ -129,8 +129,7 @@ static void rpa_production_directives(rpa_parser_t *pa)
 	 */
 	rpa_compiler_notexp_begin(co, RPA_MATCH_MULTIOPT);
 	rpa_compiler_class_begin(co, RPA_MATCH_NONE);
-	rvm_codegen_addins_matcher_nan_ch(co, RVM_BGRE, '\r');
-	rvm_codegen_addins_matcher_nan_ch(co, RVM_BGRE, '\n');
+	rvm_codegen_addins_matcher_nan_str(co, RVM_BGRE, "\r\n");
 	rpa_compiler_class_end(co);
 	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
 	rpa_compiler_notexp_end(co);
@@ -155,9 +154,7 @@ static void rpa_production_bnf(rpa_parser_t *pa)
 
 	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
 	rpa_compiler_class_begin(co, RPA_MATCH_MULTIPLE);
-	rvm_codegen_addins_matcher_nan_ch(co, RVM_BGRE, '\r');
-	rvm_codegen_addins_matcher_nan_ch(co, RVM_BGRE, '\n');
-	rvm_codegen_addins_matcher_nan_ch(co, RVM_BGRE, ';');
+	rvm_codegen_addins_matcher_nan_str(co, RVM_BGRE, "\r\n;");
 	rvm_codegen_addins_matcher_nan_ch(co, RVM_BGRE, '\0');
 	rpa_compiler_class_end(co);
 	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
@@ -236,8 +233,7 @@ static void rpa_production_directive_abort(rpa_parser_t *pa)
 #ifndef SIMPLE_EBNF
 	rvm_codegen_addins_matcher_nan_ch(co, RVM_BLES, '#');
 #else
-	rvm_codegen_addins_matcher_nan_ch(co, RVM_BLES, '/');
-	rvm_codegen_addins_matcher_nan_ch(co, RVM_BLES, '/');
+	rvm_codegen_addins_matcher_nan_str(co, RVM_BLES, "//");
 #endif // SIMPLE_EBNF
 	rpa_compiler_reference_opt_s(co, "space");
 	rvm_codegen_addins_matcher_nan_ch(co, RVM_BLES, '!');
@@ -260,8 +256,7 @@ static void rpa_production_directive_emitall(rpa_parser_t *pa)
 #ifndef SIMPLE_EBNF
 	rvm_codegen_addins_matcher_nan_ch(co, RVM_BLES, '#');
 #else
-	rvm_codegen_addins_matcher_nan_ch(co, RVM_BLES, '/');
-	rvm_codegen_addins_matcher_nan_ch(co, RVM_BLES, '/');
+	rvm_codegen_addins_matcher_nan_str(co, RVM_BLES, "//");
 #endif // SIMPLE_EBNF
 	rpa_compiler_reference_opt_s(co, "space");
 	rvm_codegen_addins_matcher_nan_ch(co, RVM_BLES, '!');
@@ -280,8 +275,7 @@ static void rpa_production_directive_emitnone(rpa_parser_t *pa)
 #ifndef SIMPLE_EBNF
 	rvm_codegen_addins_matcher_nan_ch(co, RVM_BLES, '#');
 #else
-	rvm_codegen_addins_matcher_nan_ch(co, RVM_BLES, '/');
-	rvm_codegen_addins_matcher_nan_ch(co, RVM_BLES, '/');
+	rvm_codegen_addins_matcher_nan_str(co, RVM_BLES, "//");
 #endif // SIMPLE_EBNF
 	rpa_compiler_reference_opt_s(co, "space");
 	rvm_codegen_addins_matcher_nan_ch(co, RVM_BLES, '!');
@@ -300,8 +294,7 @@ static void rpa_production_directive_noemit(rpa_parser_t *pa)
 #ifndef SIMPLE_EBNF
 	rvm_codegen_addins_matcher_nan_ch(co, RVM_BLES, '#');
 #else
-	rvm_codegen_addins_matcher_nan_ch(co, RVM_BLES, '/');
-	rvm_codegen_addins_matcher_nan_ch(co, RVM_BLES, '/');
+	rvm_codegen_addins_matcher_nan_str(co, RVM_BLES, "//");
 #endif // SIMPLE_EBNF
 	rpa_compiler_reference_opt_s(co, "space");
 	rvm_codegen_addins_matcher_nan_ch(co, RVM_BLES, '!');
@@ -323,8 +316,7 @@ static void rpa_production_comment(rpa_parser_t *pa)
 #ifndef SIMPLE_EBNF
 	rvm_codegen_addins_matcher_nan_ch(co, RVM_BLES, '#');
 #else
-	rvm_codegen_addins_matcher_nan_ch(co, RVM_BLES, '/');
-	rvm_codegen_addins_matcher_nan_ch(co, RVM_BLES, '/');
+	rvm_codegen_addins_matcher_nan_str(co, RVM_BLES, "//");
 #endif // SIMPLE_EBNF
 
 	rpa_compiler_exp_begin(co, RPA_MATCH_MULTIOPT, 0);
@@ -805,15 +797,8 @@ static void rpa_production_alphacls(rpa_parser_t *pa)
 
 	rpa_compiler_altexp_begin(co, RPA_MATCH_MULTIPLE, 0);
 
-	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
-	rpa_compiler_reference_nan_s(co, "charrng");
-	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
-	rpa_compiler_branch_end(co);
-
-	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
-	rpa_compiler_reference_nan_s(co, "clschar");
-	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
-	rpa_compiler_branch_end(co);
+	rpa_compiler_branch_nan_s(co, "charrng");
+	rpa_compiler_branch_nan_s(co, "clschar");
 
 	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
 	rvm_codegen_addins_matcher(co, RPA_MATCHCHR_NAN, '\\');
@@ -870,10 +855,7 @@ static void rpa_production_numcls(rpa_parser_t *pa)
 	rpa_compiler_branch_end(co);
 
 
-	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
-	rpa_compiler_reference_nan_s(co, "clsnum");
-	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
-	rpa_compiler_branch_end(co);
+	rpa_compiler_branch_nan_s(co, "clsnum");
 
 	rpa_compiler_altexp_end(co);
 	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
@@ -894,15 +876,9 @@ static void rpa_production_cls(rpa_parser_t *pa)
 
 	rpa_compiler_altexp_begin(co, RPA_MATCH_NONE, 0);
 
-	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
-	rpa_compiler_reference_nan_s(co, "numcls");
-	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
-	rpa_compiler_branch_end(co);
+	rpa_compiler_branch_nan_s(co, "numcls");
+	rpa_compiler_branch_nan_s(co, "alphacls");
 
-	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
-	rpa_compiler_reference_nan_s(co, "alphacls");
-	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
-	rpa_compiler_branch_end(co);
 	rpa_compiler_altexp_end(co);
 	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
 
@@ -973,10 +949,8 @@ static void rpa_production_num(rpa_parser_t *pa)
 	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
 	rpa_compiler_branch_end(co);
 
-	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
-	rpa_compiler_reference_nan_s(co, "dec");
-	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
-	rpa_compiler_branch_end(co);
+	rpa_compiler_branch_nan_s(co, "dec");
+
 	rpa_compiler_altexp_end(co);
 	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
 
@@ -1067,35 +1041,12 @@ static void rpa_production_terminal(rpa_parser_t *pa)
 
 	rpa_compiler_altexp_begin(co, RPA_MATCH_NONE, 0);
 
-	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
-	rpa_compiler_reference_nan_s(co, "cls");
-	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
-	rpa_compiler_branch_end(co);
-
-	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
-	rpa_compiler_reference_nan_s(co, "sqstr");
-	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
-	rpa_compiler_branch_end(co);
-
-	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
-	rpa_compiler_reference_nan_s(co, "dqstr");
-	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
-	rpa_compiler_branch_end(co);
-
-	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
-	rpa_compiler_reference_nan_s(co, "cref");
-	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
-	rpa_compiler_branch_end(co);
-
-	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
-	rpa_compiler_reference_nan_s(co, "aref");
-	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
-	rpa_compiler_branch_end(co);
-
-	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
-	rpa_compiler_reference_nan_s(co, "bracketexp");
-	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
-	rpa_compiler_branch_end(co);
+	rpa_compiler_branch_nan_s(co, "cls");
+	rpa_compiler_branch_nan_s(co, "sqstr");
+	rpa_compiler_branch_nan_s(co, "dqstr");
+	rpa_compiler_branch_nan_s(co, "cref");
+	rpa_compiler_branch_nan_s(co, "aref");
+	rpa_compiler_branch_nan_s(co, "bracketexp");
 
 	rpa_compiler_altexp_end(co);
 	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
@@ -1113,20 +1064,9 @@ static void rpa_production_qchar(rpa_parser_t *pa)
 
 	rpa_compiler_altexp_begin(co, RPA_MATCH_NONE, 0);
 
-	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
-	rpa_compiler_reference_nan_s(co, "nsspecialchar");
-	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
-	rpa_compiler_branch_end(co);
-
-	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
-	rpa_compiler_reference_nan_s(co, "escapedchar");
-	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
-	rpa_compiler_branch_end(co);
-
-	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
-	rpa_compiler_reference_nan_s(co, "regexchar");
-	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
-	rpa_compiler_branch_end(co);
+	rpa_compiler_branch_nan_s(co, "nsspecialchar");
+	rpa_compiler_branch_nan_s(co, "escapedchar");
+	rpa_compiler_branch_nan_s(co, "regexchar");
 
 	rpa_compiler_altexp_end(co);
 	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
@@ -1154,10 +1094,8 @@ static void rpa_production_qexp(rpa_parser_t *pa)
 	rpa_compiler_reference_opt_s(co, "space");
 	rpa_compiler_branch_end(co);
 
-	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
-	rpa_compiler_reference_nan_s(co, "qchar");
-	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
-	rpa_compiler_branch_end(co);
+	rpa_compiler_branch_nan_s(co, "qchar");
+
 	rpa_compiler_altexp_end(co);
 	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
 
@@ -1186,14 +1124,10 @@ static void rpa_production_anchorexp(rpa_parser_t *pa)
 
 	rpa_compiler_rule_begin_s(co, "anchorexp", 0);
 	rpa_compiler_altexp_begin(co, RPA_MATCH_NONE, 0);
-	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
-	rpa_compiler_reference_nan_s(co, "anchorop");
-	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
-	rpa_compiler_branch_end(co);
-	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
-	rpa_compiler_reference_nan_s(co, "qexp");
-	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
-	rpa_compiler_branch_end(co);
+
+	rpa_compiler_branch_nan_s(co, "anchorop");
+	rpa_compiler_branch_nan_s(co, "qexp");
+
 	rpa_compiler_altexp_end(co);
 	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
 	rpa_compiler_reference_opt_s(co, "space");
@@ -1224,15 +1158,10 @@ static void rpa_production_notexp(rpa_parser_t *pa)
 
 	rpa_compiler_rule_begin_s(co, "notexp", 0);
 	rpa_compiler_altexp_begin(co, RPA_MATCH_NONE, 0);
-	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
-	rpa_compiler_reference_nan_s(co, "notop");
-	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
-	rpa_compiler_branch_end(co);
-	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
-//	rpa_compiler_reference_nan_s(co, "qexp");
-	rpa_compiler_reference_nan_s(co, "anchorexp");
-	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
-	rpa_compiler_branch_end(co);
+
+	rpa_compiler_branch_nan_s(co, "notop");
+	rpa_compiler_branch_nan_s(co, "anchorexp");
+
 	rpa_compiler_altexp_end(co);
 	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
 	rpa_compiler_reference_opt_s(co, "space");
@@ -1350,15 +1279,9 @@ static void rpa_production_minexp(rpa_parser_t *pa)
 	rpa_compiler_rule_begin_s(co, "minexp", 0);
 	rpa_compiler_altexp_begin(co, RPA_MATCH_NONE, 0);
 
-	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
-	rpa_compiler_reference_nan_s(co, "minop");
-	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
-	rpa_compiler_branch_end(co);
+	rpa_compiler_branch_nan_s(co, "minop");
+	rpa_compiler_branch_nan_s(co, "exp");
 
-	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
-	rpa_compiler_reference_nan_s(co, "exp");
-	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
-	rpa_compiler_branch_end(co);
 	rpa_compiler_altexp_end(co);
 
 	rpa_compiler_rule_end(co);
@@ -1417,15 +1340,9 @@ static void rpa_production_orexp(rpa_parser_t *pa)
 	rpa_compiler_rule_begin_s(co, "orexp", 0);
 	rpa_compiler_altexp_begin(co, RPA_MATCH_NONE, 0);
 
-	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
-	rpa_compiler_reference_nan_s(co, "orop");
-	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
-	rpa_compiler_branch_end(co);
+	rpa_compiler_branch_nan_s(co, "orop");
+	rpa_compiler_branch_nan_s(co, "minexp");
 
-	rpa_compiler_branch_begin(co, RPA_MATCH_NONE, 0);
-	rpa_compiler_reference_nan_s(co, "minexp");
-	rvm_codegen_index_addrelocins_reloc_branch(co, RVM_BLES);
-	rpa_compiler_branch_end(co);
 	rpa_compiler_altexp_end(co);
 
 	rpa_compiler_rule_end(co);
