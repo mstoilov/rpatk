@@ -1,0 +1,473 @@
+//!emitall
+//!emitnone
+
+
+//!emit DoKeyword
+//!emit FunctionCallName
+//!emit IterationDo
+//!emit LogicalNotExpressionOp
+//!emit PostfixExpressionOp
+//!emit PrefixExpressionOp
+//!emit dqstring
+//!emit sqstring
+
+//!emitid SyntaxError					UID_SYNTAXERROR						1
+//!emitid AdditiveOperator				UID_BINARYOPERATOR					2
+//!emitid AdditiveOperator				UID_ADDITIVEOPERATOR				2
+//!emitid MultiplicativeOperator			UID_MULTIPLICATIVEOPERATOR			2
+//!emitid AssignmentOperator				UID_ASSIGNMENTOPERATOR				2
+//!emitid BitwiseANDOperator				UID_BITWISEANDOPERATOR				2
+//!emitid BitwiseNotExpressionOp			UID_BITWISENOTEXPRESSIONOP			2
+//!emitid BitwiseNotOperator				UID_BITWISENOTOPERATOR				2
+//!emitid BitwiseOROperator				UID_BITWISEOROPERATOR				2
+//!emitid BitwiseXOROperator				UID_BITWISEXOROPERATOR				2
+//!emitid LogicalNotOperator				UID_LOGICALNOTOPERATOR				2
+//!emitid LogicalOROperator				UID_LOGICALOROPERATOR				2
+//!emitid LogicalANDOperator				UID_LOGICALANDOPERATOR				2
+//!emitid RelationalOperator				UID_RELATIONALOPERATOR				2
+//!emitid PostfixOperator				UID_POSTFIXOPERATOR					2
+//!emitid PrefixOperator					UID_PREFIXOPERATOR					2
+//!emitid ShiftOperator					UID_SHIFTOPERATOR					2
+//!emitid EqualityOperator				UID_EQUALITYOPERATOR				2
+//!emitid UnaryOperator					UID_UNARYOPERATOR					3
+//!emitid This					 		UID_THIS				 			4
+//!emitid Expression						UID_EXPRESSION						5
+//!emitid LeftHandSideExpression			UID_LEFTHANDSIDEEXPRESSION			6
+//!emitid LeftHandSideExpressionAddr		UID_LEFTHANDSIDEEXPRESSIONADDR		7
+//!emitid AdditiveExpressionOp			UID_ADDITIVEEXPRESSIONOP			8
+//!emitid MultiplicativeExpressionOp		UID_MULTIPLICATIVEEXPRESSIONOP		9
+//!emitid BitwiseANDOp					UID_BITWISEANDOP					10
+//!emitid BitwiseXOROp					UID_BITWISEXOROP					11
+//!emitid BitwiseOROp					UID_BITWISEOROP						12
+//!emitid ShiftExpressionOp				UID_SHIFTEXPRESSIONOP				13
+//!emitid EqualityExpressionOp			UID_EQUALITYEXPRESSIONOP			14
+//!emitid RelationalExpressionOp			UID_RELATIONALEXPRESSIONOP			15
+//!emitid LogicalOROp					UID_LOGICALOROP						16
+//!emitid LogicalANDOp					UID_LOGICALANDOP					17
+//!emitid VariableAllocate				UID_VARIABLEALLOCATE				18
+//!emitid VariableAllocateAndInit		UID_VARIABLEALLOCATEANDINIT			19
+//!emitid IdentifierName					UID_IDENTIFIERNAME					20
+//!emitid Identifier						UID_IDENTIFIER						21
+//!emitid Initialiser					UID_INITIALISER						22
+//!emitid AssignmentExpressionOp			UID_ASSIGNMENTEXPRESSIONOP			23
+//!emitid NewArrayExpression				UID_NEWARRAYEXPRESSION				24
+//!emitid MemberExpressionDotOp			UID_MEMBEREXPRESSIONDOTOP			25
+//!emitid MemberExpressionIndexOp		UID_MEMBEREXPRESSIONINDEXOP			26
+//!emitid FunctionName					UID_FUNCTIONNAME					27
+//!emitid FunctionDeclaration			UID_FUNCTIONDECLARATION				28
+//!emitid FunctionParameter				UID_FUNCTIONPARAMETER				29
+//!emitid FormalParameterList			UID_FORMALPARAMETERLIST				30
+//!emitid FunctionCall					UID_FUNCTIONCALL					32
+//!emitid Argument						UID_ARGUMENT						33
+//!emitid Arguments						UID_ARGUMENTS						34
+//!emitid ReturnStatement				UID_RETURNSTATEMENT					35
+//!emitid DoubleStringCharacters			UID_STRINGCHARACTERS				36
+//!emitid SingleStringCharacters			UID_STRINGCHARACTERS				36
+//!emitid IfStatement					UID_IFSTATEMENT						37
+//!emitid IfConditionOp					UID_IFCONDITIONOP					38
+//!emitid IfTrueStatement				UID_IFTRUESTATEMENT					39
+//!emitid IfFalseStatement				UID_IFFALSESTATEMENT				40
+//!emitid Block							UID_BLOCK							41
+//!emitid IterationFor					UID_ITERATIONFOR					42
+//!emitid ForExpressionInit				UID_FOREXPRESSIONINIT				43
+//!emitid ForExpressionCompare			UID_FOREXPRESSIONCOMPARE			44
+//!emitid ForExpressionIncrement			UID_FOREXPRESSIONINCREMENT			45
+//!emitid ForIterationStatement			UID_FORITERATIONSTATEMENT			46
+//!emitid PostfixExpressionOp			UID_POSTFIXEXPRESSIONOP				47
+//!emitid PrefixExpressionOp				UID_PREFIXEXPRESSIONOP				48
+//!emitid NewExpressionCall				UID_NEWEXPRESSIONCALL				49
+//!emitid FunctionExpression				UID_FUNCTIONEXPRESSION				50
+//!emitid UnaryExpressionOp				UID_UNARYEXPRESSIONOP				51
+//!emitid DecimalIntegerLiteral			UID_DECIMALINTEGERLITERAL			52
+//!emitid DecimalNonIntegerLiteral		UID_DECIMALNONINTEGERLITERAL		53
+//!emitid BreakStatement					UID_BREAKSTATEMENT					54
+//!emitid ContinueStatement				UID_CONTINUESTATEMENT				55
+//!emitid IterationWhile					UID_ITERATIONWHILE					56
+//!emitid IterationDo					UID_ITERATIONDO						57
+//!emitid WhileExpressionCompare			UID_WHILEEXPRESSIONCOMPARE			58
+//!emitid DoWhileExpressionCompare		UID_DOWHILEEXPRESSIONCOMPARE		59
+//!emitid Program 						UID_PROGRAM 						60
+//!emitid StringLiteral					UID_STRINGLITERAL					61
+//!emitid UnaryExpressionDelete			UID_UNARYEXPRESSIONDELETE			62
+//!emitid IterationForIn					UID_ITERATIONFORIN					63
+//!emitid ForInInit						UID_FORININIT						64
+//!emitid UnaryExpressionTypeof			UID_UNARYEXPRESSIONTYPEOF			65
+//!emitid SwitchStatement				UID_SWITCHSTATEMENT					66
+//!emitid SwitchExpression				UID_SWITCHEXPRESSION				67
+//!emitid CaseClause						UID_CASECLAUSE						68
+//!emitid DefaultClause					UID_DEFAULTCLAUSE					69
+//!emitid CaseCode						UID_CASECODE						70
+//!emitid CaseBlock						UID_CASEBLOCK						71
+//!emitid HexIntegerLiteral				UID_HEXINTEGERLITERAL				72
+//!emitid IndexExpression				UID_INDEXEXPRESSION					73
+
+//!abort SC
+
+
+// 6 Source Text
+SourceCharacter		::= .
+
+// 7.2 White space
+WhiteSpace			::= [#x0009] | [#x000B] | [#x000C] | [#x0020] | [#x00A0] | [#xFEFF]
+
+// 7.3 Line Terminators
+LineTerminator			::= [#x000D] [#x000A] | ([#x000A] | [#x000D] | [#x2028] | [#x2029])
+LineTerminatorSequence	::= [#x000D] [#x000A] | [#x000A] | [#x000D] | [#x2028] | [#x2029]
+S					::= ( WhiteSpace | LineTerminator )+
+SC					::= S? ';' S?
+COMMA				::= S? ',' S?
+EQ					::= S? '=' S?
+
+// 7.4 Comments
+Comment				::= MultiLineComment | SingleLineComment
+MultiLineComment		::= '/*' MultiLineCommentChar* '*/'
+MultiLineCommentChar	::= . - '*/'
+SingleLineComment		::= '#' SingleLineCommentChar*
+SingleLineCommentChar	::= SourceCharacter - LineTerminator
+
+// 7.5 Tokens
+Token				::= IdentifierName |
+						NumericLiteral |
+						StringLiteral
+
+// 7.6 Identifier Names and Identifiers
+
+Identifier				::= IdentifierNameNoEmit - (ReservedWord - (ReservedWord IdentifierPart))
+IdentifierNoEmit		::= IdentifierNameNoEmit - (ReservedWord - (ReservedWord IdentifierPart))
+IdentifierName			::= IdentifierStart IdentifierPart*
+IdentifierNameNoEmit	::= IdentifierStart IdentifierPart*
+IdentifierStart			::= UnicodeLetter | '$' | '_' | '\' UnicodeLetter
+UnicodeLetter			::= [#x0041-#x005A] | [#x00C0-#x00DE] | [#x0100-#x0232] | [#x0061-#x007A] | [#x00C0-#x00DE]
+
+Lu					::= [#x0041-#x005A] | [#x00C0-#x00DE] | [#x0100-#x0232]
+Ll					::= [#x0061-#x007A] | [#x00C0-#x00DE]
+IdentifierPart			::= IdentifierStart |
+							UnicodeDigit
+UnicodeDigit			::= [0-9] | [#x0660-#x0669]
+
+ReservedWord			::= NullLiteral |
+							BooleanLiteral |
+							Keyword |
+							FutureReservedWord
+
+Keyword					::= 'instanceof' | 'typeof'	| 'break' |
+							'do' | 'new' | 'var' |
+							'case' | 'else' | 'return' | 'void' |
+							'catch' | 'finally' | 'continue' | 'for' |
+							'switch' | 'while' | 'this' | 'with' |
+							'debugger' | 'function' | 'throw' | 'default' |
+							'if' | 'try' | 'delete' | 'in'
+
+FutureReservedWord			::= 'class' | 'enum' | 'extends' | 'import' | 'const' | 'export' |
+							'implements' | 'let' | 'private' | 'public' |
+							'static' | 'interface' | 'package' | 'protected'
+
+NullLiteral					::= 'null'
+BooleanLiteral 				::= 'true' | 'false'
+Literal 					::= NullLiteral |
+							BooleanLiteral |
+							NumericLiteral |
+							StringLiteral
+
+LiteralOp						::= Literal
+
+// 7.8.3 Numeric Literals
+
+NumericLiteral					::= HexIntegerLiteral | DecimalNonIntegerLiteral | DecimalIntegerLiteral
+DecimalNonIntegerLiteral			::= ('0' | NonZeroDigit DecimalDigits?) '.' DecimalDigits? ExponentPart? |
+								'.' DecimalDigits ExponentPart?
+DecimalIntegerLiteral				::= '0' | NonZeroDigit DecimalDigits? ExponentPart?
+DecimalDigits					::= DecimalDigit+
+DecimalDigit					::= [0-9]
+NonZeroDigit					::= [1-9]
+ExponentPart					::= ExponentIndicator SignedInteger
+ExponentIndicator				::= [eE]
+SignedInteger					::= '-' DecimalDigits |
+								'+' DecimalDigits |
+								DecimalDigits
+HexIntegerLiteral				::= '0' [xX] HexDigit+
+HexDigit						::= [0-9a-fA-F]
+
+// 7.8.4 String Literals
+StringLiteral					::= '"' DoubleStringCharacters? '"' |
+								"'" SingleStringCharacters? "'"
+
+DoubleStringCharacters			::= DoubleStringCharacter+
+SingleStringCharacters			::= SingleStringCharacter+
+
+DoubleStringCharacter			::= SourceCharacter - ('"' | '\\' | LineTerminator)
+
+SingleStringCharacter			::= SourceCharacter - ("'" | '\\' | LineTerminator)
+This							::= 'this'
+
+PrimaryExpression				::= This |
+								'(' S? Expression S? ')' |
+								Literal |
+								Identifier
+
+
+
+
+ArrayLiteral 					::= '[' S? Elision? S? ']' |
+								'[' S? ElementList S? ']' |
+								'[' S? ElementList S? ',' S? Elision S? ']'
+ElementList					::= Elision? S? AssignmentExpression (S? ',' S? Elision? S? AssignmentExpression )*
+Elision						::= ',' S? Elision | S? ','
+
+
+// 11.2 Left-Hand-Side Expressions
+LSB							::= S? '[' S?
+RSB							::= S? ']' S?
+IndexExpression				::= S? '[' S? Expression S? ']' S?
+MemberExpressionBase			::= MemberExpression
+MemberExpressionIndexOp		::= MemberExpressionBase IndexExpression
+MemberExpressionDotOp			::= MemberExpressionBase '.' IdentifierName
+
+MemberExpression 				::= MemberExpressionIndexOp  |
+									MemberExpressionDotOp |
+									FunctionExpression |
+									FunctionCall |
+									PrimaryExpression
+
+NewKeyword					::= 'new' - ('new' IdentifierPart)
+NewExpressionCall				::= NewKeyword S? MemberExpression S? Arguments?
+
+NewExpression 					::= NewExpressionCall |
+								MemberExpression
+
+FunctionCallName				::= MemberExpression
+FunctionCall					::= FunctionCallName S? Arguments
+Arguments						::= '(' S? ')' |
+								'(' S? ArgumentList S? ')'
+Argument						::= AssignmentExpression
+ArgumentList					::= ArgumentList S? ',' S? Argument |
+								Argument
+LeftHandSideExpression			::= NewExpression
+LeftHandSideExpressionAddr		::= NewExpression
+
+
+// 11.3 Postfix Expressions
+// RULE: LeftHandSideExpression always ends up in R0 (Let see if this would work)
+PostfixOperator 				::= '++' | '--'
+PostfixExpressionOp 				::= LeftHandSideExpressionAddr PostfixOperator
+PostfixExpression 				::= PostfixExpressionOp | LeftHandSideExpression
+
+PrefixOperator 					::= '++' | '--'
+PrefixExpressionOp 				::= PrefixOperator LeftHandSideExpressionAddr
+PrefixExpression 				::= PrefixExpressionOp | PostfixExpression
+
+// 11.4 Unary Operators
+UnaryOperator					::= '~' | '!' | ('+' - '++') | ('-' - '--')
+UnaryExpressionOp				::=	S? UnaryOperator S? UnaryExpression
+UnaryExpressionDelete			::=	S? 'delete' S? UnaryExpression
+UnaryExpressionVoid				::=	S? 'void' S? UnaryExpression
+UnaryExpressionTypeof			::=	S? 'typeof' S? UnaryExpression
+UnaryExpression				::=	UnaryExpressionOp | UnaryExpressionDelete | UnaryExpressionTypeof |UnaryExpressionVoid | PrefixExpression
+
+
+// 11.5 Multiplicative Operators
+MultiplicativeOperator 			::= '*' | '/' | '%'
+MultiplicativeExpressionOp		::= MultiplicativeExpression S? MultiplicativeOperator S? UnaryExpression
+MultiplicativeExpression			::= MultiplicativeExpressionOp |
+									UnaryExpression
+
+// 11.6 Additive Operators
+AdditiveOperator 				::= '+' | '-'
+// AbortIfNotMultiplicativeExpression	::= MultiplicativeExpression
+AdditiveExpressionOp			::= AdditiveExpression S? AdditiveOperator S? MultiplicativeExpression
+AdditiveExpression				::= AdditiveExpressionOp |
+									MultiplicativeExpression
+
+
+// 11.7 Bitwise Shift Operators
+ShiftOperator					::= '>>>' | '<<' | '>>'
+ShiftExpressionOp				::= ShiftExpression S? ShiftOperator S? AdditiveExpression
+ShiftExpression					::= ShiftExpressionOp |
+								AdditiveExpression
+
+
+// 11.8 Relational Operators
+RelationalOperator				::= '<=' | '>=' | '<' | '>' | 'instanceof'
+RelationalExpressionOp			::= RelationalExpression S? RelationalOperator S? ShiftExpression
+RelationalExpression				::= RelationalExpressionOp |
+								ShiftExpression
+
+// 11.9 Equality Operators
+EqualityOperator				::= '===' | '==' | '!==' | '!='
+EqualityExpressionOp			::= EqualityExpression S? EqualityOperator S? RelationalExpression
+EqualityExpression				::= EqualityExpressionOp |
+								RelationalExpression
+
+BitwiseANDOperator				::= '&' - '&&'
+BitwiseANDOp					::= BitwiseANDExpression S? BitwiseANDOperator S? EqualityExpression
+BitwiseANDExpression			::= BitwiseANDOp |
+								EqualityExpression
+
+BitwiseXOROperator				::= '^'
+BitwiseXOROp					::= BitwiseXORExpression S? BitwiseXOROperator S? BitwiseANDExpression
+BitwiseXORExpression			::= BitwiseXOROp |
+								BitwiseANDExpression
+
+BitwiseOROperator				::= '|' - '||'
+BitwiseOROp					::= BitwiseORExpression S? BitwiseOROperator S? BitwiseXORExpression
+BitwiseORExpression				::= BitwiseOROp |
+								BitwiseXORExpression
+
+// 11.11 Binary Logical Operators
+LogicalANDOperator				::= '&&'
+LogicalANDOp					::= LogicalANDExpression S? LogicalANDOperator  S? BitwiseORExpression
+LogicalANDExpression			::= LogicalANDOp |
+								BitwiseORExpression
+
+LogicalOROperator				::= '||'
+LogicalOROp					::= LogicalORExpression S? LogicalOROperator S? LogicalANDExpression
+LogicalORExpression				::= LogicalOROp |
+								LogicalANDExpression
+
+
+// 11.12 Conditional Operator ( ? : )
+ConditionalExpression 			::= LogicalORExpression ( S? '?' S? AssignmentExpression S? ':' S? AssignmentExpression )?
+
+// 11.13 Assignment Operators
+AssignmentExpressionOp			::= LeftHandSideExpressionAddr S? AssignmentOperator S? AssignmentExpression
+AssignmentExpression			::= AssignmentExpressionOp | ConditionalExpression
+AssignmentOperator				::= '=' | '*=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>=' | '>>>=' | '&=' | '^=' | '|='
+
+
+// 11.14 Comma Operator 	( , )
+Expression					::= AssignmentExpression ( S? ',' S? AssignmentExpression )*
+
+
+// 12 Statements
+Statement						::= FunctionDeclarationStatement |
+									ExpressionStatement |
+									ContinueStatement |
+									Block |
+									Comment |
+									VariableStatement |
+									EmptyStatement |
+									IfStatement |
+									IterationStatement |
+									ContinueStatement |
+									BreakStatement |
+									ReturnStatement |
+									WithStatement |
+									SwitchStatement
+
+// 12.1 Block
+Block							::= S? '{' S? StatementList? S? '}' S?
+StatementList						::= (S? Statement)+
+
+// 12.2 Variable Statement
+VariableStatement 					::= 'var' S? VariableDeclarationList SC
+VariableDeclarationList				::= VariableDeclaration (COMMA VariableDeclaration )*
+VariableAllocate					::= IdentifierNoEmit
+VariableAllocateAndInit				::= IdentifierNoEmit
+VariableAllocatePush					::= IdentifierNoEmit
+VariableDeclaration					::= VariableAllocateAndInit Initialiser | VariableAllocate
+Initialiser							::= EQ AssignmentExpression
+
+
+// 12.3 Empty Statement
+EmptyStatement					::= S? ';' S?
+
+// 12.4 Expression Statement
+ExpressionStatement 				::= (Expression - ('function' | '{')) SC
+
+
+// 12.5 The if Statement
+//!abort	IfBrackets
+IfBrackets							::= '(' S? Expression S? ')'
+IfConditionOp						::= 'if' S? IfBrackets
+IfTrueStatement					::= Statement
+IfFalseStatement					::= Statement
+IfStatement						::= IfConditionOp S? IfTrueStatement S? 'else' S? IfFalseStatement |
+									IfConditionOp S? IfTrueStatement
+
+// 12.6 Iteration Statements
+// 12.6a Iteration do ... while()
+DoWhileExpressionCompare			::= Expression
+IterationDo						::= 'do' S? Statement S? 'while' S? '(' S? DoWhileExpressionCompare S? ')' SC
+
+// 12.6b Iteration while()
+WhileExpressionCompare				::= Expression
+IterationWhile						::= 'while' S? '(' S? WhileExpressionCompare S? ')' S? Statement
+
+// 12.6c Iteration for ( ; ; )
+ExpressionNoIn						::= Expression
+ForExpressionInit					::= ('var' S? VariableDeclarationList) | ExpressionNoIn
+ForExpressionCompare				::= Expression
+ForExpressionIncrement				::= Expression
+ForIterationStatement				::= Statement
+IterationFor						::= 'for' S? '(' S? ForExpressionInit? S? ';' S? ForExpressionCompare? S? ';' S? ForExpressionIncrement? S? ')' S? ForIterationStatement
+
+// 12.6d Iteration for ( in )
+ForInIterator						::= ('var' S? VariableAllocateAndInit) | LeftHandSideExpressionAddr
+ForInInit							::= ForInIterator S? 'in' S? Expression
+IterationForIn						::= 'for' S? '(' S? ForInInit S? ')' S?  Statement
+
+IterationStatement 					::= IterationWhile |
+									IterationFor |
+									IterationForIn |
+									IterationDo
+
+// 12.9 The return Statement
+ReturnOp							::= ('return' - ('return' IdentifierPart)) WhiteSpace* AssignmentExpression? SC
+ReturnStatement					::= ('return' - ('return' IdentifierPart)) WhiteSpace* AssignmentExpression? SC
+
+// The Break Statement
+BreakOp							::= 'break' - ('break' IdentifierPart)
+BreakStatement					::= S? BreakOp SC
+
+// The Continue Statement
+ContinueOp						::= 'continue' - ('continue' IdentifierPart)
+ContinueStatement					::= S? ContinueOp SC
+
+
+
+// 12.10 The with Statement
+WithStatement						::= 'with' S? '(' S? Expression S? ')' S? Statement
+
+
+// 12.11 The switch Statement
+SwitchExpression					::= ('switch' - ('switch' IdentifierPart)) S? '(' S? Expression S? ')'
+SwitchStatement					::= SwitchExpression S? CaseBlock
+
+CaseBlock							::= '{' S? CaseClauses? S? DefaultClause? S? CaseClauses? S? '}' |
+									'{' S? CaseClauses? S? '}'
+
+
+CaseClauses 						::= (S? CaseClause)+
+CaseExpression						::= ('case' - ('case' IdentifierPart)) S? Expression
+CaseCode							::= S? ':' S? StatementList?
+CaseClause						::= CaseExpression S? CaseCode
+DefaultKeyword						::= 'default' - ('default' IdentifierPart)
+DefaultClause						::= DefaultKeyword S? CaseCode
+
+
+// 13 Function Definition
+FunctionName						::= IdentifierNoEmit
+FunctionDeclaration					::= ('function' - ('function'IdentifierPart)) S? FunctionName S? '(' S? FormalParameterList? S? ')' S? '{' S? FunctionBody? S? '}'
+FunctionExpression					::= ('function' - ('function'IdentifierPart)) S? FunctionName? S? '(' S? FormalParameterList? S? ')' S? '{' S? FunctionBody? S? '}'
+FormalParameterList 				::= FunctionParameter ( S? ',' S? FunctionParameter )*
+FunctionParameter 					::= IdentifierNoEmit
+FunctionBody						::= SourceElements
+FunctionDeclarationStatement			::= ('function' - ('function' IdentifierPart)) S? FunctionName S? '(' S? FormalParameterList? S? ')' SC
+
+// FunctionName					::= IdentifierNoEmit
+// FunctionNameLookupAlloc			::= IdentifierNoEmit
+// FunctionDefinition					::= ('function' - ('function' IdentifierPart)) S? FunctionName S? '(' S?FormalParameterList? S? ')'
+// FunctionDeclaration				::= FunctionDefinition S? '{' S? FunctionBody? S? '}'
+// FunctionExpression					::= ('function' - ('function'IdentifierPart)) S? FunctionName? S? '(' S? FormalParameterList? S? ')' S? '{' S?FunctionBody? S? '}'
+// FunctionParameter 				::= Identifier
+// FormalParameterList 				::= FunctionParameter ( S? ',' S? FunctionParameter )*
+// FunctionDefinitionStatement			::= ('function' - ('function' IdentifierPart)) S? FunctionNameLookupAlloc S? '(' S? FormalParameterList? S? ')' SC
+// FunctionBody						::= SourceElements
+
+
+// 14 Program
+SourceElements 					::= (S? SourceElement)+
+SourceElement 						::= FunctionDeclaration |
+									Statement
+Program							::= SourceElements
+// The root rule, it is anonymous
