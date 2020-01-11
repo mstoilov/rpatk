@@ -40,10 +40,17 @@ value::~value()
 	destroy();
 }
 
+std::string value::get_typename(unsigned int type)
+{
+	std::string ret;
+	if (type <= real_type)
+		ret = value_type_name[type];
+	return ret;
+}
+
 static void escape_str_val(const value& v, std::ostream& os)
 {
 	for (std::string::const_iterator it = v.get_str().begin(); it != v.get_str().end(); it++) {
-		std::string::const_iterator next = it + 1;
 		if (*it == '\\' && (it + 1) != v.get_str().end()) {
 			os << *it++;
 			os << *it;
@@ -70,7 +77,6 @@ static std::string unescape_str(const std::string& s)
 	std::ostringstream os;
 
 	for (std::string::const_iterator it = s.begin(); it < s.end(); it++) {
-		std::string::const_iterator next = it + 1;
 		if (*it == '\\' && (it + 1) < s.end() && *(it + 1) == '"') {
 			os << '"';
 			it++;
@@ -174,6 +180,12 @@ value::value(bool v)
 }
 
 value::value(int v)
+{
+	value_type_ = int_type;
+	store_.v_int_ = v;
+}
+
+value::value(long unsigned int v)
 {
 	value_type_ = int_type;
 	store_.v_int_ = v;
@@ -287,10 +299,19 @@ std::string value::to_string() const
 		os << get_real();
 	else if (value_type_ == str_type)
 		os << get_str();
-	else if (value_type_ == obj_type)
-		throw std::runtime_error("'object' can not be converted to 'string'");
-	else if (value_type_ == array_type)
-		throw std::runtime_error("'array' can not be converted to 'string'");
+	else if (value_type_ == obj_type) {
+		for (rexjson::object::const_iterator it = get_obj().begin(); it != get_obj().end(); it++) {
+			if (it != get_obj().begin())
+				os << ",";
+			os << it->first << ":" << it->second.to_string();
+		}
+	} else if (value_type_ == array_type) {
+		for (rexjson::array::const_iterator it = get_array().begin(); it != get_array().end(); it++) {
+			if (it != get_array().begin())
+				os << ",";
+			os << it->to_string();
+		}
+	}
 	return os.str();
 }
 
@@ -648,7 +669,7 @@ void input::parse_primitive(value& v)
 		v = (token_.length() > 2) ? token_.substr(1, token_.length() - 2) : std::string();
 		break;
 	case TOKEN_INT:
-		v = (int64_t)strtol(token_.c_str(), NULL, 10);
+		v = (int64_t)strtoll(token_.c_str(), NULL, 10);
 		break;
 	case TOKEN_NUMBER:
 		v = strtod(token_.c_str(), NULL);

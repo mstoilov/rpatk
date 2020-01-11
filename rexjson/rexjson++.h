@@ -23,7 +23,27 @@ class input;
 class output;
 
 typedef std::map<std::string, value> object;
-typedef std::vector<value> array;
+
+class array : public std::vector<value>
+{
+public:
+	using base = std::vector<value>;
+	using base::base;
+	base::reference operator[](base::size_type n)
+	{
+		if (n >= size())
+			throw std::range_error("Invalid index");
+		return base::operator [](n);
+	}
+	base::const_reference operator[](base::size_type n) const
+	{
+		if (n >= size())
+			throw std::range_error("Invalid index");
+		return base::operator [](n);
+	}
+};
+
+
 enum value_type {null_type = 0, obj_type, array_type, str_type, bool_type, int_type, real_type};
 
 class value {
@@ -39,6 +59,7 @@ public:
 	value(const std::string& v);
 	value(bool v);
 	value(int v);
+	value(long unsigned int v);
 	value(int64_t v);
 	value(double v);
 	value(const object& v);
@@ -82,6 +103,23 @@ public:
 	value_type type() const { return get_type(); }
 	std::string get_typename() const;
 	std::string to_string() const;
+	static std::string get_typename(unsigned int type);
+
+	template<typename T>
+	void get(T& ret) const
+	{
+		ret = get_int();
+	}
+
+	template<typename T>
+	T get_value() const
+	{
+		T ret;
+		get<T>(ret);
+		return ret;
+	}
+
+	template <typename T> void get_v(T& val);
 
 	void set_object(const object& v) {
 		operator=(v);
@@ -116,6 +154,14 @@ public:
 	value& operator=(int v);
 	value& operator=(int64_t v);
 	value& operator=(double v);
+
+	explicit operator float() { return get_real(); }
+	explicit operator double() { return get_real(); }
+	explicit operator int() { return get_int(); }
+	explicit operator uint() { return get_int(); }
+	explicit operator int64_t() { return get_int64(); }
+	explicit operator bool() { return get_bool(); }
+
 	void check_type(value_type vtype) const;
 	void move(value& v);
 
@@ -130,10 +176,41 @@ protected:
 		int64_t v_int_;
 		void* v_null_;
 		std::string *v_string_;
-		std::vector<value> *v_array_;
+		array *v_array_;
 		std::map<std::string, value> *v_object_;
 	} store_;
 };
+
+
+template<>
+inline void value::get<int64_t>(int64_t& ret) const
+{
+	ret = get_int64();
+}
+
+template<>
+inline void value::get<bool>(bool& ret) const
+{
+	ret = get_bool();
+}
+
+template<>
+inline void value::get<double>(double& ret) const
+{
+	ret = get_real();
+}
+
+template<>
+inline void value::get<float>(float& ret) const
+{
+	ret = get_real();
+}
+
+template<>
+inline void value::get<std::string>(std::string& ret) const
+{
+	ret = get_str();
+}
 
 class input {
 public:
