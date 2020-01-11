@@ -54,7 +54,7 @@ rjs_parser_t *rjs_parser_create()
 	rjs_parser_t *parser = (rjs_parser_t *) r_zmalloc(sizeof(*parser));
 
 	parser->dbex = rpa_dbex_create();
-	if (!parser) {
+	if (!parser->dbex) {
 		rjs_parser_destroy(parser);
 		return NULL;
 	}
