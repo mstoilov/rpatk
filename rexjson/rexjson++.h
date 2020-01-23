@@ -214,7 +214,7 @@ inline void value::get<std::string>(std::string& ret) const
 
 class input {
 public:
-	input(std::istream& is) : is_(is), token_id_(0), offset_(0), levels_(0) {}
+	input(std::istream& is) : is_(is), token_id_(0), offset_(0), levels_(0), errline_(1), errpos_(1) {}
 	void read_steam(value& v, size_t maxlevels = 32);
 
 protected:
@@ -236,6 +236,8 @@ protected:
 	int token_id_;
 	size_t offset_;
 	size_t levels_;
+	size_t errline_;
+	size_t errpos_;
 };
 
 class output {

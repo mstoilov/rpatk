@@ -572,6 +572,12 @@ void input::get_token()
 			--offset_;
 			break;
 		}
+		if (ch == '\n') {
+			errline_++;
+			errpos_ = 1;
+		} else {
+			errpos_++;
+		}
 		if (REX_DFA_STATE(dfa, nstate)->type == REX_STATETYPE_ACCEPT) {
 			/*
 			 * Note: We will not break out of the loop here. We will keep going
@@ -588,6 +594,8 @@ void input::read_steam(value& v, size_t maxlevels)
 {
 	levels_ = maxlevels;
 	offset_ = 0;
+	errline_ = 1;
+	errpos_ = 1;
 	v.destroy();
 	next_token();
 	parse_value(v);
@@ -603,7 +611,7 @@ void input::next_token()
 void input::error_unexpectedtoken()
 {
 	std::ostringstream os;
-	os << "unexpected: '" << loctok_ << "', at offset " << offset_ + 1 - loctok_.length();
+	os << "Unexpected (" << errline_ << ":" << errpos_ + 1 - loctok_.length() << "): " << "'" << loctok_ << "' at offset " << offset_ + 1 - loctok_.length();
 	throw std::runtime_error(os.str());
 }
 
@@ -760,15 +768,19 @@ int main(int argc, const char *argv[])
 
 int main(int argc, const char *argv[])
 {
-	std::stringstream iss;
+	try {
+		std::stringstream iss;
 
-	if (argc > 1) {
-		std::ifstream file(argv[1]);
-		iss << file.rdbuf();
-	} else {
-		iss << std::cin.rdbuf();
+		if (argc > 1) {
+			std::ifstream file(argv[1]);
+			iss << file.rdbuf();
+		} else {
+			iss << std::cin.rdbuf();
+		}
+		std::cout << rexjson::read(iss.str()).write(true) << std::endl;
+	} catch (std::exception& e) {
+		std::cerr << e.what() << std::endl;
 	}
-	std::cout << rexjson::read(iss.str()).write(true) << std::endl;
 
 	return 0;
 }
