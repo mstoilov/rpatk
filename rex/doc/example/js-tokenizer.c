@@ -20,7 +20,7 @@
 
 /*
  * To build:
- * # gcc -I/usr/include/rpatk -o js-tokenizer js-tokenizer.c -lrex -lrlib
+ * # gcc -I/usr/include/rpatk -o js-tokenizer js-tokenizer.c -lrex -lrlib -lm
  *
  * To run:
  * # echo "function add(a,b) { var c = a + b; return c; } print('здравей means hello');" | ./js-tokenizer
