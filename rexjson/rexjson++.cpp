@@ -185,17 +185,36 @@ value::value(int v)
 	store_.v_int_ = v;
 }
 
-value::value(long unsigned int v)
+value::value(unsigned int v)
+{
+	value_type_ = int_type;
+	store_.v_int_ = (signed int)v;
+}
+
+value::value(long int v)
 {
 	value_type_ = int_type;
 	store_.v_int_ = v;
 }
 
-value::value(int64_t v)
+value::value(unsigned long int v)
+{
+	value_type_ = int_type;
+	store_.v_int_ = (signed long int)v;
+}
+
+value::value(long long int v)
 {
 	value_type_ = int_type;
 	store_.v_int_ = v;
 }
+
+value::value(unsigned long long int v)
+{
+	value_type_ = int_type;
+	store_.v_int_ = (signed long long int)v;
+}
+
 
 value::value(double v)
 {
