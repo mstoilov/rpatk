@@ -22,6 +22,7 @@
 #include "rlib/rmem.h"
 #include "rlib/rstring.h"
 #include "rlib/rutf.h"
+#include "rlib/robject.h"
 #include "rex/rexdb.h"
 #include "rex/rexregex.h"
 #include "rex/rexdfa.h"
@@ -30,16 +31,27 @@
 #define REX_REGEX_HASHBITS 5
 
 struct rexregex_s {
+	robject_t obj;
 	rexdfa_t *dfa;
 };
 
+void rex_regex_cleanup(robject_t *obj)
+{
+	rexregex_t *regex = (rexregex_t *)obj;
+	if (regex)
+		rex_dfa_destroy(regex->dfa);
+	r_object_cleanup((robject_t*)regex);
+}
 
-rexregex_t *rex_regex_create(const char *str, unsigned int size)
+
+robject_t *rex_regex_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, const char *str, unsigned int size)
 {
 	long start;
 	rexdb_t *nfadb = NULL, *dfadb = NULL;
-	rexregex_t *regex = NULL;
+	rexregex_t *regex = (rexregex_t *)obj;
 
+	r_object_init(obj, type, cleanup, NULL);
+	regex->dfa = NULL;
 	nfadb = rex_db_create(REXDB_TYPE_NFA);
 	start = rex_db_addexpression(nfadb, -1, str, size, 0);
 	if (start < 0)
@@ -47,14 +59,14 @@ rexregex_t *rex_regex_create(const char *str, unsigned int size)
 	dfadb = rex_db_createdfa(nfadb, start);
 	if (!dfadb)
 		goto error;
-	regex = (rexregex_t *)r_zmalloc(sizeof(*regex));
+
 	regex->dfa = rex_db_todfa(dfadb, 0);
 	if (!regex->dfa)
 		goto error;
 	rex_dfa_hash(regex->dfa, REX_REGEX_HASHBYTES, REX_REGEX_HASHBITS);
 	rex_db_destroy(dfadb);
 	rex_db_destroy(nfadb);
-	return regex;
+	return obj;
 
 error:
 	rex_db_destroy(dfadb);
@@ -64,12 +76,19 @@ error:
 }
 
 
+rexregex_t *rex_regex_create(const char *str, unsigned int size)
+{
+	rexregex_t *regex;
+
+	regex = (rexregex_t*)r_object_create(sizeof(*regex));
+	rex_regex_init((robject_t*)regex, R_OBJECT_REXREGEX, rex_regex_cleanup, NULL, str, size);
+	return regex;
+}
+
+
 void rex_regex_destroy(rexregex_t *regex)
 {
-	if (regex) {
-		rex_dfa_destroy(regex->dfa);
-		r_free(regex);
-	}
+	r_object_destroy((robject_t*)regex);
 }
 
 

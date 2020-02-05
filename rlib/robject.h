@@ -39,6 +39,7 @@ extern "C" {
 #define R_OBJECT_REF 7
 #define R_OBJECT_JSOBJECT 8
 #define R_OBJECT_GC 9
+#define R_OBJECT_REXREGEX 10
 #define R_OBJECT_USER 256
 
 
