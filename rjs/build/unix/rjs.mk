@@ -85,6 +85,10 @@ endif
 $(OUTDIR)/%.o: $(RJS_SRCDIR)/unix/%.c
 	$(CC) $(CFLAGS) -o $(OUTDIR)/$*.o -c $(RJS_SRCDIR)/unix/$*.c
 
+$(OUTDIR)/%.o: $(RJS_SRCDIR)/exec/%.c
+	$(CC) $(CFLAGS) -o $(OUTDIR)/$*.o -c $<
+
+
 $(RJS_LIB): $(RJS_OBJECTS)
 	$(AR) -cr $@ $^
 

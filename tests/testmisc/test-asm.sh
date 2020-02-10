@@ -1,6 +1,6 @@
 #!/bin/bash
 
-F=`find build/ -name "asm*"`; 
+F=`find unix/ -name "asm*"`; 
 for f in $F; 
 do 
     echo "Running: $f"

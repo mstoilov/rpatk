@@ -12,6 +12,7 @@ all:
 	+make -C $(ROOT_DIR)/rjs/build/unix/$(ARCHDIR) all
 ifeq ($(OS), linux)
 	+make -C $(ROOT_DIR)/tests/testrjs/build/unix/$(ARCHDIR) all
+	+make -C $(ROOT_DIR)/tests2 all
 endif
 
 distclean: clean
@@ -28,6 +29,7 @@ distclean: clean
 	+make -C $(ROOT_DIR)/rexgrep/build/unix/$(ARCHDIR) distclean
 	+make -C $(ROOT_DIR)/rexcc/build/unix/$(ARCHDIR) distclean
 	+make -C $(ROOT_DIR)/rjs/build/unix/$(ARCHDIR) distclean
+	+make -C $(ROOT_DIR)/tests2 distclean
 
 clean:
 	+make -C $(ROOT_DIR)/rlib/build/unix/$(ARCHDIR) clean
@@ -42,6 +44,7 @@ clean:
 	+make -C $(ROOT_DIR)/rexgrep/build/unix/$(ARCHDIR) clean
 	+make -C $(ROOT_DIR)/rexcc/build/unix/$(ARCHDIR) clean
 	+make -C $(ROOT_DIR)/rjs/build/unix/$(ARCHDIR) clean
+	+make -C $(ROOT_DIR)/tests2 clean
 
 $(RPATK_BIN_INSTALL) :
 	mkdir -p $(RPATK_BIN_INSTALL)
