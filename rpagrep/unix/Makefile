@@ -10,7 +10,7 @@ EXE_NAME = rpagrep
 EXE_TARGET = $(OUTDIR)/$(EXE_NAME)
 
 CFLAGS += -fPIC
-CFLAGS += -I$(ROOT_DIR) -I.. -I../unix -I$(ROOT_DIR)/arch/unix/$(ARCH) -I$(RLIB_SRCDIR) -I$(RVM_SRCDIR)  -I$(RPA_SRCDIR)
+CFLAGS += -I$(ROOT_DIR) -I.. -I../unix -I$(ROOT_DIR)/arch/unix -I$(RLIB_SRCDIR) -I$(RVM_SRCDIR)  -I$(RPA_SRCDIR)
 
 LIBS = -L$(RLIB_SRCDIR)/unix/bin 
 LIBS += -L$(RVM_SRCDIR)/unix/bin 

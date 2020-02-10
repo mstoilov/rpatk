@@ -8,7 +8,7 @@ REX_SRCDIR = $(ROOT_DIR)/rex
 EXE_NAME = rpagrep
 EXE_TARGET = $(OUTDIR)/$(EXE_NAME)
 
-CFLAGS += -I$(ROOT_DIR) -I.. -I../unix -I$(ROOT_DIR)/arch/unix/$(ARCH) -I$(RLIB_SRCDIR) -I$(REX_SRCDIR)
+CFLAGS += -I$(ROOT_DIR) -I.. -I../unix -I$(ROOT_DIR)/arch/unix -I$(RLIB_SRCDIR) -I$(REX_SRCDIR)
 
 LIBS = -L$(REX_SRCDIR)/unix/bin 
 LIBS += -L$(RLIB_SRCDIR)/unix/bin 

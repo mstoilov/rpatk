@@ -8,7 +8,7 @@ RVM_SRCDIR = $(ROOT_DIR)/rvm
 RPA_SRCDIR = $(ROOT_DIR)/rpa
 RJS_SRCDIR = $(ROOT_DIR)/rjs
 
-CFLAGS += -I$(ROOT_DIR) -I.. -I../unix -I$(ROOT_DIR)/arch/unix/$(ARCH) -I$(RLIB_SRCDIR) -I$(RVM_SRCDIR) -I$(RPA_SRCDIR) -I$(RJS_SRCDIR)
+CFLAGS += -I$(ROOT_DIR) -I.. -I../unix -I$(ROOT_DIR)/arch/unix -I$(RLIB_SRCDIR) -I$(RVM_SRCDIR) -I$(RPA_SRCDIR) -I$(RJS_SRCDIR)
 
 
 ifeq ($(DEBUG), no)

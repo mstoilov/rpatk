@@ -8,7 +8,7 @@ EXE_NAME = rexcc
 EXE_TARGET = $(OUTDIR)/$(EXE_NAME)
 
 CFLAGS += -fPIC
-CFLAGS += -I$(ROOT_DIR) -I.. -I../unix -I$(ROOT_DIR)/arch/unix/$(ARCH) -I$(RLIB_SRCDIR) -I$(REX_SRCDIR)
+CFLAGS += -I$(ROOT_DIR) -I.. -I../unix -I$(ROOT_DIR)/arch/unix -I$(RLIB_SRCDIR) -I$(REX_SRCDIR)
 LIBS = -L$(RLIB_SRCDIR)/unix/bin
 LIBS += -L$(REX_SRCDIR)/unix/bin
 LIBS += -lrex -lrlib -lpthread -lm

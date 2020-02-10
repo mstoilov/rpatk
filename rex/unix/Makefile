@@ -11,7 +11,7 @@ LIB_TARGET = $(OUTDIR)/$(LIB_NAME)
 SO_TARGET = $(OUTDIR)/$(SO_NAME_VERSION)
 
 CFLAGS += -fPIC
-CFLAGS += -I$(ROOT_DIR) -I$(ROOT_DIR)/arch/unix/$(ARCH)
+CFLAGS += -I$(ROOT_DIR) -I$(ROOT_DIR)/arch/unix
 LIBS += -lpthread -lm
 LDFLAGS += $(LIBS)
 
