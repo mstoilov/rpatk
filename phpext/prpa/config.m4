@@ -51,13 +51,13 @@ if test "$PHP_PRPA" != "no"; then
   if [[ $MACH == "i486" ]]; then MACH=i386; echo "MACH set to: $MACH"; fi
   if [[ $MACH == "i586" ]]; then MACH=i386; echo "MACH set to: $MACH"; fi
   if [[ $MACH == "i686" ]]; then MACH=i386; echo "MACH set to: $MACH"; fi
-  ARCH_DIR=$RPATK_DIR/arch/$OS_DIR/$MACH
+  ARCH_DIR=$RPATK_DIR/arch/$OS_DIR
   RLIB_DIR=$RPATK_DIR/rlib
   RVM_DIR=$RPATK_DIR/rvm
   RPA_DIR=$RPATK_DIR/rpa
-  RLIB_LIBDIR=$RPATK_DIR/rlib/build/$OS_DIR/$MACH/out
-  RVM_LIBDIR=$RPATK_DIR/rvm/build/$OS_DIR/$MACH/out
-  RPA_LIBDIR=$RPATK_DIR/rpa/build/$OS_DIR/$MACH/out
+  RLIB_LIBDIR=$RPATK_DIR/rlib/$OS_DIR/bin
+  RVM_LIBDIR=$RPATK_DIR/rvm/$OS_DIR/bin
+  RPA_LIBDIR=$RPATK_DIR/rpa/$OS_DIR/bin
 
 
   AC_MSG_RESULT([RPATK dir is: $RPATK_DIR])

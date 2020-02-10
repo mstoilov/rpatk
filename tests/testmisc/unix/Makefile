@@ -1,5 +1,5 @@
 ROOT_DIR = ../../..
-include $(ROOT_DIR)/unix/config.mk
+include $(ROOT_DIR)/build/unix/config.mk
 
 OUTDIR = bin
 TESTS_SRCDIR = ..

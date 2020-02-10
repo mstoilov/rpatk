@@ -1,5 +1,5 @@
-ROOT_DIR = ..
-include $(ROOT_DIR)/unix/config.mk
+ROOT_DIR = ../..
+include $(ROOT_DIR)/build/unix/config.mk
 
 all:
 	+make -C $(ROOT_DIR)/rlib/unix all
