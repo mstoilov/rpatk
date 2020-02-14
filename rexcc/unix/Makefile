@@ -20,10 +20,12 @@ vpath %.c ../
 OBJECTS += $(addprefix $(OUTDIR)/, $(patsubst %.c,%.o,$(notdir $(wildcard *.c))))
 vpath %.c .
 
+-include $(OUTDIR)/*.d
+
 all: $(EXE_TARGET)
 
 $(OUTDIR)/%.o: %.c Makefile | $(OUTDIR)
-	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(OUTDIR)/$(notdir $(<:.c=.lst)) $< -o $@
+	$(CC) -c $(CFLAGS) -MMD -MF $(@:%.o=%.d) $< -o $@
 
 $(EXE_TARGET): $(OBJECTS) | $(OUTDIR)
 	$(CC) -o $@ $^ $(LDFLAGS)

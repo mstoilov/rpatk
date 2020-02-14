@@ -32,6 +32,7 @@ vpath %.c .
 OBJECTS += $(OUTDIR)/ecma262.o
 RJSEXEC_OBJECTS = $(OUTDIR)/rjsexec.o \
 
+-include $(OUTDIR)/*.d
 
 ifeq ($(OS), linux)
 all: $(LIB_TARGET) $(SO_TARGET) $(EXE_TARGET)
@@ -43,10 +44,10 @@ $(EXE_TARGET) : $(RJSEXEC_OBJECTS)
 	$(CC) -o $@ $^ $(LDFLAGS) -static
 
 $(OUTDIR)/%.o: %.c Makefile | $(OUTDIR)
-	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(OUTDIR)/$(notdir $(<:.c=.lst)) $< -o $@
+	$(CC) -c $(CFLAGS) -MMD -MF $(@:%.o=%.d) $< -o $@
 
 $(OUTDIR)/%.o: ../exec/%.c | $(OUTDIR)
-	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(OUTDIR)/$(notdir $(<:.c=.lst)) $< -o $@
+	$(CC) -c $(CFLAGS) -MMD -MF $(@:%.o=%.d) $< -o $@
 
 $(LIB_TARGET): $(OBJECTS) | $(OUTDIR)
 	$(AR) -cr $@ $^

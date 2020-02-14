@@ -57,10 +57,12 @@ ETESTS   += $(OUTDIR)/string-test
 ETESTS   += $(OUTDIR)/opmap-test
 ETESTS   += $(OUTDIR)/asm-cast
 
+-include $(OUTDIR)/*.d
+
 all: $(TESTS)
 
 $(OUTDIR)/%: $(TESTS_SRCDIR)/%.c Makefile | bin
-	+ $(CC) $(CFLAGS) -o $(OUTDIR)/$* $(TESTS_SRCDIR)/$*.c $(LIBS) $(LDFLAGS) $(INCLUDE)
+	+ $(CC) $(CFLAGS) -MMD -MF $(@:%.o=%.d) -o $(OUTDIR)/$* $(TESTS_SRCDIR)/$*.c $(LIBS) $(LDFLAGS) $(INCLUDE)
 
 $(OUTDIR):
 	mkdir $@		

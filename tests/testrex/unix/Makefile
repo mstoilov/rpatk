@@ -19,6 +19,7 @@ ifeq ($(OS), linux)
 LDFLAGS += --static
 endif
 
+-include $(OUTDIR)/*.d
 
 TESTS	+= $(OUTDIR)/main
 TESTS	+= $(OUTDIR)/rexregex
@@ -26,7 +27,7 @@ TESTS	+= $(OUTDIR)/rexregex
 all: $(TESTS)
 
 $(OUTDIR)/%: $(TESTS_SRCDIR)/%.c Makefile | bin
-	+ $(CC) $(CFLAGS) -o $(OUTDIR)/$* $(TESTS_SRCDIR)/$*.c $(LDFLAGS) $(INCLUDE)
+	+ $(CC) $(CFLAGS) -MMD -MF $(@:%.o=%.d) -o $(OUTDIR)/$* $(TESTS_SRCDIR)/$*.c $(LDFLAGS) $(INCLUDE)
 
 $(OUTDIR):
 	mkdir $@		

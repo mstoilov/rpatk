@@ -25,9 +25,10 @@ else
 all: $(LIB_TARGET)
 endif
 
+-include $(OUTDIR)/*.d
 
 $(OUTDIR)/%.o: %.c Makefile | $(OUTDIR)
-	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(OUTDIR)/$(notdir $(<:.c=.lst)) $< -o $@
+	$(CC) -c $(CFLAGS) -MMD -MF $(@:%.o=%.d) $< -o $@
 
 $(LIB_TARGET): $(OBJECTS) | $(OUTDIR)
 	$(AR) -cr $@ $^

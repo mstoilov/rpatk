@@ -37,11 +37,12 @@ vpath %.c .
 TESTS   += $(OUTDIR)/rjs-simple
 TESTS   += $(OUTDIR)/rjs-args
 
+-include $(OUTDIR)/*.d
 
 all: $(TESTS)
 
 $(OUTDIR)/%: $(TESTS_SRCDIR)/%.c Makefile | bin
-	+ $(CC) $(CFLAGS) -o $(OUTDIR)/$* $(TESTS_SRCDIR)/$*.c $(LIBS) $(LDFLAGS) $(INCLUDE)
+	+ $(CC) $(CFLAGS) -MMD -MF $(@:%.o=%.d) -o $(OUTDIR)/$* $(TESTS_SRCDIR)/$*.c $(LIBS) $(LDFLAGS) $(INCLUDE)
 
 $(OUTDIR)/%.o: $(TESTS_SRCDIR)/%.rpa
 	$(LD) -r -b binary -o $(OUTDIR)/$*.o $(TESTS_SRCDIR)/$*.rpa

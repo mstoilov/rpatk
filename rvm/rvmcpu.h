@@ -480,14 +480,6 @@ typedef struct rvm_optable_s {
 } rvm_optable_t;
 
 
-#define RVM_CEXEC_NAN 0
-#define RVM_CEXEC_GRE 1
-#define RVM_CEXEC_GEQ 2
-#define RVM_CEXEC_EQ  3
-#define RVM_CEXEC_NEQ 4
-#define RVM_CEXEC_LEQ 5
-#define RVM_CEXEC_LES 6
-
 struct rvm_asmins_s {
 	rvmreg_t data;
 	ruint16 op1:RVM_OPERAND_BITS;
