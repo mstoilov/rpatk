@@ -133,11 +133,11 @@ rexfragment_t *rex_fragment_alt(rexdb_t *rexdb, rexfragment_t *frag1, rexfragmen
 	long i;
 	rex_transition_t *t;
 
-	rex_db_addtrasition_e(rexdb, REX_FRAG_STATEUID(frag1), REX_FRAG_STATEUID(frag2));
-	for (i = 0; i < r_array_length(frag2->dangling); i++) {
-		t = r_array_index(frag2->dangling, i, rex_transition_t *);
-		r_array_add(frag1->dangling, &t);
-	}
+	rexstate_t *state2 = rex_db_getstate(rexdb, rex_db_createstate(rexdb, REX_STATETYPE_NONE));
+	rex_state_addtransition_e(state2, REX_FRAG_STATEUID(frag1));
+	rex_state_addtransition_e(state2, REX_FRAG_STATEUID(frag2));
+	frag1->sstate = state2;
+	rex_fragment_append(frag1->dangling, frag2->dangling);
 	rex_fragment_destroy(frag2);
 	return frag1;
 }
