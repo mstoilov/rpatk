@@ -131,10 +131,10 @@ void r_list_splice(rlist_t *plist, rlist_t *phead)
 /*
  * Return the number of nodes in the list
  */
-uint32_t r_list_count(rlist_t *phead)
+ruint32 r_list_count(rlist_t *phead)
 {
 	rlist_t *pcur;
-	uint32_t n = 0;
+	ruint32 n = 0;
 
 	r_list_foreach(pcur, phead)
 		n++;

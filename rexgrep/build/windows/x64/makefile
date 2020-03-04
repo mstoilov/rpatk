@@ -59,7 +59,7 @@ LINK32=link.exe
 LINK32_FLAGS=$(LIBS) kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ws2_32.lib /nologo /subsystem:console /incremental:no $(LINK_DEBUG)
 
 RGREP_OBJS= \
-	"$(OUTDIR)\main.obj" \
+	"$(OUTDIR)\rexgrep-main.obj" \
 	"$(OUTDIR)\fsenumwin.obj" \
 	"$(OUTDIR)\rexgrep.obj" \
 	"$(OUTDIR)\rexgrepdep.obj" \
@@ -99,6 +99,6 @@ SOURCE="$(DEPSRC_DIR)\fsenumwin.c"
 "$(OUTDIR)\fsenumwin.obj" : $(SOURCE) "$(OUTDIR)"
 	$(CPP) $(CPP_FLAGS) $(SOURCE)
 
-SOURCE="$(SRC_DIR)\main.c"
-"$(OUTDIR)\main.obj" : $(SOURCE) "$(OUTDIR)"
+SOURCE="$(SRC_DIR)\rexgrep-main.c"
+"$(OUTDIR)\rexgrep-main.obj" : $(SOURCE) "$(OUTDIR)"
 	$(CPP) $(CPP_FLAGS) $(SOURCE)

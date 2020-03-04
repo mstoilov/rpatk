@@ -276,7 +276,7 @@ rpointer r_zmalloc(size_t size)
 	return mem;
 }
 
-rpointer r_memset(rpointer s, int32_t c, size_t n)
+rpointer r_memset(rpointer s, rint32 c, size_t n)
 {
 	return memset((void*)s, (int)c, n);
 }

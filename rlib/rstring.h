@@ -68,7 +68,7 @@ rstring_t *r_string_create_from_ansi(const char* s);
 rstring_t *r_string_create_from_str_len(const char* s, size_t len);
 rstring_t *r_string_create_from_string(const rstring_t* s);
 rstring_t *r_string_create_from_double(double d);
-rstring_t *r_string_create_from_int(int64_t l);
+rstring_t *r_string_create_from_int(rint64 l);
 void r_string_destroy(rstring_t *string);
 robject_t *r_string_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy);
 robject_t *r_string_init_from_str_len(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, const char *str, size_t len);
