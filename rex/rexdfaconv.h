@@ -49,7 +49,16 @@ typedef struct rexdfaconv_s {
 
 rexdfaconv_t *rex_dfaconv_create();
 void rex_dfaconv_destroy(rexdfaconv_t *co);
-rexdb_t *rex_dfaconv_run(rexdfaconv_t *co, rexdb_t *nfa, unsigned long start);
+
+/**
+ * @brief Convert rexdb_t of type REXDB_TYPE_NFA into rexdb_t of type REXDB_TYPE_DFA.
+ *
+ * @param co Pointer to rexdfaconv_t object.
+ * @param nfa The NFA that will be converted to DFA
+ * @param start the UID of the start state.
+ * @return Pointer to rexdb_t object of type REXDB_TYPE_DFA.
+ */
+rexdb_t *rex_dfaconv_run(rexdfaconv_t *co, rexdb_t *nfa, size_t start);
 
 
 #ifdef __cplusplus

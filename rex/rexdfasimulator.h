@@ -34,17 +34,17 @@ extern "C" {
 
 typedef struct rex_dfasimulator_s {
 	rarray_t *accepts;
-	long inputsize;
-	long count;
+	size_t inputsize;
+	size_t count;
 	rexstate_t *next;
 } rex_dfasimulator_t;
 
 
 rex_dfasimulator_t *rex_dfasimulator_create();
 void rex_dfasimulator_destroy(rex_dfasimulator_t *si);
-long rex_dfasimulator_run(rex_dfasimulator_t *si, rexdb_t *nfa, long uid, const char *str, unsigned long size);
-void rex_dfasimulator_start(rex_dfasimulator_t *si, rexdb_t *db, long uid);
-long rex_dfasimulator_next(rex_dfasimulator_t *si, rexdb_t *db, ruint32 wc, int wcsize);
+size_t rex_dfasimulator_run(rex_dfasimulator_t *si, rexdb_t *nfa, size_t uid, const char *str, size_t size);
+void rex_dfasimulator_start(rex_dfasimulator_t *si, rexdb_t *db, size_t uid);
+size_t rex_dfasimulator_next(rex_dfasimulator_t *si, rexdb_t *db, ruint32 wc, int wcsize);
 
 
 #ifdef __cplusplus

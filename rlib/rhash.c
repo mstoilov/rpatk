@@ -25,7 +25,7 @@
 
 typedef union rhash_value_s {
 	rpointer ptr;
-	unsigned long index;
+	size_t index;
 } rhash_value_t;
 
 struct rhash_node_s {
@@ -39,7 +39,9 @@ static rhash_node_t *r_hash_node_create()
 {
 	rhash_node_t *node;
 
-	return (rhash_node_t *)r_malloc(sizeof(*node));
+	node = (rhash_node_t *)r_zmalloc(sizeof(*node));
+	r_list_init(&node->lnk);
+	return node;
 }
 
 
@@ -48,10 +50,13 @@ static void r_hash_node_destroy(rhash_node_t *node)
 	r_free(node);
 }
 
-
+/*
+ * Search for a node corresponding to the 'key' parameter. The search in the bucket
+ * will be performed from the tail towards the head.
+ */
 rhash_node_t *r_hash_nodetaillookup(rhash_t* hash, rhash_node_t *cur, rconstpointer key)
 {
-	unsigned int nbucket = hash->hfunc(key) & r_hash_mask(hash);
+	size_t nbucket = hash->hfunc(key) & r_hash_mask(hash);
 	rhead_t *bucket = &hash->buckets[nbucket];
 	rhash_node_t *node;
 	rlink_t *pos;
@@ -65,10 +70,13 @@ rhash_node_t *r_hash_nodetaillookup(rhash_t* hash, rhash_node_t *cur, rconstpoin
 	return NULL;
 }
 
-
+/*
+ * Search for a node corresponding to the 'key' parameter. The search in the bucket
+ * will be performed from the head towards the tail.
+ */
 rhash_node_t *r_hash_nodelookup(rhash_t* hash, rhash_node_t *cur, rconstpointer key)
 {
-	unsigned int nbucket = hash->hfunc(key) & r_hash_mask(hash);
+	size_t nbucket = hash->hfunc(key) & r_hash_mask(hash);
 	rhead_t *bucket = &hash->buckets[nbucket];
 	rhash_node_t *node;
 	rlink_t *pos;
@@ -82,11 +90,13 @@ rhash_node_t *r_hash_nodelookup(rhash_t* hash, rhash_node_t *cur, rconstpointer 
 	return NULL;
 }
 
-
-unsigned int r_hash_strhash(rconstpointer key)
+/*
+ * Calculate a string hash.
+ */
+size_t r_hash_strhash(rconstpointer key)
 {
 	const char *str = (const char*) key;
-	unsigned int hash = 0;
+	size_t hash = 0;
 	int c;
 
 	while ((c = *str++))
@@ -94,16 +104,18 @@ unsigned int r_hash_strhash(rconstpointer key)
 	return hash;
 }
 
-
+/*
+ * Check if two strings match.
+ */
 rboolean r_hash_strequal(rconstpointer key1, rconstpointer key2)
 {
 	return r_strcmp((const char*)key1, (const char*)key2) ? FALSE : TRUE;
 }
 
 
-unsigned int r_hash_longhash(rconstpointer key)
+size_t r_hash_longhash(rconstpointer key)
 {
-	return (unsigned int)(*((long*)key));
+	return (size_t)(*((long*)key));
 }
 
 
@@ -112,14 +124,13 @@ rboolean r_hash_longequal(rconstpointer key1, rconstpointer key2)
 	return (*((long*)key1) == *((long*)key2)) ? TRUE : FALSE;
 }
 
-
-unsigned int r_hash_rstrhash(rconstpointer key)
+size_t r_hash_rstrhash(rconstpointer key)
 {
 	const rstr_t *k = (const rstr_t *)key;
 	const char *str = (const char*) k->str;
-	unsigned int i;
-	unsigned int size = k->size;
-	unsigned int hash = 0;
+	size_t i;
+	size_t size = k->size;
+	size_t hash = 0;
 
 	for (i = 0; i < size; i++, str++) {
 		hash = *str + (hash << 6) + (hash << 16) - hash;
@@ -137,7 +148,36 @@ rboolean r_hash_rstrequal(rconstpointer key1, rconstpointer key2)
 }
 
 
-rhash_t *r_hash_create(unsigned int nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfunc)
+/*
+ * Calculate a rstring_t hash.
+ */
+size_t r_hash_rstring_hash(rconstpointer key)
+{
+	const rstring_t *k = (const rstring_t *)key;
+	const char *str = (const char*) k->str;
+	size_t i;
+	size_t size = k->size;
+	size_t hash = 0;
+
+	for (i = 0; i < size; i++, str++) {
+		hash = *str + (hash << 6) + (hash << 16) - hash;
+	}
+	return hash;
+}
+
+/*
+ * Check if two rstring_t objects match.
+ */
+rboolean r_hash_rstring_equal(rconstpointer key1, rconstpointer key2)
+{
+	const rstring_t *k1 = (const rstring_t *)key1;
+	const rstring_t *k2 = (const rstring_t *)key2;
+
+	return (k1->size == k2->size && r_strncmp((const char*)k1->str, (const char*)k2->str, k1->size) == 0) ? TRUE : FALSE;
+}
+
+
+rhash_t *r_hash_create(size_t nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfunc)
 {
 	rhash_t *hash;
 
@@ -154,10 +194,10 @@ void r_hash_destroy(rhash_t* hash)
 
 
 robject_t *r_hash_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy,
-						unsigned int nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfunc)
+						size_t nbits, r_hash_equalfunc eqfunc, r_hash_hashfun hfunc)
 {
-	unsigned long i;
-	unsigned long size;
+	size_t i;
+	size_t size;
 	rhash_t *hash = (rhash_t *)obj;
 
 	hash->nbits = nbits;
@@ -186,23 +226,44 @@ void r_hash_cleanup(robject_t *obj)
 	rhash_t *hash = (rhash_t *)obj;
 	r_hash_removeall(hash);
 	r_free(hash->buckets);
+	r_object_cleanup(obj);
 }
 
-
-void r_hash_insert(rhash_t* hash, rconstpointer key, rpointer value)
+/*
+ * Insert a pointer to an object in the hash
+ */
+void r_hash_insert_object(rhash_t* hash, rconstpointer key, rpointer object)
 {
-	unsigned int nbucket = hash->hfunc(key) & r_hash_mask(hash);
+	size_t nbucket = hash->hfunc(key) & r_hash_mask(hash);
 	rhash_node_t *node = r_hash_node_create();
 	rhead_t *buckethead = &hash->buckets[nbucket];
 	if (node) {
 		r_list_init(&node->lnk);
 		node->key = key;
-		node->value.ptr = value;
+		node->value.ptr = object;
 	}
 	r_list_addt(buckethead, &node->lnk);
 }
 
+/*
+ * Insert an index in the hash
+ */
+void r_hash_insert_index(rhash_t* hash, rconstpointer key, size_t index)
+{
+	size_t nbucket = hash->hfunc(key) & r_hash_mask(hash);
+	rhash_node_t *node = r_hash_node_create();
+	rhead_t *buckethead = &hash->buckets[nbucket];
+	if (node) {
+		r_list_init(&node->lnk);
+		node->key = key;
+		node->value.index = index;
+	}
+	r_list_addt(buckethead, &node->lnk);
+}
 
+/*
+ * Remove all objects for the specified key from the collection
+ */
 void r_hash_remove(rhash_t* hash, rconstpointer key)
 {
 	rhash_node_t *node;
@@ -213,10 +274,12 @@ void r_hash_remove(rhash_t* hash, rconstpointer key)
 	}
 }
 
-
+/*
+ * Remove all nodes from the collection
+ */
 void r_hash_removeall(rhash_t* hash)
 {
-	unsigned long nbucket;
+	size_t nbucket;
 	rhead_t *head;
 	rhash_node_t *node;
 
@@ -230,8 +293,11 @@ void r_hash_removeall(rhash_t* hash)
 	}
 }
 
-
-rpointer r_hash_lookup(rhash_t* hash, rconstpointer key)
+/*
+ * Look-up and return a pointer to object in the collection.
+ * If the specified key cannot be found NULL will be returned.
+ */
+rpointer r_hash_lookup_object(rhash_t* hash, rconstpointer key)
 {
 	rhash_node_t *node = r_hash_nodelookup(hash, NULL, key);
 	if (node)
@@ -239,22 +305,11 @@ rpointer r_hash_lookup(rhash_t* hash, rconstpointer key)
 	return NULL;
 }
 
-
-void r_hash_insert_indexval(rhash_t* hash, rconstpointer key, unsigned long index)
-{
-	unsigned int nbucket = hash->hfunc(key) & r_hash_mask(hash);
-	rhash_node_t *node = r_hash_node_create();
-	rhead_t *buckethead = &hash->buckets[nbucket];
-	if (node) {
-		r_list_init(&node->lnk);
-		node->key = key;
-		node->value.index = index;
-	}
-	r_list_addt(buckethead, &node->lnk);
-}
-
-
-unsigned long r_hash_lookup_indexval(rhash_t* hash, rconstpointer key)
+/*
+ * Look-up and return a value. If the key cannot be found in the
+ * collection the function will return R_HASH_INVALID_INDEXVAL.
+ */
+size_t r_hash_lookup_index(rhash_t* hash, rconstpointer key)
 {
 	rhash_node_t *node = r_hash_nodelookup(hash, NULL, key);
 	if (node)
@@ -262,8 +317,12 @@ unsigned long r_hash_lookup_indexval(rhash_t* hash, rconstpointer key)
 	return R_HASH_INVALID_INDEXVAL;
 }
 
-
-unsigned long r_hash_taillookup_indexval(rhash_t* hash, rconstpointer key)
+/*
+ * Look-up and return a value. The search will start from the tail of the bucket.
+ * If the key cannot be found in the
+ * collection the function will return R_HASH_INVALID_INDEXVAL.
+ */
+size_t r_hash_taillookup_index(rhash_t* hash, rconstpointer key)
 {
 	rhash_node_t *node = r_hash_nodetaillookup(hash, NULL, key);
 	if (node)
@@ -271,14 +330,18 @@ unsigned long r_hash_taillookup_indexval(rhash_t* hash, rconstpointer key)
 	return R_HASH_INVALID_INDEXVAL;
 }
 
-
-rpointer r_hash_value(rhash_node_t *node)
+/*
+ * Return pointer to the hashed object.
+ */
+rpointer r_hash_object(rhash_node_t *node)
 {
 	return node->value.ptr;
 }
 
-
-unsigned long r_hash_indexval(rhash_node_t *node)
+/*
+ * Return hashed index (unsigned integer)
+ */
+size_t r_hash_index(rhash_node_t *node)
 {
 	return node->value.index;
 }

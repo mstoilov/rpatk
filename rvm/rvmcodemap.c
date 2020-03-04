@@ -77,7 +77,7 @@ rvm_codelabel_t *rvm_codemap_label(rvm_codemap_t *codemap, long index)
 static long rvm_codemap_dolookup(rvm_codemap_t *codemap, const char *name, unsigned int namesize)
 {
 	rstr_t lookupstr = {(char*)name, namesize};
-	return r_hash_lookup_indexval(codemap->hash, &lookupstr);
+	return r_hash_lookup_index(codemap->hash, &lookupstr);
 }
 
 
@@ -92,7 +92,7 @@ static long rvm_codemap_add(rvm_codemap_t *codemap, const char *name, unsigned i
 		label = rvm_codemap_label(codemap, labelidx);
 		if (name) {
 			label->name = r_rstrdup(name, namesize);
-			r_hash_insert_indexval(codemap->hash, label->name, labelidx);
+			r_hash_insert_index(codemap->hash, label->name, labelidx);
 		}
 	}
 	return labelidx;
@@ -194,7 +194,7 @@ long rvm_codemap_lastlabel(rvm_codemap_t *codemap)
 long rvm_codemap_lookupadd(rvm_codemap_t *codemap, const char *name, unsigned int namesize)
 {
 	rstr_t lookupstr = {(char*)name, namesize};
-	long labelidx = r_hash_lookup_indexval(codemap->hash, &lookupstr);
+	long labelidx = r_hash_lookup_index(codemap->hash, &lookupstr);
 
 	if (labelidx < 0)
 		labelidx = rvm_codemap_invalid_add(codemap, name, namesize);
@@ -211,7 +211,7 @@ long rvm_codemap_lookupadd_s(rvm_codemap_t *codemap, const char *name)
 long rvm_codemap_lookup(rvm_codemap_t *codemap, const char *name, unsigned int namesize)
 {
 	rstr_t lookupstr = {(char*)name, namesize};
-	long labelidx = r_hash_lookup_indexval(codemap->hash, &lookupstr);
+	long labelidx = r_hash_lookup_index(codemap->hash, &lookupstr);
 
 	return labelidx;
 }

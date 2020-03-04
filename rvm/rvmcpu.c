@@ -981,7 +981,7 @@ static void rvm_op_prn(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_DOUBLE)
 		rvm_printf("(DOUBLE) R%d = %0.2f\n", ins->op1, RVM_REG_GETD(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_STRING)
-		rvm_printf("(STRING) R%d = %s\n", ins->op1, ((rstring_t*) RVM_REG_GETP(r))->s.str);
+		rvm_printf("(STRING) R%d = %s\n", ins->op1, ((rstring_t*) RVM_REG_GETP(r))->str);
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_ARRAY)
 		rvm_printf("(ARRAY) R%d = %p\n", ins->op1, RVM_REG_GETP(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_MAP)

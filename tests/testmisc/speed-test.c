@@ -37,8 +37,8 @@ static rvm_switable_t calltable[] = {
 	
 int main(int argc, char *argv[])
 {
+	int ret = 0;
 	long i, iter = 1;
-	unsigned int ret = 0;
 	unsigned int off = 0;
 	rvm_asmins_t vmcode[256];
 	rvmcpu_t *vm = rvm_cpu_create_default();
@@ -72,5 +72,5 @@ int main(int argc, char *argv[])
 	ret = rvm_cpu_exec(vm, vmcode, 0);
 	fprintf(stdout, "R0 = %ld (%ld operations)\n", (unsigned long) RVM_CPUREG_GETU(vm, R0), (unsigned long)RVM_CPUREG_GETU(vm, R5));
 	rvm_cpu_destroy(vm);
-	return 0;
+	return ret;
 }

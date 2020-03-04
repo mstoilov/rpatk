@@ -21,8 +21,8 @@ struct rexcompiler_s {
 	const char *tokenptr;
 	int token;
 	rexchar_t numtoken;
-	unsigned long fromcount;
-	unsigned long tocount;
+	size_t fromcount;
+	size_t tocount;
 	char tokenstr[REX_COMPILER_TOKENSIZE];
 	char blankchars[REX_COMPILER_BLANKCHARS];
 };
@@ -76,7 +76,7 @@ static int rex_compiler_isblank(rexcompiler_t *co, int c)
 }
 
 
-long rex_compiler_setblanks(rexcompiler_t *co, const char *str, unsigned int size)
+long rex_compiler_setblanks(rexcompiler_t *co, const char *str, size_t size)
 {
 	if (size + 1 > sizeof(co->blankchars))
 		return -1;
@@ -245,9 +245,9 @@ int rex_compiler_numerictoken(rexcompiler_t *co, rexdb_t *rexdb)
 int rex_compiler_charclass(rexcompiler_t *co, rexdb_t *rexdb)
 {
 	int negative = 0;
-	int low;
-	int high;
-	long i;
+	rexchar_t low;
+	rexchar_t high;
+	size_t i;
 	rex_transition_t *t;
 	rexstate_t *srcstate = rex_db_getstate(rexdb, rex_db_createstate(rexdb, REX_STATETYPE_NONE));
 	rexfragment_t *frag = NULL;
@@ -378,7 +378,7 @@ static int rex_compiler_parsecount(rexcompiler_t *co, rexdb_t *rexdb)
 	}
 	if (co->token == ',') {
 		rex_compiler_getnbtok(co);		/* eat ',' */
-		co->tocount = (unsigned long)-1;
+		co->tocount = (size_t)-1;
 		if (isdigit(co->token)) {
 			for (i = 0; isdigit(co->token); i++) {
 				if (i >= REX_CONV_BUFSIZE)
@@ -406,7 +406,7 @@ static int rex_compiler_qfactor(rexcompiler_t *co, rexdb_t *rexdb)
 	rexfragment_t *frag, *frag1, *frag2;
 	const char *fstart, *fend;
 	rexstate_t *srcstate;
-	long nstates, i;
+	size_t nstates, i;
 
 	if (strchr("{}*?+]\n\r)", co->token)) {
 		/*
@@ -444,13 +444,13 @@ static int rex_compiler_qfactor(rexcompiler_t *co, rexdb_t *rexdb)
 			return -1;
 		if (co->fromcount > co->tocount)
 			return -1;
-		if (co->fromcount == 0 && co->tocount == (unsigned long)-1) {
+		if (co->fromcount == 0 && co->tocount == (size_t)-1) {
 			frag = FPOP(co);
 			frag = rex_fragment_mop(rexdb, frag);
 			FPUSH(co, frag);
 			break;
 		}
-		if (co->fromcount == 1 && co->tocount == (unsigned long)-1) {
+		if (co->fromcount == 1 && co->tocount == (size_t)-1) {
 			frag = FPOP(co);
 			frag = rex_fragment_mul(rexdb, frag);
 			FPUSH(co, frag);
@@ -479,7 +479,7 @@ static int rex_compiler_qfactor(rexcompiler_t *co, rexdb_t *rexdb)
 			FPUSH(co, frag);
 		}
 		do {
-			long count;
+			size_t count;
 			const char *saved_start = co->start;
 			const char *saved_end = co->end;
 			const char *saved_ptr = co->ptr;
@@ -492,7 +492,7 @@ static int rex_compiler_qfactor(rexcompiler_t *co, rexdb_t *rexdb)
 				rex_compiler_getnbtok(co);
 				rex_compiler_catexpression(co, rexdb);
 				frag2 = FPOP(co);
-				if (co->tocount == (unsigned long)-1 && count >= co->fromcount) {
+				if (co->tocount == (size_t)-1 && count >= co->fromcount) {
 					frag2 = rex_fragment_mop(rexdb, frag2);
 					frag1 = FPOP(co);
 					frag1 = rex_fragment_cat(rexdb, frag1, frag2);
@@ -573,11 +573,13 @@ static int rex_compiler_altexpression(rexcompiler_t *co, rexdb_t *rexdb)
 	return 0;
 }
 
-
-long rex_compiler_expression(rexcompiler_t *co, rexdb_t *rexdb, const char *str, unsigned int size, rexuserdata_t userdata)
+/**
+ * Compile str expression into NFA.
+ */
+long rex_compiler_expression(rexcompiler_t *co, rexdb_t *rexdb, const char *str, size_t size, rexuserdata_t userdata)
 {
-	long curlen = r_array_length(rexdb->states);
-	long i;
+	size_t curlen = r_array_length(rexdb->states);
+	size_t i;
 	long ret = -1L;
 	rexfragment_t *frag1 = NULL, *frag2 = NULL;
 
@@ -615,7 +617,13 @@ long rex_compiler_expression_s(rexcompiler_t *co, rexdb_t *rexdb, const char *st
 }
 
 
-long rex_compiler_addexpression(rexcompiler_t *co, rexdb_t *rexdb, unsigned long prev, const char *str, unsigned int size, rexuserdata_t userdata)
+/**
+ * Compile str into NFA using rex_compiler_expression.
+ * Create empty transition from the start state and the
+ * newly added exptession. If this is the  first expression
+ * and there is no start state, create that too.
+ */
+long rex_compiler_addexpression(rexcompiler_t *co, rexdb_t *rexdb, size_t prev, const char *str, size_t size, rexuserdata_t userdata)
 {
 	rexstate_t *sprev = NULL, *scur = NULL;
 	long cur;
@@ -649,7 +657,7 @@ long rex_compiler_addexpression(rexcompiler_t *co, rexdb_t *rexdb, unsigned long
 }
 
 
-long rex_compiler_addexpression_s(rexcompiler_t *co, rexdb_t *rexdb, unsigned long prev, const char *str, rexuserdata_t userdata)
+long rex_compiler_addexpression_s(rexcompiler_t *co, rexdb_t *rexdb, size_t prev, const char *str, rexuserdata_t userdata)
 {
 	return rex_compiler_addexpression(co, rexdb, prev, str, r_strlen(str), userdata);
 }

@@ -37,7 +37,7 @@ static void test_swi_print_r(rvmcpu_t *cpu, rvm_asmins_t *ins)
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_DOUBLE)
 		fprintf(stdout, "R%d = %5.2f\n", ins->op1, RVM_REG_GETD(r));
 	else if (rvm_reg_gettype(r) == RVM_DTYPE_STRING)
-		fprintf(stdout, "R%d = %s\n", ins->op1, ((rstring_t*) RVM_REG_GETP(r))->s.str);
+		fprintf(stdout, "R%d = %s\n", ins->op1, ((rstring_t*) RVM_REG_GETP(r))->str);
 	else
 		fprintf(stdout, "R%d = Unknown type\n", ins->op1);
 }
@@ -54,11 +54,10 @@ int main(int argc, char *argv[])
 	rvmcpu_t *cpu;
 	rvm_codegen_t *cg;
 	rvm_codelabel_t *err;
-	unsigned int ntable;
 
 	cg = rvm_codegen_create();
 	cpu = rvm_cpu_create_default();
-	ntable = rvm_cpu_addswitable(cpu, "switable", switable);
+	rvm_cpu_addswitable(cpu, "switable", switable);
 
 	rvm_codegen_addins(cg, rvm_asm(RVM_MOV, R0, DA, XX, 7));
 	rvm_codegen_addins(cg, rvm_asm(RVM_STS, R0, SP, DA, 1 + RVM_CODEGEN_FUNCINITOFFSET));

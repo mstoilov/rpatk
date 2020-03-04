@@ -8,14 +8,14 @@
 #include "rex/rexcompiler.h"
 
 struct rexdfa_ctx {
-	unsigned long nstates;
-	unsigned long ntrnas;
-	unsigned long nsubstates;
-	unsigned long naccsubstates;
+	size_t nstates;
+	size_t ntrnas;
+	size_t nsubstates;
+	size_t naccsubstates;
 };
 
 
-rexdb_t *rex_db_createdfa(rexdb_t *nfa, unsigned long start)
+rexdb_t *rex_db_createdfa(rexdb_t *nfa, size_t start)
 {
 	rexdfaconv_t *conv = rex_dfaconv_create();
 	rexdb_t *dfa = rex_dfaconv_run(conv, nfa, start);
@@ -26,7 +26,7 @@ rexdb_t *rex_db_createdfa(rexdb_t *nfa, unsigned long start)
 
 void rex_db_cleanup(robject_t *obj)
 {
-	long i;
+	size_t i;
 	rexdb_t *rexdb = (rexdb_t*) obj;
 
 	for (i = 0; i < r_array_length(rexdb->states); i++)
@@ -51,7 +51,8 @@ robject_t *rex_db_init(robject_t *obj, unsigned int objtype, r_object_cleanupfun
 		/*
 		 * Create the dead state.
 		 */
-		rex_db_createstate(rexdb , REX_STATETYPE_DEAD);
+		size_t deaduid = rex_db_createstate(rexdb , REX_STATETYPE_DEAD);
+		R_ASSERT(deaduid == 0);
 	}
 	if (type == REXDB_TYPE_NFA) {
 		rexdb->co = rex_compiler_create(rexdb);
@@ -76,9 +77,9 @@ void rex_db_destroy(rexdb_t *rexdb)
 }
 
 
-long rex_db_createstate(rexdb_t *rexdb, rex_statetype_t type)
+size_t rex_db_createstate(rexdb_t *rexdb, rex_statetype_t type)
 {
-	unsigned long uid = 0;
+	size_t uid = 0;
 	rexstate_t *state;
 
 	state = rex_state_create(-1, type);
@@ -88,26 +89,23 @@ long rex_db_createstate(rexdb_t *rexdb, rex_statetype_t type)
 }
 
 
-long rex_db_insertstate(rexdb_t *rexdb, rexstate_t *s)
+size_t rex_db_insertstate(rexdb_t *rexdb, rexstate_t *s)
 {
-	long uid = r_array_insert(rexdb->states, s->uid, &s);
-	if (s->type == REX_STATETYPE_START)
-		rexdb->start = s;
-	return uid;
+	return r_array_replace(rexdb->states, s->uid, s);
 }
 
 
-rexstate_t *rex_db_getstate(rexdb_t *rexdb, long uid)
+rexstate_t *rex_db_getstate(rexdb_t *rexdb, size_t uid)
 {
-	if (uid >= 0 && uid < r_array_length(rexdb->states))
+	if (uid < r_array_length(rexdb->states))
 		return r_array_index(rexdb->states, uid, rexstate_t*);
 	return NULL;
 }
 
 
-long rex_db_findstate(rexdb_t *a, const rarray_t *subset)
+size_t rex_db_findstate(rexdb_t *a, const rarray_t *subset)
 {
-	long i, j;
+	size_t i, j;
 	rexstate_t *s;
 
 	for (i = 0; i < r_array_length(a->states); i++) {
@@ -121,11 +119,11 @@ long rex_db_findstate(rexdb_t *a, const rarray_t *subset)
 				return s->uid;
 		}
 	}
-	return -1;
+	return ((size_t)-1);
 }
 
 
-rex_transition_t *rex_db_addrangetrasition(rexdb_t *rexdb, rexchar_t c1, rexchar_t c2, unsigned long srcuid, unsigned long dstuid)
+rex_transition_t *rex_db_addrangetrasition(rexdb_t *rexdb, rexchar_t c1, rexchar_t c2, size_t srcuid, size_t dstuid)
 {
 	rexstate_t *s = rex_db_getstate(rexdb, srcuid);
 
@@ -135,7 +133,7 @@ rex_transition_t *rex_db_addrangetrasition(rexdb_t *rexdb, rexchar_t c1, rexchar
 }
 
 
-rex_transition_t *rex_db_addtrasition_e(rexdb_t *rexdb, unsigned long srcuid, unsigned long dstuid)
+rex_transition_t *rex_db_addtrasition_e(rexdb_t *rexdb, size_t srcuid, size_t dstuid)
 {
 	rexstate_t *s = rex_db_getstate(rexdb, srcuid);
 
@@ -149,7 +147,7 @@ int rex_db_simulate_nfa(rexdb_t *rexdb, long uid, const char *str, const char *e
 {
 	rex_transition_t *t;
 	rexstate_t *state = rex_db_getstate(rexdb, uid);
-	long i;
+	size_t i;
 	int ret, wcsize;
 	ruint32 wc;
 
@@ -183,7 +181,7 @@ int rex_db_simulate_nfa(rexdb_t *rexdb, long uid, const char *str, const char *e
 }
 
 
-rexsubstate_t *rex_db_getsubstate(rexdb_t *rexdb, unsigned long uid)
+rexsubstate_t *rex_db_getsubstate(rexdb_t *rexdb, size_t uid)
 {
 	if (uid < r_array_length(rexdb->substates)) {
 		return (rexsubstate_t *)r_array_slot(rexdb->substates, uid);
@@ -192,7 +190,7 @@ rexsubstate_t *rex_db_getsubstate(rexdb_t *rexdb, unsigned long uid)
 }
 
 
-long rex_db_addexpression(rexdb_t *rexdb, unsigned long prev, const char *str, unsigned int size, rexuserdata_t userdata)
+long rex_db_addexpression(rexdb_t *rexdb, size_t prev, const char *str, size_t size, rexuserdata_t userdata)
 {
 	if (rexdb->type != REXDB_TYPE_NFA)
 		return -1;
@@ -200,7 +198,7 @@ long rex_db_addexpression(rexdb_t *rexdb, unsigned long prev, const char *str, u
 }
 
 
-long rex_db_addexpression_s(rexdb_t *rexdb, unsigned long prev, const char *str, rexuserdata_t userdata)
+long rex_db_addexpression_s(rexdb_t *rexdb, size_t prev, const char *str, rexuserdata_t userdata)
 {
 	if (rexdb->type != REXDB_TYPE_NFA)
 		return -1;
@@ -208,9 +206,9 @@ long rex_db_addexpression_s(rexdb_t *rexdb, unsigned long prev, const char *str,
 }
 
 
-void rex_db_dumpstate(rexdb_t *rexdb, unsigned long uid)
+void rex_db_dumpstate(rexdb_t *rexdb, size_t uid)
 {
-	long index;
+	size_t index;
 	char buf[240];
 	int bufsize = sizeof(buf) - 1;
 	int n = 0;
@@ -282,10 +280,10 @@ void rex_db_dumpstate(rexdb_t *rexdb, unsigned long uid)
 }
 
 
-long rex_db_numtransitions(rexdb_t *rexdb)
+size_t rex_db_numtransitions(rexdb_t *rexdb)
 {
-	long i;
-	long ret = 0;
+	size_t i;
+	size_t ret = 0;
 
 	for (i = 0; i < r_array_length(rexdb->states); i++) {
 		rexstate_t *state = rex_db_getstate(rexdb, i);
@@ -295,16 +293,16 @@ long rex_db_numtransitions(rexdb_t *rexdb)
 }
 
 
-long rex_db_numstates(rexdb_t *rexdb)
+size_t rex_db_numstates(rexdb_t *rexdb)
 {
 	return r_array_length(rexdb->states);
 }
 
 
-long rex_db_numsubstates(rexdb_t *rexdb)
+size_t rex_db_numsubstates(rexdb_t *rexdb)
 {
-	long i;
-	long ret = 0;
+	size_t i;
+	size_t ret = 0;
 
 	for (i = 0; i < r_array_length(rexdb->states); i++) {
 		rexstate_t *state = rex_db_getstate(rexdb, i);
@@ -314,10 +312,10 @@ long rex_db_numsubstates(rexdb_t *rexdb)
 }
 
 
-long rex_db_numaccsubstates(rexdb_t *rexdb)
+size_t rex_db_numaccsubstates(rexdb_t *rexdb)
 {
-	long i, j;
-	long ret = 0;
+	size_t i, j;
+	size_t ret = 0;
 
 	for (i = 0; i < r_array_length(rexdb->states); i++) {
 		rexstate_t *state = rex_db_getstate(rexdb, i);
@@ -339,7 +337,7 @@ const char *rex_db_version()
 
 static void rex_db_filldfastate(rexdb_t *db, rexdfa_t *dfa, struct rexdfa_ctx *ctx, rexstate_t *state, int withsubstates)
 {
-	long i;
+	size_t i;
 	rex_transition_t *t = NULL;
 	rexdfs_t *s = &dfa->states[ctx->nstates++];
 	s->type = state->type;
@@ -355,7 +353,7 @@ static void rex_db_filldfastate(rexdb_t *db, rexdfa_t *dfa, struct rexdfa_ctx *c
 	s->accsubstates = ctx->naccsubstates;
 	s->naccsubstates = 0L;
 	for (i = 0; i < rex_subset_length(state->subset); i++) {
-		unsigned long uid = rex_subset_index(state->subset, i);
+		size_t uid = rex_subset_index(state->subset, i);
 		rexsubstate_t *substate = rex_db_getsubstate(db, uid);
 		if (substate->ss_type == REX_STATETYPE_ACCEPT) {
 			dfa->accsubstates[s->accsubstates + s->naccsubstates].uid = uid;
@@ -369,7 +367,7 @@ static void rex_db_filldfastate(rexdb_t *db, rexdfa_t *dfa, struct rexdfa_ctx *c
 		s->substates = ctx->nsubstates;
 		s->nsubstates = rex_subset_length(state->subset);
 		for (i = 0; i < rex_subset_length(state->subset); i++) {
-			unsigned long uid = rex_subset_index(state->subset, i);
+			size_t uid = rex_subset_index(state->subset, i);
 			rexsubstate_t *substate = rex_db_getsubstate(db, uid);
 			dfa->substates[s->substates + i].uid = uid;
 			dfa->substates[s->substates + i].type = substate->ss_type;
@@ -386,13 +384,13 @@ static void rex_db_filldfastate(rexdb_t *db, rexdfa_t *dfa, struct rexdfa_ctx *c
 
 rexdfa_t *rex_db_todfa(rexdb_t *db, int withsubstates)
 {
-	long i;
+	size_t i;
 	rexdfa_t *dfa;
 	struct rexdfa_ctx ctx;
-	unsigned long nstates = rex_db_numstates(db);
-	unsigned long ntrans = rex_db_numtransitions(db);
-	unsigned long naccsubstates = rex_db_numaccsubstates(db);
-	unsigned long nsubstates = withsubstates ? rex_db_numsubstates(db) : 0UL;
+	size_t nstates = rex_db_numstates(db);
+	size_t ntrans = rex_db_numtransitions(db);
+	size_t naccsubstates = rex_db_numaccsubstates(db);
+	size_t nsubstates = withsubstates ? rex_db_numsubstates(db) : 0UL;
 	dfa = rex_dfa_create(nstates, ntrans, naccsubstates, nsubstates);
 	r_memset(&ctx, 0, sizeof(ctx));
 
@@ -416,7 +414,7 @@ int rex_db_isempty(rexdb_t *db)
 }
 
 
-long rex_db_setblanks(rexdb_t *nfa, const char *str, unsigned int size)
+long rex_db_setblanks(rexdb_t *nfa, const char *str, size_t size)
 {
 	if (nfa->type != REXDB_TYPE_NFA || nfa->co == NULL)
 		return -1;

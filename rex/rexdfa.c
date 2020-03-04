@@ -179,13 +179,13 @@ void rex_dfa_dumpstate(rexdfa_t *dfa, rexuint_t nstate)
 
 	if (!s)
 		return;
-	fprintf(stdout, "State %ld", (unsigned long)nstate);
+	fprintf(stdout, "State %ld", (size_t)nstate);
 	if (s->nsubstates)
 		fprintf(stdout, " : NFA-States(");
 	for (index = 0; index < s->nsubstates; index++) {
 		ss = REX_DFA_SUBSTATE(dfa, nstate, index);
 		if (ss) {
-			fprintf(stdout, "%ld", (unsigned long)ss->uid);
+			fprintf(stdout, "%ld", (size_t)ss->uid);
 			if (ss->type == REX_STATETYPE_ACCEPT)
 				fprintf(stdout, "*");
 			if (index + 1 < s->nsubstates)
@@ -202,7 +202,7 @@ void rex_dfa_dumpstate(rexdfa_t *dfa, rexuint_t nstate)
 		for (index = 0; index < s->naccsubstates; index++) {
 			ss = REX_DFA_ACCSUBSTATE(dfa, nstate, index);
 			if (ss) {
-				fprintf(stdout, "%ld*", (unsigned long)ss->uid);
+				fprintf(stdout, "%ld*", (size_t)ss->uid);
 				if (index + 1 < s->naccsubstates)
 					fprintf(stdout, ",");
 			}

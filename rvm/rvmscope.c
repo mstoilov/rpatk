@@ -57,12 +57,12 @@ void rvm_scope_destroy(rvm_scope_t *scope)
 char *rvm_scope_addname(rvm_scope_t *scope, const char* name, unsigned int namesize)
 {
 	rstr_t namestr = {(char*)name, namesize};
-	rstr_t *dupname = r_hash_lookup(scope->nameshash, &namestr);
+	rstr_t *dupname = r_hash_lookup_object(scope->nameshash, &namestr);
 
 	if (!dupname) {
 		dupname = r_rstrdup(name, namesize);
 		r_array_add(scope->names, (rconstpointer)&dupname);
-		r_hash_insert(scope->nameshash, dupname, dupname);
+		r_hash_insert_object(scope->nameshash, dupname, dupname);
 	}
 	return dupname->str;
 }

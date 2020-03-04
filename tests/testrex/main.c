@@ -99,12 +99,12 @@ int main(int argc, char *argv[])
 				startstate = rex_db_addexpression_s(nfa, startstate, argv[i], (rexuserdata_t)name);
 			}
 		} else if (strcmp(argv[i], "-D") == 0) {
-			int j;
+			size_t j;
 			for (j = 0; j < r_array_length(nfa->states); j++) {
 				rex_db_dumpstate(nfa, j);
 			}
 		} else if (strcmp(argv[i], "-d") == 0) {
-			int j;
+			size_t j;
 			rexdb_t *dfadb = rex_db_createdfa(nfa, 1);
 			rexdfa_t *dfa = rex_db_todfa(dfadb, 1);
 			for (j = 0; j < dfa->nstates; j++) {

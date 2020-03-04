@@ -33,20 +33,24 @@ extern "C" {
 
 
 typedef struct rex_nfasimulator_s {
-	rarray_t *accepts;
-	rarray_t *newstates;
-	rarray_t *oldstates;
-	rarray_t *onmap;
-	long inputsize;
-	long count;
+	rarray_t *accepts;			/* Keep track of all accept states we encounter. */
+	rarray_t *newstates;		/* Newstates array */
+	rarray_t *oldstates;		/* Old states, from here we find all possible new states and add them to the newstates array.*/
+	rarray_t *onmap;			/* Keep track of which states have already been added to the newstates array */
+	size_t inputsize;			/* input size in bytes */
+	size_t count;				/* input count in chars, if the chars are multi-byte utf8
+								 * count and inputsize will be different.
+								 * For ASCII chars, count and inputsize will be the same.
+								 */
 } rex_nfasimulator_t;
 
 
 rex_nfasimulator_t *rex_nfasimulator_create();
 void rex_nfasimulator_destroy(rex_nfasimulator_t *si);
-long rex_nfasimulator_run(rex_nfasimulator_t *si, rexdb_t *nfa, long uid, const char *str, unsigned long size);
-void rex_nfasimulator_start(rex_nfasimulator_t *si, rexdb_t *db, long uid);
-long rex_nfasimulator_next(rex_nfasimulator_t *si, rexdb_t *db, ruint32 wc, int wcsize);
+size_t rex_nfasimulator_run(rex_nfasimulator_t *si, rexdb_t *nfa, size_t uid, const char *str, size_t size);
+size_t rex_nfasimulator_run_s(rex_nfasimulator_t *si, rexdb_t *nfa, size_t uid, const char *str);
+void rex_nfasimulator_start(rex_nfasimulator_t *si, rexdb_t *db, size_t uid);
+size_t rex_nfasimulator_next(rex_nfasimulator_t *si, rexdb_t *db, ruint32 wc, size_t wcsize);
 
 
 #ifdef __cplusplus

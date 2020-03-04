@@ -9,14 +9,14 @@ extern "C" {
 #ifdef WIN32
 typedef size_t rexuserdata_t;
 #else
-typedef unsigned long rexuserdata_t;
+typedef size_t rexuserdata_t;
 #endif
 #else
 typedef REX_USERDATA_TYPE rexuserdata_t;
 #endif
 
 #ifndef REX_UWORD_TYPE
-typedef unsigned long rexuword_t;
+typedef size_t rexuword_t;
 #else
 typedef REX_UWORD_TYPE rexuword_t;
 #endif
@@ -84,9 +84,9 @@ typedef struct rexdfa_s {
 	rexdfss_t *accsubstates;		/**< Array of accepting sub-states, all states accepting sub-states are recorded here. */
 	rexuint_t nsubstates;			/**< Total number of substates */
 	rexdfss_t *substates;			/**< Array of sub-states, all states sub-states are recorded here. */
-	unsigned int hbytes;
-	unsigned int hbits;
-	unsigned int hsize;
+	rexuint_t hbytes;
+	rexuint_t hbits;
+	rexuint_t hsize;
 	unsigned char *bits;
 	rexuword_t reserved[64];
 } rexdfa_t;

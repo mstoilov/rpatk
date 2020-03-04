@@ -32,21 +32,21 @@ int main(int argc, char *argv[])
 	char *sdig[] = {"zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"};
 
 	h = r_hash_create(5, r_hash_strequal, r_hash_strhash);
-	r_hash_insert(h, sdig[0], &idig[0]);
-	r_hash_insert(h, sdig[7], &idig[8]);
-	r_hash_insert(h, sdig[7], &idig[7]);
-	r_hash_insert(h, sdig[5], &idig[5]);
-	fprintf(stdout, "key: %s, value: %d\n", "seven", *((unsigned int*)r_hash_lookup(h, "seven")));
+	r_hash_insert_object(h, sdig[0], &idig[0]);
+	r_hash_insert_object(h, sdig[7], &idig[8]);
+	r_hash_insert_object(h, sdig[7], &idig[7]);
+	r_hash_insert_object(h, sdig[5], &idig[5]);
+	fprintf(stdout, "key: %s, value: %d\n", "seven", *((unsigned int*)r_hash_lookup_object(h, "seven")));
 	r_hash_remove(h, sdig[7]);
-	if (!r_hash_lookup(h, "seven")) {
-		r_hash_insert(h, sdig[7], &idig[7]);
-		r_hash_insert(h, sdig[7], &idig[8]);
-		r_hash_insert(h, sdig[7], &idig[9]);
+	if (!r_hash_lookup_object(h, "seven")) {
+		r_hash_insert_object(h, sdig[7], &idig[7]);
+		r_hash_insert_object(h, sdig[7], &idig[8]);
+		r_hash_insert_object(h, sdig[7], &idig[9]);
 	}
 	for (node = r_hash_nodelookup(h, node, "seven"); node; node = r_hash_nodelookup(h, node, "seven"))
-		fprintf(stdout, "key: %s, value: %d\n", "seven", *((unsigned int*)r_hash_value(node)));
-	fprintf(stdout, "key: %s, value: %d\n", sdig[5], *((unsigned int*)r_hash_lookup(h, sdig[5])));
-	fprintf(stdout, "key: %s, value: %d\n", sdig[0], *((unsigned int*)r_hash_lookup(h, sdig[0])));
+		fprintf(stdout, "key: %s, value: %d\n", "seven", *((unsigned int*)r_hash_object(node)));
+	fprintf(stdout, "key: %s, value: %d\n", sdig[5], *((unsigned int*)r_hash_lookup_object(h, sdig[5])));
+	fprintf(stdout, "key: %s, value: %d\n", sdig[0], *((unsigned int*)r_hash_lookup_object(h, sdig[0])));
 
 	r_object_destroy((robject_t*)h);
 

@@ -36,7 +36,7 @@ int r_utf8_mbtowc(ruint32 *pwc, const unsigned char *input, const unsigned char 
 		return 1;
 	}
 	n = (int)(end - input);
-	if (c == 0xC0 || c == 0xC1 || (c >= 0xF5 && c <= 0xFF))
+	if (c == 0xC0 || c == 0xC1 || (c >= 0xF5))
 		goto error;
 	if ((c >> 5) == 6) {
 		if (n < 2 || (input[1] >> 6 != 0x02))

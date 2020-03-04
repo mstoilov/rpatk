@@ -20,9 +20,13 @@
 #include "rlib/rmem.h"
 #include "rex/rexfragment.h"
 
-static void rex_fragment_patch(rarray_t *dangling, unsigned long uid)
+/**
+ * Set the destination state (dstuid) of all dangling
+ * transitions to point to uid.
+ */
+static void rex_fragment_patch(rarray_t *dangling, size_t uid)
 {
-	long i;
+	size_t i;
 	rex_transition_t *t;
 
 	for (i = 0; i < r_array_length(dangling); i++) {
@@ -34,12 +38,29 @@ static void rex_fragment_patch(rarray_t *dangling, unsigned long uid)
 
 static void rex_fragment_append(rarray_t *dest, rarray_t *src)
 {
-	long i;
+	size_t i;
 	rex_transition_t *t;
 
 	for (i = 0; i < r_array_length(src); i++) {
 		t = r_array_index(src, i, rex_transition_t *);
 		r_array_add(dest, &t);
+	}
+}
+
+static void rex_fragment_state_add_dangling(rexfragment_t *frag, rexstate_t *state)
+{
+	size_t i;
+	rex_transition_t *t;
+
+	for (i = 0; i < r_array_length(state->trans); i++) {
+		t = (rex_transition_t *)r_array_slot(state->trans, i);
+		if (t->dstuid == ((size_t)-1))
+			r_array_add(frag->dangling, &t);
+	}
+	for (i = 0; i < r_array_length(state->etrans); i++) {
+		t = (rex_transition_t *)r_array_slot(state->etrans, i);
+		if (t->dstuid == ((size_t)-1))
+			r_array_add(frag->dangling, &t);
 	}
 }
 
@@ -49,7 +70,7 @@ static void rex_fragment_append(rarray_t *dest, rarray_t *src)
  */
 rexfragment_t *rex_fragment_create(rexstate_t *state)
 {
-	long i;
+	size_t i;
 	rex_transition_t *t;
 	rexfragment_t *frag;
 	frag = (rexfragment_t*)r_malloc(sizeof(*frag));
@@ -57,16 +78,7 @@ rexfragment_t *rex_fragment_create(rexstate_t *state)
 	frag->dangling = r_array_create(sizeof(rex_transition_t*));
 	frag->sstate = state;
 
-	for (i = 0; i < r_array_length(state->trans); i++) {
-		t = (rex_transition_t *)r_array_slot(state->trans, i);
-		if (t->dstuid < 0)
-			r_array_add(frag->dangling, &t);
-	}
-	for (i = 0; i < r_array_length(state->etrans); i++) {
-		t = (rex_transition_t *)r_array_slot(state->etrans, i);
-		if (t->dstuid < 0)
-			r_array_add(frag->dangling, &t);
-	}
+	rex_fragment_state_add_dangling(frag, state);
 	return frag;
 }
 
@@ -78,29 +90,51 @@ void rex_fragment_destroy(rexfragment_t *frag)
 	r_free(frag);
 }
 
-
+/**
+ * Concatinate two fragments
+ */
 rexfragment_t *rex_fragment_cat(rexdb_t *rexdb, rexfragment_t *frag1, rexfragment_t *frag2)
 {
 	rex_fragment_patch(frag1->dangling, REX_FRAG_STATEUID(frag2));
 	frag2->sstate = frag1->sstate;
 	rex_fragment_destroy(frag1);
+
+	/*
+	 * We return a fragment (frag2) which consists of the
+	 * frag1->sstate
+	 * and
+	 * frag2->dangling
+	 */
 	return frag2;
 }
 
-
+/**
+ *   --->[frag]--->
+ *  |
+ * >O
+ *  |
+ *   ------------->
+ * We create a start state ">O" (state2) for the new fragment.
+ */
 rexfragment_t *rex_fragment_opt(rexdb_t *rexdb, rexfragment_t *frag1)
 {
-	rexfragment_t *frag2;
 	rexstate_t *state2 = rex_db_getstate(rexdb, rex_db_createstate(rexdb, REX_STATETYPE_NONE));
 	rex_state_addtransition_e(state2, -1);
 	rex_state_addtransition_e(state2, REX_FRAG_STATEUID(frag1));
-	frag2 = rex_fragment_create(state2);
-	rex_fragment_append(frag2->dangling, frag1->dangling);
-	rex_fragment_destroy(frag1);
-	return frag2;
+	frag1->sstate = state2;
+	rex_fragment_state_add_dangling(frag1, state2);
+	return frag1;
 }
 
 
+/**
+ *   --->[frag]---
+ *  |             |
+ * >O <-----------
+ *  |
+ *   -------------->
+ * We create a start state ">O" (state2) for the new fragment.
+ */
 rexfragment_t *rex_fragment_mop(rexdb_t *rexdb, rexfragment_t *frag1)
 {
 	rexfragment_t *frag2;
@@ -114,7 +148,11 @@ rexfragment_t *rex_fragment_mop(rexdb_t *rexdb, rexfragment_t *frag1)
 	return frag2;
 }
 
-
+/**
+ *     -------
+ *    V       |
+ * >[frag]--->O--->
+ */
 rexfragment_t *rex_fragment_mul(rexdb_t *rexdb, rexfragment_t *frag1)
 {
 	rexfragment_t *frag2;
@@ -127,10 +165,16 @@ rexfragment_t *rex_fragment_mul(rexdb_t *rexdb, rexfragment_t *frag1)
 	return frag1;
 }
 
-
+/**
+ *   --->[frag1]--->
+ *  |
+ * >O
+ *  |
+ *   --->[frag2]--->
+ */
 rexfragment_t *rex_fragment_alt(rexdb_t *rexdb, rexfragment_t *frag1, rexfragment_t *frag2)
 {
-	long i;
+	size_t i;
 	rex_transition_t *t;
 
 	rexstate_t *state2 = rex_db_getstate(rexdb, rex_db_createstate(rexdb, REX_STATETYPE_NONE));

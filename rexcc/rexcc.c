@@ -468,7 +468,7 @@ int rex_cc_parse(rexcc_t *pCC)
 
 int rex_cc_load_buffer(rexcc_t *pCC, rbuffer_t *text)
 {
-	int ret = 0, i;
+	size_t i;
 	struct parseinfo_s *pi;
 
 	pCC->start = text->s;
@@ -494,13 +494,13 @@ int rex_cc_load_buffer(rexcc_t *pCC, rbuffer_t *text)
 #endif
 		}
 	}
-	return ret;
+	return 0;
 }
 
 
 void rex_cc_parseinfodump(rexcc_t *pCC)
 {
-	long i;
+	size_t i;
 	struct parseinfo_s *pi;
 
 	for (i = 0; i < r_array_length(pCC->parseinfo); i++) {

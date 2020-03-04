@@ -30,7 +30,18 @@
 extern "C" {
 #endif
 
-
+/**
+ * This structure is used during compilation of regular expressions
+ * into NFA. sstate is a pointer to the first state in the fragment
+ * of states. The dangling array holds pointers to all transitions
+ * that currently have not destination state i.e. the destination
+ * is set to -1. We need to keep track of all these transition and
+ * fix them at a later stage with the rex_fragment_patch function.
+ *
+ * The rexfragment_t doesn't control the lifetime of sstate, but
+ * it does control the lifetime of the dangling array. A call to
+ * rex_fragment_destroy will automatically deallocate dangling.
+ */
 typedef struct rexfragment_s {
 	rexstate_t *sstate;
 	rarray_t *dangling;

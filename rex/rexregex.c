@@ -50,7 +50,7 @@ robject_t *rex_regex_init(robject_t *obj, ruint32 type, r_object_cleanupfun clea
 	rexdb_t *nfadb = NULL, *dfadb = NULL;
 	rexregex_t *regex = (rexregex_t *)obj;
 
-	r_object_init(obj, type, cleanup, NULL);
+	r_object_init(obj, type, cleanup, copy);
 	regex->dfa = NULL;
 	nfadb = rex_db_create(REXDB_TYPE_NFA);
 	start = rex_db_addexpression(nfadb, -1, str, size, 0);

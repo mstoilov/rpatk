@@ -27,7 +27,7 @@
 	
 int main(int argc, char *argv[])
 {
-	unsigned int ret = 0;
+	int ret = 0;
 	unsigned int off = 0;
 	rvm_asmins_t vmcode[256];
 	rvm_codelabel_t *err = NULL;
@@ -98,5 +98,5 @@ end:
 	rvm_cpu_destroy(vm);
 	rvm_codemap_destroy(codemap);
 	rvm_relocmap_destroy(relocmap);
-	return 0;
+	return ret;
 }

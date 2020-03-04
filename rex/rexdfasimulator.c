@@ -43,11 +43,11 @@ void rex_dfasimulator_destroy(rex_dfasimulator_t *si)
 }
 
 
-long rex_dfasimulator_run(rex_dfasimulator_t *si, rexdb_t *dfa, long uid, const char *input, unsigned long size)
+size_t rex_dfasimulator_run(rex_dfasimulator_t *si, rexdb_t *dfa, size_t uid, const char *input, size_t size)
 {
 	ruint32 wc;
 	int inc = 0;
-	int ret = 0;
+	size_t ret = 0;
 	const char *end = input + size;
 
 	rex_dfasimulator_start(si, dfa, uid);
@@ -64,7 +64,7 @@ long rex_dfasimulator_run(rex_dfasimulator_t *si, rexdb_t *dfa, long uid, const 
 }
 
 
-void rex_dfasimulator_start(rex_dfasimulator_t *si, rexdb_t *db, long uid)
+void rex_dfasimulator_start(rex_dfasimulator_t *si, rexdb_t *db, size_t uid)
 {
 	si->count = 0;
 	si->inputsize = 0;
@@ -73,7 +73,7 @@ void rex_dfasimulator_start(rex_dfasimulator_t *si, rexdb_t *db, long uid)
 }
 
 
-long rex_dfasimulator_next(rex_dfasimulator_t *si, rexdb_t *db, ruint32 wc, int wcsize)
+size_t rex_dfasimulator_next(rex_dfasimulator_t *si, rexdb_t *db, ruint32 wc, int wcsize)
 {
 	rex_transition_t *t;
 

@@ -24,20 +24,18 @@
 
 #define MIN_ARRAY_LEN 2
 
-static void r_array_checkexpand(rarray_t *array, unsigned long index);
+static void r_array_check_resize(rarray_t *array, size_t index);
 
 
 void r_array_cleanup(robject_t *obj)
 {
 	rarray_t *array = (rarray_t *)obj;
-	if (array->oncleanup)
-		array->oncleanup(array);
 	r_free(array->data);
 	r_object_cleanup((robject_t*)array);
 }
 
 
-robject_t *r_array_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, unsigned long elt_size)
+robject_t *r_array_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, size_t elt_size)
 {
 	rarray_t *array = (rarray_t*)obj;
 
@@ -49,7 +47,7 @@ robject_t *r_array_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanu
 }
 
 
-rarray_t *r_array_create(unsigned long elt_size)
+rarray_t *r_array_create(size_t elt_size)
 {
 	rarray_t *array;
 	array = (rarray_t*)r_object_create(sizeof(*array));
@@ -66,7 +64,7 @@ void r_array_destroy(rarray_t *array)
 
 robject_t *r_array_copy(const robject_t *obj)
 {
-	unsigned long i;
+	size_t i;
 	rarray_t *dst;
 	const rarray_t *array = (const rarray_t *)obj;
 
@@ -77,15 +75,19 @@ robject_t *r_array_copy(const robject_t *obj)
 		return NULL;
 	for (i = 0; i < r_array_length(array); i++)
 		r_array_replace(dst, i, r_array_slot(array, i));
-	dst->oncopy = array->oncopy;
-	dst->oncleanup = array->oncleanup;
-	if (dst->oncopy)
-		dst->oncopy(dst);
 	return (robject_t *)dst;
 }
 
-
-static void r_array_exist_replace(rarray_t *array, unsigned long index, rconstpointer data)
+/*
+ * If the data is non NULL pointer,
+ * copy the content at that memory location in the memory
+ * slot in the array specified by the index parameter.
+ * If the data is NULL, just initialize the slot memory to 0.
+ *
+ * index - the index of the array memory slot.
+ * data - pointer to the data to be copied in the array memory slot.
+ */
+static void r_array_exist_replace(rarray_t *array, size_t index, rconstpointer data)
 {
 	if (data)
 		r_memcpy(r_array_slot(array, index), data, array->elt_size);
@@ -93,30 +95,39 @@ static void r_array_exist_replace(rarray_t *array, unsigned long index, rconstpo
 		r_memset(r_array_slot(array, index), 0, array->elt_size);
 }
 
-
-unsigned long r_array_add(rarray_t *array, rconstpointer data)
+/*
+ * Insert a new element at the end of the array.
+ * data points to the new element.
+ */
+size_t r_array_add(rarray_t *array, rconstpointer data)
 {
-	unsigned long index = r_array_length(array);
+	size_t index = r_array_length(array);
 
 	r_array_setlength(array, index + 1);
 	r_array_exist_replace(array, index, data);
 	return index;
 }
 
-
-unsigned long r_array_removelast(rarray_t *array)
+/*
+ * Remove the last element of the array.
+ */
+size_t r_array_removelast(rarray_t *array)
 {
 	if (!r_array_empty(array))
 		r_array_setlength(array, r_array_length(array) - 1);
 	return r_array_length(array);
 }
 
-
-unsigned long r_array_insert(rarray_t *array, unsigned long index, rconstpointer data)
+/*
+ * Insert a new element at the location of index.
+ * The current element at index and all elements
+ * after that will be moved up.
+ */
+size_t r_array_insert(rarray_t *array, size_t index, rconstpointer data)
 {
-	r_array_checkexpand(array, index + 1);
+	r_array_check_resize(array, index + 1);
 	if (index < r_array_length(array)) {
-		unsigned long curlen = r_array_length(array);
+		size_t curlen = r_array_length(array);
 		r_array_setlength(array, r_array_length(array) + 1);
 		r_memmove(r_array_slot(array, index + 1), r_array_slot(array, index), (curlen - index) * array->elt_size);
 	} else {
@@ -126,8 +137,10 @@ unsigned long r_array_insert(rarray_t *array, unsigned long index, rconstpointer
 	return index;
 }
 
-
-unsigned long r_array_replace(rarray_t *array, unsigned long index, rconstpointer data)
+/*
+ * Replace the element at index with an new one pointed by the data pointer.
+ */
+size_t r_array_replace(rarray_t *array, size_t index, rconstpointer data)
 {
 	if (index >= r_array_length(array))
 		return r_array_insert(array, index, data);
@@ -136,23 +149,28 @@ unsigned long r_array_replace(rarray_t *array, unsigned long index, rconstpointe
 }
 
 
-unsigned long r_array_setlength(rarray_t *array, unsigned long len)
+size_t r_array_setlength(rarray_t *array, size_t len)
 {
-	r_array_checkexpand(array, len);
+	r_array_check_resize(array, len);
 	r_array_length(array) = len;
 	return r_array_length(array);
 }
 
-
-void r_array_expand(rarray_t *array, unsigned long len)
+/*
+ * Expand the array by len more elements.
+ */
+void r_array_expand(rarray_t *array, size_t len)
 {
-	r_array_checkexpand(array, r_array_length(array) + len);
+	r_array_check_resize(array, r_array_length(array) + len);
 }
 
-
-static void r_array_checkexpand(rarray_t *array, unsigned long len)
+/*
+ * Resize the array to len elements only if the
+ * current size is less than len.
+ */
+static void r_array_check_resize(rarray_t *array, size_t len)
 {
-	unsigned long nalloc_size;
+	size_t nalloc_size;
 	rpointer data;
 
 	if (array->alloc_size < len) {
@@ -160,7 +178,7 @@ static void r_array_checkexpand(rarray_t *array, unsigned long len)
 			nalloc_size = 2 * nalloc_size + 1;
 		data = r_realloc(array->data, nalloc_size * array->elt_size);
 		if (data) {
-			unsigned long old_len = array->alloc_size;
+			size_t old_len = array->alloc_size;
 			array->data = data;
 			array->alloc_size = nalloc_size;
 
@@ -173,16 +191,16 @@ static void r_array_checkexpand(rarray_t *array, unsigned long len)
 }
 
 
-void *r_array_slot_expand(rarray_t *array, unsigned long index)
+void *r_array_slot_expand(rarray_t *array, size_t index)
 {
-	r_array_checkexpand(array, index+1);
+	r_array_check_resize(array, index+1);
 	return (void*) r_array_slot(array, index);
 }
 
 
-int r_array_move(rarray_t *array, unsigned long dst, unsigned long src, unsigned long size)
+int r_array_move(rarray_t *array, size_t dst, size_t src, size_t size)
 {
-	long i;
+	size_t i;
 	if ((dst + size) > r_array_length(array))
 		return -1;
 	if (dst == src)
@@ -200,10 +218,10 @@ int r_array_move(rarray_t *array, unsigned long dst, unsigned long src, unsigned
 }
 
 
-void r_array_delete(rarray_t *array, unsigned long index)
+void r_array_delete(rarray_t *array, size_t index)
 {
-	unsigned long movesize;
-	unsigned long moveindex;
+	size_t movesize;
+	size_t moveindex;
 
 	if (r_array_length(array) <= index)
 		return;

@@ -1,27 +1,30 @@
 #ifndef _RTYPES_H_
 #define _RTYPES_H_
 
+#include <stdint.h>
+#include "stddef.h"
+
 /* 
  * Architecture dependent types. These types have to be redefined
  * for every architecture
  */
-typedef signed char rint8;
-typedef unsigned char ruint8;
-typedef signed short rint16;
-typedef unsigned short ruint16;
-typedef signed int rint32;
-typedef unsigned int ruint32;
-typedef signed long rint64;
-typedef unsigned long ruint64;
-typedef unsigned long ruword;
-typedef long rword;
-typedef unsigned int ratomic_t;
+typedef int8_t rint8;
+typedef uint8_t ruint8;
+typedef int16_t rint16;
+typedef uint16_t ruint16;
+typedef int32_t rint32;
+typedef uint32_t ruint32;
+typedef int64_t rint64;
+typedef uint64_t ruint64;
+typedef uint64_t ruword;
+typedef int64_t rword;
+typedef uint32_t ratomic_t;
 
 
 /*
  * Common types. These types should be the same for most of the architectures.
  */
-typedef int rboolean;
+typedef uint32_t rboolean;
 typedef void *rpointer;
 typedef const void *rconstpointer;
 typedef struct {ruint32 p1; ruint32 p2;} rpair_t;
@@ -29,15 +32,28 @@ typedef struct {ruint32 p1; ruint32 p2;} rpair_t;
 /*
  * Atomic operations (Architecture Dependent)
  */
+
+/*
+ * If the current value of *ptr is oldval, then write newval into *ptr.
+ */
 #define R_ATOMIC_CMPXCHG(ptr, oldval, newval, res) \
 	do { res = __sync_val_compare_and_swap(ptr, oldval, newval); } while (0)
 
+/*
+ * Writes value into *ptr, and returns the previous contents of *ptr.
+ */
 #define R_ATOMIC_XCHG(ptr, val) \
 	do { val = __sync_lock_test_and_set(ptr, val); } while (0)
 
+/*
+ * { tmp = *ptr; *ptr += value; return tmp; }
+ */
 #define R_ATOMIC_ADD(ptr, val, res) \
 	do { res = __sync_fetch_and_add(ptr, val); } while (0)
 
+/*
+ * { tmp = *ptr; *ptr -= value; return tmp; }
+ */
 #define R_ATOMIC_SUB(ptr, val, res) \
 	do { res = __sync_fetch_and_sub(ptr, val); } while (0)
 
@@ -54,11 +70,7 @@ typedef struct {ruint32 p1; ruint32 p2;} rpair_t;
 #define R_MAX(a, b) ((a) > (b) ? (a): (b))
 
 #ifndef NULL
-#ifdef __cplusplus
-#define NULL 0
-#else
 #define NULL ((rpointer)0)
-#endif
 #endif
 
 #ifndef TRUE

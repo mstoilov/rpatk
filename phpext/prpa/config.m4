@@ -55,9 +55,9 @@ if test "$PHP_PRPA" != "no"; then
   RLIB_DIR=$RPATK_DIR/rlib
   RVM_DIR=$RPATK_DIR/rvm
   RPA_DIR=$RPATK_DIR/rpa
-  RLIB_LIBDIR=$RPATK_DIR/rlib/$OS_DIR/bin
-  RVM_LIBDIR=$RPATK_DIR/rvm/$OS_DIR/bin
-  RPA_LIBDIR=$RPATK_DIR/rpa/$OS_DIR/bin
+  RLIB_LIBDIR=$RPATK_DIR/build/$OS_DIR/bin
+  RVM_LIBDIR=$RPATK_DIR/build/$OS_DIR/bin
+  RPA_LIBDIR=$RPATK_DIR/build/$OS_DIR/bin
 
 
   AC_MSG_RESULT([RPATK dir is: $RPATK_DIR])

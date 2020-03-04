@@ -24,7 +24,7 @@
 	
 int main(int argc, char *argv[])
 {
-	unsigned int ret = 0;
+	int ret = 0;
 	ruword s =  -2;
 	ruword d =  0;
 	unsigned int off = 0;
@@ -69,5 +69,5 @@ int main(int argc, char *argv[])
 #endif
 	
 	rvm_cpu_destroy(vm);
-	return 0;
+	return ret;
 }

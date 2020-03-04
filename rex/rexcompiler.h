@@ -36,11 +36,11 @@ typedef struct rexcompiler_s rexcompiler_t;
 
 rexcompiler_t *rex_compiler_create();
 void rex_compiler_destroy(rexcompiler_t *co);
-long rex_compiler_expression(rexcompiler_t *co, rexdb_t *rexdb, const char *str, unsigned int size, rexuserdata_t userdata);
+long rex_compiler_expression(rexcompiler_t *co, rexdb_t *rexdb, const char *str, size_t size, rexuserdata_t userdata);
 long rex_compiler_expression_s(rexcompiler_t *co, rexdb_t *rexdb, const char *str, rexuserdata_t userdata);
-long rex_compiler_addexpression(rexcompiler_t *co, rexdb_t *rexdb, unsigned long prev, const char *str, unsigned int size, rexuserdata_t userdata);
-long rex_compiler_addexpression_s(rexcompiler_t *co, rexdb_t *rexdb, unsigned long prev, const char *str, rexuserdata_t userdata);
-long rex_compiler_setblanks(rexcompiler_t *co, const char *str, unsigned int size);
+long rex_compiler_addexpression(rexcompiler_t *co, rexdb_t *rexdb, size_t prev, const char *str, size_t size, rexuserdata_t userdata);
+long rex_compiler_addexpression_s(rexcompiler_t *co, rexdb_t *rexdb, size_t prev, const char *str, rexuserdata_t userdata);
+long rex_compiler_setblanks(rexcompiler_t *co, const char *str, size_t size);
 long rex_compiler_setblanks_s(rexcompiler_t *co, const char *str);
 
 #ifdef __cplusplus

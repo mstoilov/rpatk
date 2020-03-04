@@ -56,7 +56,7 @@ static long rpa_bitmap_set_range(rarray_t *records, rparecord_t *record, long re
 		bc->beginchar = 0;
 		bc->endchar = 0;
 	} else {
-		long wc1, wc2, wc;
+		unsigned long wc1, wc2, wc;
 		if (bc->beginchar < bc->endchar) {
 			wc1 = bc->beginchar;
 			wc2 = bc->endchar;

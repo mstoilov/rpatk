@@ -71,7 +71,7 @@ typedef struct rexdb_s {
 	struct rexcompiler_s *co;	/**< Pointer to a compiler object used for the parsing of regular expression string and turning it into NFA states. */
 	rarray_t *states;			/**< Array holding all the states of the automata */
 	rarray_t *substates;		/**< Used only if the type is REXDB_TYPE_DFA. */
-	rexstate_t *start;
+//	rexstate_t *start;
 } rexdb_t;
 
 
@@ -94,7 +94,7 @@ rexdb_t *rex_db_create(rexdb_type_t type);
  * @param start Start state of the NFA.
  * @return DFA object.
  */
-rexdb_t *rex_db_createdfa(rexdb_t *nfa, unsigned long start);
+rexdb_t *rex_db_createdfa(rexdb_t *nfa, size_t start);
 
 /**
  * This function is used to destroy @ref rexdb_t objects, created with
@@ -103,8 +103,8 @@ rexdb_t *rex_db_createdfa(rexdb_t *nfa, unsigned long start);
 void rex_db_destroy(rexdb_t *rexdb);
 
 /**
- * This function is use to add new regular expression to the NFA.
- * All expression added with this create a union.
+ * This function is used to add new regular expression to the NFA.
+ * All expression added with this function call create a union.
  * @param nfa NFA object.
  * @param prev This is the previous start state of the automata, returned from a previous call to this function.
  * 				If this is the first call to this function prev is ignored.
@@ -118,27 +118,27 @@ void rex_db_destroy(rexdb_t *rexdb);
  *
  * @return New starting state for the automaton.
  */
-long rex_db_addexpression(rexdb_t *nfa, unsigned long prev, const char *str, unsigned int size, rexuserdata_t userdata);
+long rex_db_addexpression(rexdb_t *nfa, size_t prev, const char *str, size_t size, rexuserdata_t userdata);
 
 /**
  * This functions is the same as @ref rex_db_addexpression, but it assumes the str parameter is 0 terminated string.
  */
-long rex_db_addexpression_s(rexdb_t *nfa, unsigned long prev, const char *str, rexuserdata_t userdata);
+long rex_db_addexpression_s(rexdb_t *nfa, size_t prev, const char *str, rexuserdata_t userdata);
 
 
 robject_t *rex_db_init(robject_t *obj, unsigned int objtype, r_object_cleanupfun cleanup, rexdb_type_t type);
-long rex_db_createstate(rexdb_t *rexdb, rex_statetype_t type);
-long rex_db_insertstate(rexdb_t *rexdb, rexstate_t *s);
-long rex_db_findstate(rexdb_t *rexdb, const rarray_t *subset);
-rexstate_t *rex_db_getstate(rexdb_t *rexdb, long uid);
-rexsubstate_t *rex_db_getsubstate(rexdb_t *rexdb, unsigned long uid);
-rex_transition_t * rex_db_addrangetrasition(rexdb_t *rexdb, rexchar_t c1, rexchar_t c2, unsigned long srcuid, unsigned long dstuid);
-rex_transition_t * rex_db_addtrasition_e(rexdb_t *rexdb, unsigned long srcuid, unsigned long dstuid);
-void rex_db_dumpstate(rexdb_t *rexdb, unsigned long uid);
-long rex_db_numtransitions(rexdb_t *rexdb);
-long rex_db_numstates(rexdb_t *rexdb);
-long rex_db_numsubstates(rexdb_t *rexdb);
-long rex_db_numaccsubstates(rexdb_t *rexdb);
+size_t rex_db_createstate(rexdb_t *rexdb, rex_statetype_t type);
+size_t rex_db_insertstate(rexdb_t *rexdb, rexstate_t *s);
+size_t rex_db_findstate(rexdb_t *rexdb, const rarray_t *subset);
+rexstate_t *rex_db_getstate(rexdb_t *rexdb, size_t uid);
+rexsubstate_t *rex_db_getsubstate(rexdb_t *rexdb, size_t uid);
+rex_transition_t * rex_db_addrangetrasition(rexdb_t *rexdb, rexchar_t c1, rexchar_t c2, size_t srcuid, size_t dstuid);
+rex_transition_t * rex_db_addtrasition_e(rexdb_t *rexdb, size_t srcuid, size_t dstuid);
+void rex_db_dumpstate(rexdb_t *rexdb, size_t uid);
+size_t rex_db_numtransitions(rexdb_t *rexdb);
+size_t rex_db_numstates(rexdb_t *rexdb);
+size_t rex_db_numsubstates(rexdb_t *rexdb);
+size_t rex_db_numaccsubstates(rexdb_t *rexdb);
 int rex_db_isempty(rexdb_t *db);
 const char *rex_db_version();
 
@@ -175,7 +175,7 @@ void rex_db_cleanup(robject_t *obj);
  * @param size The number of chars in the string.
  * @return Return 0 on success and negative on error.
  */
-long rex_db_setblanks(rexdb_t *nfa, const char *str, unsigned int size);
+long rex_db_setblanks(rexdb_t *nfa, const char *str, size_t size);
 
 /**
  * @brief Set which chars should be treated as blank chars.

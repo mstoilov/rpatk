@@ -103,7 +103,7 @@ rvmreg_t rvm_reg_create_string_ansi(const char *s)
 {
 	rvmreg_t r;
 	r_memset(&r, 0, sizeof(r));
-	RVM_REG_SETP(&r, r_string_create_from_ansistr(s));
+	RVM_REG_SETP(&r, r_string_create_from_ansi(s));
 	RVM_REG_SETTYPE(&r, RVM_DTYPE_STRING);
 	RVM_REG_SETFLAG(&r, RVM_INFOBIT_ROBJECT);
 	return r;
@@ -114,7 +114,7 @@ rvmreg_t rvm_reg_create_string(const rstr_t *s)
 {
 	rvmreg_t r;
 	r_memset(&r, 0, sizeof(r));
-	RVM_REG_SETP(&r, r_string_create_from_rstr(s));
+	RVM_REG_SETP(&r, r_string_create_from_str_len(s->str, s->size));
 	RVM_REG_SETTYPE(&r, RVM_DTYPE_STRING);
 	RVM_REG_SETFLAG(&r, RVM_INFOBIT_ROBJECT);
 	return r;
@@ -268,7 +268,7 @@ rvmreg_t *rvm_reg_copy(rvmreg_t *dst, const rvmreg_t *src)
 	if (dst != src)
 		*dst = *src;
 	if (rvm_reg_tstflag(dst, RVM_INFOBIT_ROBJECT))
-		dst->v.p = r_object_v_copy(dst->v.p);
+		dst->v.p = r_object_copy(dst->v.p);
 	return dst;
 }
 

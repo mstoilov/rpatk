@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 	rpa_compiler_t *co;
 	rpastat_t *stat;
 	unsigned int mainoff;
-	int i;
+	size_t i;
 	rarray_t *records = rpa_records_create();
 	char teststr[] = "abcabcxyzabc";
 

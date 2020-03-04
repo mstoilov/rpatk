@@ -36,7 +36,7 @@ typedef struct rlist_s rlist_t, rlink_t, rhead_t;
 #define r_list_entry(__ptr__, __type__, __member__) ((__type__ *)((char *)(__ptr__)-(ruword)(&((__type__ *)0)->__member__)))
 #define r_list_foreach(__pos__, __head__) for (__pos__ = (__head__)->next; __pos__ != (__head__); __pos__ = (__pos__)->next)
 #define r_list_foreachreverse(__pos__, __head__) for (__pos__ = (__head__)->prev; __pos__ != (__head__); __pos__ = (__pos__)->prev)
-#define r_list_fo_eachsafe(__pos__, __n__, __head__) \
+#define r_list_for_eachsafe(__pos__, __n__, __head__) \
 		  for (__pos__ = (__head__)->next, __n__ = __pos__->next; __pos__ != (__head__); __pos__ = __n__, __n__ = __pos__->next)
 
 struct rlist_s {
@@ -47,17 +47,17 @@ struct rlist_s {
 
 void r_list_init(rlist_t *ptr);
 void r_list_check(rlist_t *ptr);
-void r_list_add(rlist_t *pNew, rlist_t *pPrev, rlist_t *pNext);
-void r_list_addh(rlist_t *pHead, rlist_t *pNew);
-void r_list_addt(rlist_t *pHead, rlist_t *pNew);
-void r_list_unlink(rlist_t *pPrev, rlist_t *pNext);
-void r_list_del(rlist_t *pEntry);
-rlist_t *r_list_first(rlist_t *pHead);
-rlist_t *r_list_last(rlist_t *pHead);
-rlist_t *r_list_prev(rlist_t *pHead, rlist_t *pElem);
-rlist_t *r_list_next(rlist_t *pHead, rlist_t *pElem);
-void r_list_splice(rlist_t *pList, rlist_t *pHead);
-int r_list_count(rlist_t *pHead);
+void r_list_add(rlist_t *pnew, rlist_t *pprev, rlist_t *pnext);
+void r_list_addh(rlist_t *phead, rlist_t *pnew);
+void r_list_addt(rlist_t *phead, rlist_t *pnew);
+void r_list_unlink(rlist_t *pprev, rlist_t *pnext);
+void r_list_del(rlist_t *pentry);
+rlist_t *r_list_first(rlist_t *phead);
+rlist_t *r_list_last(rlist_t *phead);
+rlist_t *r_list_prev(rlist_t *phead, rlist_t *pelem);
+rlist_t *r_list_next(rlist_t *phead, rlist_t *pelem);
+void r_list_splice(rlist_t *plist, rlist_t *phead);
+uint32_t r_list_count(rlist_t *phead);
 
 
 #ifdef __cplusplus

@@ -29,63 +29,51 @@
 extern "C" {
 #endif
 
-
-#include "rlib/rref.h"
-
-
-
 typedef struct rstr_s {
 	char *str;
 	unsigned long size;
 } rstr_t;
 
+rstr_t *r_rstrdup(const char *s, unsigned int size);
+void r_rstr_free(rstr_t* rstr);
 
 int r_strcmp(const char *s1, const char *s2);
-int r_strncmp(const char *s1, const char *s2, unsigned long n);
-rboolean r_stringncmp(const char *str, const char *s2, unsigned long n);
-unsigned long r_strlen(const char *s);
+int r_strncmp(const char *s1, const char *s2, size_t n);
+rboolean r_stringncmp(const char *str, const char *s2, size_t n);
+size_t r_strlen(const char *s);
 char *r_strstr(const char *haystack, const char *needle);
 char *r_strchr(const char *s, int c);
 char *r_strdup(const char *s);
-char *r_strndup(const char *s, unsigned long size);
+char *r_strndup(const char *s, size_t size);
 char *r_strcpy(char *dest, const char *src);
-char *r_strncpy(char *dest, const char *src, unsigned long n);
+char *r_strncpy(char *dest, const char *src, size_t n);
 char *r_strcat(char *dest, const char *src);
-char *r_strncat(char *dest, const char *src, unsigned int n);
-int r_snprintf(char *str, unsigned int size, const char *format, ...);
+char *r_strncat(char *dest, const char *src, size_t n);
+int r_snprintf(char *str, size_t size, const char *format, ...);
 int r_printf(const char *format, ...);
-
-unsigned long r_strtoul(const char *nptr, char **endptr, int base);
+size_t r_strtoul(const char *nptr, char **endptr, int base);
 long r_strtol(const char *s, char **endptr, int base);
 double r_strtod(const char *s, char **endptr);
-
-rstr_t *r_rstrdup(const char *s, unsigned int size);
 
 
 typedef struct rstring_s {
 	robject_t obj;
-	rstr_t s;
+	char *str;
+	size_t size;
 } rstring_t;
 
-#define R_STRING2ANSI(__p__) ((rstring_t *)(__p__))->s.str
-#define R_STRING2RSTR(__p__) &((rstring_t *)(__p__))->s
-#define r_string_empty(__p__) (!((__p__) && ((rstring_t *)(__p__))->s.size)) ? 1 : 0
-rstring_t *r_string_create();
-rstring_t *r_string_create_from_ansistr(const char *str);
+#define R_STRING2ANSI(__p__) ((rstring_t *)(__p__))->str
+#define r_string_empty(__p__) (!((__p__) && ((rstring_t *)(__p__))->size)) ? 1 : 0
+rstring_t *r_string_create_from_ansi(const char* s);
+rstring_t *r_string_create_from_str_len(const char* s, size_t len);
+rstring_t *r_string_create_from_string(const rstring_t* s);
 rstring_t *r_string_create_from_double(double d);
-rstring_t *r_string_create_from_signed(rword l);
-rstring_t *r_string_create_strsize(const char *str, unsigned long size);
-rstring_t *r_string_create_from_rstr(const rstr_t *str);
+rstring_t *r_string_create_from_int(int64_t l);
 void r_string_destroy(rstring_t *string);
 robject_t *r_string_init(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy);
-void r_string_assign(rstring_t *string, const rstr_t *str);
-void r_string_cat(rstring_t *string, const rstr_t *str);
-const char *r_string_ansi(const rstring_t *str);
-/*
- * Virtual methods implementation
- */
-void r_string_cleanup(robject_t *obj);
-robject_t *r_string_copy(const robject_t *obj);
+robject_t *r_string_init_from_str_len(robject_t *obj, ruint32 type, r_object_cleanupfun cleanup, r_object_copyfun copy, const char *str, size_t len);
+rstring_t *r_string_cat(rstring_t *str1, rstring_t *str2);
+void r_string_cat_len(rstring_t *string, const char *str, size_t size);
 
 
 #ifdef __cplusplus

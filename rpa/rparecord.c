@@ -204,7 +204,7 @@ int rpa_recordtree_move(rarray_t *records, long dst, long src, long size)
 {
 	long i;
 	rparecord_t *srcrec, *dstrec;
-	if ((dst + size) > r_array_length(records))
+	if ((dst + size) > (long)r_array_length(records))
 		return -1;
 	if (dst == src)
 		return 0;
@@ -356,7 +356,7 @@ void rpa_record_dump(rarray_t *records, long rec, int wantuserdata)
 	int n = 0, size;
 	char optc = ' ';
 
-	if (rec < 0 || rec >= records->alloc_size)
+	if (rec < 0 || rec >= (long)records->alloc_size)
 		return;
 	prec = (rparecord_t *)r_array_slot(records, rec);
 	if (prec->type & RPA_RECORD_END) {

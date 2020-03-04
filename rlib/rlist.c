@@ -20,94 +20,123 @@
 
 #include "rlib/rlist.h"
 
-
+/*
+ * Initialize ptr to point itself
+ */
 void r_list_init(rlist_t *ptr)
 {
 	ptr->next = ptr;
 	ptr->prev = ptr;
 }
 
-
-void r_list_add(rlist_t *pNew, rlist_t *pPrev, rlist_t *pNext)
+/*
+ * insert pNew between pPrev and pNext
+ */
+void r_list_add(rlist_t *pnew, rlist_t *pprev, rlist_t *pnext)
 {
-	pNext->prev = pNew;
-	pNew->next = pNext;
-	pNew->prev = pPrev;
-	pPrev->next = pNew;
+	pnext->prev = pnew;
+	pnew->next = pnext;
+	pnew->prev = pprev;
+	pprev->next = pnew;
 }
 
-
-void r_list_addh(rlist_t *pHead, rlist_t *pNew)
+/*
+ * Insert in the beginning (head) of the list
+ */
+void r_list_addh(rlist_t *phead, rlist_t *pnew)
 {
-	r_list_add(pNew, pHead, (pHead)->next);
+	r_list_add(pnew, phead, (phead)->next);
 }
 
-
-void r_list_addt(rlist_t *pHead, rlist_t *pNew)
+/*
+ * Insert at the end (tail) of the list
+ */
+void r_list_addt(rlist_t *phead, rlist_t *pnew)
 {
-	r_list_add(pNew, (pHead)->prev, pHead);
+	r_list_add(pnew, (phead)->prev, phead);
 }
 
-
-void r_list_unlink(rlist_t *pPrev, rlist_t *pNext)
+/*
+ * Unlink the node between pprev and pnext
+ */
+void r_list_unlink(rlist_t *pprev, rlist_t *pnext)
 {
-	pNext->prev = pPrev;
-	pPrev->next = pNext;
+	pnext->prev = pprev;
+	pprev->next = pnext;
 }
 
-
-void r_list_del(rlist_t *pEntry)
+/*
+ * Unlink from the list
+ */
+void r_list_del(rlist_t *pentry)
 {
-	r_list_unlink((pEntry)->prev, (pEntry)->next);
+	r_list_unlink((pentry)->prev, (pentry)->next);
 }
 
-
+/*
+ * Return the first node if the list is not empty,
+ * otherwise return NULL;
+ */
 rlist_t *r_list_first(rlist_t *pHead)
 {
-	return (((pHead)->next != (pHead)) ? (pHead)->next: ((void*)0));
+	return (((pHead)->next != (pHead)) ? (pHead)->next : NULL);
 }
 
-
+/*
+ * Return the last node if the list is not empty,
+ * otherwise return NULL;
+ */
 rlist_t *r_list_last(rlist_t *pHead)
 {
-	return (((pHead)->prev != (pHead)) ? (pHead)->prev: ((void*)0));
+	return (((pHead)->prev != (pHead)) ? (pHead)->prev : NULL);
 }
 
-
-rlist_t *r_list_prev(rlist_t *pHead, rlist_t *pElem)
+/*
+ * Return the previous node, if there is one.
+ * Otherwise return NULL
+ */
+rlist_t *r_list_prev(rlist_t *phead, rlist_t *pelem)
 {
-	return (pElem && pElem->prev != pHead) ? (pElem)->prev: ((void*)0);
+	return (pelem && pelem->prev != phead) ? (pelem)->prev : NULL;
 }
 
-
-rlist_t *r_list_next(rlist_t *pHead, rlist_t *pElem)
+/*
+ * Return the next node, if there is one.
+ * Otherwise return NULL
+ */
+rlist_t *r_list_next(rlist_t *phead, rlist_t *pelem)
 {
-	return (pElem && pElem->next != pHead) ? pElem->next: ((void*)0);
+	return (pelem && pelem->next != phead) ? pelem->next : NULL;
 }
 
-
-void r_list_splice(rlist_t *pList, rlist_t *pHead)
+/*
+ * Insert plist elements between phead and phead->next
+ */
+void r_list_splice(rlist_t *plist, rlist_t *phead)
 {
-	rlist_t *pFirst;
+	rlist_t *first;
 
-	pFirst = pList->next;
-	if (pFirst != pList) {
-		rlist_t *pLast = pList->prev;
-		rlist_t *pAt = pHead->next;
-		pFirst->prev = pHead;
-		pHead->next = pFirst;
-		pLast->next = pAt;
-		pAt->prev = pLast;
+	first = plist->next;
+	if (first != plist) {
+		rlist_t *last = plist->prev;
+		rlist_t *at = phead->next;
+		first->prev = phead;
+		phead->next = first;
+		last->next = at;
+		at->prev = last;
+		r_list_init(plist);
 	}
 }
 
-
-int r_list_count(rlist_t *pHead)
+/*
+ * Return the number of nodes in the list
+ */
+uint32_t r_list_count(rlist_t *phead)
 {
-	rlist_t *pCur;
-	int n = 0;
+	rlist_t *pcur;
+	uint32_t n = 0;
 
-	r_list_foreach(pCur, pHead)
+	r_list_foreach(pcur, phead)
 		n++;
 	return n;
 }

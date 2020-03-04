@@ -29,16 +29,16 @@ extern "C" {
 #endif
 
 
-rpointer r_malloc(unsigned long size);
-rpointer r_realloc(rpointer ptr, unsigned long size);
-rpointer r_calloc(unsigned long nmemb, unsigned long size);
+rpointer r_malloc(size_t size);
+rpointer r_realloc(rpointer ptr, size_t size);
+rpointer r_calloc(size_t nmemb, size_t size);
 void r_free(rpointer ptr);
-rpointer r_zmalloc(unsigned long size);
-rpointer r_memset(rpointer s, int c, unsigned long n);
-rpointer r_memcpy(rpointer dest, rconstpointer src, unsigned long n);
-rpointer r_memmove(rpointer dest, rconstpointer src, unsigned long n);
-unsigned long r_debug_get_allocmem();
-unsigned long r_debug_get_maxmem();
+rpointer r_zmalloc(size_t size);
+rpointer r_memset(rpointer s, int32_t c, size_t n);
+rpointer r_memcpy(rpointer dest, rconstpointer src, size_t n);
+rpointer r_memmove(rpointer dest, rconstpointer src, size_t n);
+size_t r_debug_get_allocmem();
+size_t r_debug_get_maxmem();
 void r_debug_reset_maxmem();
 
 

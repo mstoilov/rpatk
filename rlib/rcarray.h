@@ -35,7 +35,6 @@ extern "C" {
 #define R_CARRAY_CHUNKMASK (R_CARRAY_CHUNKSIZE - 1)
 
 typedef struct rcarray_s rcarray_t;
-typedef void (*r_carray_callback)(rcarray_t *carray);
 
 
 struct rcarray_s {
@@ -44,9 +43,6 @@ struct rcarray_s {
 	unsigned long alloc_size;
 	unsigned long len;
 	unsigned long elt_size;
-	r_carray_callback oncleanup;
-	r_carray_callback oncopy;
-	rpointer *userdata;
 };
 
 #define r_carray_size(__carray__) (__carray__)->alloc_size
@@ -62,12 +58,14 @@ unsigned long r_carray_replace(rcarray_t *carray, unsigned long index, rconstpoi
 unsigned long r_carray_add(rcarray_t *carray, rconstpointer data);
 void r_carray_setlength(rcarray_t *carray, unsigned long len);
 void r_carray_inclength(rcarray_t *carray);
-void r_carray_inclength(rcarray_t *carray);
 void r_carray_checkexpand(rcarray_t *carray, unsigned long size);
 rpointer r_carray_slot_expand(rcarray_t *carray, unsigned long index);
 
 /*
- * Virtual methods implementation
+ * Virtual methods implementation. These methods need tobe called
+ * in the case when another type inherits from rcarray_t type. The
+ * subtype must call these methods in the chain of their cleanup / destroy
+ * procedures.
  */
 void r_carray_cleanup(robject_t *obj);
 robject_t *r_carray_copy(const robject_t *obj);

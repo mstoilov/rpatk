@@ -25,7 +25,6 @@
 #include "rlib/rhash.h"
 #include "rlib/rlist.h"
 #include "rlib/rstring.h"
-#include "rlib/rgc.h"
 #include "rlib/robject.h"
 
 #ifdef __cplusplus
@@ -33,13 +32,13 @@ extern "C" {
 #endif
 
 
-#define r_map_hashsize(__m__) ((unsigned long)((unsigned long)1 << (__m__)->nbits))
+#define r_map_hashsize(__m__) ((size_t)((size_t)1 << (__m__)->nbits))
 #define r_map_hashmask(__m__) (r_map_hashsize(__m__) - 1)
 
 typedef struct rmap_s {
 	robject_t obj;
-	unsigned long nbits;
-	unsigned long elt_size;
+	size_t nbits;
+	size_t elt_size;
 	rcarray_t *data;
 	rlist_t *hash;
 	rlist_t active;
@@ -47,40 +46,28 @@ typedef struct rmap_s {
 } rmap_t;
 
 
-rmap_t *r_map_create(unsigned int elt_size, unsigned int nbits);
+rmap_t *r_map_create(size_t elt_size, size_t nbits);
 void r_map_destroy(rmap_t *array);
-long r_map_lookup(rmap_t *map, long current, const char *name, unsigned int namesize);
-long r_map_lookup_s(rmap_t *map, long current, const char *name);
-long r_map_taillookup(rmap_t *map, long current, const char *name, unsigned int namesize);
-long r_map_taillookup_s(rmap_t *map, long current, const char *name);
-long r_map_lookup_d(rmap_t *map, long current, double name);
-long r_map_lookup_l(rmap_t *map, long current, long name);
-long r_map_add(rmap_t *map, const char *name, unsigned int namesize, rconstpointer pval);
-long r_map_add_s(rmap_t *map, const char *name, rconstpointer pval);
-long r_map_add_d(rmap_t *map, double name, rconstpointer pval);
-long r_map_add_l(rmap_t *map, long name, rconstpointer pval);
+size_t r_map_lookup(rmap_t *map, const char *name, size_t namesize);
+size_t r_map_lookup_s(rmap_t *map, const char *name);
+size_t r_map_taillookup(rmap_t *map, const char *name, size_t namesize);
+size_t r_map_taillookup_s(rmap_t *map, const char *name);
+size_t r_map_lookup_d(rmap_t *map, double name);
+size_t r_map_lookup_l(rmap_t *map, long name);
+size_t r_map_add(rmap_t *map, const char *name, size_t namesize, rconstpointer pval);
+size_t r_map_add_s(rmap_t *map, const char *name, rconstpointer pval);
+size_t r_map_add_d(rmap_t *map, double name, rconstpointer pval);
+size_t r_map_add_l(rmap_t *map, long name, rconstpointer pval);
 
-/*
- * The following functions allow the created keys (rstring_t objects) to be added to
- * GC list and not being destroyed by the rmap_t, but leave it to the users of rmap_t
- * to decide when to destroy those keys. These is useful for scripting languages with
- * GC memory management. Another possibility would be to get the key as a rstr_t* and
- * make rmap_t completely get out of the memory management business.
- */
-long r_map_gckey_add(rmap_t *map, rgc_t* gc, const char *name, unsigned int namesize, rconstpointer pval);
-long r_map_gckey_add_s(rmap_t *map, rgc_t* gc, const char *name, rconstpointer pval);
-long r_map_gckey_add_d(rmap_t *map, rgc_t* gc, double name, rconstpointer pval);
-long r_map_gckey_add_l(rmap_t *map, rgc_t* gc, long name, rconstpointer pval);
+size_t r_map_setvalue(rmap_t *map, size_t index, rconstpointer pval);
+rstring_t *r_map_key(rmap_t *map, size_t index);
+rpointer r_map_value(rmap_t *map, size_t index);
+rboolean r_map_delete(rmap_t *map, size_t index);
 
-long r_map_setvalue(rmap_t *map, long index, rconstpointer pval);
-rstring_t *r_map_key(rmap_t *map, unsigned long index);
-rpointer r_map_value(rmap_t *map, unsigned long index);
-int r_map_delete(rmap_t *map, unsigned long index);
-
-long r_map_first(rmap_t *map);
-long r_map_last(rmap_t *map);
-long r_map_next(rmap_t *map, long current);
-long r_map_prev(rmap_t *map, long current);
+size_t r_map_first(rmap_t *map);
+size_t r_map_last(rmap_t *map);
+size_t r_map_next(rmap_t *map, size_t current);
+size_t r_map_prev(rmap_t *map, size_t current);
 
 
 #ifdef __cplusplus

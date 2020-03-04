@@ -1,32 +1,35 @@
 ROOT_DIR = ../..
+BUILD_DIR = $(ROOT_DIR)/build/unix/bin
 include $(ROOT_DIR)/build/unix/config.mk
 
 all:
-	+make -C $(ROOT_DIR)/rlib/unix all
-	+make -C $(ROOT_DIR)/rpa/unix all
-	+make -C $(ROOT_DIR)/rvm/unix all
-	+make -C $(ROOT_DIR)/rex/unix all
-	+make -C $(ROOT_DIR)/rpagrep/unix all
-	+make -C $(ROOT_DIR)/rexgrep/unix all
-	+make -C $(ROOT_DIR)/rexcc/unix all
-	+make -C $(ROOT_DIR)/tests/testmisc/unix all
-	+make -C $(ROOT_DIR)/tests/testrex/unix all
-	+make -C $(ROOT_DIR)/tests/testrpa/unix all
+	+make -C $(ROOT_DIR)/rlib/build/unix all
+	+make -C $(ROOT_DIR)/rvm/build/unix all
+	+make -C $(ROOT_DIR)/rex/build/unix all
+	+make -C $(ROOT_DIR)/rpa/build/unix all
+	+make -C $(ROOT_DIR)/rpagrep/build/unix all	
+	+make -C $(ROOT_DIR)/rexgrep/build/unix all
+	+make -C $(ROOT_DIR)/rexcc/build/unix all
+	+make -C $(ROOT_DIR)/googletest/build/unix all
+	+make -C $(ROOT_DIR)/unittests/build/unix all
+	+make -C $(ROOT_DIR)/tests/testmisc/build/unix all
+	+make -C $(ROOT_DIR)/tests/testrpa/build/unix all
+	+make -C $(ROOT_DIR)/tests/testrex/build/unix all
 
 clean:
-	+make -C $(ROOT_DIR)/rlib/unix clean
-	+make -C $(ROOT_DIR)/rpa/unix clean
-	+make -C $(ROOT_DIR)/rvm/unix clean
-	+make -C $(ROOT_DIR)/rex/unix clean
-	+make -C $(ROOT_DIR)/tests/testmisc/unix clean
-	+make -C $(ROOT_DIR)/tests/testrpa/unix clean
-	+make -C $(ROOT_DIR)/tests/testrex/unix clean
-	+make -C $(ROOT_DIR)/tests/testrjs/unix clean	
-	+make -C $(ROOT_DIR)/rpagrep/unix clean
-	+make -C $(ROOT_DIR)/rexgrep/unix clean
-	+make -C $(ROOT_DIR)/rexcc/unix clean
-	+make -C $(ROOT_DIR)/rexcc/unix clean
-	+make -C $(ROOT_DIR)/rjs/unix clean
+	+make -C $(ROOT_DIR)/rlib/build/unix clean
+	+make -C $(ROOT_DIR)/rvm/build/unix clean
+	+make -C $(ROOT_DIR)/rex/build/unix clean
+	+make -C $(ROOT_DIR)/rpa/build/unix clean
+	+make -C $(ROOT_DIR)/rexgrep/build/unix clean
+	+make -C $(ROOT_DIR)/rpagrep/build/unix clean	
+	+make -C $(ROOT_DIR)/rexcc/build/unix clean
+	+make -C $(ROOT_DIR)/googletest/build/unix clean
+	+make -C $(ROOT_DIR)/unittests/build/unix clean
+	+make -C $(ROOT_DIR)/tests/testmisc/build/unix clean
+	+make -C $(ROOT_DIR)/tests/testrpa/build/unix clean
+	+make -C $(ROOT_DIR)/tests/testrex/build/unix clean
+	
 	
 
 $(RPATK_BIN_INSTALL) :
@@ -52,21 +55,21 @@ $(RPATK_INC_INSTALL)/rex :
 
 install: $(RPATK_INC_INSTALL) $(RPATK_BIN_INSTALL) $(RPATK_LIB_INSTALL) $(RPATK_INC_INSTALL)/rlib $(RPATK_INC_INSTALL)/rvm $(RPATK_INC_INSTALL)/rpa $(RPATK_INC_INSTALL)/rex
 	cp $(ROOT_DIR)/arch/unix/rtypes.h $(RPATK_INC_INSTALL)
-	cp $(ROOT_DIR)/rlib/unix/bin/*.a $(RPATK_LIB_INSTALL)
-	cp $(ROOT_DIR)/rlib/unix/bin/*.so.* $(RPATK_LIB_INSTALL)
+	cp $(BUILD_DIR)/librlib.a $(RPATK_LIB_INSTALL)
+	cp $(BUILD_DIR)/librlib.so.* $(RPATK_LIB_INSTALL)
 	cp $(ROOT_DIR)/rlib/*.h $(RPATK_INC_INSTALL)/rlib
-	cp $(ROOT_DIR)/rvm/unix/bin/*.a $(RPATK_LIB_INSTALL)
-	cp $(ROOT_DIR)/rvm/unix/bin/*.so.* $(RPATK_LIB_INSTALL)
+	cp $(BUILD_DIR)/librvm.a $(RPATK_LIB_INSTALL)
+	cp $(BUILD_DIR)/librvm.so.* $(RPATK_LIB_INSTALL)
 	cp $(ROOT_DIR)/rvm/*.h $(RPATK_INC_INSTALL)/rvm
-	cp $(ROOT_DIR)/rpa/unix/bin/*.a $(RPATK_LIB_INSTALL)
-	cp $(ROOT_DIR)/rpa/unix/bin/*.so.* $(RPATK_LIB_INSTALL)
+	cp $(BUILD_DIR)/librpa.a $(RPATK_LIB_INSTALL)
+	cp $(BUILD_DIR)/librpa.so.* $(RPATK_LIB_INSTALL)
 	cp $(ROOT_DIR)/rpa/*.h $(RPATK_INC_INSTALL)/rpa
-	cp $(ROOT_DIR)/rex/unix/bin/*.a $(RPATK_LIB_INSTALL)
-	cp $(ROOT_DIR)/rex/unix/bin/*.so.* $(RPATK_LIB_INSTALL)
+	cp $(BUILD_DIR)/librex.a $(RPATK_LIB_INSTALL)
+	cp $(BUILD_DIR)/librex.so.* $(RPATK_LIB_INSTALL)
 	cp $(ROOT_DIR)/rex/*.h $(RPATK_INC_INSTALL)/rex
-	cp $(ROOT_DIR)/rpagrep/unix/bin/rpagrep $(RPATK_BIN_INSTALL)
-	cp $(ROOT_DIR)/rexgrep/unix/bin/rexgrep $(RPATK_BIN_INSTALL)
-	cp $(ROOT_DIR)/rexcc/unix/bin/rexcc $(RPATK_BIN_INSTALL)
+	cp $(BUILD_DIR)/rpagrep $(RPATK_BIN_INSTALL)
+	cp $(BUILD_DIR)/rexgrep $(RPATK_BIN_INSTALL)
+	cp $(BUILD_DIR)/rexcc $(RPATK_BIN_INSTALL)
 	
 	
 ifeq ($(RPATK_LDCONFIG), 1)

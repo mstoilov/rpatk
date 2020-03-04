@@ -29,8 +29,8 @@ rex_nfasimulator_t *rex_nfasimulator_create()
 	rex_nfasimulator_t *si;
 
 	si = (rex_nfasimulator_t*) r_malloc(sizeof(*si));
-	si->newstates = r_array_create(sizeof(unsigned long));
-	si->oldstates = r_array_create(sizeof(unsigned long));
+	si->newstates = r_array_create(sizeof(size_t));
+	si->oldstates = r_array_create(sizeof(size_t));
 	si->accepts = r_array_create(sizeof(rex_accept_t));
 	si->onmap = r_array_create(sizeof(rboolean));
 	return si;
@@ -48,15 +48,18 @@ void rex_nfasimulator_destroy(rex_nfasimulator_t *si)
 	}
 }
 
-
-static void rex_nfasimulator_addstate(rex_nfasimulator_t *si, rexdb_t *a, long uid)
+/**
+ * Add the uid to the si->newstates set and also add all
+ * states that are reachable via empty transitions.
+ */
+static void rex_nfasimulator_addstate(rex_nfasimulator_t *si, rexdb_t *a, size_t uid)
 {
-	long i;
+	size_t i;
 	rexstate_t *s;
 	rex_transition_t *t;
 	rboolean on = TRUE;
 
-	r_array_push(si->newstates, uid, unsigned long);
+	r_array_push(si->newstates, uid, size_t);
 	r_array_replace(si->onmap, uid, &on);
 	s = rex_db_getstate(a, uid);
 	for (i = 0; i < r_array_length(s->etrans); i++) {
@@ -70,19 +73,51 @@ static void rex_nfasimulator_addstate(rex_nfasimulator_t *si, rexdb_t *a, long u
 
 void rex_nfasimulator_dumpnewstates(rex_nfasimulator_t *si)
 {
-	long i;
+	size_t i;
 
 	if (r_array_length(si->newstates)) {
-		r_array_sort(si->newstates, unsigned long);
+		r_array_sort(si->newstates, size_t);
 		for (i = 0; i < r_array_length(si->newstates); i++)
-			r_printf("%ld, ", r_array_index(si->newstates, i, unsigned long));
+			r_printf("%ld, ", r_array_index(si->newstates, i, size_t));
 		r_printf("\n");
 	}
 
 }
 
 
-long rex_nfasimulator_run(rex_nfasimulator_t *si, rexdb_t *nfa, long uid, const char *str, unsigned long size)
+size_t rex_nfasimulator_run_s(rex_nfasimulator_t *si, rexdb_t *nfa, size_t uid, const char *str)
+{
+	return rex_nfasimulator_run(si, nfa, uid, str, r_strlen(str));
+}
+
+
+void rex_nfasimulator_start(rex_nfasimulator_t *si, rexdb_t *db, size_t uid)
+{
+	size_t i;
+	size_t suid;
+	rboolean off = FALSE;
+
+	si->count = 0;
+	si->inputsize = 0;
+	r_array_setlength(si->accepts, 0);
+	r_array_setlength(si->oldstates, 0);
+	r_array_setlength(si->newstates, 0);
+	r_array_setlength(si->onmap, r_array_length(db->states));
+	for (i = 0; i < r_array_length(db->states); i++)
+		r_array_replace(si->onmap, i, &off);
+	rex_nfasimulator_addstate(si, db, uid);
+#if 0
+	rex_nfasimulator_dumpnewstates(si);
+#endif
+	while (r_array_length(si->newstates)) {
+		suid = r_array_pop(si->newstates, size_t);
+		r_array_push(si->oldstates, suid, size_t);
+		r_array_replace(si->onmap, suid, &off);
+	}
+}
+
+
+size_t rex_nfasimulator_run(rex_nfasimulator_t *si, rexdb_t *nfa, size_t uid, const char *str, size_t size)
 {
 	int inc;
 	ruint32 wc;
@@ -100,54 +135,38 @@ long rex_nfasimulator_run(rex_nfasimulator_t *si, rexdb_t *nfa, long uid, const 
 }
 
 
-void rex_nfasimulator_start(rex_nfasimulator_t *si, rexdb_t *db, long uid)
-{
-	long i;
-	unsigned long suid;
-	rboolean off = FALSE;
-
-	si->count = 0;
-	si->inputsize = 0;
-	r_array_setlength(si->accepts, 0);
-	r_array_setlength(si->oldstates, 0);
-	r_array_setlength(si->newstates, 0);
-	r_array_setlength(si->onmap, r_array_length(db->states));
-	for (i = 0; i < r_array_length(db->states); i++)
-		r_array_replace(si->onmap, i, &off);
-	rex_nfasimulator_addstate(si, db, uid);
-#if 0
-	rex_nfasimulator_dumpnewstates(si);
-#endif
-	while (r_array_length(si->newstates)) {
-		suid = r_array_pop(si->newstates, unsigned long);
-		r_array_push(si->oldstates, suid, unsigned long);
-		r_array_replace(si->onmap, suid, &off);
-	}
-}
-
-
-long rex_nfasimulator_next(rex_nfasimulator_t *si, rexdb_t *db, ruint32 wc, int wcsize)
+size_t rex_nfasimulator_next(rex_nfasimulator_t *si, rexdb_t *db, ruint32 wc, size_t wcsize)
 {
 	rexstate_t *s;
 	rex_transition_t *t;
 	rboolean off = FALSE;
 	rboolean mapval;
-	long i;
-	unsigned long suid;
+	size_t i;
+	size_t suid;
 
 	if (!r_array_length(si->oldstates))
 		return 0;
 	si->count += 1;
 	si->inputsize += wcsize;
+
+	/*
+	 * Find all states that are reachable through input (wc) transition
+	 * and add it to the si->newstates list.
+	 */
 	while (r_array_length(si->oldstates)) {
-		suid = r_array_pop(si->oldstates, unsigned long);
+		suid = r_array_pop(si->oldstates, size_t);
 		s = rex_db_getstate(db, suid);
 		for (i = 0; i < r_array_length(s->trans); i++) {
 			t = (rex_transition_t *)r_array_slot(s->trans, i);
 			if (t->lowin <=  wc && wc <= t->highin) {
 				mapval = r_array_index(si->onmap, t->dstuid, rboolean);
-				if (mapval == 0)
+				if (mapval == 0) {
+					/*
+					 * Only add the state if it hasn't already been added.
+					 *
+					 */
 					rex_nfasimulator_addstate(si, db, t->dstuid);
+				}
 			}
 		}
 	}
@@ -156,8 +175,8 @@ long rex_nfasimulator_next(rex_nfasimulator_t *si, rexdb_t *db, ruint32 wc, int 
 #endif
 
 	while (r_array_length(si->newstates)) {
-		suid = r_array_pop(si->newstates, unsigned long);
-		r_array_push(si->oldstates, suid, unsigned long);
+		suid = r_array_pop(si->newstates, size_t);
+		r_array_push(si->oldstates, suid, size_t);
 		r_array_replace(si->onmap, suid, &off);
 		s = rex_db_getstate(db, suid);
 		if (s->type == REX_STATETYPE_ACCEPT) {

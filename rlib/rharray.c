@@ -89,8 +89,6 @@ robject_t *r_harray_init(robject_t *obj, ruint32 type, r_object_cleanupfun clean
 	harray->hash = r_hash_create(5, r_hash_rstrequal, r_hash_rstrhash);
 	harray->members = r_carray_create(elt_size);
 	harray->names = r_array_create(sizeof(rstr_t*));
-	harray->names->oncleanup = r_array_oncleanup_rstr;
-	harray->names->oncopy = r_array_oncopy_rstr;
 	return obj;
 }
 
@@ -122,9 +120,10 @@ robject_t *r_harray_copy(const robject_t *obj)
 	harray->names = (rarray_t*)r_array_copy((robject_t*)src->names);
 	harray->members = (rcarray_t*)r_carray_copy((robject_t*)src->members);
 	harray->hash = r_hash_create(5, r_hash_rstrequal, r_hash_rstrhash);
+	r_array_oncopy_rstr(harray->names);
 	for (i = 0; i < r_carray_length(src->members); i++) {
 		n = r_array_index(harray->names, i, rstr_t*);
-		r_hash_insert_indexval(harray->hash, (rconstpointer)n, i);
+		r_hash_insert_index(harray->hash, (rconstpointer)n, i);
 	}
 	return (robject_t*)harray;
 }
@@ -133,10 +132,11 @@ robject_t *r_harray_copy(const robject_t *obj)
 void r_harray_cleanup(robject_t *obj)
 {
 	rharray_t *harray = (rharray_t *)obj;
+	r_array_oncleanup_rstr(harray->names);
 	r_object_destroy((robject_t*)harray->members);
 	r_object_destroy((robject_t*)harray->names);
 	r_object_destroy((robject_t*)harray->hash);
-	r_object_cleanup(&harray->obj);
+	r_object_cleanup((robject_t*)harray);
 }
 
 
@@ -154,7 +154,7 @@ long r_harray_add(rharray_t *harray, const char *name, unsigned int namesize, rc
 	 * think of some sort reverse lookup mechanism.
 	 */
 	R_ASSERT(index == nameindex);
-	r_hash_insert_indexval(harray->hash, (rconstpointer)membrName, index);
+	r_hash_insert_index(harray->hash, (rconstpointer)membrName, index);
 	return index;
 }
 
@@ -186,7 +186,7 @@ long r_harray_lookup(rharray_t *harray, const char *name, unsigned int namesize)
 	unsigned long found;
 
 	rstr_t lookupstr = {(char*)name, namesize};
-	found = r_hash_lookup_indexval(harray->hash, &lookupstr);
+	found = r_hash_lookup_index(harray->hash, &lookupstr);
 	if (found == R_HASH_INVALID_INDEXVAL)
 		return -1;
 	return (long)found;
@@ -204,7 +204,7 @@ long r_harray_taillookup(rharray_t *harray, const char *name, unsigned int names
 	unsigned long found;
 
 	rstr_t lookupstr = {(char*)name, namesize};
-	found = r_hash_taillookup_indexval(harray->hash, &lookupstr);
+	found = r_hash_taillookup_index(harray->hash, &lookupstr);
 	if (found == R_HASH_INVALID_INDEXVAL)
 		return -1;
 	return (long)found;
@@ -255,7 +255,7 @@ int r_harray_set(rharray_t *harray, long index, rconstpointer pval)
 
 rpointer r_harray_get(rharray_t *harray, unsigned long index)
 {
-	if (index >= r_carray_length(harray->members) || index < 0)
+	if (index >= r_carray_length(harray->members))
 		return NULL;
 	return r_carray_slot(harray->members, index);
 }

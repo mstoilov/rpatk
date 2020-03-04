@@ -29,22 +29,22 @@ static rword g_allocmem = 0;
 static rword g_maxmem = 0;
 
 typedef struct rmallocvtable_s {
-	rpointer (*malloc)(unsigned long size);
+	rpointer (*malloc)(size_t size);
 	void (*free)(rpointer ptr);
-	rpointer (*realloc)(rpointer ptr, unsigned long size);
-	rpointer (*calloc)(unsigned long nmemb, unsigned long size);
+	rpointer (*realloc)(rpointer ptr, size_t size);
+	rpointer (*calloc)(size_t nmemb, size_t size);
 } rmallocvtable_t;
 
 
-static rpointer r_std_malloc(unsigned long size)
+static rpointer r_std_malloc(size_t size)
 {
-	return malloc((size_t)size);
+	return malloc(size);
 }
 
 
-static rpointer r_std_calloc(unsigned long nmemb, unsigned long size)
+static rpointer r_std_calloc(size_t nmemb, size_t size)
 {
-	return calloc((size_t)nmemb, (size_t)size);
+	return calloc(nmemb, size);
 }
 
 
@@ -54,18 +54,18 @@ static void r_std_free(rpointer ptr)
 }
 
 
-static rpointer r_std_realloc(rpointer ptr, unsigned long size)
+static rpointer r_std_realloc(rpointer ptr, size_t size)
 {
-	return realloc((void*)ptr, (size_t)size);
+	return realloc((void*)ptr, size);
 }
 
 
-static rpointer r_dbg_calloc(unsigned long nmemb, unsigned long size)
+static rpointer r_dbg_calloc(size_t nmemb, size_t size)
 {
 	ruword *mem = NULL;
 
 	nmemb += (size < sizeof(ruword)) ? sizeof(ruword) : 1;
-	mem = (ruword*)calloc((size_t)nmemb, (size_t)size);
+	mem = (ruword*)calloc(nmemb, size);
 	*((ruword*)mem) = size * nmemb;
 	r_spinlock_lock(&g_lock);
 	g_allocmem += size * nmemb;
@@ -77,11 +77,11 @@ static rpointer r_dbg_calloc(unsigned long nmemb, unsigned long size)
 }
 
 
-static rpointer r_dbg_malloc(unsigned long size)
+static rpointer r_dbg_malloc(size_t size)
 {
 	ruword *mem = NULL;
 	size += sizeof(ruword);
-	mem = (ruword*)malloc((size_t)(size));
+	mem = (ruword*)malloc((size));
 	*((ruword*)mem) = size;
 	r_spinlock_lock(&g_lock);
 	g_allocmem += size;
@@ -107,7 +107,7 @@ static void r_dbg_free(rpointer ptr)
 }
 
 
-static rpointer r_dbg_realloc(rpointer ptr, unsigned long size)
+static rpointer r_dbg_realloc(rpointer ptr, size_t size)
 {
 	ruword *mem = (void*)(((ruword*)ptr) - 1);
 	ruword csize;
@@ -118,7 +118,7 @@ static rpointer r_dbg_realloc(rpointer ptr, unsigned long size)
 	g_allocmem -= csize;
 	r_spinlock_unlock(&g_lock);
 	size += sizeof(ruword);
-	mem = (ruword*)realloc((void*)mem, (size_t)(size));
+	mem = (ruword*)realloc((void*)mem, (size));
 	*mem = size;
 	r_spinlock_lock(&g_lock);
 	g_allocmem += size;
@@ -153,19 +153,19 @@ static rmallocvtable_t *g_pMemAlloc = &g_stdMemAlloc;
 #endif
 
 
-rpointer r_malloc(unsigned long size)
+rpointer r_malloc(size_t size)
 {
 	return g_pMemAlloc->malloc(size);
 }
 
 
-rpointer r_realloc(rpointer ptr, unsigned long size)
+rpointer r_realloc(rpointer ptr, size_t size)
 {
 	return g_pMemAlloc->realloc(ptr, size);
 }
 
 
-rpointer r_calloc(unsigned long nmemb, unsigned long size)
+rpointer r_calloc(size_t nmemb, size_t size)
 {
 	return g_pMemAlloc->calloc(nmemb, size);
 }
@@ -177,7 +177,7 @@ void r_free(rpointer ptr)
 }
 
 
-rpointer r_zmalloc(unsigned long size)
+rpointer r_zmalloc(size_t size)
 {
 	void *mem;
 
@@ -187,33 +187,33 @@ rpointer r_zmalloc(unsigned long size)
 }
 
 
-rpointer r_memset(rpointer s, int c, unsigned long n)
+rpointer r_memset(rpointer s, int c, size_t n)
 {
-	return memset((void*)s, (int)c, (size_t)n);
+	return memset((void*)s, (int)c, n);
 }
 
 
-rpointer r_memcpy(rpointer dest, rconstpointer src, unsigned long n)
+rpointer r_memcpy(rpointer dest, rconstpointer src, size_t n)
 {
-	return memcpy((void*)dest, (const void*)src, (size_t)n);
+	return memcpy((void*)dest, (const void*)src, n);
 }
 
 
-rpointer r_memmove(rpointer dest, rconstpointer src, unsigned long n)
+rpointer r_memmove(rpointer dest, rconstpointer src, size_t n)
 {
-	return memmove((void*)dest, (const void*)src, (size_t)n);
+	return memmove((void*)dest, (const void*)src, n);
 }
 
 
-unsigned long r_debug_get_allocmem()
+size_t r_debug_get_allocmem()
 {
-	return (unsigned long)g_allocmem;
+	return g_allocmem;
 }
 
 
-unsigned long r_debug_get_maxmem()
+size_t r_debug_get_maxmem()
 {
-	return (unsigned long)g_maxmem;
+	return g_maxmem;
 }
 
 
@@ -223,16 +223,88 @@ void r_debug_reset_maxmem()
 }
 
 
-/*
- * This function has no meaning it is used just to
- * suppress some compiler warnings.
- */
-void r_memalloc_do_not_use()
-{
-	rmallocvtable_t *pDbgMemAlloc = &g_dbgMemAlloc;
-	rmallocvtable_t *pStdMemAlloc = &g_stdMemAlloc;
 
-	if (pDbgMemAlloc == pStdMemAlloc)
-		return;
-	return;
+
+
+#if 0
+static inline rpointer r_std_malloc(size_t size)
+{
+	return malloc(size);
 }
+
+static inline rpointer r_std_calloc(size_t nmemb, size_t size)
+{
+	return calloc(nmemb, size);
+}
+
+static inline void r_std_free(rpointer ptr)
+{
+	free((void*)ptr);
+}
+
+static inline rpointer r_std_realloc(rpointer ptr, size_t size)
+{
+	return realloc((void*)ptr, size);
+}
+
+rpointer r_malloc(size_t size)
+{
+	return r_std_malloc(size);
+}
+
+rpointer r_realloc(rpointer ptr, size_t size)
+{
+	return r_std_realloc(ptr, size);
+}
+
+rpointer r_calloc(size_t nmemb, size_t size)
+{
+	return r_std_calloc(nmemb, size);
+}
+
+void r_free(rpointer ptr)
+{
+	r_std_free(ptr);
+}
+
+rpointer r_zmalloc(size_t size)
+{
+	void *mem;
+
+	if ((mem = r_malloc(size)))
+		r_memset(mem, 0, size);
+	return mem;
+}
+
+rpointer r_memset(rpointer s, int32_t c, size_t n)
+{
+	return memset((void*)s, (int)c, n);
+}
+
+rpointer r_memcpy(rpointer dest, rconstpointer src, size_t n)
+{
+	return memcpy((void*)dest, (const void*)src, n);
+}
+
+rpointer r_memmove(rpointer dest, rconstpointer src, size_t n)
+{
+	return memmove((void*)dest, (const void*)src, n);
+}
+
+size_t r_debug_get_allocmem()
+{
+	return 0;
+}
+
+size_t r_debug_get_maxmem()
+{
+	return 0;
+}
+
+void r_debug_reset_maxmem()
+{
+
+}
+
+#endif
+

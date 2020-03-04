@@ -1215,7 +1215,8 @@ static int rpa_parseinfo_rule_checkforloop(rpadbex_t *dbex, const char *name, un
 
 static void rpa_dbex_buildloopinfo(rpadbex_t *dbex)
 {
-	unsigned int i, p;
+	size_t i;
+	long p;
 	rharray_t *rules = dbex->rules;
 	rpa_ruleinfo_t *info;
 
@@ -1445,7 +1446,7 @@ long rpa_dbex_load(rpadbex_t *dbex, const char *rules, unsigned long size)
 
 		return -1;
 	}
-	if (ret != size) {
+	if (ret != (long)size) {
 		long line = 1;
 		char *ptext = text;
 		ptext += ret;

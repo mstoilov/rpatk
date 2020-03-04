@@ -17,13 +17,15 @@ OS = $(shell uname | tr "[:upper:]" "[:lower:]")
 ifeq ($(DEBUG), no)
 CFLAGS += -O2
 else
-CFLAGS += -O0 -g
+CFLAGS += -O0 -ggdb -DR_DEBUG_MEMALLOC
+LDFLAGS += -ggdb
 endif
 
 ifeq ($(CCBLD), yes)
 CFLAGS += -fprofile-arcs -ftest-coverage
 endif
 
+CFLAGS += -Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -Wno-implicit-fallthrough
 
 # The gcc compiler bin path can be either defined in make command via GCC_PATH variable (> make GCC_PATH=xxx)
 # either it can be added to the PATH environment variable.

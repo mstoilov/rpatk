@@ -23,8 +23,10 @@
 #include "rlib/rstring.h"
 #include "rex/rextransition.h"
 
-
-rex_transition_t *rex_transitions_add_e(rarray_t *etrans, unsigned long srcuid, unsigned long dstuid)
+/*
+ * Add empty transition
+ */
+rex_transition_t *rex_transitions_add_e(rarray_t *etrans, size_t srcuid, size_t dstuid)
 {
 	rex_transition_t ntrans;
 
@@ -39,7 +41,7 @@ rex_transition_t *rex_transitions_add_e(rarray_t *etrans, unsigned long srcuid, 
 rex_transition_t *rex_transitions_find(rarray_t *trans, rexchar_t c)
 {
 	rex_transition_t *t;
-	long min, max, mid;
+	size_t min, max, mid;
 
 	if (r_array_empty(trans))
 		return NULL;
@@ -63,11 +65,11 @@ rex_transition_t *rex_transitions_find(rarray_t *trans, rexchar_t c)
 }
 
 
-rex_transition_t *rex_transitions_add(rarray_t *trans, rexchar_t c1, rexchar_t c2, unsigned long srcuid, unsigned long dstuid)
+rex_transition_t *rex_transitions_add(rarray_t *trans, rexchar_t c1, rexchar_t c2, size_t srcuid, size_t dstuid)
 {
 	rex_transition_t *t;
 	rex_transition_t ntrans;
-	long min, max, mid;
+	size_t min, max, mid;
 
 	if (c1 < c2) {
 		ntrans.lowin = c1;
@@ -97,9 +99,9 @@ rex_transition_t *rex_transitions_add(rarray_t *trans, rexchar_t c1, rexchar_t c
 /*
  * Source transitions must be normalized, for this functions to work properly
  */
-void rex_transitions_negative(rarray_t *dtrans, rarray_t *strans, unsigned long srcuid, unsigned long dstuid)
+void rex_transitions_negative(rarray_t *dtrans, rarray_t *strans, size_t srcuid, size_t dstuid)
 {
-	int i;
+	size_t i;
 	rex_transition_t *t, *p;
 
 	if (r_array_empty(strans)) {
@@ -126,10 +128,13 @@ void rex_transitions_negative(rarray_t *dtrans, rarray_t *strans, unsigned long 
 	}
 }
 
-
+/**
+ * Merge adjacent/overlapping transitions.
+ * Delete redundant transitions.
+ */
 void rex_transitions_normalize(rarray_t *trans)
 {
-	long i, j;
+	size_t i, j;
 	rex_transition_t *itrans, *jtrans;
 
 	for (i = 0; i < r_array_length(trans); i++) {
@@ -175,22 +180,9 @@ startover:
 }
 
 
-void rex_transitions_renamedestination(rarray_t *trans, long dstold, long dstnew)
-{
-	long index;
-	rex_transition_t *t;
-
-	for (index = 0; index < r_array_length(trans); index++) {
-		t = (rex_transition_t *)r_array_slot(trans, index);
-		if (t->dstuid == dstold)
-			t->dstuid = dstnew;
-	}
-}
-
-
 void rex_transitions_dump(rarray_t *trans)
 {
-	long index;
+	size_t index;
 	char buf[240];
 	int bufsize = sizeof(buf) - 1;
 	int n = 0;

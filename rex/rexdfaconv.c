@@ -27,7 +27,7 @@
 
 void rex_dfaconv_dumpsubset(rarray_t *subset)
 {
-	long index;
+	size_t index;
 	if (rex_subset_length(subset)) {
 		fprintf(stdout, " (");
 		for (index = 0; index < rex_subset_length(subset); index++) {
@@ -39,11 +39,11 @@ void rex_dfaconv_dumpsubset(rarray_t *subset)
 }
 
 
-static unsigned int rex_dfaconv_subsethash(rconstpointer key)
+static size_t rex_dfaconv_subsethash(rconstpointer key)
 {
 	rarray_t *subset = (rarray_t *)key;
-	unsigned long hash = 0;
-	long i;
+	size_t hash = 0;
+	size_t i;
 
 	for (i = 0; i < rex_subset_length(subset); i++)
 		hash = rex_subset_index(subset, i) + (hash << 6) + (hash << 16) - hash;
@@ -53,7 +53,7 @@ static unsigned int rex_dfaconv_subsethash(rconstpointer key)
 
 static rboolean rex_dfaconv_subsetequal(rconstpointer key1, rconstpointer key2)
 {
-	long j;
+	size_t j;
 	rarray_t *subset1 = (rarray_t *)key1;
 	rarray_t *subset2 = (rarray_t *)key2;
 
@@ -77,9 +77,9 @@ rexdfaconv_t *rex_dfaconv_create()
 
 	co = (rexdfaconv_t *)r_malloc(sizeof(*co));
 	r_memset(co, 0, sizeof(*co));
-	co->setT = r_array_create(sizeof(unsigned long));
-	co->setU = r_array_create(sizeof(unsigned long));
-	co->setV = r_array_create(sizeof(unsigned long));
+	co->setT = r_array_create(sizeof(size_t));
+	co->setU = r_array_create(sizeof(size_t));
+	co->setV = r_array_create(sizeof(size_t));
 	co->trans = r_array_create(sizeof(rex_transition_t));
 	co->temptrans = r_array_create(sizeof(rex_transition_t));
 	co->marked = r_array_create(sizeof(unsigned char));
@@ -106,18 +106,26 @@ void rex_dfaconv_destroy(rexdfaconv_t *co)
 	r_free(co);
 }
 
-
+/**
+ * Initialize the DFA state with NFA sub-states.
+ *
+ * @param state This is the DFA state and its substates will
+ * be filled.
+ * @param nfa  The NFA to which the set of states belongs.
+ * @param set  The set of NFA states used to fill the DFA state's sub-states.
+ * @return The number of sub-states.
+ */
 static long rex_dfaconv_setsubstates(rexstate_t *state, rexdb_t *nfa, rarray_t *set)
 {
-	long i;
-	unsigned long u;
+	size_t i;
+	size_t u;
 	rexstate_t *s;
 
 	rex_subset_clear(state->subset);
 	for (i = 0; i < r_array_length(set); i++) {
 		u = rex_subset_index(set, i);
 		s = rex_db_getstate(nfa, u);
-		rex_state_addsubstate(state, s);
+		rex_state_addsubstate_dst(state, s);
 		if (s->type == REX_STATETYPE_ACCEPT)
 			state->type = REX_STATETYPE_ACCEPT;
 	}
@@ -125,20 +133,20 @@ static long rex_dfaconv_setsubstates(rexstate_t *state, rexdb_t *nfa, rarray_t *
 }
 
 
-static void rex_dfaconv_mark(rexdfaconv_t *co, unsigned long uid)
+static void rex_dfaconv_mark(rexdfaconv_t *co, size_t uid)
 {
 	unsigned char marked = 1;
 	r_array_replace(co->marked, uid, &marked);
 }
 
-static void rex_dfaconv_unmark(rexdfaconv_t *co, unsigned long uid)
+static void rex_dfaconv_unmark(rexdfaconv_t *co, size_t uid)
 {
 	unsigned char marked = 0;
 	r_array_replace(co->marked, uid, &marked);
 }
 
 
-static rboolean rex_dfaconv_ismarked(rexdfaconv_t *co, unsigned long uid)
+static rboolean rex_dfaconv_ismarked(rexdfaconv_t *co, size_t uid)
 {
 	rboolean marked;
 	if (uid >= r_array_length(co->marked))
@@ -151,8 +159,8 @@ static rboolean rex_dfaconv_ismarked(rexdfaconv_t *co, unsigned long uid)
 
 static void rex_dfaconv_eclosure(rexdfaconv_t *co, rexdb_t *nfa, const rarray_t *src, rarray_t *dest)
 {
-	long i, j;
-	unsigned long uid;
+	size_t i, j;
+	size_t uid;
 	rexstate_t *s;
 	rex_transition_t *t;
 
@@ -185,10 +193,13 @@ static void rex_dfaconv_eclosure(rexdfaconv_t *co, rexdb_t *nfa, const rarray_t 
 	}
 }
 
-
-static void rex_dfaconv_getsubsettransitions(rexdfaconv_t *co, rexdb_t *nfa, rarray_t *states, rarray_t *trans)
+/**
+ * Iterate over the substates (substates parameter) and copy all transitions
+ * to the trans array
+ */
+static void rex_dfaconv_getsubsettransitions(rexdfaconv_t *co, rexdb_t *nfa, rarray_t *substates, rarray_t *trans)
 {
-	long i, j;
+	size_t i, j;
 	long uid;
 	rexstate_t *s;
 	rex_transition_t *t;
@@ -196,8 +207,8 @@ static void rex_dfaconv_getsubsettransitions(rexdfaconv_t *co, rexdb_t *nfa, rar
 
 	r_memset(&temp, 0, sizeof(temp));
 	r_array_setlength(trans, 0);
-	for (i = 0; i < r_array_length(states); i++) {
-		uid = rex_subset_index(states, i);
+	for (i = 0; i < r_array_length(substates); i++) {
+		uid = rex_subset_index(substates, i);
 		s = rex_db_getstate(nfa, uid);
 		for (j = 0; j < r_array_length(s->trans); j++) {
 			t = (rex_transition_t *)r_array_slot(s->trans, j);
@@ -208,11 +219,14 @@ static void rex_dfaconv_getsubsettransitions(rexdfaconv_t *co, rexdb_t *nfa, rar
 	}
 }
 
-
-static void rex_dfaconv_move(rexdfaconv_t *co, rexdb_t *nfa, const rarray_t *substates, unsigned long c1, unsigned long c2, rarray_t *moveset)
+/**
+ * Find all states that have transitions to the region [c1 - c2]
+ * and add them to the moveset.
+ */
+static void rex_dfaconv_move(rexdfaconv_t *co, rexdb_t *nfa, const rarray_t *substates, size_t c1, size_t c2, rarray_t *moveset)
 {
-	long i, j;
-	long uid;
+	size_t i, j;
+	size_t uid;
 	rexstate_t *s;
 	rex_transition_t *t;
 
@@ -229,10 +243,15 @@ static void rex_dfaconv_move(rexdfaconv_t *co, rexdb_t *nfa, const rarray_t *sub
 	}
 }
 
-
+/*
+ * Fill the dfa->substates. These are all the states
+ * of the NFA, now becoming substates in the DFA.
+ * Each DFA state will be created by subset of
+ * NFA states.
+ */
 static void rex_dfaconv_initsubstates(rexdb_t *dfa, rexdb_t *nfa)
 {
-	long i;
+	size_t i;
 	rexsubstate_t substate;
 	rexstate_t *s;
 	rarray_t *substates = dfa->substates;
@@ -240,16 +259,21 @@ static void rex_dfaconv_initsubstates(rexdb_t *dfa, rexdb_t *nfa)
 	r_array_setlength(substates, 0);
 	for (i = 0; i < r_array_length(nfa->states); i++) {
 		s = r_array_index(nfa->states, i, rexstate_t*);
+		substate.ss_uid = s->uid;
 		substate.ss_type = s->type;
 		substate.ss_userdata = s->userdata;
 		r_array_add(substates, &substate);
 	}
 }
 
-
+/**
+ * Insert a value only if it doesn't exist. While inserting a new
+ * value, keep the array ordered
+ *
+ */
 void rex_dfaconv_uniquerange_insertvalue(rarray_t *ranges, rexchar_t value)
 {
-	long min, max, mid;
+	size_t min, max, mid;
 	rexchar_t existingval;
 
 	min = 0;
@@ -268,10 +292,23 @@ void rex_dfaconv_uniquerange_insertvalue(rarray_t *ranges, rexchar_t value)
 	r_array_insert(ranges, min, &value);
 }
 
-
-void rex_dfaconv_uniqueranges(rexdfaconv_t *co, rarray_t *dest, rarray_t *src)
+/**
+ * Iterate over the src transitions and compile a list of unique ranges.
+ * The interpretation of the array is that we consider the sequence of
+ * numbers to represent ranges like the following example:
+ * Sequence: 0, 1, 5, 7, 12
+ * Ranges:  [0 - 1) [1 - 5) [5 - 7) [7 - 12) [12 - oo)
+ * 00 means the max unsigned integer value.
+ *
+ * Note: even a single number X is considered a range:
+ * [X, X+1)
+ *
+ * Note: the right brace is ')', meaning the number on the right
+ * doesn't belong to that range.
+ */
+static void rex_dfaconv_uniqueranges(rexdfaconv_t *co, rarray_t *src, rarray_t *dest)
 {
-	long i;
+	size_t i;
 	rex_transition_t *t;
 	rexchar_t zero = 0, low, high;
 
@@ -289,51 +326,105 @@ void rex_dfaconv_uniqueranges(rexdfaconv_t *co, rarray_t *dest, rarray_t *src)
 			high = REX_CHAR_MAX;
 		} else {
 			low = r_array_index(co->ranges, i, rexchar_t);
-			high = (rexchar_t)r_array_index(co->ranges, i+1, rexchar_t) - 1;
+			high = r_array_index(co->ranges, i+1, rexchar_t) - 1;
 		}
 		rex_transitions_add(dest, low, high, 0, 0);
 	}
 }
 
-
-rexdb_t *rex_dfaconv_run(rexdfaconv_t *co, rexdb_t *nfa, unsigned long start)
+/**
+ * Constructing a DFA from an NFA (``Subset Construction'')
+ *
+ * Each DFA state is composed by subset (one or more) NFA states.
+ *
+ * To perform this operation, we define two functions:
+ * The e-closure function takes a subset and extends it with states
+ * reachable from it based on (one or more) e-transitions.
+ *
+ * The move function takes a subset and a range [c1-c2] (for a single char
+ * the range is just [c1-c1]), and returns the set of states reachable
+ * by the transition on this range.
+ */
+rexdb_t *rex_dfaconv_run(rexdfaconv_t *co, rexdb_t *nfa, size_t start)
 {
-	long i, j;
-	rexdb_t *dfa = rex_db_create(REXDB_TYPE_DFA);
+	size_t i, j;
+	rexdb_t *dfa;
 	rexstate_t *s, *nextstate;
 	rex_transition_t *t;
-	long uid = rex_db_createstate(dfa, REX_STATETYPE_START);
-	long *uidptr;
+	size_t uid;
+	size_t *uidptr;
 
+	dfa = rex_db_create(REXDB_TYPE_DFA);
+	if (dfa == NULL)
+		return NULL;
 	rex_dfaconv_initsubstates(dfa, nfa);
+	/*
+	 * Create the DFA START state.
+	 */
+	uid = rex_db_createstate(dfa, REX_STATETYPE_START);
 	s = rex_db_getstate(dfa, uid);
 	rex_subset_clear(co->setU);
 	rex_subset_push(co->setU, start);
 	rex_dfaconv_eclosure(co, nfa, co->setU, s->subset);
-	r_hash_insert(co->hash, s->subset, &s->uid);
+	r_hash_insert_object(co->hash, s->subset, &s->uid);
 
 	for (i = 0; i < r_array_length(dfa->states); i++) {
 		s = r_array_index(dfa->states, i, rexstate_t*);
+
+		/*
+		 * Copy the state subset transitions to co->temptrans array.
+		 */
+		r_array_setlength(co->temptrans, 0);
 		rex_dfaconv_getsubsettransitions(co, nfa, s->subset, co->temptrans);
-		rex_dfaconv_uniqueranges(co, co->trans, co->temptrans);
+		/*
+		 * Transform the transitions into unique ranges
+		 */
+		rex_dfaconv_uniqueranges(co, co->temptrans, co->trans);
+		/*
+		 * Iterate over the transition ranges and find out
+		 * which states are reachable for a given range.
+		 */
 		for (j = 0; j < r_array_length(co->trans); j++) {
 			t = (rex_transition_t *)r_array_slot(co->trans, j);
+			/*
+			 * From the s->subset find out which states are reachable
+			 * throw transition [t->lowin, t->highin] and move those
+			 * states to co->setU
+			 */
 			rex_dfaconv_move(co, nfa, s->subset, t->lowin, t->highin, co->setU);
 			if (!rex_subset_length(co->setU)) {
+				/*
+				 * If the co->setU is empty this transition points
+				 * to the dead state "0"
+				 */
 				rex_state_addtransition(s, t->lowin, t->highin, 0);
 				continue;
 			}
+			/*
+			 * Perform the eclosure function and find out which new
+			 * states are reachable through one or more empty transitions
+			 * and create the co->setV. The final set of sub-states
+			 * stored in the co->setV forms a new DFA state.
+			 */
 			rex_dfaconv_eclosure(co, nfa, co->setU, co->setV);
-			uidptr = r_hash_lookup(co->hash, co->setV);
-			uid = uidptr ? *uidptr : -1;
-			if (uid < 0) {
+			/*
+			 * Find out if this DFA state already exists, if so
+			 * use it. Otherwise create a brand new DFA state
+			 * represented by the co->setV substates.
+			 */
+			uidptr = r_hash_lookup_object(co->hash, co->setV);
+			uid = uidptr ? *uidptr : (size_t)-1;
+			if (uid == (size_t)-1) {
 				uid = rex_db_createstate(dfa, REX_STATETYPE_NONE);
 				nextstate = rex_db_getstate(dfa, uid);
 				rex_dfaconv_setsubstates(nextstate, nfa, co->setV);
-				r_hash_insert(co->hash, nextstate->subset, &nextstate->uid);
+				r_hash_insert_object(co->hash, nextstate->subset, &nextstate->uid);
 			}
 			rex_state_addtransition(s, t->lowin, t->highin, uid);
 		}
+		/*
+		 * Normalize the transitions. Merge and eliminate redundant transition regions.
+		 */
 		rex_transitions_normalize(s->trans);
 	}
 	return dfa;
