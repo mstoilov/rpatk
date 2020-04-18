@@ -1,0 +1,10 @@
+#!noemit term
+#!noemit mulex
+
+int     ::= [0-9]+
+term	::= <:int:> | '(' <:expr:> ')'
+mulop   ::= ('*' | '/')
+addop   ::= ('+' | '-')
+mulex	::= <:mulex:> <:mulop:> <:term:>  | <:term:>
+expr	::= <:expr:>  <:addop:> <:mulex:> | <:mulex:>
+numexpr	::= <:expr:>
