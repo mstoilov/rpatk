@@ -1,0 +1,7 @@
+#!noemit term
+#!noemit mulex
+
+term	::= [0-9]+ | '(' <:expr:> ')'
+mulex	::= <:mulex:> ('*' | '/') <:term:>  | <:term:>
+expr	::= <:expr:>  ('+' | '-') <:mulex:> | <:mulex:>
+numexpr	::= <:expr:>
