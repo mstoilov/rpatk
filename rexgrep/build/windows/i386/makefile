@@ -62,7 +62,7 @@ RGREP_OBJS= \
 	"$(OUTDIR)\rexgrep.obj" \
 	"$(OUTDIR)\fsenumwin.obj" \
 	"$(OUTDIR)\rexgrepdep.obj" \
-	"$(OUTDIR)\main.obj" \
+	"$(OUTDIR)\rexgrep-main.obj" \
 	
 
 ALL : "$(OUTDIR)\$(RGREP)"
@@ -95,6 +95,6 @@ SOURCE="$(DEPSRC_DIR)\fsenumwin.c"
 "$(OUTDIR)\fsenumwin.obj" : $(SOURCE) "$(OUTDIR)"
 	$(CPP) $(CPP_FLAGS) $(SOURCE)
 
-SOURCE="$(SRC_DIR)\main.c"
-"$(OUTDIR)\main.obj" : $(SOURCE) "$(OUTDIR)"
+SOURCE="$(SRC_DIR)\rexgrep-main.c"
+"$(OUTDIR)\rexgrep-main.obj" : $(SOURCE) "$(OUTDIR)"
 	$(CPP) $(CPP_FLAGS) $(SOURCE)

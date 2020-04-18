@@ -296,7 +296,7 @@ rstring_t *r_string_create_from_double(double d)
 }
 
 
-rstring_t *r_string_create_from_int(int64_t l)
+rstring_t *r_string_create_from_int(rint64 l)
 {
 	char temp[128];
 	int size;

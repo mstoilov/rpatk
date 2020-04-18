@@ -57,7 +57,7 @@ rlist_t *r_list_last(rlist_t *phead);
 rlist_t *r_list_prev(rlist_t *phead, rlist_t *pelem);
 rlist_t *r_list_next(rlist_t *phead, rlist_t *pelem);
 void r_list_splice(rlist_t *plist, rlist_t *phead);
-uint32_t r_list_count(rlist_t *phead);
+ruint32 r_list_count(rlist_t *phead);
 
 
 #ifdef __cplusplus

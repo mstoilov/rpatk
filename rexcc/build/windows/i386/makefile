@@ -59,7 +59,7 @@ LINK32=link.exe
 LINK32_FLAGS=$(LIBS) kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ws2_32.lib /nologo /subsystem:console /incremental:no /machine:I386 $(LINK_DEBUG)
 
 REXCC_OBJS= \
-	"$(OUTDIR)\main.obj" \
+	"$(OUTDIR)\rexccmain.obj" \
 	"$(OUTDIR)\rexcc.obj" \
 	"$(OUTDIR)\rexccdep.obj" \
 
@@ -90,6 +90,6 @@ SOURCE="$(DEPSRC_DIR)\rexccdep.c"
 "$(OUTDIR)\rexccdep.obj" : $(SOURCE) "$(OUTDIR)"
 	$(CPP) $(CPP_FLAGS) $(SOURCE)
 
-SOURCE="$(SRC_DIR)\main.c"
-"$(OUTDIR)\main.obj" : $(SOURCE) "$(OUTDIR)"
+SOURCE="$(SRC_DIR)\rexccmain.c"
+"$(OUTDIR)\rexccmain.obj" : $(SOURCE) "$(OUTDIR)"
 	$(CPP) $(CPP_FLAGS) $(SOURCE)

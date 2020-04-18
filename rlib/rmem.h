@@ -34,7 +34,7 @@ rpointer r_realloc(rpointer ptr, size_t size);
 rpointer r_calloc(size_t nmemb, size_t size);
 void r_free(rpointer ptr);
 rpointer r_zmalloc(size_t size);
-rpointer r_memset(rpointer s, int32_t c, size_t n);
+rpointer r_memset(rpointer s, rint32 c, size_t n);
 rpointer r_memcpy(rpointer dest, rconstpointer src, size_t n);
 rpointer r_memmove(rpointer dest, rconstpointer src, size_t n);
 size_t r_debug_get_allocmem();
