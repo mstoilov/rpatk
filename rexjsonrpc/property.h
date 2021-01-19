@@ -1,8 +1,22 @@
 /*
- * rpcproperty.h
+ *  Sigmadrone
+ *  Copyright (c) 2013-2015 The Sigmadrone Developers
  *
- *  Created on: Oct 22, 2019
- *      Author: mstoilov
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  Martin Stoilov <martin@sigmadrone.org>
+ *  Svetoslav Vassilev <svassilev@sigmadrone.org>
  */
 
 #ifndef RPCPROPERTY_H_
@@ -10,7 +24,7 @@
 
 #include <assert.h>
 #include <functional>
-#include "rexjson++.h"
+#include "rexjson/rexjson++.h"
 
 namespace rexjson {
 
@@ -135,7 +149,13 @@ public:
 	set_prop_impl(U* prop, const rexjson::value& val)
 	{
 		if (val.get_type() == rexjson::int_type) {
-			*prop = val.get_int();
+			*prop = val.get_int64();
+		} else if (val.get_type() == rexjson::real_type) {
+			*prop = (U)val.get_real();
+		} else if (val.get_type() == rexjson::bool_type) {
+			*prop = val.get_bool() ? 1 : 0;
+		} else {
+			throw std::runtime_error("Invalid property type.");
 		}
 	}
 
@@ -370,7 +390,10 @@ public:
 
 	virtual property& operator[](const std::string& name)
 	{
-		return map_.operator [](name);
+		std::map<std::string, property>::iterator it = map_.find(name);
+		if (it == map_.end())
+			throw std::runtime_error("Invalid property: " + name);
+		return it->second;
 	}
 
 	virtual property& push_back(const property& v) override

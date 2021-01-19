@@ -26,7 +26,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <functional>
-#include "rexjson++.h"
+#include "rexjson/rexjson++.h"
 
 #ifndef ARRAYSIZE
 #define ARRAYSIZE(x) (sizeof(x)/sizeof(x[0]))
@@ -171,6 +171,12 @@ rpc_wrapper<Ret, Args...> make_rpc_wrapper(Ret (&f)(Args...), std::string help_m
 
 template<typename Ret, typename C, typename ...Args>
 rpc_wrapper<Ret, Args...> make_rpc_wrapper(C* object, Ret (C::*f)(Args...), std::string help_msg = std::string())
+{
+	return rpc_wrapper<Ret, Args...>([=](Args... args)->Ret {return (object->*f)(args...);}, help_msg);
+}
+
+template<typename Ret, typename C, typename ...Args>
+rpc_wrapper<Ret, Args...> make_rpc_wrapper_const(const C* object, Ret (C::*f)(Args...) const, std::string help_msg = std::string())
 {
 	return rpc_wrapper<Ret, Args...>([=](Args... args)->Ret {return (object->*f)(args...);}, help_msg);
 }
