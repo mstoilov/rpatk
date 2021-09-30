@@ -147,6 +147,19 @@ do { \
 	__shift__ = (__shift__ & REX_DFA_HASHMASK(__bytes__, __bitsperbyte__)); \
 } while (0)
 
+static const char* rex_grep_next_char(const char* input, const char* end)
+{
+	ruint32 wc = *input;
+	if (wc >= 0x80) {
+		int ret = r_utf8_mbtowc(&wc, (const unsigned char*)input, (const unsigned char*)end);
+		if (ret <= 0)
+			ret = 1;
+		input += ret;
+	} else {
+		input += 1;
+	}
+	return input;
+}
 
 static int rex_grep_dfascan(rexgrep_t *pGrep, const char* start, const char* end, int alloutput)
 {
@@ -172,15 +185,11 @@ static int rex_grep_dfascan(rexgrep_t *pGrep, const char* start, const char* end
 			ret = rex_grep_dfamatch(pGrep, input, end);
 
 		if (ret == 0) {
-			ruint32 wc = *input;
-			if (wc >= 0x80) {
-				ret = r_utf8_mbtowc(&wc, (const unsigned char*)input, (const unsigned char*)end);
-				if (ret <= 0)
-					ret = 1;
-				input += ret;
-			} else {
-				input += 1;
-			}
+			/*
+			 * rex_grep_dfamatch didn't match anything.
+			 * Move the `input` to the next character in the stream.
+			 */
+			input = rex_grep_next_char(input, end);
 
 			if (nextshift < end && ((unsigned char)*nextshift) < 0x80) {
 				shifter <<= REX_HASH_BITS;

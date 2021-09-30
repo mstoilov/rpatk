@@ -27,7 +27,6 @@ typedef unsigned int rexuint_t;
 typedef REX_UINT_TYPE rexuint_t;
 #endif
 
-
 #ifndef REX_CHAR_TYPE
 typedef unsigned int rexchar_t;
 #else

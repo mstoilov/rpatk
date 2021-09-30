@@ -10,7 +10,7 @@ ifndef RPATK_INC_INSTALL
 RPATK_INC_INSTALL = ${RPATK_INSTALL_PREFIX}/usr/include/rpatk
 endif
 
-DEBUG ?= yes
+DEBUG ?= no
 ARCH ?= x86_64
 OS = $(shell uname | tr "[:upper:]" "[:lower:]")
 
@@ -23,6 +23,10 @@ endif
 
 ifeq ($(CCBLD), yes)
 CFLAGS += -fprofile-arcs -ftest-coverage
+endif
+
+ifeq ($(UNICODECFG), no)
+CFLAGS += -DREX_CHAR_TYPE="unsigned char"
 endif
 
 CFLAGS += -Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -Wno-implicit-fallthrough

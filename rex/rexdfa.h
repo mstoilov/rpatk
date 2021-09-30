@@ -36,9 +36,9 @@
 extern "C" {
 #endif
 
-#define REX_DFA_HASHBITS(__bytes__, __bitsperbyte__) ((__bytes__) * (__bitsperbyte__))
-#define REX_DFA_HASHSIZE(__bytes__, __bitsperbyte__) (1 << REX_DFA_HASHBITS(__bytes__, __bitsperbyte__))
-#define REX_DFA_HASHMASK(__bytes__, __bitsperbyte__) (REX_DFA_HASHSIZE(__bytes__, __bitsperbyte__) - 1)
+#define REX_DFA_HASHBITS(__bytes__, __bitsperbyte__) ((__bytes__) * (__bitsperbyte__))						/* Number of hashbits */
+#define REX_DFA_HASHSIZE(__bytes__, __bitsperbyte__) (1 << REX_DFA_HASHBITS(__bytes__, __bitsperbyte__))	/* The size of the bit array in bits. */
+#define REX_DFA_HASHMASK(__bytes__, __bitsperbyte__) (REX_DFA_HASHSIZE(__bytes__, __bitsperbyte__) - 1)		/* Mask with the number of hash bits set to 1 */
 
 #define REX_BITARRAY_BYTE(__arr__, __entry__) (((unsigned char*)__arr__)[((unsigned int)(__entry__))>>3])
 #define REX_BITARRAY_GET(__arr__, __entry__) ((((unsigned char*)__arr__)[((unsigned int)(__entry__))>>3] & (1 << (((unsigned int)(__entry__)) & 0x7))) ? 1 : 0)
