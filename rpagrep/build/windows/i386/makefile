@@ -39,13 +39,13 @@ INCLUDE_DIRS=/I"$(SRC_DIR)" /I"$(SRC_DIR)\win32" /I"$(RPATK_DIR)" /I"$(RPATK_DIR
 !IF "$(BLDCFG)" == "release"
 
 OUTDIR=.\out
-CPP_FLAGS=/nologo $(INCLUDE_DIRS) /Zp1 /ML /W3 /EHsc /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_UNICODE" /D "UNICODE" /YX /Fo"$(OUTDIR)\\" /FD /c
+CPP_FLAGS=/nologo $(INCLUDE_DIRS)  /ML /W3 /EHsc /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_UNICODE" /D "UNICODE" /YX /Fo"$(OUTDIR)\\" /FD /c
 LINK_DEBUG=
 
 !ELSEIF  "$(BLDCFG)" == "debug"
 
 OUTDIR=.\out
-CPP_FLAGS=/nologo $(INCLUDE_DIRS) /Zp1 /MLd  /Zi /W3  /EHsc  /Od /D "WIN32" /D "_DEBUG" /D "DEBUG" /D "_CONSOLE" /D "_UNICODE" /D "UNICODE" /YX /Fo"$(OUTDIR)\\" /FD  /c
+CPP_FLAGS=/nologo $(INCLUDE_DIRS)  /MLd  /Zi /W3  /EHsc  /Od /D "WIN32" /D "_DEBUG" /D "DEBUG" /D "_CONSOLE" /D "_UNICODE" /D "UNICODE" /YX /Fo"$(OUTDIR)\\" /FD  /c
 LINK_DEBUG=/DEBUG
 
 !ENDIF

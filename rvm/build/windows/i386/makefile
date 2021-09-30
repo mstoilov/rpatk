@@ -36,12 +36,12 @@ INCLUDE_DIRS=/I"$(RPATK_DIR)" /I"$(RPATK_DIR)\arch\$(PORT)\$(ARCH)"
 !IF "$(BLDCFG)" == "release"
 
 OUTDIR=.\out
-CPP_FLAGS=/nologo $(INCLUDE_DIRS) /Zp1 /W3 /EHsc /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /Fo"$(OUTDIR)\\" /FD /c 
+CPP_FLAGS=/nologo $(INCLUDE_DIRS)  /W3 /EHsc /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /Fo"$(OUTDIR)\\" /FD /c 
 
 !ELSEIF  "$(BLDCFG)" == "debug"
 
 OUTDIR=.\out
-CPP_FLAGS=/nologo $(INCLUDE_DIRS) /Zp1 /Zi /W3 /EHsc  /Od /D "WIN32" /D "_DEBUG" /D "DEBUG" /D "_CONSOLE" /Fo"$(OUTDIR)\\" /FD  /c
+CPP_FLAGS=/nologo $(INCLUDE_DIRS)  /Zi /W3 /EHsc  /Od /D "WIN32" /D "_DEBUG" /D "DEBUG" /D "_CONSOLE" /Fo"$(OUTDIR)\\" /FD  /c
 
 !ENDIF
 
