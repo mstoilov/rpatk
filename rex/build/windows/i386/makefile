@@ -44,6 +44,12 @@ CPP_FLAGS=/nologo $(INCLUDE_DIRS)  /Zi /W3 /EHsc  /Od /D "WIN32" /D "_DEBUG" /D 
 
 !ENDIF
 
+!IF "$(UNICODECFG)" == "no"
+
+CPP_FLAGS=$(CPP_FLAGS) /D "REX_CHAR_TYPE=unsigned char"
+
+!ENDIF
+
 CPP_FLAGS=$(CPP_FLAGS)
 
 !IF "$(DBG_CONSOLE)" == "shut"
