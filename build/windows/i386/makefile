@@ -1,5 +1,5 @@
 !IF "$(BLDCFG)" == ""
-BLDCFG=debug
+BLDCFG=release
 !ENDIF 
 
 !IF "$(BLDCFG)" != "release" && "$(BLDCFG)" != "debug"
